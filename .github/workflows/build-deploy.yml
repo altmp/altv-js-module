@@ -27,9 +27,9 @@ jobs:
           cmake -G"Visual Studio 16" -A x64 -DJS_MODULE_VERSION=$VERSION ..
           cmake --build . --config Release
           popd
-          mkdir dist
-          copy build\Release\js-module.dll dist
-          copy deps\nodejs\lib\Release\libnode.dll dist
+          mkdir dist\modules\js-module
+          copy build\Release\js-module.dll dist\modules\js-module
+          copy deps\nodejs\lib\Release\libnode.dll dist\modules\js-module
         env:
           VERSION: ${{ steps.version.outputs.VERSION }}
 
@@ -59,9 +59,9 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-8 -DJS_MODULE_VERSION=%VERSION% ..
           cmake --build . --config Release
           cd ..
-          mkdir dist
-          cp ./build-linux/libjs-module.so dist/
-          cp ./deps/nodejs/lib/libnode.so dist/
+          mkdir -p dist/modules/js-module
+          cp ./build-linux/libjs-module.so dist/modules/js-module
+          cp ./deps/nodejs/lib/libnode.so dist/modules/js-module
         env:
           VERSION: ${{ steps.version.outputs.VERSION }}
 
@@ -144,8 +144,8 @@ jobs:
       
       - name: Zip artifacts
         run: |
-          zip -r js-module-windows dist-windows
-          zip -r js-module-linux dist-linux
+          zip -r -j js-module-windows dist-windows
+          zip -r -j js-module-linux dist-linux
 
       - name: Extract version
         id: version
