@@ -1,0 +1,180 @@
+name: Build & deploy
+on:
+  create:
+    tags:
+      - '*/*'
+
+jobs:
+  build-windows:
+    name: Build windows release
+    runs-on: windows-2019
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          lfs: true
+
+      - name: Extract version
+        id: version
+        shell: bash
+        run: echo ::set-output name=SOURCE_NAME::${GITHUB_REF/refs\/tags\//}
+
+      - name: Build
+        run: |
+          mkdir build
+          pushd build
+          cmake -G"Visual Studio 16" -A x64 -DJS_MODULE_VERSION=$VERSION ..
+          cmake --build . --config Release
+          popd
+          mkdir dist
+          copy build\Release\js-module.dll dist
+          copy deps\nodejs\lib\Release\libnode.dll dist
+        env:
+          VERSION: ${{ steps.version.outputs.VERSION }}
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: js-module-windows
+          path: ./dist/
+
+  build-linux:
+    name: Build linux release
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          lfs: true
+
+      - name: Extract version
+        id: version
+        shell: bash
+        run: echo ::set-output name=SOURCE_NAME::${GITHUB_REF/refs\/tags\//}
+
+      - name: Build
+        run: |
+          mkdir build-linux && cd build-linux
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-8 -DJS_MODULE_VERSION=%VERSION% ..
+          cmake --build . --config Release
+          cd ..
+          mkdir dist
+          cp ./build-linux/libjs-module.so dist/
+          cp ./deps/nodejs/lib/libnode.so dist/
+        env:
+          VERSION: ${{ steps.version.outputs.VERSION }}
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: js-module-linux
+          path: ./dist/
+
+  deploy-cdn:
+    name: Deploy release to alt:V CDN
+    runs-on: ubuntu-18.04
+    needs: [build-linux, build-windows]
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}
+          
+      - name: Download windows artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: js-module-windows
+          path: dist-windows
+          
+      - name: Download linux artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: js-module-linux
+          path: dist-linux
+
+      - name: Extract version
+        id: version
+        shell: bash
+        run: |
+          TAG=${GITHUB_REF/refs\/tags\//}
+          echo ::set-output name=BRANCH::${TAG/\/*}
+          echo ::set-output name=VERSION::${TAG/*\/}
+
+      - name: Install upload tool
+        run: npm i @altv/upload-tool
+
+      - name: Deploy windows artifacts to cdn
+        run: npx alt-upload dist-windows js-module/$BRANCH/x64_win32 $VERSION
+        env:
+          CI_UPLOAD_URL: ${{ secrets.CI_UPLOAD_URL }}
+          CI_DEPLOY_TOKEN: ${{ secrets.CI_DEPLOY_TOKEN }}
+          BRANCH: ${{ steps.version.outputs.BRANCH }}
+          VERSION: ${{ steps.version.outputs.VERSION }}
+
+      - name: Deploy linux artifacts to cdn
+        run: npx alt-upload dist-linux js-module/$BRANCH/x64_linux $VERSION
+        env:
+          CI_UPLOAD_URL: ${{ secrets.CI_UPLOAD_URL }}
+          CI_DEPLOY_TOKEN: ${{ secrets.CI_DEPLOY_TOKEN }}
+          BRANCH: ${{ steps.version.outputs.BRANCH }}
+          VERSION: ${{ steps.version.outputs.VERSION }}
+
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-18.04
+    needs: [build-linux, build-windows]
+    steps:
+      - name: Download windows artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: js-module-windows
+          path: dist-windows
+          
+      - name: Download linux artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: js-module-linux
+          path: dist-linux
+      
+      - name: Zip artifacts
+        run: |
+          zip -r js-module-windows dist-windows
+          zip -r js-module-linux dist-linux
+
+      - name: Display structure of downloaded files
+        run: ls -R
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ steps.tag_name.outputs.tag }}
+
+      - name: Upload windows artifacts
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./js-module-windows.zip
+          asset_name: js-module-windows.zip
+          asset_content_type: application/zip
+
+      - name: Upload linux artifacts
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./js-module-linux.zip
+          asset_name: js-module-linux.zip
+          asset_content_type: application/zip
