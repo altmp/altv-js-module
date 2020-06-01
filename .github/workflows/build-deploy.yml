@@ -18,7 +18,7 @@ jobs:
       - name: Extract version
         id: version
         shell: bash
-        run: echo ::set-output name=SOURCE_NAME::${GITHUB_REF/refs\/tags\//}
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
 
       - name: Build
         run: |
@@ -51,7 +51,7 @@ jobs:
       - name: Extract version
         id: version
         shell: bash
-        run: echo ::set-output name=SOURCE_NAME::${GITHUB_REF/refs\/tags\//}
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
 
       - name: Build
         run: |
