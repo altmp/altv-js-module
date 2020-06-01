@@ -73,7 +73,12 @@ namespace V8::Vehicle
 		V8_CHECK(_this, "entity is invalid");
 
 		Ref<IVehicle> vehicle = _this->GetHandle().As<IVehicle>();
-
+		if (vehicle->GetModKit() == 0) {
+			vehicle->SetModKit(1);
+		}
+		if (vehicle->GetMod(22) == 0) {
+			vehicle->SetMod(22, 1);
+		}
 		vehicle->SetHeadlightColor(value->ToInteger(info.GetIsolate())->Value());
 	}
 
