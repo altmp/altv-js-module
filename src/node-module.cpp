@@ -37,23 +37,23 @@ static void CommandHandler(alt::StringView cmd, alt::Array<alt::StringView> args
 {
 	if (args.GetSize() > 0 && args[0] == "--version")
 	{
-		Log::Colored << "~ly~" NODEMODULE_VERSION << Log::Endl;
-		Log::Colored << "~ly~" NODEMODULE_COPYRIGHT << Log::Endl;
+		Log::Colored << "~ly~js-module: " << JS_MODULE_VERSION << Log::Endl;
+		Log::Colored << "~ly~" JS_MODULE_COPYRIGHT << Log::Endl;
 
-		Log::Colored << "~ly~" NODEJS_VERSION << Log::Endl;
+		Log::Colored << "~ly~nodejs: " NODEJS_VERSION << Log::Endl;
 		Log::Colored << "~ly~" NODEJS_COPYRIGHT << Log::Endl;
 	}
 	else if (args.GetSize() > 0 && args[0] == "--help")
 	{
-		Log::Colored << "~y~Usage: ~w~node-module [options]" << Log::Endl;
+		Log::Colored << "~y~Usage: ~w~js-module [options]" << Log::Endl;
 		Log::Colored << "~y~Options:" << Log::Endl;
 		Log::Colored << "  ~ly~--help    ~w~- this message." << Log::Endl;
 		Log::Colored << "  ~ly~--version ~w~- version info." << Log::Endl;
 	}
 	else
 	{
-		Log::Colored << "~y~Usage: ~w~node-module [options]" << Log::Endl;
-		Log::Colored << "  Use: ~ly~\"node-module --help\" ~w~for more info" << Log::Endl;
+		Log::Colored << "~y~Usage: ~w~js-module [options]" << Log::Endl;
+		Log::Colored << "  Use: ~ly~\"js-module --help\" ~w~for more info" << Log::Endl;
 	}
 }
 
@@ -70,7 +70,7 @@ EXPORT bool altMain(alt::ICore* _core)
 	auto& runtime = CNodeScriptRuntime::Instance();
 
 	apiCore.RegisterScriptRuntime("js", &runtime);
-	apiCore.SubscribeCommand("node-module", &CommandHandler);
+	apiCore.SubscribeCommand("js-module", &CommandHandler);
 
 	return true;
 }
