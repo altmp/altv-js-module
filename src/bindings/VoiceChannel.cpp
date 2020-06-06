@@ -139,36 +139,21 @@ static void IsPlayerMuted(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8_CHECK(info.Length() == 2, "2 args expected");
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	v8::Local<v8::Boolean> isSpatial = info[0]->ToBoolean(isolate);
-	v8::Local<v8::Number> maxDistance = info[1]->ToNumber(isolate);
-
-	Ref<IVoiceChannel> ch = ICore::Instance().CreateVoiceChannel(isSpatial->Value(), maxDistance->Value());
-
-	if (ch)
-		resource->BindEntity(info.This(), ch.Get());
-	else
-		V8Helpers::Throw(isolate, "Failed to create VoiceChannel");
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_CHECK_ARGS_LEN(2);
+	V8_TO_BOOLEAN(1, isSpatial);
+	V8_TO_NUMBER(2, maxDistance);
+	V8_BIND_BASE_OBJECT(ICore::Instance().CreateVoiceChannel(isSpatial, maxDistance),
+		"Failed to create VoiceChannel, make sure voice chat is enabled");
 }
 
 static V8Class v8VoiceChannel("VoiceChannel", "BaseObject", Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-	v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
-
-	//Common getter/setters
-	//proto->SetAccessor(v8::String::NewFromUtf8(isolate, "population"), &PopulationGetter);
-
-	proto->Set(v8::String::NewFromUtf8(isolate, "addPlayer"), v8::FunctionTemplate::New(isolate, &AddPlayer));
-	proto->Set(v8::String::NewFromUtf8(isolate, "removePlayer"), v8::FunctionTemplate::New(isolate, &RemovePlayer));
-	proto->Set(v8::String::NewFromUtf8(isolate, "isPlayerInChannel"), v8::FunctionTemplate::New(isolate, &IsPlayerInChannel));
-	proto->Set(v8::String::NewFromUtf8(isolate, "mutePlayer"), v8::FunctionTemplate::New(isolate, &MutePlayer));
-	proto->Set(v8::String::NewFromUtf8(isolate, "unmutePlayer"), v8::FunctionTemplate::New(isolate, &UnmutePlayer));
-	proto->Set(v8::String::NewFromUtf8(isolate, "isPlayerMuted"), v8::FunctionTemplate::New(isolate, &IsPlayerMuted));
+	V8::SetMethod(isolate, tpl, "addPlayer", &AddPlayer);
+	V8::SetMethod(isolate, tpl, "removePlayer", &RemovePlayer);
+	V8::SetMethod(isolate, tpl, "isPlayerInChannel", &IsPlayerInChannel);
+	V8::SetMethod(isolate, tpl, "mutePlayer", &MutePlayer);
+	V8::SetMethod(isolate, tpl, "unmutePlayer", &UnmutePlayer);
+	V8::SetMethod(isolate, tpl, "isPlayerMuted", &IsPlayerMuted);
 });
