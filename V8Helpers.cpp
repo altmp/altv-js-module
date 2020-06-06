@@ -467,30 +467,42 @@ v8::Local<v8::String> V8::RGBA_AKey(v8::Isolate* isolate)
 	return aKey.Get(isolate);
 }
 
-bool V8::SafeToBoolean(v8::Local<v8::Value> val, v8::Isolate* isolate, bool* out)
+bool V8::SafeToBoolean(v8::Local<v8::Value> val, v8::Isolate* isolate, bool& out)
 {
-	*out = val->ToBoolean(isolate)->Value();
+	out = val->ToBoolean(isolate)->Value();
 	return true;
 }
 
-bool V8::SafeToNumber(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, double* out)
+bool V8::SafeToInteger(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, int64_t& out)
 {
-	v8::MaybeLocal maybeNumber = val->ToNumber(ctx);
-	if (!maybeNumber.IsEmpty())
+	v8::MaybeLocal maybeVal = val->ToInteger(ctx);
+	if (!maybeVal.IsEmpty())
 	{
-		*out = maybeNumber.ToLocalChecked()->Value();
+		out = maybeVal.ToLocalChecked()->Value();
 		return true;
 	}
 
 	return false;
 }
 
-bool V8::SafeToString(v8::Local<v8::Value> val, v8::Isolate* isolate, v8::Local<v8::Context> ctx, alt::String* out)
+bool V8::SafeToNumber(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, double& out)
 {
-	v8::MaybeLocal maybeString = val->ToString(ctx);
-	if (!maybeString.IsEmpty())
+	v8::MaybeLocal maybeVal = val->ToNumber(ctx);
+	if (!maybeVal.IsEmpty())
 	{
-		*out = *v8::String::Utf8Value(isolate, maybeString.ToLocalChecked());
+		out = maybeVal.ToLocalChecked()->Value();
+		return true;
+	}
+
+	return false;
+}
+
+bool V8::SafeToString(v8::Local<v8::Value> val, v8::Isolate* isolate, v8::Local<v8::Context> ctx, alt::String& out)
+{
+	v8::MaybeLocal maybeVal = val->ToString(ctx);
+	if (!maybeVal.IsEmpty())
+	{
+		out = *v8::String::Utf8Value(isolate, maybeVal.ToLocalChecked());
 		return true;
 	}
 

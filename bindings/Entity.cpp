@@ -315,57 +315,27 @@ static void DeleteStreamSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& in
 
 static void ScriptIDGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	alt::Ref<CNetworkEntity> entity = _this->GetHandle().As<CNetworkEntity>();
-	info.GetReturnValue().Set(v8::Integer::New(isolate, entity->GetScriptID()));
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(_this, IEntity);
+	V8_RETURN_INTEGER(_this->GetScriptGuid());
 }
 
 static void StaticGetByScriptID(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
-	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
-
-	V8_CHECK(info.Length() == 1, "1 arg expected");
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	uint16_t scriptID = info[0]->ToInteger(ctx).ToLocalChecked()->Value();
-	alt::Ref<alt::IEntity> entity = CGame::Instance().GetEntityByScriptID(scriptID);
-
-	if (entity)
-		info.GetReturnValue().Set(resource->GetOrCreateEntity(entity.Get(), "Entity")->GetJSVal());
-	else
-		info.GetReturnValue().Set(v8::Null(isolate));
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_INTEGER(1, scriptGuid);
+	V8_RETURN_BASE_OBJECT(alt::ICore::Instance().GetEntityByScriptGuid(scriptGuid));
 }
 
 #endif // ALT_CLIENT_API
 
 static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
-	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
-
-	V8_CHECK(info.Length() == 1, "1 arg expected");
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	uint16_t id = info[0]->ToInteger(ctx).ToLocalChecked()->Value();
-
-	alt::Ref<alt::IEntity> entity = alt::ICore::Instance().GetEntityByID(id);
-
-	if (entity)
-		info.GetReturnValue().Set(resource->GetOrCreateEntity(entity.Get(), "Entity")->GetJSVal());
-	else
-		info.GetReturnValue().Set(v8::Null(isolate));
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_INTEGER(1, id);
+	V8_RETURN_BASE_OBJECT(alt::ICore::Instance().GetEntityByID(id));
 }
 
 static V8Class v8entity("Entity", "WorldObject", nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {

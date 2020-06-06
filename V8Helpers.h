@@ -197,9 +197,10 @@ namespace V8
 	v8::Local<v8::String> RGBA_BKey(v8::Isolate* isolate);
 	v8::Local<v8::String> RGBA_AKey(v8::Isolate* isolate);
 
-	bool SafeToBoolean(v8::Local<v8::Value> val, v8::Isolate* isolate, bool* out);
-	bool SafeToNumber(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, double* out);
-	bool SafeToString(v8::Local<v8::Value> val, v8::Isolate* isolate, v8::Local<v8::Context> ctx, alt::String* out);
+	bool SafeToBoolean(v8::Local<v8::Value> val, v8::Isolate* isolate, bool& out);
+	bool SafeToInteger(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, int64_t& out);
+	bool SafeToNumber(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, double& out);
+	bool SafeToString(v8::Local<v8::Value> val, v8::Isolate* isolate, v8::Local<v8::Context> ctx, alt::String& out);
 }
 
 #define V8_GET_ISOLATE(info) v8::Isolate* isolate = (info).GetIsolate()
@@ -219,12 +220,13 @@ namespace V8
 #define V8_CHECK_RETN(a, b, c) if (!(a)) { V8Helpers::Throw(isolate, (b)); return c; }
 #define V8_CHECK(a, b) V8_CHECK_RETN(a, b,)
 
-#define V8_GET_THIS_ENTITY(val, type) \
+#define V8_GET_THIS_BASE_OBJECT(val, type) \
 	::alt::Ref<type> val; \
 	{ \
 		V8Entity* __val = V8Entity::Get(info.This()); \
-		V8_CHECK(__val, "entity is invalid"); \
+		V8_CHECK(__val, "baseobject is invalid"); \
 		val = __val->GetHandle().As<type>(); \
+		V8_CHECK(val, "baseobject is not of type " #type); \
 	}
 
 
@@ -232,25 +234,41 @@ namespace V8
 
 #define V8_TO_BOOLEAN(v8Val, val) \
 	bool val; \
-	V8_CHECK(V8::SafeToBoolean((v8Val), isolate, &val), "Failed to convert value to boolean")
+	V8_CHECK(V8::SafeToBoolean((v8Val), isolate, val), "Failed to convert value to boolean")
 
 // idx starts with 1
 #define V8_ARG_TO_BOOLEAN(idx, val) \
 	bool val; \
-	V8_CHECK(V8::SafeToBoolean(info[(idx) - 1], isolate, &val), "Failed to convert argument " #idx " to boolean")
+	V8_CHECK(V8::SafeToBoolean(info[(idx) - 1], isolate, val), "Failed to convert argument " #idx " to boolean")
+
+// idx starts with 1
+#define V8_ARG_TO_INTEGER(idx, val) \
+	int64_t val; \
+	V8_CHECK(V8::SafeToInteger(info[(idx) - 1], ctx, val), "Failed to convert argument " #idx " to integer")
 
 // idx starts with 1
 #define V8_ARG_TO_NUMBER(idx, val) \
 	double val; \
-	V8_CHECK(V8::SafeToNumber(info[(idx) - 1], ctx, &val), "Failed to convert argument " #idx " to number")
+	V8_CHECK(V8::SafeToNumber(info[(idx) - 1], ctx, val), "Failed to convert argument " #idx " to number")
 
 // idx starts with 1
 #define V8_ARG_TO_STRING(idx, val) \
 	alt::String val; \
-	V8_CHECK(V8::SafeToString(info[(idx) - 1], isolate, ctx, &val), "Failed to convert argument " #idx " to string")
+	V8_CHECK(V8::SafeToString(info[(idx) - 1], isolate, ctx, val), "Failed to convert argument " #idx " to string")
 
 #define V8_RETURN(val) info.GetReturnValue().Set(val)
+#define V8_RETURN_NULL() V8_RETURN(v8::Null(isolate))
 #define V8_RETURN_BOOL(val) V8_RETURN(v8::Boolean::New(isolate, (val)))
+#define V8_RETURN_INTEGER(val) V8_RETURN(v8::Integer::New(isolate, (val)))
+
+#define V8_RETURN_BASE_OBJECT(baseObjectRef) \
+	{ \
+		auto baseObject = (baseObjectRef); \
+		if (!baseObject.IsEmpty()) \
+			V8_RETURN(resource->GetOrCreateEntity(baseObject.Get())->GetJSVal()); \
+		else \
+			V8_RETURN_NULL(); \
+	}
 
 #define V8_BIND_BASE_OBJECT(baseObjectRef, error) \
 	{ \
