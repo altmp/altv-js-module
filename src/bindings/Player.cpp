@@ -580,7 +580,7 @@ static void Kick(const v8::FunctionCallbackInfo<v8::Value>& info)
 	
 	if (info.Length() == 1)
 	{
-		V8_TO_STRING(1, reason);
+		V8_ARG_TO_STRING(1, reason);
 		_this->Kick(reason);
 	}
 	else
