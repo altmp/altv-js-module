@@ -230,16 +230,22 @@ namespace V8
 
 #define V8_CHECK_ARGS_LEN(count) V8_CHECK((info).Length() == (count), #count " arguments expected")
 
-// idx starts with 1
-#define V8_TO_BOOLEAN(idx, val) \
+#define V8_TO_BOOLEAN(v8Val, val) \
 	bool val; \
-	V8_CHECK(V8::SafeToBoolean(info[(idx) - 1], isolate, &val), "Failed to convert argument " #idx " to bool")
+	V8_CHECK(V8::SafeToBoolean((v8Val), isolate, &val), "Failed to convert value to boolean")
 
-#define V8_TO_NUMBER(idx, val) \
+// idx starts with 1
+#define V8_ARG_TO_BOOLEAN(idx, val) \
+	bool val; \
+	V8_CHECK(V8::SafeToBoolean(info[(idx) - 1], isolate, &val), "Failed to convert argument " #idx " to boolean")
+
+// idx starts with 1
+#define V8_ARG_TO_NUMBER(idx, val) \
 	double val; \
 	V8_CHECK(V8::SafeToNumber(info[(idx) - 1], ctx, &val), "Failed to convert argument " #idx " to number")
 
-#define V8_TO_STRING(idx, val) \
+// idx starts with 1
+#define V8_ARG_TO_STRING(idx, val) \
 	alt::String val; \
 	V8_CHECK(V8::SafeToString(info[(idx) - 1], isolate, ctx, &val), "Failed to convert argument " #idx " to string")
 
