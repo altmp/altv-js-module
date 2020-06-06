@@ -473,6 +473,18 @@ bool V8::SafeToBoolean(v8::Local<v8::Value> val, v8::Isolate* isolate, bool* out
 	return true;
 }
 
+bool V8::SafeToNumber(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, double* out)
+{
+	v8::MaybeLocal maybeNumber = val->ToNumber(ctx);
+	if (!maybeNumber.IsEmpty())
+	{
+		*out = maybeNumber.ToLocalChecked()->Value();
+		return true;
+	}
+
+	return false;
+}
+
 bool V8::SafeToString(v8::Local<v8::Value> val, v8::Isolate* isolate, v8::Local<v8::Context> ctx, alt::String* out)
 {
 	v8::MaybeLocal maybeString = val->ToString(ctx);

@@ -198,6 +198,7 @@ namespace V8
 	v8::Local<v8::String> RGBA_AKey(v8::Isolate* isolate);
 
 	bool SafeToBoolean(v8::Local<v8::Value> val, v8::Isolate* isolate, bool* out);
+	bool SafeToNumber(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, double* out);
 	bool SafeToString(v8::Local<v8::Value> val, v8::Isolate* isolate, v8::Local<v8::Context> ctx, alt::String* out);
 }
 
@@ -206,6 +207,14 @@ namespace V8
 #define V8_GET_ISOLATE_CONTEXT() \
 	V8_GET_ISOLATE(info); \
 	V8_GET_CONTEXT(isolate)
+
+#define V8_GET_RESOURCE() \
+	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext()); \
+	V8_CHECK(resource, "invalid resource");
+
+#define V8_GET_ISOLATE_CONTEXT_RESOURCE() \
+	V8_GET_ISOLATE_CONTEXT(); \
+	V8_GET_RESOURCE()
 
 #define V8_CHECK_RETN(a, b, c) if (!(a)) { V8Helpers::Throw(isolate, (b)); return c; }
 #define V8_CHECK(a, b) V8_CHECK_RETN(a, b,)
@@ -221,14 +230,25 @@ namespace V8
 
 #define V8_CHECK_ARGS_LEN(count) V8_CHECK((info).Length() == (count), #count " arguments expected")
 
+// idx starts with 1
 #define V8_TO_BOOLEAN(idx, val) \
 	bool val; \
-	V8_CHECK_RETN(V8::SafeToBoolean(info[(idx) - 1], isolate, &val), "Failed to convert argument " #idx " to bool",)
+	V8_CHECK(V8::SafeToBoolean(info[(idx) - 1], isolate, &val), "Failed to convert argument " #idx " to bool")
 
-// idx starts with 1
+#define V8_TO_NUMBER(idx, val) \
+	double val; \
+	V8_CHECK(V8::SafeToNumber(info[(idx) - 1], ctx, &val), "Failed to convert argument " #idx " to number")
+
 #define V8_TO_STRING(idx, val) \
 	alt::String val; \
-	V8_CHECK_RETN(V8::SafeToString(info[(idx) - 1], isolate, ctx, &val), "Failed to convert argument " #idx " to string",)
+	V8_CHECK(V8::SafeToString(info[(idx) - 1], isolate, ctx, &val), "Failed to convert argument " #idx " to string")
 
 #define V8_RETURN(val) info.GetReturnValue().Set(val)
 #define V8_RETURN_BOOL(val) V8_RETURN(v8::Boolean::New(isolate, (val)))
+
+#define V8_BIND_BASE_OBJECT(baseObjectRef, error) \
+	{ \
+		auto baseObject = (baseObjectRef); \
+		V8_CHECK(!baseObject.IsEmpty(), error); \
+		resource->BindEntity(info.This(), baseObject.Get()); \
+	}
