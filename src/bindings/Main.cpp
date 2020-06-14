@@ -311,8 +311,8 @@ static V8Module v8Alt("alt",
 
 	V8Helpers::RegisterFunc(exports, "setSyncedMeta", &SetSyncedMeta);
 	V8Helpers::RegisterFunc(exports, "deleteSyncedMeta", &DeleteSyncedMeta);
-	V8Helpers::RegisterFunc(exports, "GetSyncedMeta", &GetSyncedMeta);
-	V8Helpers::RegisterFunc(exports, "HasSyncedMeta", &HasSyncedMeta);
+	V8Helpers::RegisterFunc(exports, "getSyncedMeta", &GetSyncedMeta);
+	V8Helpers::RegisterFunc(exports, "hasSyncedMeta", &HasSyncedMeta);
 
 	V8Helpers::RegisterFunc(exports, "getPlayersByName", &GetPlayersByName);
 
