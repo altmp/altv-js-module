@@ -86,6 +86,31 @@ static void DeleteSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 	alt::ICore::Instance().DeleteSyncedMetaData(*v8::String::Utf8Value(isolate, key));
 }
 
+static void GetSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	v8::Isolate* isolate = info.GetIsolate();
+
+	V8_CHECK(info.Length() == 1, "1 arg expected");
+	V8_CHECK(info[0]->IsString(), "string expected");
+
+	v8::Local<v8::String> key = info[0]->ToString(isolate);
+
+	alt::MValueConst val = alt::ICore::Instance().GetSyncedMetaData(*v8::String::Utf8Value(isolate, key));
+	info.GetReturnValue().Set(V8Helpers::MValueToV8(val));
+}
+
+static void HasSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	v8::Isolate* isolate = info.GetIsolate();
+
+	V8_CHECK(info.Length() == 1, "1 arg expected");
+	V8_CHECK(info[0]->IsString(), "string expected");
+
+	v8::Local<v8::String> key = info[0]->ToString(isolate);
+
+	info.GetReturnValue().Set(v8::Boolean::New(isolate, alt::ICore::Instance().HasSyncedMetaData(*v8::String::Utf8Value(isolate, key))));
+}
+
 static void GetPlayersByName(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	v8::Isolate* isolate = info.GetIsolate();
@@ -286,6 +311,8 @@ static V8Module v8Alt("alt",
 
 	V8Helpers::RegisterFunc(exports, "setSyncedMeta", &SetSyncedMeta);
 	V8Helpers::RegisterFunc(exports, "deleteSyncedMeta", &DeleteSyncedMeta);
+	V8Helpers::RegisterFunc(exports, "GetSyncedMeta", &GetSyncedMeta);
+	V8Helpers::RegisterFunc(exports, "HasSyncedMeta", &HasSyncedMeta);
 
 	V8Helpers::RegisterFunc(exports, "getPlayersByName", &GetPlayersByName);
 
