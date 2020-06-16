@@ -116,7 +116,7 @@ jobs:
           echo ::set-output name=VERSION::${TAG/*\/}
 
       - name: Install upload tool
-        run: npm i @altmp/upload-tool
+        run: npm i @altmp/upload-tool@latest
 
       - name: Deploy windows artifacts to cdn
         run: npx alt-upload dist-windows js-module/$BRANCH/x64_win32 $VERSION
