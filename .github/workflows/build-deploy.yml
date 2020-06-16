@@ -192,3 +192,11 @@ jobs:
           asset_path: ./js-module-linux.zip
           asset_name: js-module-linux.zip
           asset_content_type: application/zip
+
+      - name: Delete artifacts
+        if: ${{ always() }}
+        uses: geekyeggo/delete-artifact@v1
+        with:
+          name: |
+            js-module-linux
+            js-module-windows
