@@ -29,6 +29,30 @@ static void IsEntityIn(const v8::FunctionCallbackInfo<v8::Value>& info)
 	info.GetReturnValue().Set(v8::Boolean::New(isolate, entityIn));
 }
 
+static void IsPointIn(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	v8::Isolate* isolate = info.GetIsolate();
+
+	V8_CHECK(info.Length() == 3, "3 args expected");
+
+	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
+	V8_CHECK(resource, "invalid resource");
+
+	V8Entity* _this = V8Entity::Get(info.This());
+	V8_CHECK(_this, "entity is invalid");
+
+	Ref<IColShape> cs = _this->GetHandle().As<IColShape>();
+
+	v8::Local<v8::Number> x = info[0]->ToNumber(isolate);
+	v8::Local<v8::Number> y = info[1]->ToNumber(isolate);
+	v8::Local<v8::Number> z = info[2]->ToNumber(isolate);
+
+	alt::Position pos(x->Value(), y->Value(), z->Value());
+	bool pointIn = cs->IsPointIn(pos);
+
+	info.GetReturnValue().Set(v8::Boolean::New(isolate, pointIn));
+}
+
 static void ColshapeTypeGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
 	v8::Isolate* isolate = info.GetIsolate();
@@ -52,6 +76,7 @@ static V8Class v8Colshape("Colshape", "WorldObject", nullptr, [](v8::Local<v8::F
 	//Common getter/setters
 	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "colshapeType"), &ColshapeTypeGetter);
 	proto->Set(v8::String::NewFromUtf8(isolate, "isEntityIn"), v8::FunctionTemplate::New(isolate, &IsEntityIn));
+	proto->Set(v8::String::NewFromUtf8(isolate, "isPointIn"), v8::FunctionTemplate::New(isolate, &IsPointIn));
 });
 
 static V8Class v8ColshapeCylinder("ColshapeCylinder", "Colshape", [](const v8::FunctionCallbackInfo<v8::Value>& info)
