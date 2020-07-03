@@ -182,6 +182,7 @@ namespace V8
 		const char* name, v8::FunctionCallback cb, void* userData = nullptr);
 
 	v8::Local<v8::Value> Get(v8::Local<v8::Context> ctx, v8::Local<v8::Object> obj, const char* name);
+	v8::Local<v8::Value> Get(v8::Local<v8::Context> ctx, v8::Local<v8::Object> obj, v8::Local<v8::Name> name);
 
 	void RegisterSharedMain(v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports);
 
@@ -230,11 +231,21 @@ namespace V8
 	}
 
 
-#define V8_CHECK_ARGS_LEN(count) V8_CHECK((info).Length() == (count), #count " arguments expected")
+#define V8_CHECK_CONSTRUCTOR() V8_CHECK(info.IsConstructCall(), "function can't be called without new")
+
+#define V8_CHECK_ARGS_LEN(count) V8_CHECK(info.Length() == (count), #count " arguments expected")
+#define V8_CHECK_ARGS_LEN2(count1, count2) V8_CHECK(info.Length() == (count1) || info.Length() == (count2), #count1 " or " #count2 " arguments expected")
 
 #define V8_TO_BOOLEAN(v8Val, val) \
 	bool val; \
 	V8_CHECK(V8::SafeToBoolean((v8Val), isolate, val), "Failed to convert value to boolean")
+
+#define V8_TO_NUMBER(v8Val, val) \
+	double val; \
+	V8_CHECK(V8::SafeToNumber((v8Val), ctx, val), "Failed to convert value to number")
+
+// idx starts with 1
+#define V8_ARG_CHECK_NUMBER(idx) V8_CHECK(info[(idx) - 1]->IsNumber(), "Argument " #idx " must be a number")
 
 // idx starts with 1
 #define V8_ARG_TO_BOOLEAN(idx, val) \
@@ -260,6 +271,7 @@ namespace V8
 #define V8_RETURN_NULL() V8_RETURN(v8::Null(isolate))
 #define V8_RETURN_BOOL(val) V8_RETURN(v8::Boolean::New(isolate, (val)))
 #define V8_RETURN_INTEGER(val) V8_RETURN(v8::Integer::New(isolate, (val)))
+#define V8_RETURN_STRING(val) V8_RETURN(v8::String::NewFromUtf8(isolate, (val), v8::NewStringType::kNormal).ToLocalChecked())
 
 #define V8_RETURN_BASE_OBJECT(baseObjectRef) \
 	{ \
