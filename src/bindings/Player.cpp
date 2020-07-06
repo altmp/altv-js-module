@@ -576,7 +576,7 @@ static void Kick(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_GET_ISOLATE_CONTEXT();
 	V8_CHECK(info.Length() == 0 || info.Length() == 1, "0 or 1 arguments expected");
 
-	V8_GET_THIS_ENTITY(_this, IPlayer);
+	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 	
 	if (info.Length() == 1)
 	{
