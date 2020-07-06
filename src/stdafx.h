@@ -15,6 +15,7 @@
 #include <iostream>
 #include <functional>
 #include <climits>
+#include <iomanip>
 
 #include "cpp-sdk/SDK.h"
 #include "Log.h"
