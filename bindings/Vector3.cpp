@@ -1,5 +1,7 @@
 #include "stdafx.h"
 
+#include <iomanip>
+
 #include "../V8Class.h"
 #include "../V8Helpers.h"
 #include "../V8ResourceImpl.h"
