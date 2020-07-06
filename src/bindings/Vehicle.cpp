@@ -36,7 +36,7 @@ static void DriverGetter(v8::Local<v8::String> name, const v8::PropertyCallbackI
 static void DestroyedGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
-	V8_GET_THIS_ENTITY(_this, IVehicle);
+	V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
 	V8_RETURN_BOOL(_this->IsDestroyed());
 }
 
