@@ -28,9 +28,8 @@ CNodeScriptRuntime::CNodeScriptRuntime()
 	params.array_buffer_allocator = node::CreateArrayBufferAllocator();
 
 	v8::Isolate::Initialize(isolate, params);
-
 	{
-			v8::Isolate::Scope isolate_scope(isolate);
+		v8::Isolate::Scope isolate_scope(isolate);
 		v8::HandleScope handle_scope(isolate);
 
 		V8Class::LoadAll(isolate);
