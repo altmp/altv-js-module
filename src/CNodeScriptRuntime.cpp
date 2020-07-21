@@ -30,8 +30,7 @@ CNodeScriptRuntime::CNodeScriptRuntime()
 	v8::Isolate::Initialize(isolate, params);
 
 	{
-		v8::Locker locker(isolate);
-		v8::Isolate::Scope isolate_scope(isolate);
+			v8::Isolate::Scope isolate_scope(isolate);
 		v8::HandleScope handle_scope(isolate);
 
 		V8Class::LoadAll(isolate);
@@ -45,7 +44,6 @@ CNodeScriptRuntime::~CNodeScriptRuntime()
 
 void CNodeScriptRuntime::OnTick()
 {
-	v8::Locker locker(isolate);
 	v8::Isolate::Scope isolateScope(isolate);
 	v8::SealHandleScope seal(isolate);
 
