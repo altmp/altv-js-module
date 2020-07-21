@@ -120,7 +120,6 @@ void V8ResourceImpl::OnRemoveBaseObject(alt::Ref<alt::IBaseObject> handle)
 {
 	NotifyPoolUpdate(handle.Get());
 
-	v8::Locker locker(isolate);
 	v8::Isolate::Scope isolateScope(isolate);
 	v8::HandleScope handleScope(isolate);
 
@@ -253,7 +252,6 @@ void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vecto
 alt::MValue V8ResourceImpl::FunctionImpl::Call(alt::MValueArgs args) const
 {
 	v8::Isolate* isolate = resource->GetIsolate();
-	v8::Locker locker(isolate);
 	v8::Isolate::Scope isolateScope(isolate);
 	v8::HandleScope handleScope(isolate);
 
