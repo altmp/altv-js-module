@@ -309,6 +309,27 @@ static void DeleteStreamSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& in
 	ent->DeleteStreamSyncedMetaData(*v8::String::Utf8Value(isolate, key));
 }
 
+static void SetNetOwner(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_CHECK_ARGS_LEN2(1, 2);
+	V8_GET_THIS_BASE_OBJECT(_this, IEntity);
+	V8_ARG_TO_BASE_OBJECT(1, player, IPlayer, "Player");
+	V8_ARG_TO_BOOLEAN_OPT(2, disableMigration, false);
+
+	_this->SetNetworkOwner(player, disableMigration);
+}
+
+static void ResetNetOwner(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_CHECK_ARGS_LEN2(0, 1);
+	V8_GET_THIS_BASE_OBJECT(_this, IEntity);
+	V8_ARG_TO_BOOLEAN_OPT(1, disableMigration, false);
+
+	_this->SetNetworkOwner(nullptr, disableMigration);
+}
+
 #endif // ALT_SERVER_API
 
 #ifdef ALT_CLIENT_API
@@ -344,6 +365,7 @@ static V8Class v8entity("Entity", "WorldObject", nullptr, [](v8::Local<v8::Funct
 	V8::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
 
 	V8::SetAccessor(isolate, tpl, "id", IDGetter);
+
 	V8::SetAccessor(isolate, tpl, "netOwner", OwnerGetter);
 
 	V8::SetMethod(isolate, tpl, "hasSyncedMeta", HasSyncedMeta);
@@ -361,6 +383,9 @@ static V8Class v8entity("Entity", "WorldObject", nullptr, [](v8::Local<v8::Funct
 
 	V8::SetMethod(isolate, tpl, "setStreamSyncedMeta", SetStreamSyncedMeta);
 	V8::SetMethod(isolate, tpl, "deleteStreamSyncedMeta", DeleteStreamSyncedMeta);
+
+	V8::SetMethod(isolate, tpl, "setNetOwner", SetNetOwner);
+	V8::SetMethod(isolate, tpl, "resetNetOwner", ResetNetOwner);
 #endif // ALT_SERVER_API
 
 #ifdef ALT_CLIENT_API
