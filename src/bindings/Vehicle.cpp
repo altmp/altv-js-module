@@ -37,7 +37,7 @@ static void DestroyedGetter(v8::Local<v8::String> name, const v8::PropertyCallba
 {
 	V8_GET_ISOLATE_CONTEXT();
 	V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
-	V8_RETURN_BOOL(_this->IsDestroyed());
+	V8_RETURN_BOOLEAN(_this->IsDestroyed());
 }
 
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
