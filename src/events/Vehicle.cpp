@@ -11,6 +11,6 @@ V8::LocalEventHandler vehicleDestroy(
 	"vehicleDestroy",
 	[](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
 		auto ev = static_cast<const alt::CVehicleDestroyEvent*>(e);
-		args.push_back(resource->GetOrCreateEntity(ev->GetTarget().Get(), "Player")->GetJSVal());
+		args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
 	}
 );

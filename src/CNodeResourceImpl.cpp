@@ -5,6 +5,7 @@
 
 bool CNodeResourceImpl::Start()
 {
+	v8::Locker locker(isolate);
 	v8::Isolate::Scope isolateScope(isolate);
 	v8::HandleScope handleScope(isolate);
 
@@ -45,6 +46,7 @@ bool CNodeResourceImpl::Start()
 
 bool CNodeResourceImpl::Stop()
 {
+	v8::Locker locker(isolate);
 	v8::Isolate::Scope isolateScope(isolate);
 	v8::HandleScope handleScope(isolate);
 
@@ -86,6 +88,7 @@ void CNodeResourceImpl::Started(v8::Local<v8::Value> _exports)
 
 bool CNodeResourceImpl::OnEvent(const alt::CEvent* e)
 {
+	v8::Locker locker(isolate);
 	v8::Isolate::Scope isolateScope(isolate);
 	v8::HandleScope handleScope(isolate);
 
@@ -111,6 +114,7 @@ bool CNodeResourceImpl::OnEvent(const alt::CEvent* e)
 
 void CNodeResourceImpl::OnTick()
 {
+	v8::Locker locker(isolate);
 	v8::Isolate::Scope isolateScope(isolate);
 	v8::HandleScope handleScope(isolate);
 

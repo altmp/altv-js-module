@@ -105,9 +105,7 @@ static void GetPlayersByName(const v8::FunctionCallbackInfo<v8::Value>& info)
 	v8::Local<v8::Array> arr = v8::Array::New(isolate, players.GetSize());
 	
 	for (uint32_t i = 0; i < players.GetSize(); ++i)
-	{
-		arr->Set(i, resource->GetOrCreateEntity(players[i].Get(), "Player")->GetJSVal());
-	}
+		arr->Set(i, resource->GetBaseObjectOrNull(players[i]));
 
 	info.GetReturnValue().Set(arr);
 }
