@@ -142,7 +142,7 @@ public:
 	v8::Local<v8::Value> GetBaseObjectOrNull(alt::IBaseObject* handle);
 
 	template<class T>
-	v8::Local<v8::Value> GetBaseObjectOrNull(alt::Ref<T>& handle)
+	v8::Local<v8::Value> GetBaseObjectOrNull(const alt::Ref<T>& handle)
 	{
 		return GetBaseObjectOrNull(handle.Get());
 	}
