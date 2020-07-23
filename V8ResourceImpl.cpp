@@ -73,6 +73,25 @@ void V8ResourceImpl::OnTick()
 	promiseRejections.ProcessQueue(this);
 }
 
+v8::Local<v8::Value> V8ResourceImpl::GetBaseObjectOrNull(alt::IBaseObject* handle)
+{
+	if (handle == nullptr)
+	{
+		return v8::Null(isolate);
+	}
+	else
+	{
+		V8Entity* ent = GetEntity(handle);
+		if (ent == nullptr)
+		{
+			Log::Warning << "[GetBaseObjectOrNull] handle is not valid. Please contact developers with reproduction steps" << Log::Endl;
+			return v8::Null(isolate);
+		}
+
+		return ent->GetJSVal(isolate);
+	}
+}
+
 v8::Local<v8::Value> V8ResourceImpl::CreateVector3(alt::Vector3f vec)
 {
 	std::vector<v8::Local<v8::Value>> args{
@@ -113,6 +132,15 @@ bool V8ResourceImpl::IsBaseObject(v8::Local<v8::Value> val)
 
 void V8ResourceImpl::OnCreateBaseObject(alt::Ref<alt::IBaseObject> handle)
 {
+	{
+		v8::Locker locker(isolate);
+		v8::Isolate::Scope isolateScope(isolate);
+		v8::HandleScope handleScope(isolate);
+
+		v8::Context::Scope scope(GetContext());
+		CreateEntity(handle.Get());
+	}
+
 	NotifyPoolUpdate(handle.Get());
 }
 
@@ -120,6 +148,7 @@ void V8ResourceImpl::OnRemoveBaseObject(alt::Ref<alt::IBaseObject> handle)
 {
 	NotifyPoolUpdate(handle.Get());
 
+	v8::Locker locker(isolate);
 	v8::Isolate::Scope isolateScope(isolate);
 	v8::HandleScope handleScope(isolate);
 
@@ -133,7 +162,7 @@ void V8ResourceImpl::OnRemoveBaseObject(alt::Ref<alt::IBaseObject> handle)
 	entities.erase(handle.Get());
 
 	// TODO: ent->SetWeak();
-	ent->GetJSVal()->SetInternalField(0, v8::External::New(isolate, nullptr));
+	ent->GetJSVal(isolate)->SetInternalField(0, v8::External::New(isolate, nullptr));
 	delete ent;
 }
 
@@ -160,7 +189,7 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllPlayers()
 		v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.GetSize());
 
 		for (uint32_t i = 0; i < all.GetSize(); ++i)
-			jsAll->Set(GetContext(), i, GetOrCreateEntity(all[i].Get())->GetJSVal());
+			jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
 
 		players.Reset(isolate, jsAll);
 		return jsAll;
@@ -179,7 +208,7 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllVehicles()
 		v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.GetSize());
 
 		for (uint32_t i = 0; i < all.GetSize(); ++i)
-			jsAll->Set(GetContext(), i, GetOrCreateEntity(all[i].Get())->GetJSVal());
+			jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
 
 		vehicles.Reset(isolate, jsAll);
 		return jsAll;
@@ -252,6 +281,8 @@ void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vecto
 alt::MValue V8ResourceImpl::FunctionImpl::Call(alt::MValueArgs args) const
 {
 	v8::Isolate* isolate = resource->GetIsolate();
+
+	v8::Locker locker(isolate);
 	v8::Isolate::Scope isolateScope(isolate);
 	v8::HandleScope handleScope(isolate);
 

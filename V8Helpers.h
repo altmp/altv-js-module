@@ -305,14 +305,7 @@ namespace V8
 #define V8_RETURN_INTEGER(val) V8_RETURN(v8::Integer::New(isolate, (val)))
 #define V8_RETURN_STRING(val) V8_RETURN(v8::String::NewFromUtf8(isolate, (val), v8::NewStringType::kNormal).ToLocalChecked())
 
-#define V8_RETURN_BASE_OBJECT(baseObjectRef) \
-	{ \
-		auto baseObject = (baseObjectRef); \
-		if (!baseObject.IsEmpty()) \
-			V8_RETURN(resource->GetOrCreateEntity(baseObject.Get())->GetJSVal()); \
-		else \
-			V8_RETURN_NULL(); \
-	}
+#define V8_RETURN_BASE_OBJECT(baseObjectRef) V8_RETURN(resource->GetBaseObjectOrNull(baseObjectRef))
 
 #define V8_BIND_BASE_OBJECT(baseObjectRef, error) \
 	{ \

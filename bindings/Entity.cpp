@@ -25,22 +25,9 @@ static void IDGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::V
 
 static void OwnerGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IEntity> ent = _this->GetHandle().As<alt::IEntity>();
-
-	Ref<IPlayer> owner = ent->GetNetworkOwner();
-
-	if (!owner.IsEmpty())
-		info.GetReturnValue().Set(resource->GetOrCreateEntity(owner.Get())->GetJSVal());
-	else
-		info.GetReturnValue().Set(v8::Null(isolate));
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_GET_THIS_BASE_OBJECT(_this, IEntity);
+	V8_RETURN_BASE_OBJECT(_this->GetNetworkOwner());
 }
 
 static void PositionGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)

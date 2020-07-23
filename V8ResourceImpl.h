@@ -139,6 +139,14 @@ public:
 		return ent;
 	}
 
+	v8::Local<v8::Value> GetBaseObjectOrNull(alt::IBaseObject* handle);
+
+	template<class T>
+	v8::Local<v8::Value> GetBaseObjectOrNull(alt::Ref<T>& handle)
+	{
+		return GetBaseObjectOrNull(handle.Get());
+	}
+
 	v8::Local<v8::Value> CreateVector3(alt::Vector3f vec);
 	v8::Local<v8::Value> CreateRGBA(alt::RGBA rgba);
 

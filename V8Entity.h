@@ -42,7 +42,7 @@ public:
 
 	alt::Ref<alt::IBaseObject> GetHandle() { return handle; }
 
-	v8::Local<v8::Object> GetJSVal() { return jsVal.Get(v8::Isolate::GetCurrent()); }
+	v8::Local<v8::Object> GetJSVal(v8::Isolate* isolate) { return jsVal.Get(isolate); }
 
 	static bool IsEntity(v8::Local<v8::Value> val)
 	{

@@ -279,16 +279,7 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
 	case alt::IMValue::Type::BASE_OBJECT:
 	{
 		alt::Ref<alt::IBaseObject> ref = val.As<alt::IMValueBaseObject>()->Value();
-
-		if (!ref)
-		{
-			return v8::Null(isolate);
-		}
-		else
-		{
-			V8Entity* v8Ent = V8ResourceImpl::Get(ctx)->GetOrCreateEntity(ref.Get(), "BaseObject");
-			return v8Ent->GetJSVal();
-		}
+		return V8ResourceImpl::Get(ctx)->GetBaseObjectOrNull(ref);
 	}
 	case alt::IMValue::Type::FUNCTION:
 	{
