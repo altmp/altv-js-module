@@ -118,13 +118,7 @@ public:
 		return ent;
 	}
 
-	V8Entity* BindEntity(v8::Local<v8::Object> val, alt::IBaseObject* handle)
-	{
-		V8Class* _class = V8Entity::GetClass(handle);
-		V8Entity* ent = new V8Entity(GetContext(), _class, val, handle);
-		entities.insert({ handle, ent });
-		return ent;
-	}
+	void BindEntity(v8::Local<v8::Object> val, alt::IBaseObject* handle);
 
 	V8Entity* GetOrCreateEntity(alt::IBaseObject* handle, const char* className = "")
 	{

@@ -13,22 +13,6 @@ class V8Entity
 	v8::Persistent<v8::Object> jsVal;
 
 public:
-	/*V8Entity(v8::Local<v8::Context> ctx, V8Class* __class, alt::Ref<alt::IEntity> _handle) :
-		_class(__class),
-		handle(_handle)
-	{
-		v8::Isolate* isolate = v8::Isolate::GetCurrent();
-
-		v8::Local<v8::Object> obj = _class->New(ctx);
-
-		//v8::Local<v8::Object> meta = EntityMeta::Get(this);
-
-		obj->SetInternalField(0, v8::External::New(isolate, this));
-		//obj->Set(v8::String::NewFromUtf8(isolate, "meta"), meta);
-
-		jsVal.Reset(isolate, obj);
-	}*/
-
 	V8Entity(v8::Local<v8::Context> ctx, V8Class* __class, v8::Local<v8::Object> obj, alt::Ref<alt::IBaseObject> _handle) :
 		_class(__class),
 		handle(_handle)
@@ -43,18 +27,6 @@ public:
 	alt::Ref<alt::IBaseObject> GetHandle() { return handle; }
 
 	v8::Local<v8::Object> GetJSVal(v8::Isolate* isolate) { return jsVal.Get(isolate); }
-
-	static bool IsEntity(v8::Local<v8::Value> val)
-	{
-		if (!val->IsObject())
-			return false;
-
-		v8::Local<v8::Object> obj = val.As<v8::Object>();
-		if (obj->InternalFieldCount() != 1)
-			return false;
-
-		return true;
-	}
 
 	static V8Entity* Get(v8::Local<v8::Value> val)
 	{

@@ -73,6 +73,12 @@ void V8ResourceImpl::OnTick()
 	promiseRejections.ProcessQueue(this);
 }
 
+void V8ResourceImpl::BindEntity(v8::Local<v8::Object> val, alt::IBaseObject* handle)
+{
+	V8Entity* ent = new V8Entity(GetContext(), V8Entity::GetClass(handle), val, handle);
+	entities.insert({ handle, ent });
+}
+
 v8::Local<v8::Value> V8ResourceImpl::GetBaseObjectOrNull(alt::IBaseObject* handle)
 {
 	if (handle == nullptr)
@@ -81,14 +87,7 @@ v8::Local<v8::Value> V8ResourceImpl::GetBaseObjectOrNull(alt::IBaseObject* handl
 	}
 	else
 	{
-		V8Entity* ent = GetEntity(handle);
-		if (ent == nullptr)
-		{
-			Log::Warning << "[GetBaseObjectOrNull] handle is not valid. Please contact developers with reproduction steps" << Log::Endl;
-			return v8::Null(isolate);
-		}
-
-		return ent->GetJSVal(isolate);
+		return GetOrCreateEntity(handle)->GetJSVal(isolate);
 	}
 }
 
@@ -132,6 +131,9 @@ bool V8ResourceImpl::IsBaseObject(v8::Local<v8::Value> val)
 
 void V8ResourceImpl::OnCreateBaseObject(alt::Ref<alt::IBaseObject> handle)
 {
+	Log::Debug << "OnCreateBaseObject " << handle.Get() << " " << (entities.find(handle.Get()) != entities.end()) << Log::Endl;
+
+	/*if (entities.find(handle.Get()) == entities.end())
 	{
 		v8::Locker locker(isolate);
 		v8::Isolate::Scope isolateScope(isolate);
@@ -139,7 +141,7 @@ void V8ResourceImpl::OnCreateBaseObject(alt::Ref<alt::IBaseObject> handle)
 
 		v8::Context::Scope scope(GetContext());
 		CreateEntity(handle.Get());
-	}
+	}*/
 
 	NotifyPoolUpdate(handle.Get());
 }
