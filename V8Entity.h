@@ -5,7 +5,6 @@
 #include "cpp-sdk/entities/IEntity.h"
 
 #include "V8Class.h"
-#include "V8Helpers.h"
 
 class V8Entity
 {

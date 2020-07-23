@@ -7,6 +7,7 @@
 
 #include "cpp-sdk/entities/IEntity.h"
 #include "cpp-sdk/types/MValue.h"
+#include "V8Entity.h"
 
 class V8Helpers
 {
