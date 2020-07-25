@@ -15,29 +15,16 @@ using namespace V8::Vehicle;
 
 static void DriverGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IVehicle> vehicle = _this->GetHandle().As<IVehicle>();
-
-	Ref<IPlayer> driver = vehicle->GetDriver();
-
-	if (driver)
-		info.GetReturnValue().Set(resource->GetOrCreateEntity(driver.Get(), "Player")->GetJSVal());
-	else
-		info.GetReturnValue().Set(v8::Null(isolate));
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
+	V8_RETURN_BASE_OBJECT(_this->GetDriver());
 }
 
 static void DestroyedGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
 	V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
-	V8_RETURN_BOOL(_this->IsDestroyed());
+	V8_RETURN_BOOLEAN(_this->IsDestroyed());
 }
 
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -105,11 +92,14 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
 	alt::Ref<alt::IEntity> entity = alt::ICore::Instance().GetEntityByID(id);
 
 	if (entity && entity->GetType() == alt::IEntity::Type::VEHICLE)
-		info.GetReturnValue().Set(resource->GetOrCreateEntity(entity.Get(), "Entity")->GetJSVal());
+	{
+		V8_RETURN_BASE_OBJECT(entity);
+	}
 	else
-		info.GetReturnValue().Set(v8::Null(isolate));
+	{
+		V8_RETURN_NULL();
+	}
 }
-
 
 static V8Class v8Vehicle("Vehicle", "Entity", Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
