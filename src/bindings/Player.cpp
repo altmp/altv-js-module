@@ -52,26 +52,9 @@ static void NameGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInf
 
 static void VehicleGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-
-	Ref<IVehicle> veh = player->GetVehicle();
-
-	if (veh)
-	{
-		info.GetReturnValue().Set(resource->GetOrCreateEntity(veh.Get(), "Vehicle")->GetJSVal());
-	}
-	else
-	{
-		info.GetReturnValue().Set(v8::Null(isolate));
-	}
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+	V8_RETURN_BASE_OBJECT(_this->GetVehicle());
 }
 
 static void SeatGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -273,25 +256,9 @@ static void CurrentWeaponComponentsGetter(v8::Local<v8::String> name, const v8::
 
 static void EntityAimingAtGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-	Ref<IEntity> aimingAt = player->GetEntityAimingAt();
-
-	if (aimingAt)
-	{
-		info.GetReturnValue().Set(resource->GetOrCreateEntity(aimingAt.Get(), "Entity")->GetJSVal());
-	}
-	else
-	{
-		info.GetReturnValue().Set(v8::Null(isolate));
-	}
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+	V8_RETURN_BASE_OBJECT(_this->GetEntityAimingAt());
 }
 
 static void EntityAimOffsetGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -613,9 +580,13 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
 	alt::Ref<alt::IEntity> entity = alt::ICore::Instance().GetEntityByID(id);
 
 	if (entity && entity->GetType() == alt::IEntity::Type::PLAYER)
-		info.GetReturnValue().Set(resource->GetOrCreateEntity(entity.Get(), "Entity")->GetJSVal());
+	{
+		V8_RETURN_BASE_OBJECT(entity);
+	}
 	else
-		info.GetReturnValue().Set(v8::Null(isolate));
+	{
+		V8_RETURN_NULL();
+	}
 }
 
 static V8Class v8Player("Player", "Entity", nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {

@@ -15,7 +15,7 @@ V8::EventHandler clientScriptEvent(
 	[](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
 		auto ev = static_cast<const alt::CClientScriptEvent*>(e);
 
-		args.push_back(resource->GetOrCreateEntity(ev->GetTarget().Get(), "Player")->GetJSVal());
+		args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
 		V8Helpers::MValueArgsToV8(ev->GetArgs(), args);
 	}
 );
@@ -45,8 +45,8 @@ V8::EventHandler colshapeEvent(
 	[](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
 		auto ev = static_cast<const alt::CColShapeEvent*>(e);
 
-		args.push_back(resource->GetOrCreateEntity(ev->GetTarget().Get(), "Entity")->GetJSVal());
-		args.push_back(resource->GetOrCreateEntity(ev->GetEntity().Get(), "Colshape")->GetJSVal());
+		args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
+		args.push_back(resource->GetBaseObjectOrNull(ev->GetEntity()));
 	}
 );
 
@@ -56,7 +56,7 @@ V8::LocalEventHandler removeEntity(
 	[](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
 		auto ev = static_cast<const alt::CRemoveEntityEvent*>(e);
 
-		args.push_back(resource->GetOrCreateEntity(ev->GetEntity().Get(), "Entity")->GetJSVal());
+		args.push_back(resource->GetBaseObjectOrNull(ev->GetEntity()));
 	}
 );
 
@@ -67,8 +67,8 @@ V8::LocalEventHandler weaponDamage(
 		auto ev = static_cast<const alt::CWeaponDamageEvent*>(e);
 		v8::Isolate* isolate = resource->GetIsolate();
 
-		args.push_back(resource->GetOrCreateEntity(ev->GetSource().Get(), "Player")->GetJSVal());
-		args.push_back(resource->GetOrCreateEntity(ev->GetTarget().Get(), "Entity")->GetJSVal());
+		args.push_back(resource->GetBaseObjectOrNull(ev->GetSource()));
+		args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
 		args.push_back(v8::Integer::NewFromUnsigned(isolate, ev->GetWeaponHash()));
 		args.push_back(v8::Integer::NewFromUnsigned(isolate, ev->GetDamageValue()));
 		args.push_back(resource->CreateVector3(ev->GetShotOffset()));
@@ -83,7 +83,7 @@ V8::LocalEventHandler explosionEvent(
 		auto ev = static_cast<const alt::CExplosionEvent*>(e);
 		v8::Isolate* isolate = resource->GetIsolate();
 
-		args.push_back(resource->GetOrCreateEntity(ev->GetSource().Get(), "Player")->GetJSVal());
+		args.push_back(resource->GetBaseObjectOrNull(ev->GetSource()));
 		args.push_back(v8::Integer::New(isolate, static_cast<int8_t>(ev->GetExplosionType())));
 		args.push_back(resource->CreateVector3(ev->GetPosition()));
 		args.push_back(v8::Integer::NewFromUnsigned(isolate, ev->GetExplosionFX()));
@@ -123,7 +123,7 @@ V8::LocalEventHandler syncedMetaChange(
 	[](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
 		auto ev = static_cast<const alt::CSyncedMetaDataChangeEvent*>(e);
 
-		args.push_back(resource->GetOrCreateEntity(ev->GetTarget().Get())->GetJSVal());
+		args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
 		args.push_back(v8::String::NewFromUtf8(resource->GetIsolate(), ev->GetKey().CStr()));
 		args.push_back(V8Helpers::MValueToV8(ev->GetVal()));
 		args.push_back(V8Helpers::MValueToV8(ev->GetOldVal()));
@@ -136,7 +136,7 @@ V8::LocalEventHandler streamSyncedMetaChange(
 	[](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
 		auto ev = static_cast<const alt::CStreamSyncedMetaDataChangeEvent*>(e);
 
-		args.push_back(resource->GetOrCreateEntity(ev->GetTarget().Get())->GetJSVal());
+		args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
 		args.push_back(v8::String::NewFromUtf8(resource->GetIsolate(), ev->GetKey().CStr()));
 		args.push_back(V8Helpers::MValueToV8(ev->GetVal()));
 		args.push_back(V8Helpers::MValueToV8(ev->GetOldVal()));

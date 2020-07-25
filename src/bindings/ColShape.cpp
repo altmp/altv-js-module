@@ -31,27 +31,35 @@ static void IsEntityIn(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void ColshapeTypeGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(_this, IColShape);
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_RETURN_INTEGER((int32_t)_this->GetColshapeType());
+}
 
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
+static void PlayersOnlyGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(_this, IColShape);
 
-	Ref<IColShape> cs = _this->GetHandle().As<IColShape>();
+	V8_RETURN_BOOLEAN(_this->IsPlayersOnly());
+}
 
-	info.GetReturnValue().Set(v8::Integer::New(isolate, (int32_t)cs->GetColshapeType()));
+static void PlayersOnlySetter(v8::Local<v8::String> name, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(_this, IColShape);
+	V8_TO_BOOLEAN(val, playersOnly);
+
+	_this->SetPlayersOnly(playersOnly);
 }
 
 static V8Class v8Colshape("Colshape", "WorldObject", nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-	v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
-
-	//Common getter/setters
-	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "colshapeType"), &ColshapeTypeGetter);
-	proto->Set(v8::String::NewFromUtf8(isolate, "isEntityIn"), v8::FunctionTemplate::New(isolate, &IsEntityIn));
+	V8::SetAccessor(isolate, tpl, "colshapeType", ColshapeTypeGetter);
+	V8::SetAccessor(isolate, tpl, "playersOnly", PlayersOnlyGetter, PlayersOnlySetter);
+	V8::SetMethod(isolate, tpl, "isEntityIn", IsEntityIn);
 });
 
 static V8Class v8ColshapeCylinder("ColshapeCylinder", "Colshape", [](const v8::FunctionCallbackInfo<v8::Value>& info)
