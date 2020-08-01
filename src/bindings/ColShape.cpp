@@ -84,7 +84,7 @@ static V8Class v8Colshape("Colshape", "WorldObject", nullptr, [](v8::Local<v8::F
 	V8::SetAccessor(isolate, tpl, "colshapeType", ColshapeTypeGetter);
 	V8::SetAccessor(isolate, tpl, "playersOnly", PlayersOnlyGetter, PlayersOnlySetter);
 	V8::SetMethod(isolate, tpl, "isEntityIn", IsEntityIn);
-    V8::SetMethod(isolate, tpl, "isPointIn", IsPointIn);
+	V8::SetMethod(isolate, tpl, "isPointIn", IsPointIn);
 });
 
 static V8Class v8ColshapeCylinder("ColshapeCylinder", "Colshape", [](const v8::FunctionCallbackInfo<v8::Value>& info)
