@@ -31,19 +31,11 @@ static void IsEntityIn(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void IsPointIn(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
-	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_GET_THIS_BASE_OBJECT(_this, IColShape);
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
+	V8_CHECK_ARGS_LEN(1);
 	V8_CHECK(info[0]->IsObject(), "object expected");
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(ctx);
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IColShape> cs = _this->GetHandle().As<IColShape>();
 
 	v8::Local<v8::Object> pos = info[0].As<v8::Object>();
 
@@ -51,9 +43,7 @@ static void IsPointIn(const v8::FunctionCallbackInfo<v8::Value>& info)
 	v8::Local<v8::Number> y = V8::Get(ctx, pos, "y")->ToNumber(ctx).ToLocalChecked();
 	v8::Local<v8::Number> z = V8::Get(ctx, pos, "z")->ToNumber(ctx).ToLocalChecked();
 
-	bool pointIn = cs->IsPointIn({ x->Value(), y->Value(), z->Value() });
-
-	info.GetReturnValue().Set(v8::Boolean::New(isolate, pointIn));
+	V8_RETURN_BOOLEAN(_this->IsPointIn({ x->Value(), y->Value(), z->Value() }));
 }
 
 static void ColshapeTypeGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
