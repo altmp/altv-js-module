@@ -32,10 +32,12 @@ static void IsEntityIn(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void IsPointIn(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	v8::Isolate* isolate = info.GetIsolate();
+	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
 
-	V8_CHECK(info.Length() == 3, "3 args expected");
+	V8_CHECK(info.Length() == 1, "1 arg expected");
+	V8_CHECK(info[0]->IsObject(), "object expected");
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
+	V8ResourceImpl* resource = V8ResourceImpl::Get(ctx);
 	V8_CHECK(resource, "invalid resource");
 
 	V8Entity* _this = V8Entity::Get(info.This());
@@ -43,12 +45,13 @@ static void IsPointIn(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 	Ref<IColShape> cs = _this->GetHandle().As<IColShape>();
 
-	v8::Local<v8::Number> x = info[0]->ToNumber(isolate);
-	v8::Local<v8::Number> y = info[1]->ToNumber(isolate);
-	v8::Local<v8::Number> z = info[2]->ToNumber(isolate);
+	v8::Local<v8::Object> pos = info[0].As<v8::Object>();
 
-	alt::Position pos(x->Value(), y->Value(), z->Value());
-	bool pointIn = cs->IsPointIn(pos);
+	v8::Local<v8::Number> x = V8::Get(ctx, pos, "x")->ToNumber(ctx).ToLocalChecked();
+	v8::Local<v8::Number> y = V8::Get(ctx, pos, "y")->ToNumber(ctx).ToLocalChecked();
+	v8::Local<v8::Number> z = V8::Get(ctx, pos, "z")->ToNumber(ctx).ToLocalChecked();
+
+	bool pointIn = cs->IsPointIn({ x->Value(), y->Value(), z->Value() });
 
 	info.GetReturnValue().Set(v8::Boolean::New(isolate, pointIn));
 }
