@@ -463,6 +463,22 @@ v8::Local<v8::String> V8::RGBA_AKey(v8::Isolate* isolate)
 	return aKey.Get(isolate);
 }
 
+v8::Local<v8::String> V8::Fire_PosKey(v8::Isolate* isolate)
+{
+	static v8::Persistent<v8::String> aKey{ isolate, v8::String::NewFromUtf8(isolate, "pos",
+		v8::NewStringType::kInternalized).ToLocalChecked() };
+
+	return aKey.Get(isolate);
+}
+
+v8::Local<v8::String> V8::Fire_WeaponKey(v8::Isolate* isolate)
+{
+	static v8::Persistent<v8::String> aKey{ isolate, v8::String::NewFromUtf8(isolate, "weapon",
+		v8::NewStringType::kInternalized).ToLocalChecked() };
+
+	return aKey.Get(isolate);
+}
+
 bool V8::SafeToBoolean(v8::Local<v8::Value> val, v8::Isolate* isolate, bool& out)
 {
 	out = val->ToBoolean(isolate)->Value();

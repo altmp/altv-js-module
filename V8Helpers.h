@@ -199,6 +199,9 @@ namespace V8
 	v8::Local<v8::String> RGBA_BKey(v8::Isolate* isolate);
 	v8::Local<v8::String> RGBA_AKey(v8::Isolate* isolate);
 
+	v8::Local<v8::String> Fire_PosKey(v8::Isolate* isolate);
+	v8::Local<v8::String> Fire_WeaponKey(v8::Isolate* isolate);
+
 	bool SafeToBoolean(v8::Local<v8::Value> val, v8::Isolate* isolate, bool& out);
 	bool SafeToInteger(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, int64_t& out);
 	bool SafeToNumber(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, double& out);
