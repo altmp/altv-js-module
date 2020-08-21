@@ -193,8 +193,13 @@ jobs:
           asset_name: js-module-linux.zip
           asset_content_type: application/zip
 
+  delete-artifacts:
+    name: Delete artifacts
+    runs-on: ubuntu-18.04
+    needs: [create-release]
+    if: ${{ always() }}
+    steps:
       - name: Delete artifacts
-        if: ${{ always() }}
         uses: geekyeggo/delete-artifact@v1
         with:
           name: |
