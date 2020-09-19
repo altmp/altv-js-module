@@ -21,7 +21,11 @@ bool V8ResourceImpl::Start()
 	return true;
 }
 
+#ifdef ALT_SERVER
 void V8ResourceImpl::OnTick()
+#else
+void V8ResourceImpl::Tick()
+#endif
 {
 	for (auto& id : oldTimers)
 		timers.erase(id);

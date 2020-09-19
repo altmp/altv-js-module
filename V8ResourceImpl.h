@@ -47,7 +47,11 @@ public:
 
 	bool Start() override;
 
+#ifdef ALT_SERVER
 	void OnTick() override;
+#else
+	void Tick();
+#endif
 
 	inline alt::IResource* GetResource() { return resource; }
 	inline v8::Isolate* GetIsolate() { return isolate; }
