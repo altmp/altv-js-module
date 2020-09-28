@@ -47,7 +47,7 @@ public:
 
 	bool Start() override;
 
-#ifdef ALT_SERVER
+#ifdef ALT_SERVER_API
 	void OnTick() override;
 #else
 	void Tick();

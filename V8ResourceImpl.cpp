@@ -21,7 +21,7 @@ bool V8ResourceImpl::Start()
 	return true;
 }
 
-#ifdef ALT_SERVER
+#ifdef ALT_SERVER_API
 void V8ResourceImpl::OnTick()
 #else
 void V8ResourceImpl::Tick()
