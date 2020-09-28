@@ -159,7 +159,7 @@ static V8Class v8Vehicle("Vehicle", "Entity", Constructor, [](v8::Local<v8::Func
 	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "lockState"), &LockStateGetter, &LockStateSetter);
 	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "daylightOn"), &DaylightOnGetter);
 	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "nightlightOn"), &NightlightOnGetter);
-	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "roofOpened"), &RoofOpenedGetter, &RoofOpenedSetter);
+	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "roofState"), &RoofStateGetter, &RoofStateSetter);
 	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "flamethrowerActive"), &FlamethrowerActiveGetter);
 	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "activeRadioStation"), &ActiveRadioStationGetter, &ActiveRadioStationSetter);
 	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "lightsMultiplier"), &LightsMultiplierGetter, &LightsMultiplierSetter);
