@@ -66,8 +66,8 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 			v8::Local<v8::Object> obj = val.As<v8::Object>();
 
 			x = obj->Get(ctx, V8::Vector3_XKey(isolate)).ToLocalChecked();
-			y = obj->Get(ctx, V8::Vector3_XKey(isolate)).ToLocalChecked();
-			z = obj->Get(ctx, V8::Vector3_XKey(isolate)).ToLocalChecked();
+			y = obj->Get(ctx, V8::Vector3_YKey(isolate)).ToLocalChecked();
+			z = obj->Get(ctx, V8::Vector3_ZKey(isolate)).ToLocalChecked();
 
 			V8_CHECK(x->IsNumber(), "x must be a number");
 			V8_CHECK(y->IsNumber(), "y must be a number");
