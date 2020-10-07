@@ -331,4 +331,7 @@ void V8::RegisterSharedMain(v8::Local<v8::Context> ctx, v8::Local<v8::Object> ex
 
 	V8::DefineOwnProperty(isolate, ctx, exports, "DefaultDimension", v8::Integer::New(isolate, alt::DEFAULT_DIMENSION));
 	V8::DefineOwnProperty(isolate, ctx, exports, "GlobalDimension", v8::Integer::New(isolate, alt::GLOBAL_DIMENSION));
+
+	V8::DefineOwnProperty(isolate, ctx, exports, "Version", v8::String::NewFromUtf8(isolate, ALTV_VERSION).ToLocalChecked());
+	V8::DefineOwnProperty(isolate, ctx, exports, "Branch", v8::String::NewFromUtf8(isolate, ALTV_BRANCH).ToLocalChecked());
 }
