@@ -3,6 +3,15 @@
 #include "helpers/V8ResourceImpl.h"
 #include "helpers/V8Helpers.h"
 
+#include "cpp-sdk/events/CPlayerConnectEvent.h"
+#include "cpp-sdk/events/CPlayerDisconnectEvent.h"
+#include "cpp-sdk/events/CPlayerDamageEvent.h"
+#include "cpp-sdk/events/CPlayerDeathEvent.h"
+#include "cpp-sdk/events/CPlayerEnterVehicleEvent.h"
+#include "cpp-sdk/events/CPlayerLeaveVehicleEvent.h"
+#include "cpp-sdk/events/CPlayerChangeVehicleSeatEvent.h"
+#include "cpp-sdk/events/CPlayerWeaponChangeEvent.h"
+
 using alt::CEvent;
 using EventType = CEvent::Type;
 
@@ -87,5 +96,17 @@ V8::LocalEventHandler playerChangeVehicleSeat(
 		args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
 		args.push_back(v8::Integer::New(resource->GetIsolate(), ev->GetOldSeat()));
 		args.push_back(v8::Integer::New(resource->GetIsolate(), ev->GetNewSeat()));
+	}
+);
+
+V8::LocalEventHandler playerWeaponChange(
+	EventType::PLAYER_WEAPON_CHANGE,
+	"playerWeaponChange",
+	[](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+		auto ev = static_cast<const alt::CPlayerWeaponChangeEvent*>(e);
+
+		args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
+		args.push_back(v8::Integer::NewFromUnsigned(resource->GetIsolate(), ev->GetOldWeapon()));
+		args.push_back(v8::Integer::NewFromUnsigned(resource->GetIsolate(), ev->GetNewWeapon()));
 	}
 );
