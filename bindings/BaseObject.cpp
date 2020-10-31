@@ -1,18 +1,17 @@
-#include "stdafx.h"
 
 #include "../V8Helpers.h"
 #include "../V8ResourceImpl.h"
 #include "../V8Class.h"
 #include "../V8Entity.h"
 
-static void TypeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+static void TypeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	v8::Isolate *isolate = info.GetIsolate();
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
+	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
 	V8_CHECK(resource, "invalid resource");
 
-	V8Entity* _this = V8Entity::Get(info.This());
+	V8Entity *_this = V8Entity::Get(info.This());
 	V8_CHECK(_this, "entity is invalid");
 
 	alt::Ref<alt::IBaseObject> obj = _this->GetHandle();
@@ -21,28 +20,28 @@ static void TypeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8:
 	info.GetReturnValue().Set(v8::Integer::NewFromUnsigned(info.GetIsolate(), type));
 }
 
-static void ValidGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+static void ValidGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	v8::Isolate *isolate = info.GetIsolate();
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
+	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
 	V8_CHECK(resource, "invalid resource");
 
-	V8Entity* _this = V8Entity::Get(info.This());
+	V8Entity *_this = V8Entity::Get(info.This());
 	info.GetReturnValue().Set(v8::Boolean::New(isolate, _this != nullptr));
 }
 
-static void HasMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+static void HasMeta(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	v8::Isolate *isolate = info.GetIsolate();
 	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
 
 	V8_CHECK(info.Length() == 1, "1 arg expected");
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
+	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
 	V8_CHECK(resource, "invalid resource");
 
-	V8Entity* _this = V8Entity::Get(info.This());
+	V8Entity *_this = V8Entity::Get(info.This());
 	V8_CHECK(_this, "entity is invalid");
 
 	alt::Ref<alt::IBaseObject> obj = _this->GetHandle();
@@ -51,17 +50,17 @@ static void HasMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 	info.GetReturnValue().Set(v8::Boolean::New(isolate, obj->HasMetaData(*v8::String::Utf8Value(isolate, key))));
 }
 
-static void GetMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+static void GetMeta(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	v8::Isolate *isolate = info.GetIsolate();
 	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
 
 	V8_CHECK(info.Length() == 1, "1 arg expected");
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
+	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
 	V8_CHECK(resource, "invalid resource");
 
-	V8Entity* _this = V8Entity::Get(info.This());
+	V8Entity *_this = V8Entity::Get(info.This());
 	V8_CHECK(_this, "entity is invalid");
 
 	alt::Ref<alt::IBaseObject> obj = _this->GetHandle();
@@ -72,17 +71,17 @@ static void GetMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 	info.GetReturnValue().Set(V8Helpers::MValueToV8(val));
 }
 
-static void SetMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+static void SetMeta(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	v8::Isolate *isolate = info.GetIsolate();
 	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
 
 	V8_CHECK(info.Length() == 2, "2 args expected");
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
+	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
 	V8_CHECK(resource, "invalid resource");
 
-	V8Entity* _this = V8Entity::Get(info.This());
+	V8Entity *_this = V8Entity::Get(info.This());
 	V8_CHECK(_this, "entity is invalid");
 
 	alt::Ref<alt::IBaseObject> obj = _this->GetHandle();
@@ -93,17 +92,17 @@ static void SetMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 	obj->SetMetaData(*v8::String::Utf8Value(isolate, key), V8Helpers::V8ToMValue(value));
 }
 
-static void DeleteMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+static void DeleteMeta(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	v8::Isolate *isolate = info.GetIsolate();
 	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
 
 	V8_CHECK(info.Length() == 1, "1 arg expected");
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
+	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
 	V8_CHECK(resource, "invalid resource");
 
-	V8Entity* _this = V8Entity::Get(info.This());
+	V8Entity *_this = V8Entity::Get(info.This());
 	V8_CHECK(_this, "entity is invalid");
 
 	alt::Ref<alt::IBaseObject> obj = _this->GetHandle();
@@ -113,25 +112,21 @@ static void DeleteMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 	obj->DeleteMetaData(*v8::String::Utf8Value(isolate, key));
 }
 
-static void Destroy(const v8::FunctionCallbackInfo<v8::Value>& info)
+static void Destroy(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	v8::Isolate *isolate = info.GetIsolate();
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
+	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
 	V8_CHECK(resource, "invalid resource");
 
-	V8Entity* _this = V8Entity::Get(info.This());
+	V8Entity *_this = V8Entity::Get(info.This());
 	V8_CHECK(_this, "entity is invalid");
 
-#ifdef ALT_SERVER_API
 	alt::ICore::Instance().DestroyBaseObject(_this->GetHandle());
-#else
-	CGame::Instance().DestroyBaseObject(_this->GetHandle());
-#endif // ALT_SERVER_API
 }
 
 static V8Class v8baseObject("BaseObject", "", nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
-	v8::Isolate* isolate = v8::Isolate::GetCurrent();
+	v8::Isolate *isolate = v8::Isolate::GetCurrent();
 
 	V8::SetAccessor(isolate, tpl, "type", &TypeGetter);
 	V8::SetAccessor(isolate, tpl, "valid", &ValidGetter);

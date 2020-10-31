@@ -1,11 +1,10 @@
-#include "stdafx.h"
 
 #include "V8Helpers.h"
 #include "V8Class.h"
 
-v8::Local<v8::Value> V8Class::New(v8::Local<v8::Context> ctx, std::vector<v8::Local<v8::Value>>& args)
+v8::Local<v8::Value> V8Class::New(v8::Local<v8::Context> ctx, std::vector<v8::Local<v8::Value>> &args)
 {
-	v8::Isolate* isolate = v8::Isolate::GetCurrent();
+	v8::Isolate *isolate = v8::Isolate::GetCurrent();
 
 	v8::Local<v8::FunctionTemplate> _tpl = tpl.Get(isolate);
 	v8::Local<v8::Value> obj;

@@ -1,4 +1,3 @@
-#include "stdafx.h"
 
 #include <iomanip>
 
@@ -6,7 +5,7 @@
 #include "../V8Helpers.h"
 #include "../V8ResourceImpl.h"
 
-static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
+static void ToString(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
 	V8_GET_ISOLATE_CONTEXT();
 
@@ -18,12 +17,12 @@ static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 	std::ostringstream ss;
 	ss << std::fixed << std::setprecision(4)
-		<< "Vector3{ x: " << x << ", y: " << y << ", z: " << z << " }";
+	   << "Vector3{ x: " << x << ", y: " << y << ", z: " << z << " }";
 
 	V8_RETURN_STRING(ss.str().c_str());
 }
 
-static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
+static void Constructor(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
 	V8_GET_ISOLATE_CONTEXT();
 
@@ -85,8 +84,10 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8::DefineOwnProperty(isolate, ctx, _this, V8::Vector3_ZKey(isolate), z, v8::PropertyAttribute::ReadOnly);
 }
 
-static V8Class v8Vector3("Vector3", "", Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
-	v8::Isolate* isolate = v8::Isolate::GetCurrent();
+static V8Class v8Vector3(
+	"Vector3", "", Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
+		v8::Isolate *isolate = v8::Isolate::GetCurrent();
 
-	V8::SetMethod(isolate, tpl, "toString", ToString);
-}, false);
+		V8::SetMethod(isolate, tpl, "toString", ToString);
+	},
+	false);

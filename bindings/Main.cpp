@@ -1,11 +1,10 @@
-#include "stdafx.h"
 
 #include "../V8Helpers.h"
 #include "../V8ResourceImpl.h"
 
-static void HashCb(const v8::FunctionCallbackInfo<v8::Value>& info)
+static void HashCb(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	v8::Isolate *isolate = info.GetIsolate();
 
 	V8_CHECK(info.Length() == 1, "1 arg expected");
 	V8_CHECK(info[0]->IsString(), "string expected");
@@ -16,16 +15,16 @@ static void HashCb(const v8::FunctionCallbackInfo<v8::Value>& info)
 	info.GetReturnValue().Set(v8::Integer::NewFromUnsigned(info.GetIsolate(), hash));
 }
 
-static void On(const v8::FunctionCallbackInfo<v8::Value>& info)
+static void On(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	v8::Isolate *isolate = info.GetIsolate();
 	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
 
 	V8_CHECK(info.Length() == 2, "on expects 2 args");
 	V8_CHECK(info[0]->IsString(), "eventName must be a string");
 	V8_CHECK(info[1]->IsFunction(), "callback must be a function");
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(ctx);
+	V8ResourceImpl *resource = V8ResourceImpl::Get(ctx);
 	V8_CHECK(resource, "Invalid resource");
 
 	std::string evName = *v8::String::Utf8Value(info.GetIsolate(), info[0].As<v8::String>());
@@ -34,15 +33,15 @@ static void On(const v8::FunctionCallbackInfo<v8::Value>& info)
 	resource->SubscribeLocal(evName, callback, V8::SourceLocation::GetCurrent(isolate));
 }
 
-static void Off(const v8::FunctionCallbackInfo<v8::Value>& info)
+static void Off(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	v8::Isolate *isolate = info.GetIsolate();
 
 	V8_CHECK(info.Length() == 2, "on expects 2 args");
 	V8_CHECK(info[0]->IsString(), "eventName must be a string");
 	V8_CHECK(info[1]->IsFunction(), "callback must be a function");
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
+	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
 	V8_CHECK(resource, "Invalid resource");
 
 	std::string evName = *v8::String::Utf8Value(info.GetIsolate(), info[0].As<v8::String>());
@@ -51,9 +50,9 @@ static void Off(const v8::FunctionCallbackInfo<v8::Value>& info)
 	resource->UnsubscribeLocal(evName, callback);
 }
 
-static void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
+static void Emit(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	v8::Isolate *isolate = info.GetIsolate();
 
 	V8_CHECK(info.Length() >= 1, "emitClient expects at least 1 arg");
 	V8_CHECK(info[0]->IsString(), "eventName must be a string");
@@ -67,10 +66,9 @@ static void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
 	alt::ICore::Instance().TriggerLocalEvent(name, args);
 }
 
-
-static void HasMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+static void HasMeta(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	v8::Isolate *isolate = info.GetIsolate();
 	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
 
 	V8_CHECK(info.Length() == 1, "1 arg expected");
@@ -79,9 +77,9 @@ static void HasMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 	info.GetReturnValue().Set(v8::Boolean::New(isolate, alt::ICore::Instance().HasMetaData(*v8::String::Utf8Value(isolate, key))));
 }
 
-static void GetMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+static void GetMeta(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	v8::Isolate *isolate = info.GetIsolate();
 	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
 
 	V8_CHECK(info.Length() == 1, "1 arg expected");
@@ -92,9 +90,9 @@ static void GetMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 	info.GetReturnValue().Set(V8Helpers::MValueToV8(val));
 }
 
-static void SetMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+static void SetMeta(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	v8::Isolate *isolate = info.GetIsolate();
 	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
 
 	V8_CHECK(info.Length() == 2, "2 args expected");
@@ -105,9 +103,9 @@ static void SetMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 	alt::ICore::Instance().SetMetaData(*v8::String::Utf8Value(isolate, key), V8Helpers::V8ToMValue(value));
 }
 
-static void DeleteMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+static void DeleteMeta(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	v8::Isolate *isolate = info.GetIsolate();
 	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
 
 	V8_CHECK(info.Length() == 1, "1 arg expected");
@@ -116,9 +114,9 @@ static void DeleteMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 	alt::ICore::Instance().DeleteMetaData(*v8::String::Utf8Value(isolate, key));
 }
 
-static void HasSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+static void HasSyncedMeta(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	v8::Isolate *isolate = info.GetIsolate();
 	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
 
 	V8_CHECK(info.Length() == 1, "1 arg expected");
@@ -127,9 +125,9 @@ static void HasSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 	info.GetReturnValue().Set(v8::Boolean::New(isolate, alt::ICore::Instance().HasSyncedMetaData(*v8::String::Utf8Value(isolate, key))));
 }
 
-static void GetSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+static void GetSyncedMeta(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	v8::Isolate *isolate = info.GetIsolate();
 	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
 
 	V8_CHECK(info.Length() == 1, "1 arg expected");
@@ -140,9 +138,9 @@ static void GetSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 	info.GetReturnValue().Set(V8Helpers::MValueToV8(val));
 }
 
-static void Log(const v8::FunctionCallbackInfo<v8::Value>& info)
+static void Log(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	v8::Isolate *isolate = info.GetIsolate();
 	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
 
 	std::stringstream ss;
@@ -160,9 +158,9 @@ static void Log(const v8::FunctionCallbackInfo<v8::Value>& info)
 	alt::ICore::Instance().LogColored(ss.str());
 }
 
-static void LogWarning(const v8::FunctionCallbackInfo<v8::Value>& info)
+static void LogWarning(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	v8::Isolate *isolate = info.GetIsolate();
 	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
 
 	std::stringstream ss;
@@ -180,9 +178,9 @@ static void LogWarning(const v8::FunctionCallbackInfo<v8::Value>& info)
 	alt::ICore::Instance().LogWarning(ss.str());
 }
 
-static void LogError(const v8::FunctionCallbackInfo<v8::Value>& info)
+static void LogError(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	v8::Isolate *isolate = info.GetIsolate();
 	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
 
 	std::stringstream ss;
@@ -200,15 +198,15 @@ static void LogError(const v8::FunctionCallbackInfo<v8::Value>& info)
 	alt::ICore::Instance().LogError(ss.str());
 }
 
-static void SetTimeout(const v8::FunctionCallbackInfo<v8::Value>& info)
+static void SetTimeout(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate* isolate = v8::Isolate::GetCurrent();
+	v8::Isolate *isolate = v8::Isolate::GetCurrent();
 
 	V8_CHECK(info.Length() == 2, "2 args expected");
 	V8_CHECK(info[0]->IsFunction(), "function expected");
 	V8_CHECK(info[1]->IsNumber(), "number expected");
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
+	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
 	V8_CHECK(resource, "Invalid resource");
 
 	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
@@ -221,15 +219,15 @@ static void SetTimeout(const v8::FunctionCallbackInfo<v8::Value>& info)
 	info.GetReturnValue().Set(v8::Integer::NewFromUnsigned(isolate, id));
 }
 
-static void SetInterval(const v8::FunctionCallbackInfo<v8::Value>& info)
+static void SetInterval(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate* isolate = v8::Isolate::GetCurrent();
+	v8::Isolate *isolate = v8::Isolate::GetCurrent();
 
 	V8_CHECK(info.Length() == 2, "2 args expected");
 	V8_CHECK(info[0]->IsFunction(), "function expected");
 	V8_CHECK(info[1]->IsNumber(), "number expected");
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
+	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
 	V8_CHECK(resource, "Invalid resource");
 
 	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
@@ -242,14 +240,14 @@ static void SetInterval(const v8::FunctionCallbackInfo<v8::Value>& info)
 	info.GetReturnValue().Set(v8::Integer::NewFromUnsigned(isolate, id));
 }
 
-static void NextTick(const v8::FunctionCallbackInfo<v8::Value>& info)
+static void NextTick(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate* isolate = v8::Isolate::GetCurrent();
+	v8::Isolate *isolate = v8::Isolate::GetCurrent();
 
 	V8_CHECK(info.Length() == 1, "1 arg expected");
 	V8_CHECK(info[0]->IsFunction(), "function expected");
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
+	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
 	V8_CHECK(resource, "Invalid resource");
 
 	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
@@ -261,14 +259,14 @@ static void NextTick(const v8::FunctionCallbackInfo<v8::Value>& info)
 	info.GetReturnValue().Set(v8::Integer::NewFromUnsigned(isolate, id));
 }
 
-static void EveryTick(const v8::FunctionCallbackInfo<v8::Value>& info)
+static void EveryTick(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate* isolate = v8::Isolate::GetCurrent();
+	v8::Isolate *isolate = v8::Isolate::GetCurrent();
 
 	V8_CHECK(info.Length() == 1, "1 arg expected");
 	V8_CHECK(info[0]->IsFunction(), "function expected");
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
+	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
 	V8_CHECK(resource, "Invalid resource");
 
 	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
@@ -280,14 +278,14 @@ static void EveryTick(const v8::FunctionCallbackInfo<v8::Value>& info)
 	info.GetReturnValue().Set(v8::Integer::NewFromUnsigned(isolate, id));
 }
 
-static void ClearTimer(const v8::FunctionCallbackInfo<v8::Value>& info)
+static void ClearTimer(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate* isolate = v8::Isolate::GetCurrent();
+	v8::Isolate *isolate = v8::Isolate::GetCurrent();
 
 	V8_CHECK(info.Length() == 1, "1 arg expected");
 	V8_CHECK(info[0]->IsNumber(), "number expected");
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
+	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
 	V8_CHECK(resource, "Invalid resource");
 
 	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
@@ -299,7 +297,7 @@ static void ClearTimer(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 void V8::RegisterSharedMain(v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports)
 {
-	v8::Isolate* isolate = ctx->GetIsolate();
+	v8::Isolate *isolate = ctx->GetIsolate();
 
 	V8Helpers::RegisterFunc(exports, "hash", &HashCb);
 
@@ -333,7 +331,7 @@ void V8::RegisterSharedMain(v8::Local<v8::Context> ctx, v8::Local<v8::Object> ex
 	V8::DefineOwnProperty(isolate, ctx, exports, "GlobalDimension", v8::Integer::New(isolate, alt::GLOBAL_DIMENSION));
 
 #ifdef ALT_CLIENT
-	V8::DefineOwnProperty(isolate, ctx, exports, "Version", v8::String::NewFromUtf8(isolate, ALTV_VERSION).ToLocalChecked());
-	V8::DefineOwnProperty(isolate, ctx, exports, "Branch", v8::String::NewFromUtf8(isolate, ALTV_BRANCH).ToLocalChecked());
+	V8::DefineOwnProperty(isolate, ctx, exports, "Version", v8::String::NewFromUtf8(isolate, alt::ICore::Instance().GetVersion().CStr()).ToLocalChecked());
+	V8::DefineOwnProperty(isolate, ctx, exports, "Branch", v8::String::NewFromUtf8(isolate, alt::ICore::Instance().GetBranch().CStr()).ToLocalChecked());
 #endif
 }

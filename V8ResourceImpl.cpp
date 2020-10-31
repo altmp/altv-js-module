@@ -1,4 +1,3 @@
-#include "stdafx.h"
 
 #include "cpp-sdk/entities/IPlayer.h"
 #include "cpp-sdk/entities/IVehicle.h"
@@ -21,18 +20,14 @@ bool V8ResourceImpl::Start()
 	return true;
 }
 
-#ifdef ALT_SERVER_API
 void V8ResourceImpl::OnTick()
-#else
-void V8ResourceImpl::Tick()
-#endif
 {
-	for (auto& id : oldTimers)
+	for (auto &id : oldTimers)
 		timers.erase(id);
 
 	oldTimers.clear();
 
-	for (auto& p : timers)
+	for (auto &p : timers)
 	{
 		int64_t time = GetTime();
 
@@ -41,19 +36,19 @@ void V8ResourceImpl::Tick()
 
 		if (GetTime() - time > 10)
 		{
-			auto& location = p.second->GetLocation();
+			auto &location = p.second->GetLocation();
 
 			if (location.GetLineNumber() != 0)
 			{
 				Log::Warning << "Timer at "
-					<< resource->GetName() << ":" << location.GetFileName() << ":" << location.GetLineNumber()
-					<< " was too long " << GetTime() - time << "ms" << Log::Endl;
+							 << resource->GetName() << ":" << location.GetFileName() << ":" << location.GetLineNumber()
+							 << " was too long " << GetTime() - time << "ms" << Log::Endl;
 			}
 			else
 			{
 				Log::Warning << "Timer at "
-					<< resource->GetName() << ":" << location.GetFileName()
-					<< " was too long " << GetTime() - time << "ms" << Log::Endl;
+							 << resource->GetName() << ":" << location.GetFileName()
+							 << " was too long " << GetTime() - time << "ms" << Log::Endl;
 			}
 		}
 	}
@@ -77,13 +72,13 @@ void V8ResourceImpl::Tick()
 	promiseRejections.ProcessQueue(this);
 }
 
-void V8ResourceImpl::BindEntity(v8::Local<v8::Object> val, alt::IBaseObject* handle)
+void V8ResourceImpl::BindEntity(v8::Local<v8::Object> val, alt::IBaseObject *handle)
 {
-	V8Entity* ent = new V8Entity(GetContext(), V8Entity::GetClass(handle), val, handle);
-	entities.insert({ handle, ent });
+	V8Entity *ent = new V8Entity(GetContext(), V8Entity::GetClass(handle), val, handle);
+	entities.insert({handle, ent});
 }
 
-v8::Local<v8::Value> V8ResourceImpl::GetBaseObjectOrNull(alt::IBaseObject* handle)
+v8::Local<v8::Value> V8ResourceImpl::GetBaseObjectOrNull(alt::IBaseObject *handle)
 {
 	if (handle == nullptr)
 	{
@@ -100,8 +95,7 @@ v8::Local<v8::Value> V8ResourceImpl::CreateVector3(alt::Vector3f vec)
 	std::vector<v8::Local<v8::Value>> args{
 		v8::Number::New(isolate, vec[0]),
 		v8::Number::New(isolate, vec[1]),
-		v8::Number::New(isolate, vec[2])
-	};
+		v8::Number::New(isolate, vec[2])};
 
 	return V8::New(isolate, GetContext(), vector3Class.Get(isolate), args);
 }
@@ -112,8 +106,7 @@ v8::Local<v8::Value> V8ResourceImpl::CreateRGBA(alt::RGBA rgba)
 		v8::Number::New(isolate, rgba.r),
 		v8::Number::New(isolate, rgba.g),
 		v8::Number::New(isolate, rgba.b),
-		v8::Number::New(isolate, rgba.a)
-	};
+		v8::Number::New(isolate, rgba.a)};
 
 	return V8::New(isolate, GetContext(), rgbaClass.Get(isolate), args);
 }
@@ -160,7 +153,7 @@ void V8ResourceImpl::OnRemoveBaseObject(alt::Ref<alt::IBaseObject> handle)
 
 	v8::Context::Scope scope(GetContext());
 
-	V8Entity* ent = GetEntity(handle.Get());
+	V8Entity *ent = GetEntity(handle.Get());
 
 	if (!ent)
 		return;
@@ -172,7 +165,7 @@ void V8ResourceImpl::OnRemoveBaseObject(alt::Ref<alt::IBaseObject> handle)
 	delete ent;
 }
 
-void V8ResourceImpl::NotifyPoolUpdate(alt::IBaseObject* ent)
+void V8ResourceImpl::NotifyPoolUpdate(alt::IBaseObject *ent)
 {
 	switch (ent->GetType())
 	{
@@ -223,9 +216,9 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllVehicles()
 	return vehicles.Get(isolate);
 }
 
-std::vector<V8::EventCallback*> V8ResourceImpl::GetLocalHandlers(const std::string& name)
+std::vector<V8::EventCallback *> V8ResourceImpl::GetLocalHandlers(const std::string &name)
 {
-	std::vector<V8::EventCallback*> handlers;
+	std::vector<V8::EventCallback *> handlers;
 	auto range = localHandlers.equal_range(name);
 
 	for (auto it = range.first; it != range.second; ++it)
@@ -234,9 +227,9 @@ std::vector<V8::EventCallback*> V8ResourceImpl::GetLocalHandlers(const std::stri
 	return handlers;
 }
 
-std::vector<V8::EventCallback*> V8ResourceImpl::GetRemoteHandlers(const std::string& name)
+std::vector<V8::EventCallback *> V8ResourceImpl::GetRemoteHandlers(const std::string &name)
 {
-	std::vector<V8::EventCallback*> handlers;
+	std::vector<V8::EventCallback *> handlers;
 	auto range = remoteHandlers.equal_range(name);
 
 	for (auto it = range.first; it != range.second; ++it)
@@ -245,7 +238,7 @@ std::vector<V8::EventCallback*> V8ResourceImpl::GetRemoteHandlers(const std::str
 	return handlers;
 }
 
-void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vector<V8::EventCallback*>& handlers, std::vector<v8::Local<v8::Value>>& args)
+void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent *ev, const std::vector<V8::EventCallback *> &handlers, std::vector<v8::Local<v8::Value>> &args)
 {
 	for (auto handler : handlers)
 	{
@@ -271,14 +264,14 @@ void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vecto
 			if (handler->location.GetLineNumber() != 0)
 			{
 				Log::Warning << "Event handler at "
-					<< resource->GetName() << ":" << handler->location.GetFileName() << ":" << handler->location.GetLineNumber()
-					<< " was too long " << (GetTime() - time) << "ms" << Log::Endl;
+							 << resource->GetName() << ":" << handler->location.GetFileName() << ":" << handler->location.GetLineNumber()
+							 << " was too long " << (GetTime() - time) << "ms" << Log::Endl;
 			}
 			else
 			{
 				Log::Warning << "Event handler at "
-					<< resource->GetName() << ":" << handler->location.GetFileName()
-					<< " was too long " << (GetTime() - time) << "ms" << Log::Endl;
+							 << resource->GetName() << ":" << handler->location.GetFileName()
+							 << " was too long " << (GetTime() - time) << "ms" << Log::Endl;
 			}
 		}
 	}
@@ -286,7 +279,7 @@ void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vecto
 
 alt::MValue V8ResourceImpl::FunctionImpl::Call(alt::MValueArgs args) const
 {
-	v8::Isolate* isolate = resource->GetIsolate();
+	v8::Isolate *isolate = resource->GetIsolate();
 
 	v8::Locker locker(isolate);
 	v8::Isolate::Scope isolateScope(isolate);
@@ -296,7 +289,7 @@ alt::MValue V8ResourceImpl::FunctionImpl::Call(alt::MValueArgs args) const
 	v8::Context::Scope scope(ctx);
 
 #ifdef ALT_SERVER_API
-	CNodeResourceImpl* nodeRes = static_cast<CNodeResourceImpl*>(resource);
+	CNodeResourceImpl *nodeRes = static_cast<CNodeResourceImpl *>(resource);
 	node::CallbackScope callbackScope(isolate, nodeRes->GetAsyncResource(), nodeRes->GetAsyncContext());
 #endif // ALT_SERVER_API
 
@@ -312,7 +305,7 @@ alt::MValue V8ResourceImpl::FunctionImpl::Call(alt::MValueArgs args) const
 
 		res = V8Helpers::V8ToMValue(_res.ToLocalChecked());
 		return true;
-		});
+	});
 
 	if (res.IsEmpty())
 		res = alt::ICore::Instance().CreateMValueNone();

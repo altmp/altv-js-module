@@ -17,57 +17,49 @@ public:
 	class FunctionImpl : public alt::IMValueFunction::Impl
 	{
 	public:
-		FunctionImpl(V8ResourceImpl* _resource, v8::Local<v8::Function> fn) :
-			resource(_resource),
-			function(_resource->GetIsolate(), fn)
+		FunctionImpl(V8ResourceImpl *_resource, v8::Local<v8::Function> fn) : resource(_resource),
+																			  function(_resource->GetIsolate(), fn)
 		{
-
 		}
 
 		alt::MValue Call(alt::MValueArgs args) const override;
 
 	private:
-		V8ResourceImpl* resource;
+		V8ResourceImpl *resource;
 		v8::UniquePersistent<v8::Function> function;
 	};
 
-	V8ResourceImpl(v8::Isolate* _isolate, alt::IResource* _resource) :
-		isolate(_isolate),
-		resource(_resource)
+	V8ResourceImpl(v8::Isolate *_isolate, alt::IResource *_resource) : isolate(_isolate),
+																	   resource(_resource)
 	{
-
 	}
 
 	struct PathInfo
 	{
-		alt::IPackage* pkg = nullptr;
+		alt::IPackage *pkg = nullptr;
 		std::string fileName;
 		std::string prefix;
 	};
 
 	bool Start() override;
 
-#ifdef ALT_SERVER_API
 	void OnTick() override;
-#else
-	void Tick();
-#endif
 
-	inline alt::IResource* GetResource() { return resource; }
-	inline v8::Isolate* GetIsolate() { return isolate; }
+	inline alt::IResource *GetResource() { return resource; }
+	inline v8::Isolate *GetIsolate() { return isolate; }
 	inline v8::Local<v8::Context> GetContext() { return context.Get(isolate); }
 
-	void SubscribeLocal(const std::string& ev, v8::Local<v8::Function> cb, V8::SourceLocation&& location)
+	void SubscribeLocal(const std::string &ev, v8::Local<v8::Function> cb, V8::SourceLocation &&location)
 	{
-		localHandlers.insert({ ev, V8::EventCallback{ isolate, cb, std::move(location) } });
+		localHandlers.insert({ev, V8::EventCallback{isolate, cb, std::move(location)}});
 	}
 
-	void SubscribeRemote(const std::string& ev, v8::Local<v8::Function> cb, V8::SourceLocation&& location)
+	void SubscribeRemote(const std::string &ev, v8::Local<v8::Function> cb, V8::SourceLocation &&location)
 	{
-		remoteHandlers.insert({ ev, V8::EventCallback{ isolate, cb, std::move(location) } });
+		remoteHandlers.insert({ev, V8::EventCallback{isolate, cb, std::move(location)}});
 	}
 
-	void UnsubscribeLocal(const std::string& ev, v8::Local<v8::Function> cb)
+	void UnsubscribeLocal(const std::string &ev, v8::Local<v8::Function> cb)
 	{
 		auto range = localHandlers.equal_range(ev);
 
@@ -78,7 +70,7 @@ public:
 		}
 	}
 
-	void UnsubscribeRemote(const std::string& ev, v8::Local<v8::Function> cb)
+	void UnsubscribeRemote(const std::string &ev, v8::Local<v8::Function> cb)
 	{
 		auto range = remoteHandlers.equal_range(ev);
 
@@ -103,7 +95,7 @@ public:
 		InvokeEventHandlers(nullptr, GetLocalHandlers("resourceStop"), args);
 	}
 
-	V8Entity* GetEntity(alt::IBaseObject* handle)
+	V8Entity *GetEntity(alt::IBaseObject *handle)
 	{
 		auto it = entities.find(handle);
 
@@ -113,23 +105,23 @@ public:
 		return it->second;
 	}
 
-	V8Entity* CreateEntity(alt::IBaseObject* handle)
+	V8Entity *CreateEntity(alt::IBaseObject *handle)
 	{
-		V8Class* _class = V8Entity::GetClass(handle);
+		V8Class *_class = V8Entity::GetClass(handle);
 
-		V8Entity* ent = new V8Entity(GetContext(), _class, _class->CreateInstance(GetContext()), handle);
-		entities.insert({ handle, ent });
+		V8Entity *ent = new V8Entity(GetContext(), _class, _class->CreateInstance(GetContext()), handle);
+		entities.insert({handle, ent});
 		return ent;
 	}
 
-	void BindEntity(v8::Local<v8::Object> val, alt::IBaseObject* handle);
+	void BindEntity(v8::Local<v8::Object> val, alt::IBaseObject *handle);
 
-	V8Entity* GetOrCreateEntity(alt::IBaseObject* handle, const char* className = "")
+	V8Entity *GetOrCreateEntity(alt::IBaseObject *handle, const char *className = "")
 	{
 		if (!handle)
 			Log::Error << __FUNCTION__ << " received invalid handle please contact developers if you see this" << Log::Endl;
 
-		V8Entity* ent = GetEntity(handle);
+		V8Entity *ent = GetEntity(handle);
 
 		if (!ent)
 			ent = CreateEntity(handle);
@@ -137,10 +129,10 @@ public:
 		return ent;
 	}
 
-	v8::Local<v8::Value> GetBaseObjectOrNull(alt::IBaseObject* handle);
+	v8::Local<v8::Value> GetBaseObjectOrNull(alt::IBaseObject *handle);
 
-	template<class T>
-	v8::Local<v8::Value> GetBaseObjectOrNull(const alt::Ref<T>& handle)
+	template <class T>
+	v8::Local<v8::Value> GetBaseObjectOrNull(const alt::Ref<T> &handle)
 	{
 		return GetBaseObjectOrNull(handle.Get());
 	}
@@ -157,15 +149,15 @@ public:
 
 	alt::MValue GetFunction(v8::Local<v8::Value> val)
 	{
-		FunctionImpl* impl = new FunctionImpl{ this, val.As<v8::Function>() };
+		FunctionImpl *impl = new FunctionImpl{this, val.As<v8::Function>()};
 		return alt::ICore::Instance().CreateMValueFunction(impl);
 	}
 
-	uint32_t CreateTimer(v8::Local<v8::Context> context, v8::Local<v8::Function> callback, uint32_t interval, bool once, V8::SourceLocation&& location)
+	uint32_t CreateTimer(v8::Local<v8::Context> context, v8::Local<v8::Function> callback, uint32_t interval, bool once, V8::SourceLocation &&location)
 	{
 		uint32_t id = nextTimerId++;
 		//Log::Debug << "Create timer " << id << Log::Endl;
-		timers[id] = new V8Timer{ isolate, context, GetTime(), callback, interval, once, std::move(location) };
+		timers[id] = new V8Timer{isolate, context, GetTime(), callback, interval, once, std::move(location)};
 
 		return id;
 	}
@@ -180,97 +172,35 @@ public:
 		return timers.size();
 	}
 
-	PathInfo Resolve(const std::string& path, const std::string& currentModulePath)
-	{
-		PathInfo pathInfo;
-
-		if (path.size() > 1 && path.at(0) == '@')
-		{
-			std::string packName;
-			size_t slash = path.find_first_of('/');
-
-			if (slash == std::string::npos)
-			{
-				packName = path.substr(1);
-				pathInfo.fileName = "";
-			}
-			else
-			{
-				packName = path.substr(1, slash - 1);
-				pathInfo.fileName = path.substr(slash + 1);
-			}
-
-			pathInfo.prefix = "@" + packName + "/";
-
-#ifndef ALT_CLIENT_API
-			// pathInfo.pkg = ICore::Instance().GetAssetPack(packName);
-#else
-			auto& resourceManager = CGame::Instance().GetResourceManager();
-			auto& assetManager = resourceManager.GetAssetManager();
-			pathInfo.pkg = assetManager.GetAssetPack(packName);
-#endif
-		}
-		else
-		{
-			if ((path.size() >= 2 && path[0] == '.' && path[1] == '/') ||
-				(path.size() >= 3 && path[0] == '.' && path[1] == '.' && path[2] == '/'))
-			{
-				std::filesystem::path modulePath(currentModulePath);
-				std::filesystem::path cwd("");
-				if (modulePath.has_parent_path())
-					cwd = modulePath.parent_path();
-
-				cwd.append(path);
-				std::filesystem::path targetFilePath = cwd.lexically_normal();
-
-				pathInfo.fileName = targetFilePath.generic_u8string();
-			}
-			else if (path.size() > 0 && path[0] == '/')
-			{
-				pathInfo.fileName = path.substr(1);
-			}
-			else
-			{
-				Log::Warning << "Full paths without / in the beginning are deprecated. Consider starting your paths with /" << Log::Endl;
-				pathInfo.fileName = path;
-			}
-
-			pathInfo.prefix = "";
-			pathInfo.pkg = resource->GetPackage();
-		}
-
-		return pathInfo;
-	}
-
-	void NotifyPoolUpdate(alt::IBaseObject* ent);
+	void NotifyPoolUpdate(alt::IBaseObject *ent);
 
 	v8::Local<v8::Array> GetAllPlayers();
 	v8::Local<v8::Array> GetAllVehicles();
 
-	std::vector<V8::EventCallback*> GetLocalHandlers(const std::string& name);
-	std::vector<V8::EventCallback*> GetRemoteHandlers(const std::string& name);
+	std::vector<V8::EventCallback *> GetLocalHandlers(const std::string &name);
+	std::vector<V8::EventCallback *> GetRemoteHandlers(const std::string &name);
 
-	static V8ResourceImpl* Get(v8::Local<v8::Context> ctx)
+	static V8ResourceImpl *Get(v8::Local<v8::Context> ctx)
 	{
-		alt::IResource* resource = GetResource(ctx);
+		alt::IResource *resource = GetResource(ctx);
 		return resource
-			? static_cast<V8ResourceImpl*>(resource->GetImpl())
-			: nullptr;
+				   ? static_cast<V8ResourceImpl *>(resource->GetImpl())
+				   : nullptr;
 	}
 
-	static alt::IResource* GetResource(v8::Local<v8::Context> ctx)
+	static alt::IResource *GetResource(v8::Local<v8::Context> ctx)
 	{
-		return static_cast<alt::IResource*>(ctx->GetAlignedPointerFromEmbedderData(1));
+		return static_cast<alt::IResource *>(ctx->GetAlignedPointerFromEmbedderData(1));
 	}
 
 protected:
-	v8::Isolate* isolate;
-	alt::IResource* resource;
+	v8::Isolate *isolate;
+	alt::IResource *resource;
 
 	v8::Persistent<v8::Context> context;
 
-	std::unordered_map<alt::IBaseObject*, V8Entity*> entities;
-	std::unordered_map<uint32_t, V8Timer*> timers;
+	std::unordered_map<alt::IBaseObject *, V8Entity *> entities;
+	std::unordered_map<uint32_t, V8Timer *> timers;
 
 	std::unordered_multimap<std::string, V8::EventCallback> localHandlers;
 	std::unordered_multimap<std::string, V8::EventCallback> remoteHandlers;
@@ -294,8 +224,9 @@ protected:
 	static int64_t GetTime()
 	{
 		return std::chrono::duration_cast<std::chrono::milliseconds>(
-			std::chrono::steady_clock::now().time_since_epoch()).count();
+				   std::chrono::steady_clock::now().time_since_epoch())
+			.count();
 	}
 
-	void InvokeEventHandlers(const alt::CEvent* ev, const std::vector<V8::EventCallback*>& handlers, std::vector<v8::Local<v8::Value>>& args);
+	void InvokeEventHandlers(const alt::CEvent *ev, const std::vector<V8::EventCallback *> &handlers, std::vector<v8::Local<v8::Value>> &args);
 };
