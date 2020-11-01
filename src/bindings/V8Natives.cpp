@@ -1,6 +1,5 @@
 
 #include "../helpers/V8Helpers.h"
-#include "V8Natives.h"
 #include "../helpers/V8Module.h"
 #include "../helpers/Log.h"
 
