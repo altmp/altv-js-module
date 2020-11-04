@@ -4,8 +4,6 @@
 #include "inspector/CV8InspectorChannel.h"
 #include "helpers/V8Module.h"
 
-#include "Windows.h"
-
 CV8ScriptRuntime::CV8ScriptRuntime()
 {
 	platform = v8::platform::NewDefaultPlatform();
@@ -80,7 +78,6 @@ CV8ScriptRuntime::CV8ScriptRuntime()
 		v8::Isolate::Scope isolate_scope(isolate);
 		v8::HandleScope handle_scope(isolate);
 
-		MessageBoxA(NULL, "", "", MB_OK);
 		V8Class::LoadAll(isolate);
 
 		extern V8Module altModule, nativesModule;
