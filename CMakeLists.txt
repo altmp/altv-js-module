@@ -2,14 +2,9 @@ cmake_minimum_required (VERSION 3.10)
 
 project(altv-client-js)
 
-set(ALTV_DEPS_DIR ${CMAKE_SOURCE_DIR}/deps)
+set(ALTV_JS_DEPS_DIR ${CMAKE_SOURCE_DIR}/deps)
 
 file(GLOB_RECURSE PROJECT_SOURCE_FILES "src/*.h" "src/*.hpp" "src/*.cpp" "src/*.c")
-# file(GLOB_RECURSE SHARED_SOURCE_FILES
-#   "${ALTV_SHARED}/src/*.h"
-#   "${ALTV_SHARED}/src/*.hpp"
-#   "${ALTV_SHARED}/src/*.cpp"
-# )
 
 macro(GroupSources curdir groupindex)
   file(GLOB children RELATIVE ${curdir} ${curdir}/*)
@@ -29,15 +24,15 @@ endmacro()
 GroupSources(${PROJECT_SOURCE_DIR}/src "Source Files")
 
 include_directories(
-  ${ALTV_DEPS_DIR}
-  ${ALTV_DEPS_DIR}/v8/include
+  ${ALTV_JS_DEPS_DIR}
+  ${ALTV_JS_DEPS_DIR}/v8/include
 )
 
 link_directories(
-  ${ALTV_DEPS_DIR}/v8/lib/${CMAKE_BUILD_TYPE}
+  ${ALTV_JS_DEPS_DIR}/v8/lib/${CMAKE_BUILD_TYPE}
 )
 
-link_libraries(
+set(ALTV_JS_LINKS
   # Platform binaries
   Winmm.lib
   DbgHelp.lib
@@ -46,7 +41,7 @@ link_libraries(
   v8_monolith.lib
 )
 
-add_definitions(
+set(ALTV_JS_DEFS
   # Compliation
   -DCXX_COMPILER_ID="${CMAKE_CXX_COMPILER_ID}"
   
@@ -76,7 +71,11 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
   CXX_STANDARD 17
 )
 target_compile_definitions(${PROJECT_NAME} PRIVATE
+  ${ALTV_JS_DEFS}
   -DALTV_JS_SHARED
+)
+target_link_libraries(${PROJECT_NAME} PRIVATE
+  ${ALTV_JS_LINKS}
 )
 
 ## STATIC
@@ -86,4 +85,10 @@ add_library(
 )
 set_target_properties(${PROJECT_NAME}-static PROPERTIES
   CXX_STANDARD 17
+)
+target_compile_definitions(${PROJECT_NAME}-static PRIVATE
+  ${ALTV_JS_DEFS}
+)
+target_link_libraries(${PROJECT_NAME}-static PRIVATE
+  ${ALTV_JS_LINKS}
 )
