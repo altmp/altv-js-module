@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cpp-sdk/IResource.h"
-#include "cpp-sdk/entities/IEntity.h"
+#include "cpp-sdk/objects/IEntity.h"
 
 #include "helpers/V8ResourceImpl.h"
 
@@ -126,7 +126,8 @@ public:
 		if (localStorage.IsEmpty())
 		{
 			std::vector<v8::Local<v8::Value>> args;
-			localStorage.Reset(isolate, V8Class::Get("LocalStorage")->New(GetContext(), args).As<v8::Object>());
+			extern V8Class v8LocalStorage;
+			localStorage.Reset(isolate, v8LocalStorage.New(GetContext(), args).As<v8::Object>());
 		}
 
 		return localStorage.Get(isolate);

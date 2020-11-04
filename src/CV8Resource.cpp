@@ -1,5 +1,5 @@
-#include "cpp-sdk/entities/IEntity.h"
-#include "cpp-sdk/entities/IPlayer.h"
+#include "cpp-sdk/objects/IEntity.h"
+#include "cpp-sdk/objects/IPlayer.h"
 
 #include "cpp-sdk/events/CEvent.h"
 #include "cpp-sdk/events/CClientScriptEvent.h"
@@ -22,6 +22,7 @@
 
 #include "CV8ScriptRuntime.h"
 #include "CV8Resource.h"
+#include "helpers/V8Helpers.h"
 #include "helpers/V8Module.h"
 
 static void StaticRequire(const v8::FunctionCallbackInfo<v8::Value> &info)

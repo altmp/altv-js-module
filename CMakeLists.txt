@@ -37,25 +37,7 @@ link_directories(
   ${ALTV_DEPS_DIR}/v8/lib/${CMAKE_BUILD_TYPE}
 )
 
-# Definitions
-add_definitions(
-  # Compliation
-  -DCXX_COMPILER_ID="${CMAKE_CXX_COMPILER_ID}"
-  
-  # Platform
-  -DUNICODE
-  -D_UNICODE
-
-  -DALT_CLIENT
-  -DALT_CLIENT_API
-)
-
-add_library(
-  ${PROJECT_NAME} SHARED
-  ${PROJECT_SOURCE_FILES}
-)
-
-target_link_libraries(${PROJECT_NAME}
+link_libraries(
   # Platform binaries
   Winmm.lib
   DbgHelp.lib
@@ -64,12 +46,44 @@ target_link_libraries(${PROJECT_NAME}
   v8_monolith.lib
 )
 
+add_definitions(
+  # Compliation
+  -DCXX_COMPILER_ID="${CMAKE_CXX_COMPILER_ID}"
+  
+  # Platform
+  -DUNICODE
+  -D_UNICODE
+
+  # alt:V
+  -DALT_CLIENT
+  -DALT_CLIENT_API
+
+  # v8
+  -DV8_COMPRESS_POINTERS
+  -DV8_31BIT_SMIS_ON_64BIT_ARCH
+)
+
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT /Zi /bigobj")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd /bigobj")
 set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /DEBUG:FULL /OPT:REF /OPT:ICF")
 
+## SHARED
+add_library(
+  ${PROJECT_NAME} SHARED
+  ${PROJECT_SOURCE_FILES}
+)
 set_target_properties(${PROJECT_NAME} PROPERTIES
   CXX_STANDARD 17
-#   RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/BIN/Debug/client"
-#   RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/BIN/Release/client"
+)
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+  -DALTV_JS_SHARED
+)
+
+## STATIC
+add_library(
+  ${PROJECT_NAME}-static STATIC
+  ${PROJECT_SOURCE_FILES}
+)
+set_target_properties(${PROJECT_NAME}-static PROPERTIES
+  CXX_STANDARD 17
 )

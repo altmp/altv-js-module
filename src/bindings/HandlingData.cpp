@@ -27,12 +27,12 @@ static void GetForHandlingName(const v8::FunctionCallbackInfo<v8::Value> &info)
 	V8_CHECK(info[0]->IsNumber(), "modelHash must be a number");
 	uint32_t modelHash = info[0]->Uint32Value(isolate->GetEnteredContext()).ToChecked();
 
-	static V8Class *handlingDataClass = V8Class::Get("HandlingData");
+	extern V8Class v8HandlingData;
 
 	std::vector<v8::Local<v8::Value>> args{
 		v8::Number::New(isolate, modelHash)};
 
-	info.GetReturnValue().Set(handlingDataClass->New(isolate->GetEnteredContext(), args));
+	info.GetReturnValue().Set(v8HandlingData.New(isolate->GetEnteredContext(), args));
 }
 
 static void HandlingNameHashGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
@@ -1694,8 +1694,8 @@ static void DamageFlagsSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, c
 	handling->SetDamageFlags(val->ToUint32(isolate->GetEnteredContext()).ToLocalChecked()->Value());
 }
 
-static V8Class v8HandlingData(
-	"HandlingData", "", Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
+extern V8Class v8HandlingData(
+	"HandlingData", Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
 		v8::Isolate *isolate = v8::Isolate::GetCurrent();
 
 		v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
@@ -1770,5 +1770,4 @@ static V8Class v8HandlingData(
 		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "modelFlags").ToLocalChecked(), &ModelFlagsGetter, &ModelFlagsSetter);
 		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "handlingFlags").ToLocalChecked(), &HandlingFlagsGetter, &HandlingFlagsSetter);
 		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "damageFlags").ToLocalChecked(), &DamageFlagsGetter, &DamageFlagsSetter);
-	},
-	false);
+	});

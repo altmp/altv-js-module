@@ -17,7 +17,7 @@ static void StaticSetInputMuted(v8::Local<v8::String> name, v8::Local<v8::Value>
 	alt::ICore::Instance().SetVoiceInputMuted(state);
 }
 
-static V8Class v8Voice("Voice", "", nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
+extern V8Class v8Voice("Voice", [](v8::Local<v8::FunctionTemplate> tpl) {
 	v8::Isolate *isolate = v8::Isolate::GetCurrent();
 
 	V8::SetStaticAccessor(isolate, tpl, "muteInput", StaticGetInputMuted, StaticSetInputMuted);

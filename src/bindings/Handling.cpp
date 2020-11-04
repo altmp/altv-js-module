@@ -4,7 +4,7 @@
 #include "../helpers/V8Class.h"
 #include "../helpers/V8Entity.h"
 #include "../helpers/V8ResourceImpl.h"
-#include "cpp-sdk/entities/IVehicle.h"
+#include "cpp-sdk/objects/IVehicle.h"
 
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
@@ -1974,8 +1974,8 @@ static void DamageFlagsSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, c
 	vehicle->GetHandling()->SetDamageFlags(val->ToUint32(isolate->GetEnteredContext()).ToLocalChecked()->Value());
 }
 
-static V8Class v8HandlingData(
-	"Handling", "", Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
+extern V8Class v8Handling(
+	"Handling", Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
 		v8::Isolate *isolate = v8::Isolate::GetCurrent();
 
 		v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
@@ -2051,5 +2051,4 @@ static V8Class v8HandlingData(
 		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "modelFlags").ToLocalChecked(), &ModelFlagsGetter, &ModelFlagsSetter);
 		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "handlingFlags").ToLocalChecked(), &HandlingFlagsGetter, &HandlingFlagsSetter);
 		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "damageFlags").ToLocalChecked(), &DamageFlagsGetter, &DamageFlagsSetter);
-	},
-	false);
+	});

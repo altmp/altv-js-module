@@ -35,7 +35,7 @@
 // 	V8_CHECK(info.Length() == 1, "MapZoomData.get expects 1 arg");
 // 	V8_CHECK(info[0]->IsNumber() || info[0]->IsString(), "zoomDataId must be a number or string");
 
-// 	static V8Class *mapZoomDataClass = V8Class::Get("MapZoomData");
+// 	static V8Class *mapZoomDataClass = &v8MapZoomData;
 
 // 	std::vector<v8::Local<v8::Value>> args{
 // 		info[0]};

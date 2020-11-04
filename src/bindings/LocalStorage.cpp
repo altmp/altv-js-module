@@ -79,8 +79,8 @@ static void Save(const v8::FunctionCallbackInfo<v8::Value> &info)
 	V8_CHECK(resource->GetLocalStorage()->Save(), "exceeded max local storage size (4MB)");
 }
 
-static V8Class v8LocalStorage(
-	"LocalStorage", "", nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
+extern V8Class v8LocalStorage(
+	"LocalStorage", nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
 		v8::Isolate *isolate = v8::Isolate::GetCurrent();
 
 		tpl->Set(isolate, "get", v8::FunctionTemplate::New(isolate, &StaticGet));
@@ -92,5 +92,4 @@ static V8Class v8LocalStorage(
 		proto->Set(isolate, "delete", v8::FunctionTemplate::New(isolate, &Delete));
 		proto->Set(isolate, "deleteAll", v8::FunctionTemplate::New(isolate, &DeleteAll));
 		proto->Set(isolate, "save", v8::FunctionTemplate::New(isolate, &Save));
-	},
-	false);
+	});

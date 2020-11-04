@@ -3,7 +3,7 @@
 #include "../helpers/V8Class.h"
 #include "../helpers/V8Entity.h"
 #include "../helpers/V8ResourceImpl.h"
-#include "cpp-sdk/entities/IVehicle.h"
+#include "cpp-sdk/objects/IVehicle.h"
 
 using namespace alt;
 
@@ -14,12 +14,11 @@ static void HandlingGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo
     V8Entity *_this = V8Entity::Get(info.This());
     V8_CHECK(_this, "entity is invalid");
 
-    static V8Class *handlingClass = V8Class::Get("Handling");
-
     std::vector<v8::Local<v8::Value>> args{
         info.This()};
 
-    info.GetReturnValue().Set(handlingClass->New(isolate->GetEnteredContext(), args));
+    extern V8Class v8Handling;
+    info.GetReturnValue().Set(v8Handling.New(isolate->GetEnteredContext(), args));
 }
 
 static void SpeedGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
@@ -162,7 +161,8 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value> &info)
     V8_RETURN_BASE_OBJECT(alt::ICore::Instance().GetEntityByID(id).As<alt::IVehicle>());
 }
 
-static V8Class v8vehicle("Vehicle", "Entity", nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
+extern V8Class v8Entity;
+extern V8Class v8Vehicle("Vehicle", v8Entity, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate *isolate = v8::Isolate::GetCurrent();
 
     v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();

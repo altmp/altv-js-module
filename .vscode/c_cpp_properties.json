@@ -1,25 +1,46 @@
 {
-    "configurations": [
-        {
-            "name": "Win32",
-            "includePath": [
-                "${workspaceFolder}/**",
-                "${workspaceFolder}/deps",
-                "${workspaceFolder}/deps/v8/include"
-            ],
-            "defines": [
-                "_DEBUG",
-                "UNICODE",
-                "_UNICODE",
-                "ALT_CLIENT_API",
-                "ALT_CLIENT"
-            ],
-            "windowsSdkVersion": "10.0.19041.0",
-            "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.21.27702/bin/Hostx64/x64/cl.exe",
-            "cStandard": "c11",
-            "cppStandard": "c++17",
-            "intelliSenseMode": "msvc-x64"
-        }
-    ],
-    "version": 4
+  "configurations": [
+    {
+      "name": "Win32 Static",
+      "includePath": [
+        "${workspaceFolder}/**",
+        "${workspaceFolder}/deps",
+        "${workspaceFolder}/deps/v8/include"
+      ],
+      "defines": [
+        "_DEBUG",
+        "UNICODE",
+        "_UNICODE",
+        "ALT_CLIENT_API",
+        "ALT_CLIENT"
+      ],
+      "windowsSdkVersion": "10.0.19041.0",
+      "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.21.27702/bin/Hostx64/x64/cl.exe",
+      "cStandard": "c11",
+      "cppStandard": "c++17",
+      "intelliSenseMode": "msvc-x64"
+    },
+    {
+      "name": "Win32 Shared",
+      "includePath": [
+        "${workspaceFolder}/**",
+        "${workspaceFolder}/deps",
+        "${workspaceFolder}/deps/v8/include"
+      ],
+      "defines": [
+        "_DEBUG",
+        "UNICODE",
+        "_UNICODE",
+        "ALT_CLIENT_API",
+        "ALT_CLIENT",
+        "ALTV_JS_SHARED"
+      ],
+      "windowsSdkVersion": "10.0.19041.0",
+      "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.21.27702/bin/Hostx64/x64/cl.exe",
+      "cStandard": "c11",
+      "cppStandard": "c++17",
+      "intelliSenseMode": "msvc-x64"
+    }
+  ],
+  "version": 4
 }

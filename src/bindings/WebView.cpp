@@ -163,8 +163,10 @@ static void URLSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value
 	view->SetUrl(*url);
 }
 
-static V8Class v8webview(
-	"WebView", "BaseObject", [](const v8::FunctionCallbackInfo<v8::Value> &info) {
+extern V8Class v8BaseObject;
+extern V8Class v8WebView(
+	"WebView", v8BaseObject,
+	[](const v8::FunctionCallbackInfo<v8::Value> &info) {
 		v8::Isolate *isolate = info.GetIsolate();
 		v8::Local<v8::Context> ctx = isolate->GetCurrentContext();
 
@@ -172,7 +174,7 @@ static V8Class v8webview(
 		V8_CHECK(info.Length() > 0 && info.Length() <= 3, "new WebView(...) expects 1, 2 or 3 args");
 		V8_CHECK(info[0]->IsString(), "url must be a string");
 
-		V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
+		alt::IResource *resource = V8ResourceImpl::GetResource(isolate->GetEnteredContext());
 		V8_CHECK(resource, "invalid resource");
 
 		v8::Local<v8::String> url = info[0].As<v8::String>();
@@ -190,7 +192,7 @@ static V8Class v8webview(
 			auto texture = alt::ICore::Instance().GetTextureFromDrawable(drawableHash, targetTextureStr);
 			V8_CHECK(texture != nullptr, "Texture not found");
 
-			view = alt::ICore::Instance().CreateWebView(*v8::String::Utf8Value(info.GetIsolate(), url), (uint32_t)drawableHash, targetTextureStr);
+			view = resource->CreateWebView(*v8::String::Utf8Value(info.GetIsolate(), url), (uint32_t)drawableHash, targetTextureStr);
 			V8_CHECK(!view.IsEmpty(), "Interactive WebView cannot be created");
 		}
 		else if (info.Length() == 2)
@@ -198,15 +200,16 @@ static V8Class v8webview(
 			v8::Local<v8::Boolean> isOverlay = info[1]->ToBoolean(isolate);
 			bool isOverlayBool = isOverlay->Value();
 
-			view = alt::ICore::Instance().CreateWebView(*v8::String::Utf8Value(info.GetIsolate(), url), {0, 0}, {0, 0}, true, isOverlayBool);
+			view = resource->CreateWebView(*v8::String::Utf8Value(info.GetIsolate(), url), {0, 0}, {0, 0}, true, isOverlayBool);
 		}
 		else
 		{
-			view = alt::ICore::Instance().CreateWebView(*v8::String::Utf8Value(info.GetIsolate(), url), {0, 0}, {0, 0}, true, false);
+			view = resource->CreateWebView(*v8::String::Utf8Value(info.GetIsolate(), url), {0, 0}, {0, 0}, true, false);
 		}
 
-		static_cast<CV8ResourceImpl *>(resource)->AddOwned(view);
-		resource->BindEntity(info.This(), view.Get()); },
+		// static_cast<CV8ResourceImpl *>(resource)->AddOwned(view);
+		// resource->BindEntity(info.This(), view.Get());
+	},
 	[](v8::Local<v8::FunctionTemplate> tpl) {
 		v8::Isolate *isolate = v8::Isolate::GetCurrent();
 

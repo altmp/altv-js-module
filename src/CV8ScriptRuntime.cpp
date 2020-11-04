@@ -1,14 +1,10 @@
 
-//#include "helpers/bindings/BaseObject.h"
-//#include "helpers/bindings/WorldObject.h"
-//#include "helpers/bindings/Entity.h"
-//#include "bindings/Player.h"
-//#include "bindings/Vehicle.h"
-//#include "bindings/WebView.h"
-
 #include "CV8ScriptRuntime.h"
 #include "inspector/CV8InspectorClient.h"
 #include "inspector/CV8InspectorChannel.h"
+#include "helpers/V8Module.h"
+
+#include "Windows.h"
 
 CV8ScriptRuntime::CV8ScriptRuntime()
 {
@@ -84,6 +80,10 @@ CV8ScriptRuntime::CV8ScriptRuntime()
 		v8::Isolate::Scope isolate_scope(isolate);
 		v8::HandleScope handle_scope(isolate);
 
+		MessageBoxA(NULL, "", "", MB_OK);
 		V8Class::LoadAll(isolate);
+
+		extern V8Module altModule, nativesModule;
+		V8Module::Add({altModule, nativesModule});
 	}
 }
