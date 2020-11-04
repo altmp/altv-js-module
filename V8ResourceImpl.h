@@ -5,7 +5,7 @@
 
 #include "cpp-sdk/types/MValue.h"
 #include "cpp-sdk/IResource.h"
-#include "cpp-sdk/IBaseObject.h"
+#include "cpp-sdk/objects/IBaseObject.h"
 
 #include "V8Entity.h"
 #include "V8Timer.h"

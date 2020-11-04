@@ -5,13 +5,19 @@
 
 #include <v8.h>
 
-#include "cpp-sdk/entities/IEntity.h"
+#include "cpp-sdk/objects/IEntity.h"
 #include "cpp-sdk/types/MValue.h"
 #include "V8Entity.h"
 
-class V8Helpers
+namespace V8Helpers
 {
-public:
+	inline void Throw(v8::Isolate *isolate, const std::string &msg)
+	{
+		isolate->ThrowException(v8::Exception::Error(v8::String::NewFromUtf8(isolate, msg.data(), v8::NewStringType::kNormal, msg.size()).ToLocalChecked()));
+	}
+
+	bool TryCatch(const std::function<bool()> &fn);
+
 	struct HashFunc
 	{
 		size_t operator()(v8::Local<v8::Function> fn) const
@@ -33,12 +39,12 @@ public:
 	public:
 		using Callback = std::function<void(v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports)>;
 
-		Binding(Callback&& fn)
+		Binding(Callback &&fn)
 		{
 			All().push_back(std::move(fn));
 		}
 
-		static std::vector<Callback>& All()
+		static std::vector<Callback> &All()
 		{
 			static std::vector<Callback> _All;
 			return _All;
@@ -46,19 +52,14 @@ public:
 
 		static void RegisterAll(v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports)
 		{
-			for (auto& binding : All())
+			for (auto &binding : All())
 				binding(ctx, exports);
 		}
 	};
 
-	static void Throw(v8::Isolate* isolate, const std::string& msg)
+	inline void RegisterFunc(v8::Local<v8::Object> exports, const std::string &_name, v8::FunctionCallback cb, void *data = nullptr)
 	{
-		isolate->ThrowException(v8::Exception::Error(v8::String::NewFromUtf8(isolate, msg.data(), v8::NewStringType::kNormal, msg.size()).ToLocalChecked()));
-	}
-
-	static void RegisterFunc(v8::Local<v8::Object> exports, const std::string& _name, v8::FunctionCallback cb, void* data = nullptr)
-	{
-		v8::Isolate* isolate = v8::Isolate::GetCurrent();
+		v8::Isolate *isolate = v8::Isolate::GetCurrent();
 		v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
 
 		v8::Local<v8::String> name = v8::String::NewFromUtf8(isolate, _name.data(), v8::NewStringType::kNormal, _name.size()).ToLocalChecked();
@@ -69,27 +70,27 @@ public:
 		exports->Set(ctx, name, fn);
 	}
 
-	static bool TryCatch(const std::function<bool()>& fn);
+	void FunctionCallback(const v8::FunctionCallbackInfo<v8::Value> &info);
 
-	static void FunctionCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
+	alt::MValue V8ToMValue(v8::Local<v8::Value> val);
 
-	static alt::MValue V8ToMValue(v8::Local<v8::Value> val);
+	v8::Local<v8::Value> MValueToV8(alt::MValueConst val);
 
-	static v8::Local<v8::Value> MValueToV8(alt::MValueConst val);
-
-	static void MValueArgsToV8(alt::MValueArgs args, std::vector<v8::Local<v8::Value>>& v8Args)
+	inline void MValueArgsToV8(alt::MValueArgs args, std::vector<v8::Local<v8::Value>> &v8Args)
 	{
 		for (uint64_t i = 0; i < args.GetSize(); ++i)
 			v8Args.push_back(MValueToV8(args[i]));
 	}
 
-	static void SetAccessor(v8::Local<v8::Template> tpl, v8::Isolate* isolate, const char* name, v8::AccessorGetterCallback getter,
-		v8::AccessorSetterCallback setter = nullptr)
+	inline void SetAccessor(v8::Local<v8::Template> tpl, v8::Isolate *isolate, const char *name, v8::AccessorGetterCallback getter,
+							v8::AccessorSetterCallback setter = nullptr)
 	{
 		tpl->SetNativeDataProperty(v8::String::NewFromUtf8(isolate, name,
-			v8::NewStringType::kInternalized).ToLocalChecked(), getter, setter);
+														   v8::NewStringType::kInternalized)
+									   .ToLocalChecked(),
+								   getter, setter);
 	}
-};
+}; // namespace V8Helpers
 
 class V8ResourceImpl;
 
@@ -98,13 +99,13 @@ namespace V8
 	class SourceLocation
 	{
 	public:
-		SourceLocation(std::string&& fileName, int line);
-		SourceLocation() { };
+		SourceLocation(std::string &&fileName, int line);
+		SourceLocation(){};
 
-		const std::string& GetFileName() const { return fileName; }
+		const std::string &GetFileName() const { return fileName; }
 		int GetLineNumber() const { return line; }
 
-		static SourceLocation GetCurrent(v8::Isolate* isolate);
+		static SourceLocation GetCurrent(v8::Isolate *isolate);
 
 	private:
 		std::string fileName;
@@ -117,100 +118,97 @@ namespace V8
 		SourceLocation location;
 		bool removed = false;
 
-		EventCallback(v8::Isolate* isolate, v8::Local<v8::Function> _fn, SourceLocation&& location) :
-			fn(isolate, _fn), location(std::move(location)) { }
+		EventCallback(v8::Isolate *isolate, v8::Local<v8::Function> _fn, SourceLocation &&location) : fn(isolate, _fn), location(std::move(location)) {}
 	};
 
 	class EventHandler
 	{
 	public:
-		using CallbacksGetter = std::function<std::vector<EventCallback*>(V8ResourceImpl* resource, const alt::CEvent*)>;
-		using ArgsGetter = std::function<void(V8ResourceImpl* resource, const alt::CEvent*, std::vector<v8::Local<v8::Value>>& args)>;
+		using CallbacksGetter = std::function<std::vector<EventCallback *>(V8ResourceImpl *resource, const alt::CEvent *)>;
+		using ArgsGetter = std::function<void(V8ResourceImpl *resource, const alt::CEvent *, std::vector<v8::Local<v8::Value>> &args)>;
 
-		EventHandler(alt::CEvent::Type type, CallbacksGetter&& _handlersGetter, ArgsGetter&& _argsGetter) :
-			callbacksGetter(std::move(_handlersGetter)), argsGetter(std::move(_argsGetter))
+		EventHandler(alt::CEvent::Type type, CallbacksGetter &&_handlersGetter, ArgsGetter &&_argsGetter) : callbacksGetter(std::move(_handlersGetter)), argsGetter(std::move(_argsGetter))
 		{
 			Register(type, this);
 		}
 
-		std::vector<V8::EventCallback*> GetCallbacks(V8ResourceImpl* impl, const alt::CEvent* e);
-		std::vector<v8::Local<v8::Value>> GetArgs(V8ResourceImpl* impl, const alt::CEvent* e);
+		std::vector<V8::EventCallback *> GetCallbacks(V8ResourceImpl *impl, const alt::CEvent *e);
+		std::vector<v8::Local<v8::Value>> GetArgs(V8ResourceImpl *impl, const alt::CEvent *e);
 
-		static EventHandler* Get(const alt::CEvent* e);
+		static EventHandler *Get(const alt::CEvent *e);
 
 	private:
 		CallbacksGetter callbacksGetter;
 		ArgsGetter argsGetter;
 
-		static std::unordered_map<alt::CEvent::Type, EventHandler*>& all()
+		static std::unordered_map<alt::CEvent::Type, EventHandler *> &all()
 		{
-			static std::unordered_map<alt::CEvent::Type, EventHandler*> _all;
+			static std::unordered_map<alt::CEvent::Type, EventHandler *> _all;
 			return _all;
 		}
 
-		static void Register(alt::CEvent::Type type, EventHandler* handler);
+		static void Register(alt::CEvent::Type type, EventHandler *handler);
 	};
 
 	class LocalEventHandler : public EventHandler
 	{
 	public:
-		LocalEventHandler(alt::CEvent::Type type, const std::string& name, ArgsGetter&& argsGetter) :
-			EventHandler(type, std::move(GetCallbacksGetter(name)), std::move(argsGetter)) { }
+		LocalEventHandler(alt::CEvent::Type type, const std::string &name, ArgsGetter &&argsGetter) : EventHandler(type, std::move(GetCallbacksGetter(name)), std::move(argsGetter)) {}
 
 	private:
-		static CallbacksGetter GetCallbacksGetter(const std::string& name);
+		static CallbacksGetter GetCallbacksGetter(const std::string &name);
 	};
 
-	void DefineOwnProperty(v8::Isolate* isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Object> val,
-		const char* name, v8::Local<v8::Value> value, v8::PropertyAttribute attributes = v8::PropertyAttribute::None);
+	void DefineOwnProperty(v8::Isolate *isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Object> val,
+						   const char *name, v8::Local<v8::Value> value, v8::PropertyAttribute attributes = v8::PropertyAttribute::None);
 
-	void DefineOwnProperty(v8::Isolate* isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Object> val,
-		v8::Local<v8::String> name, v8::Local<v8::Value> value, v8::PropertyAttribute attributes = v8::PropertyAttribute::None);
+	void DefineOwnProperty(v8::Isolate *isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Object> val,
+						   v8::Local<v8::String> name, v8::Local<v8::Value> value, v8::PropertyAttribute attributes = v8::PropertyAttribute::None);
 
-	void SetAccessor(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> tpl, const char* name,
-		v8::AccessorGetterCallback getter, v8::AccessorSetterCallback setter = nullptr);
+	void SetAccessor(v8::Isolate *isolate, v8::Local<v8::FunctionTemplate> tpl, const char *name,
+					 v8::AccessorGetterCallback getter, v8::AccessorSetterCallback setter = nullptr);
 
-	void SetMethod(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> tpl, const char* name,
-		v8::FunctionCallback callback);
+	void SetMethod(v8::Isolate *isolate, v8::Local<v8::FunctionTemplate> tpl, const char *name,
+				   v8::FunctionCallback callback);
 
-	void SetStaticAccessor(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> tpl, const char* name,
-		v8::AccessorGetterCallback getter, v8::AccessorSetterCallback setter = nullptr);
+	void SetStaticAccessor(v8::Isolate *isolate, v8::Local<v8::FunctionTemplate> tpl, const char *name,
+						   v8::AccessorGetterCallback getter, v8::AccessorSetterCallback setter = nullptr);
 
-	void SetStaticMethod(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> tpl, const char* name,
-		v8::FunctionCallback callback);
+	void SetStaticMethod(v8::Isolate *isolate, v8::Local<v8::FunctionTemplate> tpl, const char *name,
+						 v8::FunctionCallback callback);
 
-	void SetFunction(v8::Isolate* isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Object> target,
-		const char* name, v8::FunctionCallback cb, void* userData = nullptr);
+	void SetFunction(v8::Isolate *isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Object> target,
+					 const char *name, v8::FunctionCallback cb, void *userData = nullptr);
 
-	v8::Local<v8::Value> Get(v8::Local<v8::Context> ctx, v8::Local<v8::Object> obj, const char* name);
+	v8::Local<v8::Value> Get(v8::Local<v8::Context> ctx, v8::Local<v8::Object> obj, const char *name);
 	v8::Local<v8::Value> Get(v8::Local<v8::Context> ctx, v8::Local<v8::Object> obj, v8::Local<v8::Name> name);
 
 	void RegisterSharedMain(v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports);
 
-	v8::Local<v8::Value> New(v8::Isolate* isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Function> constructor, std::vector<v8::Local<v8::Value>>& args);
+	v8::Local<v8::Value> New(v8::Isolate *isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Function> constructor, std::vector<v8::Local<v8::Value>> &args);
 
 	// TODO: create c++ classes for v8 classes and move there
-	v8::Local<v8::String> Vector3_XKey(v8::Isolate* isolate);
-	v8::Local<v8::String> Vector3_YKey(v8::Isolate* isolate);
-	v8::Local<v8::String> Vector3_ZKey(v8::Isolate* isolate);
+	v8::Local<v8::String> Vector3_XKey(v8::Isolate *isolate);
+	v8::Local<v8::String> Vector3_YKey(v8::Isolate *isolate);
+	v8::Local<v8::String> Vector3_ZKey(v8::Isolate *isolate);
 
-	v8::Local<v8::String> RGBA_RKey(v8::Isolate* isolate);
-	v8::Local<v8::String> RGBA_GKey(v8::Isolate* isolate);
-	v8::Local<v8::String> RGBA_BKey(v8::Isolate* isolate);
-	v8::Local<v8::String> RGBA_AKey(v8::Isolate* isolate);
+	v8::Local<v8::String> RGBA_RKey(v8::Isolate *isolate);
+	v8::Local<v8::String> RGBA_GKey(v8::Isolate *isolate);
+	v8::Local<v8::String> RGBA_BKey(v8::Isolate *isolate);
+	v8::Local<v8::String> RGBA_AKey(v8::Isolate *isolate);
 
-	v8::Local<v8::String> Fire_PosKey(v8::Isolate* isolate);
-	v8::Local<v8::String> Fire_WeaponKey(v8::Isolate* isolate);
+	v8::Local<v8::String> Fire_PosKey(v8::Isolate *isolate);
+	v8::Local<v8::String> Fire_WeaponKey(v8::Isolate *isolate);
 
-	bool SafeToBoolean(v8::Local<v8::Value> val, v8::Isolate* isolate, bool& out);
-	bool SafeToInteger(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, int64_t& out);
-	bool SafeToNumber(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, double& out);
-	bool SafeToString(v8::Local<v8::Value> val, v8::Isolate* isolate, v8::Local<v8::Context> ctx, alt::String& out);
+	bool SafeToBoolean(v8::Local<v8::Value> val, v8::Isolate *isolate, bool &out);
+	bool SafeToInteger(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, int64_t &out);
+	bool SafeToNumber(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, double &out);
+	bool SafeToString(v8::Local<v8::Value> val, v8::Isolate *isolate, v8::Local<v8::Context> ctx, alt::String &out);
 
 	template <typename T>
-	bool SafeToBaseObject(v8::Local<v8::Value> val, v8::Isolate* isolate, alt::Ref<T>& out)
+	bool SafeToBaseObject(v8::Local<v8::Value> val, v8::Isolate *isolate, alt::Ref<T> &out)
 	{
-		V8Entity* v8BaseObject = V8Entity::Get(val);
+		V8Entity *v8BaseObject = V8Entity::Get(val);
 		if (!v8BaseObject)
 			return false;
 
@@ -220,34 +218,38 @@ namespace V8
 
 		return true;
 	}
-}
+} // namespace V8
 
-#define V8_GET_ISOLATE(info) v8::Isolate* isolate = (info).GetIsolate()
+#define V8_GET_ISOLATE(info) v8::Isolate *isolate = (info).GetIsolate()
 #define V8_GET_CONTEXT(isolate) v8::Local<v8::Context> ctx = (isolate)->GetEnteredContext()
 #define V8_GET_ISOLATE_CONTEXT() \
-	V8_GET_ISOLATE(info); \
+	V8_GET_ISOLATE(info);        \
 	V8_GET_CONTEXT(isolate)
 
-#define V8_GET_RESOURCE() \
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext()); \
+#define V8_GET_RESOURCE()                                                         \
+	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext()); \
 	V8_CHECK(resource, "invalid resource");
 
 #define V8_GET_ISOLATE_CONTEXT_RESOURCE() \
-	V8_GET_ISOLATE_CONTEXT(); \
+	V8_GET_ISOLATE_CONTEXT();             \
 	V8_GET_RESOURCE()
 
-#define V8_CHECK_RETN(a, b, c) if (!(a)) { V8Helpers::Throw(isolate, (b)); return c; }
-#define V8_CHECK(a, b) V8_CHECK_RETN(a, b,)
+#define V8_CHECK_RETN(a, b, c)          \
+	if (!(a))                           \
+	{                                   \
+		V8Helpers::Throw(isolate, (b)); \
+		return c;                       \
+	}
+#define V8_CHECK(a, b) V8_CHECK_RETN(a, b, )
 
-#define V8_GET_THIS_BASE_OBJECT(val, type) \
-	::alt::Ref<type> val; \
-	{ \
-		V8Entity* __val = V8Entity::Get(info.This()); \
-		V8_CHECK(__val, "baseobject is invalid"); \
-		val = __val->GetHandle().As<type>(); \
+#define V8_GET_THIS_BASE_OBJECT(val, type)                 \
+	::alt::Ref<type> val;                                  \
+	{                                                      \
+		V8Entity *__val = V8Entity::Get(info.This());      \
+		V8_CHECK(__val, "baseobject is invalid");          \
+		val = __val->GetHandle().As<type>();               \
 		V8_CHECK(val, "baseobject is not of type " #type); \
 	}
-
 
 #define V8_CHECK_CONSTRUCTOR() V8_CHECK(info.IsConstructCall(), "function can't be called without new")
 
@@ -255,51 +257,51 @@ namespace V8
 #define V8_CHECK_ARGS_LEN2(count1, count2) V8_CHECK(info.Length() == (count1) || info.Length() == (count2), #count1 " or " #count2 " arguments expected")
 
 #define V8_TO_BOOLEAN(v8Val, val) \
-	bool val; \
+	bool val;                     \
 	V8_CHECK(V8::SafeToBoolean((v8Val), isolate, val), "Failed to convert value to boolean")
 
 #define V8_TO_NUMBER(v8Val, val) \
-	double val; \
+	double val;                  \
 	V8_CHECK(V8::SafeToNumber((v8Val), ctx, val), "Failed to convert value to number")
 
 // idx starts with 1
-#define V8_ARG_CHECK_NUMBER(idx) V8_CHECK(info[(idx) - 1]->IsNumber(), "Argument " #idx " must be a number")
+#define V8_ARG_CHECK_NUMBER(idx) V8_CHECK(info[(idx)-1]->IsNumber(), "Argument " #idx " must be a number")
 
 // idx starts with 1
 #define V8_ARG_TO_BOOLEAN(idx, val) \
-	bool val; \
-	V8_CHECK(V8::SafeToBoolean(info[(idx) - 1], isolate, val), "Failed to convert argument " #idx " to boolean")
+	bool val;                       \
+	V8_CHECK(V8::SafeToBoolean(info[(idx)-1], isolate, val), "Failed to convert argument " #idx " to boolean")
 
 // idx starts with 1
-#define V8_ARG_TO_BOOLEAN_OPT(idx, val, defaultVal) \
-	bool val; \
-	if (info.Length() >= (idx)) \
-	{ \
-		V8_CHECK(V8::SafeToBoolean(info[(idx) - 1], isolate, val), "Failed to convert argument " #idx " to boolean"); \
-	} \
-	else \
-	{ \
-		val = defaultVal; \
+#define V8_ARG_TO_BOOLEAN_OPT(idx, val, defaultVal)                                                                 \
+	bool val;                                                                                                       \
+	if (info.Length() >= (idx))                                                                                     \
+	{                                                                                                               \
+		V8_CHECK(V8::SafeToBoolean(info[(idx)-1], isolate, val), "Failed to convert argument " #idx " to boolean"); \
+	}                                                                                                               \
+	else                                                                                                            \
+	{                                                                                                               \
+		val = defaultVal;                                                                                           \
 	}
 
 // idx starts with 1
 #define V8_ARG_TO_INTEGER(idx, val) \
-	int64_t val; \
-	V8_CHECK(V8::SafeToInteger(info[(idx) - 1], ctx, val), "Failed to convert argument " #idx " to integer")
+	int64_t val;                    \
+	V8_CHECK(V8::SafeToInteger(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to integer")
 
 // idx starts with 1
 #define V8_ARG_TO_NUMBER(idx, val) \
-	double val; \
-	V8_CHECK(V8::SafeToNumber(info[(idx) - 1], ctx, val), "Failed to convert argument " #idx " to number")
+	double val;                    \
+	V8_CHECK(V8::SafeToNumber(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to number")
 
 // idx starts with 1
 #define V8_ARG_TO_STRING(idx, val) \
-	alt::String val; \
-	V8_CHECK(V8::SafeToString(info[(idx) - 1], isolate, ctx, val), "Failed to convert argument " #idx " to string")
+	alt::String val;               \
+	V8_CHECK(V8::SafeToString(info[(idx)-1], isolate, ctx, val), "Failed to convert argument " #idx " to string")
 
 // idx starts with 1
 #define V8_ARG_TO_BASE_OBJECT(idx, val, type, jsClassName) \
-	alt::Ref<type> val; \
+	alt::Ref<type> val;                                    \
 	V8_CHECK(V8::SafeToBaseObject<type>(info[(idx)-1], isolate, val), "Argument " #idx " must be a " jsClassName)
 
 #define V8_RETURN(val) info.GetReturnValue().Set(val)
@@ -310,9 +312,9 @@ namespace V8
 
 #define V8_RETURN_BASE_OBJECT(baseObjectRef) V8_RETURN(resource->GetBaseObjectOrNull(baseObjectRef))
 
-#define V8_BIND_BASE_OBJECT(baseObjectRef, error) \
-	{ \
-		auto baseObject = (baseObjectRef); \
-		V8_CHECK(!baseObject.IsEmpty(), error); \
+#define V8_BIND_BASE_OBJECT(baseObjectRef, error)            \
+	{                                                        \
+		auto baseObject = (baseObjectRef);                   \
+		V8_CHECK(!baseObject.IsEmpty(), error);              \
 		resource->BindEntity(info.This(), baseObject.Get()); \
 	}

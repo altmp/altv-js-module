@@ -78,7 +78,8 @@ static void DimensionSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, con
 }
 #endif // ALT_SERVER_API
 
-static V8Class v8worldObject("WorldObject", "BaseObject", nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
+extern V8Class v8BaseObject;
+extern V8Class v8WorldObject("WorldObject", v8BaseObject, [](v8::Local<v8::FunctionTemplate> tpl) {
 	v8::Isolate *isolate = v8::Isolate::GetCurrent();
 
 	V8::SetAccessor(isolate, tpl, "pos", PositionGetter, PositionSetter);

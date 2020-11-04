@@ -26,3 +26,21 @@ v8::Local<v8::Value> V8Class::New(v8::Local<v8::Context> ctx, std::vector<v8::Lo
 
 	return obj;
 }
+
+v8::Local<v8::Value> V8Class::CreateInstance(v8::Isolate *isolate, v8::Local<v8::Context> ctx, std::vector<v8::Local<v8::Value>> args)
+{
+	v8::Local<v8::Function> constructor = JSValue(isolate, ctx);
+	v8::Local<v8::Value> obj;
+
+	V8Helpers::TryCatch([&] {
+		v8::MaybeLocal<v8::Value> maybeObj = constructor->CallAsConstructor(ctx, args.size(), args.data());
+
+		if (maybeObj.IsEmpty())
+			return false;
+
+		obj = maybeObj.ToLocalChecked();
+		return true;
+	});
+
+	return obj;
+}

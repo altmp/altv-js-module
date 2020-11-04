@@ -7,63 +7,67 @@
 #include "V8Class.h"
 #include <unordered_set>
 
-class V8Module {
+class V8Module
+{
     using Callback = std::function<void(v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports)>;
-    
-public:
 
-    static std::map<std::string, V8Module*>& All()
+public:
+    static std::map<std::string, V8Module *> &All()
     {
-        static std::map<std::string, V8Module*> all;
+        static std::map<std::string, V8Module *> all;
         return all;
     }
 
-    static bool Exists(const std::string& name)
+    static void Add(V8Module &module)
+    {
+        All()[module.moduleName] = &module;
+    }
+
+    static void Add(std::initializer_list<std::reference_wrapper<V8Module>> modules)
+    {
+        for (auto &m : modules)
+            All()[m.get().moduleName] = &m.get();
+    }
+
+    static bool Exists(const std::string &name)
     {
         if (All().find(name) == All().end())
-			return false;
-		else
-			return true;
+            return false;
+        else
+            return true;
     }
 
     std::string moduleName;
-    std::unordered_set<std::string> classes;
+    std::unordered_set<V8Class *> classes;
     Callback creator;
 
+    template <class... cc>
     V8Module(
         std::string moduleName,
-        std::initializer_list<std::string> _classes,
-        Callback fn
-    ) : moduleName(moduleName), classes(_classes), creator(fn)
+        std::initializer_list<std::reference_wrapper<V8Class>> _classes,
+        Callback fn) : moduleName(moduleName), creator(fn)
     {
-        All()[moduleName] = this;
+        for (auto &c : _classes)
+            classes.insert(&c.get());
+
+        // All()[moduleName] = this;
     }
 
-	void Register(v8::Isolate* isolate, v8::Local<v8::Context> context, v8::Local<v8::Object> exports)
-	{
-		// Load all classes
-		for (auto& c : classes)
-		{
-			V8Class* v8class = V8Class::Get(c);
-			if (!v8class)
-			{
-				auto msg = "[V8] Module '" + moduleName
-					+ "' is attempting to load non-existant class '" + c + "'";
+    void Register(v8::Isolate *isolate, v8::Local<v8::Context> context, v8::Local<v8::Object> exports)
+    {
+        // Load all classes
+        for (auto c : classes)
+        {
+            c->Register(isolate, context, exports);
+        }
 
-				Log::Error << msg << Log::Endl;
-				//throw std::runtime_error(msg);
-			}
+        creator(context, exports);
+    }
 
-			v8class->Register(isolate, context, exports);
-		}
-
-		creator(context, exports);
-	}
-
-    v8::Local<v8::Object> GetExports(v8::Isolate* isolate, v8::Local<v8::Context> context)
+    v8::Local<v8::Object> GetExports(v8::Isolate *isolate, v8::Local<v8::Context> context)
     {
         v8::Local<v8::Object> _exports = v8::Object::New(isolate);
-		Register(isolate, context, _exports);
-		return _exports;
+        Register(isolate, context, _exports);
+        return _exports;
     }
 };

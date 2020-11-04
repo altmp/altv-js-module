@@ -1,6 +1,6 @@
 
-#include "cpp-sdk/entities/IPlayer.h"
-#include "cpp-sdk/entities/IVehicle.h"
+#include "cpp-sdk/objects/IPlayer.h"
+#include "cpp-sdk/objects/IVehicle.h"
 
 #include "V8ResourceImpl.h"
 
@@ -11,11 +11,12 @@
 
 using namespace alt;
 
+extern V8Class v8Vector3, v8RGBA, v8BaseObject;
 bool V8ResourceImpl::Start()
 {
-	vector3Class.Reset(isolate, V8Class::Get("Vector3")->JSValue(isolate, GetContext()));
-	rgbaClass.Reset(isolate, V8Class::Get("RGBA")->JSValue(isolate, GetContext()));
-	baseObjectClass.Reset(isolate, V8Class::Get("BaseObject")->JSValue(isolate, GetContext()));
+	vector3Class.Reset(isolate, v8Vector3.JSValue(isolate, GetContext()));
+	rgbaClass.Reset(isolate, v8RGBA.JSValue(isolate, GetContext()));
+	baseObjectClass.Reset(isolate, v8BaseObject.JSValue(isolate, GetContext()));
 
 	return true;
 }
@@ -97,7 +98,7 @@ v8::Local<v8::Value> V8ResourceImpl::CreateVector3(alt::Vector3f vec)
 		v8::Number::New(isolate, vec[1]),
 		v8::Number::New(isolate, vec[2])};
 
-	return V8::New(isolate, GetContext(), vector3Class.Get(isolate), args);
+	return v8Vector3.CreateInstance(isolate, GetContext(), args);
 }
 
 v8::Local<v8::Value> V8ResourceImpl::CreateRGBA(alt::RGBA rgba)

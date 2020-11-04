@@ -3,7 +3,7 @@
 #include "../V8ResourceImpl.h"
 #include "../V8Class.h"
 #include "../V8Entity.h"
-#include "cpp-sdk/entities/IPlayer.h"
+#include "cpp-sdk/objects/IPlayer.h"
 
 using namespace alt;
 
@@ -345,7 +345,8 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value> &info)
 	V8_RETURN_BASE_OBJECT(alt::ICore::Instance().GetEntityByID(id));
 }
 
-static V8Class v8entity("Entity", "WorldObject", nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
+extern V8Class v8WorldObject;
+extern V8Class v8Entity("Entity", v8WorldObject, [](v8::Local<v8::FunctionTemplate> tpl) {
 	v8::Isolate *isolate = v8::Isolate::GetCurrent();
 
 	V8::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);

@@ -79,7 +79,7 @@ static void StaticRead(const v8::FunctionCallbackInfo<v8::Value> &info)
 	}
 }
 
-static V8Class v8File("File", "", nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
+extern V8Class v8File("File", [](v8::Local<v8::FunctionTemplate> tpl) {
 	v8::Isolate *isolate = v8::Isolate::GetCurrent();
 
 	V8::SetStaticMethod(isolate, tpl, "exists", StaticExists);

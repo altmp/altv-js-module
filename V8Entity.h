@@ -2,33 +2,32 @@
 
 #include <v8.h>
 
-#include "cpp-sdk/entities/IEntity.h"
+#include "cpp-sdk/objects/IEntity.h"
 
 #include "V8Class.h"
 
 class V8Entity
 {
-	V8Class* _class;
+	V8Class *_class;
 	alt::Ref<alt::IBaseObject> handle;
 	v8::Persistent<v8::Object> jsVal;
 
 public:
-	V8Entity(v8::Local<v8::Context> ctx, V8Class* __class, v8::Local<v8::Object> obj, alt::Ref<alt::IBaseObject> _handle) :
-		_class(__class),
-		handle(_handle)
+	V8Entity(v8::Local<v8::Context> ctx, V8Class *__class, v8::Local<v8::Object> obj, alt::Ref<alt::IBaseObject> _handle) : _class(__class),
+																															handle(_handle)
 	{
-		v8::Isolate* isolate = v8::Isolate::GetCurrent();
+		v8::Isolate *isolate = v8::Isolate::GetCurrent();
 		obj->SetInternalField(0, v8::External::New(isolate, this));
 		jsVal.Reset(isolate, obj);
 	}
 
-	V8Class* GetClass() { return _class; }
+	V8Class *GetClass() { return _class; }
 
 	alt::Ref<alt::IBaseObject> GetHandle() { return handle; }
 
-	v8::Local<v8::Object> GetJSVal(v8::Isolate* isolate) { return jsVal.Get(isolate); }
+	v8::Local<v8::Object> GetJSVal(v8::Isolate *isolate) { return jsVal.Get(isolate); }
 
-	static V8Entity* Get(v8::Local<v8::Value> val)
+	static V8Entity *Get(v8::Local<v8::Value> val)
 	{
 		if (!val->IsObject())
 			return nullptr;
@@ -41,30 +40,35 @@ public:
 		if (!i->IsExternal())
 			return nullptr;
 
-		return static_cast<V8Entity*>(i.As<v8::External>()->Value());
+		return static_cast<V8Entity *>(i.As<v8::External>()->Value());
 	}
 
-	static V8Class* GetClass(alt::Ref<alt::IBaseObject> handle)
+	static V8Class *GetClass(alt::Ref<alt::IBaseObject> handle)
 	{
+		extern V8Class v8Player, v8Vehicle, v8Blip, v8WebView, v8VoiceChannel, v8Colshape, v8Checkpoint;
+
 		if (!handle)
 			return nullptr;
 
 		switch (handle->GetType())
 		{
 		case alt::IBaseObject::Type::PLAYER:
-			return V8Class::Get("Player");
+			return &v8Player;
 		case alt::IBaseObject::Type::VEHICLE:
-			return V8Class::Get("Vehicle");
-		case alt::IBaseObject::Type::BLIP:
-			return V8Class::Get("Blip");
-		case alt::IBaseObject::Type::WEBVIEW:
-			return V8Class::Get("WebView");
-		case alt::IBaseObject::Type::VOICE_CHANNEL:
-			return V8Class::Get("VoiceChannel");
+			return &v8Vehicle;
+#ifdef ALT_SERVER_API
 		case alt::IBaseObject::Type::COLSHAPE:
-			return V8Class::Get("Colshape");
+			return &v8Colshape;
 		case alt::IBaseObject::Type::CHECKPOINT:
-			return V8Class::Get("Checkpoint");
+			return &v8Checkpoint;
+		case alt::IBaseObject::Type::VOICE_CHANNEL:
+			return &v8VoiceChannel;
+#else
+		// case alt::IBaseObject::Type::BLIP:
+		// 	return &v8Blip;
+		case alt::IBaseObject::Type::WEBVIEW:
+			return &v8WebView;
+#endif
 		}
 
 		return nullptr;

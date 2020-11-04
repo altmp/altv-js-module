@@ -9,12 +9,11 @@ class V8Class
 {
 	using InitCallback = std::function<void(v8::Local<v8::FunctionTemplate>)>;
 
-	std::string parentName;
+	V8Class *parent = nullptr;
 	std::string name;
 	v8::FunctionCallback constructor;
 	InitCallback initCb;
 	v8::Persistent<v8::FunctionTemplate> tpl;
-	bool isWrapper;
 	bool loaded = false;
 
 public:
@@ -26,15 +25,40 @@ public:
 
 	V8Class(
 		const std::string &className,
-		const std::string &parentName,
+		V8Class &parent,
 		v8::FunctionCallback constructor,
-		InitCallback &&init = {},
-		bool _isWrapper = true // TODO: refactor
-		) : parentName(parentName),
-			name(className),
-			constructor(constructor),
-			initCb(std::move(init)),
-			isWrapper(_isWrapper)
+		InitCallback &&init = {}) : parent(&parent),
+									name(className),
+									constructor(constructor),
+									initCb(std::move(init))
+	{
+		All()[name] = this;
+	}
+
+	V8Class(
+		const std::string &className,
+		V8Class &parent,
+		InitCallback &&init = {}) : parent(&parent),
+									name(className),
+									initCb(std::move(init))
+	{
+		All()[name] = this;
+	}
+
+	V8Class(
+		const std::string &className,
+		v8::FunctionCallback constructor,
+		InitCallback &&init = {}) : name(className),
+									constructor(constructor),
+									initCb(std::move(init))
+	{
+		All()[name] = this;
+	}
+
+	V8Class(
+		const std::string &className,
+		InitCallback &&init = {}) : name(className),
+									initCb(std::move(init))
 	{
 		All()[name] = this;
 	}
@@ -54,22 +78,14 @@ public:
 		return obj;
 	}
 
+	v8::Local<v8::Value> CreateInstance(v8::Isolate *isolate, v8::Local<v8::Context> ctx, std::vector<v8::Local<v8::Value>> args);
+
 	v8::Local<v8::Function> JSValue(v8::Isolate *isolate, v8::Local<v8::Context> ctx)
 	{
 		return tpl.Get(isolate)->GetFunction(ctx).ToLocalChecked();
 	}
 
 	v8::Local<v8::Value> New(v8::Local<v8::Context> ctx, std::vector<v8::Local<v8::Value>> &args);
-
-	static V8Class *Get(const std::string &name)
-	{
-		auto it = All().find(name);
-
-		if (it != All().end())
-			return it->second;
-		else
-			return nullptr;
-	}
 
 	static void LoadAll(v8::Isolate *isolate)
 	{
@@ -87,27 +103,13 @@ public:
 		v8::Local<v8::FunctionTemplate> _tpl = v8::FunctionTemplate::New(isolate, constructor);
 		_tpl->SetClassName(v8::String::NewFromUtf8(isolate, name.c_str(), v8::NewStringType::kNormal).ToLocalChecked());
 
-		if (isWrapper)
-			_tpl->InstanceTemplate()->SetInternalFieldCount(1);
-
 		if (initCb)
 			initCb(_tpl);
 
-		if (!parentName.empty())
+		if (parent)
 		{
-			V8Class *parentClass = Get(parentName);
-
-			if (!parentClass)
-			{
-				std::string msg = "[V8] Class '" + name + "' attempted to inherit non-existant class '" + parentName + "'";
-
-				Log::Error << msg << Log::Endl;
-				throw std::runtime_error(msg);
-			}
-
-			parentClass->Load(isolate);
-
-			_tpl->Inherit(parentClass->tpl.Get(isolate));
+			parent->Load(isolate);
+			_tpl->Inherit(parent->tpl.Get(isolate));
 		}
 
 		if (!tpl.IsEmpty())

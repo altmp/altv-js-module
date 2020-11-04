@@ -19,8 +19,8 @@ static void ToString(const v8::FunctionCallbackInfo<v8::Value> &info)
 	info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, ss.str().c_str(), v8::NewStringType::kNormal).ToLocalChecked());
 }
 
-static V8Class v8RGBA(
-	"RGBA", "", [](const v8::FunctionCallbackInfo<v8::Value> &info) {
+extern V8Class v8RGBA(
+	"RGBA", [](const v8::FunctionCallbackInfo<v8::Value> &info) {
 	v8::Isolate* isolate = info.GetIsolate();
 	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
 
@@ -39,4 +39,4 @@ static V8Class v8RGBA(
 	V8::DefineOwnProperty(isolate, ctx, _this, V8::RGBA_AKey(isolate), a, v8::PropertyAttribute::ReadOnly); }, [](v8::Local<v8::FunctionTemplate> tpl) {
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-	V8::SetMethod(isolate, tpl, "toString", ToString); }, false);
+	V8::SetMethod(isolate, tpl, "toString", ToString); });
