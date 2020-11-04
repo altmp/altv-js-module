@@ -521,6 +521,17 @@ bool V8::SafeToString(v8::Local<v8::Value> val, v8::Isolate* isolate, v8::Local<
 	return false;
 }
 
+bool V8::SafeToObject(v8::Local<v8::Value> val, v8::Local<v8::Object>& out)
+{
+	if (val->IsObject())
+	{
+		out = val.As<v8::Object>();
+		return true;
+	}
+
+	return false;
+}
+
 std::vector<V8::EventCallback*> V8::EventHandler::GetCallbacks(V8ResourceImpl* impl, const alt::CEvent* e)
 {
 	return callbacksGetter(impl, e);

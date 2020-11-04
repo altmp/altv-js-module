@@ -206,6 +206,7 @@ namespace V8
 	bool SafeToInteger(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, int64_t& out);
 	bool SafeToNumber(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, double& out);
 	bool SafeToString(v8::Local<v8::Value> val, v8::Isolate* isolate, v8::Local<v8::Context> ctx, alt::String& out);
+	bool SafeToObject(v8::Local<v8::Value> val, v8::Local<v8::Object>& out);
 
 	template <typename T>
 	bool SafeToBaseObject(v8::Local<v8::Value> val, v8::Isolate* isolate, alt::Ref<T>& out)
@@ -298,6 +299,11 @@ namespace V8
 	V8_CHECK(V8::SafeToString(info[(idx) - 1], isolate, ctx, val), "Failed to convert argument " #idx " to string")
 
 // idx starts with 1
+#define V8_ARG_TO_OBJECT(idx, val) \
+	v8::Local<v8::Object> val; \
+	V8_CHECK(V8::SafeToObject(info[(idx) - 1], val), "Failed to convert argument " #idx " to object")
+
+// idx starts with 1
 #define V8_ARG_TO_BASE_OBJECT(idx, val, type, jsClassName) \
 	alt::Ref<type> val; \
 	V8_CHECK(V8::SafeToBaseObject<type>(info[(idx)-1], isolate, val), "Argument " #idx " must be a " jsClassName)
@@ -306,6 +312,7 @@ namespace V8
 #define V8_RETURN_NULL() V8_RETURN(v8::Null(isolate))
 #define V8_RETURN_BOOLEAN(val) V8_RETURN(v8::Boolean::New(isolate, (val)))
 #define V8_RETURN_INTEGER(val) V8_RETURN(v8::Integer::New(isolate, (val)))
+#define V8_RETURN_NUMBER(val) V8_RETURN(v8::Number::New(isolate, (val)))
 #define V8_RETURN_STRING(val) V8_RETURN(v8::String::NewFromUtf8(isolate, (val), v8::NewStringType::kNormal).ToLocalChecked())
 
 #define V8_RETURN_BASE_OBJECT(baseObjectRef) V8_RETURN(resource->GetBaseObjectOrNull(baseObjectRef))
