@@ -1,8 +1,33 @@
 cmake_minimum_required (VERSION 3.10)
+include(cmake/GitUtils.cmake)
+include(FetchContent)
 
 project(altv-client-js)
 
-set(ALTV_JS_DEPS_DIR ${CMAKE_SOURCE_DIR}/deps)
+# set(ALTV_JS_DEPS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/deps)
+
+# Fetch deps
+# v8
+message("alt:V JS - Fetching v8 deps, can take a while")
+FetchContent_Declare(altv-js-deps
+  URL     https://github.com/altmp/altv-client-js/releases/download/deps/deps.zip
+)
+FetchContent_Populate(altv-js-deps)
+set(ALTV_JS_DL_DEPS ${altv-js-deps_SOURCE_DIR})
+
+# cpp-sdk
+if(NOT ALTV_JS_CPP_SDK)
+  git_clone(
+    PROJECT_NAME  cpp-sdk
+    GIT_URL       https://github.com/altmp/cpp-sdk
+    GIT_BRANCH    clientsdk
+    DIRECTORY     ${ALTV_JS_DL_DEPS}
+  )
+  set(ALTV_JS_CPP_SDK ${ALTV_JS_DL_DEPS})
+else()
+  message("alt:V JS - Skipping fetching cpp-sdk")
+endif()
+# Fetch deps
 
 file(GLOB_RECURSE PROJECT_SOURCE_FILES "src/*.h" "src/*.hpp" "src/*.cpp" "src/*.c")
 
@@ -24,12 +49,12 @@ endmacro()
 GroupSources(${PROJECT_SOURCE_DIR}/src "Source Files")
 
 include_directories(
-  ${ALTV_JS_DEPS_DIR}
-  ${ALTV_JS_DEPS_DIR}/v8/include
+  ${ALTV_JS_CPP_SDK}
+  ${ALTV_JS_DL_DEPS}/include
 )
 
 link_directories(
-  ${ALTV_JS_DEPS_DIR}/v8/lib/${CMAKE_BUILD_TYPE}
+  ${ALTV_JS_DL_DEPS}/lib/${CMAKE_BUILD_TYPE}
 )
 
 set(ALTV_JS_LINKS
