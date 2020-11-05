@@ -53,17 +53,13 @@ include_directories(
   ${ALTV_JS_DL_DEPS}/include
 )
 
-link_directories(
-  ${ALTV_JS_DL_DEPS}/lib/${CMAKE_BUILD_TYPE}
-)
-
 set(ALTV_JS_LINKS
   # Platform binaries
   Winmm.lib
   DbgHelp.lib
 
   # V8
-  v8_monolith.lib
+  ${ALTV_JS_DL_DEPS}/lib/$<IF:$<CONFIG:Debug>,Debug,Release>/v8_monolith.lib
 )
 
 set(ALTV_JS_DEFS
