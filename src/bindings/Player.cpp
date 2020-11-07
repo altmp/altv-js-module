@@ -301,7 +301,7 @@ static void LocalGetter(v8::Local<v8::Name> name, const v8::PropertyCallbackInfo
     if (!localPlayer)
         info.GetReturnValue().Set(v8::Null(isolate));
     else
-        info.GetReturnValue().Set(resource->GetOrCreateEntity(localPlayer.Get(), "Player")->GetJSVal(isolate));
+        info.GetReturnValue().Set(resource->GetOrCreateEntity(localPlayer.Get())->GetJSVal(isolate));
 }
 
 static void StaticGetByScriptID(const v8::FunctionCallbackInfo<v8::Value> &info)
@@ -324,6 +324,7 @@ extern V8Class v8Entity;
 extern V8Class v8Player("Player", v8Entity, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate *isolate = v8::Isolate::GetCurrent();
 
+    tpl->InstanceTemplate()->SetInternalFieldCount(1);
     v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
 
     V8::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
