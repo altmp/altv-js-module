@@ -262,6 +262,14 @@ namespace V8
 	double val; \
 	V8_CHECK(V8::SafeToNumber((v8Val), ctx, val), "Failed to convert value to number")
 
+#define V8_TO_INTEGER(v8Val, val) \
+	int64_t val; \
+	V8_CHECK(V8::SafeToInteger((v8Val), ctx, val), "Failed to convert value to integer")
+
+#define V8_TO_STRING(v8Val, val) \
+	alt::String val; \
+	V8_CHECK(V8::SafeToString((v8Val), isolate, ctx, val), "Failed to convert value to integer")
+
 // idx starts with 1
 #define V8_ARG_CHECK_NUMBER(idx) V8_CHECK(info[(idx) - 1]->IsNumber(), "Argument " #idx " must be a number")
 
@@ -306,13 +314,15 @@ namespace V8
 #define V8_RETURN_NULL() V8_RETURN(v8::Null(isolate))
 #define V8_RETURN_BOOLEAN(val) V8_RETURN(v8::Boolean::New(isolate, (val)))
 #define V8_RETURN_INTEGER(val) V8_RETURN(v8::Integer::New(isolate, (val)))
+#define V8_RETURN_NUMBER(val) V8_RETURN(v8::Number::New(isolate, (val)))
 #define V8_RETURN_STRING(val) V8_RETURN(v8::String::NewFromUtf8(isolate, (val), v8::NewStringType::kNormal).ToLocalChecked())
 
 #define V8_RETURN_BASE_OBJECT(baseObjectRef) V8_RETURN(resource->GetBaseObjectOrNull(baseObjectRef))
 
-#define V8_BIND_BASE_OBJECT(baseObjectRef, error) \
+#define V8_BIND_BASE_OBJECT(baseObjectRef) \
 	{ \
+		V8_CHECK(baseObjectRef, "Failed to create base object"); \
 		auto baseObject = (baseObjectRef); \
-		V8_CHECK(!baseObject.IsEmpty(), error); \
+		V8_CHECK(!baseObject.IsEmpty(), "Failed to bind base object"); \
 		resource->BindEntity(info.This(), baseObject.Get()); \
 	}
