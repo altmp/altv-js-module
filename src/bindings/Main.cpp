@@ -143,7 +143,7 @@ static void ShowCursor(const v8::FunctionCallbackInfo<v8::Value> &info)
 	}
 }
 
-static void CursorPosGetter(const v8::PropertyCallbackInfo<v8::Value> &info)
+static void GetCursorPos(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
 	v8::Isolate *isolate = info.GetIsolate();
 	auto ctx = isolate->GetEnteredContext();
@@ -158,11 +158,12 @@ static void CursorPosGetter(const v8::PropertyCallbackInfo<v8::Value> &info)
 	info.GetReturnValue().Set(obj);
 }
 
-static void CursorPosSetter(v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void SetCursorPos(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
 	v8::Isolate *isolate = info.GetIsolate();
 	auto ctx = isolate->GetEnteredContext();
 
+	auto val = info[0];
 	V8_CHECK(val->IsObject(), "cursorPos must be a object");
 
 	v8::Local<v8::Value> x = val.As<v8::Object>()->Get(ctx, v8::String::NewFromUtf8(isolate, "x").ToLocalChecked()).ToLocalChecked();
@@ -859,8 +860,9 @@ extern V8Module altModule(
 		V8Helpers::RegisterFunc(exports, "toggleGameControls", &ToggleGameControls);
 		V8Helpers::RegisterFunc(exports, "toggleVoiceControls", &ToggleVoiceControls);
 		V8Helpers::RegisterFunc(exports, "showCursor", &ShowCursor);
-		V8Helpers::RegisterFunc(exports, "getCursorPos", &CursorPosGetter);
-		V8Helpers::RegisterFunc(exports, "setCursorPos", &CursorPosSetter);
+		
+		V8Helpers::RegisterFunc(exports, "getCursorPos", &GetCursorPos);
+		V8Helpers::RegisterFunc(exports, "setCursorPos", &SetCursorPos);
 		V8Helpers::RegisterFunc(exports, "isMenuOpen", &IsMenuOpen);
 		V8Helpers::RegisterFunc(exports, "isConsoleOpen", &IsConsoleOpen);
 		//V8Helpers::RegisterFunc(exports, "drawRect2D", &DrawRect2D);
