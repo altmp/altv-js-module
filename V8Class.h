@@ -109,7 +109,14 @@ public:
 		if (parent)
 		{
 			parent->Load(isolate);
-			_tpl->Inherit(parent->tpl.Get(isolate));
+			auto parenttpl = parent->tpl.Get(isolate);
+			_tpl->Inherit(parenttpl);
+
+			// if parent has more internal fields,
+			// set the current internal field count to the parent's count
+			auto parentInternalFieldCount = parenttpl->InstanceTemplate()->InternalFieldCount();
+			if(parentInternalFieldCount > _tpl->InstanceTemplate()->InternalFieldCount())
+				_tpl->InstanceTemplate()->SetInternalFieldCount(parentInternalFieldCount);
 		}
 
 		if (!tpl.IsEmpty())
