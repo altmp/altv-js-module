@@ -1,926 +1,640 @@
-
 #include "../CV8Resource.h"
-#include "../helpers/V8Class.h"
+#include "../helpers/V8Helpers.h"
 #include "cpp-sdk/script-objects/IBlip.h"
 
-static void Constructor(const v8::FunctionCallbackInfo<v8::Value> &info)
+static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
-
+	V8_GET_ISOLATE_CONTEXT();
     V8_CHECK(info.IsConstructCall(), "Blip constructor is not a function");
-
-    // xyz as obj
-    /*
-    V8_CHECK(info.Length() == 2, "new Blip(...) expects 2 args");
-
-    V8_CHECK(info[0]->IsObject(), "pos must be an object of {x, y, z}");
-    auto pos = info[1]->ToObject(isolate);
-    double x = pos->Get(ctx, v8::String::NewFromUtf8(isolate, "x")).ToLocalChecked()
-        ->NumberValue(ctx).ToChecked();
-    double y = pos->Get(ctx, v8::String::NewFromUtf8(isolate, "y")).ToLocalChecked()
-        ->NumberValue(ctx).ToChecked();
-    double z = pos->Get(ctx, v8::String::NewFromUtf8(isolate, "z")).ToLocalChecked()
-        ->NumberValue(ctx).ToChecked();
-
-    V8_CHECK(info[1]->IsNumber(), "type must be an unsigned integer");
-    */
-
-    /*
-	let blip = new alt.Blip(0, 0, 72, 11, 50, 50);
-	blip.rotation = 0;
-	*/
-
-    // xyz as args
-
-    V8_CHECK(false, "You can't use constructor of abstract class");
+	V8_CHECK(false, "You can't use constructor of abstract class");
 }
 
-static void ConstructorAreaBlip(const v8::FunctionCallbackInfo<v8::Value> &info)
+static void ConstructorAreaBlip(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_CHECK_CONSTRUCTOR();
+	V8_CHECK_ARGS_LEN(5);
+	V8_ARG_TO_NUMBER(1, x);
+	V8_ARG_TO_NUMBER(2, y);
+	V8_ARG_TO_NUMBER(3, z);
+	V8_ARG_TO_NUMBER(4, width);
+	V8_ARG_TO_NUMBER(5, height);
 
-    auto resource = V8ResourceImpl::GetResource(isolate->GetEnteredContext());
-    V8_CHECK(resource, "invalid resource");
-
-    V8_CHECK(info.IsConstructCall(), "AreaBlip constructor is not a function");
-
-    V8_CHECK(info.Length() == 5, "new AreaBlip(...) expects 5 args");
-    V8_CHECK(info[0]->IsNumber(), "x must be a number");
-    V8_CHECK(info[1]->IsNumber(), "y must be a number");
-    V8_CHECK(info[2]->IsNumber(), "z must be a number");
-    V8_CHECK(info[3]->IsNumber(), "width must be a number");
-    V8_CHECK(info[4]->IsNumber(), "height must be a number");
-
-    v8::Local<v8::Number> x = info[0]->ToNumber(ctx).ToLocalChecked();
-    v8::Local<v8::Number> y = info[1]->ToNumber(ctx).ToLocalChecked();
-    v8::Local<v8::Number> z = info[2]->ToNumber(ctx).ToLocalChecked();
-    v8::Local<v8::Number> width = info[3]->ToNumber(ctx).ToLocalChecked();
-    v8::Local<v8::Number> height = info[4]->ToNumber(ctx).ToLocalChecked();
-
-    alt::Ref<alt::IBlip> blip = resource->CreateBlip({x->Value(), y->Value(), z->Value()}, width->Value(), height->Value());
-
-    V8_CHECK(blip, "Blip creation failed");
-
-    // static_cast<CV8ResourceImpl *>(resource)->AddOwned(blip);
-    // resource->BindEntity(info.This(), blip.Get());
+	alt::IResource* res = V8ResourceImpl::GetResource(isolate->GetEnteredContext());
+    alt::Ref<alt::IBlip> blip = res->CreateBlip({ x, y, z }, width, height);
+	V8_BIND_BASE_OBJECT(blip);
 }
 
-static void ConstructorRadiusBlip(const v8::FunctionCallbackInfo<v8::Value> &info)
+static void ConstructorRadiusBlip(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_CHECK_CONSTRUCTOR();
+	V8_CHECK_ARGS_LEN(4);
+	V8_ARG_TO_NUMBER(1, x);
+	V8_ARG_TO_NUMBER(2, y);
+	V8_ARG_TO_NUMBER(3, z);
+	V8_ARG_TO_NUMBER(4, radius);
 
-    auto resource = V8ResourceImpl::GetResource(isolate->GetEnteredContext());
-    V8_CHECK(resource, "invalid resource");
-
-    V8_CHECK(info.IsConstructCall(), "RadiusBlip constructor is not a function");
-
-    V8_CHECK(info.Length() == 4, "new RadiusBlip(...) expects 4 args");
-    V8_CHECK(info[0]->IsNumber(), "x must be a number");
-    V8_CHECK(info[1]->IsNumber(), "y must be a number");
-    V8_CHECK(info[2]->IsNumber(), "z must be a number");
-    V8_CHECK(info[3]->IsNumber(), "radius must be a number");
-
-    v8::Local<v8::Number> x = info[0]->ToNumber(ctx).ToLocalChecked();
-    v8::Local<v8::Number> y = info[1]->ToNumber(ctx).ToLocalChecked();
-    v8::Local<v8::Number> z = info[2]->ToNumber(ctx).ToLocalChecked();
-    v8::Local<v8::Number> radius = info[3]->ToNumber(ctx).ToLocalChecked();
-    alt::Ref<alt::IBlip> blip = resource->CreateBlip({x->Value(), y->Value(), z->Value()}, radius->Value());
-
-    V8_CHECK(blip, "Blip creation failed");
-
-    // static_cast<CV8ResourceImpl *>(resource)->AddOwned(blip);
-    // resource->BindEntity(info.This(), blip.Get());
+	alt::IResource* res = V8ResourceImpl::GetResource(isolate->GetEnteredContext());
+    alt::Ref<alt::IBlip> blip = res->CreateBlip({ x, y, z }, radius);
+	V8_BIND_BASE_OBJECT(blip);
 }
 
-static void ConstructorPointBlip(const v8::FunctionCallbackInfo<v8::Value> &info)
+static void ConstructorPointBlip(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_CHECK_CONSTRUCTOR();
+	V8_CHECK_ARGS_LEN(3);
+	V8_ARG_TO_NUMBER(1, x);
+	V8_ARG_TO_NUMBER(2, y);
+	V8_ARG_TO_NUMBER(3, z);
 
-    auto resource = V8ResourceImpl::GetResource(isolate->GetEnteredContext());
-    V8_CHECK(resource, "invalid resource");
-
-    V8_CHECK(info.IsConstructCall(), "PointBlip constructor is not a function");
-
-    V8_CHECK(info.Length() == 3, "new PointBlip(...) expects 3 args");
-    V8_CHECK(info[0]->IsNumber(), "x must be a number");
-    V8_CHECK(info[1]->IsNumber(), "y must be a number");
-    V8_CHECK(info[2]->IsNumber(), "z must be a number");
-
-    v8::Local<v8::Number> x = info[0]->ToNumber(ctx).ToLocalChecked();
-    v8::Local<v8::Number> y = info[1]->ToNumber(ctx).ToLocalChecked();
-    v8::Local<v8::Number> z = info[2]->ToNumber(ctx).ToLocalChecked();
-    alt::Ref<alt::IBlip> blip = resource->CreateBlip(alt::IBlip::BlipType::DESTINATION, {x->Value(), y->Value(), z->Value()});
-
-    V8_CHECK(blip, "Blip creation failed");
-
-    // static_cast<CV8ResourceImpl *>(resource)->AddOwned(blip);
-    // resource->BindEntity(info.This(), blip.Get());
+	alt::IResource* res = V8ResourceImpl::GetResource(isolate->GetEnteredContext());
+    alt::Ref<alt::IBlip> blip = res->CreateBlip(alt::IBlip::BlipType::DESTINATION, { x, y, z });
+	V8_BIND_BASE_OBJECT(blip);
 }
 
-static void ConstructorPedBlip(const v8::FunctionCallbackInfo<v8::Value> &info)
+static void ConstructorPedBlip(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_CHECK_CONSTRUCTOR();
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_INTEGER(1, pedId);
 
-    auto resource = V8ResourceImpl::GetResource(isolate->GetEnteredContext());
-    V8_CHECK(resource, "invalid resource");
-
-    V8_CHECK(info.IsConstructCall(), "PedBlip constructor is not a function");
-
-    V8_CHECK(info.Length() == 1, "new PedBlip(...) expects 1 arg");
-    V8_CHECK(info[0]->IsNumber(), "pedId must be a number");
-
-    uint32_t pedId = info[0]->IntegerValue(ctx).ToChecked();
-    alt::Ref<alt::IBlip> blip = resource->CreateBlip(alt::IBlip::BlipType::PED, pedId);
-
-    V8_CHECK(blip, "Blip creation failed");
-
-    // static_cast<CV8ResourceImpl *>(resource)->AddOwned(blip);
-    // resource->BindEntity(info.This(), blip.Get());
+	alt::IResource* res = V8ResourceImpl::GetResource(isolate->GetEnteredContext());
+    alt::Ref<alt::IBlip> blip = res->CreateBlip(alt::IBlip::BlipType::PED, pedId);
+	V8_BIND_BASE_OBJECT(blip);
 }
 
-static void ConstructorVehicleBlip(const v8::FunctionCallbackInfo<v8::Value> &info)
+static void ConstructorVehicleBlip(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_CHECK_CONSTRUCTOR();
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_INTEGER(1, vehicleId);
 
-    auto resource = V8ResourceImpl::GetResource(isolate->GetEnteredContext());
-    V8_CHECK(resource, "invalid resource");
-
-    V8_CHECK(info.IsConstructCall(), "VehicleBlip constructor is not a function");
-
-    V8_CHECK(info.Length() == 1, "new VehicleBlip(...) expects 1 arg");
-    V8_CHECK(info[0]->IsNumber(), "vehicleId must be a number");
-
-    uint32_t vehicleId = info[0]->IntegerValue(ctx).ToChecked();
-    alt::Ref<alt::IBlip> blip = resource->CreateBlip(alt::IBlip::BlipType::VEHICLE, vehicleId);
-
-    V8_CHECK(blip, "Blip creation failed");
-
-    // static_cast<CV8ResourceImpl *>(resource)->AddOwned(blip);
-    // resource->BindEntity(info.This(), blip.Get());
+	alt::IResource* res = V8ResourceImpl::GetResource(isolate->GetEnteredContext());
+    alt::Ref<alt::IBlip> blip = res->CreateBlip(alt::IBlip::BlipType::VEHICLE, vehicleId);
+	V8_BIND_BASE_OBJECT(blip);
 }
 
-//static void ScaleGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-//{
-//    v8::Isolate* isolate = info.GetIsolate();
-//    auto ctx = isolate->GetEnteredContext();
-//
-//	alt::Ref<alt::IBlip> blip = (alt::Ref<alt::IBlip>)info.This()->GetInternalField(0).As<v8::External>()->Value();
-//
-//	info.GetReturnValue().Set(v8::Number::New(isolate, blip->GetScale()));
-//}
-
-static void ScaleSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void ScaleGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
-
-    V8_CHECK(value->IsNumber(), "scale must be a number");
-    auto val = value->NumberValue(ctx).ToChecked();
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
-
-    blip->SetScale(val);
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_NUMBER(blip->GetScale());
 }
 
-/**
- * Scale XY
- * */
-//static void ScaleGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-//{
-//    v8::Isolate* isolate = info.GetIsolate();
-//    auto ctx = isolate->GetEnteredContext();
-//
-//	alt::Ref<alt::IBlip> blip = (alt::Ref<alt::IBlip>)info.This()->GetInternalField(0).As<v8::External>()->Value();
-//    auto scale = blip->GetScaleXY();
-//
-//
-//
-//	info.GetReturnValue().Set(v8::Number::New(isolate, ));
-//}
-
-/**
- * Scale XY
- * */
-//static void ScaleSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
-//{
-//    v8::Isolate* isolate = info.GetIsolate();
-//    auto ctx = isolate->GetEnteredContext();
-//
-//    V8_CHECK(value->IsNumber(), "scale must be a number");
-//    double val = value->NumberValue(ctx).ToChecked();
-//
-//	alt::Ref<alt::IBlip> blip = (alt::Ref<alt::IBlip>)info.This()->GetInternalField(0).As<v8::External>()->Value();
-//    blip->SetScale(val);
-//}
-
-//static void SpriteGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-//{
-//    v8::Isolate* isolate = info.GetIsolate();
-//    auto ctx = isolate->GetEnteredContext();
-//
-//	alt::Ref<alt::IBlip> blip = (alt::Ref<alt::IBlip>)info.This()->GetInternalField(0).As<v8::External>()->Value();
-//
-//	info.GetReturnValue().Set(v8::Number::New(isolate, blip->GetSprite()));
-//}
-
-static void SpriteSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void ScaleSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
-
-    V8_CHECK(value->IsNumber(), "sprite must be an integer");
-    int sprite = value->IntegerValue(ctx).ToChecked();
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
-
-    blip->SetSprite(sprite);
+	V8_GET_ISOLATE_CONTEXT();
+	V8_TO_NUMBER(value, val);
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	blip->SetScale(val);
 }
 
-//static void ColorGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-//{
-//    v8::Isolate* isolate = info.GetIsolate();
-//    auto ctx = isolate->GetEnteredContext();
-//
-//	alt::Ref<alt::IBlip> blip = (alt::Ref<alt::IBlip>)info.This()->GetInternalField(0).As<v8::External>()->Value();
-//
-//	info.GetReturnValue().Set(v8::Number::New(isolate, blip->GetSprite()));
-//}
-
-static void ColorSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void SizeSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
 
-    V8_CHECK(value->IsNumber(), "color must be an integer");
-    int val = value->IntegerValue(ctx).ToChecked();
+	V8_CHECK(value->IsObject(), "size must be an object");
 
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
+	v8::Local<v8::Object> pos = value.As<v8::Object>();
 
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
+	v8::Local<v8::Value> x = pos->Get(ctx, v8::String::NewFromUtf8(isolate, "x").ToLocalChecked()).ToLocalChecked();
+	v8::Local<v8::Value> y = pos->Get(ctx, v8::String::NewFromUtf8(isolate, "y").ToLocalChecked()).ToLocalChecked();
+
+	blip->SetScaleXY(
+		x->ToNumber(ctx).ToLocalChecked()->Value(),
+		y->ToNumber(ctx).ToLocalChecked()->Value()
+	);
+}
+
+static void SizeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+
+	alt::Vector2f pos = blip->GetScaleXY();
+
+	v8::Local<v8::Object> obj = v8::Object::New(isolate);
+
+	obj->Set(ctx, v8::String::NewFromUtf8(isolate, "x").ToLocalChecked(), v8::Number::New(isolate, pos[0]));
+	obj->Set(ctx, v8::String::NewFromUtf8(isolate, "y").ToLocalChecked(), v8::Number::New(isolate, pos[1]));
+
+	V8_RETURN(obj);
+}
+
+static void SpriteGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_INTEGER(blip->GetSprite());
+}
+
+static void SpriteSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_TO_INTEGER(value, val);
+    blip->SetSprite(val);
+}
+
+static void ColorGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_INTEGER(blip->GetColor());
+}
+
+static void ColorSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_TO_INTEGER(value, val);
     blip->SetColor(val);
 }
 
-//static void SecondaryColorGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-//{
-//    v8::Isolate* isolate = info.GetIsolate();
-//    auto ctx = isolate->GetEnteredContext();
-//
-//	alt::Ref<alt::IBlip> blip = (alt::Ref<alt::IBlip>)info.This()->GetInternalField(0).As<v8::External>()->Value();
-//
-//	info.GetReturnValue().Set(v8::Number::New(isolate, blip->GetSprite()));
-//}
-
-static void SecondaryColorSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void SecondaryColorGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_INTEGER(blip->GetSecondaryColor());
+}
 
-    V8_CHECK(value->IsNumber(), "secondaryColor must be an unsigned integer");
-    auto val = value->IntegerValue(ctx).ToChecked();
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
+static void SecondaryColorSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_TO_INTEGER(value, val);
     blip->SetSecondaryColor(val);
 }
 
-//static void Getter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-//{
-//    v8::Isolate* isolate = info.GetIsolate();
-//    auto ctx = isolate->GetEnteredContext();
-//
-//	alt::Ref<alt::IBlip> blip = (alt::Ref<alt::IBlip>)info.This()->GetInternalField(0).As<v8::External>()->Value();
-//
-//	info.GetReturnValue().Set(v8::Number::New(isolate, blip->GetSprite()));
-//}
-
-static void AlphaSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void AlphaGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_INTEGER(blip->GetAlpha());
+}
 
-    V8_CHECK(value->IsNumber(), "alpha must be an integer");
-    auto val = value->IntegerValue(ctx).ToChecked();
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
+static void AlphaSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_TO_INTEGER(value, val);
     blip->SetAlpha(val);
 }
 
-//static void Getter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-//{
-//    v8::Isolate* isolate = info.GetIsolate();
-//    auto ctx = isolate->GetEnteredContext();
-//
-//	alt::Ref<alt::IBlip> blip = (alt::Ref<alt::IBlip>)info.This()->GetInternalField(0).As<v8::External>()->Value();
-//
-//	info.GetReturnValue().Set(v8::Number::New(isolate, blip->GetSprite()));
-//}
-
-static void FlashTimerSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void FlashTimerGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_INTEGER(blip->GetFlashTimer());
+}
 
-    V8_CHECK(value->IsNumber(), "flashTimer must be an integer");
-    int val = value->IntegerValue(ctx).ToChecked();
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
+static void FlashTimerSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_TO_INTEGER(value, val);
     blip->SetFlashTimer(val);
 }
 
-//static void Getter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-//{
-//    v8::Isolate* isolate = info.GetIsolate();
-//    auto ctx = isolate->GetEnteredContext();
-//
-//	alt::Ref<alt::IBlip> blip = (alt::Ref<alt::IBlip>)info.This()->GetInternalField(0).As<v8::External>()->Value();
-//
-//	info.GetReturnValue().Set(v8::Number::New(isolate, blip->GetSprite()));
-//}
-
-static void FlashIntervalSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void FlashIntervalGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_INTEGER(blip->GetFlashInterval());
+}
 
-    V8_CHECK(value->IsNumber(), "flashInterval must be an integer");
-    int val = value->IntegerValue(ctx).ToChecked();
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
+static void FlashIntervalSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_TO_INTEGER(value, val);
     blip->SetFlashInterval(val);
 }
 
-//static void Getter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-//{
-//    v8::Isolate* isolate = info.GetIsolate();
-//    auto ctx = isolate->GetEnteredContext();
-//
-//	alt::Ref<alt::IBlip> blip = (alt::Ref<alt::IBlip>)info.This()->GetInternalField(0).As<v8::External>()->Value();
-//
-//	info.GetReturnValue().Set(v8::Number::New(isolate, blip->GetSprite()));
-//}
-
-static void FriendlySetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void FriendlyGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_BOOLEAN(blip->GetAsFriendly());
+}
 
-    auto val = value->ToBoolean(isolate)->Value();
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
+static void FriendlySetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_TO_BOOLEAN(value, val);
     blip->SetAsFriendly(val);
 }
 
-//static void RouteGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-//{
-//    v8::Isolate* isolate = info.GetIsolate();
-//    auto ctx = isolate->GetEnteredContext();
-//
-//	alt::Ref<alt::IBlip> blip = (alt::Ref<alt::IBlip>)info.This()->GetInternalField(0).As<v8::External>()->Value();
-//
-//	info.GetReturnValue().Set(v8::Number::New(isolate, blip->GetSprite()));
-//}
-
-static void RouteSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void RouteGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_BOOLEAN(blip->GetRoute());
+}
 
-    auto val = value->ToBoolean(isolate)->Value();
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
+static void RouteSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_TO_BOOLEAN(value, val);
     blip->SetRoute(val);
 }
 
-//static void Getter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-//{
-//    v8::Isolate* isolate = info.GetIsolate();
-//    auto ctx = isolate->GetEnteredContext();
-//
-//	alt::Ref<alt::IBlip> blip = (alt::Ref<alt::IBlip>)info.This()->GetInternalField(0).As<v8::External>()->Value();
-//
-//	info.GetReturnValue().Set(v8::Number::New(isolate, blip->GetSprite()));
-//}
-
-static void BrightSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void BrightGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_BOOLEAN(blip->GetBright());
+}
 
-    auto val = value->ToBoolean(isolate)->Value();
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
+static void BrightSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_TO_BOOLEAN(value, val);
     blip->SetBright(val);
 }
 
-//static void Getter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-//{
-//    v8::Isolate* isolate = info.GetIsolate();
-//    auto ctx = isolate->GetEnteredContext();
-//
-//	alt::Ref<alt::IBlip> blip = (alt::Ref<alt::IBlip>)info.This()->GetInternalField(0).As<v8::External>()->Value();
-//
-//	info.GetReturnValue().Set(v8::Number::New(isolate, blip->GetSprite()));
-//}
-
-static void NumberSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void NumberGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_INTEGER(blip->GetNumber());
+}
 
-    V8_CHECK(value->IsNumber(), "number must be an integer");
-    auto val = value->IntegerValue(ctx).ToChecked();
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
+static void NumberSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_TO_INTEGER(value, val);
     blip->SetNumber(val);
 }
 
-//static void Getter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-//{
-//    v8::Isolate* isolate = info.GetIsolate();
-//    auto ctx = isolate->GetEnteredContext();
-//
-//	alt::Ref<alt::IBlip> blip = (alt::Ref<alt::IBlip>)info.This()->GetInternalField(0).As<v8::External>()->Value();
-//
-//	info.GetReturnValue().Set(v8::Number::New(isolate, blip->GetSprite()));
-//}
-
-static void ShowConeSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void ShowConeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_BOOLEAN(blip->GetShowCone());
+}
 
-    auto val = value->ToBoolean(isolate)->Value();
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
+static void ShowConeSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_TO_BOOLEAN(value, val);
     blip->SetShowCone(val);
 }
 
-//static void Getter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-//{
-//    v8::Isolate* isolate = info.GetIsolate();
-//    auto ctx = isolate->GetEnteredContext();
-//
-//	alt::Ref<alt::IBlip> blip = (alt::Ref<alt::IBlip>)info.This()->GetInternalField(0).As<v8::External>()->Value();
-//
-//	info.GetReturnValue().Set(v8::Number::New(isolate, blip->GetSprite()));
-//}
-
-static void FlashesSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void FlashesGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_BOOLEAN(blip->GetFlashes());
+}
 
-    auto val = value->ToBoolean(isolate)->Value();
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
+static void FlashesSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_TO_BOOLEAN(value, val);
     blip->SetFlashes(val);
 }
 
-//static void Getter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-//{
-//    v8::Isolate* isolate = info.GetIsolate();
-//    auto ctx = isolate->GetEnteredContext();
-//
-//	alt::Ref<alt::IBlip> blip = (alt::Ref<alt::IBlip>)info.This()->GetInternalField(0).As<v8::External>()->Value();
-//
-//	info.GetReturnValue().Set(v8::Number::New(isolate, blip->GetSprite()));
-//}
-
-static void FlashesAlternateSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void FlashesAlternateGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_BOOLEAN(blip->GetFlashesAlternate());
+}
 
-    auto val = value->ToBoolean(isolate)->Value();
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
+static void FlashesAlternateSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_TO_BOOLEAN(value, val);
     blip->SetFlashesAlternate(val);
 }
 
-//static void Getter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-//{
-//    v8::Isolate* isolate = info.GetIsolate();
-//    auto ctx = isolate->GetEnteredContext();
-//
-//	alt::Ref<alt::IBlip> blip = (alt::Ref<alt::IBlip>)info.This()->GetInternalField(0).As<v8::External>()->Value();
-//
-//	info.GetReturnValue().Set(v8::Number::New(isolate, blip->GetSprite()));
-//}
-
-static void ShortRangeSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void ShortRangeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_BOOLEAN(blip->GetAsShortRange());
+}
 
-    auto val = value->ToBoolean(isolate)->Value();
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
+static void ShortRangeSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_TO_BOOLEAN(value, val);
     blip->SetAsShortRange(val);
 }
 
-//static void Getter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-//{
-//    v8::Isolate* isolate = info.GetIsolate();
-//    auto ctx = isolate->GetEnteredContext();
-//
-//	alt::Ref<alt::IBlip> blip = (alt::Ref<alt::IBlip>)info.This()->GetInternalField(0).As<v8::External>()->Value();
-//
-//	info.GetReturnValue().Set(v8::Number::New(isolate, blip->GetSprite()));
-//}
-
-static void PrioritySetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void PriorityGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_INTEGER(blip->GetPriority());
+}
 
-    V8_CHECK(value->IsNumber(), "priority must be an integer");
-    auto val = value->IntegerValue(ctx).ToChecked();
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
+static void PrioritySetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_TO_INTEGER(value, val);
     blip->SetPriority(val);
 }
 
-//static void Getter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-//{
-//    v8::Isolate* isolate = info.GetIsolate();
-//    auto ctx = isolate->GetEnteredContext();
-//
-//	alt::Ref<alt::IBlip> blip = (alt::Ref<alt::IBlip>)info.This()->GetInternalField(0).As<v8::External>()->Value();
-//
-//	info.GetReturnValue().Set(v8::Number::New(isolate, blip->GetSprite()));
-//}
-
-static void RotationSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void RotationGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_NUMBER(blip->GetRotation());
+}
 
-    V8_CHECK(value->IsNumber(), "rotation must be a number");
-    auto val = value->NumberValue(ctx).ToChecked();
-
-    Log::Debug << "nextRotation = " << val << Log::Endl;
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
+static void RotationSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_TO_NUMBER(value, val);
     blip->SetRotation(val);
 }
 
-//static void Getter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-//{
-//    v8::Isolate* isolate = info.GetIsolate();
-//    auto ctx = isolate->GetEnteredContext();
-//
-//	alt::Ref<alt::IBlip> blip = (alt::Ref<alt::IBlip>)info.This()->GetInternalField(0).As<v8::External>()->Value();
-//
-//	info.GetReturnValue().Set(v8::Number::New(isolate, blip->()));
-//}
-
-static void GxtNameSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void GxtNameGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
-
-    V8_CHECK(value->IsString(), "gxtName must be a string");
-    auto val = *v8::String::Utf8Value(info.GetIsolate(), value->ToString(ctx).ToLocalChecked());
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
-    blip->SetGxtName(val);
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_STRING(blip->GetGxtName());
 }
 
-static void NameSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void GxtNameSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
-
-    V8_CHECK(value->IsString(), "name must be a string");
-    auto val = *v8::String::Utf8Value(info.GetIsolate(), value->ToString(ctx).ToLocalChecked());
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
-    blip->SetName(val);
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_TO_STRING(value, val);
+    blip->SetGxtName(val.CStr());
 }
 
-/*
-static void Getter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+static void NameGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate* isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
-
-	alt::Ref<alt::IBlip> blip = (alt::Ref<alt::IBlip>)info.This()->GetInternalField(0).As<v8::External>()->Value();
-
-    auto ret = v8::Number::New(isolate, blip->GETTER()));
-	info.GetReturnValue().Set(ret);
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_STRING(blip->GetName());
 }
-*/
 
-static void RouteColorSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void NameSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_TO_STRING(value, val);
+	blip->SetName(val.CStr());
+}
 
-    V8_CHECK(value->IsNumber(), "routeColor must be unsigned integer");
-    auto val = value->IntegerValue(ctx).ToChecked();
+static void RouteColorGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_INTEGER(blip->GetRouteColor());
+}
 
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
+static void RouteColorSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_TO_INTEGER(value, val);
     blip->SetRouteColor(val);
 }
 
-static void PulseSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void PulseGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_BOOLEAN(blip->GetPulse());
+}
 
-    auto val = value->ToBoolean(isolate)->Value();
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
+static void PulseSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_TO_BOOLEAN(value, val);
     blip->SetPulse(val);
 }
 
-static void AsMissionCreatorSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void AsMissionCreatorGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_BOOLEAN(blip->GetAsMissionCreator());
+}
 
-    auto val = value->ToBoolean(isolate)->Value();
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
+static void AsMissionCreatorSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_TO_BOOLEAN(value, val);
     blip->SetAsMissionCreator(val);
 }
 
-static void tickVisibleSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void TickVisibleGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_BOOLEAN(blip->GetTickVisible());
+}
 
-    auto val = value->ToBoolean(isolate)->Value();
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
+static void TickVisibleSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_TO_BOOLEAN(value, val);
     blip->SetTickVisible(val);
 }
 
-static void headingIndicatorVisibleSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void HeadingIndicatorVisibleGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_BOOLEAN(blip->GetHeadingIndicatorVisible());
+}
 
-    auto val = value->ToBoolean(isolate)->Value();
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
+static void HeadingIndicatorVisibleSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_TO_BOOLEAN(value, val);
     blip->SetHeadingIndicatorVisible(val);
 }
 
-static void outlineIndicatorVisibleSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void OutlineIndicatorVisibleGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_BOOLEAN(blip->GetOutlineIndicatorVisible());
+}
 
-    auto val = value->ToBoolean(isolate)->Value();
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
+static void OutlineIndicatorVisibleSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_TO_BOOLEAN(value, val);
     blip->SetOutlineIndicatorVisible(val);
 }
 
-static void friendIndicatorVisibleSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void FriendIndicatorVisibleGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_BOOLEAN(blip->GetFriendIndicatorVisible());
+}
 
-    auto val = value->ToBoolean(isolate)->Value();
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
+static void FriendIndicatorVisibleSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_TO_BOOLEAN(value, val);
     blip->SetFriendIndicatorVisible(val);
 }
 
-static void crewIndicatorVisibleSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void CrewIndicatorVisibleGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_BOOLEAN(blip->GetCrewIndicatorVisible());
+}
 
-    auto val = value->ToBoolean(isolate)->Value();
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
+static void CrewIndicatorVisibleSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_TO_BOOLEAN(value, val);
     blip->SetCrewIndicatorVisible(val);
 }
 
-static void categorySetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void CategoryGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_INTEGER(blip->GetCategory());
+}
 
-    V8_CHECK(value->IsNumber(), "category must be integer");
-    auto val = value->IntegerValue(ctx).ToChecked();
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
+static void CategorySetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_TO_INTEGER(value, val);
     blip->SetCategory(val);
 }
 
-static void highDetailSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void HighDetailGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_BOOLEAN(blip->GetAsHighDetail());
+}
 
-    auto val = value->ToBoolean(isolate)->Value();
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
+static void HighDetailSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_TO_BOOLEAN(value, val);
     blip->SetAsHighDetail(val);
 }
 
-static void shrinkedSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void ShrinkedGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_BOOLEAN(blip->GetShrinked());
+}
 
-    auto val = value->ToBoolean(isolate)->Value();
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
+static void ShrinkedSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_TO_BOOLEAN(value, val);
     blip->SetShrinked(val);
 }
 
-static void Fade(const v8::FunctionCallbackInfo<v8::Value> &info)
+static void Fade(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    auto ctx = isolate->GetEnteredContext();
-
-    V8_CHECK(info.Length() == 2, "2 args expected");
-
-    V8_CHECK(info[0]->IsNumber(), "opacity must be an unsigned integer");
-    uint32_t opacity = info[0]->IntegerValue(ctx).ToChecked();
-
-    V8_CHECK(info[1]->IsNumber(), "duration must be an unsigned integer");
-    uint32_t duration = info[1]->IntegerValue(ctx).ToChecked();
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IBlip> blip = _this->GetHandle().As<alt::IBlip>();
-
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(2);
+	V8_ARG_TO_INTEGER(1, opacity);
+	V8_ARG_TO_INTEGER(2, duration);
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
     blip->Fade(opacity, duration);
 }
 
 extern V8Class v8WorldObject;
-extern V8Class v8Blip("Blip", v8WorldObject, Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
-    v8::Isolate *isolate = v8::Isolate::GetCurrent();
+extern V8Class v8Blip("Blip", v8WorldObject, Constructor, [](v8::Local<v8::FunctionTemplate> tpl){
+    v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    /*
-	let ped = game.playerPedId();
-	let coords = game.getEntityCoords(ped, true);
+	V8::SetAccessor(isolate, tpl, "sprite", &SpriteGetter, &SpriteSetter);
+	V8::SetAccessor(isolate, tpl, "scale", &ScaleGetter, &ScaleSetter);
+	V8::SetAccessor(isolate, tpl, "size", &SizeGetter, &SizeSetter);
+	V8::SetAccessor(isolate, tpl, "color", &ColorGetter, &ColorSetter);
+	V8::SetAccessor(isolate, tpl, "secondaryColor", &SecondaryColorGetter, &SecondaryColorSetter);
+	V8::SetAccessor(isolate, tpl, "alpha", &AlphaGetter, &AlphaSetter);
+	V8::SetAccessor(isolate, tpl, "flashTimer", &FlashTimerGetter, &FlashTimerSetter);
+	V8::SetAccessor(isolate, tpl, "flashInterval", &FlashIntervalGetter, &FlashIntervalSetter);
+	V8::SetAccessor(isolate, tpl, "route", &RouteGetter, &RouteSetter);
+	V8::SetAccessor(isolate, tpl, "bright", &BrightGetter, &BrightSetter);
+	V8::SetAccessor(isolate, tpl, "number", &NumberGetter, &NumberSetter);
+	V8::SetAccessor(isolate, tpl, "showCone", &ShowConeGetter, &ShowConeSetter);
+	V8::SetAccessor(isolate, tpl, "flashes", &FlashesGetter, &FlashesSetter);
+	V8::SetAccessor(isolate, tpl, "flashesAlternate", &FlashesAlternateGetter, &FlashesAlternateSetter);
+	V8::SetAccessor(isolate, tpl, "shortRange", &ShortRangeGetter, &ShortRangeSetter);
+	V8::SetAccessor(isolate, tpl, "priority", &PriorityGetter, &PrioritySetter);
+	V8::SetAccessor(isolate, tpl, "heading", &RotationGetter, &RotationSetter);
+	V8::SetAccessor(isolate, tpl, "gxtName", &GxtNameGetter, &GxtNameSetter);
+	V8::SetAccessor(isolate, tpl, "name", &NameGetter, &NameSetter);
+	V8::SetAccessor(isolate, tpl, "routeColor", &RouteColorGetter, &RouteColorSetter);
+	V8::SetAccessor(isolate, tpl, "pulse", &PulseGetter, &PulseSetter);
+	V8::SetAccessor(isolate, tpl, "asMissionCreator", &AsMissionCreatorGetter, &AsMissionCreatorSetter);
+	V8::SetAccessor(isolate, tpl, "tickVisible", &TickVisibleGetter, &TickVisibleSetter);
+	V8::SetAccessor(isolate, tpl, "headingIndicatorVisible", &HeadingIndicatorVisibleGetter, &HeadingIndicatorVisibleSetter);
+	V8::SetAccessor(isolate, tpl, "outlineIndicatorVisible", &OutlineIndicatorVisibleGetter, &OutlineIndicatorVisibleSetter);
+	V8::SetAccessor(isolate, tpl, "friendIndicatorVisible", &FriendIndicatorVisibleGetter, &FriendIndicatorVisibleSetter);
+	V8::SetAccessor(isolate, tpl, "crewIndicatorVisible", &CrewIndicatorVisibleGetter, &CrewIndicatorVisibleSetter);
+	V8::SetAccessor(isolate, tpl, "category", &CategoryGetter, &CategorySetter);
+	V8::SetAccessor(isolate, tpl, "highDetail", &HighDetailGetter, &HighDetailSetter);
+	V8::SetAccessor(isolate, tpl, "shrinked", &ShrinkedGetter, &ShrinkedSetter);
 
-	let area = new alt.AreaBlip(coords.x, coords.y, coords.z, 30, 30);
-	area.color = 5;
-	area.rotation = 0;
-	*/
-
-    V8::SetAccessor(isolate, tpl, "sprite", nullptr, &SpriteSetter);
-    V8::SetAccessor(isolate, tpl, "scale", nullptr, &ScaleSetter);
-    V8::SetAccessor(isolate, tpl, "color", nullptr, &ColorSetter);
-    V8::SetAccessor(isolate, tpl, "secondaryColor", nullptr, &SecondaryColorSetter);
-    V8::SetAccessor(isolate, tpl, "alpha", nullptr, &AlphaSetter);
-    V8::SetAccessor(isolate, tpl, "flashTimer", nullptr, &FlashTimerSetter);
-    V8::SetAccessor(isolate, tpl, "flashInterval", nullptr, &FlashIntervalSetter);
-    V8::SetAccessor(isolate, tpl, "route", nullptr, &RouteSetter);
-    V8::SetAccessor(isolate, tpl, "bright", nullptr, &BrightSetter);
-    V8::SetAccessor(isolate, tpl, "number", nullptr, &NumberSetter);
-    V8::SetAccessor(isolate, tpl, "showCone", nullptr, &ShowConeSetter);
-    V8::SetAccessor(isolate, tpl, "flashes", nullptr, &FlashesSetter);
-    V8::SetAccessor(isolate, tpl, "flashesAlternate", nullptr, &FlashesAlternateSetter);
-    V8::SetAccessor(isolate, tpl, "shortRange", nullptr, &ShortRangeSetter);
-    V8::SetAccessor(isolate, tpl, "priority", nullptr, &PrioritySetter);
-    V8::SetAccessor(isolate, tpl, "heading", nullptr, &RotationSetter);
-    V8::SetAccessor(isolate, tpl, "gxtName", nullptr, &GxtNameSetter);
-    V8::SetAccessor(isolate, tpl, "name", nullptr, &NameSetter);
-    V8::SetAccessor(isolate, tpl, "routeColor", nullptr, &RouteColorSetter);
-    V8::SetAccessor(isolate, tpl, "pulse", nullptr, &PulseSetter);
-    V8::SetAccessor(isolate, tpl, "asMissionCreator", nullptr, &AsMissionCreatorSetter);
-    V8::SetAccessor(isolate, tpl, "tickVisible", nullptr, &tickVisibleSetter);
-    V8::SetAccessor(isolate, tpl, "headingIndicatorVisible", nullptr, &headingIndicatorVisibleSetter);
-    V8::SetAccessor(isolate, tpl, "outlineIndicatorVisible", nullptr, &outlineIndicatorVisibleSetter);
-    V8::SetAccessor(isolate, tpl, "friendIndicatorVisible", nullptr, &friendIndicatorVisibleSetter);
-    V8::SetAccessor(isolate, tpl, "crewIndicatorVisible", nullptr, &crewIndicatorVisibleSetter);
-    V8::SetAccessor(isolate, tpl, "category", nullptr, &categorySetter);
-    V8::SetAccessor(isolate, tpl, "highDetail", nullptr, &highDetailSetter);
-    V8::SetAccessor(isolate, tpl, "shrinked", nullptr, &shrinkedSetter);
-
-    V8::SetMethod(isolate, tpl, "fade", &Fade);
+	V8::SetMethod(isolate, tpl, "fade", &Fade);
 });
 
-extern V8Class v8Blip;
 extern V8Class v8AreaBlip("AreaBlip", v8Blip, ConstructorAreaBlip, [](v8::Local<v8::FunctionTemplate> tpl) {
-    v8::Isolate *isolate = v8::Isolate::GetCurrent();
+	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
+	v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
 });
 
 extern V8Class v8RadiusBlip("RadiusBlip", v8Blip, ConstructorRadiusBlip, [](v8::Local<v8::FunctionTemplate> tpl) {
-    v8::Isolate *isolate = v8::Isolate::GetCurrent();
+	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
+	v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
 });
 
 extern V8Class v8PointBlip("PointBlip", v8Blip, ConstructorPointBlip, [](v8::Local<v8::FunctionTemplate> tpl) {
-    v8::Isolate *isolate = v8::Isolate::GetCurrent();
+	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
+	v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
 });
 
 extern V8Class v8PedBlip("PedBlip", v8Blip, ConstructorPedBlip, [](v8::Local<v8::FunctionTemplate> tpl) {
-    v8::Isolate *isolate = v8::Isolate::GetCurrent();
+	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
+	v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
 });
 
 extern V8Class v8VehicleBlip("VehicleBlip", v8Blip, ConstructorVehicleBlip, [](v8::Local<v8::FunctionTemplate> tpl) {
-    v8::Isolate *isolate = v8::Isolate::GetCurrent();
+	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
+	v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
 });
