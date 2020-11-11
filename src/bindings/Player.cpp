@@ -324,7 +324,6 @@ extern V8Class v8Entity;
 extern V8Class v8Player("Player", v8Entity, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate *isolate = v8::Isolate::GetCurrent();
 
-    tpl->InstanceTemplate()->SetInternalFieldCount(1);
     v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
 
     V8::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
