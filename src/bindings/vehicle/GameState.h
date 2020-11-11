@@ -197,7 +197,7 @@ namespace V8::Vehicle
 		info.GetReturnValue().Set(v8::Boolean::New(isolate, vehicle->IsNightlightOn()));
 	}
 
-	void RoofOpenedGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+	void RoofStateGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 	{
 		v8::Isolate* isolate = info.GetIsolate();
 
@@ -209,10 +209,10 @@ namespace V8::Vehicle
 
 		Ref<IVehicle> vehicle = _this->GetHandle().As<IVehicle>();
 
-		info.GetReturnValue().Set(v8::Boolean::New(isolate, vehicle->IsRoofOpened()));
+		info.GetReturnValue().Set(v8::Boolean::New(isolate, vehicle->GetRoofState()));
 	}
 
-	void RoofOpenedSetter(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+	void RoofStateSetter(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
 	{
 		v8::Isolate* isolate = info.GetIsolate();
 
@@ -224,7 +224,7 @@ namespace V8::Vehicle
 
 		Ref<IVehicle> vehicle = _this->GetHandle().As<IVehicle>();
 
-		vehicle->SetRoofOpened(value->ToBoolean(info.GetIsolate())->Value());
+		vehicle->SetRoofState(value->ToBoolean(info.GetIsolate())->Value());
 	}
 
 	void FlamethrowerActiveGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
