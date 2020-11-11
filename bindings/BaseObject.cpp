@@ -128,6 +128,8 @@ static void Destroy(const v8::FunctionCallbackInfo<v8::Value> &info)
 extern V8Class v8BaseObject("BaseObject", [](v8::Local<v8::FunctionTemplate> tpl) {
 	v8::Isolate *isolate = v8::Isolate::GetCurrent();
 
+	tpl->InstanceTemplate()->SetInternalFieldCount(1);
+
 	V8::SetAccessor(isolate, tpl, "type", &TypeGetter);
 	V8::SetAccessor(isolate, tpl, "valid", &ValidGetter);
 
