@@ -84,7 +84,7 @@ bool CV8ResourceImpl::Start()
 	pkg->ReadFile(file, src.GetData(), src.GetSize());
 	pkg->CloseFile(file);
 
-	Log::Info << "[V8] Starting script" << path;
+	Log::Info << "[V8] Starting script" << path << Log::Endl;
 
 	v8::Local<v8::String> sourceCode = v8::String::NewFromUtf8(isolate, src.GetData(), v8::NewStringType::kNormal, src.GetSize()).ToLocalChecked();
 
