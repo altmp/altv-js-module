@@ -143,7 +143,7 @@ static void ShowCursor(const v8::FunctionCallbackInfo<v8::Value> &info)
 	}
 }
 
-static void CursorPosGetter(v8::Local<v8::Name> name, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void CursorPosGetter(const v8::PropertyCallbackInfo<v8::Value> &info)
 {
 	v8::Isolate *isolate = info.GetIsolate();
 	auto ctx = isolate->GetEnteredContext();
@@ -158,7 +158,7 @@ static void CursorPosGetter(v8::Local<v8::Name> name, const v8::PropertyCallback
 	info.GetReturnValue().Set(obj);
 }
 
-static void CursorPosSetter(v8::Local<v8::Name> name, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void CursorPosSetter(v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
 {
 	v8::Isolate *isolate = info.GetIsolate();
 	auto ctx = isolate->GetEnteredContext();
