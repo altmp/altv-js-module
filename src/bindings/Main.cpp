@@ -859,6 +859,9 @@ extern V8Module altModule(
 		V8Helpers::RegisterFunc(exports, "toggleGameControls", &ToggleGameControls);
 		V8Helpers::RegisterFunc(exports, "toggleVoiceControls", &ToggleVoiceControls);
 		V8Helpers::RegisterFunc(exports, "showCursor", &ShowCursor);
+		V8Helpers::RegisterFunc(exports, "getCursorPos", &CursorPosGetter);
+		V8Helpers::RegisterFunc(exports, "setCursorPos", &CursorPosSetter);
+		V8Helpers::RegisterFunc(exports, "toggleVoiceControls", &ToggleVoiceControls);
 		V8Helpers::RegisterFunc(exports, "isMenuOpen", &IsMenuOpen);
 		V8Helpers::RegisterFunc(exports, "isConsoleOpen", &IsConsoleOpen);
 		//V8Helpers::RegisterFunc(exports, "drawRect2D", &DrawRect2D);
