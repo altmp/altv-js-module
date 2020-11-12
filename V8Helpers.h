@@ -4,6 +4,7 @@
 #include <functional>
 
 #include <v8.h>
+#include <limits>
 
 #include "cpp-sdk/objects/IEntity.h"
 #include "cpp-sdk/types/MValue.h"
