@@ -43,34 +43,39 @@ public:
 		return static_cast<V8Entity *>(i.As<v8::External>()->Value());
 	}
 
-	static V8Class *GetClass(alt::Ref<alt::IBaseObject> handle)
-	{
-		extern V8Class v8Player, v8Vehicle, v8Blip, v8WebView, v8VoiceChannel, v8Colshape, v8Checkpoint;
-
-		if (!handle)
-			return nullptr;
-
-		switch (handle->GetType())
-		{
-		case alt::IBaseObject::Type::PLAYER:
-			return &v8Player;
-		case alt::IBaseObject::Type::VEHICLE:
-			return &v8Vehicle;
+    static V8Class* GetClass(alt::Ref<alt::IBaseObject> handle)
+    {
+        extern V8Class v8Player, v8Vehicle, v8Blip;
 #ifdef ALT_SERVER_API
-		case alt::IBaseObject::Type::COLSHAPE:
-			return &v8Colshape;
-		case alt::IBaseObject::Type::CHECKPOINT:
-			return &v8Checkpoint;
-		case alt::IBaseObject::Type::VOICE_CHANNEL:
-			return &v8VoiceChannel;
+        extern V8Class v8VoiceChannel, v8Colshape, v8Checkpoint;
 #else
-		// case alt::IBaseObject::Type::BLIP:
-		// 	return &v8Blip;
-		case alt::IBaseObject::Type::WEBVIEW:
-			return &v8WebView;
+        extern V8Class v8WebView;
 #endif
-		}
 
-		return nullptr;
-	}
+        if (!handle)
+            return nullptr;
+
+        switch (handle->GetType())
+        {
+        case alt::IBaseObject::Type::PLAYER:
+            return &v8Player;
+        case alt::IBaseObject::Type::VEHICLE:
+            return &v8Vehicle;
+#ifdef ALT_SERVER_API
+        case alt::IBaseObject::Type::COLSHAPE:
+            return &v8Colshape;
+        case alt::IBaseObject::Type::CHECKPOINT:
+            return &v8Checkpoint;
+        case alt::IBaseObject::Type::VOICE_CHANNEL:
+            return &v8VoiceChannel;
+        case alt::IBaseObject::Type::BLIP:
+            return &v8Blip;
+#else
+        case alt::IBaseObject::Type::WEBVIEW:
+            return &v8WebView;
+#endif
+        }
+
+        return nullptr;
+    }
 };
