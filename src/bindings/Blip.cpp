@@ -78,21 +78,6 @@ static void ConstructorVehicleBlip(const v8::FunctionCallbackInfo<v8::Value>& in
 	V8_BIND_BASE_OBJECT(blip);
 }
 
-static void ScaleGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	V8_GET_ISOLATE_CONTEXT();
-	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
-	V8_RETURN_NUMBER(blip->GetScale());
-}
-
-static void ScaleSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
-{
-	V8_GET_ISOLATE_CONTEXT();
-	V8_TO_NUMBER(value, val);
-	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
-	blip->SetScale(val);
-}
-
 static void SizeSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
@@ -273,7 +258,22 @@ static void NumberSetter(v8::Local<v8::String> property, v8::Local<v8::Value> va
 	V8_GET_ISOLATE_CONTEXT();
 	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
 	V8_TO_INTEGER(value, val);
-    blip->SetNumber(val);
+	blip->SetNumber(val);
+}
+
+static void DisplayGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_RETURN_INTEGER(blip->GetDisplay());
+}
+
+static void DisplaySetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+	V8_TO_INTEGER(value, val);
+	blip->SetDisplay(val);
 }
 
 static void ShowConeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -576,7 +576,6 @@ extern V8Class v8Blip("Blip", v8WorldObject, Constructor, [](v8::Local<v8::Funct
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
 	V8::SetAccessor(isolate, tpl, "sprite", &SpriteGetter, &SpriteSetter);
-	V8::SetAccessor(isolate, tpl, "scale", &ScaleGetter, &ScaleSetter);
 	V8::SetAccessor(isolate, tpl, "size", &SizeGetter, &SizeSetter);
 	V8::SetAccessor(isolate, tpl, "color", &ColorGetter, &ColorSetter);
 	V8::SetAccessor(isolate, tpl, "secondaryColor", &SecondaryColorGetter, &SecondaryColorSetter);
@@ -586,6 +585,7 @@ extern V8Class v8Blip("Blip", v8WorldObject, Constructor, [](v8::Local<v8::Funct
 	V8::SetAccessor(isolate, tpl, "route", &RouteGetter, &RouteSetter);
 	V8::SetAccessor(isolate, tpl, "bright", &BrightGetter, &BrightSetter);
 	V8::SetAccessor(isolate, tpl, "number", &NumberGetter, &NumberSetter);
+	V8::SetAccessor(isolate, tpl, "display", &DisplayGetter, &DisplaySetter);
 	V8::SetAccessor(isolate, tpl, "showCone", &ShowConeGetter, &ShowConeSetter);
 	V8::SetAccessor(isolate, tpl, "flashes", &FlashesGetter, &FlashesSetter);
 	V8::SetAccessor(isolate, tpl, "flashesAlternate", &FlashesAlternateGetter, &FlashesAlternateSetter);
