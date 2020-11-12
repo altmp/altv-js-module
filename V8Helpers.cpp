@@ -2,6 +2,7 @@
 #include "cpp-sdk/ICore.h"
 #include "V8ResourceImpl.h"
 #include "V8Helpers.h"
+#include <climits>
 
 bool V8Helpers::TryCatch(const std::function<bool()> &fn)
 {
