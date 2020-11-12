@@ -167,10 +167,10 @@ static void SeatGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8:
 
 static void EntityAimingAtGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
 
-    V8_RETURN(player->GetEntityAimingAt());
+    V8_RETURN_BASE_OBJECT(player->GetEntityAimingAt());
 }
 
 static void EntityAimOffsetGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
