@@ -147,7 +147,8 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 		"Failed to create VoiceChannel, make sure voice chat is enabled");
 }
 
-static V8Class v8VoiceChannel("VoiceChannel", "BaseObject", Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
+extern V8Class v8BaseObject;
+extern V8Class v8VoiceChannel("VoiceChannel", v8BaseObject, Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
 	V8::SetMethod(isolate, tpl, "addPlayer", &AddPlayer);

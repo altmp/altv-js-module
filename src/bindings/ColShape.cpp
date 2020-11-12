@@ -71,7 +71,8 @@ static void PlayersOnlySetter(v8::Local<v8::String> name, v8::Local<v8::Value> v
 	_this->SetPlayersOnly(playersOnly);
 }
 
-static V8Class v8Colshape("Colshape", "WorldObject", nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
+extern V8Class v8WorldObject;
+extern V8Class v8Colshape("Colshape", v8WorldObject, nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
 	V8::SetAccessor(isolate, tpl, "colshapeType", ColshapeTypeGetter);
@@ -80,7 +81,7 @@ static V8Class v8Colshape("Colshape", "WorldObject", nullptr, [](v8::Local<v8::F
 	V8::SetMethod(isolate, tpl, "isPointIn", IsPointIn);
 });
 
-static V8Class v8ColshapeCylinder("ColshapeCylinder", "Colshape", [](const v8::FunctionCallbackInfo<v8::Value>& info)
+extern V8Class v8ColshapeCylinder("ColshapeCylinder", v8Colshape, [](const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	v8::Isolate* isolate = info.GetIsolate();
 
@@ -105,7 +106,7 @@ static V8Class v8ColshapeCylinder("ColshapeCylinder", "Colshape", [](const v8::F
 		V8Helpers::Throw(isolate, "Failed to create ColshapeCylinder");
 }, [](v8::Local<v8::FunctionTemplate> tpl) {});
 
-static V8Class v8ColshapeSphere("ColshapeSphere", "Colshape", [](const v8::FunctionCallbackInfo<v8::Value>& info)
+extern V8Class v8ColshapeSphere("ColshapeSphere", v8Colshape, [](const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	v8::Isolate* isolate = info.GetIsolate();
 
@@ -128,7 +129,7 @@ static V8Class v8ColshapeSphere("ColshapeSphere", "Colshape", [](const v8::Funct
 		V8Helpers::Throw(isolate, "Failed to create ColshapeSphere");
 }, [](v8::Local<v8::FunctionTemplate> tpl) {});
 
-static V8Class v8ColshapeCircle("ColshapeCircle", "Colshape", [](const v8::FunctionCallbackInfo<v8::Value>& info)
+extern V8Class v8ColshapeCircle("ColshapeCircle", v8Colshape, [](const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	v8::Isolate* isolate = info.GetIsolate();
 
@@ -150,7 +151,7 @@ static V8Class v8ColshapeCircle("ColshapeCircle", "Colshape", [](const v8::Funct
 		V8Helpers::Throw(isolate, "Failed to create ColshapeCircle");
 }, [](v8::Local<v8::FunctionTemplate> tpl) {});
 
-static V8Class v8ColshapeCuboid("ColshapeCuboid", "Colshape", [](const v8::FunctionCallbackInfo<v8::Value>& info)
+extern V8Class v8ColshapeCuboid("ColshapeCuboid", v8Colshape, [](const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	v8::Isolate* isolate = info.GetIsolate();
 
@@ -175,7 +176,7 @@ static V8Class v8ColshapeCuboid("ColshapeCuboid", "Colshape", [](const v8::Funct
 		V8Helpers::Throw(isolate, "Failed to create ColshapeCuboid");
 }, [](v8::Local<v8::FunctionTemplate> tpl) {});
 
-static V8Class v8ColshapeRectangle("ColshapeRectangle", "Colshape", [](const v8::FunctionCallbackInfo<v8::Value>& info)
+extern V8Class v8ColshapeRectangle("ColshapeRectangle", v8Colshape, [](const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	v8::Isolate* isolate = info.GetIsolate();
 
