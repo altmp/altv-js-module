@@ -8,6 +8,8 @@
 #include "helpers/V8Entity.h"
 #include "helpers/V8Helpers.h"
 
+#include "node.h"
+
 class CNodeScriptRuntime;
 
 class CNodeResourceImpl : public V8ResourceImpl
