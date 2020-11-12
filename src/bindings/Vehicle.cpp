@@ -9,7 +9,7 @@ using namespace alt;
 
 static void HandlingGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
+    V8_GET_ISOLATE_CONTEXT();
 
     V8Entity *_this = V8Entity::Get(info.This());
     V8_CHECK(_this, "entity is invalid");
@@ -18,70 +18,47 @@ static void HandlingGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo
         info.This()};
 
     extern V8Class v8Handling;
-    info.GetReturnValue().Set(v8Handling.New(isolate->GetEnteredContext(), args));
+    V8_RETURN(v8Handling.New(isolate->GetEnteredContext(), args));
 }
 
 static void SpeedGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IVehicle> vehicle = _this->GetHandle().As<alt::IVehicle>();
-
-    info.GetReturnValue().Set(v8::Number::New(isolate, vehicle->GetWheelSpeed()));
+    V8_RETURN_NUMBER(vehicle->GetWheelSpeed());
 }
 
 static void GearGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IVehicle> vehicle = _this->GetHandle().As<alt::IVehicle>();
-
-    info.GetReturnValue().Set(v8::Integer::New(isolate, vehicle->GetCurrentGear()));
+    V8_RETURN_INTEGER(vehicle->GetCurrentGear());
 }
 
 static void RPMGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IVehicle> vehicle = _this->GetHandle().As<alt::IVehicle>();
-
-    info.GetReturnValue().Set(v8::Number::New(isolate, vehicle->GetCurrentRPM()));
+    V8_RETURN_NUMBER(vehicle->GetCurrentRPM());
 }
 
 static void WheelsCountGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IVehicle> vehicle = _this->GetHandle().As<alt::IVehicle>();
-
-    info.GetReturnValue().Set(v8::Number::New(isolate, vehicle->GetWheelsCount()));
+    V8_RETURN_NUMBER(vehicle->GetWheelsCount());
 }
 
 static void SpeedVectorGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-    V8_CHECK(resource, "invalid resource");
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IVehicle> vehicle = _this->GetHandle().As<alt::IVehicle>();
-
-    info.GetReturnValue().Set(resource->CreateVector3(vehicle->GetSpeedVector()));
+    V8_RETURN(resource->CreateVector3(vehicle->GetSpeedVector()));
 }
 
 // static void GravityGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
@@ -127,13 +104,9 @@ static void SpeedVectorGetter(v8::Local<v8::String>, const v8::PropertyCallbackI
 
 static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value> &info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-    V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-    V8_CHECK(resource, "invalid resource");
-
-    v8::Local<v8::Array> arr = v8::Array::New(info.GetIsolate());
+    v8::Local<v8::Array> arr = v8::Array::New(isolate);
 
     uint16_t i = 0;
     for (auto vehicle : alt::ICore::Instance().GetVehicles())
@@ -142,7 +115,7 @@ static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo
             arr->Set(ctx, i++, resource->GetOrCreateEntity(vehicle.Get(), "Vehicle")->GetJSVal(isolate));
     };
 
-    info.GetReturnValue().Set(arr);
+    V8_RETURN(arr);
 }
 
 static void StaticGetByScriptID(const v8::FunctionCallbackInfo<v8::Value> &info)
