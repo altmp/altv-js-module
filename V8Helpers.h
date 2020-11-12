@@ -321,7 +321,7 @@ namespace V8
 
 #define V8_RETURN_BASE_OBJECT(baseObjectRef) V8_RETURN(resource->GetBaseObjectOrNull(baseObjectRef))
 
-#define V8_BIND_BASE_OBJECT(baseObjectRef) \
+#define V8_BIND_BASE_OBJECT(baseObjectRef, msg) \
 	{ \
 		V8_CHECK(baseObjectRef, "Failed to create base object"); \
 		auto baseObject = (baseObjectRef); \
