@@ -589,7 +589,8 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
 	}
 }
 
-static V8Class v8Player("Player", "Entity", nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
+extern V8Class v8Entity;
+extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
 	v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();

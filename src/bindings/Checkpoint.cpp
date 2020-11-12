@@ -37,6 +37,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 		V8Helpers::Throw(isolate, "Failed to create Checkpoint");
 }
 
-static V8Class v8Checkpoint("Checkpoint", "Colshape", Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
+extern V8Class v8Colshape;
+extern V8Class v8Checkpoint("Checkpoint", v8Colshape, Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 });
