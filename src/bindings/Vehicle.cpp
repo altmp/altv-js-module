@@ -3,6 +3,8 @@
 #include "../helpers/V8Class.h"
 #include "../helpers/V8Entity.h"
 #include "../helpers/V8ResourceImpl.h"
+
+#include "cpp-sdk/objects/IPlayer.h"
 #include "cpp-sdk/objects/IVehicle.h"
 
 using namespace alt;

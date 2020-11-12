@@ -7,6 +7,8 @@
 #include "cpp-sdk/objects/IPlayer.h"
 #include "cpp-sdk/objects/IVehicle.h"
 
+using namespace alt;
+
 static void NameGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
