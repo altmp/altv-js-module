@@ -205,6 +205,15 @@ static void MaxHealthGetter(v8::Local<v8::String>, const v8::PropertyCallbackInf
     V8_RETURN_INTEGER(player->GetMaxHealth());
 }
 
+static void IsDeadGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
+
+    V8_RETURN_BOOLEAN(player->IsDead());
+}
+
+
 // static void GiveWeapon(const v8::FunctionCallbackInfo<v8::Value> &info)
 // {
 //     v8::Isolate *isolate = info.GetIsolate();
@@ -488,6 +497,7 @@ extern V8Class v8Player("Player", v8Entity, [](v8::Local<v8::FunctionTemplate> t
     proto->SetAccessor(v8::String::NewFromUtf8(isolate, "flashlightActive").ToLocalChecked(), &FlashlightActiveGetter);
     proto->SetAccessor(v8::String::NewFromUtf8(isolate, "health").ToLocalChecked(), &HealthGetter);
     proto->SetAccessor(v8::String::NewFromUtf8(isolate, "maxHealth").ToLocalChecked(), &MaxHealthGetter);
+    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "isDead").ToLocalChecked(), &IsDeadGetter);
 
     /*
     if (alt::ICore::Instance().IsSandbox())
