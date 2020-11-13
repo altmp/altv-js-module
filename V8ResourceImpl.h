@@ -34,6 +34,8 @@ public:
 	{
 	}
 
+	~V8ResourceImpl();
+
 	struct PathInfo
 	{
 		alt::IPackage *pkg = nullptr;

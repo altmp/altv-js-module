@@ -11,6 +11,14 @@
 
 using namespace alt;
 
+V8ResourceImpl::~V8ResourceImpl() {
+	for(auto& [obj, ent] : entities) {
+		delete ent;
+	}
+
+	entities.clear();
+}
+
 extern V8Class v8Vector3, v8RGBA, v8BaseObject;
 bool V8ResourceImpl::Start()
 {
