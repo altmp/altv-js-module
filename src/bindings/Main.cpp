@@ -261,7 +261,7 @@ extern V8Class v8Vector3,
     v8ColshapeCuboid,
     v8ColshapeRectangle;
 
-static V8Module v8Alt("alt",
+extern V8Module v8Alt("alt",
 {
 	v8Vector3,
 	v8RGBA,
