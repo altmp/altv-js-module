@@ -46,8 +46,6 @@ static void MicLevelGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo
     V8_RETURN_NUMBER(player->GetMicLevel());
 }
 
-// My own shit
-
 static void CurrentWeaponComponentsGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -191,6 +189,21 @@ static void FlashlightActiveGetter(v8::Local<v8::String>, const v8::PropertyCall
     V8_RETURN_BOOLEAN(player->IsFlashlightActive());
 }
 
+static void HealthGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
+
+    V8_RETURN_INTEGER(player->GetHealth());
+}
+
+static void MaxHealthGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
+
+    V8_RETURN_INTEGER(player->GetMaxHealth());
+}
 
 // static void GiveWeapon(const v8::FunctionCallbackInfo<v8::Value> &info)
 // {
@@ -473,6 +486,8 @@ extern V8Class v8Player("Player", v8Entity, [](v8::Local<v8::FunctionTemplate> t
     proto->SetAccessor(v8::String::NewFromUtf8(isolate, "entityAimingAt").ToLocalChecked(), &EntityAimingAtGetter);
     proto->SetAccessor(v8::String::NewFromUtf8(isolate, "entityAimOffset").ToLocalChecked(), &EntityAimOffsetGetter);
     proto->SetAccessor(v8::String::NewFromUtf8(isolate, "flashlightActive").ToLocalChecked(), &FlashlightActiveGetter);
+    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "health").ToLocalChecked(), &HealthGetter);
+    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "maxHealth").ToLocalChecked(), &MaxHealthGetter);
 
     /*
     if (alt::ICore::Instance().IsSandbox())
