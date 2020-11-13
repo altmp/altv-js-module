@@ -22,12 +22,7 @@ static void VehicleGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
 
-    alt::Ref<alt::IVehicle> vehicle = player->GetVehicle();
-
-    if (vehicle)
-        V8_RETURN(resource->GetOrCreateEntity(vehicle.Get(), "Vehicle")->GetJSVal(isolate));
-    else
-        V8_RETURN_NULL();
+    V8_RETURN_BASE_OBJECT(player->GetVehicle());
 }
 
 static void TalkingGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -439,11 +434,7 @@ static void LocalGetter(v8::Local<v8::Name> name, const v8::PropertyCallbackInfo
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-    auto localPlayer = alt::ICore::Instance().GetLocalPlayer();
-    if (!localPlayer)
-        V8_RETURN_NULL();
-    else
-        V8_RETURN(resource->GetOrCreateEntity(localPlayer.Get())->GetJSVal(isolate));
+    V8_RETURN_BASE_OBJECT(alt::ICore::Instance().GetLocalPlayer());
 }
 
 static void StaticGetByScriptID(const v8::FunctionCallbackInfo<v8::Value>& info)
