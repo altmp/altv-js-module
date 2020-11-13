@@ -557,7 +557,7 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, [](v8::Local<v8::FunctionTemplate>
     V8::SetAccessor(isolate, tpl, "speedVector", &SpeedVectorGetter);
     // V8::SetAccessor(isolate, tpl, "gravity", &GravityGetter, &GravitySetter);
     V8::SetAccessor(isolate, tpl, "handling", &HandlingGetter);
-    V8::SetAccessor(isolate, tpl, "destroyed", &IsDestroyedGetter);
+    V8::SetAccessor(isolate, tpl, "isDestroyed", &IsDestroyedGetter);
     V8::SetAccessor(isolate, tpl, "driver", &DriverGetter);
 
     // Appearance getters
