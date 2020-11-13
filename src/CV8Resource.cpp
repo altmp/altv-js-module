@@ -125,7 +125,7 @@ bool CV8ResourceImpl::Start()
 		alt::MValue _exports = V8Helpers::V8ToMValue(curModule->GetModuleNamespace());
 		resource->SetExports(_exports.As<alt::IMValueDict>());
 
-		Log::Info << "[V8] Started script" << path;
+		Log::Info << "[V8] Started script " << path << Log::Endl;
 		return true;
 	});
 
