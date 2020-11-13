@@ -20,7 +20,7 @@ if(NOT ALTV_JS_CPP_SDK)
   git_clone(
     PROJECT_NAME  cpp-sdk
     GIT_URL       https://github.com/altmp/cpp-sdk
-    GIT_BRANCH    clientsdk
+    GIT_BRANCH    master
     DIRECTORY     ${ALTV_JS_DL_DEPS}
   )
   set(ALTV_JS_CPP_SDK ${ALTV_JS_DL_DEPS})
