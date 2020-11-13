@@ -604,4 +604,5 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, [](v8::Local<v8::FunctionTemplate>
     V8::SetAccessor(isolate, tpl, "hasArmoredWindows", &HasArmoredWindowsGetter);
     V8::SetAccessor(isolate, tpl, "manualEngineControl", &IsManualEngineControlGetter);
     //V8::SetAccessor(isolate, tpl, "handlingModified", &IsHandlingModifiedGetter);
+    V8::SetAccessor(isolate, tpl, "driver", &DriverGetter);
 });
