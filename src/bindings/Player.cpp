@@ -465,30 +465,35 @@ extern V8Class v8Player("Player", v8Entity, [](v8::Local<v8::FunctionTemplate> t
     tpl->SetNativeDataProperty(v8::String::NewFromUtf8(isolate, "all").ToLocalChecked(), &AllGetter);
     tpl->SetNativeDataProperty(v8::String::NewFromUtf8(isolate, "local").ToLocalChecked(), &LocalGetter);
 
+    // Common getters
     proto->SetAccessor(v8::String::NewFromUtf8(isolate, "name").ToLocalChecked(), &NameGetter);
     proto->SetAccessor(v8::String::NewFromUtf8(isolate, "vehicle").ToLocalChecked(), &VehicleGetter);
+    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "seat").ToLocalChecked(), &SeatGetter);
     proto->SetAccessor(v8::String::NewFromUtf8(isolate, "isTalking").ToLocalChecked(), &TalkingGetter);
     proto->SetAccessor(v8::String::NewFromUtf8(isolate, "micLevel").ToLocalChecked(), &MicLevelGetter);
+    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "health").ToLocalChecked(), &HealthGetter);
+    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "maxHealth").ToLocalChecked(), &MaxHealthGetter);
+    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "armour").ToLocalChecked(), &ArmourGetter);
+    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "maxArmour").ToLocalChecked(), &MaxArmourGetter);
+
+    // Weapon getters
     proto->SetAccessor(v8::String::NewFromUtf8(isolate, "currentWeaponComponents").ToLocalChecked(), &CurrentWeaponComponentsGetter);
     proto->SetAccessor(v8::String::NewFromUtf8(isolate, "currentWeaponTintIndex").ToLocalChecked(), &CurrentWeaponTintIndexGetter);
     proto->SetAccessor(v8::String::NewFromUtf8(isolate, "currentWeapon").ToLocalChecked(), &CurrentWeaponGetter);
+    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "entityAimingAt").ToLocalChecked(), &EntityAimingAtGetter);
+    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "entityAimOffset").ToLocalChecked(), &EntityAimOffsetGetter);
+    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "flashlightActive").ToLocalChecked(), &FlashlightActiveGetter);
+    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "aimPos").ToLocalChecked(), &AimPosGetter);
+
+    // Gamestate getters
     proto->SetAccessor(v8::String::NewFromUtf8(isolate, "isJumping").ToLocalChecked(), &IsJumpingGetter);
     proto->SetAccessor(v8::String::NewFromUtf8(isolate, "isInRagdoll").ToLocalChecked(), &IsInRagdollGetter);
     proto->SetAccessor(v8::String::NewFromUtf8(isolate, "isAiming").ToLocalChecked(), &IsAimingGetter);
     proto->SetAccessor(v8::String::NewFromUtf8(isolate, "isShooting").ToLocalChecked(), &IsShootingGetter);
     proto->SetAccessor(v8::String::NewFromUtf8(isolate, "isReloading").ToLocalChecked(), &IsReloadingGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "armour").ToLocalChecked(), &ArmourGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "maxArmour").ToLocalChecked(), &MaxArmourGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "moveSpeed").ToLocalChecked(), &MoveSpeedGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "aimPos").ToLocalChecked(), &AimPosGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "headRot").ToLocalChecked(), &HeadRotationGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "seat").ToLocalChecked(), &SeatGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "entityAimingAt").ToLocalChecked(), &EntityAimingAtGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "entityAimOffset").ToLocalChecked(), &EntityAimOffsetGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "flashlightActive").ToLocalChecked(), &FlashlightActiveGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "health").ToLocalChecked(), &HealthGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "maxHealth").ToLocalChecked(), &MaxHealthGetter);
     proto->SetAccessor(v8::String::NewFromUtf8(isolate, "isDead").ToLocalChecked(), &IsDeadGetter);
+    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "moveSpeed").ToLocalChecked(), &MoveSpeedGetter);
+    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "headRot").ToLocalChecked(), &HeadRotationGetter);
 
     /*
     if (alt::ICore::Instance().IsSandbox())

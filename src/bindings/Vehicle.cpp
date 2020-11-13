@@ -549,6 +549,7 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, [](v8::Local<v8::FunctionTemplate>
 
     V8::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
 
+    // Common getters
     V8::SetAccessor(isolate, tpl, "speed", &SpeedGetter);
     V8::SetAccessor(isolate, tpl, "gear", &GearGetter);
     V8::SetAccessor(isolate, tpl, "rpm", &RPMGetter);
@@ -557,6 +558,9 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, [](v8::Local<v8::FunctionTemplate>
     // V8::SetAccessor(isolate, tpl, "gravity", &GravityGetter, &GravitySetter);
     V8::SetAccessor(isolate, tpl, "handling", &HandlingGetter);
     V8::SetAccessor(isolate, tpl, "destroyed", &IsDestroyedGetter);
+    V8::SetAccessor(isolate, tpl, "driver", &DriverGetter);
+
+    // Appearance getters
     V8::SetAccessor(isolate, tpl, "modKitsCount", &ModKitsCountGetter);
     V8::SetAccessor(isolate, tpl, "modKit", &ModKitGetter);
     //V8::SetAccessor(isolate, tpl, "hasCustomPrimaryColor", &IsPrimaryColorRGBGetter);
@@ -585,6 +589,8 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, [](v8::Local<v8::FunctionTemplate>
     V8::SetAccessor(isolate, tpl, "neonColor", &NeonColorGetter);
     V8::SetAccessor(isolate, tpl, "livery", &LiveryGetter);
     V8::SetAccessor(isolate, tpl, "roofLivery", &RoofLiveryGetter);
+
+    // Gamestate getters
     V8::SetAccessor(isolate, tpl, "engineOn", &EngineOnGetter);
     V8::SetAccessor(isolate, tpl, "handbrakeActive", &HandbrakeActiveGetter);
     V8::SetAccessor(isolate, tpl, "headlightColor", &HeadlightColorGetter);
@@ -596,13 +602,18 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, [](v8::Local<v8::FunctionTemplate>
     V8::SetAccessor(isolate, tpl, "roofState", &RoofStateGetter);
     V8::SetAccessor(isolate, tpl, "flamethrowerActive", &IsFlamethrowerActiveGetter);
     V8::SetAccessor(isolate, tpl, "lightsMultiplier", &LightsMultiplierGetter);
+
+    // Health getters
     V8::SetAccessor(isolate, tpl, "engineHealth", &EngineHealthGetter);
     V8::SetAccessor(isolate, tpl, "petrolTankHealth", &PetrolTankHealthGetter);
     V8::SetAccessor(isolate, tpl, "repairsCount", &RepairsCountGetter);
     V8::SetAccessor(isolate, tpl, "bodyHealth", &BodyHealthGetter);
     V8::SetAccessor(isolate, tpl, "bodyAdditionalHealth", &BodyAdditionalHealthGetter);
+
+    // Damage getters
     V8::SetAccessor(isolate, tpl, "hasArmoredWindows", &HasArmoredWindowsGetter);
+
+    // Script getters
     V8::SetAccessor(isolate, tpl, "manualEngineControl", &IsManualEngineControlGetter);
     //V8::SetAccessor(isolate, tpl, "handlingModified", &IsHandlingModifiedGetter);
-    V8::SetAccessor(isolate, tpl, "driver", &DriverGetter);
 });
