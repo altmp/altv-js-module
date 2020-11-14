@@ -466,34 +466,34 @@ extern V8Class v8Player("Player", v8Entity, [](v8::Local<v8::FunctionTemplate> t
     tpl->SetNativeDataProperty(v8::String::NewFromUtf8(isolate, "local").ToLocalChecked(), &LocalGetter);
 
     // Common getters
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "name").ToLocalChecked(), &NameGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "vehicle").ToLocalChecked(), &VehicleGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "seat").ToLocalChecked(), &SeatGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "isTalking").ToLocalChecked(), &TalkingGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "micLevel").ToLocalChecked(), &MicLevelGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "health").ToLocalChecked(), &HealthGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "maxHealth").ToLocalChecked(), &MaxHealthGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "armour").ToLocalChecked(), &ArmourGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "maxArmour").ToLocalChecked(), &MaxArmourGetter);
+    V8::SetAccessor(isolate, tpl, "name", &NameGetter);
+    V8::SetAccessor(isolate, tpl, "vehicle", &VehicleGetter);
+    V8::SetAccessor(isolate, tpl, "seat", &SeatGetter);
+    V8::SetAccessor(isolate, tpl, "isTalking", &TalkingGetter);
+    V8::SetAccessor(isolate, tpl, "micLevel", &MicLevelGetter);
+    V8::SetAccessor(isolate, tpl, "health", &HealthGetter);
+    V8::SetAccessor(isolate, tpl, "maxHealth", &MaxHealthGetter);
+    V8::SetAccessor(isolate, tpl, "armour", &ArmourGetter);
+    V8::SetAccessor(isolate, tpl, "maxArmour", &MaxArmourGetter);
 
     // Weapon getters
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "currentWeaponComponents").ToLocalChecked(), &CurrentWeaponComponentsGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "currentWeaponTintIndex").ToLocalChecked(), &CurrentWeaponTintIndexGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "currentWeapon").ToLocalChecked(), &CurrentWeaponGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "entityAimingAt").ToLocalChecked(), &EntityAimingAtGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "entityAimOffset").ToLocalChecked(), &EntityAimOffsetGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "flashlightActive").ToLocalChecked(), &FlashlightActiveGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "aimPos").ToLocalChecked(), &AimPosGetter);
+    V8::SetAccessor(isolate, tpl, "currentWeaponComponents", &CurrentWeaponComponentsGetter);
+    V8::SetAccessor(isolate, tpl, "currentWeaponTintIndex", &CurrentWeaponTintIndexGetter);
+    V8::SetAccessor(isolate, tpl, "currentWeapon", &CurrentWeaponGetter);
+    V8::SetAccessor(isolate, tpl, "entityAimingAt", &EntityAimingAtGetter);
+    V8::SetAccessor(isolate, tpl, "entityAimOffset", &EntityAimOffsetGetter);
+    V8::SetAccessor(isolate, tpl, "flashlightActive", &FlashlightActiveGetter);
+    V8::SetAccessor(isolate, tpl, "aimPos", &AimPosGetter);
 
     // Gamestate getters
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "isJumping").ToLocalChecked(), &IsJumpingGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "isInRagdoll").ToLocalChecked(), &IsInRagdollGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "isAiming").ToLocalChecked(), &IsAimingGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "isShooting").ToLocalChecked(), &IsShootingGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "isReloading").ToLocalChecked(), &IsReloadingGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "isDead").ToLocalChecked(), &IsDeadGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "moveSpeed").ToLocalChecked(), &MoveSpeedGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "headRot").ToLocalChecked(), &HeadRotationGetter);
+    V8::SetAccessor(isolate, tpl, "isJumping", &IsJumpingGetter);
+    V8::SetAccessor(isolate, tpl, "isInRagdoll", &IsInRagdollGetter);
+    V8::SetAccessor(isolate, tpl, "isAiming", &IsAimingGetter);
+    V8::SetAccessor(isolate, tpl, "isShooting", &IsShootingGetter);
+    V8::SetAccessor(isolate, tpl, "isReloading", &IsReloadingGetter);
+    V8::SetAccessor(isolate, tpl, "isDead", &IsDeadGetter);
+    V8::SetAccessor(isolate, tpl, "moveSpeed", &MoveSpeedGetter);
+    V8::SetAccessor(isolate, tpl, "headRot", &HeadRotationGetter);
 
     /*
     if (alt::ICore::Instance().IsSandbox())

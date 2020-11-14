@@ -550,70 +550,70 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, [](v8::Local<v8::FunctionTemplate>
     V8::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
 
     // Common getters
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "speed").ToLocalChecked(), &SpeedGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "gear").ToLocalChecked(), &GearGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "rpm").ToLocalChecked(), &RPMGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "wheelsCount").ToLocalChecked(), &WheelsCountGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "speedVector").ToLocalChecked(), &SpeedVectorGetter);
+    V8::SetAccessor(isolate, tpl, "speed", &SpeedGetter);
+    V8::SetAccessor(isolate, tpl, "gear", &GearGetter);
+    V8::SetAccessor(isolate, tpl, "rpm", &RPMGetter);
+    V8::SetAccessor(isolate, tpl, "wheelsCount", &WheelsCountGetter);
+    V8::SetAccessor(isolate, tpl, "speedVector", &SpeedVectorGetter);
     // proto->SetAccessor(v8::String::NewFromUtf8(isolate, "gravity", &GravityGetter).ToLocalChecked(), &GravitySetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "handling").ToLocalChecked(), &HandlingGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "isDestroyed").ToLocalChecked(), &IsDestroyedGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "driver").ToLocalChecked(), &DriverGetter);
+    V8::SetAccessor(isolate, tpl, "handling", &HandlingGetter);
+    V8::SetAccessor(isolate, tpl, "isDestroyed", &IsDestroyedGetter);
+    V8::SetAccessor(isolate, tpl, "driver", &DriverGetter);
 
     // Appearance getters
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "modKitsCount").ToLocalChecked(), &ModKitsCountGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "modKit").ToLocalChecked(), &ModKitGetter);
-    //proto->SetAccessor(v8::String::NewFromUtf8(isolate, "hasCustomPrimaryColor").ToLocalChecked(), &IsPrimaryColorRGBGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "primaryColor").ToLocalChecked(), &PrimaryColorGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "customPrimaryColor").ToLocalChecked(), &PrimaryColorRGBGetter);
-    //proto->SetAccessor(v8::String::NewFromUtf8(isolate, "hasCustomSecondaryColor").ToLocalChecked(), &IsSecondaryColorRGBGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "secondaryColor").ToLocalChecked(), &SecondaryColorGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "customSecondaryColor").ToLocalChecked(), &SecondaryColorRGBGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "pearlColor").ToLocalChecked(), &PearlColorGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "wheelColor").ToLocalChecked(), &WheelColorGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "interiorColor").ToLocalChecked(), &InteriorColorGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "dashboardColor").ToLocalChecked(), &DashboardColorGetter);
-    //proto->SetAccessor(v8::String::NewFromUtf8(isolate, "hasCustomTireSmokeColor").ToLocalChecked(), &IsTireSmokeColorCustomGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "tireSmokeColor").ToLocalChecked(), &TireSmokeColorGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "wheelType").ToLocalChecked(), &WheelTypeGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "frontWheels").ToLocalChecked(), &WheelVariationGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "rearWheels").ToLocalChecked(), &RearWheelVariationGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "customTires").ToLocalChecked(), &IsCustomTiresGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "darkness").ToLocalChecked(), &SpecialDarknessGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "numberPlateIndex").ToLocalChecked(), &NumberplateIndexGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "numberPlateText").ToLocalChecked(), &NumberplateTextGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "windowTint").ToLocalChecked(), &WindowTintGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "dirtLevel").ToLocalChecked(), &DirtLevelGetter);
-    //proto->SetAccessor(v8::String::NewFromUtf8(isolate, "neonActive").ToLocalChecked(), &IsNeonActiveGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "neon").ToLocalChecked(), &NeonGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "neonColor").ToLocalChecked(), &NeonColorGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "livery").ToLocalChecked(), &LiveryGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "roofLivery").ToLocalChecked(), &RoofLiveryGetter);
+    V8::SetAccessor(isolate, tpl, "modKitsCount", &ModKitsCountGetter);
+    V8::SetAccessor(isolate, tpl, "modKit", &ModKitGetter);
+    //V8::SetAccessor(isolate, tpl, "hasCustomPrimaryColor", &IsPrimaryColorRGBGetter);
+    V8::SetAccessor(isolate, tpl, "primaryColor", &PrimaryColorGetter);
+    V8::SetAccessor(isolate, tpl, "customPrimaryColor", &PrimaryColorRGBGetter);
+    //V8::SetAccessor(isolate, tpl, "hasCustomSecondaryColor", &IsSecondaryColorRGBGetter);
+    V8::SetAccessor(isolate, tpl, "secondaryColor", &SecondaryColorGetter);
+    V8::SetAccessor(isolate, tpl, "customSecondaryColor", &SecondaryColorRGBGetter);
+    V8::SetAccessor(isolate, tpl, "pearlColor", &PearlColorGetter);
+    V8::SetAccessor(isolate, tpl, "wheelColor", &WheelColorGetter);
+    V8::SetAccessor(isolate, tpl, "interiorColor", &InteriorColorGetter);
+    V8::SetAccessor(isolate, tpl, "dashboardColor", &DashboardColorGetter);
+    //V8::SetAccessor(isolate, tpl, "hasCustomTireSmokeColor", &IsTireSmokeColorCustomGetter);
+    V8::SetAccessor(isolate, tpl, "tireSmokeColor", &TireSmokeColorGetter);
+    V8::SetAccessor(isolate, tpl, "wheelType", &WheelTypeGetter);
+    V8::SetAccessor(isolate, tpl, "frontWheels", &WheelVariationGetter);
+    V8::SetAccessor(isolate, tpl, "rearWheels", &RearWheelVariationGetter);
+    V8::SetAccessor(isolate, tpl, "customTires", &IsCustomTiresGetter);
+    V8::SetAccessor(isolate, tpl, "darkness", &SpecialDarknessGetter);
+    V8::SetAccessor(isolate, tpl, "numberPlateIndex", &NumberplateIndexGetter);
+    V8::SetAccessor(isolate, tpl, "numberPlateText", &NumberplateTextGetter);
+    V8::SetAccessor(isolate, tpl, "windowTint", &WindowTintGetter);
+    V8::SetAccessor(isolate, tpl, "dirtLevel", &DirtLevelGetter);
+    //V8::SetAccessor(isolate, tpl, "neonActive", &IsNeonActiveGetter);
+    V8::SetAccessor(isolate, tpl, "neon", &NeonGetter);
+    V8::SetAccessor(isolate, tpl, "neonColor", &NeonColorGetter);
+    V8::SetAccessor(isolate, tpl, "livery", &LiveryGetter);
+    V8::SetAccessor(isolate, tpl, "roofLivery", &RoofLiveryGetter);
 
     // Gamestate getters
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "engineOn").ToLocalChecked(), &EngineOnGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "handbrakeActive").ToLocalChecked(), &HandbrakeActiveGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "headlightColor").ToLocalChecked(), &HeadlightColorGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "activeRadioStation").ToLocalChecked(), &RadioStationIndexGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "sirenActive").ToLocalChecked(), &IsSirenActiveGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "lockState").ToLocalChecked(), &LockStateGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "daylightOn").ToLocalChecked(), &IsDaylightOnGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "nightlightOn").ToLocalChecked(), &IsNightlightOnGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "roofState").ToLocalChecked(), &RoofStateGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "flamethrowerActive").ToLocalChecked(), &IsFlamethrowerActiveGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "lightsMultiplier").ToLocalChecked(), &LightsMultiplierGetter);
+    V8::SetAccessor(isolate, tpl, "engineOn", &EngineOnGetter);
+    V8::SetAccessor(isolate, tpl, "handbrakeActive", &HandbrakeActiveGetter);
+    V8::SetAccessor(isolate, tpl, "headlightColor", &HeadlightColorGetter);
+    V8::SetAccessor(isolate, tpl, "activeRadioStation", &RadioStationIndexGetter);
+    V8::SetAccessor(isolate, tpl, "sirenActive", &IsSirenActiveGetter);
+    V8::SetAccessor(isolate, tpl, "lockState", &LockStateGetter);
+    V8::SetAccessor(isolate, tpl, "daylightOn", &IsDaylightOnGetter);
+    V8::SetAccessor(isolate, tpl, "nightlightOn", &IsNightlightOnGetter);
+    V8::SetAccessor(isolate, tpl, "roofState", &RoofStateGetter);
+    V8::SetAccessor(isolate, tpl, "flamethrowerActive", &IsFlamethrowerActiveGetter);
+    V8::SetAccessor(isolate, tpl, "lightsMultiplier", &LightsMultiplierGetter);
 
     // Health getters
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "engineHealth").ToLocalChecked(), &EngineHealthGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "petrolTankHealth").ToLocalChecked(), &PetrolTankHealthGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "repairsCount").ToLocalChecked(), &RepairsCountGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "bodyHealth").ToLocalChecked(), &BodyHealthGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "bodyAdditionalHealth").ToLocalChecked(), &BodyAdditionalHealthGetter);
+    V8::SetAccessor(isolate, tpl, "engineHealth", &EngineHealthGetter);
+    V8::SetAccessor(isolate, tpl, "petrolTankHealth", &PetrolTankHealthGetter);
+    V8::SetAccessor(isolate, tpl, "repairsCount", &RepairsCountGetter);
+    V8::SetAccessor(isolate, tpl, "bodyHealth", &BodyHealthGetter);
+    V8::SetAccessor(isolate, tpl, "bodyAdditionalHealth", &BodyAdditionalHealthGetter);
 
     // Damage getters
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "hasArmoredWindows").ToLocalChecked(), &HasArmoredWindowsGetter);
+    V8::SetAccessor(isolate, tpl, "hasArmoredWindows", &HasArmoredWindowsGetter);
 
     // Script getters
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "manualEngineControl").ToLocalChecked(), &IsManualEngineControlGetter);
-    //proto->SetAccessor(v8::String::NewFromUtf8(isolate, "handlingModified").ToLocalChecked(), &IsHandlingModifiedGetter);
+    V8::SetAccessor(isolate, tpl, "manualEngineControl", &IsManualEngineControlGetter);
+    //V8::SetAccessor(isolate, tpl, "handlingModified", &IsHandlingModifiedGetter);
 });
