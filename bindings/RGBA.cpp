@@ -14,7 +14,7 @@ static void ToString(const v8::FunctionCallbackInfo<v8::Value> &info)
 	v8::Local<v8::Number> a = info.This()->Get(ctx, V8::RGBA_AKey(isolate)).ToLocalChecked()->ToNumber(ctx).ToLocalChecked();
 
 	std::ostringstream ss;
-	ss << "RGBA{ r: " << r->Value() << ", g: " << r->Value() << ", b: " << b->Value() << ", a: " << a->Value() << " }";
+	ss << "RGBA{ r: " << r->Value() << ", g: " << g->Value() << ", b: " << b->Value() << ", a: " << a->Value() << " }";
 
 	info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, ss.str().c_str(), v8::NewStringType::kNormal).ToLocalChecked());
 }
