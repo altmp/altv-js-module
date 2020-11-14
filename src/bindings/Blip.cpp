@@ -5,7 +5,7 @@
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
-    V8_CHECK(info.IsConstructCall(), "Blip constructor is not a function");
+	V8_CHECK_CONSTRUCTOR();
 	V8_CHECK(false, "You can't use constructor of abstract class");
 }
 
