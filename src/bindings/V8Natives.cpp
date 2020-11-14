@@ -59,7 +59,7 @@ static void *ToMemoryBuffer(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx
 	return nullptr;
 }
 
-static void PushArg(alt::INative::Context *scrCtx, alt::INative::Type argType, v8::Isolate *isolate, v8::Local<v8::Value> val)
+static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type argType, v8::Isolate *isolate, v8::Local<v8::Value> val)
 {
 	using ArgType = alt::INative::Type;
 
@@ -149,7 +149,7 @@ static void PushPointerReturn(alt::INative::Type argType, v8::Local<v8::Array> r
 	}
 }
 
-static v8::Local<v8::Value> GetReturn(alt::INative::Context *scrCtx, alt::INative::Type retnType, v8::Isolate *isolate)
+static v8::Local<v8::Value> GetReturn(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type retnType, v8::Isolate *isolate)
 {
 	using ArgType = alt::INative::Type;
 
@@ -193,7 +193,7 @@ static v8::Local<v8::Value> GetReturn(alt::INative::Context *scrCtx, alt::INativ
 
 static void InvokeNative(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	static alt::INative::Context *ctx = alt::ICore::Instance().GetNativesContext();
+	static auto ctx = alt::ICore::Instance().CreateNativesContext();
 
 	v8::Isolate *isolate = info.GetIsolate();
 	v8::Local<v8::Context> v8Ctx = isolate->GetCurrentContext();
