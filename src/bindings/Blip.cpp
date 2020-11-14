@@ -415,8 +415,7 @@ static void RouteColorGetter(v8::Local<v8::String>, const v8::PropertyCallbackIn
 {
 	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
-	alt::RGBA color = blip->GetRouteColor();
-	V8_RETURN(resource->CreateRGBA(color));
+	V8_RETURN(resource->CreateRGBA(blip->GetRouteColor()));
 }
 
 static void RouteColorSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
@@ -431,12 +430,13 @@ static void RouteColorSetter(v8::Local<v8::String> property, v8::Local<v8::Value
 	v8::Local<v8::Value> r = color->Get(ctx, v8::String::NewFromUtf8(isolate, "r").ToLocalChecked()).ToLocalChecked();
 	v8::Local<v8::Value> g = color->Get(ctx, v8::String::NewFromUtf8(isolate, "g").ToLocalChecked()).ToLocalChecked();
 	v8::Local<v8::Value> b = color->Get(ctx, v8::String::NewFromUtf8(isolate, "b").ToLocalChecked()).ToLocalChecked();
+	v8::Local<v8::Value> a = color->Get(ctx, v8::String::NewFromUtf8(isolate, "a").ToLocalChecked()).ToLocalChecked();
 
 	blip->SetRouteColor({ 
 		(uint8_t)r->ToInteger(ctx).ToLocalChecked()->Value(),
 		(uint8_t)g->ToInteger(ctx).ToLocalChecked()->Value(),
 		(uint8_t)b->ToInteger(ctx).ToLocalChecked()->Value(),
-		255 
+		(uint8_t)a->ToInteger(ctx).ToLocalChecked()->Value()
 	});
 }
 
