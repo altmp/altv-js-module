@@ -50,7 +50,7 @@ bool CV8ResourceImpl::Start()
 	if (resource->GetMain().IsEmpty())
 		return false;
 
-	resource->EnableNatives();
+	resource->EnableNatives(this);
 
 	v8::Locker locker(isolate);
 	v8::Isolate::Scope isolate_scope(isolate);
