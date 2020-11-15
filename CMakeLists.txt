@@ -10,7 +10,7 @@ project(altv-client-js)
 # v8
 message("alt:V JS - Fetching v8 deps, can take a while")
 FetchContent_Declare(altv-js-deps
-  URL     https://github.com/altmp/altv-client-js/releases/download/deps/deps.zip
+  URL     https://github.com/altmp/altv-client-js/releases/download/deps2/deps.zip
 )
 FetchContent_Populate(altv-js-deps)
 set(ALTV_JS_DL_DEPS ${altv-js-deps_SOURCE_DIR})
@@ -79,8 +79,8 @@ set(ALTV_JS_DEFS
   -DV8_31BIT_SMIS_ON_64BIT_ARCH
 )
 
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT /Zi /bigobj")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd /bigobj")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD /Zi /bigobj")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd /bigobj")
 set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /DEBUG:FULL /OPT:REF /OPT:ICF")
 
 ## SHARED
