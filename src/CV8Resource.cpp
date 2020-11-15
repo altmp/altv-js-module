@@ -50,7 +50,8 @@ bool CV8ResourceImpl::Start()
 	if (resource->GetMain().IsEmpty())
 		return false;
 
-	resource->EnableNatives(this);
+	resource->EnableNatives();
+	auto nscope = resource->PushNativesScope();
 
 	v8::Locker locker(isolate);
 	v8::Isolate::Scope isolate_scope(isolate);
@@ -158,7 +159,7 @@ bool CV8ResourceImpl::Stop()
 
 	if (!context.IsEmpty())
 	{
-		resource->PushNativeUpdate();
+		auto nscope = resource->PushNativesScope();
 
 		v8::Locker locker(isolate);
 		v8::Isolate::Scope isolateScope(isolate);
@@ -174,7 +175,7 @@ bool CV8ResourceImpl::Stop()
 
 bool CV8ResourceImpl::OnEvent(const alt::CEvent *e)
 {
-	resource->PushNativeUpdate();
+	auto nscope = resource->PushNativesScope();
 
 	v8::Locker locker(isolate);
 	v8::Isolate::Scope isolateScope(isolate);

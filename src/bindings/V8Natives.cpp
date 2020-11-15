@@ -64,7 +64,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 	using ArgType = alt::INative::Type;
 
 	v8::Local<v8::Context> v8Ctx = isolate->GetEnteredContext();
-
+	
 	switch (argType)
 	{
 	case alt::INative::Type::ARG_BOOL:
