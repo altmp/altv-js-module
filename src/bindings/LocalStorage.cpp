@@ -58,7 +58,7 @@ static void Delete(const v8::FunctionCallbackInfo<v8::Value> &info)
 	resource->GetLocalStorage()->Delete(key);
 }
 
-static void DeleteAll(const v8::FunctionCallbackInfo<v8::Value> &info)
+static void Clear(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
 	v8::Isolate *isolate = v8::Isolate::GetCurrent();
 
@@ -90,6 +90,7 @@ extern V8Class v8LocalStorage(
 		proto->Set(isolate, "get", v8::FunctionTemplate::New(isolate, &Get));
 		proto->Set(isolate, "set", v8::FunctionTemplate::New(isolate, &Set));
 		proto->Set(isolate, "delete", v8::FunctionTemplate::New(isolate, &Delete));
-		proto->Set(isolate, "deleteAll", v8::FunctionTemplate::New(isolate, &DeleteAll));
+		proto->Set(isolate, "deleteAll", v8::FunctionTemplate::New(isolate, &Clear));
+		proto->Set(isolate, "clear", v8::FunctionTemplate::New(isolate, &Clear));
 		proto->Set(isolate, "save", v8::FunctionTemplate::New(isolate, &Save));
 	});
