@@ -9,129 +9,58 @@ using namespace alt;
 
 static void HandlingGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
+    V8_GET_ISOLATE_CONTEXT();
 
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    std::vector<v8::Local<v8::Value>> args{
-        info.This()};
-
+    V8_NEW_ARGS(args);
+    V8_ADD_ARG(args, info.This());
+ 
     extern V8Class v8Handling;
-    info.GetReturnValue().Set(v8Handling.New(isolate->GetEnteredContext(), args));
+    V8_RETURN(v8Handling.New(isolate->GetEnteredContext(), args));
 }
 
 static void SpeedGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
+    V8_GET_ISOLATE(info);
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IVehicle> vehicle = _this->GetHandle().As<alt::IVehicle>();
-
-    info.GetReturnValue().Set(v8::Number::New(isolate, vehicle->GetWheelSpeed()));
+    V8_RETURN_NUMBER(vehicle->GetWheelSpeed());
 }
 
 static void GearGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
+    V8_GET_ISOLATE(info);
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IVehicle> vehicle = _this->GetHandle().As<alt::IVehicle>();
-
-    info.GetReturnValue().Set(v8::Integer::New(isolate, vehicle->GetCurrentGear()));
+    V8_RETURN_INTEGER(vehicle->GetCurrentGear());
 }
 
 static void RPMGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
+    V8_GET_ISOLATE(info);
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IVehicle> vehicle = _this->GetHandle().As<alt::IVehicle>();
-
-    info.GetReturnValue().Set(v8::Number::New(isolate, vehicle->GetCurrentRPM()));
+    V8_RETURN_NUMBER(vehicle->GetCurrentRPM());
 }
 
 static void WheelsCountGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
+    V8_GET_ISOLATE(info);
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IVehicle> vehicle = _this->GetHandle().As<alt::IVehicle>();
-
-    info.GetReturnValue().Set(v8::Number::New(isolate, vehicle->GetWheelsCount()));
+    V8_RETURN_INTEGER(vehicle->GetWheelsCount());
 }
 
 static void SpeedVectorGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-    V8_CHECK(resource, "invalid resource");
-
-    V8Entity *_this = V8Entity::Get(info.This());
-    V8_CHECK(_this, "entity is invalid");
-
-    alt::Ref<alt::IVehicle> vehicle = _this->GetHandle().As<alt::IVehicle>();
-
-    info.GetReturnValue().Set(resource->CreateVector3(vehicle->GetSpeedVector()));
+    V8_RETURN(resource->CreateVector3(vehicle->GetSpeedVector()));
 }
-
-// static void GravityGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
-// {
-//     V8_GET_ISOLATE_CONTEXT();
-
-//     V8ResourceImpl *resource = V8ResourceImpl::Get(ctx);
-//     V8_CHECK(resource, "invalid resource");
-
-//     V8Entity *_this = V8Entity::Get(info.This());
-//     V8_CHECK(_this, "entity is invalid");
-
-//     auto vehicle = _this->GetHandle().As<alt::IVehicle>()->GetGameVehicle();
-//     V8_CHECK(vehicle, "Could not retrieve game vehicle");
-
-//     Log::Debug("GRAVITY", vehicle->gravity);
-//     auto ret = v8::Number::New(isolate, vehicle->gravity);
-//     Log::Debug("RET GRAVITY", ret->NumberValue(ctx).ToChecked());
-//     info.GetReturnValue().Set(ret);
-// }
-
-// static void GravitySetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
-// {
-//     V8_GET_ISOLATE_CONTEXT();
-//     V8_CHECK(val->IsNumber(), "val must be a number");
-
-//     V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-//     V8_CHECK(resource, "invalid resource");
-
-//     V8_CHECK(val->IsNumber(), "val needs to be a nummber (float)");
-
-//     V8Entity *_this = V8Entity::Get(info.This());
-//     V8_CHECK(_this, "entity is invalid");
-
-//     auto vehicle = _this->GetHandle().As<alt::IVehicle>()->GetGameVehicle();
-//     V8_CHECK(vehicle, "Could not retrieve game vehicle");
-
-//     Log::Debug("GRAVITY", vehicle->gravity);
-//     auto newval = val->NumberValue(ctx).ToChecked();
-//     Log::Debug("NEW GRAVITY", newval);
-//     vehicle->gravity = newval;
-// }
 
 static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value> &info)
 {
-    v8::Isolate *isolate = info.GetIsolate();
-    v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
-
-    V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-    V8_CHECK(resource, "invalid resource");
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
     v8::Local<v8::Array> arr = v8::Array::New(info.GetIsolate());
 
@@ -142,7 +71,7 @@ static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo
             arr->Set(ctx, i++, resource->GetOrCreateEntity(vehicle.Get(), "Vehicle")->GetJSVal(isolate));
     };
 
-    info.GetReturnValue().Set(arr);
+    V8_RETURN(arr);
 }
 
 static void StaticGetByScriptID(const v8::FunctionCallbackInfo<v8::Value> &info)
@@ -177,6 +106,5 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, [](v8::Local<v8::FunctionTemplate>
     V8::SetAccessor(isolate, tpl, "rpm", &RPMGetter);
     V8::SetAccessor(isolate, tpl, "wheelsCount", &WheelsCountGetter);
     V8::SetAccessor(isolate, tpl, "speedVector", &SpeedVectorGetter);
-    // V8::SetAccessor(isolate, tpl, "gravity", &GravityGetter, &GravitySetter);
     V8::SetAccessor(isolate, tpl, "handling", &HandlingGetter);
 });

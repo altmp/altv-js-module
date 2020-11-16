@@ -75,6 +75,8 @@ static void ConstructorVehicleBlip(const v8::FunctionCallbackInfo<v8::Value>& in
 
 	alt::IResource* res = V8ResourceImpl::GetResource(isolate->GetEnteredContext());
     alt::Ref<alt::IBlip> blip = res->CreateBlip(alt::IBlip::BlipType::VEHICLE, vehicleId);
+
+
 	V8_BIND_BASE_OBJECT(blip);
 }
 
@@ -83,17 +85,11 @@ static void SizeSetter(v8::Local<v8::String> property, v8::Local<v8::Value> valu
 	V8_GET_ISOLATE_CONTEXT();
 	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
 
-	V8_CHECK(value->IsObject(), "size must be an object");
+	V8_TO_OBJECT(value, pos);
+	V8_OBJECT_GET_NUMBER(pos, "x", x);
+	V8_OBJECT_GET_NUMBER(pos, "y", y);
 
-	v8::Local<v8::Object> pos = value.As<v8::Object>();
-
-	v8::Local<v8::Value> x = pos->Get(ctx, v8::String::NewFromUtf8(isolate, "x").ToLocalChecked()).ToLocalChecked();
-	v8::Local<v8::Value> y = pos->Get(ctx, v8::String::NewFromUtf8(isolate, "y").ToLocalChecked()).ToLocalChecked();
-
-	blip->SetScaleXY(
-		x->ToNumber(ctx).ToLocalChecked()->Value(),
-		y->ToNumber(ctx).ToLocalChecked()->Value()
-	);
+	blip->SetScaleXY(x, y);
 }
 
 static void SizeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -101,14 +97,13 @@ static void SizeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8:
 	V8_GET_ISOLATE_CONTEXT();
 	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
 
-	alt::Vector2f pos = blip->GetScaleXY();
+	alt::Vector2f blipPos = blip->GetScaleXY();
 
-	v8::Local<v8::Object> obj = v8::Object::New(isolate);
+	V8_NEW_OBJECT(pos);
+	V8_OBJECT_SET_NUMBER(pos, "x", blipPos[0]);
+	V8_OBJECT_SET_NUMBER(pos, "y", blipPos[1]);
 
-	obj->Set(ctx, v8::String::NewFromUtf8(isolate, "x").ToLocalChecked(), v8::Number::New(isolate, pos[0]));
-	obj->Set(ctx, v8::String::NewFromUtf8(isolate, "y").ToLocalChecked(), v8::Number::New(isolate, pos[1]));
-
-	V8_RETURN(obj);
+	V8_RETURN(pos);
 }
 
 static void SpriteGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -145,30 +140,20 @@ static void SecondaryColorGetter(v8::Local<v8::String>, const v8::PropertyCallba
 {
 	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
-	alt::RGBA color = blip->GetSecondaryColor();
-	V8_RETURN(resource->CreateRGBA(color));
+	V8_RETURN(resource->CreateRGBA(blip->GetSecondaryColor()));
 }
 
 static void SecondaryColorSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
 	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
-	V8_TO_INTEGER(value, val);
 
-	V8_CHECK(value->IsObject(), "object expected");
+	V8_TO_OBJECT(value, color);
+	V8_OBJECT_GET_INTEGER(color, "r", r);
+	V8_OBJECT_GET_INTEGER(color, "g", g);
+	V8_OBJECT_GET_INTEGER(color, "b", b);
 
-	v8::Local<v8::Object> color = value.As<v8::Object>();
-
-	v8::Local<v8::Value> r = color->Get(ctx, v8::String::NewFromUtf8(isolate, "r").ToLocalChecked()).ToLocalChecked();
-	v8::Local<v8::Value> g = color->Get(ctx, v8::String::NewFromUtf8(isolate, "g").ToLocalChecked()).ToLocalChecked();
-	v8::Local<v8::Value> b = color->Get(ctx, v8::String::NewFromUtf8(isolate, "b").ToLocalChecked()).ToLocalChecked();
-
-	blip->SetSecondaryColor({
-		(uint8_t)r->ToInteger(ctx).ToLocalChecked()->Value(),
-		(uint8_t)g->ToInteger(ctx).ToLocalChecked()->Value(),
-		(uint8_t)b->ToInteger(ctx).ToLocalChecked()->Value(),
-		255
-	});
+	blip->SetSecondaryColor({ (uint8_t)r, (uint8_t)g, (uint8_t)b, 255 });
 }
 
 static void AlphaGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -423,21 +408,13 @@ static void RouteColorSetter(v8::Local<v8::String> property, v8::Local<v8::Value
 	V8_GET_ISOLATE_CONTEXT();
 	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
 
-	V8_CHECK(value->IsObject(), "object expected");
+	V8_TO_OBJECT(value, color);
+	V8_OBJECT_GET_INTEGER(color, "r", r);
+	V8_OBJECT_GET_INTEGER(color, "g", g);
+	V8_OBJECT_GET_INTEGER(color, "b", b);
+	V8_OBJECT_GET_INTEGER(color, "a", a);
 
-	v8::Local<v8::Object> color = value.As<v8::Object>();
-
-	v8::Local<v8::Value> r = color->Get(ctx, v8::String::NewFromUtf8(isolate, "r").ToLocalChecked()).ToLocalChecked();
-	v8::Local<v8::Value> g = color->Get(ctx, v8::String::NewFromUtf8(isolate, "g").ToLocalChecked()).ToLocalChecked();
-	v8::Local<v8::Value> b = color->Get(ctx, v8::String::NewFromUtf8(isolate, "b").ToLocalChecked()).ToLocalChecked();
-	v8::Local<v8::Value> a = color->Get(ctx, v8::String::NewFromUtf8(isolate, "a").ToLocalChecked()).ToLocalChecked();
-
-	blip->SetRouteColor({ 
-		(uint8_t)r->ToInteger(ctx).ToLocalChecked()->Value(),
-		(uint8_t)g->ToInteger(ctx).ToLocalChecked()->Value(),
-		(uint8_t)b->ToInteger(ctx).ToLocalChecked()->Value(),
-		(uint8_t)a->ToInteger(ctx).ToLocalChecked()->Value()
-	});
+	blip->SetRouteColor({ (uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a });
 }
 
 static void PulseGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
