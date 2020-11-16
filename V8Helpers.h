@@ -205,6 +205,8 @@ namespace V8
 	bool SafeToInteger(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, int64_t &out);
 	bool SafeToNumber(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, double &out);
 	bool SafeToString(v8::Local<v8::Value> val, v8::Isolate *isolate, v8::Local<v8::Context> ctx, alt::String &out);
+	bool SafeToFunction(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::Function>& out);
+	bool SafeToObject(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::Object>& out);
 
 	template <typename T>
 	bool SafeToBaseObject(v8::Local<v8::Value> val, v8::Isolate *isolate, alt::Ref<T> &out)
@@ -252,10 +254,23 @@ namespace V8
 		V8_CHECK(val, "baseobject is not of type " #type); \
 	}
 
+// idx starts with 1
+#define V8_GET_THIS_INTERNAL_FIELD_OBJECT(idx, val) \
+	auto val = info.This()->GetInternalField((idx)-1)->ToObject(isolate->GetEnteredContext()).ToLocalChecked();
+
+// idx starts with 1
+#define V8_GET_THIS_INTERNAL_FIELD_V8ENTITY(idx, val) \
+	auto val = V8Entity::Get(info.This()->GetInternalField((idx)-1)->ToObject(isolate->GetEnteredContext()).ToLocalChecked());
+
+// idx starts with 1
+#define V8_GET_THIS_INTERNAL_FIELD_ENTITY(idx, val, type) \
+	auto val = V8Entity::Get(info.This()->GetInternalField((idx)-1)->ToObject(isolate->GetEnteredContext()).ToLocalChecked())->GetHandle().As<type>();
+
 #define V8_CHECK_CONSTRUCTOR() V8_CHECK(info.IsConstructCall(), "function can't be called without new")
 
 #define V8_CHECK_ARGS_LEN(count) V8_CHECK(info.Length() == (count), #count " arguments expected")
 #define V8_CHECK_ARGS_LEN2(count1, count2) V8_CHECK(info.Length() == (count1) || info.Length() == (count2), #count1 " or " #count2 " arguments expected")
+#define V8_CHECK_ARGS_LEN3(count) V8_CHECK(info.Length() == (count), "Atleast " #count " arguments expected")
 
 #define V8_TO_BOOLEAN(v8Val, val) \
 	bool val;                     \
@@ -271,7 +286,38 @@ namespace V8
 
 #define V8_TO_STRING(v8Val, val) \
 	alt::String val; \
-	V8_CHECK(V8::SafeToString((v8Val), isolate, ctx, val), "Failed to convert value to integer")
+	V8_CHECK(V8::SafeToString((v8Val), isolate, ctx, val), "Failed to convert value to string")
+
+#define V8_TO_OBJECT(v8Val, val) \
+	v8::Local<v8::Object> val; \
+	V8_CHECK(V8::SafeToObject((v8Val), ctx, val), "Failed to convert value to object")
+
+#define V8_OBJECT_GET_NUMBER(v8Val, prop, val) \
+	V8_TO_NUMBER((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)
+
+#define V8_OBJECT_SET_NUMBER(v8Val, prop, val) \
+	(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::Number::New(isolate, val));
+
+#define V8_OBJECT_GET_INTEGER(v8Val, prop, val) \
+	V8_TO_INTEGER((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)
+
+#define V8_OBJECT_SET_INTEGER(v8Val, prop, val) \
+	(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::Integer::New(isolate, val));
+
+#define V8_OBJECT_GET_STRING(v8Val, prop, val) \
+	V8_TO_STRING((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)
+
+#define V8_OBJECT_SET_STRING(v8Val, prop, val) \
+	(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::String::NewFromUtf8(isolate, val.CStr()).ToLocalChecked());
+
+#define V8_NEW_OBJECT(val) \
+	v8::Local<v8::Object> val = v8::Object::New(isolate);
+
+#define V8_NEW_ARGS(val) \
+	std::vector<v8::Local<v8::Value>> val;
+
+#define V8_ADD_ARG(args, val) \
+	(args).push_back(val);
 
 // idx starts with 1
 #define V8_ARG_CHECK_NUMBER(idx) V8_CHECK(info[(idx)-1]->IsNumber(), "Argument " #idx " must be a number")
@@ -307,6 +353,16 @@ namespace V8
 #define V8_ARG_TO_STRING(idx, val) \
 	alt::String val;               \
 	V8_CHECK(V8::SafeToString(info[(idx)-1], isolate, ctx, val), "Failed to convert argument " #idx " to string")
+
+// idx starts with 1
+#define V8_ARG_TO_FUNCTION(idx, val) \
+	v8::Local<v8::Function> val;		 \
+	V8_CHECK(V8::SafeToFunction(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to function")
+
+// idx starts with 1
+#define V8_ARG_TO_OBJECT(idx, val) \
+	v8::Local<v8::Object> val; \
+	V8_CHECK(V8::SafeToObject(info[(idx) - 1], ctx, val), "Failed to convert argument " #idx " to object")
 
 // idx starts with 1
 #define V8_ARG_TO_BASE_OBJECT(idx, val, type, jsClassName) \
