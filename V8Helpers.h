@@ -270,7 +270,8 @@ namespace V8
 
 #define V8_CHECK_ARGS_LEN(count) V8_CHECK(info.Length() == (count), #count " arguments expected")
 #define V8_CHECK_ARGS_LEN2(count1, count2) V8_CHECK(info.Length() == (count1) || info.Length() == (count2), #count1 " or " #count2 " arguments expected")
-#define V8_CHECK_ARGS_LEN3(count) V8_CHECK(info.Length() == (count), "Atleast " #count " arguments expected")
+#define V8_CHECK_ARGS_LEN_MIN_MAX(count1, count2) V8_CHECK(info.Length() >= (count1) && info.Length() <= (count2), "Minimum " #count1 ", maximum " #count2 " arguments expected")
+#define V8_CHECK_ARGS_LEN_MIN(count) V8_CHECK(info.Length() <= (count), "Minimum " #count " arguments expected")
 
 #define V8_TO_BOOLEAN(v8Val, val) \
 	bool val;                     \
@@ -338,6 +339,10 @@ namespace V8
 	{                                                                                                               \
 		val = defaultVal;                                                                                           \
 	}
+
+// idx starts with 1
+#define V8_ARG_TO_MVALUE(idx, val) \
+	alt::MValue val = V8Helpers::V8ToMValue(info[(idx)-1]);
 
 // idx starts with 1
 #define V8_ARG_TO_INTEGER(idx, val) \
