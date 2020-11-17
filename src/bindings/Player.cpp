@@ -70,7 +70,7 @@ static void GetCurrentWeapon(const v8::FunctionCallbackInfo<v8::Value> &info)
     V8_RETURN_INTEGER(player->GetCurrentWeapon());
 }
 
-static void AllGetter(v8::Local<v8::Name> name, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value> &info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
@@ -86,7 +86,7 @@ static void AllGetter(v8::Local<v8::Name> name, const v8::PropertyCallbackInfo<v
     V8_RETURN(arr);
 }
 
-static void LocalGetter(v8::Local<v8::Name> name, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void LocalGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value> &info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_RETURN_BASE_OBJECT(alt::ICore::Instance().GetLocalPlayer());
@@ -117,13 +117,13 @@ extern V8Class v8Player("Player", v8Entity, [](v8::Local<v8::FunctionTemplate> t
     V8::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
     V8::SetStaticMethod(isolate, tpl, "getByScriptID", StaticGetByScriptID);
 
-    tpl->SetNativeDataProperty(v8::String::NewFromUtf8(isolate, "all").ToLocalChecked(), &AllGetter);
-    tpl->SetNativeDataProperty(v8::String::NewFromUtf8(isolate, "local").ToLocalChecked(), &LocalGetter);
+    V8::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
+    V8::SetStaticAccessor(isolate, tpl, "local", &LocalGetter);
 
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "name").ToLocalChecked(), &NameGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "vehicle").ToLocalChecked(), &VehicleGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "isTalking").ToLocalChecked(), &TalkingGetter);
-    proto->SetAccessor(v8::String::NewFromUtf8(isolate, "micLevel").ToLocalChecked(), &MicLevelGetter);
+    V8::SetAccessor(isolate, tpl, "name", &NameGetter);
+    V8::SetAccessor(isolate, tpl, "vehicle", &VehicleGetter);
+    V8::SetAccessor(isolate, tpl, "isTalking", &TalkingGetter);
+    V8::SetAccessor(isolate, tpl, "micLevel", &MicLevelGetter);
 
     if (alt::ICore::Instance().IsSandbox())
     {
