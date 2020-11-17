@@ -11,124 +11,78 @@ using namespace alt;
 
 static void OnServer(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-	V8_CHECK(info.Length() == 2, "onServer expects 2 args");
-	V8_CHECK(info[0]->IsString(), "eventName must be a string");
-	V8_CHECK(info[1]->IsFunction(), "callback must be a function");
+	V8_CHECK_ARGS_LEN(2);
+	V8_ARG_TO_STRING(1, eventName);
+	V8_ARG_TO_FUNCTION(2, callback);
 
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "Invalid resource");
-
-	std::string evName = *v8::String::Utf8Value(info.GetIsolate(), info[0].As<v8::String>());
-	v8::Local<v8::Function> callback = info[1].As<v8::Function>();
-
-	resource->SubscribeRemote(evName, callback, V8::SourceLocation::GetCurrent(isolate));
+	resource->SubscribeRemote(eventName.ToString(), callback, V8::SourceLocation::GetCurrent(isolate));
 }
 
 static void OffServer(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-	V8_CHECK(info.Length() == 2, "onServer expects 2 args");
-	V8_CHECK(info[0]->IsString(), "eventName must be a string");
-	V8_CHECK(info[1]->IsFunction(), "callback must be a function");
+	V8_CHECK_ARGS_LEN(2);
+	V8_ARG_TO_STRING(1, eventName);
+	V8_ARG_TO_FUNCTION(2, callback);
 
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "Invalid resource");
-
-	std::string evName = *v8::String::Utf8Value(info.GetIsolate(), info[0].As<v8::String>());
-	v8::Local<v8::Function> callback = info[1].As<v8::Function>();
-
-	resource->UnsubscribeRemote(evName, callback);
+	resource->UnsubscribeRemote(eventName.ToString(), callback);
 }
 
 static void EmitServer(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-	V8_CHECK(info.Length() >= 1, "emitServer expects at least 1 arg");
-	V8_CHECK(info[0]->IsString(), "eventName must be a string");
-
-	std::string name = *v8::String::Utf8Value(info.GetIsolate(), info[0].As<v8::String>());
+	V8_CHECK_ARGS_LEN_MIN(1);
+	V8_ARG_TO_STRING(1, eventName);
+	
 	alt::MValueArgs args;
 
 	for (int i = 1; i < info.Length(); ++i)
 		args.Push(V8Helpers::V8ToMValue(info[i]));
 
-	alt::ICore::Instance().TriggerServerEvent(name, args);
+	alt::ICore::Instance().TriggerServerEvent(eventName.ToString(), args);
 }
 
-/**
-type: 'function',
-name: 'gameControlsEnabled',
-description: 'Returns a bool if is game controls enabled',
-returns: {
-	dataType: 'bool',
-	description: 'If is game controls enabled'
-}
-*/
 static void GameControlsEnabled(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	info.GetReturnValue().Set(v8::Boolean::New(info.GetIsolate(), alt::ICore::Instance().AreControlsEnabled()));
+	V8_GET_ISOLATE(info);
+	V8_RETURN_BOOLEAN(alt::ICore::Instance().AreControlsEnabled());
 }
 
-/**
-type: 'function',
-name: 'toggleGameControls',
-description: 'Toggles a game controls',
-parameters: [
-	{
-		name: 'state',
-		dataType: 'bool',
-		description: '`true` for enable controls, `false` to disable controls'
-	}
-]
-*/
 static void ToggleGameControls(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-	V8_CHECK(info.Length() == 1, "toggleGameControls expects 1 arg");
-
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_BOOLEAN(1, state);
 
 	CV8ResourceImpl *jsResource = static_cast<CV8ResourceImpl *>(resource);
-	bool state = info[0]->ToBoolean(isolate)->Value();
-
 	jsResource->ToggleGameControls(state);
 }
 
 static void ToggleVoiceControls(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-	V8_CHECK(info.Length() == 1, "toggleVoiceControls expects 1 arg");
-
-	/*V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	CV8ResourceImpl* jsResource = static_cast<CV8ResourceImpl*>(resource);*/
-
-	bool state = info[0]->ToBoolean(isolate)->Value();
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_BOOLEAN(1, state);
 
 	// TODO: make it resource-bound
-	//jsResource->ToggleGameControls(state);
+	//jsResource->ToggleVoiceControls(state);
 	alt::ICore::Instance().ToggleVoiceControls(state);
 }
 
 static void ShowCursor(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-	V8_CHECK(info.Length() >= 1, "showCursor expects 1 or 2 args");
-
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_BOOLEAN(1, state);
 
 	CV8ResourceImpl *jsResource = static_cast<CV8ResourceImpl *>(resource);
-	bool state = info[0]->ToBoolean(isolate)->Value();
 
 	if (!jsResource->ToggleCursor(state))
 	{
@@ -145,32 +99,27 @@ static void ShowCursor(const v8::FunctionCallbackInfo<v8::Value> &info)
 
 static void GetCursorPos(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
 
-	alt::Vector2i pos = alt::ICore::Instance().GetCursorPosition();
+	alt::Vector2i cursorPos = alt::ICore::Instance().GetCursorPosition();
 
-	v8::Local<v8::Object> obj = v8::Object::New(isolate);
-
-	obj->Set(ctx, v8::String::NewFromUtf8(isolate, "x").ToLocalChecked(), v8::Integer::New(isolate, pos[0]));
-	obj->Set(ctx, v8::String::NewFromUtf8(isolate, "y").ToLocalChecked(), v8::Integer::New(isolate, pos[1]));
-
-	info.GetReturnValue().Set(obj);
+	V8_NEW_OBJECT(pos);
+	V8_OBJECT_SET_INTEGER(pos, "x", cursorPos[0]);
+	V8_OBJECT_SET_INTEGER(pos, "y", cursorPos[1]);
+	
+	V8_RETURN(pos);
 }
 
 static void SetCursorPos(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
 
-	auto val = info[0];
-	V8_CHECK(val->IsObject(), "cursorPos must be a object");
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_OBJECT(1, pos);
+	V8_OBJECT_GET_INTEGER(pos, "x", x);
+	V8_OBJECT_GET_INTEGER(pos, "y", y);
 
-	v8::Local<v8::Value> x = val.As<v8::Object>()->Get(ctx, v8::String::NewFromUtf8(isolate, "x").ToLocalChecked()).ToLocalChecked();
-	v8::Local<v8::Value> y = val.As<v8::Object>()->Get(ctx, v8::String::NewFromUtf8(isolate, "y").ToLocalChecked()).ToLocalChecked();
-
-	ICore::Instance().SetCursorPosition({x->ToInteger(ctx).ToLocalChecked()->Value(),
-										 y->ToInteger(ctx).ToLocalChecked()->Value()});
+	ICore::Instance().SetCursorPosition({ x, y });
 }
 
 static void LoadModel(const v8::FunctionCallbackInfo<v8::Value> &info)
@@ -185,167 +134,134 @@ static void LoadModelAsync(const v8::FunctionCallbackInfo<v8::Value> &info)
 
 static void IsTextureExistInArchetype(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = v8::Isolate::GetCurrent();
-	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8_CHECK(info.Length() == 2, "2 args expected");
+	V8_CHECK_ARGS_LEN(2);
+	V8_ARG_TO_INTEGER(1, modelHash);
+	V8_ARG_TO_STRING(2, modelName);
 
-	v8::Local<v8::Integer> modelHash = info[0]->ToInteger(ctx).ToLocalChecked();
-	std::string modelName = *v8::String::Utf8Value(info.GetIsolate(), info[1].As<v8::String>());
-
-	void *texture = ICore::Instance().GetTextureFromDrawable(modelHash->Value(), modelName);
-
-	info.GetReturnValue().Set(v8::Boolean::New(info.GetIsolate(), texture != nullptr));
+	V8_RETURN_BOOLEAN(nullptr != ICore::Instance().GetTextureFromDrawable(modelHash, modelName));
 }
 
 static void RequestIPL(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = v8::Isolate::GetCurrent();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_STRING(1, iplName);
 
-	std::string iplName = *v8::String::Utf8Value(info.GetIsolate(), info[0].As<v8::String>());
-
-	ICore::Instance().RequestIPL(iplName.c_str());
+	ICore::Instance().RequestIPL(iplName);
 }
 
 static void RemoveIPL(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = v8::Isolate::GetCurrent();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_STRING(1, iplName);
 
-	std::string iplName = *v8::String::Utf8Value(info.GetIsolate(), info[0].As<v8::String>());
-
-	ICore::Instance().RemoveIPL(iplName.c_str());
+	ICore::Instance().RemoveIPL(iplName);
 }
 
 static void GetLicenseHash(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = v8::Isolate::GetCurrent();
-	auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
 
-	auto licenseHash = ICore::Instance().GetLicenseHash();
-	info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, licenseHash.CStr()).ToLocalChecked());
+	V8_RETURN_STRING(ICore::Instance().GetLicenseHash().CStr());
 }
 
 static void SetCamFrozen(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = v8::Isolate::GetCurrent();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_BOOLEAN(1, state);
 
-	v8::Local<v8::Boolean> state = info[0]->ToBoolean(isolate);
-
-	ICore::Instance().SetCamFrozen(state->Value());
+	ICore::Instance().SetCamFrozen(state);
 }
-
-// static void IsInSandbox(const v8::FunctionCallbackInfo<v8::Value> &info)
-// {
-// 	info.GetReturnValue().Set(v8::Boolean::New(info.GetIsolate(), CGame::Instance().IsSandbox()));
-// }
 
 static void IsInDebug(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	info.GetReturnValue().Set(v8::Boolean::New(info.GetIsolate(), alt::ICore::Instance().IsDebug()));
+	V8_GET_ISOLATE_CONTEXT();
+
+	V8_RETURN_BOOLEAN(alt::ICore::Instance().IsDebug());
 }
 
 static void IsVoiceActivityInputEnabled(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	info.GetReturnValue().Set(v8::Boolean::New(info.GetIsolate(), ICore::Instance().IsVoiceActivationEnabled()));
+	V8_GET_ISOLATE_CONTEXT();
+
+	V8_RETURN_BOOLEAN(ICore::Instance().IsVoiceActivationEnabled());
 }
 
 static void AddGxtText(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = v8::Isolate::GetCurrent();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-	V8_CHECK(info.Length() == 2, "2 args expected");
+	V8_CHECK_ARGS_LEN(2);
+	V8_ARG_TO_STRING(1, key);
+	V8_ARG_TO_STRING(2, textValue);
 
-	std::string key = *v8::String::Utf8Value(info.GetIsolate(), info[0].As<v8::String>());
-	std::string textValue = *v8::String::Utf8Value(info.GetIsolate(), info[1].As<v8::String>());
-
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "Invalid resource");
-	static_cast<CV8ResourceImpl *>(resource)->AddGxtText(ICore::Instance().Hash(key), textValue);
+	static_cast<CV8ResourceImpl *>(resource)->AddGxtText(ICore::Instance().Hash(key), textValue.ToString());
 }
 
 static void RemoveGxtText(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = v8::Isolate::GetCurrent();
-	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_STRING(1, key);
 
-	std::string key = *v8::String::Utf8Value(info.GetIsolate(), info[0].As<v8::String>());
-
-	V8ResourceImpl *resource = V8ResourceImpl::Get(ctx);
-	V8_CHECK(resource, "Invalid resource");
 	static_cast<CV8ResourceImpl *>(resource)->RemoveGxtText(ICore::Instance().Hash(key));
 }
 
 static void GetGxtText(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = v8::Isolate::GetCurrent();
-	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_STRING(1, key);
 
-	std::string key = *v8::String::Utf8Value(info.GetIsolate(), info[0].As<v8::String>());
-
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "Invalid resource");
-	std::string text = static_cast<CV8ResourceImpl *>(resource)->GetGxtText(ICore::Instance().Hash(key));
-	info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, text.c_str()).ToLocalChecked());
+	V8_RETURN_STRING(static_cast<CV8ResourceImpl*>(resource)->GetGxtText(ICore::Instance().Hash(key)).c_str());
 }
 
 static void GetMsPerGameMinute(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = v8::Isolate::GetCurrent();
+	V8_GET_ISOLATE(info);
 
-	int32_t ms = ICore::Instance().GetMsPerGameMinute();
-	info.GetReturnValue().Set(v8::Integer::New(isolate, ms));
+	V8_RETURN_INTEGER(ICore::Instance().GetMsPerGameMinute());
 }
 
 static void SetMsPerGameMinute(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = v8::Isolate::GetCurrent();
-	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_INTEGER(1, ms);
 
-	v8::Local<v8::Integer> ms = info[0]->ToInteger(ctx).ToLocalChecked();
-	ICore::Instance().SetMsPerGameMinute(ms->Value());
+	ICore::Instance().SetMsPerGameMinute(ms);
 }
 
 static void BeginScaleformMovieMethodMinimap(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = v8::Isolate::GetCurrent();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_STRING(1, methodName);
 
-	std::string methodName = *v8::String::Utf8Value(info.GetIsolate(), info[0].As<v8::String>());
-
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "Invalid resource");
-
-	bool result = ICore::Instance().BeginScaleformMovieMethodMinimap(methodName.c_str());
-	info.GetReturnValue().Set(v8::Boolean::New(isolate, result));
+	V8_RETURN_BOOLEAN(ICore::Instance().BeginScaleformMovieMethodMinimap(methodName.CStr()));
 }
 
 static void GetLocale(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
 
-	auto locale = ICore::Instance().GetLocale();
-
-	info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, locale.CStr()).ToLocalChecked());
+	V8_RETURN_STRING(ICore::Instance().GetLocale().CStr());
 }
 
 static void SetWeatherCycle(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
 
 	V8_CHECK(info.Length() == 2, "2 args expected");
 	V8_CHECK(info[0]->IsArray(), "weathers must be an array");
@@ -379,101 +295,87 @@ static void SetWeatherCycle(const v8::FunctionCallbackInfo<v8::Value> &info)
 
 static void SetWeatherSyncActive(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE(info);
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
-	V8_CHECK(info[0]->IsBoolean(), "activeState must be boolean");
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_BOOLEAN(1, isActive);
 
-	v8::Local<v8::Boolean> isActive = info[0].As<v8::Boolean>();
-
-	ICore::Instance().SetWeatherSyncActive(isActive->Value());
+	ICore::Instance().SetWeatherSyncActive(isActive);
 }
 
 static void SetCharStat(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8_CHECK(info.Length() == 2, "2 args expected");
-	V8_CHECK(info[0]->IsString(), "statName must be string");
+	V8_CHECK_ARGS_LEN(2);
+	V8_ARG_TO_STRING(1, statName);
 
-	std::string statName = *v8::String::Utf8Value(info.GetIsolate(), info[0].As<v8::String>());
 	IStatData *targetStat = alt::ICore::Instance().GetStatData(statName);
 	V8_CHECK(targetStat != nullptr, "stat with this name not found");
-
-	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
 
 	V8_CHECK(strcmp(targetStat->GetStatType(), "NONE") != 0 && strcmp(targetStat->GetStatType(), "PROFILE_SETTING") != 0, "target stat can't be edited");
 
 	if (!strcmp(targetStat->GetStatType(), "INT"))
 	{
-		V8_CHECK(info[1]->IsNumber(), "value must be number");
-		int32_t intValue = info[1]->ToInt32(ctx).ToLocalChecked()->Value();
-		targetStat->SetInt32Value(intValue);
-		info.GetReturnValue().Set(v8::Boolean::New(isolate, true));
+		V8_ARG_TO_INTEGER(2, value);
+		targetStat->SetInt32Value(value);
+		V8_RETURN_BOOLEAN(true);
 		return;
 	}
 	else if (!strcmp(targetStat->GetStatType(), "INT64"))
 	{
-		V8_CHECK(info[1]->IsNumber(), "value must be number");
-		int64_t intValue = info[1]->ToBigInt(ctx).ToLocalChecked()->Int64Value();
-		targetStat->SetInt64Value(intValue);
-		info.GetReturnValue().Set(v8::Boolean::New(isolate, true));
+		V8_ARG_TO_INTEGER(2, value);
+		targetStat->SetInt64Value(value);
+		V8_RETURN_BOOLEAN(true);
 		return;
 	}
 	else if (!strcmp(targetStat->GetStatType(), "TEXTLABEL"))
 	{
-		V8_CHECK(info[1]->IsNumber(), "value must be number");
-		int32_t intValue = info[1]->ToInt32(ctx).ToLocalChecked()->Value();
-		targetStat->SetInt32Value(intValue);
-		info.GetReturnValue().Set(v8::Boolean::New(isolate, true));
+		V8_ARG_TO_INTEGER(2, value);
+		targetStat->SetInt32Value(value);
+		V8_RETURN_BOOLEAN(true);
 		return;
 	}
 	else if (!strcmp(targetStat->GetStatType(), "FLOAT"))
 	{
-		V8_CHECK(info[1]->IsNumber(), "value must be number");
-		float floatValue = info[1]->ToNumber(ctx).ToLocalChecked()->Value();
-		targetStat->SetFloatValue(floatValue);
-		info.GetReturnValue().Set(v8::Boolean::New(isolate, true));
+		V8_ARG_TO_NUMBER(2, value);
+		targetStat->SetFloatValue(value);
+		V8_RETURN_BOOLEAN(true);
 		return;
 	}
 	else if (!strcmp(targetStat->GetStatType(), "BOOL"))
 	{
-		V8_CHECK(info[1]->IsBoolean(), "value must be boolean");
-		bool boolValue = info[1]->ToBoolean(isolate)->Value();
-		targetStat->SetBoolValue(boolValue);
-		info.GetReturnValue().Set(v8::Boolean::New(isolate, true));
+		V8_ARG_TO_BOOLEAN(2, value);
+		targetStat->SetBoolValue(value);
+		V8_RETURN_BOOLEAN(true);
 		return;
 	}
 	else if (!strcmp(targetStat->GetStatType(), "STRING"))
 	{
-		V8_CHECK(info[1]->IsString(), "value must be string");
-		std::string stringValue = *v8::String::Utf8Value(info.GetIsolate(), info[1].As<v8::String>());
-		targetStat->SetStringValue(stringValue.c_str());
-		info.GetReturnValue().Set(v8::Boolean::New(isolate, true));
+		V8_ARG_TO_STRING(2, value);
+		targetStat->SetStringValue(value.CStr());
+		V8_RETURN_BOOLEAN(true);
 		return;
 	}
 	else if (!strcmp(targetStat->GetStatType(), "UINT8"))
 	{
-		V8_CHECK(info[1]->IsNumber(), "value must be number");
-		uint8_t intValue = info[1]->ToUint32(ctx).ToLocalChecked()->Value();
-		targetStat->SetUInt8Value(intValue);
-		info.GetReturnValue().Set(v8::Boolean::New(isolate, true));
+		V8_ARG_TO_INTEGER(2, value);
+		targetStat->SetUInt8Value(value);
+		V8_RETURN_BOOLEAN(true);
 		return;
 	}
 	else if (!strcmp(targetStat->GetStatType(), "UINT16"))
 	{
-		V8_CHECK(info[1]->IsNumber(), "value must be number");
-		uint16_t intValue = info[1]->ToUint32(ctx).ToLocalChecked()->Value();
-		targetStat->SetUInt16Value(intValue);
-		info.GetReturnValue().Set(v8::Boolean::New(isolate, true));
+		V8_ARG_TO_INTEGER(2, value);
+		targetStat->SetUInt16Value(value);
+		V8_RETURN_BOOLEAN(true);
 		return;
 	}
 	else if (!strcmp(targetStat->GetStatType(), "UINT32"))
 	{
-		V8_CHECK(info[1]->IsNumber(), "value must be number");
-		uint32_t intValue = info[1]->ToUint32(ctx).ToLocalChecked()->Value();
-		targetStat->SetUInt32Value(intValue);
-		info.GetReturnValue().Set(v8::Boolean::New(isolate, true));
+		V8_ARG_TO_INTEGER(2, value);
+		targetStat->SetUInt32Value(value);
+		V8_RETURN_BOOLEAN(true);
 		return;
 	}
 	else if (
@@ -483,25 +385,22 @@ static void SetCharStat(const v8::FunctionCallbackInfo<v8::Value> &info)
 		!strcmp(targetStat->GetStatType(), "PACKED") ||
 		!strcmp(targetStat->GetStatType(), "USERID"))
 	{
-		V8_CHECK(info[1]->IsNumber(), "value must be number");
-		uint64_t intValue = info[1]->ToBigInt(ctx).ToLocalChecked()->Uint64Value();
-		targetStat->SetUInt64Value(intValue);
-		info.GetReturnValue().Set(v8::Boolean::New(isolate, true));
+		V8_ARG_TO_INTEGER(2, value);
+		targetStat->SetUInt64Value(value);
+		V8_RETURN_BOOLEAN(true);
 		return;
 	}
 
-	info.GetReturnValue().Set(v8::Boolean::New(isolate, false));
+	V8_RETURN_BOOLEAN(false);
 }
 
 static void GetCharStat(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
-	V8_CHECK(info[0]->IsString(), "statName must be string");
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_STRING(1, statName);
 
-	std::string statName = *v8::String::Utf8Value(info.GetIsolate(), info[0].As<v8::String>());
 	IStatData *targetStat = alt::ICore::Instance().GetStatData(statName);
 	V8_CHECK(targetStat != nullptr, "stat with this name not found");
 
@@ -509,56 +408,47 @@ static void GetCharStat(const v8::FunctionCallbackInfo<v8::Value> &info)
 
 	if (!strcmp(targetStat->GetStatType(), "INT"))
 	{
-		int32_t intValue = targetStat->GetInt32Value();
-		info.GetReturnValue().Set(v8::Integer::New(isolate, intValue));
+		V8_RETURN_INTEGER(targetStat->GetInt32Value());
 		return;
 	}
 	else if (!strcmp(targetStat->GetStatType(), "INT64"))
 	{
-		int64_t intValue = targetStat->GetInt64Value();
-		info.GetReturnValue().Set(v8::BigInt::New(isolate, intValue));
+		V8_RETURN_INTEGER(targetStat->GetInt64Value());
 		return;
 	}
 	else if (!strcmp(targetStat->GetStatType(), "TEXTLABEL"))
 	{
-		int32_t intValue = targetStat->GetInt32Value();
-		info.GetReturnValue().Set(v8::Integer::New(isolate, intValue));
+		V8_RETURN_INTEGER(targetStat->GetInt32Value());
 		return;
 	}
 	else if (!strcmp(targetStat->GetStatType(), "FLOAT"))
 	{
-		float floatValue = targetStat->GetFloatValue();
-		info.GetReturnValue().Set(v8::Number::New(isolate, floatValue));
+		V8_RETURN_NUMBER(targetStat->GetFloatValue());
 		return;
 	}
 	else if (!strcmp(targetStat->GetStatType(), "BOOL"))
 	{
-		bool boolValue = targetStat->GetBoolValue();
-		info.GetReturnValue().Set(v8::Boolean::New(isolate, boolValue));
+		V8_RETURN_BOOLEAN(targetStat->GetBoolValue());
 		return;
 	}
 	else if (!strcmp(targetStat->GetStatType(), "STRING"))
 	{
-		const char *stringValue = targetStat->GetStringValue();
-		info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, stringValue).ToLocalChecked());
+		V8_RETURN_STRING(targetStat->GetStringValue());
 		return;
 	}
 	else if (!strcmp(targetStat->GetStatType(), "UINT8"))
 	{
-		uint8_t intValue = targetStat->GetUInt8Value();
-		info.GetReturnValue().Set(v8::Integer::NewFromUnsigned(isolate, intValue));
+		V8_RETURN_INTEGER(targetStat->GetUInt8Value());
 		return;
 	}
 	else if (!strcmp(targetStat->GetStatType(), "UINT16"))
 	{
-		uint16_t intValue = targetStat->GetUInt16Value();
-		info.GetReturnValue().Set(v8::Integer::NewFromUnsigned(isolate, intValue));
+		V8_RETURN_INTEGER(targetStat->GetUInt16Value());
 		return;
 	}
 	else if (!strcmp(targetStat->GetStatType(), "UINT32"))
 	{
-		uint32_t intValue = targetStat->GetUInt32Value();
-		info.GetReturnValue().Set(v8::Integer::NewFromUnsigned(isolate, intValue));
+		V8_RETURN_INTEGER(targetStat->GetUInt32Value());
 		return;
 	}
 	else if (
@@ -568,64 +458,58 @@ static void GetCharStat(const v8::FunctionCallbackInfo<v8::Value> &info)
 		!strcmp(targetStat->GetStatType(), "PACKED") ||
 		!strcmp(targetStat->GetStatType(), "USERID"))
 	{
-		uint64_t intValue = targetStat->GetUInt64Value();
-		info.GetReturnValue().Set(v8::BigInt::NewFromUnsigned(isolate, intValue));
+		V8_RETURN_INTEGER(targetStat->GetUInt64Value());
 		return;
 	}
 
-	info.GetReturnValue().Set(v8::Null(isolate));
+	V8_RETURN_NULL();
 }
 
 static void ResetCharStat(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
-	V8_CHECK(info[0]->IsString(), "statName must be string");
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_STRING(1, statName);
 
-	std::string statName = *v8::String::Utf8Value(info.GetIsolate(), info[0].As<v8::String>());
 	IStatData *targetStat = alt::ICore::Instance().GetStatData(statName);
 	V8_CHECK(targetStat != nullptr, "stat with this name not found");
 
-	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
-
 	V8_CHECK(strcmp(targetStat->GetStatType(), "NONE") != 0 && strcmp(targetStat->GetStatType(), "PROFILE_SETTING") != 0, "target stat can't be reseted");
 	targetStat->Reset();
-	info.GetReturnValue().Set(v8::Boolean::New(isolate, true));
+	V8_RETURN_BOOLEAN(true);
 }
 
 static void IsMenuOpen(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	info.GetReturnValue().Set(v8::Boolean::New(isolate, ICore::Instance().IsMenuOpen()));
+	V8_GET_ISOLATE(info);
+	V8_RETURN_BOOLEAN(ICore::Instance().IsMenuOpen());
 }
 
 static void IsConsoleOpen(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	info.GetReturnValue().Set(v8::Boolean::New(isolate, ICore::Instance().IsConsoleOpen()));
+	V8_GET_ISOLATE(info);
+	V8_RETURN_BOOLEAN(ICore::Instance().IsConsoleOpen());
 }
 
 static void IsKeyDown(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
-	uint32_t keycode = info[0]->ToUint32(ctx).ToLocalChecked()->Value();
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_INTEGER(1, keycode);
 
-	info.GetReturnValue().Set(v8::Boolean::New(isolate, alt::ICore::Instance().GetKeyState(keycode).IsDown()));
+	V8_RETURN_BOOLEAN(alt::ICore::Instance().GetKeyState(keycode).IsDown());
 }
 
 static void IsKeyToggled(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
-	uint32_t keycode = info[0]->ToUint32(ctx).ToLocalChecked()->Value();
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_INTEGER(1, keycode);
 
-	info.GetReturnValue().Set(v8::Boolean::New(isolate, alt::ICore::Instance().GetKeyState(keycode).IsToggled()));
+	V8_RETURN_BOOLEAN(alt::ICore::Instance().GetKeyState(keycode).IsToggled());
 }
 
 static void SetConfigFlag(const v8::FunctionCallbackInfo<v8::Value> &info)
@@ -698,44 +582,26 @@ static void DoesConfigFlagExist(const v8::FunctionCallbackInfo<v8::Value> &info)
 
 static void GetPermissionState(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = v8::Isolate::GetCurrent();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
-	V8_CHECK(info[0]->IsUint32(), "1st arg must be permission id");
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_INTEGER(1, permnum);
 
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "Invalid resource");
-
-	auto permnum = info[0].As<v8::Uint32>()->Value();
-	V8_CHECK(permnum < (uint32_t)alt::Permission::All, "Invalid permission");
-	auto perm = (alt::Permission)permnum;
-
-	auto state = alt::ICore::Instance().GetPermissionState(perm);
-	info.GetReturnValue().Set(v8::Uint32::NewFromUnsigned(isolate, (uint8_t)state));
+	V8_RETURN_INTEGER((uint8_t)alt::ICore::Instance().GetPermissionState((alt::Permission)permnum));
 }
 
 static void IsInStreamerMode(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = v8::Isolate::GetCurrent();
+	V8_GET_ISOLATE(info);
 
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "Invalid resource");
-
-	info.GetReturnValue().Set(v8::Boolean::New(isolate, alt::ICore::Instance().IsInStreamerMode()));
+	V8_RETURN_BOOLEAN(alt::ICore::Instance().IsInStreamerMode());
 }
 
 static void TakeScreenshot(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
 	static std::list<v8::UniquePersistent<v8::Promise::Resolver>> promises;
-	static v8::Isolate *_isolate = v8::Isolate::GetCurrent();
 
-	v8::Isolate *isolate = v8::Isolate::GetCurrent();
-	auto ctx = isolate->GetEnteredContext();
-
-	V8_CHECK(ICore::Instance().IsDebug(), "Must be in debug mode");
-
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "Invalid resource");
+	V8_GET_ISOLATE_CONTEXT();
 
 	auto &api = alt::ICore::Instance();
 	auto state = api.GetPermissionState(alt::Permission::ScreenCapture);
@@ -745,7 +611,7 @@ static void TakeScreenshot(const v8::FunctionCallbackInfo<v8::Value> &info)
 	auto &persistent = promises.emplace_back(v8::UniquePersistent<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
 
 	api.TakeScreenshot([](alt::StringView base64, const void *userData) {
-		v8::Isolate *isolate = _isolate;
+		v8::Isolate *isolate = v8::Isolate::GetCurrent();
 		v8::Locker locker(isolate);
 		v8::Isolate::Scope isolateScope(isolate);
 		v8::HandleScope handleScope(isolate);
@@ -759,24 +625,15 @@ static void TakeScreenshot(const v8::FunctionCallbackInfo<v8::Value> &info)
 		}
 
 		promises.remove(*persistent);
-	},
-					   &persistent);
+	}, &persistent);
 
-	info.GetReturnValue().Set(persistent.Get(isolate)->GetPromise());
 }
 
 static void TakeScreenshotGameOnly(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
 	static std::list<v8::UniquePersistent<v8::Promise::Resolver>> promises;
-	static v8::Isolate *_isolate = v8::Isolate::GetCurrent();
 
-	v8::Isolate *isolate = v8::Isolate::GetCurrent();
-	auto ctx = isolate->GetEnteredContext();
-
-	V8_CHECK(ICore::Instance().IsDebug(), "Must be in debug mode");
-
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "Invalid resource");
+	V8_GET_ISOLATE_CONTEXT();
 
 	auto &api = alt::ICore::Instance();
 	auto state = api.GetPermissionState(alt::Permission::ScreenCapture);
@@ -786,7 +643,7 @@ static void TakeScreenshotGameOnly(const v8::FunctionCallbackInfo<v8::Value> &in
 	auto &persistent = promises.emplace_back(v8::UniquePersistent<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
 
 	api.TakeScreenshotGameOnly([](alt::StringView base64, const void *userData) {
-		v8::Isolate *isolate = _isolate;
+		v8::Isolate *isolate = v8::Isolate::GetCurrent();
 		v8::Locker locker(isolate);
 		v8::Isolate::Scope isolateScope(isolate);
 		v8::HandleScope handleScope(isolate);
@@ -801,10 +658,9 @@ static void TakeScreenshotGameOnly(const v8::FunctionCallbackInfo<v8::Value> &in
 
 		promises.remove(*persistent);
 		ctx->Exit();
-	},
-							   &persistent);
+	}, &persistent);
 
-	info.GetReturnValue().Set(persistent.Get(isolate)->GetPromise());
+	V8_RETURN(persistent.Get(isolate)->GetPromise());
 }
 
 extern V8Class v8Vector3,

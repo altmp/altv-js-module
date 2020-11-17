@@ -7,62 +7,57 @@
 
 static void StaticGet(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = v8::Isolate::GetCurrent();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "Invalid resource");
-
-	info.GetReturnValue().Set(static_cast<CV8ResourceImpl *>(resource)->GetLocalStorage());
+	V8_RETURN(static_cast<CV8ResourceImpl*>(resource)->GetLocalStorage());
 }
 
 static void Get(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = v8::Isolate::GetCurrent();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_STRING(1, key);
 
-	alt::IResource *resource = V8ResourceImpl::GetResource(isolate->GetEnteredContext());
+	alt::IResource *resource = V8ResourceImpl::GetResource(ctx);
 	V8_CHECK(resource, "Invalid resource");
 
-	std::string key = *v8::String::Utf8Value(info.GetIsolate(), info[0].As<v8::String>());
-	alt::MValueConst val = resource->GetLocalStorage()->Get(key);
-
-	info.GetReturnValue().Set(V8Helpers::MValueToV8(val));
+	V8_RETURN(V8Helpers::MValueToV8(resource->GetLocalStorage()->Get(key)));
 }
 
 static void Set(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = v8::Isolate::GetCurrent();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8_CHECK(info.Length() == 2, "2 args expected");
+	V8_CHECK_ARGS_LEN(2);
 
-	alt::IResource *resource = V8ResourceImpl::GetResource(isolate->GetEnteredContext());
+	V8_ARG_TO_STRING(1, key);
+	V8_ARG_TO_MVALUE(2, val);
+	
+	alt::IResource *resource = V8ResourceImpl::GetResource(ctx);
 	V8_CHECK(resource, "Invalid resource");
-
-	std::string key = *v8::String::Utf8Value(info.GetIsolate(), info[0].As<v8::String>());
-	alt::MValue val = V8Helpers::V8ToMValue(info[1]);
 
 	resource->GetLocalStorage()->Set(key, val);
 }
 
 static void Delete(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = v8::Isolate::GetCurrent();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_STRING(1, key);
 
-	alt::IResource *resource = V8ResourceImpl::GetResource(isolate->GetEnteredContext());
+	alt::IResource *resource = V8ResourceImpl::GetResource(ctx);
 	V8_CHECK(resource, "Invalid resource");
 
-	std::string key = *v8::String::Utf8Value(info.GetIsolate(), info[0].As<v8::String>());
 	resource->GetLocalStorage()->Delete(key);
 }
 
-static void DeleteAll(const v8::FunctionCallbackInfo<v8::Value> &info)
+static void Clear(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = v8::Isolate::GetCurrent();
+	V8_GET_ISOLATE_CONTEXT();
 
-	alt::IResource *resource = V8ResourceImpl::GetResource(isolate->GetEnteredContext());
+	alt::IResource *resource = V8ResourceImpl::GetResource(ctx);
 	V8_CHECK(resource, "Invalid resource");
 
 	resource->GetLocalStorage()->Clear();
@@ -70,26 +65,26 @@ static void DeleteAll(const v8::FunctionCallbackInfo<v8::Value> &info)
 
 static void Save(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = v8::Isolate::GetCurrent();
+	V8_GET_ISOLATE_CONTEXT();
 
-	alt::IResource *resource = V8ResourceImpl::GetResource(isolate->GetEnteredContext());
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_STRING(1, key);
+
+	alt::IResource *resource = V8ResourceImpl::GetResource(ctx);
 	V8_CHECK(resource, "Invalid resource");
 
-	std::string key = *v8::String::Utf8Value(info.GetIsolate(), info[0].As<v8::String>());
 	V8_CHECK(resource->GetLocalStorage()->Save(), "exceeded max local storage size (4MB)");
 }
 
-extern V8Class v8LocalStorage(
-	"LocalStorage", nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
+extern V8Class v8LocalStorage("LocalStorage", nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
 		v8::Isolate *isolate = v8::Isolate::GetCurrent();
 
-		tpl->Set(isolate, "get", v8::FunctionTemplate::New(isolate, &StaticGet));
+		V8::SetStaticMethod(isolate, tpl, "get", &StaticGet);
 
-		v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
-
-		proto->Set(isolate, "get", v8::FunctionTemplate::New(isolate, &Get));
-		proto->Set(isolate, "set", v8::FunctionTemplate::New(isolate, &Set));
-		proto->Set(isolate, "delete", v8::FunctionTemplate::New(isolate, &Delete));
-		proto->Set(isolate, "deleteAll", v8::FunctionTemplate::New(isolate, &DeleteAll));
-		proto->Set(isolate, "save", v8::FunctionTemplate::New(isolate, &Save));
+		V8::SetMethod(isolate, tpl, "get", &Get);
+		V8::SetMethod(isolate, tpl, "set", &Set);
+		V8::SetMethod(isolate, tpl, "delete", &Delete);
+		V8::SetMethod(isolate, tpl, "deleteAll", &Clear);
+		V8::SetMethod(isolate, tpl, "clear",  &Clear);
+		V8::SetMethod(isolate, tpl, "save", &Save);
 	});

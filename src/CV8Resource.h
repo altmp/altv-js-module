@@ -20,7 +20,7 @@ public:
 
 	~CV8ResourceImpl()
 	{
-		Log::Debug << __FUNCTION__;
+		Log::Debug << __FUNCTION__ << Log::Endl;
 	}
 
 	bool Start() override;

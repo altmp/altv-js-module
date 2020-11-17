@@ -11,39 +11,23 @@ struct DiscordRequestOAuth2TokenCallbackData
 
 static void CurrentUserGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = v8::Isolate::GetCurrent();
-	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
 
 	auto discord = alt::ICore::Instance().GetDiscordManager();
 	if (discord->IsUserDataReady())
 	{
-		v8::Local<v8::Object> discordInfo = v8::Object::New(isolate);
+		V8_NEW_OBJECT(discordInfo);
 
-		discordInfo->Set(
-			ctx,
-			v8::String::NewFromUtf8(isolate, "id").ToLocalChecked(),
-			v8::String::NewFromUtf8(isolate, discord->GetUserID().CStr()).ToLocalChecked());
+		V8_OBJECT_SET_STRING(discordInfo, "id", discord->GetUserID());
+		V8_OBJECT_SET_STRING(discordInfo, "name", discord->GetUsername());
+		V8_OBJECT_SET_STRING(discordInfo, "discriminator", discord->GetDiscriminator());
+		V8_OBJECT_SET_STRING(discordInfo, "avatar", discord->GetAvatar());
 
-		discordInfo->Set(
-			ctx,
-			v8::String::NewFromUtf8(isolate, "name").ToLocalChecked(),
-			v8::String::NewFromUtf8(isolate, discord->GetUsername().CStr()).ToLocalChecked());
-
-		discordInfo->Set(
-			ctx,
-			v8::String::NewFromUtf8(isolate, "discriminator").ToLocalChecked(),
-			v8::String::NewFromUtf8(isolate, discord->GetDiscriminator().CStr()).ToLocalChecked());
-
-		discordInfo->Set(
-			ctx,
-			v8::String::NewFromUtf8(isolate, "avatar").ToLocalChecked(),
-			v8::String::NewFromUtf8(isolate, discord->GetAvatar().CStr()).ToLocalChecked());
-
-		info.GetReturnValue().Set(discordInfo);
+		V8_RETURN(discordInfo);
 	}
 	else
 	{
-		info.GetReturnValue().Set(v8::Null(isolate));
+		V8_RETURN_NULL();
 	}
 }
 
