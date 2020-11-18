@@ -201,12 +201,20 @@ namespace V8
 	v8::Local<v8::String> Fire_PosKey(v8::Isolate *isolate);
 	v8::Local<v8::String> Fire_WeaponKey(v8::Isolate *isolate);
 
+<<<<<<< HEAD
 	bool SafeToBoolean(v8::Local<v8::Value> val, v8::Isolate *isolate, bool &out);
 	bool SafeToInteger(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, int64_t &out);
 	bool SafeToNumber(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, double &out);
 	bool SafeToString(v8::Local<v8::Value> val, v8::Isolate *isolate, v8::Local<v8::Context> ctx, alt::String &out);
 	bool SafeToFunction(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::Function>& out);
 	bool SafeToObject(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::Object>& out);
+=======
+	bool SafeToBoolean(v8::Local<v8::Value> val, v8::Isolate* isolate, bool& out);
+	bool SafeToInteger(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, int64_t& out);
+	bool SafeToNumber(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, double& out);
+	bool SafeToString(v8::Local<v8::Value> val, v8::Isolate* isolate, v8::Local<v8::Context> ctx, alt::String& out);
+	bool SafeToObject(v8::Local<v8::Value> val, v8::Local<v8::Object>& out);
+>>>>>>> 4d64883c72f1fe81617fc83e1a821a788dc666a0
 
 	template <typename T>
 	bool SafeToBaseObject(v8::Local<v8::Value> val, v8::Isolate *isolate, alt::Ref<T> &out)
@@ -380,6 +388,11 @@ namespace V8
 #define V8_ARG_TO_OBJECT(idx, val) \
 	v8::Local<v8::Object> val; \
 	V8_CHECK(V8::SafeToObject(info[(idx) - 1], ctx, val), "Failed to convert argument " #idx " to object")
+
+// idx starts with 1
+#define V8_ARG_TO_OBJECT(idx, val) \
+	v8::Local<v8::Object> val; \
+	V8_CHECK(V8::SafeToObject(info[(idx) - 1], val), "Failed to convert argument " #idx " to object")
 
 // idx starts with 1
 #define V8_ARG_TO_BASE_OBJECT(idx, val, type, jsClassName) \
