@@ -581,6 +581,8 @@ extern V8Class v8WorldObject;
 extern V8Class v8Blip("Blip", v8WorldObject, Constructor, [](v8::Local<v8::FunctionTemplate> tpl){
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
+	V8::SetStaticAccessor(isolate, tpl, "routeColor", &RouteColorGetter, &RouteColorSetter);
+
 	V8::SetAccessor(isolate, tpl, "sprite", &SpriteGetter, &SpriteSetter);
 	V8::SetAccessor(isolate, tpl, "size", &SizeGetter, &SizeSetter);
 	V8::SetAccessor(isolate, tpl, "color", &ColorGetter, &ColorSetter);
@@ -600,7 +602,6 @@ extern V8Class v8Blip("Blip", v8WorldObject, Constructor, [](v8::Local<v8::Funct
 	V8::SetAccessor(isolate, tpl, "heading", &RotationGetter, &RotationSetter);
 	V8::SetAccessor(isolate, tpl, "gxtName", &GxtNameGetter, &GxtNameSetter);
 	V8::SetAccessor(isolate, tpl, "name", &NameGetter, &NameSetter);
-	V8::SetAccessor(isolate, tpl, "routeColor", &RouteColorGetter, &RouteColorSetter);
 	V8::SetAccessor(isolate, tpl, "pulse", &PulseGetter, &PulseSetter);
 	V8::SetAccessor(isolate, tpl, "asMissionCreator", &AsMissionCreatorGetter, &AsMissionCreatorSetter);
 	V8::SetAccessor(isolate, tpl, "tickVisible", &TickVisibleGetter, &TickVisibleSetter);
