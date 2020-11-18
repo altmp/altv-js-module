@@ -529,26 +529,17 @@ bool V8::SafeToString(v8::Local<v8::Value> val, v8::Isolate *isolate, v8::Local<
 	return false;
 }
 
-<<<<<<< HEAD
 bool V8::SafeToFunction(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::Function>& out)
 {
 	if (val->IsFunction())
 	{
 		out = val.As<v8::Function>();
-=======
-bool V8::SafeToObject(v8::Local<v8::Value> val, v8::Local<v8::Object>& out)
-{
-	if (val->IsObject())
-	{
-		out = val.As<v8::Object>();
->>>>>>> 4d64883c72f1fe81617fc83e1a821a788dc666a0
 		return true;
 	}
 
 	return false;
 }
 
-<<<<<<< HEAD
 bool V8::SafeToObject(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::Object>& out)
 {
 	v8::MaybeLocal maybeVal = val->ToObject(ctx);
@@ -562,9 +553,6 @@ bool V8::SafeToObject(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::
 }
 
 std::vector<V8::EventCallback *> V8::EventHandler::GetCallbacks(V8ResourceImpl *impl, const alt::CEvent *e)
-=======
-std::vector<V8::EventCallback*> V8::EventHandler::GetCallbacks(V8ResourceImpl* impl, const alt::CEvent* e)
->>>>>>> 4d64883c72f1fe81617fc83e1a821a788dc666a0
 {
 	return callbacksGetter(impl, e);
 }
