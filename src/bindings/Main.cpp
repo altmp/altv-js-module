@@ -324,14 +324,14 @@ static void SetCharStat(const v8::FunctionCallbackInfo<v8::Value> &info)
 	}
 	else if (!strcmp(targetStat->GetStatType(), "INT64"))
 	{
-		V8_ARG_TO_INTEGER(2, value);
+		V8_ARG_TO_INT64(2, value);
 		targetStat->SetInt64Value(value);
 		V8_RETURN_BOOLEAN(true);
 		return;
 	}
 	else if (!strcmp(targetStat->GetStatType(), "TEXTLABEL"))
 	{
-		V8_ARG_TO_INTEGER(2, value);
+		V8_ARG_TO_INT32(2, value);
 		targetStat->SetInt32Value(value);
 		V8_RETURN_BOOLEAN(true);
 		return;
@@ -359,21 +359,21 @@ static void SetCharStat(const v8::FunctionCallbackInfo<v8::Value> &info)
 	}
 	else if (!strcmp(targetStat->GetStatType(), "UINT8"))
 	{
-		V8_ARG_TO_INTEGER(2, value);
+		V8_ARG_TO_UINT32(2, value);
 		targetStat->SetUInt8Value(value);
 		V8_RETURN_BOOLEAN(true);
 		return;
 	}
 	else if (!strcmp(targetStat->GetStatType(), "UINT16"))
 	{
-		V8_ARG_TO_INTEGER(2, value);
+		V8_ARG_TO_UINT32(2, value);
 		targetStat->SetUInt16Value(value);
 		V8_RETURN_BOOLEAN(true);
 		return;
 	}
 	else if (!strcmp(targetStat->GetStatType(), "UINT32"))
 	{
-		V8_ARG_TO_INTEGER(2, value);
+		V8_ARG_TO_UINT32(2, value);
 		targetStat->SetUInt32Value(value);
 		V8_RETURN_BOOLEAN(true);
 		return;
@@ -385,7 +385,7 @@ static void SetCharStat(const v8::FunctionCallbackInfo<v8::Value> &info)
 		!strcmp(targetStat->GetStatType(), "PACKED") ||
 		!strcmp(targetStat->GetStatType(), "USERID"))
 	{
-		V8_ARG_TO_INTEGER(2, value);
+		V8_ARG_TO_UINT64(2, value);
 		targetStat->SetUInt64Value(value);
 		V8_RETURN_BOOLEAN(true);
 		return;
@@ -408,17 +408,17 @@ static void GetCharStat(const v8::FunctionCallbackInfo<v8::Value> &info)
 
 	if (!strcmp(targetStat->GetStatType(), "INT"))
 	{
-		V8_RETURN_INTEGER(targetStat->GetInt32Value());
+		V8_RETURN_INT32(targetStat->GetInt32Value());
 		return;
 	}
 	else if (!strcmp(targetStat->GetStatType(), "INT64"))
 	{
-		V8_RETURN_INTEGER(targetStat->GetInt64Value());
+		V8_RETURN_INT64(targetStat->GetInt64Value());
 		return;
 	}
 	else if (!strcmp(targetStat->GetStatType(), "TEXTLABEL"))
 	{
-		V8_RETURN_INTEGER(targetStat->GetInt32Value());
+		V8_RETURN_INT32(targetStat->GetInt32Value());
 		return;
 	}
 	else if (!strcmp(targetStat->GetStatType(), "FLOAT"))
@@ -438,17 +438,17 @@ static void GetCharStat(const v8::FunctionCallbackInfo<v8::Value> &info)
 	}
 	else if (!strcmp(targetStat->GetStatType(), "UINT8"))
 	{
-		V8_RETURN_INTEGER(targetStat->GetUInt8Value());
+		V8_RETURN_UINT32(targetStat->GetUInt8Value());
 		return;
 	}
 	else if (!strcmp(targetStat->GetStatType(), "UINT16"))
 	{
-		V8_RETURN_INTEGER(targetStat->GetUInt16Value());
+		V8_RETURN_UINT32(targetStat->GetUInt16Value());
 		return;
 	}
 	else if (!strcmp(targetStat->GetStatType(), "UINT32"))
 	{
-		V8_RETURN_INTEGER(targetStat->GetUInt32Value());
+		V8_RETURN_UINT32(targetStat->GetUInt32Value());
 		return;
 	}
 	else if (
@@ -458,7 +458,7 @@ static void GetCharStat(const v8::FunctionCallbackInfo<v8::Value> &info)
 		!strcmp(targetStat->GetStatType(), "PACKED") ||
 		!strcmp(targetStat->GetStatType(), "USERID"))
 	{
-		V8_RETURN_INTEGER(targetStat->GetUInt64Value());
+		V8_RETURN_UINT64(targetStat->GetUInt64Value());
 		return;
 	}
 
