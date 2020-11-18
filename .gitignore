@@ -2,3 +2,5 @@
 BUILD/
 
 deps/v8/
+
+.vs/
