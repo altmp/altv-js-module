@@ -208,6 +208,11 @@ namespace V8
 	bool SafeToFunction(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::Function>& out);
 	bool SafeToObject(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::Object>& out);
 
+	bool SafeToUInt64(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, uint64_t& out);
+	bool SafeToInt64(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, int64_t& out);
+	bool SafeToUInt32(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, uint32_t& out);
+	bool SafeToInt32(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, int32_t& out);
+
 	template <typename T>
 	bool SafeToBaseObject(v8::Local<v8::Value> val, v8::Isolate *isolate, alt::Ref<T> &out)
 	{
@@ -386,6 +391,27 @@ namespace V8
 	alt::Ref<type> val;                                    \
 	V8_CHECK(V8::SafeToBaseObject<type>(info[(idx)-1], isolate, val), "Argument " #idx " must be a " jsClassName)
 
+
+// idx starts with 1
+#define V8_ARG_TO_UINT64(idx, val) \
+	uint64_t val;                    \
+	V8_CHECK(V8::SafeToUInt64(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to integer")
+
+// idx starts with 1
+#define V8_ARG_TO_INT64(idx, val) \
+	int64_t val;                    \
+	V8_CHECK(V8::SafeToInt64(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to integer")
+
+// idx starts with 1
+#define V8_ARG_TO_UINT32(idx, val) \
+	uint32_t val;                    \
+	V8_CHECK(V8::SafeToUInt32(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to integer")
+
+// idx starts with 1
+#define V8_ARG_TO_INT32(idx, val) \
+	int32_t val;                    \
+	V8_CHECK(V8::SafeToInt32(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to integer")
+
 #define V8_RETURN(val) info.GetReturnValue().Set(val)
 #define V8_RETURN_NULL() V8_RETURN(v8::Null(isolate))
 #define V8_RETURN_BOOLEAN(val) V8_RETURN(v8::Boolean::New(isolate, (val)))
@@ -393,6 +419,11 @@ namespace V8
 #define V8_RETURN_NUMBER(val) V8_RETURN(v8::Number::New(isolate, (val)))
 #define V8_RETURN_STRING(val) V8_RETURN(v8::String::NewFromUtf8(isolate, (val), v8::NewStringType::kNormal).ToLocalChecked())
 #define V8_RETURN_MVALUE(val) V8_RETURN(V8Helpers::MValueToV8(val))
+
+#define V8_RETURN_UINT64(val) V8_RETURN(v8::BigInt::NewFromUnsigned(isolate, (val)))
+#define V8_RETURN_INT64(val) V8_RETURN(v8::BigInt::New(isolate, (val)))
+#define V8_RETURN_UINT32(val) V8_RETURN(v8::Integer::NewFromUnsigned(isolate, (val)))
+#define V8_RETURN_INT32(val) V8_RETURN(v8::Integer::New(isolate, (val)))
 
 #define V8_RETURN_BASE_OBJECT(baseObjectRef) V8_RETURN(resource->GetBaseObjectOrNull(baseObjectRef))
 
