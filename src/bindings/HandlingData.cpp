@@ -1702,7 +1702,7 @@ extern V8Class v8HandlingData(
 
 		tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
-		tpl->Set(isolate, "getForHandlingName", v8::FunctionTemplate::New(isolate, &GetForHandlingName));
+		V8::SetMethod(isolate, tpl, "getForHandlingName", &GetForHandlingName);
 
 		V8::SetAccessor(isolate, tpl, "handlingNameHash", &HandlingNameHashGetter);
 		V8::SetAccessor(isolate, tpl, "mass", &MassGetter, &MassSetter);
