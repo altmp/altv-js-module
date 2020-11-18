@@ -281,15 +281,14 @@ static void NeonGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8:
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    v8::Local<v8::Object> neonActive = v8::Object::New(isolate);
-
     bool left, right, front, back;
     vehicle->GetNeonActive(&left, &right, &front, &back);
 
-    neonActive->Set(ctx, v8::String::NewFromUtf8(isolate, "left").ToLocalChecked(), v8::Boolean::New(isolate, left));
-    neonActive->Set(ctx, v8::String::NewFromUtf8(isolate, "right").ToLocalChecked(), v8::Boolean::New(isolate, right));
-    neonActive->Set(ctx, v8::String::NewFromUtf8(isolate, "front").ToLocalChecked(), v8::Boolean::New(isolate, front));
-    neonActive->Set(ctx, v8::String::NewFromUtf8(isolate, "back").ToLocalChecked(), v8::Boolean::New(isolate, back));
+    V8_NEW_OBJECT(neonActive);
+    V8_OBJECT_SET_BOOLEAN(neonActive, "left", left);
+    V8_OBJECT_SET_BOOLEAN(neonActive, "right", right);
+    V8_OBJECT_SET_BOOLEAN(neonActive, "front", front);
+    V8_OBJECT_SET_BOOLEAN(neonActive, "back", back);
 
     V8_RETURN(neonActive);
 }
@@ -538,8 +537,6 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
 extern V8Class v8Entity;
 extern V8Class v8Vehicle("Vehicle", v8Entity, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
-
-    v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
 
     V8::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
     V8::SetStaticMethod(isolate, tpl, "getByScriptID", StaticGetByScriptID);

@@ -282,8 +282,6 @@ extern V8Class v8Entity;
 extern V8Class v8Player("Player", v8Entity, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
-
     V8::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
     V8::SetStaticMethod(isolate, tpl, "getByScriptID", StaticGetByScriptID);
 
