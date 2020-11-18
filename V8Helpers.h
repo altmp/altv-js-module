@@ -322,6 +322,12 @@ namespace V8
 #define V8_OBJECT_SET_INTEGER(v8Val, prop, val) \
 	(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::Integer::New(isolate, val));
 
+#define V8_OBJECT_GET_BOOLEAN(v8Val, prop, val) \
+	V8_TO_BOOLEAN((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)
+
+#define V8_OBJECT_SET_BOOLEAN(v8Val, prop, val) \
+	(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::Boolean::New(isolate, val));
+
 #define V8_OBJECT_GET_STRING(v8Val, prop, val) \
 	V8_TO_STRING((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)
 
