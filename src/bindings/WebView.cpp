@@ -38,7 +38,7 @@ static void Emit(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
 	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-	V8_CHECK_ARGS_LEN(1);
+	V8_CHECK_ARGS_LEN_MIN(1);
 	V8_ARG_TO_STRING(1, evName);
 
 	V8_GET_THIS_BASE_OBJECT(view, alt::IWebView);
