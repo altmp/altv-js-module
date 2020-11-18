@@ -84,9 +84,8 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value> &info)
 	V8::DefineOwnProperty(isolate, ctx, _this, V8::Vector3_ZKey(isolate), z, v8::PropertyAttribute::ReadOnly);
 }
 
-extern V8Class v8Vector3(
-	"Vector3", Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
-		v8::Isolate *isolate = v8::Isolate::GetCurrent();
+extern V8Class v8Vector3("Vector3", Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
+	v8::Isolate *isolate = v8::Isolate::GetCurrent();
 
-		V8::SetMethod(isolate, tpl, "toString", ToString);
-	});
+	V8::SetMethod(isolate, tpl, "toString", ToString);
+});

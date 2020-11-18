@@ -9,290 +9,188 @@ using namespace alt;
 
 static void IDGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity *_this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IEntity> ent = _this->GetHandle().As<alt::IEntity>();
-
-	info.GetReturnValue().Set(v8::Integer::New(isolate, ent->GetID()));
+	V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
+	
+	V8_RETURN_INTEGER(ent->GetID());
 }
 
 static void OwnerGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
 {
 	V8_GET_ISOLATE_CONTEXT_RESOURCE();
-	V8_GET_THIS_BASE_OBJECT(_this, IEntity);
-	V8_RETURN_BASE_OBJECT(_this->GetNetworkOwner());
+
+	V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
+
+	V8_RETURN_BASE_OBJECT(ent->GetNetworkOwner());
 }
 
 static void PositionGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
 
-	V8Entity *_this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IEntity> ent = _this->GetHandle().As<IEntity>();
-
-	alt::Position _pos = ent->GetPosition();
-	info.GetReturnValue().Set(resource->CreateVector3(_pos));
+	V8_RETURN(resource->CreateVector3(ent->GetPosition()));
 }
 
 static void DimensionGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
 
-	V8Entity *_this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IEntity> ent = _this->GetHandle().As<IEntity>();
-
-	info.GetReturnValue().Set(v8::Integer::New(isolate, ent->GetDimension()));
+	V8_RETURN_INTEGER(ent->GetDimension());
 }
 
 static void RotationGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
 
-	V8Entity *_this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	alt::Ref<alt::IEntity> ent = _this->GetHandle().As<alt::IEntity>();
-
-	alt::Rotation _rot = ent->GetRotation();
-	info.GetReturnValue().Set(resource->CreateVector3(_rot));
+	V8_RETURN(resource->CreateVector3(ent->GetRotation()));
 }
 
 static void ModelGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
 
-	V8Entity *_this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	alt::Ref<alt::IEntity> ent = _this->GetHandle().As<alt::IEntity>();
-	info.GetReturnValue().Set(v8::Integer::NewFromUnsigned(isolate, ent->GetModel()));
+	V8_RETURN_INTEGER(ent->GetModel());
 }
 
 static void HasSyncedMeta(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_STRING(1, key);
 
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
 
-	V8Entity *_this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	alt::Ref<alt::IEntity> ent = _this->GetHandle().As<alt::IEntity>();
-
-	v8::Local<v8::String> key = info[0]->ToString(ctx).ToLocalChecked();
-	info.GetReturnValue().Set(v8::Boolean::New(isolate, ent->HasSyncedMetaData(*v8::String::Utf8Value(isolate, key))));
+	V8_RETURN_BOOLEAN(ent->HasSyncedMetaData(key));
 }
 
 static void GetSyncedMeta(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_STRING(1, key);
 
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
 
-	V8Entity *_this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	alt::Ref<alt::IEntity> ent = _this->GetHandle().As<alt::IEntity>();
-
-	v8::Local<v8::String> key = info[0]->ToString(ctx).ToLocalChecked();
-
-	alt::MValueConst val = ent->GetSyncedMetaData(*v8::String::Utf8Value(isolate, key));
-	info.GetReturnValue().Set(V8Helpers::MValueToV8(val));
+	V8_RETURN_MVALUE(ent->GetSyncedMetaData(key));
 }
 
 static void HasStreamSyncedMeta(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_STRING(1, key);
 
-	V8ResourceImpl *resource = V8ResourceImpl::Get(ctx);
-	V8_CHECK(resource, "invalid resource");
+	V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
 
-	V8Entity *_this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	alt::Ref<alt::IEntity> ent = _this->GetHandle().As<alt::IEntity>();
-
-	v8::Local<v8::String> key = info[0]->ToString(ctx).ToLocalChecked();
-	info.GetReturnValue().Set(v8::Boolean::New(isolate, ent->HasStreamSyncedMetaData(*v8::String::Utf8Value(isolate, key))));
+	V8_RETURN_BOOLEAN(ent->HasStreamSyncedMetaData(key));
 }
 
 static void GetStreamSyncedMeta(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_STRING(1, key);
 
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
 
-	V8Entity *_this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	alt::Ref<alt::IEntity> ent = _this->GetHandle().As<alt::IEntity>();
-
-	v8::Local<v8::String> key = info[0]->ToString(ctx).ToLocalChecked();
-
-	alt::MValueConst val = ent->GetStreamSyncedMetaData(*v8::String::Utf8Value(isolate, key));
-	info.GetReturnValue().Set(V8Helpers::MValueToV8(val));
+	V8_RETURN_MVALUE(ent->GetStreamSyncedMetaData(key));
 }
 
 #ifdef ALT_SERVER_API
 
 static void RotationSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8_CHECK(val->IsObject(), "object expected");
+	V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
 
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_TO_OBJECT(val, pos);
+	V8_OBJECT_GET_NUMBER(pos, "x", x);
+	V8_OBJECT_GET_NUMBER(pos, "y", y);
+	V8_OBJECT_GET_NUMBER(pos, "z", z);
 
-	V8Entity *_this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	alt::Ref<alt::IEntity> obj = _this->GetHandle().As<alt::IEntity>();
-
-	v8::Local<v8::Object> pos = val.As<v8::Object>();
-
-	v8::Local<v8::Number> x = pos->Get(v8::String::NewFromUtf8(isolate, "x"))->ToNumber(isolate);
-	v8::Local<v8::Number> y = pos->Get(v8::String::NewFromUtf8(isolate, "y"))->ToNumber(isolate);
-	v8::Local<v8::Number> z = pos->Get(v8::String::NewFromUtf8(isolate, "z"))->ToNumber(isolate);
-
-	obj->SetRotation({float(x->Value()), float(y->Value()), float(z->Value())});
+	ent->SetRotation({ x, y, z });
 }
 
 static void ModelSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8_CHECK(val->IsNumber() || val->IsString(), "model can be number or string");
-
-	V8Entity *_this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	alt::Ref<alt::IPlayer> player = _this->GetHandle().As<alt::IPlayer>();
-	V8_CHECK(player, "model can be set only for player");
+	V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
 
 	if (val->IsNumber())
 	{
-		player->SetModel(val->ToInteger(isolate)->Value());
+		V8_TO_INTEGER(val, model);
+		player->SetModel(model);
 	}
 	else
 	{
-		v8::String::Utf8Value strVal{isolate, val};
-		player->SetModel(alt::ICore::Instance().Hash(*strVal));
+		V8_TO_STRING(val, model);
+		player->SetModel(alt::ICore::Instance().Hash(model));
 	}
 }
 
 static void SetSyncedMeta(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8_CHECK(info.Length() == 2, "2 args expected");
+	V8_CHECK_ARGS_LEN(2);
+	V8_ARG_TO_STRING(1, key);
+	V8_ARG_TO_MVALUE(2, value);
 
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
 
-	V8Entity *_this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	alt::Ref<alt::IEntity> ent = _this->GetHandle().As<alt::IEntity>();
-
-	v8::Local<v8::String> key = info[0]->ToString(isolate);
-
-	ent->SetSyncedMetaData(*v8::String::Utf8Value(isolate, key), V8Helpers::V8ToMValue(info[1]));
+	ent->SetSyncedMetaData(key, value);
 }
 
 static void DeleteSyncedMeta(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_STRING(1, key);
 
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
 
-	V8Entity *_this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	alt::Ref<alt::IEntity> ent = _this->GetHandle().As<alt::IEntity>();
-
-	v8::Local<v8::String> key = info[0]->ToString(isolate);
-	ent->DeleteSyncedMetaData(*v8::String::Utf8Value(isolate, key));
+	ent->DeleteSyncedMetaData(key);
 }
 
 static void SetStreamSyncedMeta(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8_CHECK(info.Length() == 2, "2 args expected");
+	V8_CHECK_ARGS_LEN(2);
+	V8_ARG_TO_STRING(1, key);
+	V8_ARG_TO_MVALUE(2, value);
 
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
 
-	V8Entity *_this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	alt::Ref<alt::IEntity> ent = _this->GetHandle().As<alt::IEntity>();
-
-	v8::Local<v8::String> key = info[0]->ToString(isolate);
-
-	ent->SetStreamSyncedMetaData(*v8::String::Utf8Value(isolate, key), V8Helpers::V8ToMValue(info[1]));
+	ent->SetStreamSyncedMetaData(key, value);
 }
 
 static void DeleteStreamSyncedMeta(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_STRING(1, key);
 
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
 
-	V8Entity *_this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	alt::Ref<alt::IEntity> ent = _this->GetHandle().As<alt::IEntity>();
-
-	v8::Local<v8::String> key = info[0]->ToString(isolate);
-	ent->DeleteStreamSyncedMetaData(*v8::String::Utf8Value(isolate, key));
+	ent->DeleteStreamSyncedMetaData(key);
 }
 
 static void SetNetOwner(const v8::FunctionCallbackInfo<v8::Value> &info)

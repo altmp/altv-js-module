@@ -233,9 +233,17 @@ namespace V8
 	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext()); \
 	V8_CHECK(resource, "invalid resource");
 
+#define V8_GET_IRESOURCE()                                                         \
+	alt::IResource *resource = V8ResourceImpl::GetResource(isolate->GetEnteredContext()); \
+	V8_CHECK(resource, "invalid resource");
+
 #define V8_GET_ISOLATE_CONTEXT_RESOURCE() \
 	V8_GET_ISOLATE_CONTEXT();             \
 	V8_GET_RESOURCE()
+
+#define V8_GET_ISOLATE_CONTEXT_IRESOURCE() \
+	V8_GET_ISOLATE_CONTEXT();             \
+	V8_GET_IRESOURCE()
 
 #define V8_CHECK_RETN(a, b, c)          \
 	if (!(a))                           \
@@ -265,6 +273,10 @@ namespace V8
 // idx starts with 1
 #define V8_GET_THIS_INTERNAL_FIELD_ENTITY(idx, val, type) \
 	auto val = V8Entity::Get(info.This()->GetInternalField((idx)-1)->ToObject(isolate->GetEnteredContext()).ToLocalChecked())->GetHandle().As<type>();
+
+// idx starts with 1
+#define V8_GET_THIS_INTERNAL_FIELD_INTEGER(idx, val) \
+	auto val = info.This()->GetInternalField((idx)-1)->IntegerValue(ctx).ToChecked();
 
 #define V8_CHECK_CONSTRUCTOR() V8_CHECK(info.IsConstructCall(), "function can't be called without new")
 
@@ -380,6 +392,7 @@ namespace V8
 #define V8_RETURN_INTEGER(val) V8_RETURN(v8::Integer::New(isolate, (val)))
 #define V8_RETURN_NUMBER(val) V8_RETURN(v8::Number::New(isolate, (val)))
 #define V8_RETURN_STRING(val) V8_RETURN(v8::String::NewFromUtf8(isolate, (val), v8::NewStringType::kNormal).ToLocalChecked())
+#define V8_RETURN_MVALUE(val) V8_RETURN(V8Helpers::MValueToV8(val))
 
 #define V8_RETURN_BASE_OBJECT(baseObjectRef) V8_RETURN(resource->GetBaseObjectOrNull(baseObjectRef))
 

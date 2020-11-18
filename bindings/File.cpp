@@ -5,15 +5,10 @@
 
 static void StaticExists(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = v8::Isolate::GetCurrent();
+	V8_GET_ISOLATE_CONTEXT_IRESOURCE();
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
-	V8_CHECK(info[0]->IsString(), "fileName must be a string");
-
-	alt::IResource *resource = V8ResourceImpl::GetResource(isolate->GetEnteredContext());
-	V8_CHECK(resource, "Invalid resource");
-
-	std::string _path = *v8::String::Utf8Value(isolate, info[0].As<v8::String>());
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_STRING(1, _path);
 
 #ifdef ALT_CLIENT
 	auto path = alt::ICore::Instance().Resolve(resource, _path, "");
@@ -23,27 +18,22 @@ static void StaticExists(const v8::FunctionCallbackInfo<v8::Value> &info)
 	bool exists = alt::ICore::Instance().FileExists(_path);
 #endif
 
-	info.GetReturnValue().Set(v8::Boolean::New(isolate, exists));
+	V8_RETURN_BOOLEAN(exists);
 }
 
 static void StaticRead(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = v8::Isolate::GetCurrent();
+	V8_GET_ISOLATE_CONTEXT_IRESOURCE();
 
-	V8_CHECK(info.Length() >= 1, "at least 1 arg expected");
-	V8_CHECK(info[0]->IsString(), "fileName must be a string");
+	V8_CHECK_ARGS_LEN_MIN(1);
+	V8_ARG_TO_STRING(1, name);
 
-	alt::IResource *resource = V8ResourceImpl::GetResource(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	std::string name = *v8::String::Utf8Value(isolate, info[0].As<v8::String>());
-
-	std::string encoding = "utf-8";
+	alt::String encoding = "utf-8";
 
 	if (info.Length() >= 2)
 	{
-		V8_CHECK(info[1]->IsString(), "encoding must be a string");
-		encoding = *v8::String::Utf8Value(isolate, info[1].As<v8::String>());
+		V8_ARG_TO_STRING(2, _encoding);
+		encoding = _encoding;
 	}
 
 #ifdef ALT_CLIENT
@@ -62,11 +52,11 @@ static void StaticRead(const v8::FunctionCallbackInfo<v8::Value> &info)
 
 	if (encoding == "utf-8")
 	{
-		info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, data.GetData(), v8::NewStringType::kNormal, data.GetSize()).ToLocalChecked());
+		V8_RETURN(v8::String::NewFromUtf8(isolate, data.GetData(), v8::NewStringType::kNormal, data.GetSize()).ToLocalChecked());
 	}
 	else if (encoding == "utf-16")
 	{
-		info.GetReturnValue().Set(v8::String::NewFromTwoByte(isolate, (uint16_t *)data.GetData(), v8::NewStringType::kNormal, data.GetSize() / 2).ToLocalChecked());
+		V8_RETURN(v8::String::NewFromTwoByte(isolate, (uint16_t *)data.GetData(), v8::NewStringType::kNormal, data.GetSize() / 2).ToLocalChecked());
 	}
 	else if (encoding == "binary")
 	{
@@ -75,7 +65,7 @@ static void StaticRead(const v8::FunctionCallbackInfo<v8::Value> &info)
 
 		std::memcpy(contents.Data(), data.GetData(), data.GetSize());
 
-		info.GetReturnValue().Set(buffer);
+		V8_RETURN(buffer);
 	}
 }
 

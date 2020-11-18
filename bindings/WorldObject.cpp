@@ -8,73 +8,46 @@ using namespace alt;
 
 static void PositionGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_GET_THIS_BASE_OBJECT(obj, alt::IWorldObject);
 
-	V8Entity *_this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IWorldObject> obj = _this->GetHandle().As<alt::IWorldObject>();
-
-	alt::Position _pos = obj->GetPosition();
-	info.GetReturnValue().Set(resource->CreateVector3(_pos));
+	V8_RETURN(resource->CreateVector3(obj->GetPosition()));
 }
 
 static void PositionSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-	V8_CHECK(val->IsObject(), "object expected");
+	V8_GET_THIS_BASE_OBJECT(obj, alt::IWorldObject);
 
-	V8ResourceImpl *resource = V8ResourceImpl::Get(ctx);
-	V8_CHECK(resource, "invalid resource");
+	V8_TO_OBJECT(val, pos);
+	V8_OBJECT_GET_NUMBER(pos, "x", x);
+	V8_OBJECT_GET_NUMBER(pos, "y", y);
+	V8_OBJECT_GET_NUMBER(pos, "z", z);
 
-	V8Entity *_this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IWorldObject> obj = _this->GetHandle().As<alt::IWorldObject>();
-
-	v8::Local<v8::Object> pos = val.As<v8::Object>();
-
-	v8::Local<v8::Number> x = V8::Get(ctx, pos, "x")->ToNumber(ctx).ToLocalChecked();
-	v8::Local<v8::Number> y = V8::Get(ctx, pos, "y")->ToNumber(ctx).ToLocalChecked();
-	v8::Local<v8::Number> z = V8::Get(ctx, pos, "z")->ToNumber(ctx).ToLocalChecked();
-
-	obj->SetPosition({float(x->Value()), float(y->Value()), float(z->Value())});
+	obj->SetPosition({ x, y, z });
 }
 
 #ifdef ALT_SERVER_API
 static void DimensionGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_GET_THIS_BASE_OBJECT(obj, alt::IWorldObject);
 
-	V8Entity *_this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IWorldObject> obj = _this->GetHandle().As<alt::IWorldObject>();
-
-	info.GetReturnValue().Set(v8::Integer::New(isolate, obj->GetDimension()));
+	V8_RETURN_INTEGER(obj->GetDimension());
 }
 
 static void DimensionSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_GET_THIS_BASE_OBJECT(obj, alt::IWorldObject);
 
-	V8Entity *_this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
+	V8_TO_INTEGER(val, dim);
 
-	Ref<IWorldObject> obj = _this->GetHandle().As<alt::IWorldObject>();
-
-	obj->SetDimension(val->ToInteger(isolate)->Value());
+	obj->SetDimension(dim);
 }
 #endif // ALT_SERVER_API
 
