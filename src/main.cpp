@@ -19,3 +19,8 @@ ALTV_JS_EXPORT alt::IScriptRuntime *CreateJSScriptRuntime(alt::ICore *core)
     auto ret = new CV8ScriptRuntime();
     return ret;
 }
+
+ALTV_JS_EXPORT uint32_t GetSDKVersion()
+{
+    return alt::ICore::SDK_VERSION;
+}
