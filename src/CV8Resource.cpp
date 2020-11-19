@@ -51,6 +51,7 @@ bool CV8ResourceImpl::Start()
 		return false;
 
 	resource->EnableNatives();
+	auto nscope = resource->PushNativesScope();
 
 	v8::Locker locker(isolate);
 	v8::Isolate::Scope isolate_scope(isolate);
@@ -84,7 +85,7 @@ bool CV8ResourceImpl::Start()
 	pkg->ReadFile(file, src.GetData(), src.GetSize());
 	pkg->CloseFile(file);
 
-	Log::Info << "[V8] Starting script" << path << Log::Endl;
+	Log::Info << "[V8] Starting script " << path << Log::Endl;
 
 	v8::Local<v8::String> sourceCode = v8::String::NewFromUtf8(isolate, src.GetData(), v8::NewStringType::kNormal, src.GetSize()).ToLocalChecked();
 
@@ -125,7 +126,7 @@ bool CV8ResourceImpl::Start()
 		alt::MValue _exports = V8Helpers::V8ToMValue(curModule->GetModuleNamespace());
 		resource->SetExports(_exports.As<alt::IMValueDict>());
 
-		Log::Info << "[V8] Started script" << path;
+		Log::Info << "[V8] Started script " << path << Log::Endl;
 		return true;
 	});
 
@@ -158,7 +159,7 @@ bool CV8ResourceImpl::Stop()
 
 	if (!context.IsEmpty())
 	{
-		resource->PushNativeUpdate();
+		auto nscope = resource->PushNativesScope();
 
 		v8::Locker locker(isolate);
 		v8::Isolate::Scope isolateScope(isolate);
@@ -174,7 +175,7 @@ bool CV8ResourceImpl::Stop()
 
 bool CV8ResourceImpl::OnEvent(const alt::CEvent *e)
 {
-	resource->PushNativeUpdate();
+	auto nscope = resource->PushNativesScope();
 
 	v8::Locker locker(isolate);
 	v8::Isolate::Scope isolateScope(isolate);

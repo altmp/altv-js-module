@@ -2,16 +2,13 @@
 #include "../CV8Resource.h"
 #include "../helpers/V8Class.h"
 
-static void Constructor(const v8::FunctionCallbackInfo<v8::Value> &info)
+static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_CONSTRUCTOR();
 
-	V8_CHECK(info.IsConstructCall(), "HandlingData constructor is not a function");
-	V8_CHECK(info.Length() == 1, "new HandlingData(...) expects 1 arg");
-
-	V8_CHECK(info[0]->IsNumber(), "modelHash must be a number");
-	uint32_t modelHash = info[0]->Uint32Value(ctx).ToChecked();
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "model doesn't exist");
@@ -19,348 +16,344 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value> &info)
 	info.This()->SetInternalField(0, info[0]);
 }
 
-static void GetForHandlingName(const v8::FunctionCallbackInfo<v8::Value> &info)
+static void GetForHandlingName(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8_CHECK(info.Length() == 1, "HandlingData.getForHandlingName expects 1 arg");
-	V8_CHECK(info[0]->IsNumber(), "modelHash must be a number");
-	uint32_t modelHash = info[0]->Uint32Value(isolate->GetEnteredContext()).ToChecked();
-
-	extern V8Class v8HandlingData;
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_INTEGER(1, modelHash);
 
 	std::vector<v8::Local<v8::Value>> args{
-		v8::Number::New(isolate, modelHash)};
+		v8::Number::New(isolate, modelHash) 
+	};
 
-	info.GetReturnValue().Set(v8HandlingData.New(isolate->GetEnteredContext(), args));
+	extern V8Class v8HandlingData;
+	V8_RETURN(v8HandlingData.New(isolate->GetEnteredContext(), args));
 }
 
-static void HandlingNameHashGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void HandlingNameHashGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
+
+	uint32_t modelHash2 = info.This()->GetInternalField(0)->IntegerValue(ctx).ToChecked();
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetHandlingNameHash()));
+	V8_RETURN_NUMBER(handling->GetHandlingNameHash());
 }
 
-static void MassGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void MassGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetMass()));
+	V8_RETURN_NUMBER(handling->GetMass());
 }
 
-static void MassSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void MassSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "mass must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetMass((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetMass(fvalue);
 }
 
-static void InitialDragCoeffGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void InitialDragCoeffGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetInitialDragCoeff()));
+	V8_RETURN_NUMBER(handling->GetInitialDragCoeff());
 }
 
-static void InitialDragCoeffSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void InitialDragCoeffSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "initialDragCoeff must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetInitialDragCoeff((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetInitialDragCoeff(fvalue);
 }
 
-static void DownforceModifierGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void DownforceModifierGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetDownforceModifier()));
+	V8_RETURN_NUMBER(handling->GetDownforceModifier());
 }
 
-static void DownforceModifierSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void DownforceModifierSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "downforceModifier must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetDownforceModifier((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetDownforceModifier(fvalue);
 }
 
-static void unkFloat1Getter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void unkFloat1Getter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetunkFloat1()));
+	V8_RETURN_NUMBER(handling->GetunkFloat1());
 }
 
-static void unkFloat1Setter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void unkFloat1Setter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "unkFloat1 must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetunkFloat1((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetunkFloat1(fvalue);
 }
 
-static void unkFloat2Getter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void unkFloat2Getter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetunkFloat2()));
+	V8_RETURN_NUMBER(handling->GetunkFloat2());
 }
 
-static void unkFloat2Setter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void unkFloat2Setter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "unkFloat2 must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetunkFloat2((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetunkFloat2(fvalue);
 }
 
-static void CentreOfMassOffsetGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void CentreOfMassOffsetGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(resource->CreateVector3(handling->GetCentreOfMassOffset()));
+	V8_RETURN(resource->CreateVector3(handling->GetCentreOfMassOffset()));
 }
 
-static void CentreOfMassOffsetSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void CentreOfMassOffsetSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	auto ctx = isolate->GetEnteredContext();
-	V8_CHECK(val->IsObject(), "centreOfMassOffset must be a Vector3");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	v8::Local<v8::Object> pos = val.As<v8::Object>();
+	V8_TO_OBJECT(val, pos);
+	V8_OBJECT_GET_NUMBER(pos, "x", x);
+	V8_OBJECT_GET_NUMBER(pos, "y", y);
+	V8_OBJECT_GET_NUMBER(pos, "z", z);
 
-	v8::Local<v8::Number> x = pos->Get(ctx, v8::String::NewFromUtf8(isolate, "x").ToLocalChecked()).ToLocalChecked()->ToNumber(ctx).ToLocalChecked();
-	v8::Local<v8::Number> y = pos->Get(ctx, v8::String::NewFromUtf8(isolate, "y").ToLocalChecked()).ToLocalChecked()->ToNumber(ctx).ToLocalChecked();
-	v8::Local<v8::Number> z = pos->Get(ctx, v8::String::NewFromUtf8(isolate, "z").ToLocalChecked()).ToLocalChecked()->ToNumber(ctx).ToLocalChecked();
-
-	handling->SetCentreOfMassOffset({(float)x->Value(), (float)y->Value(), (float)z->Value()});
+	handling->SetCentreOfMassOffset({ x, y, z });
 }
 
-static void InertiaMultiplierGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void InertiaMultiplierGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(resource->CreateVector3(handling->GetInertiaMultiplier()));
+	V8_RETURN(resource->CreateVector3(handling->GetInertiaMultiplier()));
 }
 
-static void InertiaMultiplierSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void InertiaMultiplierSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	auto ctx = isolate->GetEnteredContext();
-	V8_CHECK(val->IsObject(), "inertiaMultiplier must be a Vector3");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	v8::Local<v8::Object> pos = val.As<v8::Object>();
+	V8_TO_OBJECT(val, pos);
+	V8_OBJECT_GET_NUMBER(pos, "x", x);
+	V8_OBJECT_GET_NUMBER(pos, "y", y);
+	V8_OBJECT_GET_NUMBER(pos, "z", z);
 
-	v8::Local<v8::Number> x = pos->Get(ctx, v8::String::NewFromUtf8(isolate, "x").ToLocalChecked()).ToLocalChecked()->ToNumber(ctx).ToLocalChecked();
-	v8::Local<v8::Number> y = pos->Get(ctx, v8::String::NewFromUtf8(isolate, "y").ToLocalChecked()).ToLocalChecked()->ToNumber(ctx).ToLocalChecked();
-	v8::Local<v8::Number> z = pos->Get(ctx, v8::String::NewFromUtf8(isolate, "z").ToLocalChecked()).ToLocalChecked()->ToNumber(ctx).ToLocalChecked();
-
-	handling->SetInertiaMultiplier({(float)x->Value(), (float)y->Value(), (float)z->Value()});
+	handling->SetInertiaMultiplier({ x, y, z });
 }
 
-static void PercentSubmergedGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void PercentSubmergedGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetPercentSubmerged()));
+	V8_RETURN_NUMBER(handling->GetPercentSubmerged());
 }
 
-static void PercentSubmergedSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void PercentSubmergedSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "percentSubmerged must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetPercentSubmerged((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetPercentSubmerged(fvalue);
 }
 
-static void PercentSubmergedRatioGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void PercentSubmergedRatioGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetPercentSubmergedRatio()));
+	V8_RETURN_NUMBER(handling->GetPercentSubmergedRatio());
 }
 
-static void PercentSubmergedRatioSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void PercentSubmergedRatioSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "percentSubmergedRatio must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetPercentSubmergedRatio((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetPercentSubmergedRatio(fvalue);
 }
 
-static void DriveBiasFrontGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void DriveBiasFrontGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetDriveBiasFront()));
+	V8_RETURN_NUMBER(handling->GetDriveBiasFront());
 }
 
-static void DriveBiasFrontSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void DriveBiasFrontSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "driveBiasFront must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetDriveBiasFront((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetDriveBiasFront(fvalue);
 }
 
-static void AccelerationGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void AccelerationGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetAcceleration()));
+	V8_RETURN_NUMBER(handling->GetAcceleration());
 }
 
-static void AccelerationSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void AccelerationSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "acceleration must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetAcceleration((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetAcceleration(fvalue);
 }
 
-static void InitialDriveGearsGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void InitialDriveGearsGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetInitialDriveGears()));
+	V8_RETURN_NUMBER(handling->GetInitialDriveGears());
 }
 
-static void InitialDriveGearsSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void InitialDriveGearsSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "initialDriveGears must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
@@ -368,1250 +361,1297 @@ static void InitialDriveGearsSetter(v8::Local<v8::String>, v8::Local<v8::Value> 
 	handling->SetInitialDriveGears(val->ToUint32(isolate->GetEnteredContext()).ToLocalChecked()->Value());
 }
 
-static void DriveInertiaGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void DriveInertiaGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetDriveInertia()));
+	V8_RETURN_NUMBER(handling->GetDriveInertia());
 }
 
-static void DriveInertiaSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void DriveInertiaSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "driveInertia must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetDriveInertia((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetDriveInertia(fvalue);
 }
 
-static void ClutchChangeRateScaleUpShiftGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void ClutchChangeRateScaleUpShiftGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetClutchChangeRateScaleUpShift()));
+	V8_RETURN_NUMBER(handling->GetClutchChangeRateScaleUpShift());
 }
 
-static void ClutchChangeRateScaleUpShiftSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void ClutchChangeRateScaleUpShiftSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "clutchChangeRateScaleUpShift must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetClutchChangeRateScaleUpShift((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetClutchChangeRateScaleUpShift(fvalue);
 }
 
-static void ClutchChangeRateScaleDownShiftGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void ClutchChangeRateScaleDownShiftGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetClutchChangeRateScaleDownShift()));
+	V8_RETURN_NUMBER(handling->GetClutchChangeRateScaleDownShift());
 }
 
-static void ClutchChangeRateScaleDownShiftSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void ClutchChangeRateScaleDownShiftSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "clutchChangeRateScaleDownShift must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
+
+	V8_TO_NUMBER(val, fvalue);
 
-	handling->SetClutchChangeRateScaleDownShift((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	handling->SetClutchChangeRateScaleDownShift(fvalue);
 }
 
-static void InitialDriveForceGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void InitialDriveForceGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetInitialDriveForce()));
+	V8_RETURN_NUMBER(handling->GetInitialDriveForce());
 }
 
-static void InitialDriveForceSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void InitialDriveForceSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "initialDriveForce must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetInitialDriveForce((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetInitialDriveForce(fvalue);
 }
 
-static void DriveMaxFlatVelGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void DriveMaxFlatVelGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetDriveMaxFlatVel()));
+	V8_RETURN_NUMBER(handling->GetDriveMaxFlatVel());
 }
 
-static void DriveMaxFlatVelSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void DriveMaxFlatVelSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "driveMaxFlatVel must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetDriveMaxFlatVel((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetDriveMaxFlatVel(fvalue);
 }
 
-static void InitialDriveMaxFlatVelGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void InitialDriveMaxFlatVelGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetInitialDriveMaxFlatVel()));
+	V8_RETURN_NUMBER(handling->GetInitialDriveMaxFlatVel());
 }
 
-static void InitialDriveMaxFlatVelSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void InitialDriveMaxFlatVelSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "initialDriveMaxFlatVel must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
+
+	V8_TO_NUMBER(val, fvalue);
 
-	handling->SetInitialDriveMaxFlatVel((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	handling->SetInitialDriveMaxFlatVel(fvalue);
 }
 
-static void BrakeForceGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void BrakeForceGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetBrakeForce()));
+	V8_RETURN_NUMBER(handling->GetBrakeForce());
 }
 
-static void BrakeForceSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void BrakeForceSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "brakeForce must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetBrakeForce((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetBrakeForce(fvalue);
 }
 
-static void unkFloat4Getter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void unkFloat4Getter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetunkFloat4()));
+	V8_RETURN_NUMBER(handling->GetunkFloat4());
 }
 
-static void unkFloat4Setter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void unkFloat4Setter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "unkFloat4 must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetunkFloat4((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetunkFloat4(fvalue);
 }
 
-static void BrakeBiasFrontGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void BrakeBiasFrontGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetBrakeBiasFront()));
+	V8_RETURN_NUMBER(handling->GetBrakeBiasFront());
 }
 
-static void BrakeBiasFrontSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void BrakeBiasFrontSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "brakeBiasFront must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
+
+	V8_TO_NUMBER(val, fvalue);
 
-	handling->SetBrakeBiasFront((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	handling->SetBrakeBiasFront(fvalue);
 }
 
-static void BrakeBiasRearGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void BrakeBiasRearGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetBrakeBiasRear()));
+	V8_RETURN_NUMBER(handling->GetBrakeBiasRear());
 }
 
-static void BrakeBiasRearSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void BrakeBiasRearSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "brakeBiasRear must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetBrakeBiasRear((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetBrakeBiasRear(fvalue);
 }
 
-static void HandBrakeForceGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void HandBrakeForceGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetHandBrakeForce()));
+	V8_RETURN_NUMBER(handling->GetHandBrakeForce());
 }
 
-static void HandBrakeForceSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void HandBrakeForceSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "handBrakeForce must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetHandBrakeForce((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetHandBrakeForce(fvalue);
 }
 
-static void SteeringLockGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void SteeringLockGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetSteeringLock()));
+	V8_RETURN_NUMBER(handling->GetSteeringLock());
 }
 
-static void SteeringLockSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void SteeringLockSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "steeringLock must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
+
+	V8_TO_NUMBER(val, fvalue);
 
-	handling->SetSteeringLock((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	handling->SetSteeringLock(fvalue);
 }
 
-static void SteeringLockRatioGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void SteeringLockRatioGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetSteeringLockRatio()));
+	V8_RETURN_NUMBER(handling->GetSteeringLockRatio());
 }
 
-static void SteeringLockRatioSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void SteeringLockRatioSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "steeringLockRatio must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetSteeringLockRatio((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetSteeringLockRatio(fvalue);
 }
 
-static void TractionCurveMaxGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void TractionCurveMaxGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetTractionCurveMax()));
+	V8_RETURN_NUMBER(handling->GetTractionCurveMax());
 }
 
-static void TractionCurveMaxSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void TractionCurveMaxSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "tractionCurveMax must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetTractionCurveMax((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetTractionCurveMax(fvalue);
 }
 
-static void TractionCurveMaxRatioGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void TractionCurveMaxRatioGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetTractionCurveMaxRatio()));
+	V8_RETURN_NUMBER(handling->GetTractionCurveMaxRatio());
 }
 
-static void TractionCurveMaxRatioSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void TractionCurveMaxRatioSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "tractionCurveMaxRatio must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
+
+	V8_TO_NUMBER(val, fvalue);
 
-	handling->SetTractionCurveMaxRatio((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	handling->SetTractionCurveMaxRatio(fvalue);
 }
 
-static void TractionCurveMinGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void TractionCurveMinGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetTractionCurveMin()));
+	V8_RETURN_NUMBER(handling->GetTractionCurveMin());
 }
 
-static void TractionCurveMinSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void TractionCurveMinSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "tractionCurveMin must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetTractionCurveMin((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetTractionCurveMin(fvalue);
 }
 
-static void TractionCurveMinRatioGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void TractionCurveMinRatioGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetTractionCurveMinRatio()));
+	V8_RETURN_NUMBER(handling->GetTractionCurveMinRatio());
 }
 
-static void TractionCurveMinRatioSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void TractionCurveMinRatioSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "tractionCurveMinRatio must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetTractionCurveMinRatio((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetTractionCurveMinRatio(fvalue);
 }
 
-static void TractionCurveLateralGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void TractionCurveLateralGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetTractionCurveLateral()));
+	V8_RETURN_NUMBER(handling->GetTractionCurveLateral());
 }
 
-static void TractionCurveLateralSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void TractionCurveLateralSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "tractionCurveLateral must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
+
+	V8_TO_NUMBER(val, fvalue);
 
-	handling->SetTractionCurveLateral((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	handling->SetTractionCurveLateral(fvalue);
 }
 
-static void TractionCurveLateralRatioGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void TractionCurveLateralRatioGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetTractionCurveLateralRatio()));
+	V8_RETURN_NUMBER(handling->GetTractionCurveLateralRatio());
 }
 
-static void TractionCurveLateralRatioSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void TractionCurveLateralRatioSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "tractionCurveLateralRatio must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetTractionCurveLateralRatio((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetTractionCurveLateralRatio(fvalue);
 }
 
-static void TractionSpringDeltaMaxGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void TractionSpringDeltaMaxGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetTractionSpringDeltaMax()));
+	V8_RETURN_NUMBER(handling->GetTractionSpringDeltaMax());
 }
 
-static void TractionSpringDeltaMaxSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void TractionSpringDeltaMaxSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "tractionSpringDeltaMax must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetTractionSpringDeltaMax((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetTractionSpringDeltaMax(fvalue);
 }
 
-static void TractionSpringDeltaMaxRatioGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void TractionSpringDeltaMaxRatioGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetTractionSpringDeltaMaxRatio()));
+	V8_RETURN_NUMBER(handling->GetTractionSpringDeltaMaxRatio());
 }
 
-static void TractionSpringDeltaMaxRatioSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void TractionSpringDeltaMaxRatioSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "tractionSpringDeltaMaxRatio must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
+
+	V8_TO_NUMBER(val, fvalue);
 
-	handling->SetTractionSpringDeltaMaxRatio((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	handling->SetTractionSpringDeltaMaxRatio(fvalue);
 }
 
-static void LowSpeedTractionLossMultGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void LowSpeedTractionLossMultGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetLowSpeedTractionLossMult()));
+	V8_RETURN_NUMBER(handling->GetLowSpeedTractionLossMult());
 }
 
-static void LowSpeedTractionLossMultSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void LowSpeedTractionLossMultSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "lowSpeedTractionLossMult must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetLowSpeedTractionLossMult((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetLowSpeedTractionLossMult(fvalue);
 }
 
-static void CamberStiffnesssGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void CamberStiffnesssGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetCamberStiffnesss()));
+	V8_RETURN_NUMBER(handling->GetCamberStiffnesss());
 }
 
-static void CamberStiffnesssSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void CamberStiffnesssSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "camberStiffnesss must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetCamberStiffnesss((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetCamberStiffnesss(fvalue);
 }
 
-static void TractionBiasFrontGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void TractionBiasFrontGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetTractionBiasFront()));
+	V8_RETURN_NUMBER(handling->GetTractionBiasFront());
 }
 
-static void TractionBiasFrontSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void TractionBiasFrontSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "tractionBiasFront must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
+
+	V8_TO_NUMBER(val, fvalue);
 
-	handling->SetTractionBiasFront((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	handling->SetTractionBiasFront(fvalue);
 }
 
-static void TractionBiasRearGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void TractionBiasRearGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetTractionBiasRear()));
+	V8_RETURN_NUMBER(handling->GetTractionBiasRear());
 }
 
-static void TractionBiasRearSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void TractionBiasRearSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "tractionBiasRear must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetTractionBiasRear((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetTractionBiasRear(fvalue);
 }
 
-static void TractionLossMultGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void TractionLossMultGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetTractionLossMult()));
+	V8_RETURN_NUMBER(handling->GetTractionLossMult());
 }
 
-static void TractionLossMultSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void TractionLossMultSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "tractionLossMult must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetTractionLossMult((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetTractionLossMult(fvalue);
 }
 
-static void SuspensionForceGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void SuspensionForceGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetSuspensionForce()));
+	V8_RETURN_NUMBER(handling->GetSuspensionForce());
 }
 
-static void SuspensionForceSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void SuspensionForceSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "suspensionForce must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
+
+	V8_TO_NUMBER(val, fvalue);
 
-	handling->SetSuspensionForce((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	handling->SetSuspensionForce(fvalue);
 }
 
-static void SuspensionCompDampGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void SuspensionCompDampGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetSuspensionCompDamp()));
+	V8_RETURN_NUMBER(handling->GetSuspensionCompDamp());
 }
 
-static void SuspensionCompDampSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void SuspensionCompDampSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "suspensionCompDamp must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetSuspensionCompDamp((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetSuspensionCompDamp(fvalue);
 }
 
-static void SuspensionReboundDampGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void SuspensionReboundDampGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetSuspensionReboundDamp()));
+	V8_RETURN_NUMBER(handling->GetSuspensionReboundDamp());
 }
 
-static void SuspensionReboundDampSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void SuspensionReboundDampSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "suspensionReboundDamp must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetSuspensionReboundDamp((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetSuspensionReboundDamp(fvalue);
 }
 
-static void SuspensionUpperLimitGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void SuspensionUpperLimitGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetSuspensionUpperLimit()));
+	V8_RETURN_NUMBER(handling->GetSuspensionUpperLimit());
 }
 
-static void SuspensionUpperLimitSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void SuspensionUpperLimitSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "suspensionUpperLimit must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
+
+	V8_TO_NUMBER(val, fvalue);
 
-	handling->SetSuspensionUpperLimit((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	handling->SetSuspensionUpperLimit(fvalue);
 }
 
-static void SuspensionLowerLimitGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void SuspensionLowerLimitGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetSuspensionLowerLimit()));
+	V8_RETURN_NUMBER(handling->GetSuspensionLowerLimit());
 }
 
-static void SuspensionLowerLimitSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void SuspensionLowerLimitSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "suspensionLowerLimit must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetSuspensionLowerLimit((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetSuspensionLowerLimit(fvalue);
 }
 
-static void SuspensionRaiseGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void SuspensionRaiseGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetSuspensionRaise()));
+	V8_RETURN_NUMBER(handling->GetSuspensionRaise());
 }
 
-static void SuspensionRaiseSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void SuspensionRaiseSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "suspensionRaise must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetSuspensionRaise((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetSuspensionRaise(fvalue);
 }
 
-static void SuspensionBiasFrontGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void SuspensionBiasFrontGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetSuspensionBiasFront()));
+	V8_RETURN_NUMBER(handling->GetSuspensionBiasFront());
 }
 
-static void SuspensionBiasFrontSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void SuspensionBiasFrontSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "suspensionBiasFront must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
+
+	V8_TO_NUMBER(val, fvalue);
 
-	handling->SetSuspensionBiasFront((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	handling->SetSuspensionBiasFront(fvalue);
 }
 
-static void SuspensionBiasRearGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void SuspensionBiasRearGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetSuspensionBiasRear()));
+	V8_RETURN_NUMBER(handling->GetSuspensionBiasRear());
 }
 
-static void SuspensionBiasRearSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void SuspensionBiasRearSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "suspensionBiasRear must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetSuspensionBiasRear((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetSuspensionBiasRear(fvalue);
 }
 
-static void AntiRollBarForceGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void AntiRollBarForceGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetAntiRollBarForce()));
+	V8_RETURN_NUMBER(handling->GetAntiRollBarForce());
 }
 
-static void AntiRollBarForceSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void AntiRollBarForceSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "antiRollBarForce must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetAntiRollBarForce((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetAntiRollBarForce(fvalue);
 }
 
-static void AntiRollBarBiasFrontGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void AntiRollBarBiasFrontGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetAntiRollBarBiasFront()));
+	V8_RETURN_NUMBER(handling->GetAntiRollBarBiasFront());
 }
 
-static void AntiRollBarBiasFrontSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void AntiRollBarBiasFrontSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "antiRollBarBiasFront must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
+
+	V8_TO_NUMBER(val, fvalue);
 
-	handling->SetAntiRollBarBiasFront((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	handling->SetAntiRollBarBiasFront(fvalue);
 }
 
-static void AntiRollBarBiasRearGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void AntiRollBarBiasRearGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetAntiRollBarBiasRear()));
+	V8_RETURN_NUMBER(handling->GetAntiRollBarBiasRear());
 }
 
-static void AntiRollBarBiasRearSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void AntiRollBarBiasRearSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "antiRollBarBiasRear must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetAntiRollBarBiasRear((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetAntiRollBarBiasRear(fvalue);
 }
 
-static void RollCentreHeightFrontGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void RollCentreHeightFrontGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetRollCentreHeightFront()));
+	V8_RETURN_NUMBER(handling->GetRollCentreHeightFront());
 }
 
-static void RollCentreHeightFrontSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void RollCentreHeightFrontSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "rollCentreHeightFront must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetRollCentreHeightFront((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetRollCentreHeightFront(fvalue);
 }
 
-static void RollCentreHeightRearGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void RollCentreHeightRearGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetRollCentreHeightRear()));
+	V8_RETURN_NUMBER(handling->GetRollCentreHeightRear());
 }
 
-static void RollCentreHeightRearSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void RollCentreHeightRearSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "rollCentreHeightRear must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
+
+	V8_TO_NUMBER(val, fvalue);
 
-	handling->SetRollCentreHeightRear((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	handling->SetRollCentreHeightRear(fvalue);
 }
 
-static void CollisionDamageMultGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void CollisionDamageMultGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetCollisionDamageMult()));
+	V8_RETURN_NUMBER(handling->GetCollisionDamageMult());
 }
 
-static void CollisionDamageMultSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void CollisionDamageMultSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "collisionDamageMult must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetCollisionDamageMult((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetCollisionDamageMult(fvalue);
 }
 
-static void WeaponDamageMultGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void WeaponDamageMultGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetWeaponDamageMult()));
+	V8_RETURN_NUMBER(handling->GetWeaponDamageMult());
 }
 
-static void WeaponDamageMultSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void WeaponDamageMultSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "weaponDamageMult must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetWeaponDamageMult((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetWeaponDamageMult(fvalue);
 }
 
-static void DeformationDamageMultGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void DeformationDamageMultGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetDeformationDamageMult()));
+	V8_RETURN_NUMBER(handling->GetDeformationDamageMult());
 }
 
-static void DeformationDamageMultSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void DeformationDamageMultSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "deformationDamageMult must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
+
+	V8_TO_NUMBER(val, fvalue);
 
-	handling->SetDeformationDamageMult((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	handling->SetDeformationDamageMult(fvalue);
 }
 
-static void EngineDamageMultGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void EngineDamageMultGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetEngineDamageMult()));
+	V8_RETURN_NUMBER(handling->GetEngineDamageMult());
 }
 
-static void EngineDamageMultSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void EngineDamageMultSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "engineDamageMult must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetEngineDamageMult((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetEngineDamageMult(fvalue);
 }
 
-static void PetrolTankVolumeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void PetrolTankVolumeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetPetrolTankVolume()));
+	V8_RETURN_NUMBER(handling->GetPetrolTankVolume());
 }
 
-static void PetrolTankVolumeSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void PetrolTankVolumeSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "petrolTankVolume must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetPetrolTankVolume((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetPetrolTankVolume(fvalue);
 }
 
-static void OilVolumeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void OilVolumeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetOilVolume()));
+	V8_RETURN_NUMBER(handling->GetOilVolume());
 }
 
-static void OilVolumeSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void OilVolumeSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "oilVolume must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
+
+	V8_TO_NUMBER(val, fvalue);
 
-	handling->SetOilVolume((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	handling->SetOilVolume(fvalue);
 }
 
-static void unkFloat5Getter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void unkFloat5Getter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	auto ctx = isolate->GetEnteredContext();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetunkFloat5()));
+	V8_RETURN_NUMBER(handling->GetunkFloat5());
 }
 
-static void unkFloat5Setter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void unkFloat5Setter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "unkFloat5 must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetunkFloat5((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetunkFloat5(fvalue);
 }
 
-static void SeatOffsetDistXGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void SeatOffsetDistXGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetSeatOffsetDistX()));
+	V8_RETURN_NUMBER(handling->GetSeatOffsetDistX());
 }
 
-static void SeatOffsetDistXSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void SeatOffsetDistXSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "seatOffsetDistX must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
+
+	V8_TO_NUMBER(val, fvalue);
 
-	handling->SetSeatOffsetDistX((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	handling->SetSeatOffsetDistX(fvalue);
 }
 
-static void SeatOffsetDistYGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void SeatOffsetDistYGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetSeatOffsetDistY()));
+	V8_RETURN_NUMBER(handling->GetSeatOffsetDistY());
 }
 
-static void SeatOffsetDistYSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void SeatOffsetDistYSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "seatOffsetDistY must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetSeatOffsetDistY((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	V8_TO_NUMBER(val, fvalue);
+
+	handling->SetSeatOffsetDistY(fvalue);
 }
 
-static void SeatOffsetDistZGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void SeatOffsetDistZGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetSeatOffsetDistZ()));
+	V8_RETURN_NUMBER(handling->GetSeatOffsetDistZ());
 }
 
-static void SeatOffsetDistZSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void SeatOffsetDistZSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "seatOffsetDistZ must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
+
+	V8_TO_NUMBER(val, fvalue);
 
-	handling->SetSeatOffsetDistZ((float)val->NumberValue(isolate->GetEnteredContext()).ToChecked());
+	handling->SetSeatOffsetDistZ(fvalue);
 }
 
-static void MonetaryValueGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void MonetaryValueGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetMonetaryValue()));
+	V8_RETURN_NUMBER(handling->GetMonetaryValue());
 }
 
-static void MonetaryValueSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void MonetaryValueSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "monetaryValue must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
@@ -1619,24 +1659,23 @@ static void MonetaryValueSetter(v8::Local<v8::String>, v8::Local<v8::Value> val,
 	handling->SetMonetaryValue(val->ToUint32(isolate->GetEnteredContext()).ToLocalChecked()->Value());
 }
 
-static void ModelFlagsGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void ModelFlagsGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetModelFlags()));
+	V8_RETURN_NUMBER(handling->GetModelFlags());
 }
 
-static void ModelFlagsSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void ModelFlagsSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "modelFlags must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
@@ -1644,24 +1683,23 @@ static void ModelFlagsSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, co
 	handling->SetModelFlags(val->ToUint32(isolate->GetEnteredContext()).ToLocalChecked()->Value());
 }
 
-static void HandlingFlagsGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void HandlingFlagsGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetHandlingFlags()));
+	V8_RETURN_NUMBER(handling->GetHandlingFlags());
 }
 
-static void HandlingFlagsSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void HandlingFlagsSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "handlingFlags must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
@@ -1669,24 +1707,23 @@ static void HandlingFlagsSetter(v8::Local<v8::String>, v8::Local<v8::Value> val,
 	handling->SetHandlingFlags(val->ToUint32(isolate->GetEnteredContext()).ToLocalChecked()->Value());
 }
 
-static void DamageFlagsGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void DamageFlagsGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	info.GetReturnValue().Set(v8::Number::New(isolate, handling->GetDamageFlags()));
+	V8_RETURN_NUMBER(handling->GetDamageFlags());
 }
 
-static void DamageFlagsSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void DamageFlagsSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
-	v8::Isolate *isolate = info.GetIsolate();
-	V8_CHECK(val->IsNumber(), "damageFlags must be a number");
+	V8_GET_ISOLATE_CONTEXT();
 
-	uint32_t modelHash = info.This()->GetInternalField(0)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_INTEGER(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
@@ -1694,80 +1731,77 @@ static void DamageFlagsSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, c
 	handling->SetDamageFlags(val->ToUint32(isolate->GetEnteredContext()).ToLocalChecked()->Value());
 }
 
-extern V8Class v8HandlingData(
-	"HandlingData", Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
-		v8::Isolate *isolate = v8::Isolate::GetCurrent();
-
-		v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
+extern V8Class v8HandlingData("HandlingData", Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
+		v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
 		tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
-		tpl->Set(isolate, "getForHandlingName", v8::FunctionTemplate::New(isolate, &GetForHandlingName));
+		V8::SetMethod(isolate, tpl, "getForHandlingName", &GetForHandlingName);
 
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "handlingNameHash").ToLocalChecked(), &HandlingNameHashGetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "mass").ToLocalChecked(), &MassGetter, &MassSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "initialDragCoeff").ToLocalChecked(), &InitialDragCoeffGetter, &InitialDragCoeffSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "downforceModifier").ToLocalChecked(), &DownforceModifierGetter, &DownforceModifierSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "unkFloat1").ToLocalChecked(), &unkFloat1Getter, &unkFloat1Setter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "unkFloat2").ToLocalChecked(), &unkFloat2Getter, &unkFloat2Setter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "centreOfMassOffset").ToLocalChecked(), &CentreOfMassOffsetGetter, &CentreOfMassOffsetSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "inertiaMultiplier").ToLocalChecked(), &InertiaMultiplierGetter, &InertiaMultiplierSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "percentSubmerged").ToLocalChecked(), &PercentSubmergedGetter, &PercentSubmergedSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "percentSubmergedRatio").ToLocalChecked(), &PercentSubmergedRatioGetter, &PercentSubmergedRatioSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "driveBiasFront").ToLocalChecked(), &DriveBiasFrontGetter, &DriveBiasFrontSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "acceleration").ToLocalChecked(), &AccelerationGetter, &AccelerationSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "initialDriveGears").ToLocalChecked(), &InitialDriveGearsGetter, &InitialDriveGearsSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "driveInertia").ToLocalChecked(), &DriveInertiaGetter, &DriveInertiaSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "clutchChangeRateScaleUpShift").ToLocalChecked(), &ClutchChangeRateScaleUpShiftGetter, &ClutchChangeRateScaleUpShiftSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "clutchChangeRateScaleDownShift").ToLocalChecked(), &ClutchChangeRateScaleDownShiftGetter, &ClutchChangeRateScaleDownShiftSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "initialDriveForce").ToLocalChecked(), &InitialDriveForceGetter, &InitialDriveForceSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "driveMaxFlatVel").ToLocalChecked(), &DriveMaxFlatVelGetter, &DriveMaxFlatVelSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "initialDriveMaxFlatVel").ToLocalChecked(), &InitialDriveMaxFlatVelGetter, &InitialDriveMaxFlatVelSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "brakeForce").ToLocalChecked(), &BrakeForceGetter, &BrakeForceSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "unkFloat4").ToLocalChecked(), &unkFloat4Getter, &unkFloat4Setter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "brakeBiasFront").ToLocalChecked(), &BrakeBiasFrontGetter, &BrakeBiasFrontSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "brakeBiasRear").ToLocalChecked(), &BrakeBiasRearGetter, &BrakeBiasRearSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "handBrakeForce").ToLocalChecked(), &HandBrakeForceGetter, &HandBrakeForceSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "steeringLock").ToLocalChecked(), &SteeringLockGetter, &SteeringLockSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "steeringLockRatio").ToLocalChecked(), &SteeringLockRatioGetter, &SteeringLockRatioSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "tractionCurveMax").ToLocalChecked(), &TractionCurveMaxGetter, &TractionCurveMaxSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "tractionCurveMaxRatio").ToLocalChecked(), &TractionCurveMaxRatioGetter, &TractionCurveMaxRatioSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "tractionCurveMin").ToLocalChecked(), &TractionCurveMinGetter, &TractionCurveMinSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "tractionCurveMinRatio").ToLocalChecked(), &TractionCurveMinRatioGetter, &TractionCurveMinRatioSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "tractionCurveLateral").ToLocalChecked(), &TractionCurveLateralGetter, &TractionCurveLateralSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "tractionCurveLateralRatio").ToLocalChecked(), &TractionCurveLateralRatioGetter, &TractionCurveLateralRatioSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "tractionSpringDeltaMax").ToLocalChecked(), &TractionSpringDeltaMaxGetter, &TractionSpringDeltaMaxSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "tractionSpringDeltaMaxRatio").ToLocalChecked(), &TractionSpringDeltaMaxRatioGetter, &TractionSpringDeltaMaxRatioSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "lowSpeedTractionLossMult").ToLocalChecked(), &LowSpeedTractionLossMultGetter, &LowSpeedTractionLossMultSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "camberStiffnesss").ToLocalChecked(), &CamberStiffnesssGetter, &CamberStiffnesssSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "tractionBiasFront").ToLocalChecked(), &TractionBiasFrontGetter, &TractionBiasFrontSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "tractionBiasRear").ToLocalChecked(), &TractionBiasRearGetter, &TractionBiasRearSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "tractionLossMult").ToLocalChecked(), &TractionLossMultGetter, &TractionLossMultSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "suspensionForce").ToLocalChecked(), &SuspensionForceGetter, &SuspensionForceSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "suspensionCompDamp").ToLocalChecked(), &SuspensionCompDampGetter, &SuspensionCompDampSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "suspensionReboundDamp").ToLocalChecked(), &SuspensionReboundDampGetter, &SuspensionReboundDampSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "suspensionUpperLimit").ToLocalChecked(), &SuspensionUpperLimitGetter, &SuspensionUpperLimitSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "suspensionLowerLimit").ToLocalChecked(), &SuspensionLowerLimitGetter, &SuspensionLowerLimitSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "suspensionRaise").ToLocalChecked(), &SuspensionRaiseGetter, &SuspensionRaiseSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "suspensionBiasFront").ToLocalChecked(), &SuspensionBiasFrontGetter, &SuspensionBiasFrontSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "suspensionBiasRear").ToLocalChecked(), &SuspensionBiasRearGetter, &SuspensionBiasRearSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "antiRollBarForce").ToLocalChecked(), &AntiRollBarForceGetter, &AntiRollBarForceSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "antiRollBarBiasFront").ToLocalChecked(), &AntiRollBarBiasFrontGetter, &AntiRollBarBiasFrontSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "antiRollBarBiasRear").ToLocalChecked(), &AntiRollBarBiasRearGetter, &AntiRollBarBiasRearSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "rollCentreHeightFront").ToLocalChecked(), &RollCentreHeightFrontGetter, &RollCentreHeightFrontSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "rollCentreHeightRear").ToLocalChecked(), &RollCentreHeightRearGetter, &RollCentreHeightRearSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "collisionDamageMult").ToLocalChecked(), &CollisionDamageMultGetter, &CollisionDamageMultSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "weaponDamageMult").ToLocalChecked(), &WeaponDamageMultGetter, &WeaponDamageMultSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "deformationDamageMult").ToLocalChecked(), &DeformationDamageMultGetter, &DeformationDamageMultSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "engineDamageMult").ToLocalChecked(), &EngineDamageMultGetter, &EngineDamageMultSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "petrolTankVolume").ToLocalChecked(), &PetrolTankVolumeGetter, &PetrolTankVolumeSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "oilVolume").ToLocalChecked(), &OilVolumeGetter, &OilVolumeSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "unkFloat5").ToLocalChecked(), &unkFloat5Getter, &unkFloat5Setter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "seatOffsetDistX").ToLocalChecked(), &SeatOffsetDistXGetter, &SeatOffsetDistXSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "seatOffsetDistY").ToLocalChecked(), &SeatOffsetDistYGetter, &SeatOffsetDistYSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "seatOffsetDistZ").ToLocalChecked(), &SeatOffsetDistZGetter, &SeatOffsetDistZSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "monetaryValue").ToLocalChecked(), &MonetaryValueGetter, &MonetaryValueSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "modelFlags").ToLocalChecked(), &ModelFlagsGetter, &ModelFlagsSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "handlingFlags").ToLocalChecked(), &HandlingFlagsGetter, &HandlingFlagsSetter);
-		proto->SetAccessor(v8::String::NewFromUtf8(isolate, "damageFlags").ToLocalChecked(), &DamageFlagsGetter, &DamageFlagsSetter);
+		V8::SetAccessor(isolate, tpl, "handlingNameHash", &HandlingNameHashGetter);
+		V8::SetAccessor(isolate, tpl, "mass", &MassGetter, &MassSetter);
+		V8::SetAccessor(isolate, tpl, "initialDragCoeff", &InitialDragCoeffGetter, &InitialDragCoeffSetter);
+		V8::SetAccessor(isolate, tpl, "downforceModifier", &DownforceModifierGetter, &DownforceModifierSetter);
+		V8::SetAccessor(isolate, tpl, "unkFloat1", &unkFloat1Getter, &unkFloat1Setter);
+		V8::SetAccessor(isolate, tpl, "unkFloat2", &unkFloat2Getter, &unkFloat2Setter);
+		V8::SetAccessor(isolate, tpl, "centreOfMassOffset", &CentreOfMassOffsetGetter, &CentreOfMassOffsetSetter);
+		V8::SetAccessor(isolate, tpl, "inertiaMultiplier", &InertiaMultiplierGetter, &InertiaMultiplierSetter);
+		V8::SetAccessor(isolate, tpl, "percentSubmerged", &PercentSubmergedGetter, &PercentSubmergedSetter);
+		V8::SetAccessor(isolate, tpl, "percentSubmergedRatio", &PercentSubmergedRatioGetter, &PercentSubmergedRatioSetter);
+		V8::SetAccessor(isolate, tpl, "driveBiasFront", &DriveBiasFrontGetter, &DriveBiasFrontSetter);
+		V8::SetAccessor(isolate, tpl, "acceleration", &AccelerationGetter, &AccelerationSetter);
+		V8::SetAccessor(isolate, tpl, "initialDriveGears", &InitialDriveGearsGetter, &InitialDriveGearsSetter);
+		V8::SetAccessor(isolate, tpl, "driveInertia", &DriveInertiaGetter, &DriveInertiaSetter);
+		V8::SetAccessor(isolate, tpl, "clutchChangeRateScaleUpShift", &ClutchChangeRateScaleUpShiftGetter, &ClutchChangeRateScaleUpShiftSetter);
+		V8::SetAccessor(isolate, tpl, "clutchChangeRateScaleDownShift", &ClutchChangeRateScaleDownShiftGetter, &ClutchChangeRateScaleDownShiftSetter);
+		V8::SetAccessor(isolate, tpl, "initialDriveForce", &InitialDriveForceGetter, &InitialDriveForceSetter);
+		V8::SetAccessor(isolate, tpl, "driveMaxFlatVel", &DriveMaxFlatVelGetter, &DriveMaxFlatVelSetter);
+		V8::SetAccessor(isolate, tpl, "initialDriveMaxFlatVel", &InitialDriveMaxFlatVelGetter, &InitialDriveMaxFlatVelSetter);
+		V8::SetAccessor(isolate, tpl, "brakeForce", &BrakeForceGetter, &BrakeForceSetter);
+		V8::SetAccessor(isolate, tpl, "unkFloat4", &unkFloat4Getter, &unkFloat4Setter);
+		V8::SetAccessor(isolate, tpl, "brakeBiasFront", &BrakeBiasFrontGetter, &BrakeBiasFrontSetter);
+		V8::SetAccessor(isolate, tpl, "brakeBiasRear", &BrakeBiasRearGetter, &BrakeBiasRearSetter);
+		V8::SetAccessor(isolate, tpl, "handBrakeForce", &HandBrakeForceGetter, &HandBrakeForceSetter);
+		V8::SetAccessor(isolate, tpl, "steeringLock", &SteeringLockGetter, &SteeringLockSetter);
+		V8::SetAccessor(isolate, tpl, "steeringLockRatio", &SteeringLockRatioGetter, &SteeringLockRatioSetter);
+		V8::SetAccessor(isolate, tpl, "tractionCurveMax", &TractionCurveMaxGetter, &TractionCurveMaxSetter);
+		V8::SetAccessor(isolate, tpl, "tractionCurveMaxRatio", &TractionCurveMaxRatioGetter, &TractionCurveMaxRatioSetter);
+		V8::SetAccessor(isolate, tpl, "tractionCurveMin", &TractionCurveMinGetter, &TractionCurveMinSetter);
+		V8::SetAccessor(isolate, tpl, "tractionCurveMinRatio", &TractionCurveMinRatioGetter, &TractionCurveMinRatioSetter);
+		V8::SetAccessor(isolate, tpl, "tractionCurveLateral", &TractionCurveLateralGetter, &TractionCurveLateralSetter);
+		V8::SetAccessor(isolate, tpl, "tractionCurveLateralRatio", &TractionCurveLateralRatioGetter, &TractionCurveLateralRatioSetter);
+		V8::SetAccessor(isolate, tpl, "tractionSpringDeltaMax", &TractionSpringDeltaMaxGetter, &TractionSpringDeltaMaxSetter);
+		V8::SetAccessor(isolate, tpl, "tractionSpringDeltaMaxRatio", &TractionSpringDeltaMaxRatioGetter, &TractionSpringDeltaMaxRatioSetter);
+		V8::SetAccessor(isolate, tpl, "lowSpeedTractionLossMult", &LowSpeedTractionLossMultGetter, &LowSpeedTractionLossMultSetter);
+		V8::SetAccessor(isolate, tpl, "camberStiffnesss", &CamberStiffnesssGetter, &CamberStiffnesssSetter);
+		V8::SetAccessor(isolate, tpl, "tractionBiasFront", &TractionBiasFrontGetter, &TractionBiasFrontSetter);
+		V8::SetAccessor(isolate, tpl, "tractionBiasRear", &TractionBiasRearGetter, &TractionBiasRearSetter);
+		V8::SetAccessor(isolate, tpl, "tractionLossMult", &TractionLossMultGetter, &TractionLossMultSetter);
+		V8::SetAccessor(isolate, tpl, "suspensionForce", &SuspensionForceGetter, &SuspensionForceSetter);
+		V8::SetAccessor(isolate, tpl, "suspensionCompDamp", &SuspensionCompDampGetter, &SuspensionCompDampSetter);
+		V8::SetAccessor(isolate, tpl, "suspensionReboundDamp", &SuspensionReboundDampGetter, &SuspensionReboundDampSetter);
+		V8::SetAccessor(isolate, tpl, "suspensionUpperLimit", &SuspensionUpperLimitGetter, &SuspensionUpperLimitSetter);
+		V8::SetAccessor(isolate, tpl, "suspensionLowerLimit", &SuspensionLowerLimitGetter, &SuspensionLowerLimitSetter);
+		V8::SetAccessor(isolate, tpl, "suspensionRaise", &SuspensionRaiseGetter, &SuspensionRaiseSetter);
+		V8::SetAccessor(isolate, tpl, "suspensionBiasFront", &SuspensionBiasFrontGetter, &SuspensionBiasFrontSetter);
+		V8::SetAccessor(isolate, tpl, "suspensionBiasRear", &SuspensionBiasRearGetter, &SuspensionBiasRearSetter);
+		V8::SetAccessor(isolate, tpl, "antiRollBarForce", &AntiRollBarForceGetter, &AntiRollBarForceSetter);
+		V8::SetAccessor(isolate, tpl, "antiRollBarBiasFront", &AntiRollBarBiasFrontGetter, &AntiRollBarBiasFrontSetter);
+		V8::SetAccessor(isolate, tpl, "antiRollBarBiasRear", &AntiRollBarBiasRearGetter, &AntiRollBarBiasRearSetter);
+		V8::SetAccessor(isolate, tpl, "rollCentreHeightFront", &RollCentreHeightFrontGetter, &RollCentreHeightFrontSetter);
+		V8::SetAccessor(isolate, tpl, "rollCentreHeightRear", &RollCentreHeightRearGetter, &RollCentreHeightRearSetter);
+		V8::SetAccessor(isolate, tpl, "collisionDamageMult", &CollisionDamageMultGetter, &CollisionDamageMultSetter);
+		V8::SetAccessor(isolate, tpl, "weaponDamageMult", &WeaponDamageMultGetter, &WeaponDamageMultSetter);
+		V8::SetAccessor(isolate, tpl, "deformationDamageMult", &DeformationDamageMultGetter, &DeformationDamageMultSetter);
+		V8::SetAccessor(isolate, tpl, "engineDamageMult", &EngineDamageMultGetter, &EngineDamageMultSetter);
+		V8::SetAccessor(isolate, tpl, "petrolTankVolume", &PetrolTankVolumeGetter, &PetrolTankVolumeSetter);
+		V8::SetAccessor(isolate, tpl, "oilVolume", &OilVolumeGetter, &OilVolumeSetter);
+		V8::SetAccessor(isolate, tpl, "unkFloat5", &unkFloat5Getter, &unkFloat5Setter);
+		V8::SetAccessor(isolate, tpl, "seatOffsetDistX", &SeatOffsetDistXGetter, &SeatOffsetDistXSetter);
+		V8::SetAccessor(isolate, tpl, "seatOffsetDistY", &SeatOffsetDistYGetter, &SeatOffsetDistYSetter);
+		V8::SetAccessor(isolate, tpl, "seatOffsetDistZ", &SeatOffsetDistZGetter, &SeatOffsetDistZSetter);
+		V8::SetAccessor(isolate, tpl, "monetaryValue", &MonetaryValueGetter, &MonetaryValueSetter);
+		V8::SetAccessor(isolate, tpl, "modelFlags", &ModelFlagsGetter, &ModelFlagsSetter);
+		V8::SetAccessor(isolate, tpl, "handlingFlags", &HandlingFlagsGetter, &HandlingFlagsSetter);
+		V8::SetAccessor(isolate, tpl, "damageFlags", &DamageFlagsGetter, &DamageFlagsSetter);
 	});

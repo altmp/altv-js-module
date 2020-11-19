@@ -75,14 +75,21 @@ public:
 
 	static v8::MaybeLocal<v8::Module> ResolveModule(v8::Local<v8::Context> ctx, v8::Local<v8::String> specifier, v8::Local<v8::Module> referrer)
 	{
+		auto isolate = ctx->GetIsolate();
 		V8ResourceImpl *resource = V8ResourceImpl::Get(ctx);
 		if (!resource)
 		{
-			ctx->GetIsolate()->ThrowException(v8::Exception::ReferenceError(v8::String::NewFromUtf8(ctx->GetIsolate(), "Invalid resource").ToLocalChecked()));
+			isolate->ThrowException(v8::Exception::ReferenceError(v8::String::NewFromUtf8(ctx->GetIsolate(), "Invalid resource").ToLocalChecked()));
 			return v8::MaybeLocal<v8::Module>{};
 		}
 
-		std::string _specifier = *v8::String::Utf8Value{ctx->GetIsolate(), specifier};
+		std::string _specifier = *v8::String::Utf8Value{isolate, specifier};
+		if(_specifier == resource->GetResource()->GetName().ToString())
+		{
+			isolate->ThrowException(v8::Exception::ReferenceError(v8::String::NewFromUtf8(ctx->GetIsolate(), "Cannot import the resource itself (self-importing)").ToLocalChecked()));
+			return v8::MaybeLocal<v8::Module>{};
+		}
+
 		return static_cast<CV8ResourceImpl *>(resource)->ResolveModule(_specifier, referrer);
 	}
 
