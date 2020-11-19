@@ -55,31 +55,6 @@ public:
 		}
 	}
 
-	void AddGxtText(uint32_t hash, const std::string &text)
-	{
-		std::unique_lock<std::mutex> lock(gxtAccessMutex);
-		if (gxtEntries.count(hash) > 0)
-			gxtEntries[hash] = text;
-		else
-			gxtEntries.insert(std::pair<uint32_t, std::string>(hash, text));
-	}
-
-	void RemoveGxtText(uint32_t hash)
-	{
-		std::unique_lock<std::mutex> lock(gxtAccessMutex);
-		if (gxtEntries.count(hash) > 0)
-			gxtEntries.erase(hash);
-	}
-
-	const std::string &GetGxtText(uint32_t hash)
-	{
-		static std::string emptyString = "";
-		std::unique_lock<std::mutex> lock(gxtAccessMutex);
-		if (gxtEntries.count(hash) > 0)
-			return gxtEntries[hash];
-		return emptyString;
-	}
-
 	void AddOwned(alt::Ref<alt::IBaseObject> handle)
 	{
 		ownedObjects.insert(handle);
@@ -93,32 +68,6 @@ public:
 			webViewHandlers.erase(handle.As<alt::IWebView>());
 
 		V8ResourceImpl::OnRemoveBaseObject(handle);
-	}
-
-	bool ToggleCursor(bool state)
-	{
-		if (cursorsCount > 0 || state)
-		{
-			cursorsCount += state ? 1 : -1;
-			return true;
-		}
-
-		return false;
-	}
-
-	void ToggleGameControls(bool state)
-	{
-		gameControlsEnabled = state;
-	}
-
-	bool CursorVisible()
-	{
-		return cursorsCount > 0;
-	}
-
-	bool GameControlsActive()
-	{
-		return gameControlsEnabled;
 	}
 
 	v8::Local<v8::Object> GetLocalStorage()
@@ -150,14 +99,8 @@ private:
 	std::unordered_map<std::string, v8::UniquePersistent<v8::Module>> modules;
 
 	std::unordered_map<alt::Ref<alt::IWebView>, WebViewEvents> webViewHandlers;
-	std::unordered_map<uint32_t, std::string> gxtEntries;
 
 	std::unordered_set<alt::Ref<alt::IBaseObject>> ownedObjects;
 
 	v8::Persistent<v8::Object> localStorage;
-
-	std::mutex gxtAccessMutex;
-
-	uint32_t cursorsCount = 0;
-	bool gameControlsEnabled = true;
 };
