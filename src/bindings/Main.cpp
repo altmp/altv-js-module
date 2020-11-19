@@ -54,13 +54,12 @@ static void GameControlsEnabled(const v8::FunctionCallbackInfo<v8::Value> &info)
 
 static void ToggleGameControls(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_GET_ISOLATE_CONTEXT_IRESOURCE();
 
 	V8_CHECK_ARGS_LEN(1);
 	V8_ARG_TO_BOOLEAN(1, state);
 
-	CV8ResourceImpl *jsResource = static_cast<CV8ResourceImpl *>(resource);
-	jsResource->ToggleGameControls(state);
+	resource->ToggleGameControls(state);
 }
 
 static void ToggleVoiceControls(const v8::FunctionCallbackInfo<v8::Value> &info)
@@ -77,14 +76,12 @@ static void ToggleVoiceControls(const v8::FunctionCallbackInfo<v8::Value> &info)
 
 static void ShowCursor(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_GET_ISOLATE_CONTEXT_IRESOURCE();
 
 	V8_CHECK_ARGS_LEN(1);
 	V8_ARG_TO_BOOLEAN(1, state);
 
-	CV8ResourceImpl *jsResource = static_cast<CV8ResourceImpl *>(resource);
-
-	if (!jsResource->ToggleCursor(state))
+	if (!resource->ToggleCursor(state))
 	{
 		if (alt::ICore::Instance().IsDebug())
 		{
@@ -196,33 +193,33 @@ static void IsVoiceActivityInputEnabled(const v8::FunctionCallbackInfo<v8::Value
 
 static void AddGxtText(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_GET_ISOLATE_CONTEXT_IRESOURCE();
 
 	V8_CHECK_ARGS_LEN(2);
 	V8_ARG_TO_STRING(1, key);
 	V8_ARG_TO_STRING(2, textValue);
 
-	static_cast<CV8ResourceImpl *>(resource)->AddGxtText(ICore::Instance().Hash(key), textValue.ToString());
+	resource->AddGxtText(ICore::Instance().Hash(key), textValue.ToString());
 }
 
 static void RemoveGxtText(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_GET_ISOLATE_CONTEXT_IRESOURCE();
 
 	V8_CHECK_ARGS_LEN(1);
 	V8_ARG_TO_STRING(1, key);
 
-	static_cast<CV8ResourceImpl *>(resource)->RemoveGxtText(ICore::Instance().Hash(key));
+	resource->RemoveGxtText(ICore::Instance().Hash(key));
 }
 
 static void GetGxtText(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_GET_ISOLATE_CONTEXT_IRESOURCE();
 
 	V8_CHECK_ARGS_LEN(1);
 	V8_ARG_TO_STRING(1, key);
 
-	V8_RETURN_STRING(static_cast<CV8ResourceImpl*>(resource)->GetGxtText(ICore::Instance().Hash(key)).c_str());
+	resource->GetGxtText(ICore::Instance().Hash(key)).c_str();
 }
 
 static void GetMsPerGameMinute(const v8::FunctionCallbackInfo<v8::Value> &info)
