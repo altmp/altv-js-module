@@ -314,4 +314,7 @@ extern V8Module v8Alt("alt",
 	alt::IResource* resource = V8ResourceImpl::GetResource(ctx);
 	V8_CHECK(resource, "invalid resource");
 	exports->Set(isolate->GetEnteredContext(), v8::String::NewFromUtf8(isolate, "resourceName"), v8::String::NewFromUtf8(isolate, resource->GetName().CStr()));
+
+	exports->Set(isolate->GetEnteredContext(), v8::String::NewFromUtf8(isolate, "DefaultDimension"), v8::Integer::New(isolate, alt::DEFAULT_DIMENSION));
+	exports->Set(isolate->GetEnteredContext(), v8::String::NewFromUtf8(isolate, "GlobalDimension"), v8::Integer::New(isolate, alt::GLOBAL_DIMENSION));
 });
