@@ -243,11 +243,28 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value> &info)
 	V8_RETURN_BASE_OBJECT(alt::ICore::Instance().GetEntityByID(id));
 }
 
+static void StaticAllGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+
+	v8::Local<v8::Array> arr = v8::Array::New(isolate);
+
+	uint16_t i = 0;
+	for (auto entity : alt::ICore::Instance().GetEntities())
+	{
+		if (entity)
+			arr->Set(ctx, i++, resource->GetOrCreateEntity(entity.Get(), "Entity")->GetJSVal(isolate));
+	};
+
+	V8_RETURN(arr);
+}
+
 extern V8Class v8WorldObject;
 extern V8Class v8Entity("Entity", v8WorldObject, [](v8::Local<v8::FunctionTemplate> tpl) {
 	v8::Isolate *isolate = v8::Isolate::GetCurrent();
 
 	V8::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
+	V8::SetStaticAccessor(isolate, tpl, "all", StaticAllGetter);
 
 	V8::SetAccessor(isolate, tpl, "id", IDGetter);
 
