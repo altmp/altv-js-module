@@ -461,7 +461,7 @@ void CV8ResourceImpl::OnTick()
 
 	if (GetTime() - time > 10)
 	{
-		Log::Warning << "Resource" << resource->GetName() << "tick was too long" << GetTime() - time, "ms";
+		Log::Warning << "Resource " << resource->GetName() << " tick was too long " << GetTime() - time << " ms" << Log::Endl;
 	}
 
 	for (auto &view : webViewHandlers)
