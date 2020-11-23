@@ -84,11 +84,17 @@ void V8ResourceImpl::OnTick()
 bool V8ResourceImpl::DeleteEntity(alt::Ref<alt::IBaseObject> handle)
 {
 	auto it = entities.find(handle.Get());
-	if(it == entities.end()) return false;
+	if(it == entities.end())
+	{
+		Log::Error << "[JS] Attempted to delete invalid object" << Log::Endl;
+		return false;
+	}
 	
 	delete it->second;
 	entities.erase(it);
 
+	// BAD, SHOULD ONLY BE DONE FOR ENTITIES
+	// THAT WAS CREATED FROM JS
 	resource->RemoveReference(handle);
 
 	return true;
