@@ -135,7 +135,6 @@ static void CentreOfMassOffsetSetter(v8::Local<v8::String>, v8::Local<v8::Value>
 	V8_OBJECT_GET_NUMBER(pos, "y", y);
 	V8_OBJECT_GET_NUMBER(pos, "z", z);
 
-	V8_TO_NUMBER(val, fvalue);
 	vehicle->GetHandling()->SetCentreOfMassOffset({ x, y, z });
 }
 
@@ -157,7 +156,6 @@ static void InertiaMultiplierSetter(v8::Local<v8::String>, v8::Local<v8::Value> 
 	V8_OBJECT_GET_NUMBER(pos, "y", y);
 	V8_OBJECT_GET_NUMBER(pos, "z", z);
 
-	V8_TO_NUMBER(val, fvalue);
 	vehicle->GetHandling()->SetInertiaMultiplier({ x, y, z });
 }
 
