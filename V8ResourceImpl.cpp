@@ -92,11 +92,6 @@ bool V8ResourceImpl::DeleteEntity(alt::Ref<alt::IBaseObject> handle)
 	
 	delete it->second;
 	entities.erase(it);
-
-	// BAD, SHOULD ONLY BE DONE FOR ENTITIES
-	// THAT WAS CREATED FROM JS
-	resource->RemoveReference(handle);
-
 	return true;
 }
 
