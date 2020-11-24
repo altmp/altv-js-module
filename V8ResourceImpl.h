@@ -116,7 +116,6 @@ public:
 		return ent;
 	}
 
-	bool DeleteEntity(alt::Ref<alt::IBaseObject> handle);
 	void BindEntity(v8::Local<v8::Object> val, alt::IBaseObject *handle);
 
 	V8Entity *GetOrCreateEntity(alt::IBaseObject *handle, const char *className = "")

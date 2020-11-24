@@ -81,20 +81,6 @@ void V8ResourceImpl::OnTick()
 	promiseRejections.ProcessQueue(this);
 }
 
-bool V8ResourceImpl::DeleteEntity(alt::Ref<alt::IBaseObject> handle)
-{
-	auto it = entities.find(handle.Get());
-	if(it == entities.end())
-	{
-		Log::Error << "[JS] Attempted to delete invalid object" << Log::Endl;
-		return false;
-	}
-	
-	delete it->second;
-	entities.erase(it);
-	return true;
-}
-
 void V8ResourceImpl::BindEntity(v8::Local<v8::Object> val, alt::IBaseObject *handle)
 {
 	V8Entity *ent = new V8Entity(GetContext(), V8Entity::GetClass(handle), val, handle);
