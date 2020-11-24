@@ -767,7 +767,7 @@ extern V8Module altModule(
 
 		//   V8Helpers::RegisterFunc(exports, "getEntityMemoryByID", &GetEntityMemoryByID);
 
-		// V8Helpers::RegisterFunc(exports, "setRotationVelocity", &SetAngularVelocity);
+		V8Helpers::RegisterFunc(exports, "setRotationVelocity", &SetAngularVelocity);
 		// V8Helpers::RegisterFunc(exports, "setAngularVelocity", &SetAngularVelocity);
 
 		V8Helpers::RegisterFunc(exports, "isInStreamerMode", &IsInStreamerMode);
