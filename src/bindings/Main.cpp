@@ -59,7 +59,7 @@ static void ToggleGameControls(const v8::FunctionCallbackInfo<v8::Value> &info)
 	V8_CHECK_ARGS_LEN(1);
 	V8_ARG_TO_BOOLEAN(1, state);
 
-	resource->ToggleGameControls(state);
+	alt::ICore::Instance().ToggleGameControls(state);
 }
 
 static void ToggleVoiceControls(const v8::FunctionCallbackInfo<v8::Value> &info)
@@ -81,7 +81,7 @@ static void ShowCursor(const v8::FunctionCallbackInfo<v8::Value> &info)
 	V8_CHECK_ARGS_LEN(1);
 	V8_ARG_TO_BOOLEAN(1, state);
 
-	if (!resource->ToggleCursor(state))
+	if (!alt::ICore::Instance().ToggleCursor(state))
 	{
 		if (alt::ICore::Instance().IsDebug())
 		{
@@ -199,7 +199,7 @@ static void AddGxtText(const v8::FunctionCallbackInfo<v8::Value> &info)
 	V8_ARG_TO_STRING(1, key);
 	V8_ARG_TO_STRING(2, textValue);
 
-	resource->AddGxtText(ICore::Instance().Hash(key), textValue.ToString());
+	alt::ICore::Instance().AddGxtText(ICore::Instance().Hash(key), textValue.ToString());
 }
 
 static void RemoveGxtText(const v8::FunctionCallbackInfo<v8::Value> &info)
@@ -209,7 +209,7 @@ static void RemoveGxtText(const v8::FunctionCallbackInfo<v8::Value> &info)
 	V8_CHECK_ARGS_LEN(1);
 	V8_ARG_TO_STRING(1, key);
 
-	resource->RemoveGxtText(ICore::Instance().Hash(key));
+	alt::ICore::Instance().RemoveGxtText(ICore::Instance().Hash(key));
 }
 
 static void GetGxtText(const v8::FunctionCallbackInfo<v8::Value> &info)
@@ -219,7 +219,7 @@ static void GetGxtText(const v8::FunctionCallbackInfo<v8::Value> &info)
 	V8_CHECK_ARGS_LEN(1);
 	V8_ARG_TO_STRING(1, key);
 
-	V8_RETURN_STRING(resource->GetGxtText(ICore::Instance().Hash(key)).c_str());
+	V8_RETURN_STRING(alt::ICore::Instance().GetGxtText(ICore::Instance().Hash(key)).c_str());
 }
 
 static void GetMsPerGameMinute(const v8::FunctionCallbackInfo<v8::Value> &info)
@@ -562,20 +562,18 @@ static void DoesConfigFlagExist(const v8::FunctionCallbackInfo<v8::Value> &info)
 // 	V8_RETURN(buf);
 // }
 
-// static void SetAngularVelocity(const v8::FunctionCallbackInfo<v8::Value> &info)
-// {
-// 	V8_GET_ISOLATE_CONTEXT();
-// 	V8_CHECK_ARGS_LEN(4);
+static void SetAngularVelocity(const v8::FunctionCallbackInfo<v8::Value> &info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+ 	V8_CHECK_ARGS_LEN(4);
 
-// 	V8_ARG_TO_INTEGER(1, id);
-// 	V8_ARG_TO_NUMBER(2, x);
-// 	V8_ARG_TO_NUMBER(3, y);
-// 	V8_ARG_TO_NUMBER(4, z);
+	V8_ARG_TO_INTEGER(1, id);
+ 	V8_ARG_TO_NUMBER(2, x);
+ 	V8_ARG_TO_NUMBER(3, y);
+ 	V8_ARG_TO_NUMBER(4, z);
 
-// 	::CDynamicEntity *ent = funcs::GetEntityFromScriptID<::CDynamicEntity *>(id);
-
-// 	ent->SetAngularVelocity({x, y, z, 0.0});
-// }
+	alt::ICore::Instance().SetAngularVelocity(id, { x, y, z, 0.0 });
+}
 
 static void GetPermissionState(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
