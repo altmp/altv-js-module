@@ -188,7 +188,7 @@ static void Reset(const v8::FunctionCallbackInfo<v8::Value> &info)
 }
 
 // Perhaps rename or something
-extern V8Class v8MapZoomData("MapZoomData", Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
+extern V8Class v8MapZoomData("MapZoomData", &Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
         v8::Isolate *isolate = v8::Isolate::GetCurrent();
 
         v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
