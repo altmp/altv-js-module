@@ -137,13 +137,6 @@ static void IsPointIn(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_RETURN_BOOLEAN(cp->IsPointIn({ x, y, z}));
 }
 
-static void Delete(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-	V8_GET_ISOLATE_CONTEXT_RESOURCE();
-	V8_GET_THIS_BASE_OBJECT(cp, alt::ICheckpoint);
-	V8_CHECK(resource->DeleteEntity(cp), "Could not delete blip");
-}
-
 extern V8Class v8WorldObject;
 extern V8Class v8Checkpoint("Checkpoint", v8WorldObject, Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -156,7 +149,4 @@ extern V8Class v8Checkpoint("Checkpoint", v8WorldObject, Constructor, [](v8::Loc
 
 	V8::SetMethod(isolate, tpl, "isEntityIn", &IsEntityIn);
 	V8::SetMethod(isolate, tpl, "isPointIn", &IsPointIn);
-
-	V8::SetMethod(isolate, tpl, "delete", &Delete);
-	V8::SetMethod(isolate, tpl, "destroy", &Delete);
 });
