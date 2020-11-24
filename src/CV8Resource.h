@@ -85,6 +85,11 @@ public:
 	bool IsValidModule(const std::string &name);
 	std::deque<std::string> GetModuleKeys(const std::string &name);
 	std::string GetModulePath(v8::Local<v8::Module> moduleHandle);
+	v8::Local<v8::Module> GetModuleFromName(const std::string& name, v8::Isolate *isolate) {
+		auto found = modules.find(name);
+		auto module = found->second.Get(isolate);
+		return module;
+	};
 
 	v8::MaybeLocal<v8::Value> Require(const std::string &name);
 	v8::MaybeLocal<v8::Module> ResolveFile(const std::string &name, v8::Local<v8::Module> referrer);
