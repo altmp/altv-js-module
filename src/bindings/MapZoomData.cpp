@@ -3,7 +3,7 @@
 
 extern V8Class v8MapZoomData;
 
-static void Constructor(const v8::FunctionCallbackInfo<v8::Value> &info)
+static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     v8::Isolate *isolate = info.GetIsolate();
     auto ctx = isolate->GetEnteredContext();
@@ -188,7 +188,7 @@ static void Reset(const v8::FunctionCallbackInfo<v8::Value> &info)
 }
 
 // Perhaps rename or something
-extern V8Class v8MapZoomData("MapZoomData", &Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
+extern V8Class v8MapZoomData("MapZoomData", Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
         v8::Isolate *isolate = v8::Isolate::GetCurrent();
 
         v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
@@ -204,5 +204,4 @@ extern V8Class v8MapZoomData("MapZoomData", &Constructor, [](v8::Local<v8::Funct
         V8::SetAccessor(isolate, tpl, "vTilesX", &vTilesXGetter, &vTilesXSetter);
         V8::SetAccessor(isolate, tpl, "vTilesY", &vTilesYGetter, &vTilesYSetter);
         V8::SetMethod(isolate, tpl, "reset", &Reset);
-    },
-    false);
+    });
