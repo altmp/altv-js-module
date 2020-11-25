@@ -141,18 +141,18 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 		auto texture = alt::ICore::Instance().GetTextureFromDrawable(drawableHash, targetTextureStr);
 		V8_CHECK(texture != nullptr, "Texture not found");
 
-		view = altres->CreateWebView(url, (uint32_t)drawableHash, targetTextureStr);
+		view = alt::ICore::Instance().CreateWebView(altres, url, (uint32_t)drawableHash, targetTextureStr);
 		V8_CHECK(!view.IsEmpty(), "Interactive WebView cannot be created");
 	}
 	else if (info.Length() == 2)
 	{
 		V8_ARG_TO_BOOLEAN(2, isOverlayBool);
 
-		view = altres->CreateWebView(url, { 0, 0 }, { 0, 0 }, true, isOverlayBool);
+		view = alt::ICore::Instance().CreateWebView(altres, url, { 0, 0 }, { 0, 0 }, true, isOverlayBool);
 	}
 	else
 	{
-		view = altres->CreateWebView(url, { 0, 0 }, { 0, 0 }, true, false);
+		view = alt::ICore::Instance().CreateWebView(altres, url, { 0, 0 }, { 0, 0 }, true, false);
 	}
 
 	V8_BIND_BASE_OBJECT(view);

@@ -20,8 +20,7 @@ static void ConstructorAreaBlip(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_ARG_TO_NUMBER(4, width);
 	V8_ARG_TO_NUMBER(5, height);
 
-	alt::IResource* res = V8ResourceImpl::GetResource(isolate->GetEnteredContext());
-    alt::Ref<alt::IBlip> blip = res->CreateBlip({ x, y, z }, width, height);
+    alt::Ref<alt::IBlip> blip = alt::ICore::Instance().CreateBlip({ x, y, z }, width, height);
 	V8_BIND_BASE_OBJECT(blip);
 }
 
@@ -35,8 +34,7 @@ static void ConstructorRadiusBlip(const v8::FunctionCallbackInfo<v8::Value>& inf
 	V8_ARG_TO_NUMBER(3, z);
 	V8_ARG_TO_NUMBER(4, radius);
 
-	alt::IResource* res = V8ResourceImpl::GetResource(isolate->GetEnteredContext());
-    alt::Ref<alt::IBlip> blip = res->CreateBlip({ x, y, z }, radius);
+    alt::Ref<alt::IBlip> blip = alt::ICore::Instance().CreateBlip({ x, y, z }, radius);
 	V8_BIND_BASE_OBJECT(blip);
 }
 
@@ -49,8 +47,7 @@ static void ConstructorPointBlip(const v8::FunctionCallbackInfo<v8::Value>& info
 	V8_ARG_TO_NUMBER(2, y);
 	V8_ARG_TO_NUMBER(3, z);
 
-	alt::IResource* res = V8ResourceImpl::GetResource(isolate->GetEnteredContext());
-    alt::Ref<alt::IBlip> blip = res->CreateBlip(alt::IBlip::BlipType::DESTINATION, { x, y, z });
+    alt::Ref<alt::IBlip> blip = alt::ICore::Instance().CreateBlip(alt::IBlip::BlipType::DESTINATION, { x, y, z });
 	V8_BIND_BASE_OBJECT(blip);
 }
 
@@ -61,8 +58,7 @@ static void ConstructorPedBlip(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_CHECK_ARGS_LEN(1);
 	V8_ARG_TO_INTEGER(1, pedId);
 
-	alt::IResource* res = V8ResourceImpl::GetResource(isolate->GetEnteredContext());
-    alt::Ref<alt::IBlip> blip = res->CreateBlip(alt::IBlip::BlipType::PED, pedId);
+    alt::Ref<alt::IBlip> blip = alt::ICore::Instance().CreateBlip(alt::IBlip::BlipType::PED, pedId);
 	V8_BIND_BASE_OBJECT(blip);
 }
 
@@ -73,10 +69,7 @@ static void ConstructorVehicleBlip(const v8::FunctionCallbackInfo<v8::Value>& in
 	V8_CHECK_ARGS_LEN(1);
 	V8_ARG_TO_INTEGER(1, vehicleId);
 
-	alt::IResource* res = V8ResourceImpl::GetResource(isolate->GetEnteredContext());
-    alt::Ref<alt::IBlip> blip = res->CreateBlip(alt::IBlip::BlipType::VEHICLE, vehicleId);
-
-
+    alt::Ref<alt::IBlip> blip = alt::ICore::Instance().CreateBlip(alt::IBlip::BlipType::VEHICLE, vehicleId);
 	V8_BIND_BASE_OBJECT(blip);
 }
 
@@ -577,13 +570,6 @@ static void Fade(const v8::FunctionCallbackInfo<v8::Value>& info)
     blip->Fade(opacity, duration);
 }
 
-static void Delete(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-	V8_GET_ISOLATE_CONTEXT_RESOURCE();
-	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
-	V8_CHECK(resource->DeleteEntity(blip), "Could not delete blip");
-}
-
 extern V8Class v8WorldObject;
 extern V8Class v8Blip("Blip", v8WorldObject, Constructor, [](v8::Local<v8::FunctionTemplate> tpl){
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -621,8 +607,6 @@ extern V8Class v8Blip("Blip", v8WorldObject, Constructor, [](v8::Local<v8::Funct
 	V8::SetAccessor(isolate, tpl, "shrinked", &ShrinkedGetter, &ShrinkedSetter);
 
 	V8::SetMethod(isolate, tpl, "fade", &Fade);
-	V8::SetMethod(isolate, tpl, "delete", &Delete);
-	V8::SetMethod(isolate, tpl, "destroy", &Delete);
 });
 
 extern V8Class v8AreaBlip("AreaBlip", v8Blip, ConstructorAreaBlip, [](v8::Local<v8::FunctionTemplate> tpl) {
