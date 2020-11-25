@@ -310,29 +310,59 @@ namespace V8
 	v8::Local<v8::Object> val; \
 	V8_CHECK(V8::SafeToObject((v8Val), ctx, val), "Failed to convert value to object")
 
-#define V8_OBJECT_GET_NUMBER(v8Val, prop, val) \
-	V8_TO_NUMBER((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)
+#ifdef ALT_SERVER_API
 
-#define V8_OBJECT_SET_NUMBER(v8Val, prop, val) \
-	(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::Number::New(isolate, val));
+	#define V8_OBJECT_GET_NUMBER(v8Val, prop, val) \
+		V8_TO_NUMBER((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop)).ToLocalChecked(), val)
 
-#define V8_OBJECT_GET_INTEGER(v8Val, prop, val) \
-	V8_TO_INTEGER((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)
+	#define V8_OBJECT_SET_NUMBER(v8Val, prop, val) \
+		(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop), v8::Number::New(isolate, val));
 
-#define V8_OBJECT_SET_INTEGER(v8Val, prop, val) \
-	(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::Integer::New(isolate, val));
+	#define V8_OBJECT_GET_INTEGER(v8Val, prop, val) \
+		V8_TO_INTEGER((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop)).ToLocalChecked(), val)
 
-#define V8_OBJECT_GET_BOOLEAN(v8Val, prop, val) \
-	V8_TO_BOOLEAN((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)
+	#define V8_OBJECT_SET_INTEGER(v8Val, prop, val) \
+		(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop), v8::Integer::New(isolate, val));
 
-#define V8_OBJECT_SET_BOOLEAN(v8Val, prop, val) \
-	(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::Boolean::New(isolate, val));
+	#define V8_OBJECT_GET_BOOLEAN(v8Val, prop, val) \
+		V8_TO_BOOLEAN((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop)).ToLocalChecked(), val)
 
-#define V8_OBJECT_GET_STRING(v8Val, prop, val) \
-	V8_TO_STRING((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)
+	#define V8_OBJECT_SET_BOOLEAN(v8Val, prop, val) \
+		(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop), v8::Boolean::New(isolate, val));
 
-#define V8_OBJECT_SET_STRING(v8Val, prop, val) \
-	(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::String::NewFromUtf8(isolate, val.CStr()).ToLocalChecked());
+	#define V8_OBJECT_GET_STRING(v8Val, prop, val) \
+		V8_TO_STRING((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop)).ToLocalChecked(), val)
+
+	#define V8_OBJECT_SET_STRING(v8Val, prop, val) \
+		(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop), v8::String::NewFromUtf8(isolate, val.CStr()));
+
+#else
+
+	#define V8_OBJECT_GET_NUMBER(v8Val, prop, val) \
+		V8_TO_NUMBER((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)
+
+	#define V8_OBJECT_SET_NUMBER(v8Val, prop, val) \
+		(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::Number::New(isolate, val));
+
+	#define V8_OBJECT_GET_INTEGER(v8Val, prop, val) \
+		V8_TO_INTEGER((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)
+
+	#define V8_OBJECT_SET_INTEGER(v8Val, prop, val) \
+		(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::Integer::New(isolate, val));
+
+	#define V8_OBJECT_GET_BOOLEAN(v8Val, prop, val) \
+		V8_TO_BOOLEAN((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)
+
+	#define V8_OBJECT_SET_BOOLEAN(v8Val, prop, val) \
+		(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::Boolean::New(isolate, val));
+
+	#define V8_OBJECT_GET_STRING(v8Val, prop, val) \
+		V8_TO_STRING((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)
+
+	#define V8_OBJECT_SET_STRING(v8Val, prop, val) \
+		(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::String::NewFromUtf8(isolate, val.CStr()).ToLocalChecked());
+
+#endif
 
 #define V8_NEW_OBJECT(val) \
 	v8::Local<v8::Object> val = v8::Object::New(isolate);
