@@ -79,10 +79,6 @@ static void GetAddress(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-#ifdef NDEBUG
-	V8_CHECK(CGame::Instance().IsDebug() && IsDevOrInternalBranch(), "must be in debug mode and dev branch to get the address of memory buffers");
-#endif
-
 	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
 	V8_CHECK(resource, "Invalid resource");
 
@@ -126,9 +122,6 @@ static void GetDataOfType(const v8::FunctionCallbackInfo<v8::Value>& info)
 		return;
 	}
 
-#ifdef NDEBUG
-	if(!(CGame::Instance().IsDebug() && std::string(ALTV_BRANCH)=="dev"))
-#endif
 	{
 		if (isString)
 		{
