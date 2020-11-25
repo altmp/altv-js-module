@@ -137,10 +137,10 @@ public:
 
 	using ResourcesLoadedCallback = void (*)(v8::Local<v8::Context> context, v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, const void* promise);
 
-	class ResourceLoadResult
+	class ResourcesLoadedResult
 	{
 	public:
-		ResourceLoadResult(v8::Local<v8::Context> context, v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, const void* promise, ResourcesLoadedCallback cb)
+		ResourcesLoadedResult(v8::Local<v8::Context> context, v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, const void* promise, ResourcesLoadedCallback cb)
 		{
 			_context = context;
 			_referrer = referrer;
@@ -157,11 +157,16 @@ public:
 
 		void call()
 		{
+			if (&_promise == nullptr) return;
 			_callback(_context, _referrer, _specifier, &_promise);
 		}
 	};
 
-	std::list<ResourceLoadResult> onAllResourcesLoadedCallbacks;
-	void OnAllResourcesLoaded(ResourceLoadResult result);
+	std::list<ResourcesLoadedResult> onAllResourcesLoadedCallbacks;
+	void OnAllResourcesLoaded(ResourcesLoadedResult result)
+	{
+		if (_allResourcesLoaded) result.call();
+		else onAllResourcesLoadedCallbacks.emplace_back(result);
+	};
 	bool _allResourcesLoaded = false;
 };

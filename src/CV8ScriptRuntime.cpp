@@ -62,9 +62,9 @@ CV8ScriptRuntime::CV8ScriptRuntime()
 	{
 		v8::Isolate* isolate = context->GetIsolate();
 		auto promise = v8::Promise::Resolver::New(context);
-		auto& persistent = promises.emplace_back(v8::UniquePersistent<v8::Promise::Resolver>(isolate, promise.ToLocalChecked()));
+		auto &persistent = promises.emplace_back(v8::UniquePersistent<v8::Promise::Resolver>(isolate, promise.ToLocalChecked()));
 
-		auto result = CV8ScriptRuntime::ResourceLoadResult(context, referrer, specifier, &persistent, 
+		auto result = CV8ScriptRuntime::ResourcesLoadedResult(context, referrer, specifier, &persistent,
 			[](v8::Local<v8::Context> context, v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, const void* original)
 			{
 				v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -81,23 +81,32 @@ CV8ScriptRuntime::CV8ScriptRuntime()
 				V8ResourceImpl* resource = V8ResourceImpl::Get(ctx);
 
 				auto module = static_cast<CV8ResourceImpl*>(resource)->GetModuleFromName(name, isolate);
+				if(module.IsEmpty())
+					resolver->Reject(ctx, v8::Exception::ReferenceError(v8::String::NewFromUtf8(isolate, "Module could not be found").ToLocalChecked()));
 				auto resolved = CV8ScriptRuntime::ResolveModule(ctx, specifier, module);
+				Log::Info << "Resolved" << Log::Endl;	
 				v8::Local<v8::Module> outModule;
 
-				if (resolved.IsEmpty() || !resolved.ToLocal(&outModule))
+				if (resolved.IsEmpty() || !resolved.ToLocal(&outModule)) {
+					Log::Info << "FuckNo" << Log::Endl;
 					resolver->Reject(ctx, v8::Exception::ReferenceError(v8::String::NewFromUtf8(isolate, "Module could not be found").ToLocalChecked()));
+					Log::Info << "Fuck" << Log::Endl;
+				}
 				else
 				{
-					Log::Info << std::to_string(outModule->GetStatus()) << Log::Endl;
-					if (outModule->GetStatus() != v8::Module::Status::kInstantiated) {
+					Log::Info << "Status: " << std::to_string(outModule->GetStatus()) << Log::Endl;
+					if (outModule->GetStatus() != v8::Module::Status::kInstantiated) 
 						outModule->InstantiateModule(ctx, CV8ScriptRuntime::ResolveModule);
-					}
-					Log::Info << std::to_string(outModule->GetStatus()) << Log::Endl;
-					outModule->Evaluate(ctx);
-					Log::Info << std::to_string(outModule->GetStatus()) << Log::Endl;
-					resolver->Resolve(ctx, outModule->GetModuleNamespace());
-					Log::Info << "1" << Log::Endl;
-					//resolver->Resolve(ctx, v8::String::NewFromUtf8(isolate, "Fuck").ToLocalChecked());
+					Log::Info << "Status2: " << std::to_string(outModule->GetStatus()) << Log::Endl;
+					if (outModule->GetStatus() != v8::Module::Status::kEvaluated) 
+						outModule->Evaluate(ctx);
+					Log::Info << "Status3: " << std::to_string(outModule->GetStatus()) << Log::Endl;
+					//resolver->Resolve(ctx, outModule->GetModuleNamespace());
+					Log::Info << "Ctx: " << std::to_string(ctx.IsEmpty()) << Log::Endl;
+					Log::Info << "Isolate: " << std::to_string(isolate == nullptr) << Log::Endl;
+					auto str = v8::String::NewFromUtf8(isolate, "Fuck").ToLocalChecked();
+					Log::Info << "test" << Log::Endl;
+					resolver->Resolve(ctx, str);
 				}
 				promises.remove(*persistent);
 			});
@@ -130,10 +139,4 @@ CV8ScriptRuntime::CV8ScriptRuntime()
 		extern V8Module altModule, nativesModule;
 		V8Module::Add({altModule, nativesModule});
 	}
-}
-
-void CV8ScriptRuntime::OnAllResourcesLoaded(CV8ScriptRuntime::ResourceLoadResult result)
-{
-	if (_allResourcesLoaded) result.call();
-	else onAllResourcesLoadedCallbacks.emplace_back(result);
 }
