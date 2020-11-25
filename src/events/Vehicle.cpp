@@ -48,6 +48,7 @@ V8::LocalEventHandler netOwnerChange(
 		auto ev = static_cast<const alt::CNetOwnerChangeEvent*>(e);
 
 		args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
-		args.push_back(resource->GetBaseObjectOrNull(ev->GetPlayer()));
+		args.push_back(resource->GetBaseObjectOrNull(ev->GetNewOwner()));
+		args.push_back(resource->GetBaseObjectOrNull(ev->GetOldOwner()));
 	}
 );
