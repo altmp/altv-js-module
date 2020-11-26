@@ -658,15 +658,6 @@ static void TakeScreenshotGameOnly(const v8::FunctionCallbackInfo<v8::Value> &in
 	V8_RETURN(persistent.Get(isolate)->GetPromise());
 }
 
-static void ResourceNameGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	V8_GET_ISOLATE_CONTEXT();
-
-	auto res = static_cast<CV8ResourceImpl*>(CV8ResourceImpl::Get(ctx));
-
-	V8_RETURN_STRING(res->GetResource()->GetName().CStr());
-}
-
 extern V8Class v8Vector3,
 	v8RGBA,
 	v8BaseObject,
