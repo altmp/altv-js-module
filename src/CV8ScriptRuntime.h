@@ -135,21 +135,19 @@ public:
 		}
 	};
 
-	using ResourcesLoadedCallback = void (*)(v8::Local<v8::Context> context, v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, const void* promise);
+	using ResourcesLoadedCallback = void (*)(v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, const void* promise);
 
 	class ResourcesLoadedResult
 	{
 	public:
-		ResourcesLoadedResult(v8::Local<v8::Context> context, v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, const void* promise, ResourcesLoadedCallback cb)
+		ResourcesLoadedResult(v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, const void* promise, ResourcesLoadedCallback cb)
 		{
-			_context = context;
 			_referrer = referrer;
 			_specifier = specifier;
 			_promise = promise;
 			_callback = cb;
 		}
 
-		v8::Local<v8::Context> _context;
 		v8::Local<v8::ScriptOrModule> _referrer;
 		v8::Local<v8::String> _specifier;
 		ResourcesLoadedCallback _callback;
@@ -158,7 +156,7 @@ public:
 		void call()
 		{
 			if (&_promise == nullptr) return;
-			_callback(_context, _referrer, _specifier, &_promise);
+			_callback(_referrer, _specifier, &_promise);
 		}
 	};
 
