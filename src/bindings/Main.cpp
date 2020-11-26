@@ -219,7 +219,7 @@ static void GetGxtText(const v8::FunctionCallbackInfo<v8::Value> &info)
 	V8_CHECK_ARGS_LEN(1);
 	V8_ARG_TO_STRING(1, key);
 
-	resource->GetGxtText(ICore::Instance().Hash(key)).c_str();
+	V8_RETURN_STRING(resource->GetGxtText(ICore::Instance().Hash(key)).c_str());
 }
 
 static void GetMsPerGameMinute(const v8::FunctionCallbackInfo<v8::Value> &info)
@@ -562,20 +562,18 @@ static void DoesConfigFlagExist(const v8::FunctionCallbackInfo<v8::Value> &info)
 // 	V8_RETURN(buf);
 // }
 
-// static void SetAngularVelocity(const v8::FunctionCallbackInfo<v8::Value> &info)
-// {
-// 	V8_GET_ISOLATE_CONTEXT();
-// 	V8_CHECK_ARGS_LEN(4);
+static void SetAngularVelocity(const v8::FunctionCallbackInfo<v8::Value> &info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+ 	V8_CHECK_ARGS_LEN(4);
 
-// 	V8_ARG_TO_INTEGER(1, id);
-// 	V8_ARG_TO_NUMBER(2, x);
-// 	V8_ARG_TO_NUMBER(3, y);
-// 	V8_ARG_TO_NUMBER(4, z);
+	V8_ARG_TO_INTEGER(1, id);
+ 	V8_ARG_TO_NUMBER(2, x);
+ 	V8_ARG_TO_NUMBER(3, y);
+ 	V8_ARG_TO_NUMBER(4, z);
 
-// 	::CDynamicEntity *ent = funcs::GetEntityFromScriptID<::CDynamicEntity *>(id);
-
-// 	ent->SetAngularVelocity({x, y, z, 0.0});
-// }
+	alt::ICore::Instance().SetAngularVelocity(id, { x, y, z, 0.0 });
+}
 
 static void GetPermissionState(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
@@ -769,7 +767,7 @@ extern V8Module altModule(
 
 		//   V8Helpers::RegisterFunc(exports, "getEntityMemoryByID", &GetEntityMemoryByID);
 
-		// V8Helpers::RegisterFunc(exports, "setRotationVelocity", &SetAngularVelocity);
+		V8Helpers::RegisterFunc(exports, "setRotationVelocity", &SetAngularVelocity);
 		// V8Helpers::RegisterFunc(exports, "setAngularVelocity", &SetAngularVelocity);
 
 		V8Helpers::RegisterFunc(exports, "isInStreamerMode", &IsInStreamerMode);
