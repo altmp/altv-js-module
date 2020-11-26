@@ -593,6 +593,17 @@ std::string CV8ResourceImpl::GetModulePath(v8::Local<v8::Module> moduleHandle)
 	return std::string{};
 }
 
+v8::Local<v8::Module> CV8ResourceImpl::GetModuleFromPath(std::string modulePath)
+{
+	for (auto& md : modules)
+	{
+		if (md.first == modulePath)
+			return md.second.Get(isolate);
+	}
+
+	return v8::Local<v8::Module>{};
+}
+
 static bool IsSystemModule(const std::string &name)
 {
 	return V8Module::Exists(name);
