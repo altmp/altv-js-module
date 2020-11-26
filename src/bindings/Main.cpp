@@ -658,6 +658,15 @@ static void TakeScreenshotGameOnly(const v8::FunctionCallbackInfo<v8::Value> &in
 	V8_RETURN(persistent.Get(isolate)->GetPromise());
 }
 
+static void ResourceNameGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+
+	auto res = static_cast<CV8ResourceImpl*>(CV8ResourceImpl::Get(ctx));
+
+	V8_RETURN_STRING(res->GetResource()->GetName().CStr());
+}
+
 extern V8Class v8Vector3,
 	v8RGBA,
 	v8BaseObject,
@@ -774,4 +783,10 @@ extern V8Module altModule(
 
 		V8Helpers::RegisterFunc(exports, "takeScreenshot", &TakeScreenshot);
 		V8Helpers::RegisterFunc(exports, "takeScreenshotGameOnly", &TakeScreenshotGameOnly);
+
+		v8::Isolate* isolate = ctx->GetIsolate();
+		alt::IResource* resource = V8ResourceImpl::GetResource(ctx);
+		V8_CHECK(resource, "invalid resource");
+		auto resourceName = resource->GetName().CStr();
+		exports->Set(ctx, v8::String::NewFromUtf8(isolate, "resourceName").ToLocalChecked(), v8::String::NewFromUtf8(isolate, resourceName).ToLocalChecked());
 	});
