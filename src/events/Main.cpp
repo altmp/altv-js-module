@@ -23,7 +23,7 @@ V8::EventHandler clientScriptEvent(
 	},
 	[](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
 		auto ev = static_cast<const alt::CClientScriptEvent*>(e);
-
+		args.push_back(v8::String::NewFromUtf8(resource->GetIsolate(), ev->GetName().CStr()));
 		args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
 		V8Helpers::MValueArgsToV8(ev->GetArgs(), args);
 	}
@@ -37,6 +37,7 @@ V8::EventHandler serverScriptEvent(
 	},
 	[](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
 		auto ev = static_cast<const alt::CServerScriptEvent*>(e);
+		args.push_back(v8::String::NewFromUtf8(resource->GetIsolate(), ev->GetName().CStr()));
 		V8Helpers::MValueArgsToV8(ev->GetArgs(), args);
 	}
 );
@@ -53,6 +54,11 @@ V8::EventHandler colshapeEvent(
 	},
 	[](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
 		auto ev = static_cast<const alt::CColShapeEvent*>(e);
+
+		if (ev->GetState())
+			args.push_back(v8::String::NewFromUtf8(resource->GetIsolate(), "entityEnterColshape"));
+		else
+			args.push_back(v8::String::NewFromUtf8(resource->GetIsolate(), "entityLeaveColshape"));
 
 		args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
 		args.push_back(resource->GetBaseObjectOrNull(ev->GetEntity()));

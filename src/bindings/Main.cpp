@@ -9,30 +9,54 @@ static void OnClient(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	v8::Isolate* isolate = info.GetIsolate();
 
-	V8_CHECK(info.Length() == 2, "2 args expected");
-	V8_CHECK(info[0]->IsString(), "string expected");
-	V8_CHECK(info[1]->IsFunction(), "function expected");
+	V8_CHECK(info.Length() == 1 || info.Length() == 2, "onClient expects 1 or 2 args");
+
+	std::string evName;
+	v8::Local<v8::Function> callback;
+
+	if (info.Length() == 1) {
+		V8_CHECK(info[0]->IsFunction(), "callback must be a function");
+		evName = std::string();
+		callback = info[0].As<v8::Function>();
+	}
+	else {
+		V8_CHECK(info[0]->IsString(), "eventName must be a string");
+		V8_CHECK(info[1]->IsFunction(), "callback must be a function");
+		evName = *v8::String::Utf8Value(info.GetIsolate(), info[0].As<v8::String>());
+		callback = info[1].As<v8::Function>();
+	}
 
 	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
 	V8_CHECK(resource, "invalid resource");
 
-	v8::String::Utf8Value evName(isolate, info[0]);
-	resource->SubscribeRemote(*evName, info[1].As<v8::Function>(), V8::SourceLocation::GetCurrent(isolate));
+	resource->SubscribeRemote(evName, callback, V8::SourceLocation::GetCurrent(isolate));
 }
 
 static void OffClient(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	v8::Isolate* isolate = info.GetIsolate();
 
-	V8_CHECK(info.Length() == 2, "2 args expected");
-	V8_CHECK(info[0]->IsString(), "string expected");
-	V8_CHECK(info[1]->IsFunction(), "function expected");
+	V8_CHECK(info.Length() == 1 || info.Length() == 2, "OffClient expects 1 or 2 args");
+
+	std::string evName;
+	v8::Local<v8::Function> callback;
+
+	if (info.Length() == 1) {
+		V8_CHECK(info[0]->IsFunction(), "callback must be a function");
+		evName = std::string();
+		callback = info[0].As<v8::Function>();
+	}
+	else {
+		V8_CHECK(info[0]->IsString(), "eventName must be a string");
+		V8_CHECK(info[1]->IsFunction(), "callback must be a function");
+		evName = *v8::String::Utf8Value(info.GetIsolate(), info[0].As<v8::String>());
+		callback = info[1].As<v8::Function>();
+	}
 
 	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
 	V8_CHECK(resource, "invalid resource");
 
-	v8::String::Utf8Value evName(isolate, info[0]);
-	resource->UnsubscribeRemote(*evName, info[1].As<v8::Function>());
+	resource->UnsubscribeRemote(evName, callback);
 }
 
 static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -103,7 +127,7 @@ static void GetPlayersByName(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 	alt::Array<Ref<alt::IPlayer>> players = alt::ICore::Instance().GetPlayersByName(*name);
 	v8::Local<v8::Array> arr = v8::Array::New(isolate, players.GetSize());
-	
+
 	for (uint32_t i = 0; i < players.GetSize(); ++i)
 		arr->Set(i, resource->GetBaseObjectOrNull(players[i]));
 
