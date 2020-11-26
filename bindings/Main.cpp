@@ -262,7 +262,13 @@ void V8::RegisterSharedMain(v8::Local<v8::Context> ctx, v8::Local<v8::Object> ex
 	V8Helpers::RegisterFunc(exports, "clearTimeout", &ClearTimer);
 	V8Helpers::RegisterFunc(exports, "clearInterval", &ClearTimer);
 
+#ifdef ALT_SERVER_API
+	V8::DefineOwnProperty(isolate, ctx, exports, "version", v8::String::NewFromUtf8(isolate, alt::ICore::Instance().GetVersion().CStr()));
+	V8::DefineOwnProperty(isolate, ctx, exports, "branch", v8::String::NewFromUtf8(isolate, alt::ICore::Instance().GetBranch().CStr()));
+#else 
 	V8::DefineOwnProperty(isolate, ctx, exports, "version", v8::String::NewFromUtf8(isolate, alt::ICore::Instance().GetVersion().CStr()).ToLocalChecked());
 	V8::DefineOwnProperty(isolate, ctx, exports, "branch", v8::String::NewFromUtf8(isolate, alt::ICore::Instance().GetBranch().CStr()).ToLocalChecked());
+#endif
+
 	V8::DefineOwnProperty(isolate, ctx, exports, "sdkVersion", v8::Integer::New(isolate, alt::ICore::Instance().SDK_VERSION));
 }
