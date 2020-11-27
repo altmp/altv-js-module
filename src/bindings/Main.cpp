@@ -774,4 +774,10 @@ extern V8Module altModule(
 
 		V8Helpers::RegisterFunc(exports, "takeScreenshot", &TakeScreenshot);
 		V8Helpers::RegisterFunc(exports, "takeScreenshotGameOnly", &TakeScreenshotGameOnly);
+
+		v8::Isolate* isolate = ctx->GetIsolate();
+		alt::IResource* resource = V8ResourceImpl::GetResource(ctx);
+		V8_CHECK(resource, "invalid resource");
+		auto resourceName = resource->GetName().CStr();
+		exports->Set(ctx, v8::String::NewFromUtf8(isolate, "resourceName").ToLocalChecked(), v8::String::NewFromUtf8(isolate, resourceName).ToLocalChecked());
 	});
