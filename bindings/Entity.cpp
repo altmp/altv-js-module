@@ -58,7 +58,7 @@ static void ModelGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8
 
 	V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
 
-	V8_RETURN_INTEGER(ent->GetModel());
+	V8_RETURN_UINT32(ent->GetModel());
 }
 
 static void HasSyncedMeta(const v8::FunctionCallbackInfo<v8::Value> &info)
