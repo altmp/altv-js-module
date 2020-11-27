@@ -394,21 +394,20 @@ static void SetDateTime(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
 
-	v8::Local<v8::Integer> day = info[0]->ToInteger(isolate);
-	v8::Local<v8::Integer> month = info[1]->ToInteger(isolate);
-	v8::Local<v8::Integer> year = info[2]->ToInteger(isolate);
-	v8::Local<v8::Integer> hour = info[3]->ToInteger(isolate);
-	v8::Local<v8::Integer> minute = info[4]->ToInteger(isolate);
-	v8::Local<v8::Integer> second = info[5]->ToInteger(isolate);
+	auto day = info[0]->ToInteger(isolate)->Value();
+	V8_CLAMP(day, 0, 30);
+	auto month = info[1]->ToInteger(isolate)->Value();
+	V8_CLAMP(day, 0, 11);
+	auto year = info[2]->ToInteger(isolate)->Value();
+	V8_CLAMP(day, 0, 9999);
+	auto hour = info[3]->ToInteger(isolate)->Value();
+	V8_CLAMP(day, 0, 23);
+	auto minute = info[4]->ToInteger(isolate)->Value();
+	V8_CLAMP(day, 0, 59);
+	auto second = info[5]->ToInteger(isolate)->Value();
+	V8_CLAMP(second, 0, 59);
 
-	player->SetDateTime(
-		day->Value() > 31 ? 31 : day->Value(),
-		month->Value() > 11 ? 11 : month->Value(), 
-		year->Value(),
-		hour->Value() > 23 ? 23 : hour->Value(), 
-		minute->Value() > 59 ? 59 : minute->Value(), 
-		second->Value() > 59 ? 59 : minute->Value()
-	);
+	player->SetDateTime(day, month, year, hour, minute, second);
 }
 
 static void SetWeather(const v8::FunctionCallbackInfo<v8::Value>& info)
