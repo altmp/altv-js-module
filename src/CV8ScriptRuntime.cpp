@@ -4,8 +4,6 @@
 #include "inspector/CV8InspectorChannel.h"
 #include "helpers/V8Module.h"
 
-v8::Persistent<v8::Function> host_import_module_dynamically_callback;
-
 CV8ScriptRuntime::CV8ScriptRuntime()
 {
 	CV8ScriptRuntime::SetInstance(this);
