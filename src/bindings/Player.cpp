@@ -401,7 +401,14 @@ static void SetDateTime(const v8::FunctionCallbackInfo<v8::Value>& info)
 	v8::Local<v8::Integer> minute = info[4]->ToInteger(isolate);
 	v8::Local<v8::Integer> second = info[5]->ToInteger(isolate);
 
-	player->SetDateTime(day->Value(), month->Value() > 11 ? 11 : month->Value(), year->Value(), hour->Value(), minute->Value(), second->Value());
+	player->SetDateTime(
+		day->Value() > 31 ? 31 : day->Value(),
+		month->Value() > 11 ? 11 : month->Value(), 
+		year->Value(),
+		hour->Value() > 23 ? 23 : hour->Value(), 
+		minute->Value() > 59 ? 59 : minute->Value(), 
+		second->Value() > 59 ? 59 : minute->Value()
+	);
 }
 
 static void SetWeather(const v8::FunctionCallbackInfo<v8::Value>& info)
