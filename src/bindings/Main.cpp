@@ -311,10 +311,6 @@ extern V8Module v8Alt("alt",
 	alt::StringView rootDir = alt::ICore::Instance().GetRootDirectory();
 	exports->Set(isolate->GetEnteredContext(), v8::String::NewFromUtf8(isolate, "rootDir"), v8::String::NewFromUtf8(isolate, rootDir.CStr()));
 
-	alt::IResource* resource = V8ResourceImpl::GetResource(ctx);
-	V8_CHECK(resource, "invalid resource");
-	exports->Set(isolate->GetEnteredContext(), v8::String::NewFromUtf8(isolate, "resourceName"), v8::String::NewFromUtf8(isolate, resource->GetName().CStr()));
-
 	exports->Set(isolate->GetEnteredContext(), v8::String::NewFromUtf8(isolate, "defaultDimension"), v8::Integer::New(isolate, alt::DEFAULT_DIMENSION));
 	exports->Set(isolate->GetEnteredContext(), v8::String::NewFromUtf8(isolate, "globalDimension"), v8::Integer::New(isolate, alt::GLOBAL_DIMENSION));
 });
