@@ -589,6 +589,14 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
 	}
 }
 
+static void ClearBloodDamage(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+	player->ClearBloodDamage();
+}
+
 extern V8Class v8Entity;
 extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -637,4 +645,6 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
 	proto->Set(v8::String::NewFromUtf8(isolate, "setWeaponTintIndex"), v8::FunctionTemplate::New(isolate, &SetWeaponTintIndex));
 
 	proto->Set(v8::String::NewFromUtf8(isolate, "kick"), v8::FunctionTemplate::New(isolate, &Kick));
+
+	proto->Set(v8::String::NewFromUtf8(isolate, "clearBloodDamage"), v8::FunctionTemplate::New(isolate, &ClearBloodDamage));
 });
