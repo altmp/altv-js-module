@@ -148,7 +148,6 @@ public:
 
 		void call()
 		{
-			if (&_promise == nullptr) return;
 			_callback(_referrer, _specifier, _promise);
 		}
 	};
