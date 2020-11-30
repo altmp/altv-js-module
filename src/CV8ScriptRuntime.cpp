@@ -55,7 +55,7 @@ CV8ScriptRuntime::CV8ScriptRuntime()
 		}
 	});
 
-	static std::list<v8::UniquePersistent<v8::Promise::Resolver>> promises;
+	std::list<v8::UniquePersistent<v8::Promise::Resolver>> promises;
 	isolate->SetHostImportModuleDynamicallyCallback([](v8::Local<v8::Context> context, v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier)
 	{
 		v8::Isolate* isolate = context->GetIsolate();
@@ -101,9 +101,9 @@ CV8ScriptRuntime::CV8ScriptRuntime()
 					}
 					else
 					{
-						if (outModule->GetStatus() != v8::Module::Status::kInstantiated)
+						if (outModule->GetStatus() < v8::Module::Status::kInstantiating)
 							outModule->InstantiateModule(context, CV8ScriptRuntime::ResolveModule);
-						if (outModule->GetStatus() != v8::Module::Status::kEvaluated)
+						if (outModule->GetStatus() < v8::Module::Status::kEvaluating)
 							outModule->Evaluate(context);
 						resolver->Resolve(context, outModule->GetModuleNamespace());
 					}
