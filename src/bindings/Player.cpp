@@ -478,6 +478,21 @@ static void RemoveAllWeapons(const v8::FunctionCallbackInfo<v8::Value>& info)
 	player->RemoveAllWeapons();
 }
 
+static void ClearBloodDamage(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	v8::Isolate* isolate = info.GetIsolate();
+
+	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
+	V8_CHECK(resource, "invalid resource");
+
+	V8Entity* _this = V8Entity::Get(info.This());
+	V8_CHECK(_this, "entity is invalid");
+
+	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
+
+	player->ClearBloodDamage();
+}
+
 static void AddWeaponComponent(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	v8::Isolate* isolate = info.GetIsolate();
@@ -627,6 +642,7 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
 	proto->Set(v8::String::NewFromUtf8(isolate, "setDateTime"), v8::FunctionTemplate::New(isolate, &SetDateTime));
 	proto->Set(v8::String::NewFromUtf8(isolate, "setWeather"), v8::FunctionTemplate::New(isolate, &SetWeather));
 
+	proto->Set(v8::String::NewFromUtf8(isolate, "clearBloodDamage"), v8::FunctionTemplate::New(isolate, &ClearBloodDamage));
 	proto->Set(v8::String::NewFromUtf8(isolate, "giveWeapon"), v8::FunctionTemplate::New(isolate, &GiveWeapon));
 	proto->Set(v8::String::NewFromUtf8(isolate, "removeWeapon"), v8::FunctionTemplate::New(isolate, &RemoveWeapon));
 	proto->Set(v8::String::NewFromUtf8(isolate, "removeAllWeapons"), v8::FunctionTemplate::New(isolate, &RemoveAllWeapons));
