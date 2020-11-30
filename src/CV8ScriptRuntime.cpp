@@ -55,7 +55,7 @@ CV8ScriptRuntime::CV8ScriptRuntime()
 		}
 	});
 
-	std::list<v8::UniquePersistent<v8::Promise::Resolver>> promises;
+	static std::list<v8::UniquePersistent<v8::Promise::Resolver>> promises;
 	isolate->SetHostImportModuleDynamicallyCallback([](v8::Local<v8::Context> context, v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier)
 	{
 		v8::Isolate* isolate = context->GetIsolate();
