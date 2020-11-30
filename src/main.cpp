@@ -8,11 +8,6 @@
 #define ALTV_JS_EXPORT extern "C"
 #endif
 
-void StaticInitialization()
-{
-    extern V8Class v8Vector3;
-}
-
 ALTV_JS_EXPORT alt::IScriptRuntime *CreateJSScriptRuntime(alt::ICore *core)
 {
     alt::ICore::SetInstance(core);

@@ -606,7 +606,9 @@ static void TakeScreenshot(const v8::FunctionCallbackInfo<v8::Value> &info)
 	auto &persistent = promises.emplace_back(v8::UniquePersistent<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
 
 	api.TakeScreenshot([](alt::StringView base64, const void *userData) {
-		v8::Isolate *isolate = v8::Isolate::GetCurrent();
+		// TODO: NOT PERFORMANCE EFFICIENT TO LOCK HERE, RESOLVE IN NEXT TICK INSTEAD
+
+		v8::Isolate *isolate = CV8ScriptRuntime::instance->GetIsolate();
 		v8::Locker locker(isolate);
 		v8::Isolate::Scope isolateScope(isolate);
 		v8::HandleScope handleScope(isolate);
@@ -621,7 +623,8 @@ static void TakeScreenshot(const v8::FunctionCallbackInfo<v8::Value> &info)
 
 		promises.remove(*persistent);
 	}, &persistent);
-
+	
+	V8_RETURN(persistent.Get(isolate)->GetPromise());
 }
 
 static void TakeScreenshotGameOnly(const v8::FunctionCallbackInfo<v8::Value> &info)
@@ -638,7 +641,9 @@ static void TakeScreenshotGameOnly(const v8::FunctionCallbackInfo<v8::Value> &in
 	auto &persistent = promises.emplace_back(v8::UniquePersistent<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
 
 	api.TakeScreenshotGameOnly([](alt::StringView base64, const void *userData) {
-		v8::Isolate *isolate = v8::Isolate::GetCurrent();
+		// TODO: NOT PERFORMANCE EFFICIENT TO LOCK HERE, RESOLVE IN NEXT TICK INSTEAD
+
+		v8::Isolate *isolate = CV8ScriptRuntime::instance->GetIsolate();
 		v8::Locker locker(isolate);
 		v8::Isolate::Scope isolateScope(isolate);
 		v8::HandleScope handleScope(isolate);
@@ -652,7 +657,6 @@ static void TakeScreenshotGameOnly(const v8::FunctionCallbackInfo<v8::Value> &in
 		}
 
 		promises.remove(*persistent);
-		ctx->Exit();
 	}, &persistent);
 
 	V8_RETURN(persistent.Get(isolate)->GetPromise());

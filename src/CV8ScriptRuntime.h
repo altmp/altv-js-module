@@ -19,16 +19,9 @@ class CV8ScriptRuntime : public alt::IScriptRuntime
 	std::unique_ptr<v8_inspector::V8Inspector::Channel> inspectorChannel;
 	std::unique_ptr<v8_inspector::V8Inspector> inspector;
 	std::unique_ptr<v8_inspector::V8InspectorSession> inspectorSession;
-	static CV8ScriptRuntime *&_instance()
-	{
-		static CV8ScriptRuntime *inst = nullptr;
-		return inst;
-	}
 
 public:
-	static CV8ScriptRuntime &Instance() { return *_instance(); }
-	static void SetInstance(CV8ScriptRuntime* runtime) { _instance() = runtime; };
-
+	static CV8ScriptRuntime* instance;
 	CV8ScriptRuntime();
 
 	v8::Isolate *GetIsolate() const { return isolate; }
@@ -134,37 +127,4 @@ public:
 			return result;
 		}
 	};
-
-	using ResourcesLoadedCallback = void (*)(v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, const void* promise);
-
-	class ResourcesLoadedResult
-	{
-	public:
-		ResourcesLoadedResult(v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, const void* promise, ResourcesLoadedCallback cb)
-		{
-			_referrer = referrer;
-			_specifier = specifier;
-			_promise = promise;
-			_callback = cb;
-		}
-
-		v8::Local<v8::ScriptOrModule> _referrer;
-		v8::Local<v8::String> _specifier;
-		ResourcesLoadedCallback _callback;
-		const void* _promise;
-
-		void call()
-		{
-			if (&_promise == nullptr) return;
-			_callback(_referrer, _specifier, &_promise);
-		}
-	};
-
-	std::list<ResourcesLoadedResult> onAllResourcesLoadedCallbacks;
-	void OnAllResourcesLoaded(ResourcesLoadedResult result)
-	{
-		if (_allResourcesLoaded) result.call();
-		else onAllResourcesLoadedCallbacks.emplace_back(result);
-	};
-	bool _allResourcesLoaded = false;
 };
