@@ -21,6 +21,7 @@ class CV8ScriptRuntime : public alt::IScriptRuntime
 	std::unique_ptr<v8_inspector::V8InspectorSession> inspectorSession;
 
 public:
+	static CV8ScriptRuntime* instance;
 	CV8ScriptRuntime();
 
 	v8::Isolate *GetIsolate() const { return isolate; }

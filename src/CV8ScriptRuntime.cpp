@@ -4,8 +4,12 @@
 #include "inspector/CV8InspectorChannel.h"
 #include "helpers/V8Module.h"
 
+CV8ScriptRuntime* CV8ScriptRuntime::instance = nullptr;
+
 CV8ScriptRuntime::CV8ScriptRuntime()
 {
+	instance = this;
+
 	platform = v8::platform::NewDefaultPlatform();
 	v8::V8::InitializePlatform(platform.get());
 	v8::V8::Initialize();
