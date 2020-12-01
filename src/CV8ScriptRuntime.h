@@ -128,12 +128,12 @@ public:
 		}
 	};
 
-	using ResourcesLoadedCallback = void (*)(v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, const void* promise);
+	using DynamicImportReadyCallback = void (*)(v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, const void* promise);
 
-	class ResourcesLoadedResult
+	class DynamicImportReadyResult
 	{
 	public:
-		ResourcesLoadedResult(v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, const void* promise, ResourcesLoadedCallback cb)
+		DynamicImportReadyResult(v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, const void* promise, DynamicImportReadyCallback cb)
 		{
 			_referrer = referrer;
 			_specifier = specifier;
@@ -143,20 +143,21 @@ public:
 
 		v8::Local<v8::ScriptOrModule> _referrer;
 		v8::Local<v8::String> _specifier;
-		ResourcesLoadedCallback _callback;
+		DynamicImportReadyCallback _callback;
 		const void* _promise;
 
 		void call()
 		{
 			_callback(_referrer, _specifier, _promise);
+			CV8ScriptRuntime::instance->onDynamicImportReadyCallbacks.remove(*this);
 		}
 	};
 
-	std::list<ResourcesLoadedResult> onAllResourcesLoadedCallbacks;
-	void OnAllResourcesLoaded(ResourcesLoadedResult result)
+	std::list<DynamicImportReadyResult> onDynamicImportReadyCallbacks;
+	void OnDynamicImportReady(DynamicImportReadyResult result)
 	{
 		if (_allResourcesLoaded) result.call();
-		else onAllResourcesLoadedCallbacks.emplace_back(result);
+		else onDynamicImportReadyCallbacks.emplace_back(result);
 	};
 	bool _allResourcesLoaded = false;
 };

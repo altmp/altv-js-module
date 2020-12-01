@@ -58,7 +58,7 @@ CV8ScriptRuntime::CV8ScriptRuntime()
 		}
 	});
 
-	static std::list<v8::UniquePersistent<v8::Promise::Resolver>> promises;
+	static std::list<v8::UniquePersistent<v8::Promise::Resolver>> dynamicImportPromises;
 	isolate->SetHostImportModuleDynamicallyCallback([](v8::Local<v8::Context> context, v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier)
 		{
 			v8::Isolate* isolate = context->GetIsolate();
@@ -66,9 +66,9 @@ CV8ScriptRuntime::CV8ScriptRuntime()
 			v8::Local<v8::Promise::Resolver> resolver;
 			if (!promise.ToLocal(&resolver))
 				return v8::MaybeLocal<v8::Promise>();
-			auto& persistent = promises.emplace_back(v8::UniquePersistent<v8::Promise::Resolver>(isolate, resolver));
+			auto& persistent = dynamicImportPromises.emplace_back(v8::UniquePersistent<v8::Promise::Resolver>(isolate, resolver));
 
-			auto result = CV8ScriptRuntime::ResourcesLoadedResult(referrer, specifier, &persistent,
+			auto result = CV8ScriptRuntime::DynamicImportReadyResult(referrer, specifier, &persistent,
 				[](v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, const void* original)
 				{
 					v8::Isolate* isolate = CV8ScriptRuntime::instance->GetIsolate();
@@ -110,9 +110,9 @@ CV8ScriptRuntime::CV8ScriptRuntime()
 							resolver->Resolve(context, outModule->GetModuleNamespace());
 						}
 					}
-					promises.remove(*persistent);
+					dynamicImportPromises.remove(*persistent);
 				});
-			CV8ScriptRuntime::instance->OnAllResourcesLoaded(result);
+			CV8ScriptRuntime::instance->OnDynamicImportReady(result);
 
 			return v8::MaybeLocal<v8::Promise>(resolver->GetPromise());
 		});
