@@ -149,7 +149,6 @@ public:
 		void call()
 		{
 			_callback(_referrer, _specifier, _promise);
-			CV8ScriptRuntime::instance->onDynamicImportReadyCallbacks.remove(*this);
 		}
 	};
 

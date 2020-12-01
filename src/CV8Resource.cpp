@@ -237,8 +237,8 @@ bool CV8ResourceImpl::OnEvent(const alt::CEvent *e)
 		handlers = GetLocalHandlers("connectionComplete");
 		CV8ScriptRuntime* runtime = CV8ScriptRuntime::instance;
 		runtime->_allResourcesLoaded = true;
-		for (CV8ScriptRuntime::ResourcesLoadedResult result : runtime->onAllResourcesLoadedCallbacks) result.call();
-		runtime->onAllResourcesLoadedCallbacks.empty();
+		for (CV8ScriptRuntime::DynamicImportReadyResult result : runtime->onDynamicImportReadyCallbacks) result.call();
+		runtime->onDynamicImportReadyCallbacks.clear();
 		break;
 	}
 	case alt::CEvent::Type::DISCONNECT_EVENT:
