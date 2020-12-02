@@ -97,6 +97,9 @@ class V8ResourceImpl;
 
 namespace V8
 {
+	template <typename T>
+	using CPersistent = v8::Persistent<T, v8::CopyablePersistentTraits<T>>;
+
 	class SourceLocation
 	{
 	public:
@@ -363,6 +366,8 @@ namespace V8
 		(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::String::NewFromUtf8(isolate, val.CStr()).ToLocalChecked());
 
 #endif
+
+#define V8_NEW_STRING(val) v8::String::NewFromUtf8(isolate, val).ToLocalChecked()
 
 #define V8_NEW_OBJECT(val) \
 	v8::Local<v8::Object> val = v8::Object::New(isolate);
