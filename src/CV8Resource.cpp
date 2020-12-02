@@ -45,6 +45,14 @@ static void StaticRequire(const v8::FunctionCallbackInfo<v8::Value> &info)
 		V8Helpers::Throw(isolate, "No such module " + name);
 }
 
+void CV8ResourceImpl::ProcessDynamicImports() {
+	for(auto import : dynamicImports)
+	{
+		import();
+	}
+	dynamicImports.clear();
+}
+
 bool CV8ResourceImpl::Start()
 {
 	if (resource->GetMain().IsEmpty())
@@ -136,6 +144,11 @@ bool CV8ResourceImpl::Start()
 	}
 
 	DispatchStartEvent(!result);
+
+	// if all resources are already loaded
+	if(CV8ScriptRuntime::instance->resourcesLoaded) {
+		ProcessDynamicImports();
+	}
 
 	return result;
 }
@@ -236,9 +249,10 @@ bool CV8ResourceImpl::OnEvent(const alt::CEvent *e)
 	{
 		handlers = GetLocalHandlers("connectionComplete");
 		CV8ScriptRuntime* runtime = CV8ScriptRuntime::instance;
-		runtime->_allResourcesLoaded = true;
-		for (CV8ScriptRuntime::DynamicImportReadyResult result : runtime->onDynamicImportReadyCallbacks) result.call();
-		runtime->onDynamicImportReadyCallbacks.clear();
+		runtime->resourcesLoaded = true;
+
+		ProcessDynamicImports();
+
 		break;
 	}
 	case alt::CEvent::Type::DISCONNECT_EVENT:
@@ -347,6 +361,7 @@ bool CV8ResourceImpl::OnEvent(const alt::CEvent *e)
 		}
 		case alt::CEvent::Type::DISCONNECT_EVENT:
 		{
+			CV8ScriptRuntime::instance->resourcesLoaded = false;
 			break;
 		}
 		case alt::CEvent::Type::REMOVE_ENTITY_EVENT:

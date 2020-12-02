@@ -14,6 +14,8 @@ class CV8ScriptRuntime;
 class CV8ResourceImpl : public V8ResourceImpl
 {
 public:
+	std::list<std::function<void()>> dynamicImports;
+
 	CV8ResourceImpl(alt::IResource *resource, v8::Isolate *isolate) : V8ResourceImpl(isolate, resource)
 	{
 	}
@@ -22,6 +24,8 @@ public:
 	{
 		Log::Debug << __FUNCTION__ << Log::Endl;
 	}
+
+	void ProcessDynamicImports();
 
 	bool Start() override;
 
@@ -93,8 +97,6 @@ public:
 
 private:
 	using WebViewEvents = std::unordered_multimap<std::string, V8::EventCallback>;
-
-	CV8ScriptRuntime *runtime;
 
 	std::unordered_map<std::string, v8::UniquePersistent<v8::Value>> requires;
 	std::unordered_map<std::string, v8::UniquePersistent<v8::Module>> modules;

@@ -22,6 +22,7 @@ class CV8ScriptRuntime : public alt::IScriptRuntime
 
 public:
 	static CV8ScriptRuntime* instance;
+
 	CV8ScriptRuntime();
 
 	v8::Isolate *GetIsolate() const { return isolate; }
@@ -128,35 +129,36 @@ public:
 		}
 	};
 
-	using DynamicImportReadyCallback = void (*)(v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, const void* promise);
+	// using DynamicImportReadyCallback = void (*)(v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, const void* promise);
 
-	class DynamicImportReadyResult
-	{
-	public:
-		DynamicImportReadyResult(v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, const void* promise, DynamicImportReadyCallback cb)
-		{
-			_referrer = referrer;
-			_specifier = specifier;
-			_promise = promise;
-			_callback = cb;
-		}
+	// class DynamicImportReadyResult
+	// {
+	// public:
+	// 	DynamicImportReadyResult(v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, const void* promise, DynamicImportReadyCallback cb)
+	// 	{
+	// 		_referrer = referrer;
+	// 		_specifier = specifier;
+	// 		_promise = promise;
+	// 		_callback = cb;
+	// 	}
 
-		v8::Local<v8::ScriptOrModule> _referrer;
-		v8::Local<v8::String> _specifier;
-		DynamicImportReadyCallback _callback;
-		const void* _promise;
+	// 	v8::Local<v8::ScriptOrModule> _referrer;
+	// 	v8::Local<v8::String> _specifier;
+	// 	DynamicImportReadyCallback _callback;
+	// 	const void* _promise;
 
-		void call()
-		{
-			_callback(_referrer, _specifier, _promise);
-		}
-	};
+	// 	void call()
+	// 	{
+	// 		_callback(_referrer, _specifier, _promise);
+	// 	}
+	// };
 
-	std::list<DynamicImportReadyResult> onDynamicImportReadyCallbacks;
-	void OnDynamicImportReady(DynamicImportReadyResult result)
-	{
-		if (_allResourcesLoaded) result.call();
-		else onDynamicImportReadyCallbacks.emplace_back(result);
-	};
-	bool _allResourcesLoaded = false;
+	// std::list<DynamicImportReadyResult> onDynamicImportReadyCallbacks;
+	// void OnDynamicImportReady(DynamicImportReadyResult result)
+	// {
+	// 	if (_allResourcesLoaded) result.call();
+	// 	else onDynamicImportReadyCallbacks.emplace_back(result);
+	// };
+
+	bool resourcesLoaded = false;
 };
