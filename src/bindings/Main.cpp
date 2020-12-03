@@ -662,6 +662,12 @@ static void TakeScreenshotGameOnly(const v8::FunctionCallbackInfo<v8::Value> &in
 	V8_RETURN(persistent.Get(isolate)->GetPromise());
 }
 
+static void IsGameFocused(const v8::FunctionCallbackInfo<v8::Value> &info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_RETURN_BOOLEAN(alt::ICore::Instance().IsGameFocused());
+}
+
 extern V8Class v8Vector3,
 	v8RGBA,
 	v8BaseObject,
@@ -778,4 +784,6 @@ extern V8Module altModule(
 
 		V8Helpers::RegisterFunc(exports, "takeScreenshot", &TakeScreenshot);
 		V8Helpers::RegisterFunc(exports, "takeScreenshotGameOnly", &TakeScreenshotGameOnly);
+
+		V8Helpers::RegisterFunc(exports, "isGameFocused", &IsGameFocused);
 	});
