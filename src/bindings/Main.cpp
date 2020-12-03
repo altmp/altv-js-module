@@ -781,6 +781,7 @@ extern V8Module altModule(
 		// V8Helpers::RegisterFunc(exports, "setAngularVelocity", &SetAngularVelocity);
 
 		V8Helpers::RegisterFunc(exports, "isInStreamerMode", &IsInStreamerMode);
+		V8Helpers::RegisterFunc(exports, "getPermissionState", &GetPermissionState);
 
 		V8Helpers::RegisterFunc(exports, "takeScreenshot", &TakeScreenshot);
 		V8Helpers::RegisterFunc(exports, "takeScreenshotGameOnly", &TakeScreenshotGameOnly);
