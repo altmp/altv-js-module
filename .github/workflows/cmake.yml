@@ -21,10 +21,8 @@ jobs:
     - name: Fetch submodules
         shell: bash
         working-directory: ${{runner.workspace}}
-        run: |
-            git submodule init
-            git submodule update
-            
+        run: git submodule init
+        run: git submodule update   
 
     - name: Generate
       # Use a bash shell so we can use the same syntax for environment variable
