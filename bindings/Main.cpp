@@ -23,6 +23,17 @@ static void On(const v8::FunctionCallbackInfo<v8::Value> &info)
 	resource->SubscribeLocal(evName.ToString(), callback, V8::SourceLocation::GetCurrent(isolate));
 }
 
+static void Once(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+
+	V8_CHECK_ARGS_LEN(2);
+	V8_ARG_TO_STRING(1, evName);
+	V8_ARG_TO_FUNCTION(2, callback);
+
+	resource->SubscribeLocal(evName.ToString(), callback, V8::SourceLocation::GetCurrent(isolate), true);
+}
+
 static void Off(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
 	V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -241,6 +252,7 @@ void V8::RegisterSharedMain(v8::Local<v8::Context> ctx, v8::Local<v8::Object> ex
 	V8Helpers::RegisterFunc(exports, "logError", &LogError);
 
 	V8Helpers::RegisterFunc(exports, "on", &On);
+	V8Helpers::RegisterFunc(exports, "once", &Once);
 	V8Helpers::RegisterFunc(exports, "off", &Off);
 	V8Helpers::RegisterFunc(exports, "emit", &Emit);
 
