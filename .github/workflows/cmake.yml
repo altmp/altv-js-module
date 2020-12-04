@@ -18,6 +18,14 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Fetch submodules
+        shell: bash
+        working-directory: ${{runner.workspace}}
+        run: |
+            git submodule init
+            git submodule update
+            
+
     - name: Generate
       # Use a bash shell so we can use the same syntax for environment variable
       # access regardless of the host operating system
