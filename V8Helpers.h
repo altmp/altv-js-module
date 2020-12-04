@@ -121,8 +121,9 @@ namespace V8
 		v8::UniquePersistent<v8::Function> fn;
 		SourceLocation location;
 		bool removed = false;
+		bool once;
 
-		EventCallback(v8::Isolate *isolate, v8::Local<v8::Function> _fn, SourceLocation &&location) : fn(isolate, _fn), location(std::move(location)) {}
+		EventCallback(v8::Isolate *isolate, v8::Local<v8::Function> _fn, SourceLocation &&location, bool once = false) : fn(isolate, _fn), location(std::move(location)), once(once) {}
 	};
 
 	class EventHandler

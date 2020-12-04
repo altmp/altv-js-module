@@ -51,14 +51,14 @@ public:
 	inline v8::Isolate *GetIsolate() { return isolate; }
 	inline v8::Local<v8::Context> GetContext() { return context.Get(isolate); }
 
-	void SubscribeLocal(const std::string &ev, v8::Local<v8::Function> cb, V8::SourceLocation &&location)
+	void SubscribeLocal(const std::string &ev, v8::Local<v8::Function> cb, V8::SourceLocation &&location, bool once = false)
 	{
-		localHandlers.insert({ev, V8::EventCallback{isolate, cb, std::move(location)}});
+		localHandlers.insert({ev, V8::EventCallback{isolate, cb, std::move(location), once}});
 	}
 
-	void SubscribeRemote(const std::string &ev, v8::Local<v8::Function> cb, V8::SourceLocation &&location)
+	void SubscribeRemote(const std::string &ev, v8::Local<v8::Function> cb, V8::SourceLocation &&location, bool once = false)
 	{
-		remoteHandlers.insert({ev, V8::EventCallback{isolate, cb, std::move(location)}});
+		remoteHandlers.insert({ev, V8::EventCallback{isolate, cb, std::move(location), once}});
 	}
 
 	void UnsubscribeLocal(const std::string &ev, v8::Local<v8::Function> cb)
