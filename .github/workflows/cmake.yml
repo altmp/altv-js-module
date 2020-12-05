@@ -1,0 +1,28 @@
+name: CMake
+
+on: [push, pull_request]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Fetch Submodules
+      shell: bash
+      run: |
+        git submodule init
+        git submodule update
+
+    - name: Generate
+      shell: bash
+      run: cmake . -BBUILD
+
+    - name: Build
+      shell: bash
+      run: cmake --build BUILD --config $BUILD_TYPE
+      
