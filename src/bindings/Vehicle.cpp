@@ -230,7 +230,7 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, Constructor, [](v8::Local<v8::Func
 	proto->Set(v8::String::NewFromUtf8(isolate, "setArmoredWindowShootCount"), v8::FunctionTemplate::New(isolate, &SetArmoredWindowShootCount));
 	proto->Set(v8::String::NewFromUtf8(isolate, "getDamageStatusBase64"), v8::FunctionTemplate::New(isolate, &GetDamageStatus));
 	proto->Set(v8::String::NewFromUtf8(isolate, "setDamageStatusBase64"), v8::FunctionTemplate::New(isolate, &SetDamageStatus));
-	proto->Set(v8::String::NewFromUtf8(isolate, "setFixed"), v8::FunctionTemplate::New(isolate, &SetFixed));
+	proto->Set(v8::String::NewFromUtf8(isolate, "repair"), v8::FunctionTemplate::New(isolate, &SetFixed));
 
 	//Script getters/setters
 	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "manualEngineControl"), &ManualEngineControlGetter, &ManualEngineControlSetter);
