@@ -64,13 +64,9 @@ void CNodeScriptRuntime::OnDispose()
 		} while (uv_loop_alive(uv_default_loop()));
 	}*/
 
-	platform->DrainTasks(isolate);
-	platform->CancelPendingDelayedTasks(isolate);
-	platform->UnregisterIsolate(isolate);
-	
-	isolate->Dispose();
-	v8::V8::Dispose();
 
-	platform.release();
+	v8::V8::Dispose();
+	v8::V8::ShutdownPlatform();
+
 	//node::FreePlatform(platform.release());
 }
