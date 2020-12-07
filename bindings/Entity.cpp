@@ -320,5 +320,6 @@ extern V8Class v8Entity("Entity", v8WorldObject, [](v8::Local<v8::FunctionTempla
 	V8::SetAccessor(isolate, tpl, "rot", RotationGetter);
 	V8::SetAccessor(isolate, tpl, "model", ModelGetter);
 	V8::SetAccessor(isolate, tpl, "scriptID", ScriptIDGetter);
+	V8::SetAccessor(isolate, tpl, "visible", VisibleGetter);
 #endif // ALT_CLIENT_API
 });
