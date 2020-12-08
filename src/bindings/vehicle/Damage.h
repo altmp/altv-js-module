@@ -324,6 +324,18 @@ namespace V8::Vehicle
 		vehicle->LoadDamageDataFromBase64(*damageStatus);
 	}
 
+	void SetFixed(const v8::FunctionCallbackInfo<v8::Value>& info)
+	{
+		v8::Isolate* isolate = info.GetIsolate();
+
+		V8Entity* _this = V8Entity::Get(info.This());
+		V8_CHECK(_this, "entity is invalid");
+
+		Ref<IVehicle> vehicle = _this->GetHandle().As<IVehicle>();
+
+		vehicle->SetFixed();
+	}
+
 	void GetDamageStatus(const v8::FunctionCallbackInfo<v8::Value>& info)
 	{
 		v8::Isolate* isolate = info.GetIsolate();

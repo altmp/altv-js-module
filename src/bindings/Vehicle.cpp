@@ -20,6 +20,20 @@ static void DriverGetter(v8::Local<v8::String> name, const v8::PropertyCallbackI
 	V8_RETURN_BASE_OBJECT(_this->GetDriver());
 }
 
+static void GetAttached(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
+	V8_RETURN_BASE_OBJECT(_this->GetAttached());
+}
+
+static void GetAttachedTo(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
+	V8_RETURN_BASE_OBJECT(_this->GetAttachedTo());
+}
+
 static void DestroyedGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
@@ -101,7 +115,8 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
 	}
 }
 
-static V8Class v8Vehicle("Vehicle", "Entity", Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
+extern V8Class v8Entity;
+extern V8Class v8Vehicle("Vehicle", v8Entity, Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
 	v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
@@ -215,6 +230,7 @@ static V8Class v8Vehicle("Vehicle", "Entity", Constructor, [](v8::Local<v8::Func
 	proto->Set(v8::String::NewFromUtf8(isolate, "setArmoredWindowShootCount"), v8::FunctionTemplate::New(isolate, &SetArmoredWindowShootCount));
 	proto->Set(v8::String::NewFromUtf8(isolate, "getDamageStatusBase64"), v8::FunctionTemplate::New(isolate, &GetDamageStatus));
 	proto->Set(v8::String::NewFromUtf8(isolate, "setDamageStatusBase64"), v8::FunctionTemplate::New(isolate, &SetDamageStatus));
+	proto->Set(v8::String::NewFromUtf8(isolate, "repair"), v8::FunctionTemplate::New(isolate, &SetFixed));
 
 	//Script getters/setters
 	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "manualEngineControl"), &ManualEngineControlGetter, &ManualEngineControlSetter);
@@ -222,4 +238,8 @@ static V8Class v8Vehicle("Vehicle", "Entity", Constructor, [](v8::Local<v8::Func
 	//Script methods
 	proto->Set(v8::String::NewFromUtf8(isolate, "getScriptDataBase64"), v8::FunctionTemplate::New(isolate, &GetScriptData));
 	proto->Set(v8::String::NewFromUtf8(isolate, "setScriptDataBase64"), v8::FunctionTemplate::New(isolate, &SetScriptData));
+
+
+	proto->Set(v8::String::NewFromUtf8(isolate, "getAttached"), v8::FunctionTemplate::New(isolate, &GetAttached));
+	proto->Set(v8::String::NewFromUtf8(isolate, "getAttachedTo"), v8::FunctionTemplate::New(isolate, &GetAttachedTo));
 });

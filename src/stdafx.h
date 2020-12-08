@@ -18,7 +18,7 @@
 #include <iomanip>
 
 #include "cpp-sdk/SDK.h"
-#include "Log.h"
+#include "helpers/Log.h"
 #include "node.h"
 #include "node_platform.h"
 #include "node_internals.h"
