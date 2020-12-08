@@ -242,26 +242,45 @@ static void ResourceLoaded(const v8::FunctionCallbackInfo<v8::Value>& info)
 	}
 }
 
-static V8Module v8Alt("alt",
+extern V8Class v8Vector3,
+    v8RGBA,
+    v8File,
+    v8BaseObject,
+    v8WorldObject,
+    v8Entity,
+    v8Player,
+    v8Vehicle,
+    v8Blip,
+    v8PointBlip,
+    v8Checkpoint,
+    v8VoiceChannel,
+    v8Colshape,
+    v8ColshapeCylinder,
+    v8ColshapeSphere,
+    v8ColshapeCircle,
+    v8ColshapeCuboid,
+    v8ColshapeRectangle;
+
+extern V8Module v8Alt("alt",
 {
-	"Vector3",
-	"RGBA",
-	"File",
-	"BaseObject",
-	"WorldObject",
-	"Entity",
-	"Player",
-	"Vehicle",
-	"Blip",
-	"PointBlip",
-	"Checkpoint",
-	"VoiceChannel",
-	"Colshape",
-	"ColshapeCylinder",
-	"ColshapeSphere",
-	"ColshapeCircle",
-	"ColshapeCuboid",
-	"ColshapeRectangle"
+	v8Vector3,
+	v8RGBA,
+	v8File,
+	v8BaseObject,
+	v8WorldObject,
+	v8Entity,
+	v8Player,
+	v8Vehicle,
+	v8Blip,
+	v8PointBlip,
+	v8Checkpoint,
+	v8VoiceChannel,
+	v8Colshape,
+	v8ColshapeCylinder,
+	v8ColshapeSphere,
+	v8ColshapeCircle,
+	v8ColshapeCuboid,
+	v8ColshapeRectangle
 },
 [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -292,7 +311,6 @@ static V8Module v8Alt("alt",
 	alt::StringView rootDir = alt::ICore::Instance().GetRootDirectory();
 	exports->Set(isolate->GetEnteredContext(), v8::String::NewFromUtf8(isolate, "rootDir"), v8::String::NewFromUtf8(isolate, rootDir.CStr()));
 
-	alt::IResource* resource = V8ResourceImpl::GetResource(ctx);
-	V8_CHECK(resource, "invalid resource");
-	exports->Set(isolate->GetEnteredContext(), v8::String::NewFromUtf8(isolate, "resourceName"), v8::String::NewFromUtf8(isolate, resource->GetName().CStr()));
+	exports->Set(isolate->GetEnteredContext(), v8::String::NewFromUtf8(isolate, "defaultDimension"), v8::Integer::New(isolate, alt::DEFAULT_DIMENSION));
+	exports->Set(isolate->GetEnteredContext(), v8::String::NewFromUtf8(isolate, "globalDimension"), v8::Integer::New(isolate, alt::GLOBAL_DIMENSION));
 });

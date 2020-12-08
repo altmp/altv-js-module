@@ -8,6 +8,7 @@
 #include "cpp-sdk/events/CPlayerDamageEvent.h"
 #include "cpp-sdk/events/CPlayerDeathEvent.h"
 #include "cpp-sdk/events/CPlayerEnterVehicleEvent.h"
+#include "cpp-sdk/events/CPlayerEnteringVehicleEvent.h"
 #include "cpp-sdk/events/CPlayerLeaveVehicleEvent.h"
 #include "cpp-sdk/events/CPlayerChangeVehicleSeatEvent.h"
 #include "cpp-sdk/events/CPlayerWeaponChangeEvent.h"
@@ -67,6 +68,18 @@ V8::LocalEventHandler playerEnterVehicle(
 	"playerEnteredVehicle", // TODO: change name for consistency
 	[](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
 		auto ev = static_cast<const alt::CPlayerEnterVehicleEvent*>(e);
+
+		args.push_back(resource->GetBaseObjectOrNull(ev->GetPlayer()));
+		args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
+		args.push_back(v8::Integer::New(resource->GetIsolate(), ev->GetSeat()));
+	}
+);
+
+V8::LocalEventHandler playerEnteringVehicle(
+	EventType::PLAYER_ENTERING_VEHICLE,
+	"playerEnteringVehicle", // TODO: don't change names, it's okay
+	[](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+		auto ev = static_cast<const alt::CPlayerEnteringVehicleEvent*>(e);
 
 		args.push_back(resource->GetBaseObjectOrNull(ev->GetPlayer()));
 		args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
