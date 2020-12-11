@@ -9,7 +9,7 @@ static void HashCb(const v8::FunctionCallbackInfo<v8::Value> &info)
 	V8_CHECK_ARGS_LEN(1);
 	V8_ARG_TO_STRING(1, str);
 
-	V8_RETURN_INTEGER(alt::ICore::Instance().Hash(str));
+	V8_RETURN_UINT32(alt::ICore::Instance().Hash(str));
 }
 
 static void On(const v8::FunctionCallbackInfo<v8::Value> &info)
