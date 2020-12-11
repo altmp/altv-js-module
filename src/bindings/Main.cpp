@@ -717,9 +717,9 @@ extern V8Module altModule(
 	 v8PointBlip,
 	 v8HandlingData,
 	 v8LocalStorage,
-	 //  v8MemoryBuffer,
+	 v8MemoryBuffer,
 	 v8File,
-	 //  v8MapZoomData,
+	 v8MapZoomData,
 	 v8Discord,
 	 v8Voice},
 	[](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
