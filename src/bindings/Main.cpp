@@ -20,6 +20,21 @@ static void OnClient(const v8::FunctionCallbackInfo<v8::Value>& info)
 	resource->SubscribeRemote(*evName, info[1].As<v8::Function>(), V8::SourceLocation::GetCurrent(isolate));
 }
 
+static void OnceClient(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	v8::Isolate* isolate = info.GetIsolate();
+
+	V8_CHECK(info.Length() == 2, "2 args expected");
+	V8_CHECK(info[0]->IsString(), "string expected");
+	V8_CHECK(info[1]->IsFunction(), "function expected");
+
+	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
+	V8_CHECK(resource, "invalid resource");
+
+	v8::String::Utf8Value evName(isolate, info[0]);
+	resource->SubscribeRemote(*evName, info[1].As<v8::Function>(), V8::SourceLocation::GetCurrent(isolate), true);
+}
+
 static void OffClient(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	v8::Isolate* isolate = info.GetIsolate();
@@ -298,6 +313,7 @@ extern V8Module v8Alt("alt",
 	V8Helpers::RegisterFunc(exports, "restartResource", &RestartResource);
 
 	V8Helpers::RegisterFunc(exports, "onClient", &OnClient);
+	V8Helpers::RegisterFunc(exports, "onceClient", &OnceClient);
 	V8Helpers::RegisterFunc(exports, "offClient", &OffClient);
 	V8Helpers::RegisterFunc(exports, "emitClient", &EmitClient);
 
