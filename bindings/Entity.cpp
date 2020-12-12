@@ -52,13 +52,22 @@ static void RotationGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo
 	V8_RETURN(resource->CreateVector3(ent->GetRotation()));
 }
 
-static void ModelGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void ModelGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
 
 	V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
 
 	V8_RETURN_UINT32(ent->GetModel());
+}
+
+static void VisibleGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+
+	V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
+
+	V8_RETURN_BOOLEAN(ent->GetVisible());
 }
 
 static void HasSyncedMeta(const v8::FunctionCallbackInfo<v8::Value> &info)
@@ -141,6 +150,17 @@ static void ModelSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v
 		V8_TO_STRING(val, model);
 		player->SetModel(alt::ICore::Instance().Hash(model));
 	}
+}
+
+static void VisibleSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+
+	V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
+
+	V8_TO_BOOLEAN(val, toggle);
+
+	ent->SetVisible(toggle);
 }
 
 static void SetSyncedMeta(const v8::FunctionCallbackInfo<v8::Value> &info)
@@ -280,6 +300,8 @@ extern V8Class v8Entity("Entity", v8WorldObject, [](v8::Local<v8::FunctionTempla
 	V8::SetAccessor(isolate, tpl, "rot", RotationGetter, RotationSetter);
 	V8::SetAccessor(isolate, tpl, "model", ModelGetter, ModelSetter);
 
+	V8::SetAccessor(isolate, tpl, "visible", VisibleGetter, VisibleSetter);
+
 	V8::SetMethod(isolate, tpl, "setSyncedMeta", SetSyncedMeta);
 	V8::SetMethod(isolate, tpl, "deleteSyncedMeta", DeleteSyncedMeta);
 
@@ -298,5 +320,6 @@ extern V8Class v8Entity("Entity", v8WorldObject, [](v8::Local<v8::FunctionTempla
 	V8::SetAccessor(isolate, tpl, "rot", RotationGetter);
 	V8::SetAccessor(isolate, tpl, "model", ModelGetter);
 	V8::SetAccessor(isolate, tpl, "scriptID", ScriptIDGetter);
+	V8::SetAccessor(isolate, tpl, "visible", VisibleGetter);
 #endif // ALT_CLIENT_API
 });

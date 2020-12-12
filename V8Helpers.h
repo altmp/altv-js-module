@@ -97,6 +97,9 @@ class V8ResourceImpl;
 
 namespace V8
 {
+	template <typename T>
+	using CPersistent = v8::Persistent<T, v8::CopyablePersistentTraits<T>>;
+
 	class SourceLocation
 	{
 	public:
@@ -118,8 +121,9 @@ namespace V8
 		v8::UniquePersistent<v8::Function> fn;
 		SourceLocation location;
 		bool removed = false;
+		bool once;
 
-		EventCallback(v8::Isolate *isolate, v8::Local<v8::Function> _fn, SourceLocation &&location) : fn(isolate, _fn), location(std::move(location)) {}
+		EventCallback(v8::Isolate *isolate, v8::Local<v8::Function> _fn, SourceLocation &&location, bool once = false) : fn(isolate, _fn), location(std::move(location)), once(once) {}
 	};
 
 	class EventHandler
@@ -283,6 +287,10 @@ namespace V8
 #define V8_GET_THIS_INTERNAL_FIELD_INTEGER(idx, val) \
 	auto val = info.This()->GetInternalField((idx)-1)->IntegerValue(ctx).ToChecked();
 
+// idx starts with 1
+#define V8_GET_THIS_INTERNAL_FIELD_UINT32(idx, val) \
+	auto val = info.This()->GetInternalField((idx)-1)->Uint32Value(ctx).ToChecked();
+
 #define V8_CHECK_CONSTRUCTOR() V8_CHECK(info.IsConstructCall(), "function can't be called without new")
 
 #define V8_CHECK_ARGS_LEN(count) V8_CHECK(info.Length() == (count), #count " arguments expected")
@@ -363,6 +371,8 @@ namespace V8
 		(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::String::NewFromUtf8(isolate, val.CStr()).ToLocalChecked());
 
 #endif
+
+#define V8_NEW_STRING(val) v8::String::NewFromUtf8(isolate, val).ToLocalChecked()
 
 #define V8_NEW_OBJECT(val) \
 	v8::Local<v8::Object> val = v8::Object::New(isolate);

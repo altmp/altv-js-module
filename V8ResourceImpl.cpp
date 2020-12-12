@@ -283,6 +283,9 @@ void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent *ev, const std::vecto
 							 << " was too long " << (GetTime() - time) << "ms" << Log::Endl;
 			}
 		}
+
+		if (handler->once)
+			handler->removed = true;
 	}
 }
 
