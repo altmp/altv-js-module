@@ -53,6 +53,7 @@ void CV8ResourceImpl::ProcessDynamicImports() {
 	dynamicImports.clear();
 }
 
+extern V8Module altModule;
 bool CV8ResourceImpl::Start()
 {
 	if (resource->GetMain().IsEmpty())
@@ -124,8 +125,7 @@ bool CV8ResourceImpl::Start()
 		auto console = ctx->Global()->Get(ctx, V8_NEW_STRING("console")).ToLocalChecked().As<v8::Object>();
 		if (!console.IsEmpty())
 		{
-			auto altModule = V8Module::All().at("alt");
-			auto exports = altModule->GetExports(isolate, ctx);
+			auto exports = altModule.GetExports(isolate, ctx);
 
 			console->Set(ctx, V8_NEW_STRING("log"), exports->Get(ctx, V8_NEW_STRING("log")).ToLocalChecked());
 			console->Set(ctx, V8_NEW_STRING("warn"), exports->Get(ctx, V8_NEW_STRING("logWarning")).ToLocalChecked());
