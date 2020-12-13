@@ -243,16 +243,7 @@ static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-    v8::Local<v8::Array> arr = v8::Array::New(isolate);
-
-    uint16_t i = 0;
-    for (auto player : alt::ICore::Instance().GetPlayers())
-    {
-        if (player)
-            arr->Set(ctx, i++, resource->GetOrCreateEntity(player.Get(), "Player")->GetJSVal(isolate));
-    };
-
-    V8_RETURN(arr);
+    V8_RETURN(resource->GetAllPlayers()->Clone());
 }
 
 static void LocalGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)

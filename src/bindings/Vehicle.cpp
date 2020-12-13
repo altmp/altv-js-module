@@ -506,16 +506,7 @@ static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-    v8::Local<v8::Array> arr = v8::Array::New(isolate);
-
-    uint16_t i = 0;
-    for (auto vehicle : alt::ICore::Instance().GetVehicles())
-    {
-        if (vehicle)
-            arr->Set(ctx, i++, resource->GetOrCreateEntity(vehicle.Get(), "Vehicle")->GetJSVal(isolate));
-    };
-
-    V8_RETURN(arr);
+    V8_RETURN(resource->GetAllVehicles()->Clone());
 }
 
 static void StaticGetByScriptID(const v8::FunctionCallbackInfo<v8::Value>& info)
