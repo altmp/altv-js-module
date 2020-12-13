@@ -2,6 +2,7 @@
 #include "../helpers/V8Helpers.h"
 #include "../helpers/V8Module.h"
 #include "../helpers/Log.h"
+#include "../helpers/V8ResourceImpl.h"
 
 static uint64_t pointers[32];
 static uint32_t pointersCount = 0;
@@ -168,15 +169,9 @@ static v8::Local<v8::Value> GetReturn(alt::Ref<alt::INative::Context> scrCtx, al
 	case alt::INative::Type::ARG_VECTOR3:
 	{
 		alt::INative::Vector3 val = scrCtx->ResultVector3();
-
-		v8::Local<v8::Context> v8Ctx = isolate->GetEnteredContext();
-		v8::Local<v8::Object> vec = v8::Object::New(isolate);
-
-		V8::DefineOwnProperty(isolate, v8Ctx, vec, "x", v8::Number::New(isolate, val.x), v8::PropertyAttribute::ReadOnly);
-		V8::DefineOwnProperty(isolate, v8Ctx, vec, "y", v8::Number::New(isolate, val.y), v8::PropertyAttribute::ReadOnly);
-		V8::DefineOwnProperty(isolate, v8Ctx, vec, "z", v8::Number::New(isolate, val.z), v8::PropertyAttribute::ReadOnly);
-
-		return vec;
+		V8ResourceImpl* resource = V8ResourceImpl::Get(v8Ctx);
+		auto vector = resource->CreateVector3({ val.x, val.y, val.z }).As<v8::Object>();
+		return vector;
 	}
 	case alt::INative::Type::ARG_STRING:
 		if (!scrCtx->ResultString())
