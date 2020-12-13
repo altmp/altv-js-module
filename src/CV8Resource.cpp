@@ -53,6 +53,7 @@ void CV8ResourceImpl::ProcessDynamicImports() {
 	dynamicImports.clear();
 }
 
+extern V8Module altModule;
 bool CV8ResourceImpl::Start()
 {
 	if (resource->GetMain().IsEmpty())
@@ -119,6 +120,17 @@ bool CV8ResourceImpl::Start()
 		v8::Local<v8::Module> curModule = maybeModule.ToLocalChecked();
 
 		modules.emplace(path, v8::UniquePersistent<v8::Module>{isolate, curModule});
+
+		// Overwrite global console object
+		auto console = ctx->Global()->Get(ctx, V8_NEW_STRING("console")).ToLocalChecked().As<v8::Object>();
+		if (!console.IsEmpty())
+		{
+			auto exports = altModule.GetExports(isolate, ctx);
+
+			console->Set(ctx, V8_NEW_STRING("log"), exports->Get(ctx, V8_NEW_STRING("log")).ToLocalChecked());
+			console->Set(ctx, V8_NEW_STRING("warn"), exports->Get(ctx, V8_NEW_STRING("logWarning")).ToLocalChecked());
+			console->Set(ctx, V8_NEW_STRING("error"), exports->Get(ctx, V8_NEW_STRING("logError")).ToLocalChecked());
+		}
 
 		ctx->Global()->Set(ctx, v8::String::NewFromUtf8(isolate, "__internal_get_exports").ToLocalChecked(), v8::Function::New(ctx, &StaticRequire).ToLocalChecked());
 		bool res = curModule->InstantiateModule(ctx, CV8ScriptRuntime::ResolveModule).IsJust();
