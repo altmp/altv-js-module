@@ -243,7 +243,7 @@ static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-    V8_RETURN(resource->GetAllPlayers());
+    V8_RETURN(resource->GetAllPlayers()->Clone());
 }
 
 static void LocalGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
