@@ -99,6 +99,18 @@ static void SizeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8:
 	V8_RETURN(pos);
 }
 
+static void ScaleGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK(false, "blip.scale is deprecated, use blip.size instead");
+}
+
+static void ScaleSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK(false, "blip.scale is deprecated, use blip.size instead");
+}
+
 static void SpriteGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
@@ -578,6 +590,7 @@ extern V8Class v8Blip("Blip", v8WorldObject, Constructor, [](v8::Local<v8::Funct
 
 	V8::SetAccessor(isolate, tpl, "sprite", &SpriteGetter, &SpriteSetter);
 	V8::SetAccessor(isolate, tpl, "size", &SizeGetter, &SizeSetter);
+	V8::SetAccessor(isolate, tpl, "scale", &ScaleGetter, &ScaleSetter);
 	V8::SetAccessor(isolate, tpl, "color", &ColorGetter, &ColorSetter);
 	V8::SetAccessor(isolate, tpl, "secondaryColor", &SecondaryColorGetter, &SecondaryColorSetter);
 	V8::SetAccessor(isolate, tpl, "alpha", &AlphaGetter, &AlphaSetter);
