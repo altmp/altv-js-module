@@ -571,6 +571,14 @@ static void Kick(const v8::FunctionCallbackInfo<v8::Value>& info)
 	}
 }
 
+static void Despawn(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE(info);
+	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+	player->Despawn();
+}
+
 static void AllGetter(v8::Local<v8::Name> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
 	v8::Isolate* isolate = info.GetIsolate();
@@ -639,6 +647,7 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
 	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "flashlightActive"), &FlashlightActiveGetter);
 
 	proto->Set(v8::String::NewFromUtf8(isolate, "spawn"), v8::FunctionTemplate::New(isolate, &Spawn));
+	proto->Set(v8::String::NewFromUtf8(isolate, "despawn"), v8::FunctionTemplate::New(isolate, &Despawn));
 	proto->Set(v8::String::NewFromUtf8(isolate, "setDateTime"), v8::FunctionTemplate::New(isolate, &SetDateTime));
 	proto->Set(v8::String::NewFromUtf8(isolate, "setWeather"), v8::FunctionTemplate::New(isolate, &SetWeather));
 
