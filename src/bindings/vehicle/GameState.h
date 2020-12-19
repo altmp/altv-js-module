@@ -209,7 +209,7 @@ namespace V8::Vehicle
 
 		Ref<IVehicle> vehicle = _this->GetHandle().As<IVehicle>();
 
-		info.GetReturnValue().Set(v8::Boolean::New(isolate, vehicle->GetRoofState()));
+		info.GetReturnValue().Set(v8::Integer::New(isolate, vehicle->GetRoofState()));
 	}
 
 	void RoofStateSetter(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
@@ -224,7 +224,39 @@ namespace V8::Vehicle
 
 		Ref<IVehicle> vehicle = _this->GetHandle().As<IVehicle>();
 
-		vehicle->SetRoofState(value->ToBoolean(info.GetIsolate())->Value());
+		vehicle->SetRoofState(value->ToInteger(info.GetIsolate())->Value());
+	}
+
+	void IsRoofOpenedDeprecated(const v8::FunctionCallbackInfo<v8::Value>& info)
+	{
+		v8::Isolate* isolate = info.GetIsolate();
+
+		V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
+		V8_CHECK(resource, "invalid resource");
+
+		V8Entity* _this = V8Entity::Get(info.This());
+		V8_CHECK(_this, "entity is invalid");
+
+		Ref<IVehicle> vehicle = _this->GetHandle().As<IVehicle>();
+
+		info.GetReturnValue().Set(v8::Boolean::New(isolate, vehicle->GetRoofState()));
+	}
+
+	void SetRoofOpenedDeprecated(const v8::FunctionCallbackInfo<v8::Value>& info)
+	{
+		v8::Isolate* isolate = info.GetIsolate();
+
+		V8_CHECK(info.Length() == 1, "1 arg expected");
+
+		V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
+		V8_CHECK(resource, "invalid resource");
+
+		V8Entity* _this = V8Entity::Get(info.This());
+		V8_CHECK(_this, "entity is invalid");
+
+		Ref<IVehicle> vehicle = _this->GetHandle().As<IVehicle>();
+
+		vehicle->SetRoofState(info[0]->ToInteger(isolate)->Value());
 	}
 
 	void FlamethrowerActiveGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
