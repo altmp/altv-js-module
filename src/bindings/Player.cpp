@@ -353,6 +353,21 @@ static void AuthTokenGetter(v8::Local<v8::String> name, const v8::PropertyCallba
 	info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, player->GetAuthToken().CStr()));
 }
 
+static void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN_MIN(1);
+	V8_ARG_TO_STRING(1, eventName);
+	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+	MValueArgs args;
+
+	for (int i = 1; i < info.Length(); ++i)
+		args.Push(V8Helpers::V8ToMValue(info[i]));
+
+	ICore::Instance().TriggerClientEvent(player, eventName, args);
+}
+
 static void Spawn(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	v8::Isolate* isolate = info.GetIsolate();
@@ -638,6 +653,7 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
 
 	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "flashlightActive"), &FlashlightActiveGetter);
 
+	proto->Set(v8::String::NewFromUtf8(isolate, "emit"), v8::FunctionTemplate::New(isolate, &Emit));
 	proto->Set(v8::String::NewFromUtf8(isolate, "spawn"), v8::FunctionTemplate::New(isolate, &Spawn));
 	proto->Set(v8::String::NewFromUtf8(isolate, "setDateTime"), v8::FunctionTemplate::New(isolate, &SetDateTime));
 	proto->Set(v8::String::NewFromUtf8(isolate, "setWeather"), v8::FunctionTemplate::New(isolate, &SetWeather));
