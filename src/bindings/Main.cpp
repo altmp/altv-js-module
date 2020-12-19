@@ -52,7 +52,6 @@ static void OffClient(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	Log::Warning << "alt.emitClient is deprecated. Consider using player.emit instead" << Log::Endl;
 	v8::Isolate* isolate = info.GetIsolate();
 
 	V8_CHECK(info.Length() >= 2, "at least 2 args expected");
