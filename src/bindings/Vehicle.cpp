@@ -43,66 +43,54 @@ static void DestroyedGetter(v8::Local<v8::String> name, const v8::PropertyCallba
 
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_CHECK_CONSTRUCTOR();
+	V8_CHECK_ARGS_LEN(7);
 
-	V8_CHECK(info.Length() == 7, "7 args expected");
 	V8_CHECK(info[0]->IsString() || info[0]->IsNumber(), "string or number expected");
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
 	uint32_t modelHash;
-
-	if (info[0]->IsNumber())
+	if(info[0]->IsNumber())
 	{
-		modelHash = info[0]->ToUint32(isolate->GetEnteredContext()).ToLocalChecked()->Value();
+		V8_ARG_TO_UINT32(1, model);
+		modelHash = model;
 	}
 	else
 	{
-		v8::String::Utf8Value model(isolate, info[0]->ToString(isolate));
-		modelHash = alt::ICore::Instance().Hash(*model);
+		V8_ARG_TO_STRING(1, model);
+		modelHash = alt::ICore::Instance().Hash(model);
 	}
 
-	v8::Local<v8::Number> x = info[1]->ToNumber(isolate);
-	v8::Local<v8::Number> y = info[2]->ToNumber(isolate);
-	v8::Local<v8::Number> z = info[3]->ToNumber(isolate);
+	V8_ARG_TO_NUMBER(2, x);
+	V8_ARG_TO_NUMBER(3, y);
+	V8_ARG_TO_NUMBER(4, z);
+	V8_ARG_TO_NUMBER(5, rx);
+	V8_ARG_TO_NUMBER(6, ry);
+	V8_ARG_TO_NUMBER(7, rz);
 
-	v8::Local<v8::Number> rx = info[4]->ToNumber(isolate);
-	v8::Local<v8::Number> ry = info[5]->ToNumber(isolate);
-	v8::Local<v8::Number> rz = info[6]->ToNumber(isolate);
-
-	alt::Position pos(x->Value(), y->Value(), z->Value());
-	alt::Rotation rot(rx->Value(), ry->Value(), rz->Value());
+	alt::Position pos(x, y, z);
+	alt::Rotation rot(rx, ry, rz);
 
 	Ref<IVehicle> veh = alt::ICore::Instance().CreateVehicle(modelHash, pos, rot);
 
-	if (veh)
-		resource->BindEntity(info.This(), veh.Get());
-	else
-		V8Helpers::Throw(isolate, "Failed to create Vehicle");
+	V8_CHECK(veh, "Failed to create Vehicle");
+	resource->BindEntity(info.This(), veh.Get());
 }
 
 static void AllGetter(v8::Local<v8::Name> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	info.GetReturnValue().Set(resource->GetAllVehicles());
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	
+	V8_RETURN(resource->GetAllVehicles());
 }
 
 static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_CHECK_ARGS_LEN(1);
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	uint16_t id = info[0]->ToInteger(isolate)->Value();
-
+	V8_ARG_TO_INTEGER(1, id);
+	
 	alt::Ref<alt::IEntity> entity = alt::ICore::Instance().GetEntityByID(id);
 
 	if (entity && entity->GetType() == alt::IEntity::Type::VEHICLE)

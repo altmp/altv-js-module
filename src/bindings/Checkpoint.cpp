@@ -7,34 +7,28 @@ using namespace alt;
 
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_CHECK_CONSTRUCTOR();
+	V8_CHECK_ARGS_LEN(10);
+	
+	V8_ARG_TO_INTEGER(1, type);
+	V8_ARG_TO_NUMBER(2, x);
+	V8_ARG_TO_NUMBER(3, y);
+	V8_ARG_TO_NUMBER(4, z);
+	V8_ARG_TO_NUMBER(5, radius);
+	V8_ARG_TO_NUMBER(6, height);
+	V8_ARG_TO_INTEGER(7, r);
+	V8_ARG_TO_INTEGER(8, g);
+	V8_ARG_TO_INTEGER(9, b);
+	V8_ARG_TO_INTEGER(10, a);
 
-	V8_CHECK(info.IsConstructCall(), "Checkpoint constructor is not a function");
-	V8_CHECK(info.Length() == 10, "10 args expected");
+	alt::Position pos(x, y, z);
+	alt::RGBA color(r, g, b, a);
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	Ref<ICheckpoint> cp = ICore::Instance().CreateCheckpoint(type, pos, radius, height, color);
 
-	v8::Local<v8::Integer> type = info[0]->ToInteger(isolate);
-	v8::Local<v8::Number> x = info[1]->ToNumber(isolate);
-	v8::Local<v8::Number> y = info[2]->ToNumber(isolate);
-	v8::Local<v8::Number> z = info[3]->ToNumber(isolate);
-	v8::Local<v8::Number> radius = info[4]->ToNumber(isolate);
-	v8::Local<v8::Number> height = info[5]->ToNumber(isolate);
-	v8::Local<v8::Integer> r = info[6]->ToInteger(isolate);
-	v8::Local<v8::Integer> g = info[7]->ToInteger(isolate);
-	v8::Local<v8::Integer> b = info[8]->ToInteger(isolate);
-	v8::Local<v8::Integer> a = info[9]->ToInteger(isolate);
-
-	alt::Position pos(x->Value(), y->Value(), z->Value());
-	alt::RGBA color(r->Value(), g->Value(), b->Value(), a->Value());
-
-	Ref<ICheckpoint> cp = ICore::Instance().CreateCheckpoint(type->Value(), pos, radius->Value(), height->Value(), color);
-
-	if (cp)
-		resource->BindEntity(info.This(), cp.Get());
-	else
-		V8Helpers::Throw(isolate, "Failed to create Checkpoint");
+	V8_CHECK(cp, "Failed to create checkpoint");
+	resource->BindEntity(info.This(), cp.Get());
 }
 
 extern V8Class v8Colshape;

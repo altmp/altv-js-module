@@ -7,26 +7,21 @@ using namespace alt;
 
 static void PointConstructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_CHECK_CONSTRUCTOR();
+	V8_CHECK_ARGS_LEN(4);
+	
+	V8_ARG_TO_INTEGER(1, type);
+	V8_ARG_TO_NUMBER(2, x);
+	V8_ARG_TO_NUMBER(3, y);
+	V8_ARG_TO_NUMBER(4, z);
 
-	V8_CHECK(info.Length() == 4, "4 args expected");
+	alt::Position pos(x, y, z);
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	Ref<IBlip> blip = ICore::Instance().CreateBlip(nullptr, (alt::IBlip::BlipType)type, pos);
 
-	v8::Local<v8::Integer> type = info[0]->ToInteger(isolate);
-	v8::Local<v8::Number> x = info[1]->ToNumber(isolate);
-	v8::Local<v8::Number> y = info[2]->ToNumber(isolate);
-	v8::Local<v8::Number> z = info[3]->ToNumber(isolate);
-
-	alt::Position pos(x->Value(), y->Value(), z->Value());
-
-	Ref<IBlip> blip = ICore::Instance().CreateBlip(nullptr, (alt::IBlip::BlipType)type->Value(), pos);
-
-	if (blip)
-		resource->BindEntity(info.This(), blip.Get());
-	else
-		V8Helpers::Throw(isolate, "Failed to create Blip");
+	V8_CHECK(blip, "Failed to create blip");
+	resource->BindEntity(info.This(), blip.Get());
 }
 
 extern V8Class v8WorldObject;
