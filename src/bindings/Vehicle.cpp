@@ -9,6 +9,20 @@
 
 using namespace alt;
 
+static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+
+    auto vehicle = info.This();
+    V8_OBJECT_GET_INTEGER(vehicle, "id", id);
+	V8_OBJECT_GET_NUMBER(vehicle, "model", model);
+
+	std::ostringstream ss;
+	ss << "Vehicle{ id: " << std::to_string(id) << ", model: " << std::to_string((uint64_t)model) << " }";
+
+	V8_RETURN_STRING(ss.str().c_str());
+}
+
 static void HandlingGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -528,6 +542,8 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
 extern V8Class v8Entity;
 extern V8Class v8Vehicle("Vehicle", v8Entity, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
+
+    V8::SetMethod(isolate, tpl, "toString", ToString);
 
     V8::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
     V8::SetStaticMethod(isolate, tpl, "getByScriptID", StaticGetByScriptID);
