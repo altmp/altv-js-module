@@ -618,21 +618,21 @@ static void LowSpeedTractionLossMultSetter(v8::Local<v8::String>, v8::Local<v8::
 	vehicle->GetHandling()->SetLowSpeedTractionLossMult(fvalue);
 }
 
-static void CamberStiffnesssGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+static void CamberStiffnessGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
 	V8_GET_THIS_INTERNAL_FIELD_ENTITY(1, vehicle, alt::IVehicle);
 
-	V8_RETURN_NUMBER(vehicle->GetHandling()->GetCamberStiffnesss());
+	V8_RETURN_NUMBER(vehicle->GetHandling()->GetCamberStiffness());
 }
 
-static void CamberStiffnesssSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
+static void CamberStiffnessSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
 	V8_GET_THIS_INTERNAL_FIELD_ENTITY(1, vehicle, alt::IVehicle);
 
 	V8_TO_NUMBER(val, fvalue);
-	vehicle->GetHandling()->SetCamberStiffnesss(fvalue);
+	vehicle->GetHandling()->SetCamberStiffness(fvalue);
 }
 
 static void TractionBiasFrontGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -1188,7 +1188,7 @@ extern V8Class v8Handling("Handling", Constructor, [](v8::Local<v8::FunctionTemp
 		V8::SetAccessor(isolate, tpl, "tractionSpringDeltaMax", &TractionSpringDeltaMaxGetter, &TractionSpringDeltaMaxSetter);
 		V8::SetAccessor(isolate, tpl, "tractionSpringDeltaMaxRatio", &TractionSpringDeltaMaxRatioGetter, &TractionSpringDeltaMaxRatioSetter);
 		V8::SetAccessor(isolate, tpl, "lowSpeedTractionLossMult", &LowSpeedTractionLossMultGetter, &LowSpeedTractionLossMultSetter);
-		V8::SetAccessor(isolate, tpl, "camberStiffnesss", &CamberStiffnesssGetter, &CamberStiffnesssSetter);
+		V8::SetAccessor(isolate, tpl, "camberStiffness", &CamberStiffnessGetter, &CamberStiffnessSetter);
 		V8::SetAccessor(isolate, tpl, "tractionBiasFront", &TractionBiasFrontGetter, &TractionBiasFrontSetter);
 		V8::SetAccessor(isolate, tpl, "tractionBiasRear", &TractionBiasRearGetter, &TractionBiasRearSetter);
 		V8::SetAccessor(isolate, tpl, "tractionLossMult", &TractionLossMultGetter, &TractionLossMultSetter);
