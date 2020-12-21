@@ -2,6 +2,7 @@
 
 #include "helpers/V8Helpers.h"
 #include "helpers/V8ResourceImpl.h"
+#include <algorithm>
 
 using namespace alt;
 
@@ -394,14 +395,14 @@ static void SetDateTime(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
 
-	v8::Local<v8::Integer> day = info[0]->ToInteger(isolate);
-	v8::Local<v8::Integer> month = info[1]->ToInteger(isolate);
-	v8::Local<v8::Integer> year = info[2]->ToInteger(isolate);
-	v8::Local<v8::Integer> hour = info[3]->ToInteger(isolate);
-	v8::Local<v8::Integer> minute = info[4]->ToInteger(isolate);
-	v8::Local<v8::Integer> second = info[5]->ToInteger(isolate);
+	int day = std::clamp(static_cast<int>(info[0]->ToInteger(isolate)->Value()), 0, 30);
+	int month = std::clamp(static_cast<int>(info[1]->ToInteger(isolate)->Value()), 0, 11);
+	int year = std::clamp(static_cast<int>(info[2]->ToInteger(isolate)->Value()), 0, 9999);
+	int hour = std::clamp(static_cast<int>(info[3]->ToInteger(isolate)->Value()), 0, 23);
+	int minute = std::clamp(static_cast<int>(info[4]->ToInteger(isolate)->Value()), 0, 59);
+	int second = std::clamp(static_cast<int>(info[5]->ToInteger(isolate)->Value()), 0, 59);
 
-	player->SetDateTime(day->Value(), month->Value(), year->Value(), hour->Value(), minute->Value(), second->Value());
+	player->SetDateTime(day, month, year, hour, minute, second);
 }
 
 static void SetWeather(const v8::FunctionCallbackInfo<v8::Value>& info)
