@@ -542,13 +542,14 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, [](v8::Local<v8::FunctionTemplate>
     V8::SetAccessor(isolate, tpl, "speedVector", &SpeedVectorGetter);
     // proto->SetAccessor(v8::String::NewFromUtf8(isolate, "gravity", &GravityGetter).ToLocalChecked(), &GravitySetter);
     V8::SetAccessor(isolate, tpl, "handling", &HandlingGetter);
+    /* GETTERS BELOW ARE UNIMPLEMENTED
     V8::SetAccessor(isolate, tpl, "isDestroyed", &IsDestroyedGetter);
     V8::SetAccessor(isolate, tpl, "driver", &DriverGetter);
 
     // Appearance getters
     V8::SetAccessor(isolate, tpl, "modKitsCount", &ModKitsCountGetter);
     V8::SetAccessor(isolate, tpl, "modKit", &ModKitGetter);
-    //V8::SetAccessor(isolate, tpl, "hasCustomPrimaryColor", &IsPrimaryColorRGBGetter);
+    V8::SetAccessor(isolate, tpl, "hasCustomPrimaryColor", &IsPrimaryColorRGBGetter);
     V8::SetAccessor(isolate, tpl, "primaryColor", &PrimaryColorGetter);
     V8::SetAccessor(isolate, tpl, "customPrimaryColor", &PrimaryColorRGBGetter);
     //V8::SetAccessor(isolate, tpl, "hasCustomSecondaryColor", &IsSecondaryColorRGBGetter);
@@ -600,5 +601,6 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, [](v8::Local<v8::FunctionTemplate>
 
     // Script getters
     V8::SetAccessor(isolate, tpl, "manualEngineControl", &IsManualEngineControlGetter);
-    //V8::SetAccessor(isolate, tpl, "handlingModified", &IsHandlingModifiedGetter);
+    V8::SetAccessor(isolate, tpl, "handlingModified", &IsHandlingModifiedGetter);
+    */
 });

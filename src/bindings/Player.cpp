@@ -292,7 +292,7 @@ extern V8Class v8Player("Player", v8Entity, [](v8::Local<v8::FunctionTemplate> t
 
     // Weapon getters
     V8::SetAccessor(isolate, tpl, "currentWeaponComponents", &CurrentWeaponComponentsGetter);
-    V8::SetAccessor(isolate, tpl, "currentWeaponTintIndex", &CurrentWeaponTintIndexGetter);
+    //V8::SetAccessor(isolate, tpl, "currentWeaponTintIndex", &CurrentWeaponTintIndexGetter);
     V8::SetAccessor(isolate, tpl, "currentWeapon", &CurrentWeaponGetter);
     V8::SetAccessor(isolate, tpl, "entityAimingAt", &EntityAimingAtGetter);
     V8::SetAccessor(isolate, tpl, "entityAimOffset", &EntityAimOffsetGetter);
@@ -300,11 +300,11 @@ extern V8Class v8Player("Player", v8Entity, [](v8::Local<v8::FunctionTemplate> t
     V8::SetAccessor(isolate, tpl, "aimPos", &AimPosGetter);
 
     // Gamestate getters
-    V8::SetAccessor(isolate, tpl, "isJumping", &IsJumpingGetter);
+    //V8::SetAccessor(isolate, tpl, "isJumping", &IsJumpingGetter);
     V8::SetAccessor(isolate, tpl, "isInRagdoll", &IsInRagdollGetter);
     V8::SetAccessor(isolate, tpl, "isAiming", &IsAimingGetter);
-    V8::SetAccessor(isolate, tpl, "isShooting", &IsShootingGetter);
-    V8::SetAccessor(isolate, tpl, "isReloading", &IsReloadingGetter);
+    //V8::SetAccessor(isolate, tpl, "isShooting", &IsShootingGetter);
+    //V8::SetAccessor(isolate, tpl, "isReloading", &IsReloadingGetter);
     V8::SetAccessor(isolate, tpl, "isDead", &IsDeadGetter);
     V8::SetAccessor(isolate, tpl, "moveSpeed", &MoveSpeedGetter);
     V8::SetAccessor(isolate, tpl, "headRot", &HeadRotationGetter);
