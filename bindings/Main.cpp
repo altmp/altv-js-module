@@ -136,13 +136,12 @@ static void Log(const v8::FunctionCallbackInfo<v8::Value> &info)
 		if (i > 0)
 			ss << " ";
 
-		v8::Local<v8::String> str;
-		if (val->IsObject() || val->IsArray()) {
+		v8::Local<v8::String> str = val->ToString(ctx).ToLocalChecked();
+		if (val->IsObject() && strcmp(*v8::String::Utf8Value(isolate, str), "[object Object]") == 0) {
 			v8::MaybeLocal<v8::String> maybe = v8::JSON::Stringify(ctx, val);
 			v8::Local<v8::String> stringified;
 			if (maybe.ToLocal(&stringified)) str = stringified;
 		}
-		else str = val->ToString(ctx).ToLocalChecked();
 
 		ss << *v8::String::Utf8Value(isolate, str);
 	}
