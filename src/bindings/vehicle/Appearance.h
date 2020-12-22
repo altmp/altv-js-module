@@ -82,7 +82,7 @@ namespace V8::Vehicle
 		V8_OBJECT_GET_INTEGER(color, "g", g);
 		V8_OBJECT_GET_INTEGER(color, "b", b);
 		
-		vehicle->SetPrimaryColorRGB({ r, g, b, 255 });
+		vehicle->SetPrimaryColorRGB({ (uint8_t)r, (uint8_t)g, (uint8_t)b, 255 });
 	}
 
 	void CustomSecondaryColorSetter(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
@@ -95,7 +95,7 @@ namespace V8::Vehicle
 		V8_OBJECT_GET_INTEGER(color, "g", g);
 		V8_OBJECT_GET_INTEGER(color, "b", b);
 		
-		vehicle->SetSecondaryColorRGB({ r, g, b, 255 });
+		vehicle->SetSecondaryColorRGB({ (uint8_t)r, (uint8_t)g, (uint8_t)b, 255 });
 	}
 
 	void CustomSecondaryColorGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -124,7 +124,7 @@ namespace V8::Vehicle
 		V8_OBJECT_GET_INTEGER(color, "g", g);
 		V8_OBJECT_GET_INTEGER(color, "b", b);
 		
-		vehicle->SetTireSmokeColor({ r, g, b, 255 });
+		vehicle->SetTireSmokeColor({ (uint8_t)r, (uint8_t)g, (uint8_t)b, 255 });
 	}
 
 	void NeonColorGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -145,7 +145,7 @@ namespace V8::Vehicle
 		V8_OBJECT_GET_INTEGER(color, "g", g);
 		V8_OBJECT_GET_INTEGER(color, "b", b);
 		
-		vehicle->SetNeonColor({ r, g, b, 255 });
+		vehicle->SetNeonColor({ (uint8_t)r, (uint8_t)g, (uint8_t)b, 255 });
 	}
 
 	void PearlColorGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
