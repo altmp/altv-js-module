@@ -81,10 +81,10 @@ void V8ResourceImpl::OnTick()
 	promiseRejections.ProcessQueue(this);
 }
 
-void V8ResourceImpl::BindEntity(v8::Local<v8::Object> val, alt::IBaseObject *handle)
+void V8ResourceImpl::BindEntity(v8::Local<v8::Object> val, alt::Ref<alt::IBaseObject> handle)
 {
 	V8Entity *ent = new V8Entity(GetContext(), V8Entity::GetClass(handle), val, handle);
-	entities.insert({handle, ent});
+	entities.insert({handle.Get(), ent});
 }
 
 v8::Local<v8::Value> V8ResourceImpl::GetBaseObjectOrNull(alt::IBaseObject *handle)

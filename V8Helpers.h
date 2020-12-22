@@ -473,10 +473,8 @@ namespace V8
 
 #define V8_RETURN_BASE_OBJECT(baseObjectRef) V8_RETURN(resource->GetBaseObjectOrNull(baseObjectRef))
 
-#define V8_BIND_BASE_OBJECT(baseObjectRef, msg) \
+#define V8_BIND_BASE_OBJECT(baseObjectRef) \
 	{ \
-		V8_CHECK(baseObjectRef, "Failed to create base object"); \
-		auto baseObject = (baseObjectRef); \
-		V8_CHECK(!baseObject.IsEmpty(), "Failed to bind base object"); \
-		resource->BindEntity(info.This(), baseObject.Get()); \
+		V8_CHECK(!baseObjectRef.IsEmpty(), "Failed to bind base object"); \
+		resource->BindEntity(info.This(), baseObjectRef); \
 	}

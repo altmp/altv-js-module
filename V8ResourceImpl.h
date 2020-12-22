@@ -116,7 +116,7 @@ public:
 		return ent;
 	}
 
-	void BindEntity(v8::Local<v8::Object> val, alt::IBaseObject *handle);
+	void BindEntity(v8::Local<v8::Object> val, alt::Ref<alt::IBaseObject> handle);
 
 	V8Entity *GetOrCreateEntity(alt::IBaseObject *handle, const char *className = "")
 	{
