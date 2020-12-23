@@ -24,12 +24,13 @@
 	//v8::V8::Dispose();
 }*/
 
+extern V8Module v8Alt;
 static void Initialize(v8::Local<v8::Object> exports)
 {
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 	v8::HandleScope handle_scope(isolate);
 
-	V8Module::All().at("alt")->Register(isolate, isolate->GetEnteredContext(), exports);
+	v8Alt.Register(isolate, isolate->GetEnteredContext(), exports);
 }
 NODE_MODULE_LINKED(alt, Initialize)
 

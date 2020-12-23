@@ -30,6 +30,7 @@ add_definitions(-DBUILDING_CHAKRASHIM=1)
 add_definitions(-DHTTP_PARSER_STRICT=0)
 add_definitions(-DNGHTTP2_STATICLIB)
 add_definitions(-DHAVE_INSPECTOR=1)
+add_definitions(-DALT_SERVER_API)
 
 file(GLOB_RECURSE PROJECT_SOURCE_FILES "src/*.h" "src/*.hpp" "src/*.cpp")
 
