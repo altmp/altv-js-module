@@ -29,11 +29,12 @@ static void PointConstructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 		V8Helpers::Throw(isolate, "Failed to create Blip");
 }
 
-static V8Class v8Blip("Blip", "WorldObject", nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
+extern V8Class v8WorldObject;
+extern V8Class v8Blip("Blip", v8WorldObject, nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 });
 
-static V8Class v8PointBlip("PointBlip", "Blip", PointConstructor, [](v8::Local<v8::FunctionTemplate> tpl) {
+extern V8Class v8PointBlip("PointBlip", v8Blip, PointConstructor, [](v8::Local<v8::FunctionTemplate> tpl) {
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 });
 
