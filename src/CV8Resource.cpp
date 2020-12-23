@@ -189,8 +189,22 @@ bool CV8ResourceImpl::Stop()
 		v8::Locker locker(isolate);
 		v8::Isolate::Scope isolateScope(isolate);
 		v8::HandleScope handleScope(isolate);
+		auto ctx = GetContext();
+		v8::Context::Scope scope(ctx);
 
-		v8::Context::Scope scope(GetContext());
+		auto resources = static_cast<CV8ScriptRuntime*>(resource->GetRuntime())->GetResources();
+		auto name = this->resource->GetName().ToString();
+		for(auto res : resources)
+		{
+			auto it = res->modules.find(name);
+			if(it != res->modules.end()) {
+				res->modules.erase(it);
+			}
+			auto found = res->requires.find(name);
+			if(found != res->requires.end()) {
+				res->requires.erase(found);
+			}
+		}
 
 		DispatchStopEvent();
 	}
@@ -806,7 +820,6 @@ v8::MaybeLocal<v8::Module> CV8ResourceImpl::ResolveModule(const std::string &_na
 				if (!maybeModule.IsEmpty())
 				{
 					v8::Local<v8::Module> _module = maybeModule.ToLocalChecked();
-
 					modules.emplace(name, v8::UniquePersistent<v8::Module>{isolate, _module});
 
 					/*v8::Maybe<bool> res = _module->InstantiateModule(GetContext(), CV8ScriptRuntime::ResolveModule);
