@@ -130,16 +130,6 @@ static void SetCursorPos(const v8::FunctionCallbackInfo<v8::Value> &info)
 	ICore::Instance().SetCursorPosition({ x, y });
 }
 
-static void LoadModel(const v8::FunctionCallbackInfo<v8::Value> &info)
-{
-	Log::Warning << "loadModel is deprecated, this function has no effect" << Log::Endl;
-}
-
-static void LoadModelAsync(const v8::FunctionCallbackInfo<v8::Value> &info)
-{
-	Log::Warning << "loadModelAsync is deprecated, this function has no effect" << Log::Endl;
-}
-
 static void IsTextureExistInArchetype(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
 	V8_GET_ISOLATE_CONTEXT();
@@ -679,6 +669,30 @@ static void IsGameFocused(const v8::FunctionCallbackInfo<v8::Value> &info)
 	V8_RETURN_BOOLEAN(alt::ICore::Instance().IsGameFocused());
 }
 
+static void LoadModel(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_UINT32(1, hash);
+
+	alt::ICore::Instance().LoadModel(hash);
+
+	Log::Warning << "loadModel is deprecated and it will be removed in the future. Please use the native requestModel." << Log::Endl;
+}
+
+static void LoadModelAsync(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_UINT32(1, hash);
+
+	alt::ICore::Instance().LoadModelAsync(hash);
+
+	Log::Warning << "loadModelAsync is deprecated and it will be removed in the future. Please use the native requestModel." << Log::Endl;
+}
+
 extern V8Class v8Vector3,
 	v8RGBA,
 	v8BaseObject,
@@ -799,4 +813,7 @@ extern V8Module altModule(
 		V8Helpers::RegisterFunc(exports, "takeScreenshotGameOnly", &TakeScreenshotGameOnly);
 
 		V8Helpers::RegisterFunc(exports, "isGameFocused", &IsGameFocused);
+
+		V8Helpers::RegisterFunc(exports, "loadModel", &LoadModel);
+		V8Helpers::RegisterFunc(exports, "loadModelAsync", &LoadModelAsync);
 	});
