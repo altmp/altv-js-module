@@ -214,11 +214,11 @@ bool CV8ResourceImpl::OnEvent(const alt::CEvent *e)
 
 	switch (e->GetType())
 	{
-	case alt::CEvent::Type::RENDER:
-	{
-		handlers = GetLocalHandlers("render");
-		break;
-	}
+	//case alt::CEvent::Type::RENDER:
+	//{
+	//	handlers = GetLocalHandlers("render");
+	//	break;
+	//}
 	case alt::CEvent::Type::WEB_VIEW_EVENT:
 	{
 		auto ev = static_cast<const alt::CWebViewEvent *>(e);
