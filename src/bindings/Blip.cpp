@@ -103,14 +103,14 @@ static void ScaleGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8
 {
 	V8_GET_ISOLATE_CONTEXT();
 	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
-	V8_RETURN_INTEGER(blip->GetScaleXY()[0]);
+	V8_RETURN_NUMBER(blip->GetScaleXY()[0]);
 }
 
 static void ScaleSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
 	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
-	V8_TO_INTEGER(value, val);
+	V8_TO_NUMBER(value, val);
 	blip->SetScaleXY(val, val);
 }
 
