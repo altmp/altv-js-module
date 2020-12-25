@@ -531,7 +531,7 @@ static void GetConfigFlag(const v8::FunctionCallbackInfo<v8::Value> &info)
 	V8_RETURN_BOOLEAN(ICore::Instance().GetConfigFlag(flag));
 }
 
-static void DoesConfigFlagExist(const v8::FunctionCallbackInfo<v8::Value> &info)
+static void DoesConfigFlagExist(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
 	V8_CHECK_ARGS_LEN(1);
@@ -539,6 +539,28 @@ static void DoesConfigFlagExist(const v8::FunctionCallbackInfo<v8::Value> &info)
 	V8_ARG_TO_STRING(1, flag);
 
 	V8_RETURN_BOOLEAN(ICore::Instance().DoesConfigFlagExist(flag));
+}
+
+static void LoadYtyp(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(2);
+
+	V8_ARG_TO_STRING(1, path);
+	V8_ARG_TO_STRING(2, type);
+
+	V8_RETURN_BOOLEAN(ICore::Instance().LoadYtyp(path.ToString()));
+}
+
+static void UnloadYtyp(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(2);
+
+	V8_ARG_TO_STRING(1, path);
+	V8_ARG_TO_STRING(2, type);
+
+	V8_RETURN_BOOLEAN(ICore::Instance().UnloadYtyp(path.ToString()));
 }
 
 // extern V8Class v8MemoryBuffer;
@@ -816,4 +838,7 @@ extern V8Module altModule(
 
 		V8Helpers::RegisterFunc(exports, "loadModel", &LoadModel);
 		V8Helpers::RegisterFunc(exports, "loadModelAsync", &LoadModelAsync);
+
+		V8Helpers::RegisterFunc(exports, "loadYtyp", &LoadYtyp);
+		V8Helpers::RegisterFunc(exports, "unloadYtyp", &UnloadYtyp);
 	});
