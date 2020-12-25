@@ -45,7 +45,7 @@ static void GetForHandlingNameDeprecated(const v8::FunctionCallbackInfo<v8::Valu
 	extern V8Class v8HandlingData;
 	V8_RETURN(v8HandlingData.New(isolate->GetEnteredContext(), args));
 
-	Log::Warning << "alt.HandlingData.getForModel is deprecated and will be removed in the future. Please use alt.HandlingData.getForHandlingName" << Log::Endl;
+	Log::Warning << "alt.HandlingData.getForModelName is deprecated and will be removed in the future. Please use alt.HandlingData.getForHandlingName" << Log::Endl;
 }
 
 static void HandlingNameHashGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -1782,7 +1782,7 @@ extern V8Class v8HandlingData("HandlingData", Constructor, [](v8::Local<v8::Func
 		tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
 		V8::SetStaticMethod(isolate, tpl, "getForHandlingName", &GetForHandlingName);
-		V8::SetStaticMethod(isolate, tpl, "getForModel", &GetForHandlingNameDeprecated);
+		V8::SetStaticMethod(isolate, tpl, "getForModelName", &GetForHandlingNameDeprecated);
 
 		V8::SetAccessor(isolate, tpl, "handlingNameHash", &HandlingNameHashGetter);
 		V8::SetAccessor(isolate, tpl, "mass", &MassGetter, &MassSetter);
