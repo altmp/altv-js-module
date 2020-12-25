@@ -544,10 +544,9 @@ static void DoesConfigFlagExist(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void LoadYtyp(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
-	V8_CHECK_ARGS_LEN(2);
+	V8_CHECK_ARGS_LEN(1);
 
 	V8_ARG_TO_STRING(1, path);
-	V8_ARG_TO_STRING(2, type);
 
 	V8_RETURN_BOOLEAN(ICore::Instance().LoadYtyp(path.ToString()));
 }
@@ -555,10 +554,9 @@ static void LoadYtyp(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void UnloadYtyp(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
-	V8_CHECK_ARGS_LEN(2);
+	V8_CHECK_ARGS_LEN(1);
 
 	V8_ARG_TO_STRING(1, path);
-	V8_ARG_TO_STRING(2, type);
 
 	V8_RETURN_BOOLEAN(ICore::Instance().UnloadYtyp(path.ToString()));
 }
