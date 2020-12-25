@@ -59,6 +59,8 @@ public:
 		}
 	}
 
+	std::vector<V8::EventCallback *> GetWebviewHandlers(alt::Ref<alt::IWebView> view, const std::string &name);
+
 	void AddOwned(alt::Ref<alt::IBaseObject> handle)
 	{
 		ownedObjects.insert(handle);

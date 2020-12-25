@@ -205,318 +205,38 @@ bool CV8ResourceImpl::OnEvent(const alt::CEvent *e)
 	v8::Locker locker(isolate);
 	v8::Isolate::Scope isolateScope(isolate);
 	v8::HandleScope handleScope(isolate);
-	auto ctx = GetContext();
-	if (ctx.IsEmpty())
+
+	v8::Context::Scope scope(GetContext());
+
+	V8::EventHandler* handler = V8::EventHandler::Get(e);
+	if (!handler)
 		return true;
-	v8::Context::Scope scope(ctx);
 
-	std::vector<V8::EventCallback *> handlers;
-
-	switch (e->GetType())
+	std::vector<V8::EventCallback*> callbacks = handler->GetCallbacks(this, e);
+	if (callbacks.size() > 0)
 	{
-	//case alt::CEvent::Type::RENDER:
-	//{
-	//	handlers = GetLocalHandlers("render");
-	//	break;
-	//}
-	case alt::CEvent::Type::WEB_VIEW_EVENT:
-	{
-		auto ev = static_cast<const alt::CWebViewEvent *>(e);
-		auto it = webViewHandlers.find(ev->GetTarget().Get());
+		std::vector<v8::Local<v8::Value>> args = handler->GetArgs(this, e);
 
-		if (it != webViewHandlers.end())
-		{
-			auto range = it->second.equal_range(ev->GetName().ToString());
-
-			for (auto it = range.first; it != range.second; ++it)
-				handlers.push_back(&it->second);
-		}
-
-		break;
-	}
-	case alt::CEvent::Type::CLIENT_SCRIPT_EVENT:
-	{
-		auto ev = static_cast<const alt::CClientScriptEvent *>(e);
-		handlers = GetLocalHandlers(ev->GetName().ToString());
-		break;
-	}
-	case alt::CEvent::Type::SERVER_SCRIPT_EVENT:
-	{
-		auto ev = static_cast<const alt::CServerScriptEvent *>(e);
-		handlers = GetRemoteHandlers(ev->GetName().ToString());
-		break;
-	}
-	case alt::CEvent::Type::KEYBOARD_EVENT:
-	{
-		auto ev = static_cast<const alt::CKeyboardEvent *>(e);
-
-		if (ev->GetKeyState() == alt::CKeyboardEvent::KeyState::UP)
-			handlers = GetLocalHandlers("keyup");
-		else if (ev->GetKeyState() == alt::CKeyboardEvent::KeyState::DOWN)
-			handlers = GetLocalHandlers("keydown");
-
-		break;
-	}
-	case alt::CEvent::Type::CONNECTION_COMPLETE:
-	{
-		handlers = GetLocalHandlers("connectionComplete");
-		CV8ScriptRuntime* runtime = CV8ScriptRuntime::instance;
-		runtime->resourcesLoaded = true;
-
-		ProcessDynamicImports();
-
-		break;
-	}
-	case alt::CEvent::Type::DISCONNECT_EVENT:
-	{
-		handlers = GetLocalHandlers("disconnect");
-		break;
-	}
-	case alt::CEvent::Type::REMOVE_ENTITY_EVENT:
-	{
-		handlers = GetLocalHandlers("removeEntity");
-		break;
-	}
-	case alt::CEvent::Type::CONSOLE_COMMAND_EVENT:
-	{
-		handlers = GetLocalHandlers("consoleCommand");
-		break;
-	}
-	case alt::CEvent::Type::GAME_ENTITY_CREATE:
-	{
-		handlers = GetLocalHandlers("gameEntityCreate");
-		break;
-	}
-	case alt::CEvent::Type::GAME_ENTITY_DESTROY:
-	{
-		handlers = GetLocalHandlers("gameEntityDestroy");
-		break;
-	}
-	case alt::CEvent::Type::SYNCED_META_CHANGE:
-	{
-		handlers = GetLocalHandlers("syncedMetaChange");
-		break;
-	}
-	case alt::CEvent::Type::STREAM_SYNCED_META_CHANGE:
-	{
-		handlers = GetLocalHandlers("streamSyncedMetaChange");
-		break;
-	}
-	case alt::CEvent::Type::GLOBAL_META_CHANGE:
-	{
-		handlers = GetLocalHandlers("globalMetaChange");
-		break;
-	}
-	case alt::CEvent::Type::GLOBAL_SYNCED_META_CHANGE:
-	{
-		handlers = GetLocalHandlers("globalSyncedMetaChange");
-		break;
-	}
-	case alt::CEvent::Type::RESOURCE_START:
-	{
-		handlers = GetLocalHandlers("anyResourceStart");
-		break;
-	}
-	case alt::CEvent::Type::RESOURCE_STOP:
-	{
-		handlers = GetLocalHandlers("anyResourceStop");
-		break;
-	}
-	case alt::CEvent::Type::RESOURCE_ERROR:
-	{
-		handlers = GetLocalHandlers("anyResourceError");
-		break;
-	}
-	case alt::CEvent::Type::PLAYER_ENTER_VEHICLE:
-	{
-		handlers = GetLocalHandlers("enteredVehicle");
-		break;
-	}
-	case alt::CEvent::Type::PLAYER_LEAVE_VEHICLE:
-	{
-		handlers = GetLocalHandlers("leftVehicle");
-		break;
-	}
-	case alt::CEvent::Type::PLAYER_CHANGE_VEHICLE_SEAT:
-	{
-		handlers = GetLocalHandlers("changedVehicleSeat");
-		break;
-	}
-	}
-
-	if (handlers.size() > 0)
-	{
-		std::vector<v8::Local<v8::Value>> args;
-
-		switch (e->GetType())
-		{
-		case alt::CEvent::Type::WEB_VIEW_EVENT:
-		{
-			auto ev = static_cast<const alt::CWebViewEvent *>(e);
-
-			V8Helpers::MValueArgsToV8(ev->GetArgs(), args);
-
-			break;
-		}
-		case alt::CEvent::Type::CLIENT_SCRIPT_EVENT:
-		{
-			auto ev = static_cast<const alt::CClientScriptEvent *>(e);
-
-			V8Helpers::MValueArgsToV8(ev->GetArgs(), args);
-
-			break;
-		}
-		case alt::CEvent::Type::SERVER_SCRIPT_EVENT:
-		{
-			auto ev = static_cast<const alt::CServerScriptEvent *>(e);
-
-			V8Helpers::MValueArgsToV8(ev->GetArgs(), args);
-
-			break;
-		}
-		case alt::CEvent::Type::KEYBOARD_EVENT:
-		{
-			auto ev = static_cast<const alt::CKeyboardEvent *>(e);
-
-			args.push_back(v8::Integer::NewFromUnsigned(isolate, ev->GetKeyCode()));
-
-			break;
-		}
-		case alt::CEvent::Type::CONNECTION_COMPLETE:
-		{
-			break;
-		}
-		case alt::CEvent::Type::DISCONNECT_EVENT:
-		{
-			CV8ScriptRuntime::instance->resourcesLoaded = false;
-			break;
-		}
-		case alt::CEvent::Type::REMOVE_ENTITY_EVENT:
-		{
-			auto ev = static_cast<const alt::CRemoveEntityEvent *>(e);
-
-			args.push_back(GetOrCreateEntity(ev->GetEntity().Get())->GetJSVal(isolate));
-
-			break;
-		}
-		case alt::CEvent::Type::CONSOLE_COMMAND_EVENT:
-		{
-			auto ev = static_cast<const alt::CConsoleCommandEvent *>(e);
-
-			args.push_back(v8::String::NewFromUtf8(isolate, ev->GetName().CStr()).ToLocalChecked());
-			for (auto &arg : ev->GetArgs())
-				args.push_back(v8::String::NewFromUtf8(isolate, arg.CStr()).ToLocalChecked());
-
-			break;
-		}
-		case alt::CEvent::Type::GAME_ENTITY_CREATE:
-		{
-			auto ev = static_cast<const alt::CGameEntityCreateEvent *>(e);
-
-			args.push_back(GetOrCreateEntity(ev->GetTarget().Get())->GetJSVal(isolate));
-
-			break;
-		}
-		case alt::CEvent::Type::GAME_ENTITY_DESTROY:
-		{
-			auto ev = static_cast<const alt::CGameEntityDestroyEvent *>(e);
-
-			args.push_back(GetOrCreateEntity(ev->GetTarget().Get())->GetJSVal(isolate));
-
-			break;
-		}
-		case alt::CEvent::Type::SYNCED_META_CHANGE:
-		{
-			auto ev = static_cast<const alt::CSyncedMetaDataChangeEvent *>(e);
-
-			args.push_back(GetOrCreateEntity(ev->GetTarget().Get())->GetJSVal(isolate));
-			args.push_back(v8::String::NewFromUtf8(isolate, ev->GetKey().CStr()).ToLocalChecked());
-			args.push_back(V8Helpers::MValueToV8(ev->GetVal()));
-			args.push_back(V8Helpers::MValueToV8(ev->GetOldVal()));
-
-			break;
-		}
-		case alt::CEvent::Type::STREAM_SYNCED_META_CHANGE:
-		{
-			auto ev = static_cast<const alt::CStreamSyncedMetaDataChangeEvent *>(e);
-
-			args.push_back(GetOrCreateEntity(ev->GetTarget().Get())->GetJSVal(isolate));
-			args.push_back(v8::String::NewFromUtf8(isolate, ev->GetKey().CStr()).ToLocalChecked());
-			args.push_back(V8Helpers::MValueToV8(ev->GetVal()));
-			args.push_back(V8Helpers::MValueToV8(ev->GetOldVal()));
-
-			break;
-		}
-		case alt::CEvent::Type::GLOBAL_META_CHANGE:
-		{
-			auto ev = static_cast<const alt::CGlobalSyncedMetaDataChangeEvent *>(e);
-
-			args.push_back(v8::String::NewFromUtf8(isolate, ev->GetKey().CStr()).ToLocalChecked());
-			args.push_back(V8Helpers::MValueToV8(ev->GetVal()));
-			args.push_back(V8Helpers::MValueToV8(ev->GetOldVal()));
-
-			break;
-		}
-		case alt::CEvent::Type::GLOBAL_SYNCED_META_CHANGE:
-		{
-			auto ev = static_cast<const alt::CGlobalSyncedMetaDataChangeEvent *>(e);
-
-			args.push_back(v8::String::NewFromUtf8(isolate, ev->GetKey().CStr()).ToLocalChecked());
-			args.push_back(V8Helpers::MValueToV8(ev->GetVal()));
-			args.push_back(V8Helpers::MValueToV8(ev->GetOldVal()));
-
-			break;
-		}
-		case alt::CEvent::Type::RESOURCE_START:
-		{
-			auto ev = static_cast<const alt::CResourceStartEvent *>(e);
-			args.push_back(v8::String::NewFromUtf8(isolate, ev->GetResource()->GetName().CStr()).ToLocalChecked());
-			break;
-		}
-		case alt::CEvent::Type::RESOURCE_STOP:
-		{
-			auto ev = static_cast<const alt::CResourceStopEvent *>(e);
-			args.push_back(v8::String::NewFromUtf8(isolate, ev->GetResource()->GetName().CStr()).ToLocalChecked());
-			break;
-		}
-		case alt::CEvent::Type::RESOURCE_ERROR:
-		{
-			auto ev = static_cast<const alt::CResourceErrorEvent *>(e);
-			args.push_back(v8::String::NewFromUtf8(isolate, ev->GetResource()->GetName().CStr()).ToLocalChecked());
-			break;
-		}
-		case alt::CEvent::Type::PLAYER_ENTER_VEHICLE:
-		{
-			auto ev = static_cast<const alt::CPlayerEnterVehicleEvent*>(e);
-
-			args.push_back(GetOrCreateEntity(ev->GetTarget().Get())->GetJSVal(isolate));
-			args.push_back(v8::Integer::New(isolate, ev->GetSeat()));
-			break;
-		}
-		case alt::CEvent::Type::PLAYER_LEAVE_VEHICLE:
-		{
-			auto ev = static_cast<const alt::CPlayerLeaveVehicleEvent*>(e);
-
-			args.push_back(GetOrCreateEntity(ev->GetTarget().Get())->GetJSVal(isolate));
-			args.push_back(v8::Integer::New(isolate, ev->GetSeat()));
-			break;
-		}
-		case alt::CEvent::Type::PLAYER_CHANGE_VEHICLE_SEAT:
-		{
-			auto ev = static_cast<const alt::CPlayerChangeVehicleSeatEvent*>(e);
-
-			args.push_back(GetOrCreateEntity(ev->GetTarget().Get())->GetJSVal(isolate));
-			args.push_back(v8::Integer::New(isolate, ev->GetOldSeat()));
-			args.push_back(v8::Integer::New(isolate, ev->GetNewSeat()));
-			break;
-		}
-
-		}
-
-		InvokeEventHandlers(e, handlers, args);
+		InvokeEventHandlers(e, callbacks, args);
 	}
 
 	return true;
+}
+
+std::vector<V8::EventCallback *> CV8ResourceImpl::GetWebviewHandlers(alt::Ref<alt::IWebView> view, const std::string &name)
+{
+	std::vector<V8::EventCallback *> handlers;
+	auto it = webViewHandlers.find(view.Get());
+
+	if (it != webViewHandlers.end())
+	{
+		auto range = it->second.equal_range(name);
+
+		for (auto it = range.first; it != range.second; ++it)
+			handlers.push_back(&it->second);
+	}
+
+	return handlers;
 }
 
 void CV8ResourceImpl::OnTick()
