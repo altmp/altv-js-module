@@ -44,6 +44,7 @@ static void DestroyedGetter(v8::Local<v8::String> name, const v8::PropertyCallba
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	v8::Isolate* isolate = info.GetIsolate();
+	V8_CHECK_CONSTRUCTOR();
 
 	V8_CHECK(info.Length() == 7, "7 args expected");
 	V8_CHECK(info[0]->IsString() || info[0]->IsNumber(), "string or number expected");
