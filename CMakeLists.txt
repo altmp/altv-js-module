@@ -49,6 +49,7 @@ endmacro()
 GroupSources(${PROJECT_SOURCE_DIR}/src "Source Files")
 
 include_directories(
+  ${ALTV_JS_CPP_SDK}
   src
   ${ALTV_JS_DL_DEPS}/include
 )
