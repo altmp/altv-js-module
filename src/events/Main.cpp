@@ -49,7 +49,7 @@ V8::EventHandler webviewEvent(
 	[](V8ResourceImpl* resource, const CEvent* e) {
 		auto ev = static_cast<const alt::CWebViewEvent*>(e);
 
-		return static_cast<CV8ResourceImpl*>(resource)->GetWebviewHandlers(ev->GetTarget(), ev->GetName().ToString());
+		return static_cast<CV8ResourceImpl*>(resource)->GetWebViewHandlers(ev->GetTarget(), ev->GetName().ToString());
 	},
 	[](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
 		auto ev = static_cast<const alt::CWebViewEvent*>(e);

@@ -59,6 +59,8 @@ public:
 		}
 	}
 
+	std::vector<V8::EventCallback*> GetWebViewHandlers(alt::Ref<alt::IWebView> view, const std::string& name);
+
 	void SubscribeWebSocketClient(alt::Ref<alt::IWebSocketClient> view, const std::string &evName, v8::Local<v8::Function> cb, V8::SourceLocation &&location)
 	{
 		webSocketClientHandlers[view].insert({evName, V8::EventCallback{isolate, cb, std::move(location)}});
@@ -79,6 +81,8 @@ public:
 			}
 		}
 	}
+	
+	std::vector<V8::EventCallback*> GetWebSocketClientHandlers(alt::Ref<alt::IWebSocketClient> webSocket, const std::string& name);
 
 	void AddOwned(alt::Ref<alt::IBaseObject> handle)
 	{
