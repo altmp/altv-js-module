@@ -12,6 +12,7 @@
 #include "cpp-sdk/events/CServerScriptEvent.h"
 #include "cpp-sdk/events/CKeyboardEvent.h"
 #include "cpp-sdk/events/CWebViewEvent.h"
+#include "cpp-sdk/events/CWebSocketClientEvent.h"
 
 #include "cpp-sdk/SDK.h"
 
@@ -53,6 +54,20 @@ V8::EventHandler webviewEvent(
 	},
 	[](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
 		auto ev = static_cast<const alt::CWebViewEvent*>(e);
+
+		V8Helpers::MValueArgsToV8(ev->GetArgs(), args);
+	}
+);
+
+V8::EventHandler webSocketEvent(
+	EventType::WEB_SOCKET_CLIENT_EVENT,
+	[](V8ResourceImpl* resource, const CEvent* e) {
+		auto ev = static_cast<const alt::CWebSocketClientEvent*>(e);
+
+		return static_cast<CV8ResourceImpl*>(resource)->GetWebSocketClientHandlers(ev->GetTarget(), ev->GetName().ToString());
+	},
+	[](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+		auto ev = static_cast<const alt::CWebSocketClientEvent*>(e);
 
 		V8Helpers::MValueArgsToV8(ev->GetArgs(), args);
 	}
