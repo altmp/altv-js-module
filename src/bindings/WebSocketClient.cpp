@@ -51,18 +51,6 @@ static void Off(const v8::FunctionCallbackInfo<v8::Value>& info)
 	static_cast<CV8ResourceImpl*>(resource)->UnsubscribeWebSocketClient(webSocket, evName.ToString(), fun);
 }
 
-static void SetPingInterval(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-	V8_GET_ISOLATE_CONTEXT();
-
-	V8_CHECK_ARGS_LEN(1);
-	V8_ARG_TO_UINT32(1, intervalSecs);
-
-	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
-
-	webSocket->SetPingInterval(intervalSecs);
-}
-
 static void Start(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE(info);
@@ -122,6 +110,46 @@ static void StateGetter(v8::Local<v8::String> property, const v8::PropertyCallba
 	V8_RETURN_UINT32(webSocket->GetState());
 }
 
+static void AutoReconnectSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+
+	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
+
+	V8_TO_BOOLEAN(value, toggle);
+
+	webSocket->SetAutoReconnectEnabled(toggle);
+}
+
+static void AutoReconnectGetter(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE(info);
+
+	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
+
+	V8_RETURN_BOOLEAN(webSocket->IsAutoReconnectEnabled());
+}
+
+static void PingIntervalSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+
+	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
+
+	V8_TO_INTEGER(value, interval);
+
+	webSocket->SetPingInterval(interval);
+}
+
+static void PingIntervalGetter(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE(info);
+
+	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
+
+	V8_RETURN_UINT32(webSocket->GetPingInterval());
+}
+
 extern V8Class v8BaseObject;
 extern V8Class v8WebSocketClient("WebSocketClient", v8BaseObject, &Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -129,11 +157,12 @@ extern V8Class v8WebSocketClient("WebSocketClient", v8BaseObject, &Constructor, 
 	V8::SetMethod(isolate, tpl, "on", &On);
 	V8::SetMethod(isolate, tpl, "off", &Off);
 
-	V8::SetMethod(isolate, tpl, "setPingInterval", &SetPingInterval);
 	V8::SetMethod(isolate, tpl, "start", &Start);
 	V8::SetMethod(isolate, tpl, "send", &Send);
 	V8::SetMethod(isolate, tpl, "stop", &Stop);
 
+	V8::SetAccessor(isolate, tpl, "autoReconnect", &AutoReconnectGetter, &AutoReconnectSetter);
+	V8::SetAccessor(isolate, tpl, "pingInterval", &PingIntervalGetter, &PingIntervalSetter);
 	V8::SetAccessor(isolate, tpl, "url", &URLGetter, &URLSetter);
 	V8::SetAccessor(isolate, tpl, "state", &StateGetter, nullptr);
 });

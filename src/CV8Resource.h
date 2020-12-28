@@ -38,17 +38,17 @@ public:
 	void OnPromiseRejectedWithNoHandler(v8::PromiseRejectMessage &data);
 	void OnPromiseHandlerAdded(v8::PromiseRejectMessage &data);
 
-	void SubscribeWebView(alt::Ref<alt::IWebView> view, const std::string& evName, v8::Local<v8::Function> cb, V8::SourceLocation&& location)
+	void SubscribeWebView(alt::Ref<alt::IWebView> view, const std::string &evName, v8::Local<v8::Function> cb, V8::SourceLocation &&location)
 	{
-		webViewHandlers[view].insert({ evName, V8::EventCallback{isolate, cb, std::move(location)} });
+		webViewHandlers[view].insert({evName, V8::EventCallback{isolate, cb, std::move(location)}});
 	}
 
-	void UnsubscribeWebView(alt::Ref<alt::IWebView> view, const std::string& evName, v8::Local<v8::Function> cb)
+	void UnsubscribeWebView(alt::Ref<alt::IWebView> view, const std::string &evName, v8::Local<v8::Function> cb)
 	{
 		auto it = webViewHandlers.find(view);
 		if (it != webViewHandlers.end())
 		{
-			auto& viewEvents = it->second;
+			auto &viewEvents = it->second;
 			auto range = viewEvents.equal_range(evName);
 
 			for (auto it = range.first; it != range.second; ++it)
@@ -59,19 +59,17 @@ public:
 		}
 	}
 
-	std::vector<V8::EventCallback*> GetWebviewHandlers(alt::Ref<alt::IWebView> view, const std::string& name);
-
-	void SubscribeWebSocketClient(alt::Ref<alt::IWebSocketClient> webSocket, const std::string& evName, v8::Local<v8::Function> cb, V8::SourceLocation&& location)
+	void SubscribeWebSocketClient(alt::Ref<alt::IWebSocketClient> view, const std::string &evName, v8::Local<v8::Function> cb, V8::SourceLocation &&location)
 	{
-		webSocketClientHandlers[webSocket].insert({ evName, V8::EventCallback{isolate, cb, std::move(location)} });
+		webSocketClientHandlers[view].insert({evName, V8::EventCallback{isolate, cb, std::move(location)}});
 	}
 
-	void UnsubscribeWebSocketClient(alt::Ref<alt::IWebSocketClient> webSocket, const std::string& evName, v8::Local<v8::Function> cb)
+	void UnsubscribeWebSocketClient(alt::Ref<alt::IWebSocketClient> view, const std::string &evName, v8::Local<v8::Function> cb)
 	{
-		auto it = webSocketClientHandlers.find(webSocket);
+		auto it = webSocketClientHandlers.find(view);
 		if (it != webSocketClientHandlers.end())
 		{
-			auto& webSocketEvents = it->second;
+			auto &webSocketEvents = it->second;
 			auto range = webSocketEvents.equal_range(evName);
 
 			for (auto it = range.first; it != range.second; ++it)
@@ -81,8 +79,6 @@ public:
 			}
 		}
 	}
-
-	std::vector<V8::EventCallback*> GetWebSocketClientHandlers(alt::Ref<alt::IWebSocketClient> webSocket, const std::string& name);
 
 	void AddOwned(alt::Ref<alt::IBaseObject> handle)
 	{
