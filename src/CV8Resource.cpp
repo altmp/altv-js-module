@@ -223,12 +223,28 @@ bool CV8ResourceImpl::OnEvent(const alt::CEvent *e)
 	return true;
 }
 
-std::vector<V8::EventCallback *> CV8ResourceImpl::GetWebviewHandlers(alt::Ref<alt::IWebView> view, const std::string &name)
+std::vector<V8::EventCallback*> CV8ResourceImpl::GetWebviewHandlers(alt::Ref<alt::IWebView> view, const std::string& name)
 {
-	std::vector<V8::EventCallback *> handlers;
+	std::vector<V8::EventCallback*> handlers;
 	auto it = webViewHandlers.find(view.Get());
 
 	if (it != webViewHandlers.end())
+	{
+		auto range = it->second.equal_range(name);
+
+		for (auto it = range.first; it != range.second; ++it)
+			handlers.push_back(&it->second);
+	}
+
+	return handlers;
+}
+
+std::vector<V8::EventCallback*> CV8ResourceImpl::GetWebSocketClientHandlers(alt::Ref<alt::IWebSocketClient> view, const std::string& name)
+{
+	std::vector<V8::EventCallback*> handlers;
+	auto it = webSocketClientHandlers.find(view.Get());
+
+	if (it != webSocketClientHandlers.end())
 	{
 		auto range = it->second.equal_range(name);
 
@@ -256,12 +272,23 @@ void CV8ResourceImpl::OnTick()
 		Log::Warning << "Resource " << resource->GetName() << " tick was too long " << GetTime() - time << " ms" << Log::Endl;
 	}
 
-	for (auto &view : webViewHandlers)
+	for (auto& view : webViewHandlers)
 	{
 		for (auto it = view.second.begin(); it != view.second.end();)
 		{
 			if (it->second.removed)
 				it = view.second.erase(it);
+			else
+				++it;
+		}
+	}
+
+	for (auto& webSocket : webSocketClientHandlers)
+	{
+		for (auto it = webSocket.second.begin(); it != webSocket.second.end();)
+		{
+			if (it->second.removed)
+				it = webSocket.second.erase(it);
 			else
 				++it;
 		}
