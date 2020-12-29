@@ -189,6 +189,8 @@ static void IsVoiceActivityInputEnabled(const v8::FunctionCallbackInfo<v8::Value
 {
 	V8_GET_ISOLATE_CONTEXT();
 
+	Log::Warning << "alt.isVoiceActivityInputEnabled is deprecated and will be removed in the future. Please use alt.Voice.activityInputEnabled" << Log::Endl;
+
 	V8_RETURN_BOOLEAN(ICore::Instance().IsVoiceActivationEnabled());
 }
 
