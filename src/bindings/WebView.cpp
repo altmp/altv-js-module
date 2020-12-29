@@ -124,7 +124,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 	V8_CHECK_CONSTRUCTOR();
-	V8_CHECK_ARGS_LEN_MIN_MAX(1, 3);
+	V8_CHECK_ARGS_LEN_MIN_MAX(1, 4);
 
 	V8_ARG_TO_STRING(1, url);
 
@@ -133,7 +133,34 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 	alt::Ref<IWebView> view = nullptr;
 
-	if (info.Length() == 3)
+	if (info.Length() == 4)
+	{
+		V8_ARG_TO_BOOLEAN(2, isOverlayBool);
+		V8_ARG_TO_OBJECT(3, pos);
+		V8_ARG_TO_OBJECT(4, size);
+
+		V8_OBJECT_GET_INTEGER(pos, "x", posX);
+		V8_OBJECT_GET_INTEGER(pos, "y", posY);
+
+		V8_OBJECT_GET_INTEGER(size, "x", sizeX);
+		V8_OBJECT_GET_INTEGER(size, "y", sizeY);
+
+		view = alt::ICore::Instance().CreateWebView(altres, url, { posX, posY }, { sizeX, sizeY }, true, isOverlayBool);
+	}
+	else if (info.Length() == 3 && info[2]->IsObject())
+	{
+		V8_ARG_TO_OBJECT(2, pos);
+		V8_ARG_TO_OBJECT(3, size);
+
+		V8_OBJECT_GET_INTEGER(pos, "x", posX);
+		V8_OBJECT_GET_INTEGER(pos, "y", posY);
+
+		V8_OBJECT_GET_INTEGER(size, "x", sizeX);
+		V8_OBJECT_GET_INTEGER(size, "y", sizeY);
+
+		view = alt::ICore::Instance().CreateWebView(altres, url, { posX, posY }, { sizeX, sizeY }, true, false);
+	}
+	else if (info.Length() == 3)
 	{
 		V8_ARG_TO_INTEGER(2, drawableHash);
 		V8_ARG_TO_STRING(3, targetTextureStr);
@@ -143,6 +170,15 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 		view = alt::ICore::Instance().CreateWebView(altres, url, (uint32_t)drawableHash, targetTextureStr);
 		V8_CHECK(!view.IsEmpty(), "Interactive WebView cannot be created");
+	}
+	else if (info.Length() == 2 && info[1]->IsObject())
+	{
+		V8_ARG_TO_OBJECT(2, pos);
+
+		V8_OBJECT_GET_INTEGER(pos, "x", posX);
+		V8_OBJECT_GET_INTEGER(pos, "y", posY);
+
+		view = alt::ICore::Instance().CreateWebView(altres, url, { posX, posY }, { 0, 0 }, true, false);
 	}
 	else if (info.Length() == 2)
 	{
