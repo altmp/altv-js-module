@@ -306,6 +306,23 @@ static void SocialIdGetter(v8::Local<v8::String> name, const v8::PropertyCallbac
 
 	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
 
+	Log::Warning << "player.socialId is deprecated and will be removed in the future. Consider using player.socialID" << Log::Endl;
+
+	info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, std::to_string(player->GetSocialID()).c_str()));
+}
+
+static void SocialIDGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	v8::Isolate* isolate = info.GetIsolate();
+
+	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
+	V8_CHECK(resource, "invalid resource");
+
+	V8Entity* _this = V8Entity::Get(info.This());
+	V8_CHECK(_this, "entity is invalid");
+
+	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
+
 	info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, std::to_string(player->GetSocialID()).c_str()));
 }
 
@@ -633,6 +650,7 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
 	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "currentWeaponTintIndex"), &CurrentWeaponTintIndexGetter);
 
 	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "socialId"), &SocialIdGetter);
+	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "socialID"), &SocialIDGetter);
 	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "hwidHash"), &HwidHashGetter);
 	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "hwidExHash"), &HwidExHashGetter);
 	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "authToken"), &AuthTokenGetter);
