@@ -19,10 +19,11 @@ V8ResourceImpl::~V8ResourceImpl() {
 	entities.clear();
 }
 
-extern V8Class v8Vector3, v8RGBA, v8BaseObject;
+extern V8Class v8Vector3, v8Vector2, v8RGBA, v8BaseObject;
 bool V8ResourceImpl::Start()
 {
 	vector3Class.Reset(isolate, v8Vector3.JSValue(isolate, GetContext()));
+	vector2Class.Reset(isolate, v8Vector2.JSValue(isolate, GetContext()));
 	rgbaClass.Reset(isolate, v8RGBA.JSValue(isolate, GetContext()));
 	baseObjectClass.Reset(isolate, v8BaseObject.JSValue(isolate, GetContext()));
 
@@ -109,6 +110,15 @@ v8::Local<v8::Value> V8ResourceImpl::CreateVector3(alt::Vector3f vec)
 	return v8Vector3.CreateInstance(isolate, GetContext(), args);
 }
 
+v8::Local<v8::Value> V8ResourceImpl::CreateVector2(alt::Vector2f vec)
+{
+	std::vector<v8::Local<v8::Value>> args{
+		v8::Number::New(isolate, vec[0]),
+		v8::Number::New(isolate, vec[1])};
+
+	return v8Vector2.CreateInstance(isolate, GetContext(), args);
+}
+
 v8::Local<v8::Value> V8ResourceImpl::CreateRGBA(alt::RGBA rgba)
 {
 	std::vector<v8::Local<v8::Value>> args{
@@ -123,6 +133,11 @@ v8::Local<v8::Value> V8ResourceImpl::CreateRGBA(alt::RGBA rgba)
 bool V8ResourceImpl::IsVector3(v8::Local<v8::Value> val)
 {
 	return val->InstanceOf(GetContext(), vector3Class.Get(isolate)).ToChecked();
+}
+
+bool V8ResourceImpl::IsVector2(v8::Local<v8::Value> val)
+{
+	return val->InstanceOf(GetContext(), vector2Class.Get(isolate)).ToChecked();
 }
 
 bool V8ResourceImpl::IsRGBA(v8::Local<v8::Value> val)
