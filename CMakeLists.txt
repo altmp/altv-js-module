@@ -17,7 +17,15 @@ set(ALTV_JS_DL_DEPS ${altv-js-deps_SOURCE_DIR})
 
 # cpp-sdk
 if(NOT ALTV_JS_CPP_SDK)
-  set(ALTV_JS_CPP_SDK src)
+  git_clone(
+    PROJECT_NAME  cpp-sdk
+    GIT_URL       https://github.com/altmp/cpp-sdk
+    GIT_BRANCH    master
+    DIRECTORY     ${ALTV_JS_DL_DEPS}
+  )
+  set(ALTV_JS_CPP_SDK ${ALTV_JS_DL_DEPS})
+else()
+  message("alt:V JS - Skipping fetching cpp-sdk")
 endif()
 # Fetch deps
 
