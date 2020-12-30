@@ -130,6 +130,26 @@ static void AutoReconnectGetter(v8::Local<v8::String> property, const v8::Proper
 	V8_RETURN_BOOLEAN(webSocket->IsAutoReconnectEnabled());
 }
 
+static void PerMessageDeflateSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+
+	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
+
+	V8_TO_BOOLEAN(value, toggle);
+
+	webSocket->SetPerMessageDeflateEnabled(toggle);
+}
+
+static void PerMessageDeflateGetter(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE(info);
+
+	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
+
+	V8_RETURN_BOOLEAN(webSocket->IsPerMessageDeflateEnabled());
+}
+
 static void PingIntervalSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
@@ -162,6 +182,7 @@ extern V8Class v8WebSocketClient("WebSocketClient", v8BaseObject, &Constructor, 
 	V8::SetMethod(isolate, tpl, "stop", &Stop);
 
 	V8::SetAccessor(isolate, tpl, "autoReconnect", &AutoReconnectGetter, &AutoReconnectSetter);
+	V8::SetAccessor(isolate, tpl, "perMessageDeflate", &PerMessageDeflateGetter, &PerMessageDeflateSetter);
 	V8::SetAccessor(isolate, tpl, "pingInterval", &PingIntervalGetter, &PingIntervalSetter);
 	V8::SetAccessor(isolate, tpl, "url", &URLGetter, &URLSetter);
 	V8::SetAccessor(isolate, tpl, "state", &StateGetter, nullptr);
