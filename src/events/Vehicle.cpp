@@ -10,7 +10,7 @@
 using alt::CEvent;
 using EventType = CEvent::Type;
 
-V8::LocalEventHandler enteredVehicle(
+V8_LOCAL_EVENT_HANDLER enteredVehicle(
 	EventType::PLAYER_ENTER_VEHICLE,
 	"enteredVehicle",
 	[](V8ResourceImpl *resource, const alt::CEvent *e, std::vector<v8::Local<v8::Value>> &args) {
@@ -21,7 +21,7 @@ V8::LocalEventHandler enteredVehicle(
 		args.push_back(v8::Integer::NewFromUnsigned(isolate, ev->GetSeat()));
 	});
 
-V8::LocalEventHandler leftVehicle(
+V8_LOCAL_EVENT_HANDLER leftVehicle(
 	EventType::PLAYER_LEAVE_VEHICLE,
 	"leftVehicle",
 	[](V8ResourceImpl *resource, const alt::CEvent *e, std::vector<v8::Local<v8::Value>> &args) {
@@ -32,7 +32,7 @@ V8::LocalEventHandler leftVehicle(
 		args.push_back(v8::Integer::NewFromUnsigned(isolate, ev->GetSeat()));
 	});
 
-V8::LocalEventHandler changedVehicleSeat(
+V8_LOCAL_EVENT_HANDLER changedVehicleSeat(
 	EventType::PLAYER_CHANGE_VEHICLE_SEAT,
 	"changedVehicleSeat",
 	[](V8ResourceImpl *resource, const alt::CEvent *e, std::vector<v8::Local<v8::Value>> &args) {

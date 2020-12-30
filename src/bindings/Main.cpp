@@ -189,6 +189,8 @@ static void IsVoiceActivityInputEnabled(const v8::FunctionCallbackInfo<v8::Value
 {
 	V8_GET_ISOLATE_CONTEXT();
 
+	Log::Warning << "alt.isVoiceActivityInputEnabled is deprecated and will be removed in the future. Please use alt.Voice.activityInputEnabled" << Log::Endl;
+
 	V8_RETURN_BOOLEAN(ICore::Instance().IsVoiceActivationEnabled());
 }
 
@@ -714,6 +716,7 @@ static void LoadModelAsync(const v8::FunctionCallbackInfo<v8::Value>& info)
 }
 
 extern V8Class v8Vector3,
+	v8Vector2,
 	v8RGBA,
 	v8BaseObject,
 	v8WorldObject,
@@ -739,6 +742,7 @@ extern V8Class v8Vector3,
 extern V8Module altModule(
 	"alt",
 	{v8Vector3,
+	 v8Vector2,
 	 v8RGBA,
 	 v8BaseObject,
 	 v8WorldObject,
