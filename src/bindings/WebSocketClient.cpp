@@ -20,7 +20,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 	alt::Ref<IWebSocketClient> webSocket = nullptr;
 
-	webSocket = alt::ICore::Instance().CreateWebSocketClient(url.ToString(), altres);
+	webSocket = alt::ICore::Instance().CreateWebSocketClient(url, altres);
 
 	V8_BIND_BASE_OBJECT(webSocket);
 }
@@ -81,6 +81,35 @@ static void Stop(const v8::FunctionCallbackInfo<v8::Value>& info)
 	webSocket->Stop();
 }
 
+static void AddSubProtocol(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_STRING(1, msg);
+
+	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
+
+	webSocket->AddSubProtocol(msg);
+}
+
+static void GetSubProtocols(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+
+	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
+
+	auto protocols = webSocket->GetSubProtocols();
+
+	v8::Local<v8::Array> protocolsArray = v8::Array::New(isolate, protocols.size());
+
+	int idx = 0;
+	for(auto& protocol : protocols)
+		protocolsArray->Set(ctx, idx++, v8::String::NewFromUtf8(isolate, protocol.CStr()).ToLocalChecked());
+
+	V8_RETURN(protocolsArray);
+}
+
 static void URLGetter(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE(info);
@@ -98,7 +127,7 @@ static void URLSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value
 
 	V8_TO_STRING(value, url);
 
-	webSocket->SetUrl(url.ToString());
+	webSocket->SetUrl(url);
 }
 
 static void StateGetter(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -180,6 +209,9 @@ extern V8Class v8WebSocketClient("WebSocketClient", v8BaseObject, &Constructor, 
 	V8::SetMethod(isolate, tpl, "start", &Start);
 	V8::SetMethod(isolate, tpl, "send", &Send);
 	V8::SetMethod(isolate, tpl, "stop", &Stop);
+
+	V8::SetMethod(isolate, tpl, "addSubProtocol", &AddSubProtocol);
+	V8::SetMethod(isolate, tpl, "getSubProtocols", &GetSubProtocols);
 
 	V8::SetAccessor(isolate, tpl, "autoReconnect", &AutoReconnectGetter, &AutoReconnectSetter);
 	V8::SetAccessor(isolate, tpl, "perMessageDeflate", &PerMessageDeflateGetter, &PerMessageDeflateSetter);
