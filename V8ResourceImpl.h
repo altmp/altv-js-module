@@ -140,9 +140,11 @@ public:
 	}
 
 	v8::Local<v8::Value> CreateVector3(alt::Vector3f vec);
+	v8::Local<v8::Value> CreateVector2(alt::Vector2f vec);
 	v8::Local<v8::Value> CreateRGBA(alt::RGBA rgba);
 
 	bool IsVector3(v8::Local<v8::Value> val);
+	bool IsVector2(v8::Local<v8::Value> val);
 	bool IsRGBA(v8::Local<v8::Value> val);
 	bool IsBaseObject(v8::Local<v8::Value> val);
 
@@ -219,6 +221,7 @@ protected:
 	V8::PromiseRejections promiseRejections;
 
 	v8::Persistent<v8::Function> vector3Class;
+	v8::Persistent<v8::Function> vector2Class;
 	v8::Persistent<v8::Function> rgbaClass;
 	v8::Persistent<v8::Function> baseObjectClass;
 
