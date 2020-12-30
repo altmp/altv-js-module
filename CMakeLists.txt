@@ -18,6 +18,8 @@ set(ALTV_JS_DL_DEPS ${altv-js-deps_SOURCE_DIR})
 # cpp-sdk
 if(NOT ALTV_JS_CPP_SDK)
   set(ALTV_JS_CPP_SDK src)
+else()
+  set(ALTV_JS_DEINIT_CPPSDK)
 endif()
 # Fetch deps
 
@@ -105,8 +107,10 @@ target_compile_definitions(${PROJECT_NAME}-static PRIVATE
 target_link_libraries(${PROJECT_NAME}-static PRIVATE
   ${ALTV_JS_LINKS}
 )
-add_custom_command(TARGET ${PROJECT_NAME}-static
-  PRE_BUILD
-  COMMAND cmd /C "tools\\deinit-cppsdk.bat"
-  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-)
+if(ALTV_JS_DEINIT_CPPSDK)
+  add_custom_command(TARGET ${PROJECT_NAME}-static
+    PRE_BUILD
+    COMMAND cmd /C "tools\\deinit-cppsdk.bat"
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+  )
+endif()
