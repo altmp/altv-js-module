@@ -113,3 +113,8 @@ target_compile_definitions(${PROJECT_NAME}-static PRIVATE
 target_link_libraries(${PROJECT_NAME}-static PRIVATE
   ${ALTV_JS_LINKS}
 )
+add_custom_command(TARGET ${PROJECT_NAME}-static
+  PRE_BUILD
+  COMMAND cmd /C "tools\\deinit-cppsdk.bat"
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+)
