@@ -69,7 +69,7 @@ static void Send(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
 
-	webSocket->Send(msg.CStr());
+	V8_RETURN_BOOLEAN(webSocket->Send(msg.CStr()));
 }
 
 static void Stop(const v8::FunctionCallbackInfo<v8::Value>& info)
