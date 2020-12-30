@@ -132,10 +132,10 @@ namespace V8
 		using CallbacksGetter = std::function<std::vector<EventCallback *>(V8ResourceImpl *resource, const alt::CEvent *)>;
 		using ArgsGetter = std::function<void(V8ResourceImpl *resource, const alt::CEvent *, std::vector<v8::Local<v8::Value>> &args)>;
 
-		EventHandler(alt::CEvent::Type type, CallbacksGetter &&_handlersGetter, ArgsGetter &&_argsGetter) : callbacksGetter(std::move(_handlersGetter)), argsGetter(std::move(_argsGetter))
-		{
-			Register(type, this);
-		}
+		EventHandler(alt::CEvent::Type type, CallbacksGetter &&_handlersGetter, ArgsGetter &&_argsGetter);
+
+		// Temp issue fix for https://stackoverflow.com/questions/9459980/c-global-variable-not-initialized-when-linked-through-static-libraries-but-ok
+		void Reference();
 
 		std::vector<V8::EventCallback *> GetCallbacks(V8ResourceImpl *impl, const alt::CEvent *e);
 		std::vector<v8::Local<v8::Value>> GetArgs(V8ResourceImpl *impl, const alt::CEvent *e);
@@ -143,6 +143,7 @@ namespace V8
 		static EventHandler *Get(const alt::CEvent *e);
 
 	private:
+		alt::CEvent::Type type;
 		CallbacksGetter callbacksGetter;
 		ArgsGetter argsGetter;
 
@@ -478,3 +479,8 @@ namespace V8
 		V8_CHECK(!baseObjectRef.IsEmpty(), "Failed to bind base object"); \
 		resource->BindEntity(info.This(), baseObjectRef); \
 	}
+
+#define V8_EVENT_HANDLER extern V8::EventHandler
+#define V8_LOCAL_EVENT_HANDLER extern V8::LocalEventHandler
+#define V8_REFERENCE_EVENT_HANDLER(name) V8_EVENT_HANDLER name; name.Reference();
+#define V8_REFERENCE_LOCAL_EVENT_HANDLER(name) V8_LOCAL_EVENT_HANDLER name; name.Reference();
