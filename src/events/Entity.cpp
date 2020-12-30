@@ -10,32 +10,32 @@
 using alt::CEvent;
 using EventType = CEvent::Type;
 
-V8::LocalEventHandler removeEntity(
-	EventType::REMOVE_ENTITY_EVENT,
-	"removeEntity",
-	[](V8ResourceImpl *resource, const alt::CEvent *e, std::vector<v8::Local<v8::Value>> &args) {
-        auto ev = static_cast<const alt::CRemoveEntityEvent *>(e);
-        v8::Isolate *isolate = resource->GetIsolate();
+V8_LOCAL_EVENT_HANDLER removeEntity(
+		EventType::REMOVE_ENTITY_EVENT,
+		"removeEntity",
+		[](V8ResourceImpl *resource, const alt::CEvent *e, std::vector<v8::Local<v8::Value>> &args) {
+			auto ev = static_cast<const alt::CRemoveEntityEvent *>(e);
+			v8::Isolate *isolate = resource->GetIsolate();
 
-        args.push_back(resource->GetOrCreateEntity(ev->GetEntity().Get())->GetJSVal(isolate));
-	});
+			args.push_back(resource->GetOrCreateEntity(ev->GetEntity().Get())->GetJSVal(isolate));
+		});
 
-V8::LocalEventHandler gameEntityCreate(
-	EventType::GAME_ENTITY_CREATE,
-	"gameEntityCreate",
-	[](V8ResourceImpl *resource, const alt::CEvent *e, std::vector<v8::Local<v8::Value>> &args) {
-        auto ev = static_cast<const alt::CGameEntityCreateEvent *>(e);
-        v8::Isolate *isolate = resource->GetIsolate();
+V8_LOCAL_EVENT_HANDLER gameEntityCreate(
+		EventType::GAME_ENTITY_CREATE,
+		"gameEntityCreate",
+		[](V8ResourceImpl *resource, const alt::CEvent *e, std::vector<v8::Local<v8::Value>> &args) {
+			auto ev = static_cast<const alt::CGameEntityCreateEvent *>(e);
+			v8::Isolate *isolate = resource->GetIsolate();
 
-        args.push_back(resource->GetOrCreateEntity(ev->GetTarget().Get())->GetJSVal(isolate));
-	});
+			args.push_back(resource->GetOrCreateEntity(ev->GetTarget().Get())->GetJSVal(isolate));
+		});
 
-V8::LocalEventHandler gameEntityDestroy(
-	EventType::GAME_ENTITY_DESTROY,
-	"gameEntityDestroy",
-	[](V8ResourceImpl *resource, const alt::CEvent *e, std::vector<v8::Local<v8::Value>> &args) {
-        auto ev = static_cast<const alt::CGameEntityCreateEvent *>(e);
-        v8::Isolate *isolate = resource->GetIsolate();
+V8_LOCAL_EVENT_HANDLER gameEntityDestroy(
+		EventType::GAME_ENTITY_DESTROY,
+		"gameEntityDestroy",
+		[](V8ResourceImpl *resource, const alt::CEvent *e, std::vector<v8::Local<v8::Value>> &args) {
+			auto ev = static_cast<const alt::CGameEntityCreateEvent *>(e);
+			v8::Isolate *isolate = resource->GetIsolate();
 
-        args.push_back(resource->GetOrCreateEntity(ev->GetTarget().Get())->GetJSVal(isolate));
-	});
+			args.push_back(resource->GetOrCreateEntity(ev->GetTarget().Get())->GetJSVal(isolate));
+		});

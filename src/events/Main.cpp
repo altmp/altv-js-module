@@ -18,7 +18,7 @@
 using alt::CEvent;
 using EventType = CEvent::Type;
 
-V8::EventHandler clientScriptEvent(
+V8_EVENT_HANDLER clientScriptEvent(
 	EventType::CLIENT_SCRIPT_EVENT,
 	[](V8ResourceImpl* resource, const CEvent* e) {
 		auto ev = static_cast<const alt::CClientScriptEvent*>(e);
@@ -31,7 +31,7 @@ V8::EventHandler clientScriptEvent(
 	}
 );
 
-V8::EventHandler serverScriptEvent(
+V8_EVENT_HANDLER serverScriptEvent(
 	EventType::SERVER_SCRIPT_EVENT,
 	[](V8ResourceImpl* resource, const CEvent* e) {
 		auto ev = static_cast<const alt::CServerScriptEvent*>(e);
@@ -44,7 +44,7 @@ V8::EventHandler serverScriptEvent(
 	}
 );
 
-V8::EventHandler webviewEvent(
+V8_EVENT_HANDLER webviewEvent(
 	EventType::WEB_VIEW_EVENT,
 	[](V8ResourceImpl* resource, const CEvent* e) {
 		auto ev = static_cast<const alt::CWebViewEvent*>(e);
@@ -58,7 +58,7 @@ V8::EventHandler webviewEvent(
 	}
 );
 
-V8::EventHandler keyboardEvent(
+V8_EVENT_HANDLER keyboardEvent(
 	EventType::KEYBOARD_EVENT,
 	[](V8ResourceImpl* resource, const CEvent* e) {
 		auto ev = static_cast<const alt::CKeyboardEvent*>(e);
@@ -75,13 +75,13 @@ V8::EventHandler keyboardEvent(
 	}
 );
 
-V8::LocalEventHandler render(
+V8_LOCAL_EVENT_HANDLER render(
 	EventType::RENDER,
 	"render",
 	[](V8ResourceImpl *resource, const alt::CEvent *e, std::vector<v8::Local<v8::Value>> &args) {
 	});
 
-V8::LocalEventHandler connectionComplete(
+V8_LOCAL_EVENT_HANDLER connectionComplete(
 	EventType::CONNECTION_COMPLETE,
 	"connectionComplete",
 	[](V8ResourceImpl *resource, const alt::CEvent *e, std::vector<v8::Local<v8::Value>> &args) {
@@ -93,7 +93,7 @@ V8::LocalEventHandler connectionComplete(
         }
 	});
 
-V8::LocalEventHandler disconnect(
+V8_LOCAL_EVENT_HANDLER disconnect(
 	EventType::DISCONNECT_EVENT,
 	"disconnect",
 	[](V8ResourceImpl *resource, const alt::CEvent *e, std::vector<v8::Local<v8::Value>> &args) {

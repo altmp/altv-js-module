@@ -11,7 +11,7 @@
 using alt::CEvent;
 using EventType = CEvent::Type;
 
-V8::LocalEventHandler syncedMetaChange(
+V8_LOCAL_EVENT_HANDLER syncedMetaChange(
 	EventType::SYNCED_META_CHANGE,
 	"syncedMetaChange",
 	[](V8ResourceImpl *resource, const alt::CEvent *e, std::vector<v8::Local<v8::Value>> &args) {
@@ -24,7 +24,7 @@ V8::LocalEventHandler syncedMetaChange(
 		args.push_back(V8Helpers::MValueToV8(ev->GetOldVal()));
 	});
 
-V8::LocalEventHandler streamSyncedMetaChange(
+V8_LOCAL_EVENT_HANDLER streamSyncedMetaChange(
 	EventType::STREAM_SYNCED_META_CHANGE,
 	"streamSyncedMetaChange",
 	[](V8ResourceImpl *resource, const alt::CEvent *e, std::vector<v8::Local<v8::Value>> &args) {
@@ -37,7 +37,7 @@ V8::LocalEventHandler streamSyncedMetaChange(
 		args.push_back(V8Helpers::MValueToV8(ev->GetOldVal()));
 	});
 
-V8::LocalEventHandler globalSyncedMetaChange(
+V8_LOCAL_EVENT_HANDLER globalSyncedMetaChange(
 	EventType::GLOBAL_SYNCED_META_CHANGE,
 	"globalSyncedMetaChange",
 	[](V8ResourceImpl *resource, const alt::CEvent *e, std::vector<v8::Local<v8::Value>> &args) {
@@ -49,7 +49,7 @@ V8::LocalEventHandler globalSyncedMetaChange(
 		args.push_back(V8Helpers::MValueToV8(ev->GetOldVal()));
 	});
 
-V8::LocalEventHandler globalMetaChange(
+V8_LOCAL_EVENT_HANDLER globalMetaChange(
 	EventType::GLOBAL_META_CHANGE,
 	"globalMetaChange",
 	[](V8ResourceImpl *resource, const alt::CEvent *e, std::vector<v8::Local<v8::Value>> &args) {
