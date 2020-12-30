@@ -20,7 +20,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 	alt::Ref<IWebSocketClient> webSocket = nullptr;
 
-	webSocket = alt::ICore::Instance().CreateWebSocketClient(url, altres);
+	webSocket = alt::ICore::Instance().CreateWebSocketClient(url.ToString(), altres);
 
 	V8_BIND_BASE_OBJECT(webSocket);
 }
@@ -69,7 +69,7 @@ static void Send(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
 
-	webSocket->Send(msg);
+	webSocket->Send(msg.CStr());
 }
 
 static void Stop(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -98,7 +98,7 @@ static void URLSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value
 
 	V8_TO_STRING(value, url);
 
-	webSocket->SetUrl(url);
+	webSocket->SetUrl(url.ToString());
 }
 
 static void StateGetter(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
