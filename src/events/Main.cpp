@@ -12,6 +12,7 @@
 #include "cpp-sdk/events/CServerScriptEvent.h"
 #include "cpp-sdk/events/CKeyboardEvent.h"
 #include "cpp-sdk/events/CWebViewEvent.h"
+#include "cpp-sdk/events/CWebSocketClientEvent.h"
 
 #include "cpp-sdk/SDK.h"
 
@@ -49,7 +50,7 @@ V8_EVENT_HANDLER webviewEvent(
 	[](V8ResourceImpl* resource, const CEvent* e) {
 		auto ev = static_cast<const alt::CWebViewEvent*>(e);
 
-		return static_cast<CV8ResourceImpl*>(resource)->GetWebviewHandlers(ev->GetTarget(), ev->GetName().ToString());
+		return static_cast<CV8ResourceImpl*>(resource)->GetWebViewHandlers(ev->GetTarget(), ev->GetName().ToString());
 	},
 	[](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
 		auto ev = static_cast<const alt::CWebViewEvent*>(e);
@@ -57,6 +58,20 @@ V8_EVENT_HANDLER webviewEvent(
 		V8Helpers::MValueArgsToV8(ev->GetArgs(), args);
 	}
 );
+
+V8_EVENT_HANDLER webSocketEvent(
+	EventType::WEB_SOCKET_CLIENT_EVENT,
+	[](V8ResourceImpl* resource, const CEvent* e) {
+		auto ev = static_cast<const alt::CWebSocketClientEvent*>(e);
+
+		return static_cast<CV8ResourceImpl*>(resource)->GetWebSocketClientHandlers(ev->GetTarget(), ev->GetName().ToString());
+	},
+	[](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+		auto ev = static_cast<const alt::CWebSocketClientEvent*>(e);
+
+		V8Helpers::MValueArgsToV8(ev->GetArgs(), args);
+	}
+	);
 
 V8_EVENT_HANDLER keyboardEvent(
 	EventType::KEYBOARD_EVENT,
