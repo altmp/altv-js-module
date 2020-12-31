@@ -17,9 +17,9 @@ set(ALTV_JS_DL_DEPS ${altv-js-deps_SOURCE_DIR})
 
 # cpp-sdk
 if(NOT ALTV_JS_CPP_SDK)
-  set(ALTV_JS_CPP_SDK src)
+  set(ALTV_JS_CPP_SDK deps/cpp-sdk)
 else()
-  set(ALTV_JS_DEINIT_CPPSDK)
+  set(ALTV_JS_DEINIT_CPPSDK 1)
 endif()
 # Fetch deps
 
