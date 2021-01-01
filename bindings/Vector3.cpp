@@ -147,8 +147,8 @@ static void Sub(const v8::FunctionCallbackInfo<v8::Value>& info)
 			V8_CHECK(arr->Length() == 3, "Argument must be an array of 3 numbers");
 
 			V8_TO_NUMBER(arr->Get(ctx, 0).ToLocalChecked(), x2);
-			V8_TO_NUMBER(arr->Get(ctx, 0).ToLocalChecked(), y2);
-			V8_TO_NUMBER(arr->Get(ctx, 0).ToLocalChecked(), z2);
+			V8_TO_NUMBER(arr->Get(ctx, 1).ToLocalChecked(), y2);
+			V8_TO_NUMBER(arr->Get(ctx, 2).ToLocalChecked(), z2);
 			V8_RETURN(resource->CreateVector3({ x - x2, y - y2, z - z2 }));
 		}
 		else if (arg->IsObject())
@@ -204,8 +204,8 @@ static void Divide(const v8::FunctionCallbackInfo<v8::Value>& info)
 			V8_CHECK(arr->Length() == 3, "Argument must be an array of 3 numbers");
 
 			V8_TO_NUMBER(arr->Get(ctx, 0).ToLocalChecked(), x2);
-			V8_TO_NUMBER(arr->Get(ctx, 0).ToLocalChecked(), y2);
-			V8_TO_NUMBER(arr->Get(ctx, 0).ToLocalChecked(), z2);
+			V8_TO_NUMBER(arr->Get(ctx, 1).ToLocalChecked(), y2);
+			V8_TO_NUMBER(arr->Get(ctx, 2).ToLocalChecked(), z2);
 			V8_CHECK(x2 != 0 && y2 != 0 && z2 != 0, "Division by zero");
 			V8_RETURN(resource->CreateVector3({ x / x2, y / y2, z / z2 }));
 		}
@@ -260,8 +260,8 @@ static void Multiply(const v8::FunctionCallbackInfo<v8::Value>& info)
 			V8_CHECK(arr->Length() == 3, "Argument must be an array of 3 numbers");
 
 			V8_TO_NUMBER(arr->Get(ctx, 0).ToLocalChecked(), x2);
-			V8_TO_NUMBER(arr->Get(ctx, 0).ToLocalChecked(), y2);
-			V8_TO_NUMBER(arr->Get(ctx, 0).ToLocalChecked(), z2);
+			V8_TO_NUMBER(arr->Get(ctx, 1).ToLocalChecked(), y2);
+			V8_TO_NUMBER(arr->Get(ctx, 2).ToLocalChecked(), z2);
 			V8_RETURN(resource->CreateVector3({ x * x2, y * y2, z * z2 }));
 		}
 		else if (arg->IsObject())
