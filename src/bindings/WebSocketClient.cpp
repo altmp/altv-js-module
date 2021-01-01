@@ -65,11 +65,31 @@ static void Send(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_GET_ISOLATE_CONTEXT();
 
 	V8_CHECK_ARGS_LEN(1);
-	V8_ARG_TO_STRING(1, msg);
-
 	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
 
-	V8_RETURN_BOOLEAN(webSocket->Send(msg.CStr()));
+	bool ret = false;
+	if (info[0]->IsString()) 
+	{
+		V8_ARG_TO_STRING(1, msg);
+		ret = webSocket->Send(msg);
+	}
+	else if (info[0]->IsArrayBufferView()) 
+	{
+		V8_ARG_TO_ARRAY_BUFFER_VIEW(1, v8ArrayBufferView);
+		auto v8Buffer = v8ArrayBufferView->Buffer()->GetContents();
+		ret = webSocket->SendBinary(alt::StringView((char*)v8Buffer.Data(), v8Buffer.ByteLength()));
+	}
+	else if (info[0]->IsArrayBuffer()) 
+	{
+		V8_ARG_TO_ARRAY_BUFFER(1, v8ArrayBuffer);
+		auto v8Buffer = v8ArrayBuffer->GetContents();
+		ret = webSocket->SendBinary(alt::StringView((char*)v8Buffer.Data(), v8Buffer.ByteLength()));
+	}
+	else 
+	{
+		V8_CHECK(false, "Unknown parameter type specified for IWebSocketClient::Send");
+	}
+	V8_RETURN_BOOLEAN(ret);
 }
 
 static void Stop(const v8::FunctionCallbackInfo<v8::Value>& info)
