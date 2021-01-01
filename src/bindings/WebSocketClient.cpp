@@ -104,10 +104,40 @@ static void GetSubProtocols(const v8::FunctionCallbackInfo<v8::Value>& info)
 	v8::Local<v8::Array> protocolsArray = v8::Array::New(isolate, protocols.GetSize());
 
 	int idx = 0;
-	for(auto& protocol : protocols)
+	for (auto& protocol : protocols)
 		protocolsArray->Set(ctx, idx++, v8::String::NewFromUtf8(isolate, protocol.CStr()).ToLocalChecked());
 
 	V8_RETURN(protocolsArray);
+}
+
+static void SetExtraHeader(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_STRING(1, msg);
+
+	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
+
+	webSocket->AddSubProtocol(msg);
+}
+
+static void GetExtraHeaders(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+
+	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
+
+	auto extraHeaders = webSocket->GetExtraHeaders();
+	V8_NEW_OBJECT(headersObject);
+
+	for (auto it = extraHeaders->Begin(); it; it = extraHeaders->Next())
+	{
+		alt::String key = it->GetKey();
+		V8_OBJECT_SET_STRING(headersObject, key.CStr(), extraHeaders->Get(key).As<alt::IMValueString>()->Value());
+	}
+
+	V8_RETURN(headersObject);
 }
 
 static void URLGetter(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -130,13 +160,13 @@ static void URLSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value
 	webSocket->SetUrl(url);
 }
 
-static void StateGetter(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+static void ReadyStateGetter(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE(info);
 
 	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
 
-	V8_RETURN_UINT32(webSocket->GetState());
+	V8_RETURN_UINT32(webSocket->GetReadyState());
 }
 
 static void AutoReconnectSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
@@ -213,9 +243,12 @@ extern V8Class v8WebSocketClient("WebSocketClient", v8BaseObject, &Constructor, 
 	V8::SetMethod(isolate, tpl, "addSubProtocol", &AddSubProtocol);
 	V8::SetMethod(isolate, tpl, "getSubProtocols", &GetSubProtocols);
 
+	V8::SetMethod(isolate, tpl, "setExtraHeader", &SetExtraHeader);
+	V8::SetMethod(isolate, tpl, "getExtraHeaders", &GetExtraHeaders);
+
 	V8::SetAccessor(isolate, tpl, "autoReconnect", &AutoReconnectGetter, &AutoReconnectSetter);
 	V8::SetAccessor(isolate, tpl, "perMessageDeflate", &PerMessageDeflateGetter, &PerMessageDeflateSetter);
 	V8::SetAccessor(isolate, tpl, "pingInterval", &PingIntervalGetter, &PingIntervalSetter);
 	V8::SetAccessor(isolate, tpl, "url", &URLGetter, &URLSetter);
-	V8::SetAccessor(isolate, tpl, "state", &StateGetter, nullptr);
+	V8::SetAccessor(isolate, tpl, "readyState", &ReadyStateGetter, nullptr);
 });
