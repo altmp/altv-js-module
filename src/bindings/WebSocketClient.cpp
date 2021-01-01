@@ -101,7 +101,7 @@ static void GetSubProtocols(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 	auto protocols = webSocket->GetSubProtocols();
 
-	v8::Local<v8::Array> protocolsArray = v8::Array::New(isolate, protocols.size());
+	v8::Local<v8::Array> protocolsArray = v8::Array::New(isolate, protocols.GetSize());
 
 	int idx = 0;
 	for(auto& protocol : protocols)
