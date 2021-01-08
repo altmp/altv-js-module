@@ -65,6 +65,8 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 	using ArgType = alt::INative::Type;
 
 	v8::Local<v8::Context> v8Ctx = isolate->GetEnteredContext();
+	auto resource = V8ResourceImpl::Get(v8Ctx);
+	auto ent = V8Entity::Get(val);
 	
 	switch (argType)
 	{
@@ -76,7 +78,10 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 		scrCtx->Push(SavePointer((int32_t)val->ToBoolean(isolate)->Value()));
 		break;
 	case alt::INative::Type::ARG_INT32:
-		scrCtx->Push((int32_t)val->ToInteger(v8Ctx).ToLocalChecked()->Value());
+		int32_t value;
+		if(ent != nullptr) value = (int32_t)ent->GetHandle().As<alt::IEntity>()->GetScriptGuid();
+		else value = (int32_t)val->ToInteger(v8Ctx).ToLocalChecked()->Value();
+		scrCtx->Push(value);
 		break;
 	case alt::INative::Type::ARG_INT32_PTR:
 		++returnsCount;
