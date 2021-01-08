@@ -1,8 +1,11 @@
 
 #include "../V8Helpers.h"
+#include "../V8BindHelpers.h"
 #include "../V8ResourceImpl.h"
 #include "../V8Class.h"
 #include "../V8Entity.h"
+
+using namespace alt;
 
 static void TypeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
 {
@@ -85,7 +88,7 @@ extern V8Class v8BaseObject("BaseObject", [](v8::Local<v8::FunctionTemplate> tpl
 
 	tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
-	V8::SetAccessor(isolate, tpl, "type", &TypeGetter);
+	V8::SetAccessor<IBaseObject, IBaseObject::Type, &IBaseObject::GetType>(isolate, tpl, "type");
 	V8::SetAccessor(isolate, tpl, "valid", &ValidGetter);
 
 	V8::SetMethod(isolate, tpl, "hasMeta", HasMeta);

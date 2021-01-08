@@ -600,6 +600,47 @@ bool V8::SafeToObject(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::
 	return false;
 }
 
+bool V8::SafeToRGBA(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, alt::RGBA& out)
+{
+	v8::MaybeLocal maybeVal = val->ToObject(ctx);
+	if (!maybeVal.IsEmpty())
+	{
+		v8::Local val = maybeVal.ToLocalChecked();
+
+		uint32_t r, g, b, a;
+		if (SafeToUInt32(V8::Get(ctx, val, "r"), ctx, r)
+			&& SafeToUInt32(V8::Get(ctx, val, "g"), ctx, g)
+			&& SafeToUInt32(V8::Get(ctx, val, "b"), ctx, b)
+			&& SafeToUInt32(V8::Get(ctx, val, "a"), ctx, a)
+		) {
+			out = alt::RGBA{ uint8_t(r), uint8_t(g), uint8_t(b), uint8_t(a) };
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool V8::SafeToVector3(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, alt::Vector3f& out)
+{
+	v8::MaybeLocal maybeVal = val->ToObject(ctx);
+	if (!maybeVal.IsEmpty())
+	{
+		v8::Local val = maybeVal.ToLocalChecked();
+
+		double x, y, z;
+		if (SafeToNumber(V8::Get(ctx, val, "x"), ctx, x)
+			&& SafeToNumber(V8::Get(ctx, val, "y"), ctx, y)
+			&& SafeToNumber(V8::Get(ctx, val, "z"), ctx, z)
+		) {
+			out = alt::Vector3f{ float(x), float(y), float(z) };
+			return true;
+		}
+	}
+
+	return false;
+}
+
 bool V8::SafeToArrayBuffer(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::ArrayBuffer>& out)
 {
 	if (val->IsArrayBuffer())

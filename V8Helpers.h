@@ -212,6 +212,8 @@ namespace V8
 	bool SafeToString(v8::Local<v8::Value> val, v8::Isolate *isolate, v8::Local<v8::Context> ctx, alt::String &out);
 	bool SafeToFunction(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::Function>& out);
 	bool SafeToObject(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::Object>& out);
+	bool SafeToRGBA(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, alt::RGBA& out); 
+	bool SafeToVector3(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, alt::Vector3f& out);
 	bool SafeToArrayBuffer(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::ArrayBuffer>& out);
 	bool SafeToArrayBufferView(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::ArrayBufferView>& out);
 
@@ -235,11 +237,11 @@ namespace V8
 	}
 } // namespace V8
 
-#define V8_GET_ISOLATE(info) v8::Isolate *isolate = (info).GetIsolate()
-#define V8_GET_CONTEXT(isolate) v8::Local<v8::Context> ctx = (isolate)->GetEnteredContext()
+#define V8_GET_ISOLATE() v8::Isolate *isolate = info.GetIsolate()
+#define V8_GET_CONTEXT() v8::Local<v8::Context> ctx = isolate->GetEnteredContext()
 #define V8_GET_ISOLATE_CONTEXT() \
-	V8_GET_ISOLATE(info);        \
-	V8_GET_CONTEXT(isolate)
+	V8_GET_ISOLATE();        \
+	V8_GET_CONTEXT()
 
 #define V8_GET_RESOURCE()                                                         \
 	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext()); \
@@ -321,59 +323,37 @@ namespace V8
 	v8::Local<v8::Object> val; \
 	V8_CHECK(V8::SafeToObject((v8Val), ctx, val), "Failed to convert value to object")
 
-#ifdef ALT_SERVER_API
+#define V8_TO_VECTOR3(v8Val, val) \
+	alt::Vector3f val; \
+	V8_CHECK(V8::SafeToVector3((v8Val), ctx, val), "Failed to convert value to Vector3")
 
-	#define V8_OBJECT_GET_NUMBER(v8Val, prop, val) \
-		V8_TO_NUMBER((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop)).ToLocalChecked(), val)
+#define V8_TO_RGBA(v8Val, val) \
+	alt::RGBA val; \
+	V8_CHECK(V8::SafeToRGBA((v8Val), ctx, val), "Failed to convert value to RGBA")
 
-	#define V8_OBJECT_SET_NUMBER(v8Val, prop, val) \
-		(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop), v8::Number::New(isolate, val));
+#define V8_OBJECT_GET_NUMBER(v8Val, prop, val) \
+	V8_TO_NUMBER((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)
 
-	#define V8_OBJECT_GET_INTEGER(v8Val, prop, val) \
-		V8_TO_INTEGER((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop)).ToLocalChecked(), val)
+#define V8_OBJECT_SET_NUMBER(v8Val, prop, val) \
+	(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::Number::New(isolate, val));
 
-	#define V8_OBJECT_SET_INTEGER(v8Val, prop, val) \
-		(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop), v8::Integer::New(isolate, val));
+#define V8_OBJECT_GET_INTEGER(v8Val, prop, val) \
+	V8_TO_INTEGER((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)
 
-	#define V8_OBJECT_GET_BOOLEAN(v8Val, prop, val) \
-		V8_TO_BOOLEAN((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop)).ToLocalChecked(), val)
+#define V8_OBJECT_SET_INTEGER(v8Val, prop, val) \
+	(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::Integer::New(isolate, val));
 
-	#define V8_OBJECT_SET_BOOLEAN(v8Val, prop, val) \
-		(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop), v8::Boolean::New(isolate, val));
+#define V8_OBJECT_GET_BOOLEAN(v8Val, prop, val) \
+	V8_TO_BOOLEAN((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)
 
-	#define V8_OBJECT_GET_STRING(v8Val, prop, val) \
-		V8_TO_STRING((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop)).ToLocalChecked(), val)
+#define V8_OBJECT_SET_BOOLEAN(v8Val, prop, val) \
+	(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::Boolean::New(isolate, val));
 
-	#define V8_OBJECT_SET_STRING(v8Val, prop, val) \
-		(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop), v8::String::NewFromUtf8(isolate, val.CStr()));
+#define V8_OBJECT_GET_STRING(v8Val, prop, val) \
+	V8_TO_STRING((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)
 
-#else
-
-	#define V8_OBJECT_GET_NUMBER(v8Val, prop, val) \
-		V8_TO_NUMBER((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)
-
-	#define V8_OBJECT_SET_NUMBER(v8Val, prop, val) \
-		(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::Number::New(isolate, val));
-
-	#define V8_OBJECT_GET_INTEGER(v8Val, prop, val) \
-		V8_TO_INTEGER((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)
-
-	#define V8_OBJECT_SET_INTEGER(v8Val, prop, val) \
-		(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::Integer::New(isolate, val));
-
-	#define V8_OBJECT_GET_BOOLEAN(v8Val, prop, val) \
-		V8_TO_BOOLEAN((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)
-
-	#define V8_OBJECT_SET_BOOLEAN(v8Val, prop, val) \
-		(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::Boolean::New(isolate, val));
-
-	#define V8_OBJECT_GET_STRING(v8Val, prop, val) \
-		V8_TO_STRING((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)
-
-	#define V8_OBJECT_SET_STRING(v8Val, prop, val) \
-		(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::String::NewFromUtf8(isolate, val.CStr()).ToLocalChecked());
-
-#endif
+#define V8_OBJECT_SET_STRING(v8Val, prop, val) \
+	(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::String::NewFromUtf8(isolate, val.CStr()).ToLocalChecked());
 
 #define V8_NEW_STRING(val) v8::String::NewFromUtf8(isolate, val).ToLocalChecked()
 
@@ -474,14 +454,16 @@ namespace V8
 #define V8_RETURN_NULL() V8_RETURN(v8::Null(isolate))
 #define V8_RETURN_BOOLEAN(val) V8_RETURN(v8::Boolean::New(isolate, (val)))
 #define V8_RETURN_INTEGER(val) V8_RETURN(v8::Integer::New(isolate, (val)))
+#define V8_RETURN_UINTEGER(val) V8_RETURN(v8::Integer::NewFromUnsigned(isolate, (val)))
 #define V8_RETURN_NUMBER(val) V8_RETURN(v8::Number::New(isolate, (val)))
 #define V8_RETURN_STRING(val) V8_RETURN(v8::String::NewFromUtf8(isolate, (val), v8::NewStringType::kNormal).ToLocalChecked())
+#define V8_RETURN_ALT_STRING(val) V8_RETURN(v8::String::NewFromUtf8(isolate, (val).CStr(), v8::NewStringType::kNormal).ToLocalChecked())
 #define V8_RETURN_MVALUE(val) V8_RETURN(V8Helpers::MValueToV8(val))
-
 #define V8_RETURN_UINT64(val) V8_RETURN(v8::BigInt::NewFromUnsigned(isolate, (val)))
 #define V8_RETURN_INT64(val) V8_RETURN(v8::BigInt::New(isolate, (val)))
-#define V8_RETURN_UINT32(val) V8_RETURN(v8::Integer::NewFromUnsigned(isolate, (val)))
-#define V8_RETURN_INT32(val) V8_RETURN(v8::Integer::New(isolate, (val)))
+#define V8_RETURN_VECTOR3(val) V8_RETURN(resource->CreateVector3(val))
+#define V8_RETURN_RGBA(val) V8_RETURN(resource->CreateRGBA(val))
+#define V8_RETURN_ENUM(val) V8_RETURN(v8::Integer::NewFromUnsigned(isolate, uint32_t(val)))
 
 #define V8_RETURN_BASE_OBJECT(baseObjectRef) V8_RETURN(resource->GetBaseObjectOrNull(baseObjectRef))
 
