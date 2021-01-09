@@ -96,7 +96,7 @@ namespace V8::Vehicle
 
 	void HasArmoredWindowsGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 	{
-		V8_GET_ISOLATE(info);
+		V8_GET_ISOLATE();
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 
 		V8_RETURN_BOOLEAN(vehicle->HasArmoredWindows());
@@ -207,7 +207,7 @@ namespace V8::Vehicle
 
 	void GetDamageStatus(const v8::FunctionCallbackInfo<v8::Value>& info)
 	{
-		V8_GET_ISOLATE(info);
+		V8_GET_ISOLATE();
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 
 		V8_RETURN_STRING(vehicle->GetDamageDataBase64().CStr());
@@ -215,7 +215,7 @@ namespace V8::Vehicle
 
 	void SetFixed(const v8::FunctionCallbackInfo<v8::Value>& info)
 	{
-		V8_GET_ISOLATE(info);
+		V8_GET_ISOLATE();
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 
 		vehicle->SetFixed();

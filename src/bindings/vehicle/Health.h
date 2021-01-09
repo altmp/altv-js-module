@@ -166,7 +166,7 @@ namespace V8::Vehicle
 
 	void GetHealthData(const v8::FunctionCallbackInfo<v8::Value>& info)
 	{
-		V8_GET_ISOLATE(info);
+		V8_GET_ISOLATE();
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 
 		V8_RETURN_STRING(vehicle->GetHealthDataBase64().CStr());
