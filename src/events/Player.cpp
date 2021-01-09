@@ -32,7 +32,7 @@ V8::LocalEventHandler playerDisconnect(
 		auto ev = static_cast<const alt::CPlayerDisconnectEvent*>(e);
 
 		args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
-		args.push_back(v8::String::NewFromUtf8(resource->GetIsolate(), ev->GetReason().CStr()));
+		args.push_back(v8::String::NewFromUtf8(resource->GetIsolate(), ev->GetReason().CStr()).ToLocalChecked());
 	}
 );
 
