@@ -48,82 +48,50 @@ namespace V8::Vehicle
 		_this->SetNeonActive(left, right, front, back);
 	}
 
-	/*void SetWheels(const v8::FunctionCallbackInfo<v8::Value>& info)
+	void SetWheels(const v8::FunctionCallbackInfo<v8::Value>& info)
 	{
-		v8::Isolate* isolate = info.GetIsolate();
+		V8_GET_ISOLATE_CONTEXT();
+		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
+		V8_CHECK_ARGS_LEN(2);
 
-		V8_CHECK(info.Length() == 2, "2 args expected");
+		V8_ARG_TO_INTEGER(1, type);
+		V8_ARG_TO_INTEGER(2, variation);
 
-		V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-		V8_CHECK(resource, "invalid resource");
-
-		V8Entity* _this = V8Entity::Get(info.This());
-		V8_CHECK(_this, "entity is invalid");
-
-		Ref<IVehicle> vehicle = _this->GetHandle().As<IVehicle>();
-
-		uint8_t wheelType = info[0]->ToInteger(isolate)->Value();
-		uint8_t wheelVariation = info[1]->ToInteger(isolate)->Value();
-
-		vehicle->SetWheels(wheelType, wheelVariation);
+		vehicle->SetWheels(type, variation);
 	}
 
 	void SetRearWheels(const v8::FunctionCallbackInfo<v8::Value>& info)
 	{
-		v8::Isolate* isolate = info.GetIsolate();
+		V8_GET_ISOLATE_CONTEXT();
+		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
+		V8_CHECK_ARGS_LEN(1);
 
-		V8_CHECK(info.Length() == 1, "1 arg expected");
+		V8_ARG_TO_INTEGER(1, variation);
 
-		V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-		V8_CHECK(resource, "invalid resource");
-
-		V8Entity* _this = V8Entity::Get(info.This());
-		V8_CHECK(_this, "entity is invalid");
-
-		Ref<IVehicle> vehicle = _this->GetHandle().As<IVehicle>();
-
-		uint8_t wheelVariation = info[0]->ToInteger(isolate)->Value();
-
-		vehicle->SetRearWheels(wheelVariation);
+		vehicle->SetRearWheels(variation);
 	}
 
 	void GetModsCount(const v8::FunctionCallbackInfo<v8::Value>& info)
 	{
-		v8::Isolate* isolate = info.GetIsolate();
+		V8_GET_ISOLATE_CONTEXT();
+		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
+		V8_CHECK_ARGS_LEN(1);
 
-		V8_CHECK(info.Length() == 1, "1 arg expected");
+		V8_ARG_TO_INTEGER(1, category);
 
-		V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-		V8_CHECK(resource, "invalid resource");
-
-		V8Entity* _this = V8Entity::Get(info.This());
-		V8_CHECK(_this, "entity is invalid");
-
-		Ref<IVehicle> vehicle = _this->GetHandle().As<IVehicle>();
-
-		v8::Local<v8::Integer> category = info[0]->ToInteger(isolate);
-
-		info.GetReturnValue().Set(v8::Integer::New(isolate, vehicle->GetModsCount(category->Value())));
+		V8_RETURN_INTEGER(vehicle->GetModsCount(category));
 	}
 
 	void SetMod(const v8::FunctionCallbackInfo<v8::Value>& info)
 	{
-		v8::Isolate* isolate = info.GetIsolate();
+		V8_GET_ISOLATE_CONTEXT();
+		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
+		V8_CHECK_ARGS_LEN(2);
 
-		V8_CHECK(info.Length() == 2, "2 args expected");
+		V8_ARG_TO_INTEGER(1, category);
+		V8_ARG_TO_INTEGER(2, id);
 
-		V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-		V8_CHECK(resource, "invalid resource");
-
-		V8Entity* _this = V8Entity::Get(info.This());
-		V8_CHECK(_this, "entity is invalid");
-
-		Ref<IVehicle> vehicle = _this->GetHandle().As<IVehicle>();
-
-		v8::Local<v8::Integer> category = info[0]->ToInteger(isolate);
-		v8::Local<v8::Integer> id = info[1]->ToInteger(isolate);
-
-		if (!vehicle->SetMod(category->Value(), id->Value()))
+		if (!vehicle->SetMod(category, id))
 		{
 			if (vehicle->GetModKit() == 0)
 				V8Helpers::Throw(isolate, "modkit is not set");
@@ -134,93 +102,54 @@ namespace V8::Vehicle
 
 	void GetMod(const v8::FunctionCallbackInfo<v8::Value>& info)
 	{
-		v8::Isolate* isolate = info.GetIsolate();
+		V8_GET_ISOLATE_CONTEXT();
+		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
+		V8_CHECK_ARGS_LEN(1);
 
-		V8_CHECK(info.Length() == 1, "1 arg expected");
+		V8_ARG_TO_INTEGER(1, category);
 
-		V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-		V8_CHECK(resource, "invalid resource");
-
-		V8Entity* _this = V8Entity::Get(info.This());
-		V8_CHECK(_this, "entity is invalid");
-
-		Ref<IVehicle> vehicle = _this->GetHandle().As<IVehicle>();
-
-		v8::Local<v8::Integer> category = info[0]->ToInteger(isolate);
-
-		info.GetReturnValue().Set(v8::Integer::New(isolate, vehicle->GetMod(category->Value())));
+		V8_RETURN_INTEGER(vehicle->GetMod(category));
 	}
 
 	void SetExtra(const v8::FunctionCallbackInfo<v8::Value>& info)
 	{
-		v8::Isolate* isolate = info.GetIsolate();
+		V8_GET_ISOLATE_CONTEXT();
+		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
+		V8_CHECK_ARGS_LEN(2);
 
-		V8_CHECK(info.Length() == 2, "2 args expected");
+		V8_ARG_TO_INTEGER(1, category);
+		V8_ARG_TO_BOOLEAN(2, state);
 
-		V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-		V8_CHECK(resource, "invalid resource");
-
-		V8Entity* _this = V8Entity::Get(info.This());
-		V8_CHECK(_this, "entity is invalid");
-
-		Ref<IVehicle> vehicle = _this->GetHandle().As<IVehicle>();
-
-		v8::Local<v8::Integer> category = info[0]->ToInteger(isolate);
-		v8::Local<v8::Boolean> state = info[1]->ToBoolean(isolate);
-
-		vehicle->ToggleExtra(category->Value(), state->Value());
+		vehicle->ToggleExtra(category, state);
 	}
 
 	void GetExtra(const v8::FunctionCallbackInfo<v8::Value>& info)
 	{
-		v8::Isolate* isolate = info.GetIsolate();
+		V8_GET_ISOLATE_CONTEXT();
+		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
+		V8_CHECK_ARGS_LEN(1);
 
-		V8_CHECK(info.Length() == 1, "1 arg expected");
+		V8_ARG_TO_INTEGER(1, category);
 
-		V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-		V8_CHECK(resource, "invalid resource");
-
-		V8Entity* _this = V8Entity::Get(info.This());
-		V8_CHECK(_this, "entity is invalid");
-
-		Ref<IVehicle> vehicle = _this->GetHandle().As<IVehicle>();
-
-		v8::Local<v8::Integer> category = info[0]->ToInteger(isolate);
-
-		info.GetReturnValue().Set(v8::Boolean::New(isolate, vehicle->IsExtraOn(category->Value())));
+		V8_RETURN_BOOLEAN(vehicle->IsExtraOn(category));
 	}
 
 	void SetAppearanceData(const v8::FunctionCallbackInfo<v8::Value>& info)
 	{
-		v8::Isolate* isolate = info.GetIsolate();
+		V8_GET_ISOLATE_CONTEXT();
+		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
+		V8_CHECK_ARGS_LEN(1);
 
-		V8_CHECK(info.Length() == 1, "1 arg expected");
+		V8_ARG_TO_STRING(1, data);
 
-		V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-		V8_CHECK(resource, "invalid resource");
-
-		V8Entity* _this = V8Entity::Get(info.This());
-		V8_CHECK(_this, "entity is invalid");
-
-		Ref<IVehicle> vehicle = _this->GetHandle().As<IVehicle>();
-
-		v8::String::Utf8Value appearanceData(isolate, info[0]->ToString(isolate));
-
-		vehicle->LoadAppearanceDataFromBase64(*appearanceData);
+		vehicle->LoadAppearanceDataFromBase64(data);
 	}
 
 	void GetAppearanceData(const v8::FunctionCallbackInfo<v8::Value>& info)
 	{
-		v8::Isolate* isolate = info.GetIsolate();
+		V8_GET_ISOLATE(info);
+		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 
-		V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-		V8_CHECK(resource, "invalid resource");
-
-		V8Entity* _this = V8Entity::Get(info.This());
-		V8_CHECK(_this, "entity is invalid");
-
-		Ref<IVehicle> vehicle = _this->GetHandle().As<IVehicle>();
-
-		info.GetReturnValue().Set(v8::String::NewFromUtf8(info.GetIsolate(), vehicle->GetAppearanceDataBase64().CStr()));
-	}*/
+		V8_RETURN_STRING(vehicle->GetAppearanceDataBase64().CStr());
+	}
 }

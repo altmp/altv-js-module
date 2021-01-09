@@ -7,10 +7,10 @@
 using namespace alt;
 
 #include "vehicle/Appearance.h"
-//#include "vehicle/GameState.h"
-//#include "vehicle/Health.h"
-//#include "vehicle/Damage.h"
-//#include "vehicle/ScriptGameState.h"
+#include "vehicle/GameState.h"
+#include "vehicle/Health.h"
+#include "vehicle/Damage.h"
+#include "vehicle/ScriptGameState.h"
 
 using namespace V8::Vehicle;
 
@@ -147,15 +147,15 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, Constructor, [](v8::Local<v8::Func
 	V8::SetAccessor<IVehicle, uint8_t, &IVehicle::GetRearWheelVariation>(isolate, tpl, "rearWheels");
 
 	// Appearance methods
-	//proto->Set(v8::String::NewFromUtf8(isolate, "getModsCount"), v8::FunctionTemplate::New(isolate, &GetModsCount));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "setMod"), v8::FunctionTemplate::New(isolate, &SetMod));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "getMod"), v8::FunctionTemplate::New(isolate, &GetMod));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "setExtra"), v8::FunctionTemplate::New(isolate, &SetExtra));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "getExtra"), v8::FunctionTemplate::New(isolate, &GetExtra));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "setWheels"), v8::FunctionTemplate::New(isolate, &SetWheels));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "setRearWheels"), v8::FunctionTemplate::New(isolate, &SetRearWheels));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "getAppearanceDataBase64"), v8::FunctionTemplate::New(isolate, &GetAppearanceData));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "setAppearanceDataBase64"), v8::FunctionTemplate::New(isolate, &SetAppearanceData));
+	V8::SetMethod(isolate, tpl, "getModsCount", &GetModsCount);
+	V8::SetMethod(isolate, tpl, "setMod", &SetMod);
+	V8::SetMethod(isolate, tpl, "getMod", &GetMod);
+	V8::SetMethod(isolate, tpl, "setExtra", &SetExtra);
+	V8::SetMethod(isolate, tpl, "getExtra", &GetExtra);
+	V8::SetMethod(isolate, tpl, "setWheels", &SetWheels);
+	V8::SetMethod(isolate, tpl, "setRearWheels", &SetRearWheels);
+	V8::SetMethod(isolate, tpl, "getAppearanceDataBase64", &GetAppearanceData);
+	V8::SetMethod(isolate, tpl, "setAppearanceDataBase64", &SetAppearanceData);
 
 	// Gamestate getters/setters
 	V8::SetAccessor<IVehicle, bool, &IVehicle::IsEngineOn, &IVehicle::SetEngineOn>(isolate, tpl, "engineOn");
@@ -171,14 +171,12 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, Constructor, [](v8::Local<v8::Func
 	V8::SetAccessor<IVehicle, float, &IVehicle::GetLightsMultiplier, &IVehicle::SetLightsMultiplier>(isolate, tpl, "lightsMultiplier");
 
 	// Gamestate methods
-	//proto->Set(v8::String::NewFromUtf8(isolate, "isRoofOpened"), v8::FunctionTemplate::New(isolate, &IsRoofOpenedDeprecated));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "setRoofOpened"), v8::FunctionTemplate::New(isolate, &SetRoofOpenedDeprecated));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "getDoorState"), v8::FunctionTemplate::New(isolate, &GetDoorState));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "setDoorState"), v8::FunctionTemplate::New(isolate, &SetDoorState));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "isWindowOpened"), v8::FunctionTemplate::New(isolate, &GetWindowOpened));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "setWindowOpened"), v8::FunctionTemplate::New(isolate, &SetWindowOpened));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "getGamestateDataBase64"), v8::FunctionTemplate::New(isolate, &GetGamestateData));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "setGamestateDataBase64"), v8::FunctionTemplate::New(isolate, &SetGamestateData));
+	V8::SetMethod(isolate, tpl, "getDoorState", &GetDoorState);
+	V8::SetMethod(isolate, tpl, "setDoorState", &SetDoorState);
+	V8::SetMethod(isolate, tpl, "isWindowOpened", &GetWindowOpened);
+	V8::SetMethod(isolate, tpl, "setWindowOpened", &SetWindowOpened);
+	V8::SetMethod(isolate, tpl, "getGamestateDataBase64", &GetGamestateData);
+	V8::SetMethod(isolate, tpl, "setGamestateDataBase64", &SetGamestateData);
 
 	// Health getters/setters
 	V8::SetAccessor<IVehicle, int32_t, &IVehicle::GetEngineHealth, &IVehicle::SetEngineHealth>(isolate, tpl, "engineHealth");
@@ -187,55 +185,55 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, Constructor, [](v8::Local<v8::Func
 	V8::SetAccessor<IVehicle, uint32_t, &IVehicle::GetBodyAdditionalHealth, &IVehicle::SetBodyAdditionalHealth>(isolate, tpl, "bodyAdditionalHealth");
 	V8::SetAccessor<IVehicle, uint8_t, &IVehicle::GetWheelsCount>(isolate, tpl, "wheelsCount");
 	V8::SetAccessor<IVehicle, uint8_t, &IVehicle::GetRepairsCount>(isolate, tpl, "repairsCount");
-	///*proto->SetAccessor(v8::String::NewFromUtf8(isolate, "lastAttacker"), &LastAttackerGetter);
-	//proto->SetAccessor(v8::String::NewFromUtf8(isolate, "lastAttackedWith"), &LastDamagedWithGetter);*/
+	/*proto->SetAccessor(v8::String::NewFromUtf8(isolate, "lastAttacker"), &LastAttackerGetter);
+	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "lastAttackedWith"), &LastDamagedWithGetter);*/
 
 	// Health methods
-	//proto->Set(v8::String::NewFromUtf8(isolate, "setWheelBurst"), v8::FunctionTemplate::New(isolate, &SetWheelBurst));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "isWheelBurst"), v8::FunctionTemplate::New(isolate, &GetWheelBurst));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "setWheelHasTire"), v8::FunctionTemplate::New(isolate, &SetWheelHasTire));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "doesWheelHasTire"), v8::FunctionTemplate::New(isolate, &GetWheelHasTire));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "setWheelDetached"), v8::FunctionTemplate::New(isolate, &SetWheelDetached));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "isWheelDetached"), v8::FunctionTemplate::New(isolate, &GetIsWheelDetached));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "setWheelOnFire"), v8::FunctionTemplate::New(isolate, &SetWheelOnFire));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "isWheelOnFire"), v8::FunctionTemplate::New(isolate, &GetIsWheelOnFire));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "setWheelHealth"), v8::FunctionTemplate::New(isolate, &SetWheelHealth));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "getWheelHealth"), v8::FunctionTemplate::New(isolate, &GetWheelHealth));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "getHealthDataBase64"), v8::FunctionTemplate::New(isolate, &GetHealthData));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "setHealthDataBase64"), v8::FunctionTemplate::New(isolate, &SetHealthData));
+	V8::SetMethod(isolate, tpl, "setWheelBurst", &SetWheelBurst);
+	V8::SetMethod(isolate, tpl, "isWheelBurst", &GetWheelBurst);
+	V8::SetMethod(isolate, tpl, "setWheelHasTire", &SetWheelHasTire);
+	V8::SetMethod(isolate, tpl, "doesWheelHasTire", &GetWheelHasTire);
+	V8::SetMethod(isolate, tpl, "setWheelDetached", &SetWheelDetached);
+	V8::SetMethod(isolate, tpl, "isWheelDetached", &GetIsWheelDetached);
+	V8::SetMethod(isolate, tpl, "setWheelOnFire", &SetWheelOnFire);
+	V8::SetMethod(isolate, tpl, "isWheelOnFire", &GetIsWheelOnFire);
+	V8::SetMethod(isolate, tpl, "setWheelHealth", &SetWheelHealth);
+	V8::SetMethod(isolate, tpl, "getWheelHealth", &GetWheelHealth);
+	V8::SetMethod(isolate, tpl, "getHealthDataBase64", &GetHealthData);
+	V8::SetMethod(isolate, tpl, "setHealthDataBase64", &SetHealthData);
 
 	// Damage getters/setters
 	V8::SetAccessor<IVehicle, bool, &IVehicle::HasArmoredWindows>(isolate, tpl, "hasArmoredWindows");
 
 	// Damage methods
-	//proto->Set(v8::String::NewFromUtf8(isolate, "getPartDamageLevel"), v8::FunctionTemplate::New(isolate, &GetPartDamageLevel));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "setPartDamageLevel"), v8::FunctionTemplate::New(isolate, &SetPartDamageLevel));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "getPartBulletHoles"), v8::FunctionTemplate::New(isolate, &GetPartBulletHoles));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "setPartBulletHoles"), v8::FunctionTemplate::New(isolate, &SetPartBulletHoles));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "isLightDamaged"), v8::FunctionTemplate::New(isolate, &IsLightDamaged));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "setLightDamaged"), v8::FunctionTemplate::New(isolate, &SetLightDamaged));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "isWindowDamaged"), v8::FunctionTemplate::New(isolate, &IsWindowDamaged));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "setWindowDamaged"), v8::FunctionTemplate::New(isolate, &SetWindowDamaged));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "isSpecialLightDamaged"), v8::FunctionTemplate::New(isolate, &IsSpecialLightDamaged));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "setSpecialLightDamaged"), v8::FunctionTemplate::New(isolate, &SetSpecialLightDamaged));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "getBumperDamageLevel"), v8::FunctionTemplate::New(isolate, &GetBumperDamageLevel));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "setBumperDamageLevel"), v8::FunctionTemplate::New(isolate, &SetBumperDamageLevel));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "getArmoredWindowHealth"), v8::FunctionTemplate::New(isolate, &GetArmoredWindowHealth));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "setArmoredWindowHealth"), v8::FunctionTemplate::New(isolate, &SetArmoredWindowHealth));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "getArmoredWindowShootCount"), v8::FunctionTemplate::New(isolate, &GetArmoredWindowShootCount));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "setArmoredWindowShootCount"), v8::FunctionTemplate::New(isolate, &SetArmoredWindowShootCount));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "getDamageStatusBase64"), v8::FunctionTemplate::New(isolate, &GetDamageStatus));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "setDamageStatusBase64"), v8::FunctionTemplate::New(isolate, &SetDamageStatus));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "repair"), v8::FunctionTemplate::New(isolate, &SetFixed));
+	V8::SetMethod(isolate, tpl, "getPartDamageLevel", &GetPartDamageLevel);
+	V8::SetMethod(isolate, tpl, "setPartDamageLevel", &SetPartDamageLevel);
+	V8::SetMethod(isolate, tpl, "getPartBulletHoles", &GetPartBulletHoles);
+	V8::SetMethod(isolate, tpl, "setPartBulletHoles", &SetPartBulletHoles);
+	V8::SetMethod(isolate, tpl, "isLightDamaged", &IsLightDamaged);
+	V8::SetMethod(isolate, tpl, "setLightDamaged", &SetLightDamaged);
+	V8::SetMethod(isolate, tpl, "isWindowDamaged", &IsWindowDamaged);
+	V8::SetMethod(isolate, tpl, "setWindowDamaged", &SetWindowDamaged);
+	V8::SetMethod(isolate, tpl, "isSpecialLightDamaged", &IsSpecialLightDamaged);
+	V8::SetMethod(isolate, tpl, "setSpecialLightDamaged", &SetSpecialLightDamaged);
+	V8::SetMethod(isolate, tpl, "getBumperDamageLevel", &GetBumperDamageLevel);
+	V8::SetMethod(isolate, tpl, "setBumperDamageLevel", &SetBumperDamageLevel);
+	V8::SetMethod(isolate, tpl, "getArmoredWindowHealth", &GetArmoredWindowHealth);
+	V8::SetMethod(isolate, tpl, "setArmoredWindowHealth", &SetArmoredWindowHealth);
+	V8::SetMethod(isolate, tpl, "getArmoredWindowShootCount", &GetArmoredWindowShootCount);
+	V8::SetMethod(isolate, tpl, "setArmoredWindowShootCount", &SetArmoredWindowShootCount);
+	V8::SetMethod(isolate, tpl, "getDamageStatusBase64", &GetDamageStatus);
+	V8::SetMethod(isolate, tpl, "setDamageStatusBase64", &SetDamageStatus);
+	V8::SetMethod(isolate, tpl, "repair", &SetFixed);
 
 	// Script getters/setters
 	V8::SetAccessor<IVehicle, bool, &IVehicle::IsManualEngineControl, &IVehicle::SetManualEngineControl>(isolate, tpl, "manualEngineControl");
 
 	// Script methods
-	//proto->Set(v8::String::NewFromUtf8(isolate, "getScriptDataBase64"), v8::FunctionTemplate::New(isolate, &GetScriptData));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "setScriptDataBase64"), v8::FunctionTemplate::New(isolate, &SetScriptData));
+	V8::SetMethod(isolate, tpl, "getScriptDataBase64", &GetScriptData);
+	V8::SetMethod(isolate, tpl, "setScriptDataBase64", &SetScriptData);
 
 
-	//proto->Set(v8::String::NewFromUtf8(isolate, "getAttached"), v8::FunctionTemplate::New(isolate, &GetAttached));
-	//proto->Set(v8::String::NewFromUtf8(isolate, "getAttachedTo"), v8::FunctionTemplate::New(isolate, &GetAttachedTo));
+	V8::SetMethod(isolate, tpl, "getAttached", &GetAttached);
+	V8::SetMethod(isolate, tpl, "getAttachedTo", &GetAttachedTo);
 });
