@@ -1,6 +1,8 @@
 name: Build & deploy
 on:
-  create:
+  push:
+    branches-ignore: 
+      - '**'
     tags:
       - 'dev/*.*-dev*'
       - 'rc/*.*-rc*'
