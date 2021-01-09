@@ -58,6 +58,30 @@ static void GetStreamSyncedMeta(const v8::FunctionCallbackInfo<v8::Value> &info)
 
 #ifdef ALT_SERVER_API
 
+static void ModelGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
+	V8_RETURN_UINTEGER(ent->GetModel());
+}
+
+static void ModelSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
+
+	if (val->IsNumber())
+	{
+		V8_TO_INTEGER(val, model);
+		player->SetModel(model);
+	}
+	else
+	{
+		V8_TO_STRING(val, model);
+		player->SetModel(alt::ICore::Instance().Hash(model));
+	}
+}
+
 static void SetSyncedMeta(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
 	V8_GET_ISOLATE_CONTEXT();
@@ -185,7 +209,7 @@ extern V8Class v8Entity("Entity", v8WorldObject, [](v8::Local<v8::FunctionTempla
 
 #ifdef ALT_SERVER_API
 	V8::SetAccessor<IEntity, Rotation, &IEntity::GetRotation, &IEntity::SetRotation>(isolate, tpl, "rot");
-	V8::SetAccessor<IEntity, uint32_t, &IEntity::GetModel>(isolate, tpl, "model");
+	V8::SetAccessor(isolate, tpl, "model", &ModelGetter, &ModelSetter);
 	V8::SetAccessor<IEntity, bool, &IEntity::GetVisible, &IEntity::SetVisible>(isolate, tpl, "visible");
 
 	V8::SetMethod(isolate, tpl, "setSyncedMeta", SetSyncedMeta);
