@@ -4,13 +4,13 @@
 #include "V8Helpers.h"
 #include <climits>
 
-bool V8Helpers::TryCatch(const std::function<bool()> &fn)
+bool V8Helpers::TryCatch(const std::function<bool()>& fn)
 {
-	v8::Isolate *isolate = v8::Isolate::GetCurrent();
+	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 	v8::Local<v8::Context> context = isolate->GetEnteredContext();
 	v8::TryCatch tryCatch(isolate);
 
-	alt::IResource *resource = V8ResourceImpl::GetResource(context);
+	alt::IResource* resource = V8ResourceImpl::GetResource(context);
 
 	if (!fn())
 	{
@@ -26,7 +26,7 @@ bool V8Helpers::TryCatch(const std::function<bool()> &fn)
 			if (!origin.ResourceName()->IsUndefined())
 			{
 				Log::Error << "[V8] Exception at " << resource->GetName() << ":"
-						   << *v8::String::Utf8Value(isolate, origin.ResourceName()) << ":" << line.ToChecked() << Log::Endl;
+					<< *v8::String::Utf8Value(isolate, origin.ResourceName()) << ":" << line.ToChecked() << Log::Endl;
 
 				if (!maybeSourceLine.IsEmpty())
 				{
@@ -38,7 +38,7 @@ bool V8Helpers::TryCatch(const std::function<bool()> &fn)
 					}
 					else
 					{
-						Log::Error << "  " << std::string{*v8::String::Utf8Value(isolate, sourceLine), 80} << "..." << Log::Endl;
+						Log::Error << "  " << std::string{ *v8::String::Utf8Value(isolate, sourceLine), 80 } << "..." << Log::Endl;
 					}
 				}
 			}
@@ -57,7 +57,7 @@ bool V8Helpers::TryCatch(const std::function<bool()> &fn)
 		else if (!exception.IsEmpty())
 		{
 			Log::Error << "[V8] Exception: "
-					   << *v8::String::Utf8Value(isolate, exception) << Log::Endl;
+				<< *v8::String::Utf8Value(isolate, exception) << Log::Endl;
 		}
 		else
 		{
@@ -70,13 +70,13 @@ bool V8Helpers::TryCatch(const std::function<bool()> &fn)
 	return true;
 }
 
-void V8Helpers::FunctionCallback(const v8::FunctionCallbackInfo<v8::Value> &info)
+void V8Helpers::FunctionCallback(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	auto fn = static_cast<alt::MValueFunction *>(info.Data().As<v8::External>()->Value());
+	auto fn = static_cast<alt::MValueFunction*>(info.Data().As<v8::External>()->Value());
 
-	v8::Isolate *isolate = v8::Isolate::GetCurrent();
+	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
-	V8ResourceImpl *resource = V8ResourceImpl::Get(ctx);
+	V8ResourceImpl* resource = V8ResourceImpl::Get(ctx);
 
 	Log::Debug << "FunctionCallback " << resource->GetResource()->GetName() << " " << V8ResourceImpl::Get(isolate->GetEnteredContext())->GetResource()->GetName() << Log::Endl;
 
@@ -92,9 +92,9 @@ void V8Helpers::FunctionCallback(const v8::FunctionCallbackInfo<v8::Value> &info
 
 alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val)
 {
-	auto &core = alt::ICore::Instance();
+	auto& core = alt::ICore::Instance();
 
-	v8::Isolate *isolate = v8::Isolate::GetCurrent();
+	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
 
 	if (val.IsEmpty())
@@ -144,11 +144,11 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val)
 		else if (val->IsArrayBuffer())
 		{
 			v8::ArrayBuffer::Contents v8Buffer = val.As<v8::ArrayBuffer>()->GetContents();
-			return core.CreateMValueByteArray((uint8_t *)v8Buffer.Data(), v8Buffer.ByteLength());
+			return core.CreateMValueByteArray((uint8_t*)v8Buffer.Data(), v8Buffer.ByteLength());
 		}
 		else
 		{
-			V8ResourceImpl *resource = V8ResourceImpl::Get(ctx);
+			V8ResourceImpl* resource = V8ResourceImpl::Get(ctx);
 			v8::Local<v8::Object> v8Obj = val.As<v8::Object>();
 
 			//if (v8Obj->InstanceOf(ctx, v8Vector3->JSValue(isolate, ctx)).ToChecked())
@@ -162,7 +162,7 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val)
 					alt::Vector3f{
 						x->Value(),
 						y->Value(),
-						z->Value()});
+						z->Value() });
 			}
 			else if (resource->IsRGBA(v8Obj))
 			{
@@ -176,11 +176,11 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val)
 						(uint8_t)r->Value(),
 						(uint8_t)g->Value(),
 						(uint8_t)b->Value(),
-						(uint8_t)a->Value()});
+						(uint8_t)a->Value() });
 			}
 			else if (resource->IsBaseObject(v8Obj))
 			{
-				V8Entity *ent = V8Entity::Get(v8Obj);
+				V8Entity* ent = V8Entity::Get(v8Obj);
 				Log::Debug << "Instanceof BaseObject" << Log::Endl;
 
 				if (!ent)
@@ -216,7 +216,7 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val)
 
 v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
 {
-	v8::Isolate *isolate = v8::Isolate::GetCurrent();
+	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
 
 	switch (val->GetType())
@@ -300,49 +300,49 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
 	return v8::Undefined(isolate);
 }
 
-void V8::DefineOwnProperty(v8::Isolate *isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Object> val, const char *name, v8::Local<v8::Value> value, v8::PropertyAttribute attributes)
+void V8::DefineOwnProperty(v8::Isolate* isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Object> val, const char* name, v8::Local<v8::Value> value, v8::PropertyAttribute attributes)
 {
 	val->DefineOwnProperty(ctx, v8::String::NewFromUtf8(isolate, name, v8::NewStringType::kInternalized).ToLocalChecked(), value, attributes);
 }
 
-void V8::DefineOwnProperty(v8::Isolate *isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Object> val, v8::Local<v8::String> name, v8::Local<v8::Value> value, v8::PropertyAttribute attributes)
+void V8::DefineOwnProperty(v8::Isolate* isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Object> val, v8::Local<v8::String> name, v8::Local<v8::Value> value, v8::PropertyAttribute attributes)
 {
 	val->DefineOwnProperty(ctx, name, value, attributes);
 }
 
-void V8::SetAccessor(v8::Isolate *isolate, v8::Local<v8::FunctionTemplate> tpl, const char *name, v8::AccessorGetterCallback getter, v8::AccessorSetterCallback setter)
+void V8::SetAccessor(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> tpl, const char* name, v8::AccessorGetterCallback getter, v8::AccessorSetterCallback setter)
 {
 	tpl->PrototypeTemplate()->SetAccessor(v8::String::NewFromUtf8(isolate, name,
-																  v8::NewStringType::kInternalized)
-											  .ToLocalChecked(),
-										  getter, setter,
-										  v8::Local<v8::Value>(), v8::AccessControl::DEFAULT,
-										  setter != nullptr ? v8::PropertyAttribute::None : v8::PropertyAttribute::ReadOnly);
+		v8::NewStringType::kInternalized)
+		.ToLocalChecked(),
+		getter, setter,
+		v8::Local<v8::Value>(), v8::AccessControl::DEFAULT,
+		setter != nullptr ? v8::PropertyAttribute::None : v8::PropertyAttribute::ReadOnly);
 }
 
-void V8::SetMethod(v8::Isolate *isolate, v8::Local<v8::FunctionTemplate> tpl, const char *name, v8::FunctionCallback callback)
+void V8::SetMethod(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> tpl, const char* name, v8::FunctionCallback callback)
 {
 	tpl->PrototypeTemplate()->Set(isolate, name, v8::FunctionTemplate::New(isolate, callback));
 }
 
-void V8::SetStaticAccessor(v8::Isolate *isolate, v8::Local<v8::FunctionTemplate> tpl, const char *name, v8::AccessorGetterCallback getter, v8::AccessorSetterCallback setter)
+void V8::SetStaticAccessor(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> tpl, const char* name, v8::AccessorGetterCallback getter, v8::AccessorSetterCallback setter)
 {
 	tpl->SetNativeDataProperty(v8::String::NewFromUtf8(isolate, name,
-													   v8::NewStringType::kInternalized)
-								   .ToLocalChecked(),
-							   getter, setter);
+		v8::NewStringType::kInternalized)
+		.ToLocalChecked(),
+		getter, setter);
 }
 
-void V8::SetStaticMethod(v8::Isolate *isolate, v8::Local<v8::FunctionTemplate> tpl, const char *name, v8::FunctionCallback callback)
+void V8::SetStaticMethod(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> tpl, const char* name, v8::FunctionCallback callback)
 {
 	tpl->Set(isolate, name, v8::FunctionTemplate::New(isolate, callback));
 }
 
-v8::Local<v8::Value> V8::Get(v8::Local<v8::Context> ctx, v8::Local<v8::Object> obj, const char *name)
+v8::Local<v8::Value> V8::Get(v8::Local<v8::Context> ctx, v8::Local<v8::Object> obj, const char* name)
 {
 	return obj->Get(ctx, v8::String::NewFromUtf8(ctx->GetIsolate(), name,
-												 v8::NewStringType::kInternalized)
-							 .ToLocalChecked())
+		v8::NewStringType::kInternalized)
+		.ToLocalChecked())
 		.ToLocalChecked();
 }
 
@@ -351,7 +351,7 @@ v8::Local<v8::Value> V8::Get(v8::Local<v8::Context> ctx, v8::Local<v8::Object> o
 	return obj->Get(ctx, name).ToLocalChecked();
 }
 
-void V8::SetFunction(v8::Isolate *isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Object> target, const char *name, v8::FunctionCallback cb, void *userData)
+void V8::SetFunction(v8::Isolate* isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Object> target, const char* name, v8::FunctionCallback cb, void* userData)
 {
 	v8::Local<v8::String> _name = v8::String::NewFromUtf8(isolate, name, v8::NewStringType::kInternalized).ToLocalChecked();
 
@@ -361,7 +361,7 @@ void V8::SetFunction(v8::Isolate *isolate, v8::Local<v8::Context> ctx, v8::Local
 	target->Set(ctx, _name, fn);
 }
 
-v8::Local<v8::Value> V8::New(v8::Isolate *isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Function> constructor, std::vector<v8::Local<v8::Value>> &args)
+v8::Local<v8::Value> V8::New(v8::Isolate* isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Function> constructor, std::vector<v8::Local<v8::Value>>& args)
 {
 	v8::Local<v8::Value> obj;
 
@@ -378,7 +378,7 @@ v8::Local<v8::Value> V8::New(v8::Isolate *isolate, v8::Local<v8::Context> ctx, v
 	return obj;
 }
 
-V8::SourceLocation V8::SourceLocation::GetCurrent(v8::Isolate *isolate)
+V8::SourceLocation V8::SourceLocation::GetCurrent(v8::Isolate* isolate)
 {
 	v8::Local<v8::StackTrace> stackTrace = v8::StackTrace::CurrentStackTrace(isolate, 1);
 	if (stackTrace->GetFrameCount() > 0)
@@ -391,103 +391,103 @@ V8::SourceLocation V8::SourceLocation::GetCurrent(v8::Isolate *isolate)
 			std::string fileName = *v8::String::Utf8Value(isolate, frame->GetScriptName());
 			int line = frame->GetLineNumber();
 
-			return SourceLocation{std::move(fileName), line};
+			return SourceLocation{ std::move(fileName), line };
 		}
 		else if (frame->IsEval())
 		{
-			return SourceLocation{"[eval]", 0};
+			return SourceLocation{ "[eval]", 0 };
 		}
 	}
 
-	return SourceLocation{"[unknown]", 0};
+	return SourceLocation{ "[unknown]", 0 };
 }
 
-V8::SourceLocation::SourceLocation(std::string &&_fileName, int _line) : fileName(_fileName), line(_line)
+V8::SourceLocation::SourceLocation(std::string&& _fileName, int _line) : fileName(_fileName), line(_line)
 {
 }
 
-v8::Local<v8::String> V8::Vector3_XKey(v8::Isolate *isolate)
+v8::Local<v8::String> V8::Vector3_XKey(v8::Isolate* isolate)
 {
-	static v8::Persistent<v8::String> xKey{isolate, v8::String::NewFromUtf8(isolate, "x",
+	static v8::Persistent<v8::String> xKey{ isolate, v8::String::NewFromUtf8(isolate, "x",
 																			v8::NewStringType::kInternalized)
-														.ToLocalChecked()};
+														.ToLocalChecked() };
 
 	return xKey.Get(isolate);
 }
 
-v8::Local<v8::String> V8::Vector3_YKey(v8::Isolate *isolate)
+v8::Local<v8::String> V8::Vector3_YKey(v8::Isolate* isolate)
 {
-	static v8::Persistent<v8::String> yKey{isolate, v8::String::NewFromUtf8(isolate, "y",
+	static v8::Persistent<v8::String> yKey{ isolate, v8::String::NewFromUtf8(isolate, "y",
 																			v8::NewStringType::kInternalized)
-														.ToLocalChecked()};
+														.ToLocalChecked() };
 
 	return yKey.Get(isolate);
 }
 
-v8::Local<v8::String> V8::Vector3_ZKey(v8::Isolate *isolate)
+v8::Local<v8::String> V8::Vector3_ZKey(v8::Isolate* isolate)
 {
-	static v8::Persistent<v8::String> zKey{isolate, v8::String::NewFromUtf8(isolate, "z",
+	static v8::Persistent<v8::String> zKey{ isolate, v8::String::NewFromUtf8(isolate, "z",
 																			v8::NewStringType::kInternalized)
-														.ToLocalChecked()};
+														.ToLocalChecked() };
 
 	return zKey.Get(isolate);
 }
 
-v8::Local<v8::String> V8::RGBA_RKey(v8::Isolate *isolate)
+v8::Local<v8::String> V8::RGBA_RKey(v8::Isolate* isolate)
 {
-	static v8::Persistent<v8::String> rKey{isolate, v8::String::NewFromUtf8(isolate, "r",
+	static v8::Persistent<v8::String> rKey{ isolate, v8::String::NewFromUtf8(isolate, "r",
 																			v8::NewStringType::kInternalized)
-														.ToLocalChecked()};
+														.ToLocalChecked() };
 
 	return rKey.Get(isolate);
 }
 
-v8::Local<v8::String> V8::RGBA_GKey(v8::Isolate *isolate)
+v8::Local<v8::String> V8::RGBA_GKey(v8::Isolate* isolate)
 {
-	static v8::Persistent<v8::String> gKey{isolate, v8::String::NewFromUtf8(isolate, "g",
+	static v8::Persistent<v8::String> gKey{ isolate, v8::String::NewFromUtf8(isolate, "g",
 																			v8::NewStringType::kInternalized)
-														.ToLocalChecked()};
+														.ToLocalChecked() };
 
 	return gKey.Get(isolate);
 }
 
-v8::Local<v8::String> V8::RGBA_BKey(v8::Isolate *isolate)
+v8::Local<v8::String> V8::RGBA_BKey(v8::Isolate* isolate)
 {
-	static v8::Persistent<v8::String> bKey{isolate, v8::String::NewFromUtf8(isolate, "b",
+	static v8::Persistent<v8::String> bKey{ isolate, v8::String::NewFromUtf8(isolate, "b",
 																			v8::NewStringType::kInternalized)
-														.ToLocalChecked()};
+														.ToLocalChecked() };
 
 	return bKey.Get(isolate);
 }
 
-v8::Local<v8::String> V8::RGBA_AKey(v8::Isolate *isolate)
+v8::Local<v8::String> V8::RGBA_AKey(v8::Isolate* isolate)
 {
-	static v8::Persistent<v8::String> aKey{isolate, v8::String::NewFromUtf8(isolate, "a",
+	static v8::Persistent<v8::String> aKey{ isolate, v8::String::NewFromUtf8(isolate, "a",
 																			v8::NewStringType::kInternalized)
-														.ToLocalChecked()};
+														.ToLocalChecked() };
 
 	return aKey.Get(isolate);
 }
 
-v8::Local<v8::String> V8::Fire_PosKey(v8::Isolate *isolate)
+v8::Local<v8::String> V8::Fire_PosKey(v8::Isolate* isolate)
 {
-	static v8::Persistent<v8::String> aKey{isolate, v8::String::NewFromUtf8(isolate, "pos",
+	static v8::Persistent<v8::String> aKey{ isolate, v8::String::NewFromUtf8(isolate, "pos",
 																			v8::NewStringType::kInternalized)
-														.ToLocalChecked()};
+														.ToLocalChecked() };
 
 	return aKey.Get(isolate);
 }
 
-v8::Local<v8::String> V8::Fire_WeaponKey(v8::Isolate *isolate)
+v8::Local<v8::String> V8::Fire_WeaponKey(v8::Isolate* isolate)
 {
-	static v8::Persistent<v8::String> aKey{isolate, v8::String::NewFromUtf8(isolate, "weapon",
+	static v8::Persistent<v8::String> aKey{ isolate, v8::String::NewFromUtf8(isolate, "weapon",
 																			v8::NewStringType::kInternalized)
-														.ToLocalChecked()};
+														.ToLocalChecked() };
 
 	return aKey.Get(isolate);
 }
 
-bool V8::SafeToBoolean(v8::Local<v8::Value> val, v8::Isolate *isolate, bool &out)
+bool V8::SafeToBoolean(v8::Local<v8::Value> val, v8::Isolate* isolate, bool& out)
 {
 	out = val->ToBoolean(isolate)->Value();
 	return true;
@@ -553,7 +553,7 @@ bool V8::SafeToInt32(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, int32
 	return false;
 }
 
-bool V8::SafeToNumber(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, double &out)
+bool V8::SafeToNumber(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, double& out)
 {
 	v8::MaybeLocal maybeVal = val->ToNumber(ctx);
 	if (!maybeVal.IsEmpty())
@@ -565,7 +565,7 @@ bool V8::SafeToNumber(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, doub
 	return false;
 }
 
-bool V8::SafeToString(v8::Local<v8::Value> val, v8::Isolate *isolate, v8::Local<v8::Context> ctx, alt::String &out)
+bool V8::SafeToString(v8::Local<v8::Value> val, v8::Isolate* isolate, v8::Local<v8::Context> ctx, alt::String& out)
 {
 	v8::MaybeLocal maybeVal = val->ToString(ctx);
 	if (!maybeVal.IsEmpty())
@@ -668,27 +668,27 @@ std::vector<V8::EventCallback *> V8::EventHandler::GetCallbacks(V8ResourceImpl *
 	return callbacksGetter(impl, e);
 }
 
-std::vector<v8::Local<v8::Value>> V8::EventHandler::GetArgs(V8ResourceImpl *impl, const alt::CEvent *e)
+std::vector<v8::Local<v8::Value>> V8::EventHandler::GetArgs(V8ResourceImpl* impl, const alt::CEvent* e)
 {
 	std::vector<v8::Local<v8::Value>> args;
 	argsGetter(impl, e, args);
 	return args;
 }
 
-V8::EventHandler *V8::EventHandler::Get(const alt::CEvent *e)
+V8::EventHandler* V8::EventHandler::Get(const alt::CEvent* e)
 {
-	auto &_all = all();
+	auto& _all = all();
 	auto it = _all.find(e->GetType());
 
 	return (it != _all.end()) ? it->second : nullptr;
 }
 
-void V8::EventHandler::Register(alt::CEvent::Type type, EventHandler *handler)
+void V8::EventHandler::Register(alt::CEvent::Type type, EventHandler* handler)
 {
-	auto &_all = all();
+	auto& _all = all();
 	if (_all.count(type) == 0)
 	{
-		_all.insert({type, handler});
+		_all.insert({ type, handler });
 	}
 	else
 	{
@@ -696,9 +696,9 @@ void V8::EventHandler::Register(alt::CEvent::Type type, EventHandler *handler)
 	}
 }
 
-V8::EventHandler::CallbacksGetter V8::LocalEventHandler::GetCallbacksGetter(const std::string &name)
+V8::EventHandler::CallbacksGetter V8::LocalEventHandler::GetCallbacksGetter(const std::string& name)
 {
-	return [name](V8ResourceImpl *resource, const alt::CEvent *) -> std::vector<EventCallback *> {
+	return [name](V8ResourceImpl* resource, const alt::CEvent*) -> std::vector<EventCallback*> {
 		return resource->GetLocalHandlers(name);
 	};
 }

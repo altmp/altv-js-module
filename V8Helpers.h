@@ -171,8 +171,8 @@ namespace V8
 	void DefineOwnProperty(v8::Isolate *isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Object> val,
 						   v8::Local<v8::String> name, v8::Local<v8::Value> value, v8::PropertyAttribute attributes = v8::PropertyAttribute::None);
 
-	void SetAccessor(v8::Isolate *isolate, v8::Local<v8::FunctionTemplate> tpl, const char *name,
-					 v8::AccessorGetterCallback getter, v8::AccessorSetterCallback setter = nullptr);
+	void SetAccessor(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> tpl, const char* name,
+		v8::AccessorGetterCallback getter, v8::AccessorSetterCallback setter = nullptr);
 
 	void SetMethod(v8::Isolate *isolate, v8::Local<v8::FunctionTemplate> tpl, const char *name,
 				   v8::FunctionCallback callback);
