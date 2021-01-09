@@ -450,6 +450,11 @@ namespace V8
 	int32_t val;                    \
 	V8_CHECK(V8::SafeToInt32(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to integer")
 
+// idx starts with 1
+#define V8_ARG_TO_VECTOR3(idx, val) \
+	alt::Vector3f val;                    \
+	V8_CHECK(V8::SafeToVector3(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to vector3")
+
 #define V8_RETURN(val) info.GetReturnValue().Set(val)
 #define V8_RETURN_NULL() V8_RETURN(v8::Null(isolate))
 #define V8_RETURN_BOOLEAN(val) V8_RETURN(v8::Boolean::New(isolate, (val)))
