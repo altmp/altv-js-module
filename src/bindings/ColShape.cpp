@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include "helpers/V8Helpers.h"
+#include "helpers/V8BindHelpers.h"
 #include "helpers/V8ResourceImpl.h"
 
 using namespace alt;
@@ -46,59 +47,31 @@ static void IsPointIn(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_RETURN_BOOLEAN(_this->IsPointIn({ x->Value(), y->Value(), z->Value() }));
 }
 
-static void ColshapeTypeGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	V8_GET_ISOLATE_CONTEXT();
-	V8_GET_THIS_BASE_OBJECT(_this, IColShape);
-
-	V8_RETURN_INTEGER((int32_t)_this->GetColshapeType());
-}
-
-static void PlayersOnlyGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	V8_GET_ISOLATE_CONTEXT();
-	V8_GET_THIS_BASE_OBJECT(_this, IColShape);
-
-	V8_RETURN_BOOLEAN(_this->IsPlayersOnly());
-}
-
-static void PlayersOnlySetter(v8::Local<v8::String> name, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
-{
-	V8_GET_ISOLATE_CONTEXT();
-	V8_GET_THIS_BASE_OBJECT(_this, IColShape);
-	V8_TO_BOOLEAN(val, playersOnly);
-
-	_this->SetPlayersOnly(playersOnly);
-}
-
 extern V8Class v8WorldObject;
 extern V8Class v8Colshape("Colshape", v8WorldObject, nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-	V8::SetAccessor(isolate, tpl, "colshapeType", ColshapeTypeGetter);
-	V8::SetAccessor(isolate, tpl, "playersOnly", PlayersOnlyGetter, PlayersOnlySetter);
+	V8::SetAccessor<IColShape, IColShape::ColShapeType, &IColShape::GetColshapeType>(isolate, tpl, "colshapeType");
+	V8::SetAccessor<IColShape, bool, &IColShape::IsPlayersOnly, &IColShape::SetPlayersOnly>(isolate, tpl, "playersOnly");
+
 	V8::SetMethod(isolate, tpl, "isEntityIn", IsEntityIn);
 	V8::SetMethod(isolate, tpl, "isPointIn", IsPointIn);
 });
 
 extern V8Class v8ColshapeCylinder("ColshapeCylinder", v8Colshape, [](const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
 	V8_CHECK(info.IsConstructCall(), "ColshapeCylinder constructor is not a function");
+	V8_CHECK_ARGS_LEN(5);
 
-	V8_CHECK(info.Length() == 5, "5 args expected");
+	V8_ARG_TO_NUMBER(1, x);
+	V8_ARG_TO_NUMBER(2, y);
+	V8_ARG_TO_NUMBER(3, z);
+	V8_ARG_TO_NUMBER(4, radius);
+	V8_ARG_TO_NUMBER(5, height);
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	v8::Local<v8::Number> x = info[0]->ToNumber(isolate);
-	v8::Local<v8::Number> y = info[1]->ToNumber(isolate);
-	v8::Local<v8::Number> z = info[2]->ToNumber(isolate);
-	v8::Local<v8::Number> radius = info[3]->ToNumber(isolate);
-	v8::Local<v8::Number> height = info[4]->ToNumber(isolate);
-
-	Ref<IColShape> cs = ICore::Instance().CreateColShapeCylinder({ x->Value(), y->Value(), z->Value() }, radius->Value(), height->Value());
+	Ref<IColShape> cs = ICore::Instance().CreateColShapeCylinder({ x, y, z }, radius, height);
 
 	if (cs)
 		resource->BindEntity(info.This(), cs.Get());
@@ -108,20 +81,17 @@ extern V8Class v8ColshapeCylinder("ColshapeCylinder", v8Colshape, [](const v8::F
 
 extern V8Class v8ColshapeSphere("ColshapeSphere", v8Colshape, [](const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
 	V8_CHECK(info.IsConstructCall(), "ColshapeSphere constructor is not a function");
-	V8_CHECK(info.Length() == 4, "4 args expected");
+	V8_CHECK_ARGS_LEN(4);
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_ARG_TO_NUMBER(1, x);
+	V8_ARG_TO_NUMBER(2, y);
+	V8_ARG_TO_NUMBER(3, z);
+	V8_ARG_TO_NUMBER(4, radius);
 
-	v8::Local<v8::Number> x = info[0]->ToNumber(isolate);
-	v8::Local<v8::Number> y = info[1]->ToNumber(isolate);
-	v8::Local<v8::Number> z = info[2]->ToNumber(isolate);
-	v8::Local<v8::Number> radius = info[3]->ToNumber(isolate);
-
-	Ref<IColShape> cs = alt::ICore::Instance().CreateColShapeSphere({ x->Value(), y->Value(), z->Value() }, radius->Value());
+	Ref<IColShape> cs = alt::ICore::Instance().CreateColShapeSphere({ x, y, z }, radius);
 
 	if (cs)
 		resource->BindEntity(info.This(), cs.Get());
@@ -131,19 +101,16 @@ extern V8Class v8ColshapeSphere("ColshapeSphere", v8Colshape, [](const v8::Funct
 
 extern V8Class v8ColshapeCircle("ColshapeCircle", v8Colshape, [](const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
 	V8_CHECK(info.IsConstructCall(), "ColshapeCircle constructor is not a function");
-	V8_CHECK(info.Length() == 3, "3 args expected");
+	V8_CHECK_ARGS_LEN(3);
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_ARG_TO_NUMBER(1, x);
+	V8_ARG_TO_NUMBER(2, y);
+	V8_ARG_TO_NUMBER(3, radius);
 
-	v8::Local<v8::Number> x = info[0]->ToNumber(isolate);
-	v8::Local<v8::Number> y = info[1]->ToNumber(isolate);
-	v8::Local<v8::Number> radius = info[2]->ToNumber(isolate);
-
-	Ref<IColShape> cs = alt::ICore::Instance().CreateColShapeCircle({ x->Value(), y->Value(), 0 }, radius->Value());
+	Ref<IColShape> cs = alt::ICore::Instance().CreateColShapeCircle({ x, y, 0 }, radius);
 
 	if (cs)
 		resource->BindEntity(info.This(), cs.Get());
@@ -153,22 +120,19 @@ extern V8Class v8ColshapeCircle("ColshapeCircle", v8Colshape, [](const v8::Funct
 
 extern V8Class v8ColshapeCuboid("ColshapeCuboid", v8Colshape, [](const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
 	V8_CHECK(info.IsConstructCall(), "ColshapeCuboid constructor is not a function");
-	V8_CHECK(info.Length() == 6, "6 args expected");
+	V8_CHECK_ARGS_LEN(6);
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_ARG_TO_NUMBER(1, x1);
+	V8_ARG_TO_NUMBER(2, y1);
+	V8_ARG_TO_NUMBER(3, z1);
+	V8_ARG_TO_NUMBER(4, x2);
+	V8_ARG_TO_NUMBER(5, y2);
+	V8_ARG_TO_NUMBER(6, z2);
 
-	v8::Local<v8::Number> x1 = info[0]->ToNumber(isolate);
-	v8::Local<v8::Number> y1 = info[1]->ToNumber(isolate);
-	v8::Local<v8::Number> z1 = info[2]->ToNumber(isolate);
-	v8::Local<v8::Number> x2 = info[3]->ToNumber(isolate);
-	v8::Local<v8::Number> y2 = info[4]->ToNumber(isolate);
-	v8::Local<v8::Number> z2 = info[5]->ToNumber(isolate);
-
-	Ref<IColShape> cs = alt::ICore::Instance().CreateColShapeCube({ x1->Value(), y1->Value(), z1->Value() }, { x2->Value(), y2->Value(), z2->Value() });
+	Ref<IColShape> cs = alt::ICore::Instance().CreateColShapeCube({ x1, y1, z1 }, { x2, y2, z2 });
 
 	if (cs)
 		resource->BindEntity(info.This(), cs.Get());
@@ -178,20 +142,17 @@ extern V8Class v8ColshapeCuboid("ColshapeCuboid", v8Colshape, [](const v8::Funct
 
 extern V8Class v8ColshapeRectangle("ColshapeRectangle", v8Colshape, [](const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
 	V8_CHECK(info.IsConstructCall(), "ColshapeRectangle constructor is not a function");
-	V8_CHECK(info.Length() == 4, "4 args expected");
+	V8_CHECK_ARGS_LEN(4);
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_ARG_TO_NUMBER(1, x1);
+	V8_ARG_TO_NUMBER(2, y1);
+	V8_ARG_TO_NUMBER(3, x2);
+	V8_ARG_TO_NUMBER(4, y2);
 
-	v8::Local<v8::Number> x1 = info[0]->ToNumber(isolate);
-	v8::Local<v8::Number> y1 = info[1]->ToNumber(isolate);
-	v8::Local<v8::Number> x2 = info[2]->ToNumber(isolate);
-	v8::Local<v8::Number> y2 = info[3]->ToNumber(isolate);
-
-	Ref<IColShape> cs = alt::ICore::Instance().CreateColShapeRectangle(x1->Value(), y1->Value(), x2->Value(), y2->Value(), 0);
+	Ref<IColShape> cs = alt::ICore::Instance().CreateColShapeRectangle(x1, y1, x2, y2, 0);
 
 	if (cs)
 		resource->BindEntity(info.This(), cs.Get());

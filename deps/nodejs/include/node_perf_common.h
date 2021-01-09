@@ -3,6 +3,7 @@
 
 #if defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS
 
+#include "aliased_buffer.h"
 #include "node.h"
 #include "uv.h"
 #include "v8.h"
@@ -35,7 +36,8 @@ extern uint64_t performance_v8_start;
   V(MEASURE, "measure")                                                       \
   V(GC, "gc")                                                                 \
   V(FUNCTION, "function")                                                     \
-  V(HTTP2, "http2")
+  V(HTTP2, "http2")                                                           \
+  V(HTTP, "http")
 
 enum PerformanceMilestone {
 #define V(name, _) NODE_PERFORMANCE_MILESTONE_##name,
@@ -51,9 +53,9 @@ enum PerformanceEntryType {
   NODE_PERFORMANCE_ENTRY_TYPE_INVALID
 };
 
-class performance_state {
+class PerformanceState {
  public:
-  explicit performance_state(v8::Isolate* isolate) :
+  explicit PerformanceState(v8::Isolate* isolate) :
     root(
       isolate,
       sizeof(performance_state_internal)),

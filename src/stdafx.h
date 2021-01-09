@@ -6,6 +6,7 @@
 #define NODEJS_COPYRIGHT		u8"Copyright © 2020 Node.js Foundation."
 
 #define NODE_WANT_INTERNALS 1
+#define V8_COMPRESS_POINTERS 1
 
 #define ALT_SERVER_API
 

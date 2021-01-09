@@ -83,27 +83,25 @@ static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void SetSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(2);
+	V8_ARG_TO_STRING(1, key);
 
-	V8_CHECK(info.Length() == 2, "2 args expected");
-
-	v8::Local<v8::String> key = info[0]->ToString(isolate);
-	alt::ICore::Instance().SetSyncedMetaData(*v8::String::Utf8Value(isolate, key), V8Helpers::V8ToMValue(info[1]));
+	alt::ICore::Instance().SetSyncedMetaData(key, V8Helpers::V8ToMValue(info[1]));
 }
 
 static void DeleteSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_STRING(1, key);
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
-
-	v8::Local<v8::String> key = info[0]->ToString(isolate);
-	alt::ICore::Instance().DeleteSyncedMetaData(*v8::String::Utf8Value(isolate, key));
+	alt::ICore::Instance().DeleteSyncedMetaData(key);
 }
 
 static void GetPlayersByName(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
 	Log::Warning << "alt.getPlayersByName is deprecated and will be removed in future versions, "
 		<< "consider using alt.Player.all.filter(p => p.name == name)" << Log::Endl;
@@ -120,7 +118,7 @@ static void GetPlayersByName(const v8::FunctionCallbackInfo<v8::Value>& info)
 	v8::Local<v8::Array> arr = v8::Array::New(isolate, players.GetSize());
 	
 	for (uint32_t i = 0; i < players.GetSize(); ++i)
-		arr->Set(i, resource->GetBaseObjectOrNull(players[i]));
+		arr->Set(ctx, i, resource->GetBaseObjectOrNull(players[i]));
 
 	info.GetReturnValue().Set(arr);
 }
@@ -175,7 +173,7 @@ static void RestartResource(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void GetResourceMain(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
 	V8_CHECK(info.Length() == 1, "1 arg expected");
 	V8_CHECK(info[0]->IsString(), "string expected");
@@ -185,27 +183,25 @@ static void GetResourceMain(const v8::FunctionCallbackInfo<v8::Value>& info)
 	alt::IResource* resource = alt::ICore::Instance().GetResource(*name);
 
 	if (resource)
-		info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, resource->GetMain().CStr()));
+		info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, resource->GetMain().CStr()).ToLocalChecked());
 }
 
 static void GetResourcePath(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
-	V8_CHECK(info[0]->IsString(), "string expected");
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_STRING(1, name);
 
-	v8::String::Utf8Value name(isolate, info[0]);
-
-	alt::IResource* resource = alt::ICore::Instance().GetResource(*name);
+	alt::IResource* resource = alt::ICore::Instance().GetResource(name);
 
 	if (resource)
-		info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, resource->GetPath().CStr()));
+		info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, resource->GetPath().CStr()).ToLocalChecked());
 }
 
 static void HasResource(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
 
 	V8_CHECK(info.Length() == 1, "1 arg expected");
 	V8_CHECK(info[0]->IsString(), "string expected");
@@ -298,7 +294,7 @@ extern V8Module v8Alt("alt",
 	v8ColshapeRectangle
 },
 [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
-	v8::Isolate* isolate = v8::Isolate::GetCurrent();
+	v8::Isolate* isolate = ctx->GetIsolate();
 
 	V8::RegisterSharedMain(ctx, exports);
 
@@ -324,9 +320,7 @@ extern V8Module v8Alt("alt",
 
 	V8Helpers::RegisterFunc(exports, "getNetTime", &GetNetTime);
 
-	alt::StringView rootDir = alt::ICore::Instance().GetRootDirectory();
-	exports->Set(isolate->GetEnteredContext(), v8::String::NewFromUtf8(isolate, "rootDir"), v8::String::NewFromUtf8(isolate, rootDir.CStr()));
-
-	exports->Set(isolate->GetEnteredContext(), v8::String::NewFromUtf8(isolate, "defaultDimension"), v8::Integer::New(isolate, alt::DEFAULT_DIMENSION));
-	exports->Set(isolate->GetEnteredContext(), v8::String::NewFromUtf8(isolate, "globalDimension"), v8::Integer::New(isolate, alt::GLOBAL_DIMENSION));
+	V8_OBJECT_SET_STRING(exports, "rootDir", alt::ICore::Instance().GetRootDirectory());
+	V8_OBJECT_SET_INTEGER(exports, "defaultDimension", alt::DEFAULT_DIMENSION);
+	V8_OBJECT_SET_INTEGER(exports, "globalDimension", alt::GLOBAL_DIMENSION);
 });

@@ -4,6 +4,8 @@
 #if defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS
 
 #include <cstddef>
+#include <memory>
+
 #include "node.h"
 #include "util.h"
 #include "uv.h"
@@ -22,7 +24,7 @@ class NodeMainInstance {
   //   platform->RegisterIsolate(isolate, loop);
   //   isolate->Initialize(...);
   //   isolate->Enter();
-  //   NodeMainInstance* main_instance =
+  //   std::unique_ptr<NodeMainInstance> main_instance =
   //       NodeMainInstance::Create(isolate, loop, args, exec_args);
   //
   // When tearing it down:
@@ -33,11 +35,13 @@ class NodeMainInstance {
   //   platform->UnregisterIsolate(isolate);
   //
   // After calling Dispose() the main_instance is no longer accessible.
-  static NodeMainInstance* Create(v8::Isolate* isolate,
-                                  uv_loop_t* event_loop,
-                                  MultiIsolatePlatform* platform,
-                                  const std::vector<std::string>& args,
-                                  const std::vector<std::string>& exec_args);
+  static std::unique_ptr<NodeMainInstance> Create(
+      v8::Isolate* isolate,
+      uv_loop_t* event_loop,
+      MultiIsolatePlatform* platform,
+      const std::vector<std::string>& args,
+      const std::vector<std::string>& exec_args);
+
   void Dispose();
 
   // Create a main instance that owns the isolate
@@ -55,9 +59,8 @@ class NodeMainInstance {
 
   IsolateData* isolate_data() { return isolate_data_.get(); }
 
-  // TODO(joyeecheung): align this with the CreateEnvironment exposed in node.h
-  // and the environment creation routine in workers somehow.
-  std::unique_ptr<Environment> CreateMainEnvironment(int* exit_code);
+  DeleteFnPtr<Environment, FreeEnvironment> CreateMainEnvironment(
+      int* exit_code);
 
   // If nullptr is returned, the binary is not built with embedded
   // snapshot.

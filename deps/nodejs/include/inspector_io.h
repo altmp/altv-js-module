@@ -14,31 +14,13 @@
 #include <cstddef>
 #include <memory>
 
-
-namespace v8_inspector {
-class StringBuffer;
-class StringView;
-}  // namespace v8_inspector
-
 namespace node {
 // Forward declaration to break recursive dependency chain with src/env.h.
 class Environment;
 namespace inspector {
 
-std::string FormatWsAddress(const std::string& host, int port,
-                            const std::string& target_id,
-                            bool include_protocol);
-
-class InspectorIoDelegate;
 class MainThreadHandle;
 class RequestQueue;
-
-// kKill closes connections and stops the server, kStop only stops the server
-enum class TransportAction {
-  kKill,
-  kSendMessage,
-  kStop
-};
 
 class InspectorIo {
  public:
@@ -48,20 +30,20 @@ class InspectorIo {
   static std::unique_ptr<InspectorIo> Start(
       std::shared_ptr<MainThreadHandle> main_thread,
       const std::string& path,
-      std::shared_ptr<HostPort> host_port);
+      std::shared_ptr<ExclusiveAccess<HostPort>> host_port,
+      const InspectPublishUid& inspect_publish_uid);
 
   // Will block till the transport thread shuts down
   ~InspectorIo();
 
   void StopAcceptingNewConnections();
-  const std::string& host() const { return host_port_->host(); }
-  int port() const { return host_port_->port(); }
-  std::vector<std::string> GetTargetIds() const;
+  std::string GetWsUrl() const;
 
  private:
   InspectorIo(std::shared_ptr<MainThreadHandle> handle,
               const std::string& path,
-              std::shared_ptr<HostPort> host_port);
+              std::shared_ptr<ExclusiveAccess<HostPort>> host_port,
+              const InspectPublishUid& inspect_publish_uid);
 
   // Wrapper for agent->ThreadMain()
   static void ThreadMain(void* agent);
@@ -75,7 +57,8 @@ class InspectorIo {
   // Used to post on a frontend interface thread, lives while the server is
   // running
   std::shared_ptr<RequestQueue> request_queue_;
-  std::shared_ptr<HostPort> host_port_;
+  std::shared_ptr<ExclusiveAccess<HostPort>> host_port_;
+  InspectPublishUid inspect_publish_uid_;
 
   // The IO thread runs its own uv_loop to implement the TCP server off
   // the main thread.
