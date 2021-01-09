@@ -124,7 +124,7 @@ add_library(
 )
 
 if (WIN32)
-  target_link_libraries(${PROJECT_NAME} libnode.lib v8_libplatform.lib v8_libbase.lib dbghelp.lib winmm.lib shlwapi.lib)
+  target_link_libraries(${PROJECT_NAME} libnode.lib dbghelp.lib winmm.lib shlwapi.lib)
 endif (WIN32)
 
 if (UNIX)
