@@ -34,7 +34,7 @@ static void Initialize(v8::Local<v8::Object> exports)
 }
 NODE_MODULE_LINKED(alt, Initialize)
 
-static void CommandHandler(alt::StringView cmd, alt::Array<alt::StringView> args, void* userData)
+static void CommandHandler(alt::Array<alt::StringView> args, void* userData)
 {
 	if (args.GetSize() > 0 && args[0] == "--version")
 	{
