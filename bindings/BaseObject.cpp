@@ -9,7 +9,7 @@ using namespace alt;
 
 static void TypeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
 {
-	V8_GET_ISOLATE(info);
+	V8_GET_ISOLATE();
 
 	V8_GET_THIS_BASE_OBJECT(obj, alt::IBaseObject);
 
@@ -18,7 +18,7 @@ static void TypeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8:
 
 static void ValidGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
 {
-	V8_GET_ISOLATE(info);
+	V8_GET_ISOLATE();
 
 	V8Entity* ent = V8Entity::Get(info.This());
 
