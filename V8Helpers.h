@@ -472,9 +472,9 @@ namespace V8
 
 #define V8_RETURN_BASE_OBJECT(baseObjectRef) V8_RETURN(resource->GetBaseObjectOrNull(baseObjectRef))
 
-#define V8_BIND_BASE_OBJECT(baseObjectRef) \
+#define V8_BIND_BASE_OBJECT(baseObjectRef, reason) \
 	{ \
-		V8_CHECK(!baseObjectRef.IsEmpty(), "Failed to bind base object"); \
+		V8_CHECK(!baseObjectRef.IsEmpty(), reason); \
 		resource->BindEntity(info.This(), baseObjectRef); \
 	}
 
