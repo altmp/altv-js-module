@@ -7,7 +7,7 @@ using namespace alt;
 
 static void AddPlayer(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	V8_GET_ISOLATE(info);
+	V8_GET_ISOLATE();
 	V8_CHECK_ARGS_LEN(1);
 	V8_GET_THIS_BASE_OBJECT(channel, IVoiceChannel);
 
@@ -18,7 +18,7 @@ static void AddPlayer(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void RemovePlayer(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	V8_GET_ISOLATE(info);
+	V8_GET_ISOLATE();
 	V8_CHECK_ARGS_LEN(1);
 	V8_GET_THIS_BASE_OBJECT(channel, IVoiceChannel);
 
@@ -29,7 +29,7 @@ static void RemovePlayer(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void IsPlayerInChannel(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	V8_GET_ISOLATE(info);
+	V8_GET_ISOLATE();
 	V8_CHECK_ARGS_LEN(1);
 	V8_GET_THIS_BASE_OBJECT(channel, IVoiceChannel);
 
@@ -40,7 +40,7 @@ static void IsPlayerInChannel(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void MutePlayer(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	V8_GET_ISOLATE(info);
+	V8_GET_ISOLATE();
 	V8_CHECK_ARGS_LEN(1);
 	V8_GET_THIS_BASE_OBJECT(channel, IVoiceChannel);
 
@@ -51,7 +51,7 @@ static void MutePlayer(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void UnmutePlayer(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	V8_GET_ISOLATE(info);
+	V8_GET_ISOLATE();
 	V8_CHECK_ARGS_LEN(1);
 	V8_GET_THIS_BASE_OBJECT(channel, IVoiceChannel);
 
@@ -62,7 +62,7 @@ static void UnmutePlayer(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void IsPlayerMuted(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	V8_GET_ISOLATE(info);
+	V8_GET_ISOLATE();
 	V8_CHECK_ARGS_LEN(1);
 	V8_GET_THIS_BASE_OBJECT(channel, IVoiceChannel);
 

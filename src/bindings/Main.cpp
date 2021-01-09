@@ -106,7 +106,7 @@ static void GetPlayersByName(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void GetNetTime(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	V8_GET_ISOLATE(info);
+	V8_GET_ISOLATE();
 
 	uint32_t netTime = alt::ICore::Instance().GetNetTime();
 
