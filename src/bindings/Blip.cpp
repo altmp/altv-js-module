@@ -21,7 +21,7 @@ static void ConstructorAreaBlip(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_ARG_TO_NUMBER(5, height);
 
     alt::Ref<alt::IBlip> blip = alt::ICore::Instance().CreateBlip({ x, y, z }, width, height);
-	V8_BIND_BASE_OBJECT(blip);
+	V8_BIND_BASE_OBJECT(blip, "Failed to create AreaBlip");
 }
 
 static void ConstructorRadiusBlip(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -35,7 +35,7 @@ static void ConstructorRadiusBlip(const v8::FunctionCallbackInfo<v8::Value>& inf
 	V8_ARG_TO_NUMBER(4, radius);
 
     alt::Ref<alt::IBlip> blip = alt::ICore::Instance().CreateBlip({ x, y, z }, radius);
-	V8_BIND_BASE_OBJECT(blip);
+	V8_BIND_BASE_OBJECT(blip, "Failed to create RadiusBlip");
 }
 
 static void ConstructorPointBlip(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -48,7 +48,7 @@ static void ConstructorPointBlip(const v8::FunctionCallbackInfo<v8::Value>& info
 	V8_ARG_TO_NUMBER(3, z);
 
     alt::Ref<alt::IBlip> blip = alt::ICore::Instance().CreateBlip(alt::IBlip::BlipType::DESTINATION, { x, y, z });
-	V8_BIND_BASE_OBJECT(blip);
+	V8_BIND_BASE_OBJECT(blip, "Failed to create PointBlip");
 }
 
 static void ConstructorPedBlip(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -59,7 +59,7 @@ static void ConstructorPedBlip(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_ARG_TO_INTEGER(1, pedId);
 
     alt::Ref<alt::IBlip> blip = alt::ICore::Instance().CreateBlip(alt::IBlip::BlipType::PED, pedId);
-	V8_BIND_BASE_OBJECT(blip);
+	V8_BIND_BASE_OBJECT(blip, "Failed to create PedBlip");
 }
 
 static void ConstructorVehicleBlip(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -70,7 +70,7 @@ static void ConstructorVehicleBlip(const v8::FunctionCallbackInfo<v8::Value>& in
 	V8_ARG_TO_INTEGER(1, vehicleId);
 
     alt::Ref<alt::IBlip> blip = alt::ICore::Instance().CreateBlip(alt::IBlip::BlipType::VEHICLE, vehicleId);
-	V8_BIND_BASE_OBJECT(blip);
+	V8_BIND_BASE_OBJECT(blip, "Failed to create VehicleBlip");
 }
 
 static void SizeSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)

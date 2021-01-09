@@ -69,7 +69,7 @@ static void CurrentWeaponGetter(v8::Local<v8::String>, const v8::PropertyCallbac
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
 
-    V8_RETURN_UINT32(player->GetCurrentWeapon());
+    V8_RETURN_UINTEGER(player->GetCurrentWeapon());
 }
 
 static void IsJumpingGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)

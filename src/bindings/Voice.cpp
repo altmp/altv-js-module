@@ -29,7 +29,7 @@ static void StaticGetVoiceActivationKey(v8::Local<v8::String>, const v8::Propert
 {
 	V8_GET_ISOLATE_CONTEXT();
 
-	V8_RETURN_UINT32(alt::ICore::Instance().GetVoiceActivationKey());
+	V8_RETURN_UINTEGER(alt::ICore::Instance().GetVoiceActivationKey());
 }
 
 extern V8Class v8Voice("Voice", [](v8::Local<v8::FunctionTemplate> tpl) {

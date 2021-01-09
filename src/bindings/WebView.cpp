@@ -191,7 +191,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 		view = alt::ICore::Instance().CreateWebView(altres, url, { 0, 0 }, { 0, 0 }, true, false);
 	}
 
-	V8_BIND_BASE_OBJECT(view);
+	V8_BIND_BASE_OBJECT(view, "Failed to create WebView");
 }
 
 extern V8Class v8BaseObject;
