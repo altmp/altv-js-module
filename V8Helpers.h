@@ -58,18 +58,7 @@ namespace V8Helpers
 		}
 	};
 
-	inline void RegisterFunc(v8::Local<v8::Object> exports, const std::string &_name, v8::FunctionCallback cb, void *data = nullptr)
-	{
-		v8::Isolate *isolate = v8::Isolate::GetCurrent();
-		v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
-
-		v8::Local<v8::String> name = v8::String::NewFromUtf8(isolate, _name.data(), v8::NewStringType::kNormal, _name.size()).ToLocalChecked();
-
-		v8::Local<v8::Function> fn = v8::Function::New(ctx, cb, v8::External::New(isolate, data)).ToLocalChecked();
-		fn->SetName(name);
-
-		exports->Set(ctx, name, fn);
-	}
+	void RegisterFunc(v8::Local<v8::Object> exports, const std::string& _name, v8::FunctionCallback cb, void* data = nullptr);
 
 	void FunctionCallback(const v8::FunctionCallbackInfo<v8::Value> &info);
 
@@ -77,20 +66,12 @@ namespace V8Helpers
 
 	v8::Local<v8::Value> MValueToV8(alt::MValueConst val);
 
-	inline void MValueArgsToV8(alt::MValueArgs args, std::vector<v8::Local<v8::Value>> &v8Args)
-	{
-		for (uint64_t i = 0; i < args.GetSize(); ++i)
-			v8Args.push_back(MValueToV8(args[i]));
-	}
+	void MValueArgsToV8(alt::MValueArgs args, std::vector<v8::Local<v8::Value>>& v8Args);
+	
 
-	inline void SetAccessor(v8::Local<v8::Template> tpl, v8::Isolate *isolate, const char *name, v8::AccessorGetterCallback getter,
-							v8::AccessorSetterCallback setter = nullptr)
-	{
-		tpl->SetNativeDataProperty(v8::String::NewFromUtf8(isolate, name,
-														   v8::NewStringType::kInternalized)
-									   .ToLocalChecked(),
-								   getter, setter);
-	}
+	void SetAccessor(v8::Local<v8::Template> tpl, v8::Isolate* isolate, const char* name, v8::AccessorGetterCallback getter,
+		v8::AccessorSetterCallback setter = nullptr);
+	
 }; // namespace V8Helpers
 
 class V8ResourceImpl;
