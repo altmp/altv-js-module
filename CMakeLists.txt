@@ -128,5 +128,5 @@ if (WIN32)
 endif (WIN32)
 
 if (UNIX)
-  target_link_libraries(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/deps/nodejs/lib/libnode.so.72)
+  target_link_libraries(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/deps/nodejs/lib/libnode.so.83)
 endif (UNIX)
