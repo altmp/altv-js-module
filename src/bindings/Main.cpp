@@ -202,7 +202,6 @@ static void GetResourceExports(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void ResourceLoaded(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
-	V8_CHECK(ICore::Instance().IsDebug(), "alt.resourceLoaded is only available in debug mode");
 	V8_CHECK_ARGS_LEN(2);
 
 	V8_ARG_TO_STRING(1, name);
