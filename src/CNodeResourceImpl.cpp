@@ -3,6 +3,21 @@
 #include "CNodeResourceImpl.h"
 #include "CNodeScriptRuntime.h"
 
+static void ResourceLoaded(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(2);
+
+	V8_ARG_TO_STRING(1, name);
+
+	alt::IResource* resource = alt::ICore::Instance().GetResource(name);
+	if (resource && resource->GetType() == "js")
+	{
+		CNodeResourceImpl* _resource = static_cast<CNodeResourceImpl*>(resource->GetImpl());
+		_resource->Started(info[1]);
+	}
+}
+
 static const char boorstrap_code[] = R"(
 'use strict';
 
@@ -46,7 +61,7 @@ static const char boorstrap_code[] = R"(
     console.error(e);
   }
 
-  alt.resourceLoaded(__resourceName, _exports);
+  __resourceLoaded(__resourceName, _exports);
 })();
 )";
 
@@ -64,6 +79,8 @@ bool CNodeResourceImpl::Start()
 
 	v8::Local<v8::Context> _context = node::NewContext(isolate, global);
 	v8::Context::Scope scope(_context);
+
+	_context->Global()->Set(_context, v8::String::NewFromUtf8(isolate, "__resourceLoaded").ToLocalChecked(), v8::Function::New(_context, &ResourceLoaded).ToLocalChecked());
 
 	_context->SetAlignedPointerInEmbedderData(1, resource);
 	context.Reset(isolate, _context);

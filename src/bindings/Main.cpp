@@ -198,23 +198,6 @@ static void GetResourceExports(const v8::FunctionCallbackInfo<v8::Value>& info)
 	}
 }
 
-// For internal usage only
-static void ResourceLoaded(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-	V8_GET_ISOLATE_CONTEXT();
-	V8_CHECK_ARGS_LEN(2);
-
-	V8_ARG_TO_STRING(1, name);
-
-	alt::IResource* resource = alt::ICore::Instance().GetResource(name);
-	if (resource && resource->GetType() == "js")
-	{
-		CNodeResourceImpl* _resource = static_cast<CNodeResourceImpl*>(resource->GetImpl());
-		_resource->Started(info[1]);
-	}
-}
-
-
 extern V8Class v8Vector3,
     v8RGBA,
     v8File,
@@ -262,7 +245,6 @@ extern V8Module v8Alt("alt",
 
 	V8Helpers::RegisterFunc(exports, "getResourceMain", &GetResourceMain);
 	V8Helpers::RegisterFunc(exports, "getResourcePath", &GetResourcePath);
-	V8Helpers::RegisterFunc(exports, "resourceLoaded", &ResourceLoaded);
 	V8Helpers::RegisterFunc(exports, "hasResource", &HasResource);
 	V8Helpers::RegisterFunc(exports, "getResourceExports", &GetResourceExports);
 
