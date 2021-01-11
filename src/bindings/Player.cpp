@@ -170,6 +170,27 @@ static void Kick(const v8::FunctionCallbackInfo<v8::Value>& info)
 	}
 }
 
+static void SocialIdGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE();
+	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+	V8_RETURN_STRING(std::to_string(_this->GetSocialID()).c_str());
+}
+
+static void HwidHashGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE();
+	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+	V8_RETURN_STRING(std::to_string(_this->GetHwidHash()).c_str());
+}
+
+static void HwidExHashGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE();
+	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+	V8_RETURN_STRING(std::to_string(_this->GetHwidExHash()).c_str());
+}
+
 static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
 	v8::Isolate* isolate = info.GetIsolate();
@@ -225,9 +246,10 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
 	V8::SetAccessor(isolate, tpl, "currentWeaponComponents", &CurrentWeaponComponentsGetter);
 	V8::SetAccessor<IPlayer, uint8_t, &IPlayer::GetCurrentWeaponTintIndex>(isolate, tpl, "currentWeaponTintIndex");
 
-	V8::SetAccessor<IPlayer, uint64_t, &IPlayer::GetSocialID>(isolate, tpl, "socialId");
-	V8::SetAccessor<IPlayer, uint64_t, &IPlayer::GetHwidHash>(isolate, tpl, "hwidHash");
-	V8::SetAccessor<IPlayer, uint64_t, &IPlayer::GetHwidExHash>(isolate, tpl, "hwidExHash");
+	V8::SetAccessor(isolate, tpl, "socialId", &SocialIdGetter);
+	V8::SetAccessor(isolate, tpl, "hwidHash", &HwidHashGetter);
+	V8::SetAccessor(isolate, tpl, "hwidExHash", &HwidExHashGetter);
+
 	V8::SetAccessor<IPlayer, StringView, &IPlayer::GetAuthToken>(isolate, tpl, "authToken");
 
 	V8::SetAccessor<IPlayer, bool, &IPlayer::IsFlashlightActive>(isolate, tpl, "flashlightActive");
