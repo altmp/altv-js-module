@@ -8,11 +8,16 @@
 #define ALTV_JS_EXPORT extern "C"
 #endif
 
-ALTV_JS_EXPORT alt::IScriptRuntime *CreateJSScriptRuntime(alt::ICore *core)
+ALTV_JS_EXPORT alt::IScriptRuntime *CreateScriptRuntime(alt::ICore *core)
 {
     alt::ICore::SetInstance(core);
     auto ret = new CV8ScriptRuntime();
     return ret;
+}
+
+ALTV_JS_EXPORT const char* GetType()
+{
+    return "js";
 }
 
 ALTV_JS_EXPORT uint32_t GetSDKVersion()
