@@ -191,6 +191,17 @@ static void HwidExHashGetter(v8::Local<v8::String> name, const v8::PropertyCallb
 	V8_RETURN_STRING(std::to_string(_this->GetHwidExHash()).c_str());
 }
 
+static void IsEntityInStream(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(1);
+	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+	V8_ARG_TO_BASE_OBJECT(1, entity, IEntity, "Entity");
+
+	V8_RETURN_BOOLEAN(player->IsEntityInStreamingRange(entity));
+}
+
 static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
 	v8::Isolate* isolate = info.GetIsolate();
@@ -269,4 +280,6 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
 	V8::SetMethod(isolate, tpl, "setWeaponTintIndex", &SetWeaponTintIndex);
 
 	V8::SetMethod(isolate, tpl, "kick", &Kick);
+
+	V8::SetMethod(isolate, tpl, "isEntityInStreamRange", &IsEntityInStream);
 });
