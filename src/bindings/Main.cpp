@@ -113,6 +113,16 @@ static void GetNetTime(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_RETURN_UINTEGER(netTime);
 }
 
+static void SetPassword(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(1);
+
+	V8_ARG_TO_STRING(1, password);
+
+	alt::ICore::Instance().SetPassword(password);
+}
+
 static void StartResource(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
@@ -281,6 +291,8 @@ extern V8Module v8Alt("alt",
 	V8Helpers::RegisterFunc(exports, "getPlayersByName", &GetPlayersByName);
 
 	V8Helpers::RegisterFunc(exports, "getNetTime", &GetNetTime);
+
+	V8Helpers::RegisterFunc(exports, "setPassword", &SetPassword);
 
 	V8_OBJECT_SET_STRING(exports, "rootDir", alt::ICore::Instance().GetRootDirectory());
 	V8_OBJECT_SET_INTEGER(exports, "defaultDimension", alt::DEFAULT_DIMENSION);
