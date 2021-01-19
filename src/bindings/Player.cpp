@@ -307,4 +307,7 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
 	V8::SetMethod(isolate, tpl, "setWeaponTintIndex", &SetWeaponTintIndex);
 
 	V8::SetMethod(isolate, tpl, "kick", &Kick);
+	
+	V8::SetMethod(isolate, tpl, "setClothes", &SetClothes);
+	V8::SetMethod(isolate, tpl, "getClothes", &GetClothes);
 });
