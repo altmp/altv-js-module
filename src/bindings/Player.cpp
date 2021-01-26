@@ -194,37 +194,61 @@ static void HwidExHashGetter(v8::Local<v8::String> name, const v8::PropertyCallb
 static void SetClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
-	V8_CHECK_ARGS_LEN2(3, 4);
+	V8_CHECK_ARGS_LEN_MIN_MAX(3, 5);
 	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
 	V8_ARG_TO_INTEGER(1, component);
 	V8_ARG_TO_INTEGER(2, drawable);
 	V8_ARG_TO_INTEGER(3, texture);
 
-	if(info.Length() == 4)
+	if(info.Length() == 3)
+	{
+		player->SetClothes(component, drawable, texture, 2);
+	}
+	else if(info.Length() == 4)
 	{
 		V8_ARG_TO_INTEGER(4, palette);
 		player->SetClothes(component, drawable, texture, palette);
 	}
-	else
+	else if(info.Length() == 5)
 	{
-		player->SetClothes(component, drawable, texture, 2);
+		V8_ARG_TO_INTEGER(4, palette);
+		V8_ARG_TO_INTEGER(5, dlc);
+		player->SetDlcClothes(component, drawable, texture, palette, dlc);
 	}
 }
 
 static void GetClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
-	V8_CHECK_ARGS_LEN(1);
+	V8_CHECK_ARGS_LEN2(1, 2);
 	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
 	V8_ARG_TO_INTEGER(1, component);
 
-	auto cloth = player->GetClothes(component);
+	bool dlcCloth = false;
+	if(info.Length() == 2)
+	{
+		V8_ARG_TO_BOOLEAN(2, dlc);
+		dlcCloth = dlc;
+	}
+
 	V8_NEW_OBJECT(clothes);
-	V8_OBJECT_SET_INTEGER(clothes, "drawable", cloth.drawableId);
-	V8_OBJECT_SET_INTEGER(clothes, "texture", cloth.textureId);
-	V8_OBJECT_SET_INTEGER(clothes, "palette", cloth.paletteId);
+	if(!dlcCloth)
+	{
+		auto cloth = player->GetClothes(component);
+		V8_OBJECT_SET_INTEGER(clothes, "drawable", cloth.drawableId);
+		V8_OBJECT_SET_INTEGER(clothes, "texture", cloth.textureId);
+		V8_OBJECT_SET_INTEGER(clothes, "palette", cloth.paletteId);
+	}
+	else
+	{
+		auto cloth = player->GetDlcClothes(component);
+		V8_OBJECT_SET_INTEGER(clothes, "drawable", cloth.drawableId);
+		V8_OBJECT_SET_INTEGER(clothes, "texture", cloth.textureId);
+		V8_OBJECT_SET_INTEGER(clothes, "palette", cloth.paletteId);
+		V8_OBJECT_SET_INTEGER(clothes, "dlc", cloth.dlc);
+	}
 
 	V8_RETURN(clothes);
 }
