@@ -63,6 +63,21 @@ static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
 	ICore::Instance().TriggerClientEvent(player, eventName.ToString(), mvArgs);
 }
 
+static void EmitAllClients(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN_MIN(1);
+	V8_ARG_TO_STRING(1, eventName);
+
+	Ref<IPlayer> player;
+	MValueArgs args;
+
+	for (int i = 1; i < info.Length(); ++i)
+		args.Push(V8Helpers::V8ToMValue(info[i]));
+
+	ICore::Instance().TriggerClientEvent(player, eventName, args);
+}
+
 static void SetSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
@@ -266,6 +281,7 @@ extern V8Module v8Alt("alt",
 	V8Helpers::RegisterFunc(exports, "onceClient", &OnceClient);
 	V8Helpers::RegisterFunc(exports, "offClient", &OffClient);
 	V8Helpers::RegisterFunc(exports, "emitClient", &EmitClient);
+	V8Helpers::RegisterFunc(exports, "emitAllClients", &EmitAllClients);
 
 	V8Helpers::RegisterFunc(exports, "setSyncedMeta", &SetSyncedMeta);
 	V8Helpers::RegisterFunc(exports, "deleteSyncedMeta", &DeleteSyncedMeta);
