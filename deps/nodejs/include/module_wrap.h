@@ -6,10 +6,16 @@
 #include <unordered_map>
 #include <string>
 #include <vector>
-#include "node_url.h"
-#include "base_object-inl.h"
+#include "base_object.h"
 
 namespace node {
+
+class Environment;
+
+namespace contextify {
+class ContextifyContext;
+}
+
 namespace loader {
 
 enum ScriptType : int {
@@ -26,6 +32,14 @@ enum HostDefinedOptions : int {
 
 class ModuleWrap : public BaseObject {
  public:
+  enum InternalFields {
+    kModuleWrapBaseField = BaseObject::kInternalFieldCount,
+    kURLSlot,
+    kSyntheticEvaluationStepsSlot,
+    kContextObjectSlot,  // Object whose creation context is the target Context
+    kInternalFieldCount
+  };
+
   static void Initialize(v8::Local<v8::Object> target,
                          v8::Local<v8::Value> unused,
                          v8::Local<v8::Context> context,
@@ -36,11 +50,11 @@ class ModuleWrap : public BaseObject {
       v8::Local<v8::Object> meta);
 
   void MemoryInfo(MemoryTracker* tracker) const override {
-    tracker->TrackField("url", url_);
     tracker->TrackField("resolve_cache", resolve_cache_);
   }
 
   inline uint32_t id() { return id_; }
+  v8::Local<v8::Context> context() const;
   static ModuleWrap* GetFromID(node::Environment*, uint32_t id);
 
   SET_MEMORY_INFO_NAME(ModuleWrap)
@@ -57,18 +71,22 @@ class ModuleWrap : public BaseObject {
   static void Link(const v8::FunctionCallbackInfo<v8::Value>& args);
   static void Instantiate(const v8::FunctionCallbackInfo<v8::Value>& args);
   static void Evaluate(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static void Namespace(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static void GetNamespace(const v8::FunctionCallbackInfo<v8::Value>& args);
   static void GetStatus(const v8::FunctionCallbackInfo<v8::Value>& args);
   static void GetError(const v8::FunctionCallbackInfo<v8::Value>& args);
   static void GetStaticDependencySpecifiers(
       const v8::FunctionCallbackInfo<v8::Value>& args);
 
-  static void Resolve(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static void GetPackageType(const v8::FunctionCallbackInfo<v8::Value>& args);
   static void SetImportModuleDynamicallyCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args);
   static void SetInitializeImportMetaObjectCallback(
       const v8::FunctionCallbackInfo<v8::Value>& args);
+  static v8::MaybeLocal<v8::Value> SyntheticModuleEvaluationStepsCallback(
+      v8::Local<v8::Context> context, v8::Local<v8::Module> module);
+  static void SetSyntheticExport(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
+  static void CreateCachedData(const v8::FunctionCallbackInfo<v8::Value>& args);
+
   static v8::MaybeLocal<v8::Module> ResolveCallback(
       v8::Local<v8::Context> context,
       v8::Local<v8::String> specifier,
@@ -76,10 +94,10 @@ class ModuleWrap : public BaseObject {
   static ModuleWrap* GetFromModule(node::Environment*, v8::Local<v8::Module>);
 
   v8::Global<v8::Module> module_;
-  v8::Global<v8::String> url_;
-  bool linked_ = false;
   std::unordered_map<std::string, v8::Global<v8::Promise>> resolve_cache_;
-  v8::Global<v8::Context> context_;
+  contextify::ContextifyContext* contextify_context_ = nullptr;
+  bool synthetic_ = false;
+  bool linked_ = false;
   uint32_t id_;
 };
 

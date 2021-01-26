@@ -13,9 +13,9 @@ CNodeScriptRuntime::CNodeScriptRuntime()
 	node::Init(&argc, argv, &eac, &eav);
 
 	auto* tracing_agent = node::CreateAgent();
-	auto* tracing_controller = tracing_agent->GetTracingController();
+	// auto* tracing_controller = tracing_agent->GetTracingController();
 	node::tracing::TraceEventHelper::SetAgent(tracing_agent);
-	platform.reset(node::CreatePlatform(4, tracing_controller));
+	platform.reset(node::CreatePlatform(4, node::tracing::TraceEventHelper::GetTracingController()));
 
 	v8::V8::InitializePlatform(platform.get());
 	v8::V8::Initialize();
@@ -43,13 +43,17 @@ CNodeScriptRuntime::~CNodeScriptRuntime()
 
 }
 
+alt::IResource::Impl* CNodeScriptRuntime::CreateImpl(alt::IResource* resource)
+{
+	return new CNodeResourceImpl{ this, isolate, resource };
+}
+
 void CNodeScriptRuntime::OnTick()
 {
 	v8::Locker locker(isolate);
 	v8::Isolate::Scope isolateScope(isolate);
 	v8::SealHandleScope seal(isolate);
 
-	uv_run(uv_default_loop(), UV_RUN_NOWAIT);
 	platform->DrainTasks(isolate);
 }
 

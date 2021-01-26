@@ -44,23 +44,28 @@ class HostPort {
   int port_;
 };
 
-class NODE_EXTERN Options {
+class Options {
  public:
   virtual void CheckOptions(std::vector<std::string>* errors) {}
   virtual ~Options() = default;
+};
+
+struct InspectPublishUid {
+  bool console;
+  bool http;
 };
 
 // These options are currently essentially per-Environment, but it can be nice
 // to keep them separate since they are a group of options applying to a very
 // specific part of Node. It might also make more sense for them to be
 // per-Isolate, rather than per-Environment.
-class NODE_EXTERN DebugOptions : public Options {
+class DebugOptions : public Options {
  public:
-  DebugOptions();
-  DebugOptions(const DebugOptions&);
-  DebugOptions& operator=(const DebugOptions&);
-  DebugOptions(DebugOptions&&);
-  DebugOptions& operator=(DebugOptions&&);
+  DebugOptions() = default;
+  DebugOptions(const DebugOptions&) = default;
+  DebugOptions& operator=(const DebugOptions&) = default;
+  DebugOptions(DebugOptions&&) = default;
+  DebugOptions& operator=(DebugOptions&&) = default;
 
   // --inspect
   bool inspector_enabled = false;
@@ -70,6 +75,10 @@ class NODE_EXTERN DebugOptions : public Options {
   bool break_first_line = false;
   // --inspect-brk-node
   bool break_node_first_line = false;
+  // --inspect-publish-uid
+  std::string inspect_publish_uid_string = "stderr,http";
+
+  InspectPublishUid inspect_publish_uid;
 
   enum { kDefaultInspectorPort = 9229 };
 
@@ -91,21 +100,27 @@ class NODE_EXTERN DebugOptions : public Options {
 class EnvironmentOptions : public Options {
  public:
   bool abort_on_uncaught_exception = false;
+  std::vector<std::string> conditions;
+  bool enable_source_maps = false;
+  bool experimental_json_modules = false;
   bool experimental_modules = false;
-  std::string es_module_specifier_resolution;
+  std::string experimental_specifier_resolution;
   bool experimental_wasm_modules = false;
+  bool experimental_import_meta_resolve = false;
   std::string module_type;
   std::string experimental_policy;
+  std::string experimental_policy_integrity;
+  bool has_policy_integrity_string;
   bool experimental_repl_await = false;
   bool experimental_vm_modules = false;
   bool expose_internals = false;
   bool frozen_intrinsics = false;
   std::string heap_snapshot_signal;
-  std::string http_parser = "llhttp";
-  uint64_t http_server_default_timeout = 120000;
+  uint64_t max_http_header_size = 16 * 1024;
   bool no_deprecation = false;
   bool no_force_async_hooks_checks = false;
   bool no_warnings = false;
+  bool force_context_aware = false;
   bool pending_deprecation = false;
   bool preserve_symlinks = false;
   bool preserve_symlinks_main = false;
@@ -123,22 +138,27 @@ class EnvironmentOptions : public Options {
   bool heap_prof = false;
 #endif  // HAVE_INSPECTOR
   std::string redirect_warnings;
+  std::string diagnostic_dir;
+  bool test_udp_no_try_send = false;
   bool throw_deprecation = false;
+  bool trace_atomics_wait = false;
   bool trace_deprecation = false;
+  bool trace_exit = false;
   bool trace_sync_io = false;
   bool trace_tls = false;
+  bool trace_uncaught = false;
   bool trace_warnings = false;
   std::string unhandled_rejections;
   std::string userland_loader;
 
   bool syntax_check_only = false;
   bool has_eval_string = false;
-#ifdef NODE_REPORT
-  bool experimental_report = false;
-#endif  //  NODE_REPORT
+  bool experimental_wasi = false;
   std::string eval_string;
   bool print_eval = false;
   bool force_repl = false;
+
+  bool insecure_http_parser = false;
 
   bool tls_min_v1_0 = false;
   bool tls_min_v1_1 = false;
@@ -146,13 +166,15 @@ class EnvironmentOptions : public Options {
   bool tls_min_v1_3 = false;
   bool tls_max_v1_2 = false;
   bool tls_max_v1_3 = false;
+  std::string tls_keylog;
 
   std::vector<std::string> preload_modules;
 
   std::vector<std::string> user_argv;
 
-  inline DebugOptions* get_debug_options();
-  inline const DebugOptions& debug_options() const;
+  inline DebugOptions* get_debug_options() { return &debug_options_; }
+  inline const DebugOptions& debug_options() const { return debug_options_; }
+
   void CheckOptions(std::vector<std::string>* errors) override;
 
  private:
@@ -163,30 +185,34 @@ class PerIsolateOptions : public Options {
  public:
   std::shared_ptr<EnvironmentOptions> per_env { new EnvironmentOptions() };
   bool track_heap_objects = false;
-
-#ifdef NODE_REPORT
+  bool no_node_snapshot = false;
   bool report_uncaught_exception = false;
   bool report_on_signal = false;
-  bool report_on_fatalerror = false;
-  std::string report_signal;
-  std::string report_filename;
-  std::string report_directory;
-#endif  //  NODE_REPORT
+  bool experimental_top_level_await = true;
+  std::string report_signal = "SIGUSR2";
   inline EnvironmentOptions* get_per_env_options();
   void CheckOptions(std::vector<std::string>* errors) override;
 };
 
 class PerProcessOptions : public Options {
  public:
+  // Options shouldn't be here unless they affect the entire process scope, and
+  // that should avoided when possible.
+  //
+  // When an option is used during process initialization, it does not need
+  // protection, but any use after that will likely require synchronization
+  // using the node::per_process::cli_options_mutex, typically:
+  //
+  //     Mutex::ScopedLock lock(node::per_process::cli_options_mutex);
   std::shared_ptr<PerIsolateOptions> per_isolate { new PerIsolateOptions() };
 
   std::string title;
   std::string trace_event_categories;
   std::string trace_event_file_pattern = "node_trace.${rotation}.log";
-  uint64_t max_http_header_size = 8 * 1024;
   int64_t v8_thread_pool_size = 4;
   bool zero_fill_all_buffers = false;
   bool debug_arraybuffer_allocations = false;
+  std::string disable_proto;
 
   std::vector<std::string> security_reverts;
   bool print_bash_completion = false;
@@ -198,7 +224,8 @@ class PerProcessOptions : public Options {
   std::string icu_data_dir;
 #endif
 
-  // TODO(addaleax): Some of these could probably be per-Environment.
+  // Per-process because they affect singleton OpenSSL shared library state,
+  // or are used once during process intialization.
 #if HAVE_OPENSSL
   std::string openssl_config;
   std::string tls_cipher_list = DEFAULT_CIPHER_LIST_CORE;
@@ -215,9 +242,16 @@ class PerProcessOptions : public Options {
 #endif
 #endif
 
-#ifdef NODE_REPORT
+  // Per-process because reports can be triggered outside a known V8 context.
+  bool report_on_fatalerror = false;
+  bool report_compact = false;
+  std::string report_directory;
+  std::string report_filename;
+
+  // TODO(addaleax): Some of these could probably be per-Environment.
+  std::string use_largepages = "off";
+  bool trace_sigint = false;
   std::vector<std::string> cmdline;
-#endif  //  NODE_REPORT
 
   inline PerIsolateOptions* get_per_isolate_options();
   void CheckOptions(std::vector<std::string>* errors) override;
@@ -227,14 +261,10 @@ class PerProcessOptions : public Options {
 
 namespace options_parser {
 
-HostPort NODE_EXTERN SplitHostPort(const std::string& arg,
+HostPort SplitHostPort(const std::string& arg,
     std::vector<std::string>* errors);
 void GetOptions(const v8::FunctionCallbackInfo<v8::Value>& args);
-
-enum OptionEnvvarSettings {
-  kAllowedInEnvironment,
-  kDisallowedInEnvironment
-};
+std::string GetBashCompletion();
 
 enum OptionType {
   kNoOp,
@@ -391,6 +421,8 @@ class OptionsParser {
   // An implied option is composed of the information on where to store a
   // specific boolean value (if another specific option is encountered).
   struct Implication {
+    OptionType type;
+    std::string name;
     std::shared_ptr<BaseOptionField> target_field;
     bool target_value;
   };
@@ -418,16 +450,12 @@ class OptionsParser {
   friend class OptionsParser;
 
   friend void GetOptions(const v8::FunctionCallbackInfo<v8::Value>& args);
-};
-
-class NODE_EXTERN DebugOptionsParser : public OptionsParser<DebugOptions> {
- public:
-  DebugOptionsParser();
+  friend std::string GetBashCompletion();
 };
 
 using StringVector = std::vector<std::string>;
 template <class OptionsType, class = Options>
-void NODE_EXTERN Parse(
+void Parse(
   StringVector* const args, StringVector* const exec_args,
   StringVector* const v8_args, OptionsType* const options,
   OptionEnvvarSettings required_env_settings, StringVector* const errors);
@@ -440,6 +468,13 @@ extern Mutex cli_options_mutex;
 extern std::shared_ptr<PerProcessOptions> cli_options;
 
 }  // namespace per_process
+
+void HandleEnvOptions(std::shared_ptr<EnvironmentOptions> env_options);
+void HandleEnvOptions(std::shared_ptr<EnvironmentOptions> env_options,
+                      std::function<std::string(const char*)> opt_getter);
+
+std::vector<std::string> ParseNodeOptionsEnvVar(
+    const std::string& node_options, std::vector<std::string>* errors);
 }  // namespace node
 
 #endif  // defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS

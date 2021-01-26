@@ -22,12 +22,12 @@
 #ifndef SRC_NODE_VERSION_H_
 #define SRC_NODE_VERSION_H_
 
-#define NODE_MAJOR_VERSION 12
-#define NODE_MINOR_VERSION 4
-#define NODE_PATCH_VERSION 0
+#define NODE_MAJOR_VERSION 14
+#define NODE_MINOR_VERSION 15
+#define NODE_PATCH_VERSION 2
 
-#define NODE_VERSION_IS_LTS 0
-#define NODE_VERSION_LTS_CODENAME ""
+#define NODE_VERSION_IS_LTS 1
+#define NODE_VERSION_LTS_CODENAME "Fermium"
 
 #define NODE_VERSION_IS_RELEASE 1
 
@@ -89,12 +89,10 @@
  * version matching should open a pull request to reserve a number in this
  * registry.
  */
-// Electron sets NODE_MODULE_VERSION in their GN configuration
-#ifndef NODE_MODULE_VERSION
-#define NODE_MODULE_VERSION 72
-#endif
+#define NODE_MODULE_VERSION 83
 
-// the NAPI_VERSION provided by this version of the runtime
-#define NAPI_VERSION  4
+// The NAPI_VERSION provided by this version of the runtime. This is the version
+// which the Node binary being built supports.
+#define NAPI_VERSION  7
 
 #endif  // SRC_NODE_VERSION_H_

@@ -6,9 +6,7 @@
 #error("This header can only be used when inspector is enabled")
 #endif
 
-#include "node.h"
 #include "node_options.h"
-#include "node_platform.h"
 #include "v8.h"
 
 #include <cstddef>
@@ -42,7 +40,7 @@ class InspectorSessionDelegate {
                                      = 0;
 };
 
-class NODE_EXTERN Agent {
+class Agent {
  public:
   explicit Agent(node::Environment* env);
   ~Agent();
@@ -50,7 +48,7 @@ class NODE_EXTERN Agent {
   // Create client_, may create io_ if option enabled
   bool Start(const std::string& path,
              const DebugOptions& options,
-             std::shared_ptr<HostPort> host_port,
+             std::shared_ptr<ExclusiveAccess<HostPort>> host_port,
              bool is_main);
   // Stop and destroy io_
   void Stop();
@@ -67,8 +65,8 @@ class NODE_EXTERN Agent {
   void WaitForConnect();
   // Blocks till all the sessions with "WaitForDisconnectOnShutdown" disconnect
   void WaitForDisconnect();
-  void FatalException(v8::Local<v8::Value> error,
-                      v8::Local<v8::Message> message);
+  void ReportUncaughtException(v8::Local<v8::Value> error,
+                               v8::Local<v8::Message> message);
 
   // Async stack traces instrumentation.
   void AsyncTaskScheduled(const v8_inspector::StringView& taskName, void* task,
@@ -88,17 +86,22 @@ class NODE_EXTERN Agent {
   std::unique_ptr<ParentInspectorHandle> GetParentHandle(
       int thread_id, const std::string& url);
 
-  // Called to create inspector sessions that can be used from the main thread.
+  // Called to create inspector sessions that can be used from the same thread.
   // The inspector responds by using the delegate to send messages back.
   std::unique_ptr<InspectorSession> Connect(
       std::unique_ptr<InspectorSessionDelegate> delegate,
       bool prevent_shutdown);
 
+  // Called from the worker to create inspector sessions that is connected
+  // to the main thread.
+  // The inspector responds by using the delegate to send messages back.
+  std::unique_ptr<InspectorSession> ConnectToMainThread(
+      std::unique_ptr<InspectorSessionDelegate> delegate,
+      bool prevent_shutdown);
+
   void PauseOnNextJavascriptStatement(const std::string& reason);
 
-  InspectorIo* io() {
-    return io_.get();
-  }
+  std::string GetWsUrl() const;
 
   // Can only be called from the main thread.
   bool StartIoThread();
@@ -107,11 +110,13 @@ class NODE_EXTERN Agent {
   void RequestIoThreadStart();
 
   const DebugOptions& options() { return debug_options_; }
-  std::shared_ptr<HostPort> host_port() { return host_port_; }
+  std::shared_ptr<ExclusiveAccess<HostPort>> host_port() { return host_port_; }
   void ContextCreated(v8::Local<v8::Context> context, const ContextInfo& info);
 
   // Interface for interacting with inspectors in worker threads
   std::shared_ptr<WorkerManager> GetWorkerManager();
+
+  inline Environment* env() const { return parent_env_; }
 
  private:
   void ToggleAsyncHook(v8::Isolate* isolate,
@@ -130,7 +135,7 @@ class NODE_EXTERN Agent {
   // pointer which is meant to store the actual host and port of the inspector
   // server.
   DebugOptions debug_options_;
-  std::shared_ptr<HostPort> host_port_;
+  std::shared_ptr<ExclusiveAccess<HostPort>> host_port_;
 
   bool pending_enable_async_hook_ = false;
   bool pending_disable_async_hook_ = false;
