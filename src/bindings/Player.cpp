@@ -402,6 +402,6 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
 	V8::SetMethod(isolate, tpl, "setClothes", &SetClothes);
 	V8::SetMethod(isolate, tpl, "getClothes", &GetClothes);
 
-	V8::SetMethod(isolate, tpl, "setProps", &SetProps);
-	V8::SetMethod(isolate, tpl, "getProps", &GetProps);
+	V8::SetMethod(isolate, tpl, "setProp", &SetProps);
+	V8::SetMethod(isolate, tpl, "getProp", &GetProps);
 });
