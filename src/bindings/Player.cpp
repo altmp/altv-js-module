@@ -289,22 +289,22 @@ static void GetProps(const v8::FunctionCallbackInfo<v8::Value>& info)
 		dlcProp = dlc;
 	}
 
-	V8_NEW_OBJECT(clothes);
+	V8_NEW_OBJECT(prop);
 	if(!dlcProp)
 	{
-		auto prop = player->GetProps(component);
-		V8_OBJECT_SET_INTEGER(clothes, "drawable", prop.drawableId);
-		V8_OBJECT_SET_INTEGER(clothes, "texture", prop.textureId);
+		auto props = player->GetProps(component);
+		V8_OBJECT_SET_INTEGER(prop, "drawable", props.drawableId);
+		V8_OBJECT_SET_INTEGER(prop, "texture", props.textureId);
 	}
 	else
 	{
-		auto prop = player->GetDlcProps(component);
-		V8_OBJECT_SET_INTEGER(clothes, "drawable", prop.drawableId);
-		V8_OBJECT_SET_INTEGER(clothes, "texture", prop.textureId);
-		V8_OBJECT_SET_INTEGER(clothes, "dlc", prop.dlc);
+		auto props = player->GetDlcProps(component);
+		V8_OBJECT_SET_INTEGER(prop, "drawable", props.drawableId);
+		V8_OBJECT_SET_INTEGER(prop, "texture", props.textureId);
+		V8_OBJECT_SET_INTEGER(prop, "dlc", props.dlc);
 	}
 
-	V8_RETURN(clothes);
+	V8_RETURN(prop);
 }
 
 static void IsEntityInStreamRange(const v8::FunctionCallbackInfo<v8::Value>& info)
