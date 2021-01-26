@@ -253,6 +253,60 @@ static void GetClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_RETURN(clothes);
 }
 
+static void SetProps(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN_MIN_MAX(3, 4);
+	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+	V8_ARG_TO_INTEGER(1, component);
+	V8_ARG_TO_INTEGER(2, drawable);
+	V8_ARG_TO_INTEGER(3, texture);
+
+	if(info.Length() == 3)
+	{
+		player->SetProps(component, drawable, texture);
+	}
+	else if(info.Length() == 4)
+	{
+		V8_ARG_TO_INTEGER(4, dlc);
+		player->SetDlcProps(component, drawable, texture, dlc);
+	}
+}
+
+static void GetProps(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN2(1, 2);
+	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+	V8_ARG_TO_INTEGER(1, component);
+
+	bool dlcProp = false;
+	if(info.Length() == 2)
+	{
+		V8_ARG_TO_BOOLEAN(2, dlc);
+		dlcProp = dlc;
+	}
+
+	V8_NEW_OBJECT(clothes);
+	if(!dlcProp)
+	{
+		auto prop = player->GetProps(component);
+		V8_OBJECT_SET_INTEGER(clothes, "drawable", prop.drawableId);
+		V8_OBJECT_SET_INTEGER(clothes, "texture", prop.textureId);
+	}
+	else
+	{
+		auto prop = player->GetDlcProps(component);
+		V8_OBJECT_SET_INTEGER(clothes, "drawable", prop.drawableId);
+		V8_OBJECT_SET_INTEGER(clothes, "texture", prop.textureId);
+		V8_OBJECT_SET_INTEGER(clothes, "dlc", prop.dlc);
+	}
+
+	V8_RETURN(clothes);
+}
+
 static void IsEntityInStreamRange(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
@@ -347,4 +401,7 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
 	
 	V8::SetMethod(isolate, tpl, "setClothes", &SetClothes);
 	V8::SetMethod(isolate, tpl, "getClothes", &GetClothes);
+
+	V8::SetMethod(isolate, tpl, "setProps", &SetProps);
+	V8::SetMethod(isolate, tpl, "getProps", &GetProps);
 });
