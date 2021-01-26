@@ -173,18 +173,10 @@ static void Kick(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void SocialIdGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
 	Log::Warning << "player.socialId is deprecated and will be removed in the future. Consider using player.socialID" << Log::Endl;
-  
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-
-	info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, std::to_string(player->GetSocialID()).c_str()));
+	
+	V8_GET_ISOLATE();
+	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+	V8_RETURN_STRING(std::to_string(_this->GetSocialID()).c_str());
 }
 
 static void SocialIDGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
