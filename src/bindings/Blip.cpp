@@ -101,16 +101,12 @@ static void SizeSetter(v8::Local<v8::String> property, v8::Local<v8::Value> valu
 
 static void SizeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
 
 	alt::Vector2f blipPos = blip->GetScaleXY();
 
-	V8_NEW_OBJECT(pos);
-	V8_OBJECT_SET_NUMBER(pos, "x", blipPos[0]);
-	V8_OBJECT_SET_NUMBER(pos, "y", blipPos[1]);
-
-	V8_RETURN(pos);
+	V8_RETURN(resource->CreateVector2(blipPos));
 }
 
 static void ScaleGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
