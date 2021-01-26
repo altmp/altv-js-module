@@ -9,6 +9,20 @@
 
 using namespace alt;
 
+static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+
+    auto player = info.This();
+    V8_OBJECT_GET_INTEGER(player, "id", id);
+	V8_OBJECT_GET_STRING(player, "name", name);
+
+	std::ostringstream ss;
+	ss << "Player{ id: " << std::to_string(id) << ", name: " << name.CStr() << " }";
+
+	V8_RETURN_STRING(ss.str().c_str());
+}
+
 static void NameGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE(info);
@@ -69,7 +83,7 @@ static void CurrentWeaponGetter(v8::Local<v8::String>, const v8::PropertyCallbac
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
 
-    V8_RETURN_UINT32(player->GetCurrentWeapon());
+    V8_RETURN_UINTEGER(player->GetCurrentWeapon());
 }
 
 static void IsJumpingGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -272,6 +286,8 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
 extern V8Class v8Entity;
 extern V8Class v8Player("Player", v8Entity, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
+
+    V8::SetMethod(isolate, tpl, "toString", ToString);
 
     V8::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
     V8::SetStaticMethod(isolate, tpl, "getByScriptID", StaticGetByScriptID);
