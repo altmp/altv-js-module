@@ -60,13 +60,11 @@ static void *ToMemoryBuffer(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx
 	return nullptr;
 }
 
-static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type argType, v8::Isolate *isolate, v8::Local<v8::Value> val)
+static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type argType, v8::Isolate *isolate, V8ResourceImpl* resource, v8::Local<v8::Value> val)
 {
 	using ArgType = alt::INative::Type;
 
 	v8::Local<v8::Context> v8Ctx = isolate->GetEnteredContext();
-	auto resource = V8ResourceImpl::Get(v8Ctx);
-	auto ent = V8Entity::Get(val);
 	
 	switch (argType)
 	{
@@ -79,6 +77,8 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 		break;
 	case alt::INative::Type::ARG_INT32:
 		int32_t value;
+		V8Entity* ent;
+		ent = V8Entity::Get(val);
 		if(ent != nullptr) value = (int32_t)ent->GetHandle().As<alt::IEntity>()->GetScriptGuid();
 		else value = (int32_t)val->ToInteger(v8Ctx).ToLocalChecked()->Value();
 		scrCtx->Push(value);
@@ -213,8 +213,9 @@ static void InvokeNative(const v8::FunctionCallbackInfo<v8::Value> &info)
 	pointersCount = 0;
 	returnsCount = 1;
 
+	auto resource = V8ResourceImpl::Get(v8Ctx);
 	for (uint32_t i = 0; i < argsSize; ++i)
-		PushArg(ctx, args[i], isolate, info[i]);
+		PushArg(ctx, args[i], isolate, resource, info[i]);
 
 	if (!native->Invoke(ctx))
 	{
