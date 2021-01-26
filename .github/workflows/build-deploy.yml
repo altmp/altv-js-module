@@ -1,6 +1,8 @@
 name: Build & deploy
 on:
-  create:
+  push:
+    branches-ignore: 
+      - '**'
     tags:
       - 'dev/*.*-dev*'
       - 'rc/*.*-rc*'
@@ -70,7 +72,7 @@ jobs:
           cd ..
           mkdir -p dist/modules/js-module
           cp ./build-linux/libjs-module.so dist/modules/js-module
-          cp ./deps/nodejs/lib/libnode.so.72 dist/modules/js-module
+          cp ./deps/nodejs/lib/libnode.so.83 dist/modules/js-module
         env:
           VERSION: ${{ steps.version.outputs.VERSION }}
 
@@ -196,7 +198,7 @@ jobs:
   delete-artifacts:
     name: Delete artifacts
     runs-on: ubuntu-18.04
-    needs: [create-release]
+    needs: [ create-release, deploy-cdn ]
     if: ${{ always() }}
     steps:
       - name: Delete artifacts
