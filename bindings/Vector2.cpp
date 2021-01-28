@@ -106,7 +106,7 @@ static void Sub(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-	V8_CHECK_ARGS_LEN2(1, 3);
+	V8_CHECK_ARGS_LEN2(1, 2);
 
 	v8::Local<v8::Object> _this = info.This();
 
@@ -157,7 +157,7 @@ static void Divide(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-	V8_CHECK_ARGS_LEN2(1, 3);
+	V8_CHECK_ARGS_LEN2(1, 2);
 
 	v8::Local<v8::Object> _this = info.This();
 
@@ -211,7 +211,7 @@ static void Multiply(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-	V8_CHECK_ARGS_LEN2(1, 3);
+	V8_CHECK_ARGS_LEN2(1, 2);
 
 	v8::Local<v8::Object> _this = info.This();
 
