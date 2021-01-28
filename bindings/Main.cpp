@@ -136,7 +136,14 @@ static void Log(const v8::FunctionCallbackInfo<v8::Value> &info)
 		if (i > 0)
 			ss << " ";
 
-		ss << *v8::String::Utf8Value(isolate, val->ToString(ctx).ToLocalChecked());
+		v8::Local<v8::String> str = val->ToString(ctx).ToLocalChecked();
+		if (val->IsObject() && strcmp(*v8::String::Utf8Value(isolate, str), "[object Object]") == 0) {
+			v8::MaybeLocal<v8::String> maybe = v8::JSON::Stringify(ctx, val);
+			v8::Local<v8::String> stringified;
+			if (maybe.ToLocal(&stringified)) str = stringified;
+		}
+
+		ss << *v8::String::Utf8Value(isolate, str);
 	}
 
 	alt::ICore::Instance().LogColored(ss.str());
@@ -157,7 +164,14 @@ static void LogWarning(const v8::FunctionCallbackInfo<v8::Value> &info)
 		if (i > 0)
 			ss << " ";
 
-		ss << *v8::String::Utf8Value(isolate, val->ToString(ctx).ToLocalChecked());
+		v8::Local<v8::String> str = val->ToString(ctx).ToLocalChecked();
+		if (val->IsObject() && strcmp(*v8::String::Utf8Value(isolate, str), "[object Object]") == 0) {
+			v8::MaybeLocal<v8::String> maybe = v8::JSON::Stringify(ctx, val);
+			v8::Local<v8::String> stringified;
+			if (maybe.ToLocal(&stringified)) str = stringified;
+		}
+
+		ss << *v8::String::Utf8Value(isolate, str);
 	}
 
 	alt::ICore::Instance().LogWarning(ss.str());
@@ -178,7 +192,14 @@ static void LogError(const v8::FunctionCallbackInfo<v8::Value> &info)
 		if (i > 0)
 			ss << " ";
 
-		ss << *v8::String::Utf8Value(isolate, val->ToString(ctx).ToLocalChecked());
+		v8::Local<v8::String> str = val->ToString(ctx).ToLocalChecked();
+		if (val->IsObject() && strcmp(*v8::String::Utf8Value(isolate, str), "[object Object]") == 0) {
+			v8::MaybeLocal<v8::String> maybe = v8::JSON::Stringify(ctx, val);
+			v8::Local<v8::String> stringified;
+			if (maybe.ToLocal(&stringified)) str = stringified;
+		}
+
+		ss << *v8::String::Utf8Value(isolate, str);
 	}
 
 	alt::ICore::Instance().LogError(ss.str());
