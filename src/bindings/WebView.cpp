@@ -8,6 +8,19 @@
 
 using namespace alt;
 
+static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+
+    auto webview = info.This();
+    V8_OBJECT_GET_STRING(webview, "url", url);
+
+	std::ostringstream ss;
+	ss << "WebView{ url: " << url.CStr() << " }";
+
+	V8_RETURN_STRING(ss.str().c_str());
+}
+
 static void On(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
 	V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -197,6 +210,8 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 extern V8Class v8BaseObject;
 extern V8Class v8WebView("WebView", v8BaseObject, &Constructor,	[](v8::Local<v8::FunctionTemplate> tpl) {
 	v8::Isolate *isolate = v8::Isolate::GetCurrent();
+
+	V8::SetMethod(isolate, tpl, "toString", ToString);
 
 	V8::SetAccessor(isolate, tpl, "isVisible", &IsVisibleGetter, &IsVisibleSetter);
 	V8::SetAccessor(isolate, tpl, "url", &URLGetter, &URLSetter);
