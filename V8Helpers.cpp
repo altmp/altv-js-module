@@ -177,6 +177,16 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val)
 						y->Value(),
 						z->Value() });
 			}
+			else if (resource->IsVector2(v8Obj))
+			{
+				v8::Local<v8::Number> x = v8Obj->Get(ctx, V8::Vector3_XKey(isolate)).ToLocalChecked()->ToNumber(ctx).ToLocalChecked();
+				v8::Local<v8::Number> y = v8Obj->Get(ctx, V8::Vector3_YKey(isolate)).ToLocalChecked()->ToNumber(ctx).ToLocalChecked();
+
+				return core.CreateMValueVector2(
+					alt::Vector2f{
+						x->Value(),
+						y->Value() });
+			}
 			else if (resource->IsRGBA(v8Obj))
 			{
 				v8::Local<v8::Number> r = v8Obj->Get(ctx, V8::RGBA_RKey(isolate)).ToLocalChecked()->ToNumber(ctx).ToLocalChecked();
@@ -297,6 +307,8 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
 	}
 	case alt::IMValue::Type::VECTOR3:
 		return V8ResourceImpl::Get(ctx)->CreateVector3(val.As<alt::IMValueVector3>()->Value());
+	case alt::IMValue::Type::VECTOR2:
+		return V8ResourceImpl::Get(ctx)->CreateVector2(val.As<alt::IMValueVector2>()->Value());
 	case alt::IMValue::Type::RGBA:
 		return V8ResourceImpl::Get(ctx)->CreateRGBA(val.As<alt::IMValueRGBA>()->Value());
 	case alt::IMValue::Type::BYTE_ARRAY:
