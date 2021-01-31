@@ -8,10 +8,19 @@
 #define ALTV_JS_EXPORT extern "C"
 #endif
 
+static void HeapCommand(alt::Array<alt::StringView>, void* runtime)
+{
+    static_cast<CV8ScriptRuntime*>(runtime)->HeapBenchmark();
+}
+
 ALTV_JS_EXPORT alt::IScriptRuntime *CreateJSScriptRuntime(alt::ICore *core)
 {
     alt::ICore::SetInstance(core);
     auto ret = new CV8ScriptRuntime();
+
+    // Commands
+    core->SubscribeCommand("heap", HeapCommand, ret);
+
     return ret;
 }
 
