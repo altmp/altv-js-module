@@ -13,6 +13,11 @@ static void HeapCommand(alt::Array<alt::StringView>, void* runtime)
     static_cast<CV8ScriptRuntime*>(runtime)->HeapBenchmark();
 }
 
+static void TimersCommand(alt::Array<alt::StringView>, void* runtime)
+{
+    // TODO: Add timers command
+}
+
 ALTV_JS_EXPORT alt::IScriptRuntime *CreateJSScriptRuntime(alt::ICore *core)
 {
     alt::ICore::SetInstance(core);
@@ -20,6 +25,7 @@ ALTV_JS_EXPORT alt::IScriptRuntime *CreateJSScriptRuntime(alt::ICore *core)
 
     // Commands
     core->SubscribeCommand("heap", HeapCommand, ret);
+    core->SubscribeCommand("timers", TimersCommand, ret);
 
     return ret;
 }
