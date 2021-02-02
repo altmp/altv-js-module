@@ -2,6 +2,20 @@
 #include "../helpers/V8Helpers.h"
 #include "cpp-sdk/script-objects/IBlip.h"
 
+static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+
+    auto blip = info.This();
+    V8_OBJECT_GET_STRING(blip, "name", name);
+	V8_OBJECT_GET_STRING(blip, "category", category);
+
+	std::ostringstream ss;
+	ss << "Blip{ name: " << name.CStr() << ", category: " << category.CStr() << " }";
+
+	V8_RETURN_STRING(ss.str().c_str());
+}
+
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
@@ -87,16 +101,12 @@ static void SizeSetter(v8::Local<v8::String> property, v8::Local<v8::Value> valu
 
 static void SizeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
 
 	alt::Vector2f blipPos = blip->GetScaleXY();
 
-	V8_NEW_OBJECT(pos);
-	V8_OBJECT_SET_NUMBER(pos, "x", blipPos[0]);
-	V8_OBJECT_SET_NUMBER(pos, "y", blipPos[1]);
-
-	V8_RETURN(pos);
+	V8_RETURN(resource->CreateVector2(blipPos));
 }
 
 static void ScaleGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -588,6 +598,8 @@ static void Fade(const v8::FunctionCallbackInfo<v8::Value>& info)
 extern V8Class v8WorldObject;
 extern V8Class v8Blip("Blip", v8WorldObject, Constructor, [](v8::Local<v8::FunctionTemplate> tpl){
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
+
+	V8::SetMethod(isolate, tpl, "toString", ToString);
 
 	V8::SetStaticAccessor(isolate, tpl, "routeColor", &RouteColorGetter, &RouteColorSetter);
 
