@@ -310,4 +310,6 @@ void V8::RegisterSharedMain(v8::Local<v8::Context> ctx, v8::Local<v8::Object> ex
 #endif
 
 	V8::DefineOwnProperty(isolate, ctx, exports, "sdkVersion", v8::Integer::New(isolate, alt::ICore::Instance().SDK_VERSION));
+
+	V8::DefineOwnProperty(isolate, ctx, exports, "debug", v8::Boolean::New(isolate, alt::ICore::Instance().IsDebug()));
 }
