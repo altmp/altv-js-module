@@ -283,6 +283,17 @@ static void SetProps(const v8::FunctionCallbackInfo<v8::Value>& info)
 	}
 }
 
+static void ClearProps(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(1);
+	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+	V8_ARG_TO_INTEGER(1, component);
+
+	player->ClearProps(component);
+}
+
 static void GetProps(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
@@ -414,4 +425,5 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
 
 	V8::SetMethod(isolate, tpl, "setProp", &SetProps);
 	V8::SetMethod(isolate, tpl, "getProp", &GetProps);
+	V8::SetMethod(isolate, tpl, "clearProp", &ClearProps);
 });
