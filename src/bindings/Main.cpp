@@ -780,7 +780,6 @@ extern V8Module altModule(
 		V8Helpers::RegisterFunc(exports, "removeIpl", &RemoveIPL);
 		//V8Helpers::RegisterFunc(exports, "wait", &ScriptWait);
 		//V8Helpers::RegisterFunc(exports, "isInSandbox", &IsInSandbox);
-		V8Helpers::RegisterFunc(exports, "isInDebug", &IsInDebug);
 		V8Helpers::RegisterFunc(exports, "setCamFrozen", &SetCamFrozen);
 
 		V8Helpers::RegisterFunc(exports, "getLicenseHash", &GetLicenseHash);
