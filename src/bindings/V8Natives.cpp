@@ -77,11 +77,32 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 		break;
 	case alt::INative::Type::ARG_INT32:
 	{
-		v8::Local<v8::Integer> value;
-		if (val->ToInteger(v8Ctx).ToLocal(&value)) {
-			scrCtx->Push((int32_t)value->Value());
+		if (val->IsInt32())
+		{
+			v8::Local<v8::Integer> value;
+			if (val->ToInteger(v8Ctx).ToLocal(&value))
+			{
+				scrCtx->Push((int32_t)value->Value());
+			}
+			else
+			{
+				Log::Error << "Unknown native arg type" << (int)argType;
+			}
 		}
-		else {
+		else if (val->IsBigInt())
+		{
+			v8::Local<v8::BigInt> value;
+			if (val->ToBigInt(v8Ctx).ToLocal(&value))
+			{
+				scrCtx->Push((int32_t)value->Int64Value());
+			}
+			else
+			{
+				Log::Error << "Unknown native arg type" << (int)argType;
+			}
+		}
+		else
+		{
 			Log::Error << "Unknown native arg type" << (int)argType;
 		}
 		break;
@@ -92,11 +113,32 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 		break;
 	case alt::INative::Type::ARG_UINT32:
 	{
-		v8::Local<v8::Integer> value;
-		if (val->ToInteger(v8Ctx).ToLocal(&value)) {
-			scrCtx->Push((uint32_t)value->Value());
+		if (val->IsInt32())
+		{
+			v8::Local<v8::Integer> value;
+			if (val->ToInteger(v8Ctx).ToLocal(&value))
+			{
+				scrCtx->Push((uint32_t)value->Value());
+			}
+			else
+			{
+				Log::Error << "Unknown native arg type" << (int)argType;
+			}
 		}
-		else {
+		else if (val->IsBigInt())
+		{
+			v8::Local<v8::BigInt> value;
+			if (val->ToBigInt(v8Ctx).ToLocal(&value))
+			{
+				scrCtx->Push((uint32_t)value->Int64Value());
+			}
+			else
+			{
+				Log::Error << "Unknown native arg type" << (int)argType;
+			}
+		}
+		else
+		{
 			Log::Error << "Unknown native arg type" << (int)argType;
 		}
 		break;
@@ -108,10 +150,12 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 	case alt::INative::Type::ARG_FLOAT:
 	{
 		v8::Local<v8::Number> value;
-		if (val->ToNumber(v8Ctx).ToLocal(&value)) {
+		if (val->ToNumber(v8Ctx).ToLocal(&value))
+		{
 			scrCtx->Push((float)value->Value());
 		}
-		else {
+		else
+		{
 			Log::Error << "Unknown native arg type" << (int)argType;
 		}
 		break;
