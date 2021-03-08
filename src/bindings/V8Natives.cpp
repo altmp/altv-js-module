@@ -77,7 +77,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 		break;
 	case alt::INative::Type::ARG_INT32:
 	{
-		if (val->IsInt32())
+		if (val->IsInteger())
 		{
 			v8::Local<v8::Integer> value;
 			if (val->ToInteger(v8Ctx).ToLocal(&value))
@@ -113,7 +113,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 		break;
 	case alt::INative::Type::ARG_UINT32:
 	{
-		if (val->IsInt32())
+		if (val->IsInteger())
 		{
 			v8::Local<v8::Integer> value;
 			if (val->ToInteger(v8Ctx).ToLocal(&value))
