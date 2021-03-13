@@ -78,8 +78,8 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 	case alt::INative::Type::ARG_INT32:
 		int32_t value;
 		V8Entity* ent;
-		ent = V8Entity::Get(val);
-		if(ent != nullptr) value = (int32_t)ent->GetHandle().As<alt::IEntity>()->GetScriptGuid();
+		if(val->IsObject() && (ent = V8Entity::Get(val)) != nullptr) 
+			value = (int32_t)ent->GetHandle().As<alt::IEntity>()->GetScriptGuid();
 		else value = (int32_t)val->ToInteger(v8Ctx).ToLocalChecked()->Value();
 		scrCtx->Push(value);
 		break;
