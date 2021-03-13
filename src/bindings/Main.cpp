@@ -734,7 +734,8 @@ extern V8Class v8Vector3,
 	v8Voice,
 	v8PedBlip,
 	v8VehicleBlip,
-	v8WebSocketClient;
+	v8WebSocketClient,
+	v8Checkpoint;
 extern V8Module altModule(
 	"alt",
 	{v8Vector3,
@@ -757,7 +758,8 @@ extern V8Module altModule(
 	 v8MapZoomData,
 	 v8Discord,
 	 v8Voice,
-	 v8WebSocketClient},
+	 v8WebSocketClient,
+	 v8Checkpoint},
 	[](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
 		V8::RegisterSharedMain(ctx, exports);
 
@@ -780,7 +782,6 @@ extern V8Module altModule(
 		V8Helpers::RegisterFunc(exports, "removeIpl", &RemoveIPL);
 		//V8Helpers::RegisterFunc(exports, "wait", &ScriptWait);
 		//V8Helpers::RegisterFunc(exports, "isInSandbox", &IsInSandbox);
-		V8Helpers::RegisterFunc(exports, "isInDebug", &IsInDebug);
 		V8Helpers::RegisterFunc(exports, "setCamFrozen", &SetCamFrozen);
 
 		V8Helpers::RegisterFunc(exports, "getLicenseHash", &GetLicenseHash);
