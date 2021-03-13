@@ -196,6 +196,7 @@ bool CV8ResourceImpl::Stop()
 		auto name = this->resource->GetName().ToString();
 		for(auto res : resources)
 		{
+			if(res == this) continue;
 			auto it = res->modules.find(name);
 			if(it != res->modules.end()) {
 				res->modules.erase(it);
