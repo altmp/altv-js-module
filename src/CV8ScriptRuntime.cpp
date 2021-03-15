@@ -3,6 +3,7 @@
 #include "inspector/CV8InspectorClient.h"
 #include "inspector/CV8InspectorChannel.h"
 #include "helpers/V8Module.h"
+#include "events/Events.h"
 
 CV8ScriptRuntime* CV8ScriptRuntime::instance = nullptr;
 
@@ -149,4 +150,6 @@ CV8ScriptRuntime::CV8ScriptRuntime()
 		extern V8Module altModule, nativesModule;
 		V8Module::Add({altModule, nativesModule});
 	}
+
+	RegisterEvents();
 }

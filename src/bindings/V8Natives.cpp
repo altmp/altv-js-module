@@ -76,22 +76,90 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 		scrCtx->Push(SavePointer((int32_t)val->ToBoolean(isolate)->Value()));
 		break;
 	case alt::INative::Type::ARG_INT32:
-		scrCtx->Push((int32_t)val->ToInteger(v8Ctx).ToLocalChecked()->Value());
+	{
+		if (val->IsUint32() || val->IsInt32())
+		{
+			v8::Local<v8::Integer> value;
+			if (val->ToInteger(v8Ctx).ToLocal(&value))
+			{
+				scrCtx->Push((int32_t)value->Value());
+			}
+			else
+			{
+				Log::Error << "Unknown native arg type" << (int)argType;
+			}
+		}
+		else if (val->IsBigInt())
+		{
+			v8::Local<v8::BigInt> value;
+			if (val->ToBigInt(v8Ctx).ToLocal(&value))
+			{
+				scrCtx->Push((int32_t)value->Int64Value());
+			}
+			else
+			{
+				Log::Error << "Unknown native arg type" << (int)argType;
+			}
+		}
+		else
+		{
+			Log::Error << "Unknown native arg type" << (int)argType;
+		}
 		break;
+	}
 	case alt::INative::Type::ARG_INT32_PTR:
 		++returnsCount;
 		scrCtx->Push(SavePointer((int32_t)val->ToInteger(v8Ctx).ToLocalChecked()->Value()));
 		break;
 	case alt::INative::Type::ARG_UINT32:
-		scrCtx->Push((uint32_t)val->ToInteger(v8Ctx).ToLocalChecked()->Value());
+	{
+		if (val->IsUint32() || val->IsInt32())
+		{
+			v8::Local<v8::Integer> value;
+			if (val->ToInteger(v8Ctx).ToLocal(&value))
+			{
+				scrCtx->Push((uint32_t)value->Value());
+			}
+			else
+			{
+				Log::Error << "Unknown native arg type" << (int)argType;
+			}
+		}
+		else if (val->IsBigInt())
+		{
+			v8::Local<v8::BigInt> value;
+			if (val->ToBigInt(v8Ctx).ToLocal(&value))
+			{
+				scrCtx->Push((uint32_t)value->Int64Value());
+			}
+			else
+			{
+				Log::Error << "Unknown native arg type" << (int)argType;
+			}
+		}
+		else
+		{
+			Log::Error << "Unknown native arg type" << (int)argType;
+		}
 		break;
+	}
 	case alt::INative::Type::ARG_UINT32_PTR:
 		++returnsCount;
 		scrCtx->Push(SavePointer((uint32_t)val->ToInteger(v8Ctx).ToLocalChecked()->Value()));
 		break;
 	case alt::INative::Type::ARG_FLOAT:
-		scrCtx->Push((float)val->ToNumber(v8Ctx).ToLocalChecked()->Value());
+	{
+		v8::Local<v8::Number> value;
+		if (val->ToNumber(v8Ctx).ToLocal(&value))
+		{
+			scrCtx->Push((float)value->Value());
+		}
+		else
+		{
+			Log::Error << "Unknown native arg type" << (int)argType;
+		}
 		break;
+	}
 	case alt::INative::Type::ARG_FLOAT_PTR:
 		++returnsCount;
 		scrCtx->Push(SavePointer((float)val->ToNumber(v8Ctx).ToLocalChecked()->Value()));

@@ -17,15 +17,9 @@ set(ALTV_JS_DL_DEPS ${altv-js-deps_SOURCE_DIR})
 
 # cpp-sdk
 if(NOT ALTV_JS_CPP_SDK)
-  git_clone(
-    PROJECT_NAME  cpp-sdk
-    GIT_URL       https://github.com/altmp/cpp-sdk
-    GIT_BRANCH    master
-    DIRECTORY     ${ALTV_JS_DL_DEPS}
-  )
-  set(ALTV_JS_CPP_SDK ${ALTV_JS_DL_DEPS})
+  set(ALTV_JS_CPP_SDK deps/cpp-sdk)
 else()
-  message("alt:V JS - Skipping fetching cpp-sdk")
+  set(ALTV_JS_DEINIT_CPPSDK 1)
 endif()
 # Fetch deps
 
@@ -113,3 +107,10 @@ target_compile_definitions(${PROJECT_NAME}-static PRIVATE
 target_link_libraries(${PROJECT_NAME}-static PRIVATE
   ${ALTV_JS_LINKS}
 )
+if(ALTV_JS_DEINIT_CPPSDK)
+  add_custom_command(TARGET ${PROJECT_NAME}-static
+    PRE_BUILD
+    COMMAND cmd /C "tools\\deinit-cppsdk.bat"
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+  )
+endif()

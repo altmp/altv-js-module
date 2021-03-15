@@ -107,15 +107,11 @@ static void ShowCursor(const v8::FunctionCallbackInfo<v8::Value> &info)
 
 static void GetCursorPos(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
 	alt::Vector2i cursorPos = alt::ICore::Instance().GetCursorPosition();
-
-	V8_NEW_OBJECT(pos);
-	V8_OBJECT_SET_INTEGER(pos, "x", cursorPos[0]);
-	V8_OBJECT_SET_INTEGER(pos, "y", cursorPos[1]);
 	
-	V8_RETURN(pos);
+	V8_RETURN(resource->CreateVector2(cursorPos));
 }
 
 static void SetCursorPos(const v8::FunctionCallbackInfo<v8::Value> &info)
@@ -188,6 +184,8 @@ static void IsInDebug(const v8::FunctionCallbackInfo<v8::Value> &info)
 static void IsVoiceActivityInputEnabled(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
 	V8_GET_ISOLATE_CONTEXT();
+
+	Log::Warning << "alt.isVoiceActivityInputEnabled is deprecated and will be removed in the future. Please use alt.Voice.activityInputEnabled" << Log::Endl;
 
 	V8_RETURN_BOOLEAN(ICore::Instance().IsVoiceActivationEnabled());
 }
@@ -406,7 +404,7 @@ static void GetCharStat(const v8::FunctionCallbackInfo<v8::Value> &info)
 
 	if (!strcmp(targetStat->GetStatType(), "INT"))
 	{
-		V8_RETURN_INT32(targetStat->GetInt32Value());
+		V8_RETURN_INTEGER(targetStat->GetInt32Value());
 		return;
 	}
 	else if (!strcmp(targetStat->GetStatType(), "INT64"))
@@ -416,7 +414,7 @@ static void GetCharStat(const v8::FunctionCallbackInfo<v8::Value> &info)
 	}
 	else if (!strcmp(targetStat->GetStatType(), "TEXTLABEL"))
 	{
-		V8_RETURN_INT32(targetStat->GetInt32Value());
+		V8_RETURN_INTEGER(targetStat->GetInt32Value());
 		return;
 	}
 	else if (!strcmp(targetStat->GetStatType(), "FLOAT"))
@@ -436,17 +434,17 @@ static void GetCharStat(const v8::FunctionCallbackInfo<v8::Value> &info)
 	}
 	else if (!strcmp(targetStat->GetStatType(), "UINT8"))
 	{
-		V8_RETURN_UINT32(targetStat->GetUInt8Value());
+		V8_RETURN_UINTEGER(targetStat->GetUInt8Value());
 		return;
 	}
 	else if (!strcmp(targetStat->GetStatType(), "UINT16"))
 	{
-		V8_RETURN_UINT32(targetStat->GetUInt16Value());
+		V8_RETURN_UINTEGER(targetStat->GetUInt16Value());
 		return;
 	}
 	else if (!strcmp(targetStat->GetStatType(), "UINT32"))
 	{
-		V8_RETURN_UINT32(targetStat->GetUInt32Value());
+		V8_RETURN_UINTEGER(targetStat->GetUInt32Value());
 		return;
 	}
 	else if (
@@ -531,7 +529,7 @@ static void GetConfigFlag(const v8::FunctionCallbackInfo<v8::Value> &info)
 	V8_RETURN_BOOLEAN(ICore::Instance().GetConfigFlag(flag));
 }
 
-static void DoesConfigFlagExist(const v8::FunctionCallbackInfo<v8::Value> &info)
+static void DoesConfigFlagExist(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
 	V8_CHECK_ARGS_LEN(1);
@@ -539,6 +537,26 @@ static void DoesConfigFlagExist(const v8::FunctionCallbackInfo<v8::Value> &info)
 	V8_ARG_TO_STRING(1, flag);
 
 	V8_RETURN_BOOLEAN(ICore::Instance().DoesConfigFlagExist(flag));
+}
+
+static void LoadYtyp(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(1);
+
+	V8_ARG_TO_STRING(1, path);
+
+	V8_RETURN_BOOLEAN(ICore::Instance().LoadYtyp(path.ToString()));
+}
+
+static void UnloadYtyp(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(1);
+
+	V8_ARG_TO_STRING(1, path);
+
+	V8_RETURN_BOOLEAN(ICore::Instance().UnloadYtyp(path.ToString()));
 }
 
 // extern V8Class v8MemoryBuffer;
@@ -694,6 +712,7 @@ static void LoadModelAsync(const v8::FunctionCallbackInfo<v8::Value>& info)
 }
 
 extern V8Class v8Vector3,
+	v8Vector2,
 	v8RGBA,
 	v8BaseObject,
 	v8WorldObject,
@@ -714,10 +733,13 @@ extern V8Class v8Vector3,
 	v8Discord,
 	v8Voice,
 	v8PedBlip,
-	v8VehicleBlip;
+	v8VehicleBlip,
+	v8WebSocketClient,
+	v8Checkpoint;
 extern V8Module altModule(
 	"alt",
 	{v8Vector3,
+	 v8Vector2,
 	 v8RGBA,
 	 v8BaseObject,
 	 v8WorldObject,
@@ -735,7 +757,9 @@ extern V8Module altModule(
 	 v8File,
 	 v8MapZoomData,
 	 v8Discord,
-	 v8Voice},
+	 v8Voice,
+	 v8WebSocketClient,
+	 v8Checkpoint},
 	[](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
 		V8::RegisterSharedMain(ctx, exports);
 
@@ -758,7 +782,6 @@ extern V8Module altModule(
 		V8Helpers::RegisterFunc(exports, "removeIpl", &RemoveIPL);
 		//V8Helpers::RegisterFunc(exports, "wait", &ScriptWait);
 		//V8Helpers::RegisterFunc(exports, "isInSandbox", &IsInSandbox);
-		V8Helpers::RegisterFunc(exports, "isInDebug", &IsInDebug);
 		V8Helpers::RegisterFunc(exports, "setCamFrozen", &SetCamFrozen);
 
 		V8Helpers::RegisterFunc(exports, "getLicenseHash", &GetLicenseHash);
@@ -816,4 +839,7 @@ extern V8Module altModule(
 
 		V8Helpers::RegisterFunc(exports, "loadModel", &LoadModel);
 		V8Helpers::RegisterFunc(exports, "loadModelAsync", &LoadModelAsync);
+
+		V8Helpers::RegisterFunc(exports, "loadYtyp", &LoadYtyp);
+		V8Helpers::RegisterFunc(exports, "unloadYtyp", &UnloadYtyp);
 	});
