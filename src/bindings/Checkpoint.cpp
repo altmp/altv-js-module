@@ -6,17 +6,21 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 	V8_CHECK_CONSTRUCTOR();
-	V8_CHECK_ARGS_LEN(10);
+	V8_CHECK_ARGS_LEN(6);
 	V8_ARG_TO_INTEGER(1, type);
-	V8_ARG_TO_NUMBER(2, x1);
-	V8_ARG_TO_NUMBER(3, y1);
-	V8_ARG_TO_NUMBER(4, z1);
-	V8_ARG_TO_NUMBER(5, x2);
-	V8_ARG_TO_NUMBER(6, y2);
-	V8_ARG_TO_NUMBER(7, z2);
-	V8_ARG_TO_NUMBER(8, radius);
-	V8_ARG_TO_NUMBER(9, height);
-	V8_ARG_TO_OBJECT(10, color);
+	V8_ARG_TO_OBJECT(2, pos);
+	V8_ARG_TO_OBJECT(3, nextPos);
+	V8_ARG_TO_NUMBER(4, radius);
+	V8_ARG_TO_NUMBER(5, height);
+	V8_ARG_TO_OBJECT(6, color);
+
+	V8_OBJECT_GET_NUMBER(pos, "x", x1);
+	V8_OBJECT_GET_NUMBER(pos, "y", y1);
+	V8_OBJECT_GET_NUMBER(pos, "z", z1);
+
+	V8_OBJECT_GET_NUMBER(nextPos, "x", x2);
+	V8_OBJECT_GET_NUMBER(nextPos, "y", y2);
+	V8_OBJECT_GET_NUMBER(nextPos, "z", z2);
 
 	V8_OBJECT_GET_INTEGER(color, "r", r);
 	V8_OBJECT_GET_INTEGER(color, "g", g);
