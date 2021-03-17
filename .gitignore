@@ -4,3 +4,5 @@ BUILD/
 deps/v8/
 
 .vs/
+
+.vscode/settings.json
