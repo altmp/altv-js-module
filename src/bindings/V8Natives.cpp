@@ -249,7 +249,7 @@ static v8::Local<v8::Value> GetReturn(alt::Ref<alt::INative::Context> scrCtx, al
 	case alt::INative::Type::ARG_VOID:
 		return v8::Undefined(isolate);
 	default:
-		Log::Error << "Unknown native return type" << (int)retnType;
+		Log::Error << "Unknown native return type " << (int)retnType << Log::Endl;
 		return v8::Undefined(isolate);
 	}
 }
