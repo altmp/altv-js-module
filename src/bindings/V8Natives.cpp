@@ -86,7 +86,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 			}
 			else
 			{
-				Log::Error << "Unknown native arg type" << (int)argType;
+				Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
 			}
 		}
 		else if (val->IsBigInt())
@@ -98,12 +98,12 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 			}
 			else
 			{
-				Log::Error << "Unknown native arg type" << (int)argType;
+				Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
 			}
 		}
 		else
 		{
-			Log::Error << "Unknown native arg type" << (int)argType;
+			Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
 		}
 		break;
 	}
@@ -122,7 +122,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 			}
 			else
 			{
-				Log::Error << "Unknown native arg type" << (int)argType;
+				Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
 			}
 		}
 		else if (val->IsBigInt())
@@ -134,12 +134,12 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 			}
 			else
 			{
-				Log::Error << "Unknown native arg type" << (int)argType;
+				Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
 			}
 		}
 		else
 		{
-			Log::Error << "Unknown native arg type" << (int)argType;
+			Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
 		}
 		break;
 	}
@@ -156,7 +156,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 		}
 		else
 		{
-			Log::Error << "Unknown native arg type" << (int)argType;
+			Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
 		}
 		break;
 	}
@@ -178,7 +178,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 		scrCtx->Push(ToMemoryBuffer(val, v8Ctx));
 		break;
 	default:
-		Log::Error << "Unknown native arg type" << (int)argType;
+		Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
 	}
 }
 
