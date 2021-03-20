@@ -262,6 +262,18 @@ static void ClearTimer(const v8::FunctionCallbackInfo<v8::Value> &info)
 	resource->RemoveTimer(timer);
 }
 
+static void HasResource(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(1);
+
+	V8_ARG_TO_STRING(1, name);
+
+	alt::IResource* resource = alt::ICore::Instance().GetResource(name);
+
+	V8_RETURN_BOOLEAN(resource && resource->IsStarted());
+}
+
 void V8::RegisterSharedMain(v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports)
 {
 	v8::Isolate *isolate = ctx->GetIsolate();
@@ -294,6 +306,8 @@ void V8::RegisterSharedMain(v8::Local<v8::Context> ctx, v8::Local<v8::Object> ex
 	V8Helpers::RegisterFunc(exports, "clearEveryTick", &ClearTimer);
 	V8Helpers::RegisterFunc(exports, "clearTimeout", &ClearTimer);
 	V8Helpers::RegisterFunc(exports, "clearInterval", &ClearTimer);
+
+	V8Helpers::RegisterFunc(exports, "hasResource", &HasResource);
 
 #ifdef ALT_SERVER_API
 	V8::DefineOwnProperty(isolate, ctx, exports, "version", v8::String::NewFromUtf8(isolate, alt::ICore::Instance().GetVersion().CStr()).ToLocalChecked());
