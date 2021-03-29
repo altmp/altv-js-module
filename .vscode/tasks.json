@@ -6,7 +6,17 @@
     {
       "label": "Build",
       "type": "shell",
-      "command": "cmake --build BUILD",
+      "command": "cmake --build BUILD --config Release",
+      "problemMatcher": ["$msCompile"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+    },
+    {
+      "label": "Build (Debug)",
+      "type": "shell",
+      "command": "cmake --build BUILD --config Debug",
       "problemMatcher": ["$msCompile"],
       "group": {
         "kind": "build",

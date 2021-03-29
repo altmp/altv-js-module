@@ -253,6 +253,42 @@ static void GetCurrentWeapon(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_INTEGER(player->GetCurrentWeapon());
 }
 
+static void SpatialVolumeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(_this, alt::IPlayer);
+
+    V8_RETURN_NUMBER(_this->GetSpatialVolume());
+}
+
+static void SpatialVolumeSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(_this, alt::IPlayer);
+
+    V8_TO_NUMBER(val, volume);
+
+    _this->SetSpatialVolume(volume);
+}
+
+static void NonSpatialVolumeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(_this, alt::IPlayer);
+
+    V8_RETURN_NUMBER(_this->GetNonSpatialVolume());
+}
+
+static void NonSpatialVolumeSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(_this, alt::IPlayer);
+
+    V8_TO_NUMBER(val, volume);
+
+    _this->SetNonSpatialVolume(volume);
+}
+
 static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -305,6 +341,8 @@ extern V8Class v8Player("Player", v8Entity, [](v8::Local<v8::FunctionTemplate> t
     V8::SetAccessor(isolate, tpl, "maxHealth", &MaxHealthGetter);
     V8::SetAccessor(isolate, tpl, "armour", &ArmourGetter);
     V8::SetAccessor(isolate, tpl, "maxArmour", &MaxArmourGetter);
+    V8::SetAccessor(isolate, tpl, "spatialVolume", &SpatialVolumeGetter, &SpatialVolumeSetter);
+    V8::SetAccessor(isolate, tpl, "nonSpatialVolume", &NonSpatialVolumeGetter, &NonSpatialVolumeSetter);
 
     // Weapon getters
     V8::SetAccessor(isolate, tpl, "currentWeaponComponents", &CurrentWeaponComponentsGetter);
