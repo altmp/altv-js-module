@@ -4,6 +4,8 @@
 #include "../helpers/V8Entity.h"
 #include "../helpers/V8ResourceImpl.h"
 
+#include "../CV8ScriptRuntime.h"
+
 #include "cpp-sdk/objects/IPlayer.h"
 #include "cpp-sdk/objects/IVehicle.h"
 
@@ -296,6 +298,20 @@ static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo
     V8_RETURN(resource->GetAllPlayers()->Clone());
 }
 
+static void StreamedInGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+
+    auto streamedIn = CV8ScriptRuntime::instance->GetStreamedInPlayers();
+    auto arr = v8::Array::New(isolate, streamedIn.size());
+    for(auto i = 0; i < streamedIn.size(); i++)
+    {
+        arr->Set(ctx, i, resource->GetOrCreateEntity(streamedIn[i].Get(), "Player")->GetJSVal(isolate));
+    }
+
+    V8_RETURN(arr);
+}
+
 static void LocalGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -329,6 +345,7 @@ extern V8Class v8Player("Player", v8Entity, [](v8::Local<v8::FunctionTemplate> t
     V8::SetStaticMethod(isolate, tpl, "getByScriptID", StaticGetByScriptID);
 
     V8::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
+    V8::SetStaticAccessor(isolate, tpl, "streamedIn", &StreamedInGetter);
     V8::SetStaticAccessor(isolate, tpl, "local", &LocalGetter);
 
     // Common getters

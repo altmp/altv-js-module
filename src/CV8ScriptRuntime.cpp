@@ -153,3 +153,37 @@ CV8ScriptRuntime::CV8ScriptRuntime()
 
 	RegisterEvents();
 }
+
+void CV8ScriptRuntime::OnEntityStreamIn(alt::Ref<alt::IEntity> entity) 
+{
+	switch(entity->GetType())
+	{
+		case alt::IEntity::Type::PLAYER:
+		{
+			streamedInPlayers.push_back(entity.As<alt::IPlayer>());
+			break;
+		}
+		case alt::IEntity::Type::VEHICLE:
+		{
+			streamedInVehicles.push_back(entity.As<alt::IVehicle>());
+			break;
+		}
+	}
+}
+
+void CV8ScriptRuntime::OnEntityStreamOut(alt::Ref<alt::IEntity> entity) 
+{
+	switch(entity->GetType())
+	{
+		case alt::IEntity::Type::PLAYER:
+		{
+			streamedInPlayers.erase(std::find(streamedInPlayers.begin(), streamedInPlayers.end(), entity));
+			break;
+		}
+		case alt::IEntity::Type::VEHICLE:
+		{
+			streamedInVehicles.erase(std::find(streamedInVehicles.begin(), streamedInVehicles.end(), entity));
+			break;
+		}
+	}
+}
