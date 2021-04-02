@@ -10,10 +10,11 @@
 
 static void ClientJSCommand(alt::Array<alt::StringView> args, void*)
 {
-    Log::Colored << "~b~[[ ~w~Client JS ~b~]]" << Log::Endl;
-    Log::Colored << "~y~Powered by V8" << Log::Endl;
+    Log::Colored << "~r~--------------------------------" << Log::Endl;
+    Log::Colored << "~y~Client JS module - Powered by V8" << Log::Endl;
     Log::Colored << "V8 version: ~g~v" << V8_MAJOR_VERSION << "." << V8_MINOR_VERSION << Log::Endl;
     Log::Colored << "SDK version: ~g~v" << alt::ICore::SDK_VERSION << Log::Endl;
+    Log::Colored << "~r~--------------------------------" << Log::Endl;
 }
 
 ALTV_JS_EXPORT void CreateScriptRuntime(alt::ICore *core)
