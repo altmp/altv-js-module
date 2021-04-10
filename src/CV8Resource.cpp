@@ -224,20 +224,26 @@ bool CV8ResourceImpl::OnEvent(const alt::CEvent* e)
 		if(evType == alt::CEvent::Type::CLIENT_SCRIPT_EVENT || evType == alt::CEvent::Type::SERVER_SCRIPT_EVENT)
 		{
 			std::vector<V8::EventCallback *> callbacks;
-			auto args = handler->GetArgs(this, e);
+			std::vector<v8::Local<v8::Value>> args;
+			const char* eventName;
 			if(evType == alt::CEvent::Type::CLIENT_SCRIPT_EVENT) 
 			{
 				callbacks = GetLocalHandlers("*");
-				args.insert(args.begin(), V8_NEW_STRING(static_cast<const alt::CClientScriptEvent*>(e)->GetName().CStr()));
+				eventName = static_cast<const alt::CClientScriptEvent*>(e)->GetName().CStr();
 			}
 			else if(evType == alt::CEvent::Type::SERVER_SCRIPT_EVENT) 
 			{
 				callbacks = GetRemoteHandlers("*");
-				args.insert(args.begin(), V8_NEW_STRING(static_cast<const alt::CServerScriptEvent*>(e)->GetName().CStr()));
+				eventName = static_cast<const alt::CServerScriptEvent*>(e)->GetName().CStr();
 			}
-			
+
 			if(callbacks.size() != 0)
 			{
+				auto evArgs = handler->GetArgs(this, e);
+				args.reserve(evArgs.size() + 1);
+				args.push_back(V8_NEW_STRING(eventName));
+				args.insert(args.end(), evArgs.begin(), evArgs.end());
+
 				InvokeEventHandlers(e, callbacks, args);
 			}
 		}
