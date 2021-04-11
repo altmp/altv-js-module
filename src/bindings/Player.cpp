@@ -282,7 +282,7 @@ static void SetProp(const v8::FunctionCallbackInfo<v8::Value>& info)
 		player->SetDlcProps(component, drawable, texture, dlc);
 	}
 
-	Log::Warning << "The method setProp is depreacted. Use setProps instead." << Log::Endl;
+	Log::Warning << "player.setProp() is deprecated and will be removed in the future. Consider using player.setProps()." << Log::Endl;		
 }
 
 static void SetProps(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -316,7 +316,7 @@ static void ClearProp(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 	player->ClearProps(component);
 
-	Log::Warning << "The method clearProp is depreacted. Use clearProps instead." << Log::Endl;
+	Log::Warning << "player.clearProp() is deprecated and will be removed in the future. Consider using player.clearProps()." << Log::Endl;		
 }
 
 static void ClearProps(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -360,7 +360,7 @@ static void GetProp(const v8::FunctionCallbackInfo<v8::Value>& info)
 		V8_OBJECT_SET_INTEGER(prop, "dlc", props.dlc);
 	}
 
-	Log::Warning << "The method getProp is depreacted. Use getProps instead." << Log::Endl;
+	Log::Warning << "player.getProp() is deprecated and will be removed in the future. Consider using player.getProps()." << Log::Endl;		
 	V8_RETURN(prop);
 }
 
