@@ -180,12 +180,12 @@ bool CNodeResourceImpl::OnEvent(const alt::CEvent* e)
 			
 			if(evType == alt::CEvent::Type::SERVER_SCRIPT_EVENT) 
 			{
-				callbacks = GetLocalHandlers("*");
+				callbacks = std::move(GetLocalHandlers("*"));
 				eventName = static_cast<const alt::CServerScriptEvent*>(e)->GetName().CStr();
 			}
 			else if(evType == alt::CEvent::Type::CLIENT_SCRIPT_EVENT) 
 			{
-				callbacks = GetRemoteHandlers("*");
+				callbacks = std::move(GetRemoteHandlers("*"));
 				eventName = static_cast<const alt::CClientScriptEvent*>(e)->GetName().CStr();
 			}
 
