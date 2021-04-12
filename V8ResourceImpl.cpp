@@ -262,6 +262,26 @@ std::vector<V8::EventCallback *> V8ResourceImpl::GetRemoteHandlers(const std::st
 	return handlers;
 }
 
+std::vector<V8::EventCallback *> V8ResourceImpl::GetGenericHandlers(bool local) 
+{
+	std::vector<V8::EventCallback *> handlers;
+	if(local)
+	{
+		for(auto& it : localGenericHandlers)
+		{
+			handlers.push_back(&it);
+		}
+	}
+	else
+	{
+		for(auto& it : remoteGenericHandlers)
+		{
+			handlers.push_back(&it);
+		}
+	}
+	return handlers;
+}
+
 void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent *ev, const std::vector<V8::EventCallback *> &handlers, std::vector<v8::Local<v8::Value>> &args)
 {
 	for (auto handler : handlers)
