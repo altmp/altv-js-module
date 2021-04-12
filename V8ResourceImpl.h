@@ -61,6 +61,11 @@ public:
 		remoteHandlers.insert({ev, V8::EventCallback{isolate, cb, std::move(location), once}});
 	}
 
+	void SubscribeGeneric(bool local, v8::Local<v8::Function> cb, V8::SourceLocation &&location, bool once = false)
+	{
+		genericHandlers.insert({local, V8::EventCallback{isolate, cb, std::move(location), once}});
+	}
+
 	void UnsubscribeLocal(const std::string &ev, v8::Local<v8::Function> cb)
 	{
 		auto range = localHandlers.equal_range(ev);
@@ -75,6 +80,17 @@ public:
 	void UnsubscribeRemote(const std::string &ev, v8::Local<v8::Function> cb)
 	{
 		auto range = remoteHandlers.equal_range(ev);
+
+		for (auto it = range.first; it != range.second; ++it)
+		{
+			if (it->second.fn.Get(isolate)->StrictEquals(cb))
+				it->second.removed = true;
+		}
+	}
+
+	void UnsubscribeGeneric(bool local, v8::Local<v8::Function> cb)
+	{
+		auto range = genericHandlers.equal_range(local);
 
 		for (auto it = range.first; it != range.second; ++it)
 		{
@@ -183,6 +199,7 @@ public:
 
 	std::vector<V8::EventCallback *> GetLocalHandlers(const std::string &name);
 	std::vector<V8::EventCallback *> GetRemoteHandlers(const std::string &name);
+	std::vector<V8::EventCallback *> GetGenericHandlers(bool local);
 
 	static V8ResourceImpl *Get(v8::Local<v8::Context> ctx)
 	{
@@ -208,6 +225,7 @@ protected:
 
 	std::unordered_multimap<std::string, V8::EventCallback> localHandlers;
 	std::unordered_multimap<std::string, V8::EventCallback> remoteHandlers;
+	std::unordered_multimap<bool, V8::EventCallback> genericHandlers;
 
 	uint32_t nextTimerId = 0;
 	std::vector<uint32_t> oldTimers;
