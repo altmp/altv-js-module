@@ -21,7 +21,7 @@ static void On(const v8::FunctionCallbackInfo<v8::Value> &info)
 	{
 		V8_ARG_TO_FUNCTION(1, callback);
 
-		resource->SubscribeGeneric(true, callback, V8::SourceLocation::GetCurrent(isolate));
+		resource->SubscribeGenericLocal(callback, V8::SourceLocation::GetCurrent(isolate));
 	}
 	else if(info.Length() == 2)
 	{
@@ -41,7 +41,7 @@ static void Once(const v8::FunctionCallbackInfo<v8::Value>& info)
 	{
 		V8_ARG_TO_FUNCTION(1, callback);
 
-		resource->SubscribeGeneric(true, callback, V8::SourceLocation::GetCurrent(isolate), true);
+		resource->SubscribeGenericLocal(callback, V8::SourceLocation::GetCurrent(isolate), true);
 	}
 	else if(info.Length() == 2)
 	{
@@ -61,7 +61,7 @@ static void Off(const v8::FunctionCallbackInfo<v8::Value> &info)
 	{
 		V8_ARG_TO_FUNCTION(1, callback);
 
-		resource->UnsubscribeGeneric(true, callback);
+		resource->UnsubscribeGenericLocal(callback);
 	}
 	else if(info.Length() == 2)
 	{
