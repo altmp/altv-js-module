@@ -228,12 +228,12 @@ bool CV8ResourceImpl::OnEvent(const alt::CEvent* e)
 
 			if(evType == alt::CEvent::Type::CLIENT_SCRIPT_EVENT) 
 			{
-				callbacks = std::move(GetLocalHandlers("*"));
+				callbacks = std::move(GetGenericHandlers(true));
 				eventName = static_cast<const alt::CClientScriptEvent*>(e)->GetName().CStr();
 			}
 			else if(evType == alt::CEvent::Type::SERVER_SCRIPT_EVENT) 
 			{
-				callbacks = std::move(GetRemoteHandlers("*"));
+				callbacks = std::move(GetGenericHandlers(false));
 				eventName = static_cast<const alt::CServerScriptEvent*>(e)->GetName().CStr();
 			}
 
