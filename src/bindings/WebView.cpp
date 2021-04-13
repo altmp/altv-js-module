@@ -82,16 +82,23 @@ static void Unfocus(const v8::FunctionCallbackInfo<v8::Value> &info)
 	view->Unfocus();
 }
 
-static void SetURL(const v8::FunctionCallbackInfo<v8::Value> &info)
+static void GetEventListeners(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	V8_GET_ISOLATE_CONTEXT();
-
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 	V8_CHECK_ARGS_LEN(1);
-	V8_ARG_TO_STRING(1, url);
-
 	V8_GET_THIS_BASE_OBJECT(view, alt::IWebView);
 
-	view->SetUrl(url);
+	V8_ARG_TO_STRING(1, eventName);
+
+	std::vector<V8::EventCallback *> handlers = static_cast<CV8ResourceImpl*>(resource)->GetWebViewHandlers(view, eventName.ToString());
+
+	auto array = v8::Array::New(isolate, handlers.size());
+	for(int i = 0; i < handlers.size(); i++)
+	{
+		array->Set(ctx, i, handlers[i]->fn.Get(isolate));
+	}
+
+	V8_RETURN(array);
 }
 
 static void IsVisibleGetter(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value> &info)
@@ -218,6 +225,7 @@ extern V8Class v8WebView("WebView", v8BaseObject, &Constructor,	[](v8::Local<v8:
 
 	V8::SetMethod(isolate, tpl, "on", &On);
 	V8::SetMethod(isolate, tpl, "off", &Off);
+	V8::SetMethod(isolate, tpl, "getEventListeners", GetEventListeners);
 	V8::SetMethod(isolate, tpl, "emit", &Emit);
 	V8::SetMethod(isolate, tpl, "focus", &Focus);
 	V8::SetMethod(isolate, tpl, "unfocus", &Unfocus);
