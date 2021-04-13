@@ -301,6 +301,58 @@ static void HasResource(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_RETURN_BOOLEAN(resource && resource->IsStarted());
 }
 
+static void GetEventListeners(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_CHECK_ARGS_LEN(1);
+
+	std::vector<V8::EventCallback *> handlers;
+
+	if(info[0]->IsNull())
+	{
+		handlers = resource->GetGenericHandlers(true);
+	}
+	else
+	{
+		V8_ARG_TO_STRING(1, eventName);
+		handlers = resource->GetLocalHandlers(eventName.ToString());
+	}
+
+	auto array = v8::Array::New(isolate, handlers.size());
+	for(int i = 0; i < handlers.size(); i++)
+	{
+		array->Set(ctx, i, handlers[i]->fn.Get(isolate));
+	}
+
+	V8_RETURN(array);
+}
+
+static void GetRemoteEventListeners(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_CHECK_ARGS_LEN(1);
+
+	std::vector<V8::EventCallback *> handlers;
+
+	if(info[0]->IsNull())
+	{
+		handlers = resource->GetGenericHandlers(false);
+	}
+	else
+	{
+		V8_ARG_TO_STRING(1, eventName);
+		handlers = resource->GetRemoteHandlers(eventName.ToString());
+	}
+
+	auto array = v8::Array::New(isolate, handlers.size());
+	for(int i = 0; i < handlers.size(); i++)
+	{
+		array->Set(ctx, i, handlers[i]->fn.Get(isolate));
+	}
+
+	V8_RETURN(array);
+}
+
 void V8::RegisterSharedMain(v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports)
 {
 	v8::Isolate *isolate = ctx->GetIsolate();
@@ -315,6 +367,9 @@ void V8::RegisterSharedMain(v8::Local<v8::Context> ctx, v8::Local<v8::Object> ex
 	V8Helpers::RegisterFunc(exports, "once", &Once);
 	V8Helpers::RegisterFunc(exports, "off", &Off);
 	V8Helpers::RegisterFunc(exports, "emit", &Emit);
+
+	V8Helpers::RegisterFunc(exports, "getEventListeners", &GetEventListeners);
+	V8Helpers::RegisterFunc(exports, "getRemoteEventListeners", &GetRemoteEventListeners);
 
 	V8Helpers::RegisterFunc(exports, "hasMeta", &HasMeta);
 	V8Helpers::RegisterFunc(exports, "getMeta", &GetMeta);
