@@ -310,12 +310,12 @@ static void GetEventListeners(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 	if(info[0]->IsNull())
 	{
-		handlers = resource->GetGenericHandlers(true);
+		handlers = std::move(resource->GetGenericHandlers(true));
 	}
 	else
 	{
 		V8_ARG_TO_STRING(1, eventName);
-		handlers = resource->GetLocalHandlers(eventName.ToString());
+		handlers = std::move(resource->GetLocalHandlers(eventName.ToString()));
 	}
 
 	auto array = v8::Array::New(isolate, handlers.size());
@@ -336,12 +336,12 @@ static void GetRemoteEventListeners(const v8::FunctionCallbackInfo<v8::Value>& i
 
 	if(info[0]->IsNull())
 	{
-		handlers = resource->GetGenericHandlers(false);
+		handlers = std::move(resource->GetGenericHandlers(false));
 	}
 	else
 	{
 		V8_ARG_TO_STRING(1, eventName);
-		handlers = resource->GetRemoteHandlers(eventName.ToString());
+		handlers = std::move(resource->GetRemoteHandlers(eventName.ToString()));
 	}
 
 	auto array = v8::Array::New(isolate, handlers.size());
