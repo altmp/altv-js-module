@@ -77,12 +77,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 		break;
 	case alt::INative::Type::ARG_INT32:
 	{
-		V8Entity* ent;
-		if (val->IsObject() && (ent = V8Entity::Get(val)) != nullptr)
-		{
-			scrCtx->Push(ent->GetHandle().As<alt::IEntity>()->GetScriptGuid());
-		}
-		else if (val->IsUint32() || val->IsInt32())
+		if (val->IsUint32() || val->IsInt32())
 		{
 			v8::Local<v8::Integer> value;
 			if (val->ToInteger(v8Ctx).ToLocal(&value))
@@ -105,6 +100,11 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 			{
 				Log::Error << "Unknown native arg type" << (int)argType;
 			}
+		}
+		else if (val->IsObject())
+		{
+			auto ent = V8Entity::Get(val);
+			if(ent != nullptr) scrCtx->Push(ent->GetHandle().As<alt::IEntity>()->GetScriptGuid());
 		}
 		else
 		{
