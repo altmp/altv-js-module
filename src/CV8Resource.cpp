@@ -46,7 +46,8 @@ static void StaticRequire(const v8::FunctionCallbackInfo<v8::Value> &info)
 		V8Helpers::Throw(isolate, "No such module " + name);
 }
 
-void CV8ResourceImpl::ProcessDynamicImports() {
+void CV8ResourceImpl::ProcessDynamicImports() 
+{
 	for(auto import : dynamicImports)
 	{
 		import();
@@ -595,6 +596,11 @@ v8::MaybeLocal<v8::Module> CV8ResourceImpl::ResolveModule(const std::string &_na
 	if (maybeModule.IsEmpty())
 	{
 		maybeModule = ResolveFile(name, referrer);
+	}
+
+	if(maybeModule.IsEmpty())
+	{
+		maybeModule = CompileESM(isolate, "[import]", name);
 	}
 
 	if (maybeModule.IsEmpty())
