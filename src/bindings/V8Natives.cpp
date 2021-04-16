@@ -86,7 +86,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 			}
 			else
 			{
-				Log::Error << "Unknown native arg type" << (int)argType;
+				Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
 			}
 		}
 		else if (val->IsBigInt())
@@ -98,7 +98,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 			}
 			else
 			{
-				Log::Error << "Unknown native arg type" << (int)argType;
+				Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
 			}
 		}
 		else if (val->IsObject())
@@ -108,7 +108,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 		}
 		else
 		{
-			Log::Error << "Unknown native arg type" << (int)argType;
+			Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
 		}
 		break;
 	}
@@ -127,7 +127,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 			}
 			else
 			{
-				Log::Error << "Unknown native arg type" << (int)argType;
+				Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
 			}
 		}
 		else if (val->IsBigInt())
@@ -139,12 +139,12 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 			}
 			else
 			{
-				Log::Error << "Unknown native arg type" << (int)argType;
+				Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
 			}
 		}
 		else
 		{
-			Log::Error << "Unknown native arg type" << (int)argType;
+			Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
 		}
 		break;
 	}
@@ -161,7 +161,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 		}
 		else
 		{
-			Log::Error << "Unknown native arg type" << (int)argType;
+			Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
 		}
 		break;
 	}
@@ -183,7 +183,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 		scrCtx->Push(ToMemoryBuffer(val, v8Ctx));
 		break;
 	default:
-		Log::Error << "Unknown native arg type" << (int)argType;
+		Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
 	}
 }
 
@@ -254,7 +254,7 @@ static v8::Local<v8::Value> GetReturn(alt::Ref<alt::INative::Context> scrCtx, al
 	case alt::INative::Type::ARG_VOID:
 		return v8::Undefined(isolate);
 	default:
-		Log::Error << "Unknown native return type" << (int)retnType;
+		Log::Error << "Unknown native return type " << (int)retnType << Log::Endl;
 		return v8::Undefined(isolate);
 	}
 }
