@@ -60,7 +60,7 @@ static void *ToMemoryBuffer(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx
 	return nullptr;
 }
 
-static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type argType, v8::Isolate *isolate, v8::Local<v8::Value> val)
+static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type argType, v8::Isolate *isolate, V8ResourceImpl* resource, v8::Local<v8::Value> val)
 {
 	using ArgType = alt::INative::Type;
 
@@ -86,7 +86,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 			}
 			else
 			{
-				Log::Error << "Unknown native arg type" << (int)argType;
+				Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
 			}
 		}
 		else if (val->IsBigInt())
@@ -98,12 +98,17 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 			}
 			else
 			{
-				Log::Error << "Unknown native arg type" << (int)argType;
+				Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
 			}
+		}
+		else if (val->IsObject())
+		{
+			auto ent = V8Entity::Get(val);
+			if(ent != nullptr) scrCtx->Push(ent->GetHandle().As<alt::IEntity>()->GetScriptGuid());
 		}
 		else
 		{
-			Log::Error << "Unknown native arg type" << (int)argType;
+			Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
 		}
 		break;
 	}
@@ -122,7 +127,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 			}
 			else
 			{
-				Log::Error << "Unknown native arg type" << (int)argType;
+				Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
 			}
 		}
 		else if (val->IsBigInt())
@@ -134,12 +139,12 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 			}
 			else
 			{
-				Log::Error << "Unknown native arg type" << (int)argType;
+				Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
 			}
 		}
 		else
 		{
-			Log::Error << "Unknown native arg type" << (int)argType;
+			Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
 		}
 		break;
 	}
@@ -156,7 +161,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 		}
 		else
 		{
-			Log::Error << "Unknown native arg type" << (int)argType;
+			Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
 		}
 		break;
 	}
@@ -178,7 +183,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 		scrCtx->Push(ToMemoryBuffer(val, v8Ctx));
 		break;
 	default:
-		Log::Error << "Unknown native arg type" << (int)argType;
+		Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
 	}
 }
 
@@ -249,7 +254,7 @@ static v8::Local<v8::Value> GetReturn(alt::Ref<alt::INative::Context> scrCtx, al
 	case alt::INative::Type::ARG_VOID:
 		return v8::Undefined(isolate);
 	default:
-		Log::Error << "Unknown native return type" << (int)retnType;
+		Log::Error << "Unknown native return type " << (int)retnType << Log::Endl;
 		return v8::Undefined(isolate);
 	}
 }
@@ -276,8 +281,9 @@ static void InvokeNative(const v8::FunctionCallbackInfo<v8::Value> &info)
 	pointersCount = 0;
 	returnsCount = 1;
 
+	auto resource = V8ResourceImpl::Get(v8Ctx);
 	for (uint32_t i = 0; i < argsSize; ++i)
-		PushArg(ctx, args[i], isolate, info[i]);
+		PushArg(ctx, args[i], isolate, resource, info[i]);
 
 	if (!native->Invoke(ctx))
 	{
