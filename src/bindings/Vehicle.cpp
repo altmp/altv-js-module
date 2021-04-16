@@ -531,9 +531,11 @@ static void StreamedInGetter(v8::Local<v8::String> name, const v8::PropertyCallb
 
     auto streamedIn = CV8ScriptRuntime::instance->GetStreamedInVehicles();
     auto arr = v8::Array::New(isolate, streamedIn.size());
-    for(auto i = 0; i < streamedIn.size(); i++)
+    int i = 0;
+    for(auto kv : streamedIn)
     {
-        arr->Set(ctx, i, resource->GetOrCreateEntity(streamedIn[i].Get(), "Vehicle")->GetJSVal(isolate));
+        arr->Set(ctx, i, resource->GetOrCreateEntity(kv.second.Get(), "Vehicle")->GetJSVal(isolate));
+        i++;
     }
 
     V8_RETURN(arr);

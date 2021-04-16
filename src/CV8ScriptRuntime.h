@@ -22,8 +22,8 @@ class CV8ScriptRuntime : public alt::IScriptRuntime
 	std::unique_ptr<v8_inspector::V8Inspector> inspector;
 	std::unique_ptr<v8_inspector::V8InspectorSession> inspectorSession;
 
-	std::vector<alt::Ref<alt::IPlayer>> streamedInPlayers;
-	std::vector<alt::Ref<alt::IVehicle>> streamedInVehicles;
+	std::unordered_map<uint16_t, alt::Ref<alt::IPlayer>> streamedInPlayers;
+	std::unordered_map<uint16_t, alt::Ref<alt::IVehicle>> streamedInVehicles;
 
 public:
 	static CV8ScriptRuntime* instance;
@@ -170,11 +170,11 @@ public:
 	void OnEntityStreamIn(alt::Ref<alt::IEntity> entity);
 	void OnEntityStreamOut(alt::Ref<alt::IEntity> entity);
 
-	std::vector<alt::Ref<alt::IPlayer>> GetStreamedInPlayers()
+	auto GetStreamedInPlayers()
 	{
 		return streamedInPlayers;
 	}
-	std::vector<alt::Ref<alt::IVehicle>> GetStreamedInVehicles()
+	auto GetStreamedInVehicles()
 	{
 		return streamedInVehicles;
 	}

@@ -160,12 +160,12 @@ void CV8ScriptRuntime::OnEntityStreamIn(alt::Ref<alt::IEntity> entity)
 	{
 		case alt::IEntity::Type::PLAYER:
 		{
-			streamedInPlayers.push_back(entity.As<alt::IPlayer>());
+			streamedInPlayers.insert({ entity->GetID(), entity.As<alt::IPlayer>() });
 			break;
 		}
 		case alt::IEntity::Type::VEHICLE:
 		{
-			streamedInVehicles.push_back(entity.As<alt::IVehicle>());
+			streamedInVehicles.insert({ entity->GetID(), entity.As<alt::IVehicle>() });
 			break;
 		}
 	}
@@ -177,12 +177,12 @@ void CV8ScriptRuntime::OnEntityStreamOut(alt::Ref<alt::IEntity> entity)
 	{
 		case alt::IEntity::Type::PLAYER:
 		{
-			streamedInPlayers.erase(std::find(streamedInPlayers.begin(), streamedInPlayers.end(), entity));
+			streamedInPlayers.erase(entity->GetID());
 			break;
 		}
 		case alt::IEntity::Type::VEHICLE:
 		{
-			streamedInVehicles.erase(std::find(streamedInVehicles.begin(), streamedInVehicles.end(), entity));
+			streamedInVehicles.erase(entity->GetID());
 			break;
 		}
 	}
