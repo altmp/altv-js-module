@@ -140,6 +140,7 @@ bool CV8ResourceImpl::Start()
 		ctx->Global()->Set(ctx, V8_NEW_STRING("clearTimeout"), exports->Get(ctx, V8_NEW_STRING("clearTimeout")).ToLocalChecked());
 
 		ctx->Global()->Set(ctx, v8::String::NewFromUtf8(isolate, "__internal_get_exports").ToLocalChecked(), v8::Function::New(ctx, &StaticRequire).ToLocalChecked());
+
 		bool res = curModule->InstantiateModule(ctx, CV8ScriptRuntime::ResolveModule).IsJust();
 
 		if (!res)
@@ -598,11 +599,6 @@ v8::MaybeLocal<v8::Module> CV8ResourceImpl::ResolveModule(const std::string &_na
 		maybeModule = ResolveFile(name, referrer);
 	}
 
-	if(maybeModule.IsEmpty())
-	{
-		maybeModule = CompileESM(isolate, "[import]", name);
-	}
-
 	if (maybeModule.IsEmpty())
 	{
 		modules.erase(name);
@@ -617,6 +613,16 @@ v8::MaybeLocal<v8::Module> CV8ResourceImpl::ResolveModule(const std::string &_na
 		isolate->ThrowException(v8::Exception::ReferenceError(v8::String::NewFromUtf8(isolate, ("Failed to import: " + name).c_str())));
 		return v8::MaybeLocal<v8::Module>{ };
 	}*/
+
+	return maybeModule;
+}
+
+v8::MaybeLocal<v8::Module> CV8ResourceImpl::ResolveCode(const std::string& code, const V8::SourceLocation& location) 
+{
+	v8::MaybeLocal<v8::Module> maybeModule;
+	std::stringstream name;
+	name << "[module " << location.GetFileName() << ":" << location.GetLineNumber() << "]";
+	maybeModule = CompileESM(isolate, name.str(), code);
 
 	return maybeModule;
 }
