@@ -14,6 +14,7 @@ class CV8ScriptRuntime : public alt::IScriptRuntime
 {
 	static constexpr char inspectorViewStr[] = "alt:V Multiplayer";
 
+	std::unordered_set<CV8ResourceImpl*> resources;
 	std::unique_ptr<v8::Platform> platform;
 	v8::Isolate::CreateParams create_params;
 	v8::Isolate *isolate;
@@ -36,12 +37,16 @@ public:
 
 	alt::IResource::Impl *CreateImpl(alt::IResource *resource) override
 	{
-		return new CV8ResourceImpl(resource, isolate);
+		auto res = new CV8ResourceImpl(resource, isolate);
+		resources.insert(res);
+		return res;
 	}
 
 	void DestroyImpl(alt::IResource::Impl *impl) override
 	{
-		delete static_cast<CV8ResourceImpl *>(impl);
+		auto res = static_cast<CV8ResourceImpl *>(impl);
+		resources.erase(res);
+		delete res;
 	}
 
 	void OnTick() override
@@ -51,6 +56,11 @@ public:
 		v8::HandleScope handle_scope(isolate);
 
 		v8::platform::PumpMessageLoop(platform.get(), isolate);
+	}
+
+	std::unordered_set<CV8ResourceImpl*> GetResources()
+	{
+		return resources;
 	}
 
 	void HeapBenchmark()
