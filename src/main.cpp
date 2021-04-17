@@ -15,7 +15,13 @@ static void HeapCommand(alt::Array<alt::StringView>, void* runtime)
 
 static void TimersCommand(alt::Array<alt::StringView>, void* runtime)
 {
-    // TODO: Add timers command
+    auto resources = static_cast<CV8ScriptRuntime*>(runtime)->GetResources();
+    Log::Info << "================ Timer info =================" << Log::Endl;
+    for(auto resource : resources)
+    {
+        Log::Info << resource->GetResource()->GetName() << ": " << resource->GetTimersCount() << " running timers";
+    }
+    Log::Info << "======================================================" << Log::Endl;
 }
 
 ALTV_JS_EXPORT void CreateScriptRuntime(alt::ICore *core)
