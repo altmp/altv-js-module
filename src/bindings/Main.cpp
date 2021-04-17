@@ -711,6 +711,38 @@ static void LoadModelAsync(const v8::FunctionCallbackInfo<v8::Value>& info)
 	Log::Warning << "loadModelAsync is deprecated and it will be removed in the future. Please use the native requestModel." << Log::Endl;
 }
 
+static void EvalModule(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_STRING(1, code);
+
+	auto maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(code.ToString(), V8::SourceLocation::GetCurrent(isolate));
+	if(maybeModule.IsEmpty())
+	{
+		V8Helpers::Throw(isolate, "Failed to resolve module");
+		return;
+	}
+
+	auto module = maybeModule.ToLocalChecked();
+	v8::Maybe<bool> result = module->InstantiateModule(ctx, CV8ScriptRuntime::ResolveModule);
+	if(result.IsNothing() || result.ToChecked() == false)
+	{
+		V8Helpers::Throw(isolate, "Failed to instantiate module");
+		return;
+	}
+
+	auto returnValue = module->Evaluate(ctx);
+	if(returnValue.IsEmpty())
+	{
+		V8Helpers::Throw(isolate, "Failed to evaluate module");
+		return;
+	}
+
+	V8_RETURN(module->GetModuleNamespace());
+}
+
 extern V8Class v8Vector3,
 	v8Vector2,
 	v8RGBA,
@@ -734,7 +766,8 @@ extern V8Class v8Vector3,
 	v8Voice,
 	v8PedBlip,
 	v8VehicleBlip,
-	v8WebSocketClient;
+	v8WebSocketClient,
+	v8Checkpoint;
 extern V8Module altModule(
 	"alt",
 	{v8Vector3,
@@ -757,7 +790,8 @@ extern V8Module altModule(
 	 v8MapZoomData,
 	 v8Discord,
 	 v8Voice,
-	 v8WebSocketClient},
+	 v8WebSocketClient,
+	 v8Checkpoint},
 	[](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
 		V8::RegisterSharedMain(ctx, exports);
 
@@ -780,7 +814,6 @@ extern V8Module altModule(
 		V8Helpers::RegisterFunc(exports, "removeIpl", &RemoveIPL);
 		//V8Helpers::RegisterFunc(exports, "wait", &ScriptWait);
 		//V8Helpers::RegisterFunc(exports, "isInSandbox", &IsInSandbox);
-		V8Helpers::RegisterFunc(exports, "isInDebug", &IsInDebug);
 		V8Helpers::RegisterFunc(exports, "setCamFrozen", &SetCamFrozen);
 
 		V8Helpers::RegisterFunc(exports, "getLicenseHash", &GetLicenseHash);
@@ -841,4 +874,6 @@ extern V8Module altModule(
 
 		V8Helpers::RegisterFunc(exports, "loadYtyp", &LoadYtyp);
 		V8Helpers::RegisterFunc(exports, "unloadYtyp", &UnloadYtyp);
+
+		V8Helpers::RegisterFunc(exports, "evalModule", &EvalModule);
 	});

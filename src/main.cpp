@@ -18,16 +18,20 @@ static void TimersCommand(alt::Array<alt::StringView>, void* runtime)
     // TODO: Add timers command
 }
 
-ALTV_JS_EXPORT alt::IScriptRuntime *CreateJSScriptRuntime(alt::ICore *core)
+ALTV_JS_EXPORT void CreateScriptRuntime(alt::ICore *core)
 {
     alt::ICore::SetInstance(core);
-    auto ret = new CV8ScriptRuntime();
+    auto runtime = new CV8ScriptRuntime();
+    core->RegisterScriptRuntime("js", runtime);
 
     // Commands
-    core->SubscribeCommand("heap", HeapCommand, ret);
-    core->SubscribeCommand("timers", TimersCommand, ret);
+    core->SubscribeCommand("heap", HeapCommand, runtime);
+    core->SubscribeCommand("timers", TimersCommand, runtime);
+}
 
-    return ret;
+ALTV_JS_EXPORT const char* GetType()
+{
+    return "js";
 }
 
 ALTV_JS_EXPORT uint32_t GetSDKVersion()

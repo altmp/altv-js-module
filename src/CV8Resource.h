@@ -122,6 +122,7 @@ public:
 	v8::MaybeLocal<v8::Value> Require(const std::string &name);
 	v8::MaybeLocal<v8::Module> ResolveFile(const std::string &name, v8::Local<v8::Module> referrer);
 	v8::MaybeLocal<v8::Module> ResolveModule(const std::string &name, v8::Local<v8::Module> referrer);
+	v8::MaybeLocal<v8::Module> ResolveCode(const std::string& code, const V8::SourceLocation& location);
 
 private:
 	using WebViewEvents = std::unordered_multimap<std::string, V8::EventCallback>;

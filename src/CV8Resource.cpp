@@ -46,7 +46,8 @@ static void StaticRequire(const v8::FunctionCallbackInfo<v8::Value> &info)
 		V8Helpers::Throw(isolate, "No such module " + name);
 }
 
-void CV8ResourceImpl::ProcessDynamicImports() {
+void CV8ResourceImpl::ProcessDynamicImports() 
+{
 	for(auto import : dynamicImports)
 	{
 		import();
@@ -122,18 +123,24 @@ bool CV8ResourceImpl::Start()
 
 		modules.emplace(path, v8::UniquePersistent<v8::Module>{isolate, curModule});
 
+		auto exports = altModule.GetExports(isolate, ctx);
 		// Overwrite global console object
 		auto console = ctx->Global()->Get(ctx, V8_NEW_STRING("console")).ToLocalChecked().As<v8::Object>();
 		if (!console.IsEmpty())
 		{
-			auto exports = altModule.GetExports(isolate, ctx);
-
 			console->Set(ctx, V8_NEW_STRING("log"), exports->Get(ctx, V8_NEW_STRING("log")).ToLocalChecked());
 			console->Set(ctx, V8_NEW_STRING("warn"), exports->Get(ctx, V8_NEW_STRING("logWarning")).ToLocalChecked());
 			console->Set(ctx, V8_NEW_STRING("error"), exports->Get(ctx, V8_NEW_STRING("logError")).ToLocalChecked());
 		}
 
+		// Add global timer funcs
+		ctx->Global()->Set(ctx, V8_NEW_STRING("setInterval"), exports->Get(ctx, V8_NEW_STRING("setInterval")).ToLocalChecked());
+		ctx->Global()->Set(ctx, V8_NEW_STRING("setTimeout"), exports->Get(ctx, V8_NEW_STRING("setTimeout")).ToLocalChecked());
+		ctx->Global()->Set(ctx, V8_NEW_STRING("clearInterval"), exports->Get(ctx, V8_NEW_STRING("clearInterval")).ToLocalChecked());
+		ctx->Global()->Set(ctx, V8_NEW_STRING("clearTimeout"), exports->Get(ctx, V8_NEW_STRING("clearTimeout")).ToLocalChecked());
+
 		ctx->Global()->Set(ctx, v8::String::NewFromUtf8(isolate, "__internal_get_exports").ToLocalChecked(), v8::Function::New(ctx, &StaticRequire).ToLocalChecked());
+
 		bool res = curModule->InstantiateModule(ctx, CV8ScriptRuntime::ResolveModule).IsJust();
 
 		if (!res)
@@ -190,8 +197,23 @@ bool CV8ResourceImpl::Stop()
 		v8::Locker locker(isolate);
 		v8::Isolate::Scope isolateScope(isolate);
 		v8::HandleScope handleScope(isolate);
+		auto ctx = GetContext();
+		v8::Context::Scope scope(ctx);
 
-		v8::Context::Scope scope(GetContext());
+		auto resources = static_cast<CV8ScriptRuntime*>(resource->GetRuntime())->GetResources();
+		auto name = this->resource->GetName().ToString();
+		for(auto res : resources)
+		{
+			if(res == this) continue;
+			auto it = res->modules.find(name);
+			if(it != res->modules.end()) {
+				res->modules.erase(it);
+			}
+			auto found = res->requires.find(name);
+			if(found != res->requires.end()) {
+				res->requires.erase(found);
+			}
+		}
 
 		DispatchStopEvent();
 	}
@@ -554,7 +576,6 @@ v8::MaybeLocal<v8::Module> CV8ResourceImpl::ResolveModule(const std::string &_na
 				if (!maybeModule.IsEmpty())
 				{
 					v8::Local<v8::Module> _module = maybeModule.ToLocalChecked();
-
 					modules.emplace(name, v8::UniquePersistent<v8::Module>{isolate, _module});
 
 					/*v8::Maybe<bool> res = _module->InstantiateModule(GetContext(), CV8ScriptRuntime::ResolveModule);
@@ -606,6 +627,16 @@ v8::MaybeLocal<v8::Module> CV8ResourceImpl::ResolveModule(const std::string &_na
 		isolate->ThrowException(v8::Exception::ReferenceError(v8::String::NewFromUtf8(isolate, ("Failed to import: " + name).c_str())));
 		return v8::MaybeLocal<v8::Module>{ };
 	}*/
+
+	return maybeModule;
+}
+
+v8::MaybeLocal<v8::Module> CV8ResourceImpl::ResolveCode(const std::string& code, const V8::SourceLocation& location) 
+{
+	v8::MaybeLocal<v8::Module> maybeModule;
+	std::stringstream name;
+	name << "[module " << location.GetFileName() << ":" << location.GetLineNumber() << "]";
+	maybeModule = CompileESM(isolate, name.str(), code);
 
 	return maybeModule;
 }

@@ -60,7 +60,7 @@ static void *ToMemoryBuffer(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx
 	return nullptr;
 }
 
-static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type argType, v8::Isolate *isolate, v8::Local<v8::Value> val)
+static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type argType, v8::Isolate *isolate, V8ResourceImpl* resource, v8::Local<v8::Value> val)
 {
 	using ArgType = alt::INative::Type;
 
@@ -76,22 +76,95 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 		scrCtx->Push(SavePointer((int32_t)val->ToBoolean(isolate)->Value()));
 		break;
 	case alt::INative::Type::ARG_INT32:
-		scrCtx->Push((int32_t)val->ToInteger(v8Ctx).ToLocalChecked()->Value());
+	{
+		if (val->IsUint32() || val->IsInt32())
+		{
+			v8::Local<v8::Integer> value;
+			if (val->ToInteger(v8Ctx).ToLocal(&value))
+			{
+				scrCtx->Push((int32_t)value->Value());
+			}
+			else
+			{
+				Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
+			}
+		}
+		else if (val->IsBigInt())
+		{
+			v8::Local<v8::BigInt> value;
+			if (val->ToBigInt(v8Ctx).ToLocal(&value))
+			{
+				scrCtx->Push((int32_t)value->Int64Value());
+			}
+			else
+			{
+				Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
+			}
+		}
+		else if (val->IsObject())
+		{
+			auto ent = V8Entity::Get(val);
+			if(ent != nullptr) scrCtx->Push(ent->GetHandle().As<alt::IEntity>()->GetScriptGuid());
+		}
+		else
+		{
+			Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
+		}
 		break;
+	}
 	case alt::INative::Type::ARG_INT32_PTR:
 		++returnsCount;
 		scrCtx->Push(SavePointer((int32_t)val->ToInteger(v8Ctx).ToLocalChecked()->Value()));
 		break;
 	case alt::INative::Type::ARG_UINT32:
-		scrCtx->Push((uint32_t)val->ToInteger(v8Ctx).ToLocalChecked()->Value());
+	{
+		if (val->IsUint32() || val->IsInt32())
+		{
+			v8::Local<v8::Integer> value;
+			if (val->ToInteger(v8Ctx).ToLocal(&value))
+			{
+				scrCtx->Push((uint32_t)value->Value());
+			}
+			else
+			{
+				Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
+			}
+		}
+		else if (val->IsBigInt())
+		{
+			v8::Local<v8::BigInt> value;
+			if (val->ToBigInt(v8Ctx).ToLocal(&value))
+			{
+				scrCtx->Push((uint32_t)value->Int64Value());
+			}
+			else
+			{
+				Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
+			}
+		}
+		else
+		{
+			Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
+		}
 		break;
+	}
 	case alt::INative::Type::ARG_UINT32_PTR:
 		++returnsCount;
 		scrCtx->Push(SavePointer((uint32_t)val->ToInteger(v8Ctx).ToLocalChecked()->Value()));
 		break;
 	case alt::INative::Type::ARG_FLOAT:
-		scrCtx->Push((float)val->ToNumber(v8Ctx).ToLocalChecked()->Value());
+	{
+		v8::Local<v8::Number> value;
+		if (val->ToNumber(v8Ctx).ToLocal(&value))
+		{
+			scrCtx->Push((float)value->Value());
+		}
+		else
+		{
+			Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
+		}
 		break;
+	}
 	case alt::INative::Type::ARG_FLOAT_PTR:
 		++returnsCount;
 		scrCtx->Push(SavePointer((float)val->ToNumber(v8Ctx).ToLocalChecked()->Value()));
@@ -110,7 +183,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 		scrCtx->Push(ToMemoryBuffer(val, v8Ctx));
 		break;
 	default:
-		Log::Error << "Unknown native arg type" << (int)argType;
+		Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
 	}
 }
 
@@ -181,7 +254,7 @@ static v8::Local<v8::Value> GetReturn(alt::Ref<alt::INative::Context> scrCtx, al
 	case alt::INative::Type::ARG_VOID:
 		return v8::Undefined(isolate);
 	default:
-		Log::Error << "Unknown native return type" << (int)retnType;
+		Log::Error << "Unknown native return type " << (int)retnType << Log::Endl;
 		return v8::Undefined(isolate);
 	}
 }
@@ -208,8 +281,9 @@ static void InvokeNative(const v8::FunctionCallbackInfo<v8::Value> &info)
 	pointersCount = 0;
 	returnsCount = 1;
 
+	auto resource = V8ResourceImpl::Get(v8Ctx);
 	for (uint32_t i = 0; i < argsSize; ++i)
-		PushArg(ctx, args[i], isolate, info[i]);
+		PushArg(ctx, args[i], isolate, resource, info[i]);
 
 	if (!native->Invoke(ctx))
 	{
