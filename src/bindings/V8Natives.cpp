@@ -86,7 +86,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native
 			}
 			else
 			{
-				Log::Error << "Unknown native arg type " << (int)argType << " (" << native->GetName() << ")" << Log::Endl;
+				Log::Error << "Native argument could not be parsed to type " << (int)argType << " (" << native->GetName() << ")" << Log::Endl;
 			}
 		}
 		else if (val->IsBigInt())
@@ -98,7 +98,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native
 			}
 			else
 			{
-				Log::Error << "Unknown native arg type " << (int)argType << " (" << native->GetName() << ")" << Log::Endl;
+				Log::Error << "Native argument could not be parsed to type " << (int)argType << " (" << native->GetName() << ")" << Log::Endl;
 			}
 		}
 		else if (val->IsObject())
@@ -108,7 +108,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native
 		}
 		else
 		{
-			Log::Error << "Unknown native arg type " << (int)argType << " (" << native->GetName() << ")" << Log::Endl;
+			Log::Error << "Native argument could not be parsed to type " << (int)argType << " (" << native->GetName() << ")" << Log::Endl;
 		}
 		break;
 	}
@@ -127,7 +127,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native
 			}
 			else
 			{
-				Log::Error << "Unknown native arg type " << (int)argType << " (" << native->GetName() << ")" << Log::Endl;
+				Log::Error << "Native argument could not be parsed to type " << (int)argType << " (" << native->GetName() << ")" << Log::Endl;
 			}
 		}
 		else if (val->IsBigInt())
@@ -139,12 +139,12 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native
 			}
 			else
 			{
-				Log::Error << "Unknown native arg type " << (int)argType << " (" << native->GetName() << ")" << Log::Endl;
+				Log::Error << "Native argument could not be parsed to type " << (int)argType << " (" << native->GetName() << ")" << Log::Endl;
 			}
 		}
 		else
 		{
-			Log::Error << "Unknown native arg type " << (int)argType << " (" << native->GetName() << ")" << Log::Endl;
+			Log::Error << "Native argument could not be parsed to type " << (int)argType << " (" << native->GetName() << ")" << Log::Endl;
 		}
 		break;
 	}
@@ -161,7 +161,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native
 		}
 		else
 		{
-			Log::Error << "Unknown native arg type " << (int)argType << " (" << native->GetName() << ")" << Log::Endl;
+			Log::Error << "Native argument could not be parsed to type " << (int)argType << " (" << native->GetName() << ")" << Log::Endl;
 		}
 		break;
 	}
