@@ -60,6 +60,36 @@ static void *ToMemoryBuffer(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx
 	return nullptr;
 }
 
+static const char* GetNativeTypeName(alt::INative::Type type)
+{
+	using Type = alt::INative::Type;
+	switch(type)
+	{
+		case Type::ARG_BOOL: 
+		case Type::ARG_BOOL_PTR:
+			return "bool";
+		case Type::ARG_INT32:
+		case Type::ARG_INT32_PTR:
+			return "int32";
+		case Type::ARG_UINT32:
+		case Type::ARG_UINT32_PTR:
+			return "uint32";
+		case Type::ARG_FLOAT:
+		case Type::ARG_FLOAT_PTR:
+			return "float";
+		case Type::ARG_VECTOR3:
+		case Type::ARG_VECTOR3_PTR:
+			return "vector3";
+		case Type::ARG_STRING:
+			return "string";
+		case Type::ARG_STRUCT:
+			return "struct";
+		case Type::ARG_VOID:
+			return "void";
+	}
+	return "unknown";
+}
+
 static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native, alt::INative::Type argType, v8::Isolate *isolate, V8ResourceImpl* resource, v8::Local<v8::Value> val)
 {
 	using ArgType = alt::INative::Type;
@@ -86,7 +116,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native
 			}
 			else
 			{
-				Log::Error << "Native argument could not be parsed to type " << (int)argType << " (" << native->GetName() << ")" << Log::Endl;
+				Log::Error << "Native argument could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
 			}
 		}
 		else if (val->IsBigInt())
@@ -98,7 +128,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native
 			}
 			else
 			{
-				Log::Error << "Native argument could not be parsed to type " << (int)argType << " (" << native->GetName() << ")" << Log::Endl;
+				Log::Error << "Native argument could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
 			}
 		}
 		else if (val->IsObject())
@@ -108,7 +138,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native
 		}
 		else
 		{
-			Log::Error << "Native argument could not be parsed to type " << (int)argType << " (" << native->GetName() << ")" << Log::Endl;
+			Log::Error << "Native argument could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
 		}
 		break;
 	}
@@ -127,7 +157,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native
 			}
 			else
 			{
-				Log::Error << "Native argument could not be parsed to type " << (int)argType << " (" << native->GetName() << ")" << Log::Endl;
+				Log::Error << "Native argument could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
 			}
 		}
 		else if (val->IsBigInt())
@@ -139,12 +169,12 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native
 			}
 			else
 			{
-				Log::Error << "Native argument could not be parsed to type " << (int)argType << " (" << native->GetName() << ")" << Log::Endl;
+				Log::Error << "Native argument could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
 			}
 		}
 		else
 		{
-			Log::Error << "Native argument could not be parsed to type " << (int)argType << " (" << native->GetName() << ")" << Log::Endl;
+			Log::Error << "Native argument could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
 		}
 		break;
 	}
@@ -161,7 +191,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native
 		}
 		else
 		{
-			Log::Error << "Native argument could not be parsed to type " << (int)argType << " (" << native->GetName() << ")" << Log::Endl;
+			Log::Error << "Native argument could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
 		}
 		break;
 	}
