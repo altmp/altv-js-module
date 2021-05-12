@@ -79,6 +79,16 @@ void V8ResourceImpl::OnTick()
 			++it;
 	}
 
+	for (auto it = localGenericHandlers.begin(); it != localGenericHandlers.end(); it++)
+	{
+		if (it->removed) localGenericHandlers.erase(it);
+	}
+
+	for (auto it = remoteGenericHandlers.begin(); it != remoteGenericHandlers.end(); it++)
+	{
+		if (it->removed) remoteGenericHandlers.erase(it);
+	}
+
 	promiseRejections.ProcessQueue(this);
 }
 
