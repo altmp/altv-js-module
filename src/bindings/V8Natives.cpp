@@ -60,7 +60,37 @@ static void *ToMemoryBuffer(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx
 	return nullptr;
 }
 
-static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type argType, v8::Isolate *isolate, V8ResourceImpl* resource, v8::Local<v8::Value> val)
+static const char* GetNativeTypeName(alt::INative::Type type)
+{
+	using Type = alt::INative::Type;
+	switch(type)
+	{
+		case Type::ARG_BOOL: 
+		case Type::ARG_BOOL_PTR:
+			return "bool";
+		case Type::ARG_INT32:
+		case Type::ARG_INT32_PTR:
+			return "int32";
+		case Type::ARG_UINT32:
+		case Type::ARG_UINT32_PTR:
+			return "uint32";
+		case Type::ARG_FLOAT:
+		case Type::ARG_FLOAT_PTR:
+			return "float";
+		case Type::ARG_VECTOR3:
+		case Type::ARG_VECTOR3_PTR:
+			return "vector3";
+		case Type::ARG_STRING:
+			return "string";
+		case Type::ARG_STRUCT:
+			return "struct";
+		case Type::ARG_VOID:
+			return "void";
+	}
+	return "unknown";
+}
+
+static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native, alt::INative::Type argType, v8::Isolate *isolate, V8ResourceImpl* resource, v8::Local<v8::Value> val)
 {
 	using ArgType = alt::INative::Type;
 
@@ -86,7 +116,8 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 			}
 			else
 			{
-				Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
+				v8::String::Utf8Value type(isolate, val->TypeOf(isolate));
+				Log::Error << "Native argument " << "(" << *type << ")" << " could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
 			}
 		}
 		else if (val->IsBigInt())
@@ -98,7 +129,8 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 			}
 			else
 			{
-				Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
+				v8::String::Utf8Value type(isolate, val->TypeOf(isolate));
+				Log::Error << "Native argument " << "(" << *type << ")" << " could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
 			}
 		}
 		else if (val->IsObject())
@@ -108,7 +140,8 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 		}
 		else
 		{
-			Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
+			v8::String::Utf8Value type(isolate, val->TypeOf(isolate));
+			Log::Error << "Native argument " << "(" << *type << ")" << " could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
 		}
 		break;
 	}
@@ -127,7 +160,8 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 			}
 			else
 			{
-				Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
+				v8::String::Utf8Value type(isolate, val->TypeOf(isolate));
+				Log::Error << "Native argument " << "(" << *type << ")" << " could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
 			}
 		}
 		else if (val->IsBigInt())
@@ -139,12 +173,14 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 			}
 			else
 			{
-				Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
+				v8::String::Utf8Value type(isolate, val->TypeOf(isolate));
+				Log::Error << "Native argument " << "(" << *type << ")" << " could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
 			}
 		}
 		else
 		{
-			Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
+			v8::String::Utf8Value type(isolate, val->TypeOf(isolate));
+			Log::Error << "Native argument " << "(" << *type << ")" << " could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
 		}
 		break;
 	}
@@ -161,7 +197,8 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 		}
 		else
 		{
-			Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
+			v8::String::Utf8Value type(isolate, val->TypeOf(isolate));
+			Log::Error << "Native argument " << "(" << *type << ")" << " could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
 		}
 		break;
 	}
@@ -183,7 +220,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type a
 		scrCtx->Push(ToMemoryBuffer(val, v8Ctx));
 		break;
 	default:
-		Log::Error << "Unknown native arg type " << (int)argType << Log::Endl;
+		Log::Error << "Unknown native arg type " << (int)argType << " (" << native->GetName() << ")" << Log::Endl;
 	}
 }
 
@@ -223,7 +260,7 @@ static void PushPointerReturn(alt::INative::Type argType, v8::Local<v8::Array> r
 	}
 }
 
-static v8::Local<v8::Value> GetReturn(alt::Ref<alt::INative::Context> scrCtx, alt::INative::Type retnType, v8::Isolate *isolate)
+static v8::Local<v8::Value> GetReturn(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native, alt::INative::Type retnType, v8::Isolate *isolate)
 {
 	using ArgType = alt::INative::Type;
 
@@ -254,7 +291,7 @@ static v8::Local<v8::Value> GetReturn(alt::Ref<alt::INative::Context> scrCtx, al
 	case alt::INative::Type::ARG_VOID:
 		return v8::Undefined(isolate);
 	default:
-		Log::Error << "Unknown native return type " << (int)retnType << Log::Endl;
+		Log::Error << "Unknown native return type " << (int)retnType << " (" << native->GetName() << ")" << Log::Endl;
 		return v8::Undefined(isolate);
 	}
 }
@@ -283,7 +320,7 @@ static void InvokeNative(const v8::FunctionCallbackInfo<v8::Value> &info)
 
 	auto resource = V8ResourceImpl::Get(v8Ctx);
 	for (uint32_t i = 0; i < argsSize; ++i)
-		PushArg(ctx, args[i], isolate, resource, info[i]);
+		PushArg(ctx, native, args[i], isolate, resource, info[i]);
 
 	if (!native->Invoke(ctx))
 	{
@@ -293,12 +330,12 @@ static void InvokeNative(const v8::FunctionCallbackInfo<v8::Value> &info)
 
 	if (returnsCount == 1)
 	{
-		info.GetReturnValue().Set(GetReturn(ctx, native->GetRetnType(), isolate));
+		info.GetReturnValue().Set(GetReturn(ctx, native, native->GetRetnType(), isolate));
 	}
 	else
 	{
 		v8::Local<v8::Array> retns = v8::Array::New(isolate, returnsCount);
-		retns->Set(v8Ctx, 0, GetReturn(ctx, native->GetRetnType(), isolate));
+		retns->Set(v8Ctx, 0, GetReturn(ctx, native, native->GetRetnType(), isolate));
 
 		pointersCount = 0;
 		returnsCount = 1;
