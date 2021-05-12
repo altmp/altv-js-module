@@ -12,8 +12,8 @@ static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
 
-    auto webview = info.This();
-    V8_OBJECT_GET_STRING(webview, "url", url);
+	auto webview = info.This();
+	V8_OBJECT_GET_STRING(webview, "url", url);
 
 	std::ostringstream ss;
 	ss << "WebView{ url: " << url.CStr() << " }";
@@ -32,6 +32,19 @@ static void On(const v8::FunctionCallbackInfo<v8::Value> &info)
 	V8_GET_THIS_BASE_OBJECT(view, alt::IWebView);
 
 	static_cast<CV8ResourceImpl *>(resource)->SubscribeWebView(view, evName.ToString(), fun, V8::SourceLocation::GetCurrent(isolate));
+}
+
+static void Once(const v8::FunctionCallbackInfo<v8::Value> &info)
+{
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+
+	V8_CHECK_ARGS_LEN(2);
+	V8_ARG_TO_STRING(1, evName);
+	V8_ARG_TO_FUNCTION(2, fun);
+
+	V8_GET_THIS_BASE_OBJECT(view, alt::IWebView);
+
+	static_cast<CV8ResourceImpl *>(resource)->SubscribeWebView(view, evName.ToString(), fun, V8::SourceLocation::GetCurrent(isolate), true);
 }
 
 static void Off(const v8::FunctionCallbackInfo<v8::Value> &info)
@@ -217,6 +230,7 @@ extern V8Class v8WebView("WebView", v8BaseObject, &Constructor,	[](v8::Local<v8:
 	V8::SetAccessor(isolate, tpl, "url", &URLGetter, &URLSetter);
 
 	V8::SetMethod(isolate, tpl, "on", &On);
+	V8::SetMethod(isolate, tpl, "once", &Once);
 	V8::SetMethod(isolate, tpl, "off", &Off);
 	V8::SetMethod(isolate, tpl, "emit", &Emit);
 	V8::SetMethod(isolate, tpl, "focus", &Focus);
