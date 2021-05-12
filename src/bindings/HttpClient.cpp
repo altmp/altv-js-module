@@ -81,8 +81,8 @@ static void Request(const v8::FunctionCallbackInfo<v8::Value>& info)
         requestPromises.remove(*persistent);
     };
 
-    if constexpr(HasBody == true) std::invoke(Func, client.Get(), callback, url, body);
-    else std::invoke(Func, client.Get(), callback, url);
+    if constexpr(HasBody == true) std::invoke(Func, client.Get(), callback, url, body, &persistent);
+    else std::invoke(Func, client.Get(), callback, url, &persistent);
 }
 
 extern V8Class v8BaseObject;
