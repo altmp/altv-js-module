@@ -235,6 +235,35 @@ bool CV8ResourceImpl::OnEvent(const alt::CEvent* e)
 	if (!handler)
 		return true;
 
+	// Generic event handler
+	{
+		auto evType = e->GetType();
+		if(evType == alt::CEvent::Type::CLIENT_SCRIPT_EVENT || evType == alt::CEvent::Type::SERVER_SCRIPT_EVENT)
+		{
+			std::vector<V8::EventCallback *> callbacks;
+			const char* eventName;
+
+			if(evType == alt::CEvent::Type::CLIENT_SCRIPT_EVENT) 
+			{
+				callbacks = std::move(GetGenericHandlers(true));
+				eventName = static_cast<const alt::CClientScriptEvent*>(e)->GetName().CStr();
+			}
+			else if(evType == alt::CEvent::Type::SERVER_SCRIPT_EVENT) 
+			{
+				callbacks = std::move(GetGenericHandlers(false));
+				eventName = static_cast<const alt::CServerScriptEvent*>(e)->GetName().CStr();
+			}
+
+			if(callbacks.size() != 0)
+			{
+				auto evArgs = handler->GetArgs(this, e);
+				evArgs.insert(evArgs.begin(), V8_NEW_STRING(eventName));
+
+				InvokeEventHandlers(e, callbacks, evArgs);
+			}
+		}
+	}
+
 	std::vector<V8::EventCallback*> callbacks = handler->GetCallbacks(this, e);
 	if (callbacks.size() > 0)
 	{
