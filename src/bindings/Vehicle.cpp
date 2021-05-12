@@ -225,6 +225,7 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, Constructor, [](v8::Local<v8::Func
 	V8::SetMethod(isolate, tpl, "getDamageStatusBase64", &GetDamageStatus);
 	V8::SetMethod(isolate, tpl, "setDamageStatusBase64", &SetDamageStatus);
 	V8::SetMethod(isolate, tpl, "repair", &SetFixed);
+	V8::SetMethod(isolate, tpl, "setWheelFixed", &SetWheelFixed);
 
 	// Script getters/setters
 	V8::SetAccessor<IVehicle, bool, &IVehicle::IsManualEngineControl, &IVehicle::SetManualEngineControl>(isolate, tpl, "manualEngineControl");
