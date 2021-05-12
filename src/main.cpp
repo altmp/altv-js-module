@@ -8,6 +8,22 @@
 #define ALTV_JS_EXPORT extern "C"
 #endif
 
+static void HeapCommand(alt::Array<alt::StringView>, void* runtime)
+{
+    static_cast<CV8ScriptRuntime*>(runtime)->HeapBenchmark();
+}
+
+static void TimersCommand(alt::Array<alt::StringView>, void* runtime)
+{
+    auto resources = static_cast<CV8ScriptRuntime*>(runtime)->GetResources();
+    Log::Info << "================ Timer info =================" << Log::Endl;
+    for(auto resource : resources)
+    {
+        Log::Info << resource->GetResource()->GetName() << ": " << resource->GetTimersCount() << " running timers";
+    }
+    Log::Info << "======================================================" << Log::Endl;
+}
+
 static void ClientJSCommand(alt::Array<alt::StringView> args, void*)
 {
     if (args.GetSize() > 0 && args[0] == "--version")
@@ -38,6 +54,9 @@ ALTV_JS_EXPORT void CreateScriptRuntime(alt::ICore *core)
     auto runtime = new CV8ScriptRuntime();
     core->RegisterScriptRuntime("js", runtime);
 
+    // Commands
+    core->SubscribeCommand("heap", &HeapCommand, runtime);
+    core->SubscribeCommand("timers", &TimersCommand, runtime);
     core->SubscribeCommand("js-module", &ClientJSCommand);
 }
 
