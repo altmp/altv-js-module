@@ -5,6 +5,8 @@
 #include "libplatform/libplatform.h"
 
 #include "cpp-sdk/IScriptRuntime.h"
+#include "cpp-sdk/objects/IPlayer.h"
+#include "cpp-sdk/objects/IVehicle.h"
 
 #include "CV8Resource.h"
 
@@ -20,6 +22,9 @@ class CV8ScriptRuntime : public alt::IScriptRuntime
 	std::unique_ptr<v8_inspector::V8Inspector::Channel> inspectorChannel;
 	std::unique_ptr<v8_inspector::V8Inspector> inspector;
 	std::unique_ptr<v8_inspector::V8InspectorSession> inspectorSession;
+
+	std::unordered_map<uint16_t, alt::Ref<alt::IPlayer>> streamedInPlayers;
+	std::unordered_map<uint16_t, alt::Ref<alt::IVehicle>> streamedInVehicles;
 
 public:
 	static CV8ScriptRuntime* instance;
@@ -171,4 +176,16 @@ public:
 	// };
 
 	bool resourcesLoaded = false;
+
+	void OnEntityStreamIn(alt::Ref<alt::IEntity> entity);
+	void OnEntityStreamOut(alt::Ref<alt::IEntity> entity);
+
+	auto GetStreamedInPlayers()
+	{
+		return streamedInPlayers;
+	}
+	auto GetStreamedInVehicles()
+	{
+		return streamedInVehicles;
+	}
 };

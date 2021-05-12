@@ -24,6 +24,30 @@ static void TimersCommand(alt::Array<alt::StringView>, void* runtime)
     Log::Info << "======================================================" << Log::Endl;
 }
 
+static void ClientJSCommand(alt::Array<alt::StringView> args, void*)
+{
+    if (args.GetSize() > 0 && args[0] == "--version")
+	{
+		Log::Colored << "~ly~cpp-sdk: v" << alt::ICore::SDK_VERSION << Log::Endl;
+		Log::Colored << "~ly~" << u8"Copyright © 2020 altMP team." << Log::Endl;
+
+		Log::Colored << "~ly~v8: v" << V8_MAJOR_VERSION << "." << V8_MINOR_VERSION << Log::Endl;
+		Log::Colored << "~ly~" << u8"Copyright © 2014 The V8 project authors." << Log::Endl;
+	}
+	else if (args.GetSize() > 0 && args[0] == "--help")
+	{
+		Log::Colored << "~y~Usage: ~w~js-module [options]" << Log::Endl;
+		Log::Colored << "~y~Options:" << Log::Endl;
+		Log::Colored << "  ~ly~--help    ~w~- this message." << Log::Endl;
+		Log::Colored << "  ~ly~--version ~w~- version info." << Log::Endl;
+	}
+	else
+	{
+		Log::Colored << "~y~Usage: ~w~js-module [options]" << Log::Endl;
+		Log::Colored << "  Use: ~ly~\"js-module --help\" ~w~for more info" << Log::Endl;
+	}
+}
+
 ALTV_JS_EXPORT void CreateScriptRuntime(alt::ICore *core)
 {
     alt::ICore::SetInstance(core);
@@ -31,8 +55,9 @@ ALTV_JS_EXPORT void CreateScriptRuntime(alt::ICore *core)
     core->RegisterScriptRuntime("js", runtime);
 
     // Commands
-    core->SubscribeCommand("heap", HeapCommand, runtime);
-    core->SubscribeCommand("timers", TimersCommand, runtime);
+    core->SubscribeCommand("heap", &HeapCommand, runtime);
+    core->SubscribeCommand("timers", &TimersCommand, runtime);
+    core->SubscribeCommand("js-module", &ClientJSCommand);
 }
 
 ALTV_JS_EXPORT const char* GetType()

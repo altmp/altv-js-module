@@ -153,3 +153,37 @@ CV8ScriptRuntime::CV8ScriptRuntime()
 
 	RegisterEvents();
 }
+
+void CV8ScriptRuntime::OnEntityStreamIn(alt::Ref<alt::IEntity> entity) 
+{
+	switch(entity->GetType())
+	{
+		case alt::IEntity::Type::PLAYER:
+		{
+			streamedInPlayers.insert({ entity->GetID(), entity.As<alt::IPlayer>() });
+			break;
+		}
+		case alt::IEntity::Type::VEHICLE:
+		{
+			streamedInVehicles.insert({ entity->GetID(), entity.As<alt::IVehicle>() });
+			break;
+		}
+	}
+}
+
+void CV8ScriptRuntime::OnEntityStreamOut(alt::Ref<alt::IEntity> entity) 
+{
+	switch(entity->GetType())
+	{
+		case alt::IEntity::Type::PLAYER:
+		{
+			streamedInPlayers.erase(entity->GetID());
+			break;
+		}
+		case alt::IEntity::Type::VEHICLE:
+		{
+			streamedInVehicles.erase(entity->GetID());
+			break;
+		}
+	}
+}

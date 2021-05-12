@@ -12,34 +12,61 @@ using namespace alt;
 static void OnServer(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
 	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_CHECK_ARGS_LEN2(1, 2);
 
-	V8_CHECK_ARGS_LEN(2);
-	V8_ARG_TO_STRING(1, eventName);
-	V8_ARG_TO_FUNCTION(2, callback);
+	if(info.Length() == 1)
+	{
+		V8_ARG_TO_FUNCTION(1, callback);
 
-	resource->SubscribeRemote(eventName.ToString(), callback, V8::SourceLocation::GetCurrent(isolate));
+		resource->SubscribeGenericRemote(callback, V8::SourceLocation::GetCurrent(isolate));
+	}
+	else if(info.Length() == 2)
+	{
+		V8_ARG_TO_STRING(1, eventName);
+		V8_ARG_TO_FUNCTION(2, callback);
+
+		resource->SubscribeRemote(eventName.ToString(), callback, V8::SourceLocation::GetCurrent(isolate));
+	}
 }
 
 static void OnceServer(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_CHECK_ARGS_LEN2(1, 2);
 
-	V8_CHECK_ARGS_LEN(2);
-	V8_ARG_TO_STRING(1, eventName);
-	V8_ARG_TO_FUNCTION(2, callback);
+	if(info.Length() == 1)
+	{
+		V8_ARG_TO_FUNCTION(1, callback);
 
-	resource->SubscribeRemote(eventName.ToString(), callback, V8::SourceLocation::GetCurrent(isolate), true);
+		resource->SubscribeGenericRemote(callback, V8::SourceLocation::GetCurrent(isolate), true);
+	}
+	else if(info.Length() == 2)
+	{
+		V8_ARG_TO_STRING(1, eventName);
+		V8_ARG_TO_FUNCTION(2, callback);
+
+		resource->SubscribeRemote(eventName.ToString(), callback, V8::SourceLocation::GetCurrent(isolate), true);
+	}
 }
 
 static void OffServer(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
 	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_CHECK_ARGS_LEN2(1, 2);
 
-	V8_CHECK_ARGS_LEN(2);
-	V8_ARG_TO_STRING(1, eventName);
-	V8_ARG_TO_FUNCTION(2, callback);
+	if(info.Length() == 1)
+	{
+		V8_ARG_TO_FUNCTION(1, callback);
 
-	resource->UnsubscribeRemote(eventName.ToString(), callback);
+		resource->UnsubscribeGenericRemote(callback);
+	}
+	else if(info.Length() == 2)
+	{
+		V8_ARG_TO_STRING(1, evName);
+		V8_ARG_TO_FUNCTION(2, callback);
+
+		resource->UnsubscribeRemote(evName.ToString(), callback);
+	}
 }
 
 static void EmitServer(const v8::FunctionCallbackInfo<v8::Value> &info)
@@ -743,6 +770,16 @@ static void EvalModule(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_RETURN(module->GetModuleNamespace());
 }
 
+static void GetHeadshotBase64(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_UINT32(1, id);
+
+	V8_RETURN_STRING(alt::ICore::Instance().HeadshotToBase64(id).CStr());
+}
+
 extern V8Class v8Vector3,
 	v8Vector2,
 	v8RGBA,
@@ -876,4 +913,6 @@ extern V8Module altModule(
 		V8Helpers::RegisterFunc(exports, "unloadYtyp", &UnloadYtyp);
 
 		V8Helpers::RegisterFunc(exports, "evalModule", &EvalModule);
+
+		V8Helpers::RegisterFunc(exports, "getHeadshotBase64", &GetHeadshotBase64);
 	});

@@ -161,6 +161,25 @@ static void GetExtraHeaders(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_RETURN(headersObject);
 }
 
+static void GetEventListeners(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_CHECK_ARGS_LEN(1);
+	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
+
+	V8_ARG_TO_STRING(1, eventName);
+
+	std::vector<V8::EventCallback *> handlers = static_cast<CV8ResourceImpl*>(resource)->GetWebSocketClientHandlers(webSocket, eventName.ToString());
+
+	auto array = v8::Array::New(isolate, handlers.size());
+	for(int i = 0; i < handlers.size(); i++)
+	{
+		array->Set(ctx, i, handlers[i]->fn.Get(isolate));
+	}
+
+	V8_RETURN(array);
+}
+
 static void URLGetter(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE(info);
@@ -256,6 +275,7 @@ extern V8Class v8WebSocketClient("WebSocketClient", v8BaseObject, &Constructor, 
 
 	V8::SetMethod(isolate, tpl, "on", &On);
 	V8::SetMethod(isolate, tpl, "off", &Off);
+	V8::SetMethod(isolate, tpl, "getEventListeners", GetEventListeners);
 
 	V8::SetMethod(isolate, tpl, "start", &Start);
 	V8::SetMethod(isolate, tpl, "send", &Send);
