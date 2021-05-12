@@ -770,6 +770,16 @@ static void EvalModule(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_RETURN(module->GetModuleNamespace());
 }
 
+static void GetHeadshotBase64(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_UINT32(1, id);
+
+	V8_RETURN_STRING(alt::ICore::Instance().HeadshotToBase64(id).CStr());
+}
+
 extern V8Class v8Vector3,
 	v8Vector2,
 	v8RGBA,
@@ -903,4 +913,6 @@ extern V8Module altModule(
 		V8Helpers::RegisterFunc(exports, "unloadYtyp", &UnloadYtyp);
 
 		V8Helpers::RegisterFunc(exports, "evalModule", &EvalModule);
+
+		V8Helpers::RegisterFunc(exports, "getHeadshotBase64", &GetHeadshotBase64);
 	});
