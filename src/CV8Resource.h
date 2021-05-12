@@ -38,9 +38,9 @@ public:
 	void OnPromiseRejectedWithNoHandler(v8::PromiseRejectMessage &data);
 	void OnPromiseHandlerAdded(v8::PromiseRejectMessage &data);
 
-	void SubscribeWebView(alt::Ref<alt::IWebView> view, const std::string &evName, v8::Local<v8::Function> cb, V8::SourceLocation &&location)
+	void SubscribeWebView(alt::Ref<alt::IWebView> view, const std::string &evName, v8::Local<v8::Function> cb, V8::SourceLocation &&location, bool once = false)
 	{
-		webViewHandlers[view].insert({evName, V8::EventCallback{isolate, cb, std::move(location)}});
+		webViewHandlers[view].insert({evName, V8::EventCallback{isolate, cb, std::move(location), once}});
 	}
 
 	void UnsubscribeWebView(alt::Ref<alt::IWebView> view, const std::string &evName, v8::Local<v8::Function> cb)

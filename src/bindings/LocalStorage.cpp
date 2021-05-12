@@ -8,6 +8,8 @@
 static void StaticGet(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
 	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_CHECK_ARGS_LEN2(0, 1);
+
 	if(info.Length() == 0) 
 	{
 		V8_RETURN(static_cast<CV8ResourceImpl*>(resource)->GetLocalStorage());
