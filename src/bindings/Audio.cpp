@@ -215,7 +215,7 @@ static void Seek(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 extern V8Class v8BaseObject;
 extern V8Class v8Audio("Audio", v8BaseObject, &Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
-	v8::Isolate *isolate = v8::Isolate::GetCurrent();
+    v8::Isolate *isolate = v8::Isolate::GetCurrent();
 
     V8::SetAccessor(isolate, tpl, "source", &SourceGetter, &SourceSetter);
     V8::SetAccessor(isolate, tpl, "looped", &LoopedGetter, &LoopedSetter);
