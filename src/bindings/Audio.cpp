@@ -141,14 +141,21 @@ static void RemoveOutput(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void GetOutputs(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
 
     auto list = audio->GetOutputs();
     auto arr = v8::Array::New(isolate, list->GetSize());
     for(int i = 0; i < list->GetSize(); i++)
     {
-        arr->Set(ctx, i, V8_NEW_STRING(list->Get(i).As<alt::IMValueString>()->Value().CStr()));
+        auto val = list->Get(i);
+        if(val->GetType() == alt::IMValue::Type::BASE_OBJECT) 
+        {
+            auto baseObj = resource->GetBaseObjectOrNull(val.As<alt::IMValueBaseObject>()->Value());
+            arr->Set(ctx, i, baseObj);
+        }
+        else if(val->GetType() == alt::IMValue::Type::UINT) 
+            arr->Set(ctx, i, v8::Integer::NewFromUnsigned(isolate, val.As<alt::IMValueUInt>()->Value()));
     }
 
     V8_RETURN(arr);
