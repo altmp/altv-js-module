@@ -166,7 +166,7 @@ static void CurrentTimeGetter(v8::Local<v8::String>, const v8::PropertyCallbackI
     V8_GET_ISOLATE();
     V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
 
-    V8_RETURN_INTEGER(audio->GetCurrentTime());
+    V8_RETURN_NUMBER(audio->GetCurrentTime());
 }
 
 static void MaxTimeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -174,7 +174,7 @@ static void MaxTimeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<
     V8_GET_ISOLATE();
     V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
 
-    V8_RETURN_INTEGER(audio->GetMaxTime());
+    V8_RETURN_NUMBER(audio->GetMaxTime());
 }
 
 static void PlayingGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -215,7 +215,7 @@ static void Seek(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
     V8_CHECK_ARGS_LEN(1);
 
-    V8_ARG_TO_INTEGER(1, time);
+    V8_ARG_TO_NUMBER(1, time);
 
     audio->Seek(time);
 }
