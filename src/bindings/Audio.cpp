@@ -8,11 +8,16 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
 	V8_CHECK_CONSTRUCTOR();
-    V8_CHECK_ARGS_LEN(3);
+    V8_CHECK_ARGS_LEN2(2, 3);
 
     V8_ARG_TO_STRING(1, source);
     V8_ARG_TO_NUMBER(2, volume);
-    V8_ARG_TO_STRING(3, category);
+    alt::String category = "radio";
+    if(info.Length() == 3)
+    {
+        V8_ARG_TO_STRING(3, categ);
+        category = categ;
+    }
 
     auto audio = alt::ICore::Instance().CreateAudio(source, volume, category, resource->GetResource());
     V8_BIND_BASE_OBJECT(audio, "Failed to create Audio");
