@@ -248,13 +248,10 @@ static void PushPointerReturn(alt::INative::Type argType, v8::Local<v8::Array> r
 		pointersCount += 3;
 
 		v8::Local<v8::Context> v8Ctx = isolate->GetEnteredContext();
-		v8::Local<v8::Object> vec = v8::Object::New(isolate);
+		V8ResourceImpl* resource = V8ResourceImpl::Get(v8Ctx);
+		auto vector = resource->CreateVector3({ val->x, val->y, val->z }).As<v8::Object>();
 
-		V8::DefineOwnProperty(isolate, v8Ctx, vec, "x", v8::Number::New(isolate, val->x), v8::PropertyAttribute::ReadOnly);
-		V8::DefineOwnProperty(isolate, v8Ctx, vec, "y", v8::Number::New(isolate, val->y), v8::PropertyAttribute::ReadOnly);
-		V8::DefineOwnProperty(isolate, v8Ctx, vec, "z", v8::Number::New(isolate, val->z), v8::PropertyAttribute::ReadOnly);
-
-		retns->Set(ctx, returnsCount++, vec);
+		retns->Set(ctx, returnsCount++, vector);
 		break;
 	}
 	}
