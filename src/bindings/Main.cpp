@@ -85,7 +85,7 @@ static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
 		return;
 	}
 	
-	if (!info[0]->IsNull() && info[0]->IsArray())
+	if (info[0]->IsArray())
 	{
 		//if first argument is an array of players this event will be sent to every player in array
 		v8::Local<v8::Array> arr = info[0].As<v8::Array>();
