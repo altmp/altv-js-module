@@ -71,23 +71,44 @@ static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_CHECK_ARGS_LEN_MIN(2);
 
 	V8_ARG_TO_STRING(2, eventName);
-
-	Ref<IPlayer> player;
-	if (!info[0]->IsNull())
-	{
-		V8Entity* v8Player = V8Entity::Get(info[0]);
-
-		V8_CHECK(v8Player && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER, "player or null expected");
-
-		player = v8Player->GetHandle().As<IPlayer>();
-	}
-
+	
 	MValueArgs mvArgs;
 
 	for (int i = 2; i < info.Length(); ++i)
 		mvArgs.Push(V8Helpers::V8ToMValue(info[i]));
+	
+	Ref<IPlayer> singlePlayer;
 
-	ICore::Instance().TriggerClientEvent(player, eventName.ToString(), mvArgs);
+	if (info[0]->IsNull()) {
+		//if first argument is null this event gets send to every player
+		ICore::Instance().TriggerClientEvent(singlePlayer, eventName.ToString(), mvArgs);
+		return;
+	}
+	
+	if (!info[0]->IsNull() && info[0]->IsArray())
+	{
+		//if first argument is an array of players this event will be sent to every player in array
+		v8::Local<v8::Array> arr = info[0].As<v8::Array>();
+
+		for (int i = 0; i < arr->Length(); ++i) {
+			Ref<IPlayer> player;
+			V8Entity* v8Player = V8Entity::Get(arr->Get(ctx, i).ToLocalChecked());
+
+			V8_CHECK(v8Player && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER, "player inside array expected");
+			player = v8Player->GetHandle().As<IPlayer>();
+
+			ICore::Instance().TriggerClientEvent(player, eventName.ToString(), mvArgs);
+		}
+		
+	} else {
+		//if first argument is not null and not an array this event gets sent to the specific player
+		V8Entity* v8Player = V8Entity::Get(info[0]);
+
+		V8_CHECK(v8Player && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER, "player or null expected");
+		singlePlayer = v8Player->GetHandle().As<IPlayer>();
+
+		ICore::Instance().TriggerClientEvent(singlePlayer, eventName.ToString(), mvArgs);
+	}
 }
 
 static void EmitAllClients(const v8::FunctionCallbackInfo<v8::Value>& info)
