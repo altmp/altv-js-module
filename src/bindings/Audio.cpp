@@ -12,10 +12,11 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_STRING(1, source);
     V8_ARG_TO_NUMBER(2, volume);
-    alt::String category = "radio";
+
+    uint32_t category = 0;
     if(info.Length() == 3)
     {
-        V8_ARG_TO_STRING(3, categ);
+        V8_ARG_TO_UINT32(3, categ);
         category = categ;
     }
 
@@ -79,7 +80,7 @@ static void CategoryGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo
     V8_GET_ISOLATE();
     V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
 
-    V8_RETURN_ALT_STRING(audio->GetCategory());
+    V8_RETURN_UINTEGER(audio->GetCategory());
 }
 
 static void CategorySetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
@@ -87,7 +88,7 @@ static void CategorySetter(v8::Local<v8::String>, v8::Local<v8::Value> val, cons
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
     
-    V8_TO_STRING(val, category);
+    V8_TO_INTEGER(val, category);
     audio->SetCategory(category);
 }
 
