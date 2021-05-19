@@ -79,7 +79,8 @@ static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
 	
 	Ref<IPlayer> singlePlayer;
 
-	if (info[0]->IsNull()) {
+	if (info[0]->IsNull()) 
+	{
 		//if first argument is null this event gets send to every player
 		ICore::Instance().TriggerClientEvent(singlePlayer, eventName.ToString(), mvArgs);
 		return;
@@ -90,7 +91,8 @@ static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
 		//if first argument is an array of players this event will be sent to every player in array
 		v8::Local<v8::Array> arr = info[0].As<v8::Array>();
 
-		for (int i = 0; i < arr->Length(); ++i) {
+		for (int i = 0; i < arr->Length(); ++i) 
+		{
 			Ref<IPlayer> player;
 			V8Entity* v8Player = V8Entity::Get(arr->Get(ctx, i).ToLocalChecked());
 
@@ -100,7 +102,9 @@ static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
 			ICore::Instance().TriggerClientEvent(player, eventName.ToString(), mvArgs);
 		}
 		
-	} else {
+	} 
+	else 
+	{
 		//if first argument is not null and not an array this event gets sent to the specific player
 		V8Entity* v8Player = V8Entity::Get(info[0]);
 
