@@ -157,6 +157,14 @@ static void ResetNetOwner(const v8::FunctionCallbackInfo<v8::Value> &info)
 
 #ifdef ALT_CLIENT_API
 
+static void IsSpawnedGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE();
+    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
+
+	V8_RETURN_BOOLEAN(player->GetScriptGuid() != 0);
+}
+
 static void StaticGetByScriptID(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
 	V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -230,5 +238,7 @@ extern V8Class v8Entity("Entity", v8WorldObject, [](v8::Local<v8::FunctionTempla
 	V8::SetAccessor<IEntity, uint32_t, &IEntity::GetModel>(isolate, tpl, "model");
 	V8::SetAccessor<IEntity, int32_t, &IEntity::GetScriptGuid>(isolate, tpl, "scriptID");
 	V8::SetAccessor<IEntity, bool, &IEntity::GetVisible>(isolate, tpl, "visible");
+
+	V8::SetAccessor(isolate, tpl, "isSpawned", &IsSpawnedGetter);
 #endif // ALT_CLIENT_API
 });
