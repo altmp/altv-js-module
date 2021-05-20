@@ -159,10 +159,10 @@ static void ResetNetOwner(const v8::FunctionCallbackInfo<v8::Value> &info)
 
 static void IsSpawnedGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	V8_GET_ISOLATE();
+    V8_GET_ISOLATE();
     V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
 
-	V8_RETURN_BOOLEAN(player->GetScriptGuid() != 0);
+    V8_RETURN_BOOLEAN(player->GetScriptGuid() != 0);
 }
 
 static void StaticGetByScriptID(const v8::FunctionCallbackInfo<v8::Value> &info)
