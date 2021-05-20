@@ -338,6 +338,22 @@ static void IsEntityInStreamRange(const v8::FunctionCallbackInfo<v8::Value>& inf
 	V8_RETURN_BOOLEAN(player->IsEntityInStreamingRange(entity));
 }
 
+static void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN_MIN(1);
+	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+	V8_ARG_TO_STRING(1, eventName);
+
+	MValueArgs mvArgs;
+
+	for (int i = 1; i < info.Length(); ++i)
+		mvArgs.Push(V8Helpers::V8ToMValue(info[i]));
+
+	ICore::Instance().TriggerClientEvent(player, eventName.ToString(), mvArgs);
+}
+
 static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
 	v8::Isolate* isolate = info.GetIsolate();
@@ -427,4 +443,6 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
 	V8::SetMethod(isolate, tpl, "setProp", &SetProps);
 	V8::SetMethod(isolate, tpl, "getProp", &GetProps);
 	V8::SetMethod(isolate, tpl, "clearProp", &ClearProps);
+
+	V8::SetMethod(isolate, tpl, "emit", &Emit);
 });
