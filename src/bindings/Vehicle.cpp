@@ -477,6 +477,16 @@ static void IsHandlingModifiedGetter(v8::Local<v8::String>, const v8::PropertyCa
     V8_RETURN_BOOLEAN(vehicle->IsHandlingModified());
 }
 
+static void ToggleExtra(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
+    V8_CHECK_ARGS_LEN(2);
+    V8_ARG_TO_INTEGER(1, extraID);
+    V8_ARG_TO_BOOLEAN(2, toggle);
+    vehicle->ToggleExtra(extraID, toggle);
+}
+
 // static void GravityGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
 // {
 //     V8_GET_ISOLATE(info);
@@ -577,6 +587,7 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, [](v8::Local<v8::FunctionTemplate>
     V8::SetAccessor(isolate, tpl, "speedVector", &SpeedVectorGetter);
     // proto->SetAccessor(v8::String::NewFromUtf8(isolate, "gravity", &GravityGetter).ToLocalChecked(), &GravitySetter);
     V8::SetAccessor(isolate, tpl, "handling", &HandlingGetter);
+    V8::SetMethod(isolate, tpl, "toggleExtra", ToggleExtra);
     /* GETTERS BELOW ARE UNIMPLEMENTED
     V8::SetAccessor(isolate, tpl, "isDestroyed", &IsDestroyedGetter);
     V8::SetAccessor(isolate, tpl, "driver", &DriverGetter);
