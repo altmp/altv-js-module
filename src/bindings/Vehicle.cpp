@@ -483,7 +483,7 @@ static void toggleExtra(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
     V8_CHECK_ARGS_LEN(2);
     V8_ARG_TO_INTEGER(1, extraID);
-    V8_ARG_TO_BOOLEAN(1, toggle);
+    V8_ARG_TO_BOOLEAN(2, toggle);
     vehicle->ToggleExtra(extraID, toggle);
 }
 
