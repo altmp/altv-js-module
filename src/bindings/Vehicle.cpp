@@ -477,7 +477,7 @@ static void IsHandlingModifiedGetter(v8::Local<v8::String>, const v8::PropertyCa
     V8_RETURN_BOOLEAN(vehicle->IsHandlingModified());
 }
 
-static void toggleExtra(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+static void ToggleExtra(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
