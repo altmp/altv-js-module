@@ -479,7 +479,7 @@ static void IsHandlingModifiedGetter(v8::Local<v8::String>, const v8::PropertyCa
 
 static void ToggleExtra(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-    V8_GET_ISOLATE(info);
+    V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
     V8_CHECK_ARGS_LEN(2);
     V8_ARG_TO_INTEGER(1, extraID);
