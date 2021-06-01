@@ -52,6 +52,15 @@ static void GearGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8:
     V8_RETURN_INTEGER(vehicle->GetCurrentGear());
 }
 
+static void GearSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
+
+    V8_TO_INTEGER(val, gear);
+    vehicle->SetCurrentGear(gear);
+}
+
 static void RPMGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE(info);
@@ -528,6 +537,23 @@ static void ToggleExtra(const v8::FunctionCallbackInfo<v8::Value>& info)
 //     vehicle->gravity = newval;
 // }
 
+static void MaxGearGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE(info);
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
+
+    V8_RETURN_INTEGER(vehicle->GetMaxGear());
+}
+
+static void MaxGearSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
+
+    V8_TO_INTEGER(val, maxGear);
+    vehicle->SetMaxGear(maxGear);
+}
+
 static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -581,7 +607,8 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, [](v8::Local<v8::FunctionTemplate>
 
     // Common getters
     V8::SetAccessor(isolate, tpl, "speed", &SpeedGetter);
-    V8::SetAccessor(isolate, tpl, "gear", &GearGetter);
+    V8::SetAccessor(isolate, tpl, "gear", &GearGetter, &GearSetter);
+    V8::SetAccessor(isolate, tpl, "maxGear", &MaxGearGetter, &MaxGearSetter);
     V8::SetAccessor(isolate, tpl, "rpm", &RPMGetter);
     V8::SetAccessor(isolate, tpl, "wheelsCount", &WheelsCountGetter);
     V8::SetAccessor(isolate, tpl, "speedVector", &SpeedVectorGetter);
