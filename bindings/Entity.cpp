@@ -153,6 +153,31 @@ static void ResetNetOwner(const v8::FunctionCallbackInfo<v8::Value> &info)
 	_this->SetNetworkOwner(nullptr, disableMigration);
 }
 
+static void AttachTo(const v8::FunctionCallbackInfo<v8::Value> &info)
+{
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_CHECK_ARGS_LEN(7);
+	V8_GET_THIS_BASE_OBJECT(_this, IEntity);
+
+	V8_ARG_TO_BASE_OBJECT(1, entity, IEntity, "Entity");
+	V8_ARG_TO_UINT32(2, otherBone);
+	V8_ARG_TO_UINT32(3, ownBone);
+	V8_ARG_TO_VECTOR3(4, pos);
+	V8_ARG_TO_VECTOR3(5, rot);
+	V8_ARG_TO_BOOLEAN(6, collision);
+	V8_ARG_TO_BOOLEAN(7, noFixedRot);
+
+	_this->AttachToEntity(entity, otherBone, ownBone, pos, rot, collision, noFixedRot);
+}
+
+static void Detach(const v8::FunctionCallbackInfo<v8::Value> &info)
+{
+	V8_GET_ISOLATE();
+	V8_GET_THIS_BASE_OBJECT(_this, IEntity);
+
+	_this->Detach();
+}
+
 #endif // ALT_SERVER_API
 
 #ifdef ALT_CLIENT_API
@@ -228,6 +253,9 @@ extern V8Class v8Entity("Entity", v8WorldObject, [](v8::Local<v8::FunctionTempla
 
 	V8::SetMethod(isolate, tpl, "setNetOwner", SetNetOwner);
 	V8::SetMethod(isolate, tpl, "resetNetOwner", ResetNetOwner);
+
+	V8::SetMethod(isolate, tpl, "attachTo", AttachTo);
+	V8::SetMethod(isolate, tpl, "detach", Detach);
 #endif // ALT_SERVER_API
 
 #ifdef ALT_CLIENT_API
