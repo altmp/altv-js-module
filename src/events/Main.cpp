@@ -13,6 +13,7 @@
 #include "cpp-sdk/events/CKeyboardEvent.h"
 #include "cpp-sdk/events/CWebViewEvent.h"
 #include "cpp-sdk/events/CWebSocketClientEvent.h"
+#include "cpp-sdk/events/CAudioEvent.h"
 
 #include "cpp-sdk/SDK.h"
 
@@ -71,7 +72,21 @@ V8_EVENT_HANDLER webSocketEvent(
 
 		V8Helpers::MValueArgsToV8(ev->GetArgs(), args);
 	}
-	);
+);
+
+V8_EVENT_HANDLER audioEvent(
+	EventType::AUDIO_EVENT,
+	[](V8ResourceImpl* resource, const CEvent* e) {
+		auto ev = static_cast<const alt::CAudioEvent*>(e);
+
+		return static_cast<CV8ResourceImpl*>(resource)->GetAudioHandlers(ev->GetTarget(), ev->GetName().ToString());
+	},
+	[](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+		auto ev = static_cast<const alt::CAudioEvent*>(e);
+
+		V8Helpers::MValueArgsToV8(ev->GetArgs(), args);
+	}
+);
 
 V8_EVENT_HANDLER keyboardEvent(
 	EventType::KEYBOARD_EVENT,

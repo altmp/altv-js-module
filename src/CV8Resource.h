@@ -61,17 +61,17 @@ public:
 
 	std::vector<V8::EventCallback*> GetWebViewHandlers(alt::Ref<alt::IWebView> view, const std::string& name);
 
-	void SubscribeWebSocketClient(alt::Ref<alt::IWebSocketClient> view, const std::string &evName, v8::Local<v8::Function> cb, V8::SourceLocation &&location)
+	void SubscribeWebSocketClient(alt::Ref<alt::IWebSocketClient> webSocket, const std::string& evName, v8::Local<v8::Function> cb, V8::SourceLocation&& location)
 	{
-		webSocketClientHandlers[view].insert({evName, V8::EventCallback{isolate, cb, std::move(location)}});
+		webSocketClientHandlers[webSocket].insert({ evName, V8::EventCallback{isolate, cb, std::move(location)} });
 	}
 
-	void UnsubscribeWebSocketClient(alt::Ref<alt::IWebSocketClient> view, const std::string &evName, v8::Local<v8::Function> cb)
+	void UnsubscribeWebSocketClient(alt::Ref<alt::IWebSocketClient> webSocket, const std::string& evName, v8::Local<v8::Function> cb)
 	{
-		auto it = webSocketClientHandlers.find(view);
+		auto it = webSocketClientHandlers.find(webSocket);
 		if (it != webSocketClientHandlers.end())
 		{
-			auto &webSocketEvents = it->second;
+			auto& webSocketEvents = it->second;
 			auto range = webSocketEvents.equal_range(evName);
 
 			for (auto it = range.first; it != range.second; ++it)
@@ -81,8 +81,31 @@ public:
 			}
 		}
 	}
-	
+
 	std::vector<V8::EventCallback*> GetWebSocketClientHandlers(alt::Ref<alt::IWebSocketClient> webSocket, const std::string& name);
+
+	void SubscribeAudio(alt::Ref<alt::IAudio> audio, const std::string& evName, v8::Local<v8::Function> cb, V8::SourceLocation&& location)
+	{
+		audioHandlers[audio].insert({ evName, V8::EventCallback{isolate, cb, std::move(location)} });
+	}
+
+	void UnsubscribeAudio(alt::Ref<alt::IAudio> audio, const std::string& evName, v8::Local<v8::Function> cb)
+	{
+		auto it = audioHandlers.find(audio);
+		if (it != audioHandlers.end())
+		{
+			auto& audioEvents = it->second;
+			auto range = audioEvents.equal_range(evName);
+
+			for (auto it = range.first; it != range.second; ++it)
+			{
+				if (it->second.fn.Get(isolate)->StrictEquals(cb))
+					it->second.removed = true;
+			}
+		}
+	}
+
+	std::vector<V8::EventCallback*> GetAudioHandlers(alt::Ref<alt::IAudio> audio, const std::string& name);
 
 	void AddOwned(alt::Ref<alt::IBaseObject> handle)
 	{
@@ -132,6 +155,7 @@ private:
 
 	std::unordered_map<alt::Ref<alt::IWebView>, WebViewEvents> webViewHandlers;
 	std::unordered_map<alt::Ref<alt::IWebSocketClient>, WebViewEvents> webSocketClientHandlers;
+	std::unordered_map<alt::Ref<alt::IAudio>, WebViewEvents> audioHandlers;
 
 	std::unordered_set<alt::Ref<alt::IBaseObject>> ownedObjects;
 

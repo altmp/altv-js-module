@@ -291,12 +291,28 @@ std::vector<V8::EventCallback*> CV8ResourceImpl::GetWebViewHandlers(alt::Ref<alt
 	return handlers;
 }
 
-std::vector<V8::EventCallback*> CV8ResourceImpl::GetWebSocketClientHandlers(alt::Ref<alt::IWebSocketClient> view, const std::string& name)
+std::vector<V8::EventCallback*> CV8ResourceImpl::GetWebSocketClientHandlers(alt::Ref<alt::IWebSocketClient> webSocket, const std::string& name)
 {
 	std::vector<V8::EventCallback*> handlers;
-	auto it = webSocketClientHandlers.find(view.Get());
+	auto it = webSocketClientHandlers.find(webSocket.Get());
 
 	if (it != webSocketClientHandlers.end())
+	{
+		auto range = it->second.equal_range(name);
+
+		for (auto it = range.first; it != range.second; ++it)
+			handlers.push_back(&it->second);
+	}
+
+	return handlers;
+}
+
+std::vector<V8::EventCallback*> CV8ResourceImpl::GetAudioHandlers(alt::Ref<alt::IAudio> audio, const std::string& name)
+{
+	std::vector<V8::EventCallback*> handlers;
+	auto it = audioHandlers.find(audio.Get());
+
+	if (it != audioHandlers.end())
 	{
 		auto range = it->second.equal_range(name);
 

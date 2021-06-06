@@ -32,6 +32,51 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_BIND_BASE_OBJECT(audio, "Failed to create Audio");
 }
 
+static void On(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+
+    V8_CHECK_ARGS_LEN(2);
+    V8_ARG_TO_STRING(1, evName);
+    V8_ARG_TO_FUNCTION(2, fun);
+
+    V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
+
+    static_cast<CV8ResourceImpl*>(resource)->SubscribeAudio(audio, evName.ToString(), fun, V8::SourceLocation::GetCurrent(isolate));
+}
+
+static void Off(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+
+    V8_CHECK_ARGS_LEN(2);
+    V8_ARG_TO_STRING(1, evName);
+    V8_ARG_TO_FUNCTION(2, fun);
+
+    V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
+
+    static_cast<CV8ResourceImpl*>(resource)->UnsubscribeAudio(audio, evName.ToString(), fun);
+}
+
+static void GetEventListeners(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(1);
+    V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
+
+    V8_ARG_TO_STRING(1, eventName);
+
+    std::vector<V8::EventCallback*> handlers = static_cast<CV8ResourceImpl*>(resource)->GetAudioHandlers(audio, eventName.ToString());
+
+    auto array = v8::Array::New(isolate, handlers.size());
+    for (int i = 0; i < handlers.size(); i++)
+    {
+        array->Set(ctx, i, handlers[i]->fn.Get(isolate));
+    }
+
+    V8_RETURN(array);
+}
+
 static void SourceGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE();
@@ -247,6 +292,10 @@ static void Seek(const v8::FunctionCallbackInfo<v8::Value>& info)
 extern V8Class v8BaseObject;
 extern V8Class v8Audio("Audio", v8BaseObject, &Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate *isolate = v8::Isolate::GetCurrent();
+
+    V8::SetMethod(isolate, tpl, "on", &On);
+    V8::SetMethod(isolate, tpl, "off", &Off);
+    V8::SetMethod(isolate, tpl, "getEventListeners", GetEventListeners);
 
     V8::SetAccessor(isolate, tpl, "source", &SourceGetter, &SourceSetter);
     V8::SetAccessor(isolate, tpl, "looped", &LoopedGetter, &LoopedSetter);
