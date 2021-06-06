@@ -593,6 +593,23 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_BASE_OBJECT(alt::ICore::Instance().GetEntityByID(id).As<alt::IVehicle>());
 }
 
+static void IndicatorLightsGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE(info);
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
+
+    V8_RETURN_INTEGER(vehicle->GetLightsIndicator());
+}
+
+static void IndicatorLightsSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
+
+    V8_TO_INTEGER(val, indicatorLights);
+    vehicle->SetLightsIndicator(indicatorLights);
+}
+
 extern V8Class v8Entity;
 extern V8Class v8Vehicle("Vehicle", v8Entity, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -615,6 +632,8 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, [](v8::Local<v8::FunctionTemplate>
     // proto->SetAccessor(v8::String::NewFromUtf8(isolate, "gravity", &GravityGetter).ToLocalChecked(), &GravitySetter);
     V8::SetAccessor(isolate, tpl, "handling", &HandlingGetter);
     V8::SetMethod(isolate, tpl, "toggleExtra", ToggleExtra);
+    V8::SetAccessor(isolate, tpl, "indicatorLights", &IndicatorLightsGetter, &IndicatorLightsSetter);
+
     /* GETTERS BELOW ARE UNIMPLEMENTED
     V8::SetAccessor(isolate, tpl, "isDestroyed", &IsDestroyedGetter);
     V8::SetAccessor(isolate, tpl, "driver", &DriverGetter);
