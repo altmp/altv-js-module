@@ -220,12 +220,23 @@ static void IsVoiceActivityInputEnabled(const v8::FunctionCallbackInfo<v8::Value
 static void AddGxtText(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
 	V8_GET_ISOLATE_CONTEXT_IRESOURCE();
-
 	V8_CHECK_ARGS_LEN(2);
-	V8_ARG_TO_STRING(1, key);
+
+	uint32_t gxtHash;
+	if(info[0]->IsString())
+	{
+		V8_ARG_TO_STRING(1, key);
+		gxtHash = alt::ICore::Instance().Hash(key);
+	}
+	else if(info[0]->IsNumber())
+	{
+		V8_ARG_TO_UINT32(1, hash);
+		gxtHash = hash;
+	}
+	
 	V8_ARG_TO_STRING(2, textValue);
 
-	resource->AddGxtText(ICore::Instance().Hash(key), textValue.ToString());
+	resource->AddGxtText(gxtHash, textValue.ToString());
 }
 
 static void RemoveGxtText(const v8::FunctionCallbackInfo<v8::Value> &info)
