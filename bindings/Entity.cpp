@@ -160,8 +160,8 @@ static void AttachTo(const v8::FunctionCallbackInfo<v8::Value> &info)
 	V8_GET_THIS_BASE_OBJECT(_this, IEntity);
 
 	V8_ARG_TO_BASE_OBJECT(1, entity, IEntity, "Entity");
-	V8_ARG_TO_UINT32(2, otherBone);
-	V8_ARG_TO_UINT32(3, ownBone);
+	V8_ARG_TO_INT32(2, otherBone);
+	V8_ARG_TO_INT32(3, ownBone);
 	V8_ARG_TO_VECTOR3(4, pos);
 	V8_ARG_TO_VECTOR3(5, rot);
 	V8_ARG_TO_BOOLEAN(6, collision);
