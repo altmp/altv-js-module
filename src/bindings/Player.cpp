@@ -23,23 +23,36 @@ static void CurrentWeaponComponentsGetter(v8::Local<v8::String> name, const v8::
 static void Spawn(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
-	V8_CHECK_ARGS_LEN2(3, 4);
+	V8_CHECK_ARGS_LEN_MIN_MAX(1, 4);
 
 	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 
-	V8_ARG_TO_NUMBER(1, x);
-	V8_ARG_TO_NUMBER(2, y);
-	V8_ARG_TO_NUMBER(3, z);
+	alt::Position position;
+	uint32_t delay = 0;
+	if(info.Length() == 1 || info.Length() == 2)
+	{
+		V8_ARG_TO_VECTOR3(1, pos);
+		if(info.Length() == 2)
+		{
+			V8_ARG_TO_UINT32(2, spawnDelay);
+			delay = spawnDelay;
+		}
+		position = { pos[0], pos[1], pos[2] };
+	}
+	else if(info.Length() == 3 || info.Length() == 4)
+	{
+		V8_ARG_TO_NUMBER(1, x);
+		V8_ARG_TO_NUMBER(2, y);
+		V8_ARG_TO_NUMBER(3, z);
+		if(info.Length() == 4)
+		{
+			V8_ARG_TO_UINT32(4, spawnDelay);
+			delay = spawnDelay;
+		}
+		position = { x, y, z };
+	}
 
-	if (info.Length() == 4)
-	{
-		V8_ARG_TO_INTEGER(3, delay);
-		_this->Spawn({ float(x), float(y), float(z) }, delay);
-	}
-	else
-	{
-		_this->Spawn({ float(x), float(y), float(z) }, 0);
-	}
+	_this->Spawn(position, delay);
 }
 
 static void SetDateTime(const v8::FunctionCallbackInfo<v8::Value>& info)
