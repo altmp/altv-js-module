@@ -73,6 +73,14 @@ namespace V8
 			V8_GET_THIS_BASE_OBJECT(_this, T);
 			CallSetter<T>(info, value, _this.Get(), Setter);
 		}
+
+		template<class T, void(T::* Method)()>
+		static void WrapMethod(const v8::FunctionCallbackInfo<v8::Value> &info)
+		{
+			V8_GET_ISOLATE();
+			V8_GET_THIS_BASE_OBJECT(_this, T);
+			(_this.Get()->*Method)();
+		}
 	}
 
 	template<class T, class U, U(T::* Getter)() const>
@@ -85,5 +93,11 @@ namespace V8
 	inline void SetAccessor(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> tpl, const char* name)
 	{
 		V8::SetAccessor(isolate, tpl, name, V8::detail::WrapGetter<T, U, Getter>, V8::detail::WrapSetter<T, U, Setter>);
+	}
+
+	template<class T, void(T::* Method)()>
+	inline void SetMethod(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> tpl, const char* name)
+	{
+		V8::SetMethod(isolate, tpl, name, V8::detail::WrapMethod<T, Method>);
 	}
 }
