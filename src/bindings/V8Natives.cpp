@@ -107,7 +107,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native
 		break;
 	case alt::INative::Type::ARG_INT32:
 	{
-		if (val->IsUint32() || val->IsInt32())
+		if (val->IsNumber())
 		{
 			v8::Local<v8::Integer> value;
 			if (val->ToInteger(v8Ctx).ToLocal(&value))
@@ -151,7 +151,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native
 		break;
 	case alt::INative::Type::ARG_UINT32:
 	{
-		if (val->IsUint32() || val->IsInt32())
+		if (val->IsNumber())
 		{
 			v8::Local<v8::Integer> value;
 			if (val->ToInteger(v8Ctx).ToLocal(&value))
@@ -190,10 +190,18 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native
 		break;
 	case alt::INative::Type::ARG_FLOAT:
 	{
-		v8::Local<v8::Number> value;
-		if (val->ToNumber(v8Ctx).ToLocal(&value))
+		if (val->IsNumber())
 		{
-			scrCtx->Push((float)value->Value());
+			v8::Local<v8::Number> value;
+			if (val->ToNumber(v8Ctx).ToLocal(&value))
+			{
+				scrCtx->Push((float)value->Value());
+			}
+			else
+			{
+				v8::String::Utf8Value type(isolate, val->TypeOf(isolate));
+				Log::Error << "Native argument " << "(" << *type << ")" << " could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
+			}
 		}
 		else
 		{
