@@ -195,6 +195,7 @@ namespace V8
 	bool SafeToObject(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::Object>& out);
 	bool SafeToRGBA(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, alt::RGBA& out); 
 	bool SafeToVector3(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, alt::Vector3f& out);
+	bool SafeToVector2(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, alt::Vector2f& out);
 	bool SafeToArrayBuffer(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::ArrayBuffer>& out);
 	bool SafeToArrayBufferView(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::ArrayBufferView>& out);
 
@@ -311,6 +312,10 @@ namespace V8
 #define V8_TO_VECTOR3(v8Val, val) \
 	alt::Vector3f val; \
 	V8_CHECK(V8::SafeToVector3((v8Val), ctx, val), "Failed to convert value to Vector3")
+
+#define V8_TO_VECTOR2(v8Val, val) \
+	alt::Vector2f val; \
+	V8_CHECK(V8::SafeToVector2((v8Val), ctx, val), "Failed to convert value to Vector2")
 
 #define V8_TO_RGBA(v8Val, val) \
 	alt::RGBA val; \
@@ -452,6 +457,7 @@ namespace V8
 #define V8_RETURN_UINT64(val) V8_RETURN(v8::BigInt::NewFromUnsigned(isolate, (val)))
 #define V8_RETURN_INT64(val) V8_RETURN(v8::BigInt::New(isolate, (val)))
 #define V8_RETURN_VECTOR3(val) V8_RETURN(resource->CreateVector3(val))
+#define V8_RETURN_VECTOR2(val) V8_RETURN(resource->CreateVector2(val))
 #define V8_RETURN_RGBA(val) V8_RETURN(resource->CreateRGBA(val))
 #define V8_RETURN_ENUM(val) V8_RETURN(v8::Integer::NewFromUnsigned(isolate, uint32_t(val)))
 
