@@ -228,7 +228,7 @@ static void AddGxtText(const v8::FunctionCallbackInfo<v8::Value> &info)
 		V8_ARG_TO_STRING(1, key);
 		gxtHash = alt::ICore::Instance().Hash(key);
 	}
-	else if(info[0]->IsNumber())
+	else
 	{
 		V8_ARG_TO_UINT32(1, hash);
 		gxtHash = hash;

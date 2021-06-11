@@ -21,7 +21,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
             V8_ARG_TO_UINT32(3, categ);
             category = categ;
         }
-        else if(info[2]->IsString())
+        else
         {
             V8_ARG_TO_STRING(3, categ);
             category = alt::ICore::Instance().Hash(categ);
