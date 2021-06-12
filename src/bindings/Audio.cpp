@@ -8,13 +8,14 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
 	V8_CHECK_CONSTRUCTOR();
-    V8_CHECK_ARGS_LEN2(2, 3);
+    V8_CHECK_ARGS_LEN_MIN_MAX(2, 4);
 
     V8_ARG_TO_STRING(1, source);
     V8_ARG_TO_NUMBER(2, volume);
 
     uint32_t category = 0;
-    if(info.Length() == 3)
+    bool frontend = false;
+    if(info.Length() == 3 || info.Length() == 4)
     {
         if(info[2]->IsNumber())
         {
@@ -26,9 +27,14 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
             V8_ARG_TO_STRING(3, categ);
             category = alt::ICore::Instance().Hash(categ);
         }
+        if (info.Length() == 4)
+        {
+            V8_ARG_TO_BOOLEAN(4, frntnd);
+            frontend = frntnd;
+        }
     }
 
-    auto audio = alt::ICore::Instance().CreateAudio(source, volume, category, resource->GetResource());
+    auto audio = alt::ICore::Instance().CreateAudio(source, volume, category, frontend, resource->GetResource());
     V8_BIND_BASE_OBJECT(audio, "Failed to create Audio");
 }
 
@@ -163,15 +169,6 @@ static void FrontendPlayGetter(v8::Local<v8::String>, const v8::PropertyCallback
     V8_RETURN_BOOLEAN(audio->IsFrontendPlay());
 }
 
-static void FrontendPlaySetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
-    
-    V8_TO_BOOLEAN(val, frontendPlay);
-    audio->SetFrontendPlay(frontendPlay);
-}
-
 static void AddOutput(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
@@ -301,7 +298,7 @@ extern V8Class v8Audio("Audio", v8BaseObject, &Constructor, [](v8::Local<v8::Fun
     V8::SetAccessor(isolate, tpl, "looped", &LoopedGetter, &LoopedSetter);
     V8::SetAccessor(isolate, tpl, "volume", &VolumeGetter, &VolumeSetter);
     V8::SetAccessor(isolate, tpl, "category", &CategoryGetter, &CategorySetter);
-    V8::SetAccessor(isolate, tpl, "frontendPlay", &FrontendPlayGetter, &FrontendPlaySetter);
+    V8::SetAccessor(isolate, tpl, "frontendPlay", &FrontendPlayGetter);
     V8::SetAccessor(isolate, tpl, "currentTime", &CurrentTimeGetter);
     V8::SetAccessor(isolate, tpl, "maxTime", &MaxTimeGetter);
     V8::SetAccessor(isolate, tpl, "playing", &PlayingGetter);
