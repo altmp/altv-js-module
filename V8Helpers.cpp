@@ -771,3 +771,15 @@ V8::EventHandler::EventHandler(alt::CEvent::Type type, CallbacksGetter &&_handle
 void V8::EventHandler::Reference() {
 	Log::Info << "[V8] Registered handler for " << std::to_string((int)type) << Log::Endl;
 }
+
+alt::String V8::Stringify(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx) 
+{
+	v8::Local<v8::String> str;
+	if(!val->ToString(ctx).ToLocal(&str)) return nullptr;
+	if (val->IsObject() && strcmp(*v8::String::Utf8Value(ctx->GetIsolate(), str), "[object Object]") == 0) {
+		v8::MaybeLocal<v8::String> maybe = v8::JSON::Stringify(ctx, val);
+		v8::Local<v8::String> stringified;
+		if (maybe.ToLocal(&stringified)) str = stringified;
+	}
+	return *v8::String::Utf8Value(ctx->GetIsolate(), str);
+}

@@ -217,6 +217,8 @@ namespace V8
 
 		return true;
 	}
+
+	alt::String Stringify(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx);
 } // namespace V8
 
 #define V8_GET_ISOLATE() v8::Isolate *isolate = info.GetIsolate()
