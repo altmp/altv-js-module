@@ -260,6 +260,60 @@ static void Multiply(const v8::FunctionCallbackInfo<v8::Value>& info)
 	}
 }
 
+
+static void Dot(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+
+	V8_CHECK_ARGS_LEN2(1, 2);
+
+	v8::Local<v8::Object> _this = info.This();
+
+	V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_XKey(isolate)), x);
+	V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_YKey(isolate)), y);
+
+	if (info.Length() == 2)
+	{
+		V8_ARG_TO_NUMBER(1, x2);
+		V8_ARG_TO_NUMBER(2, y2);
+
+		V8_RETURN_NUMBER(x * x2 + y * y2);
+	}
+	else if (info.Length() == 1)
+	{
+		auto arg = info[0];
+		if (arg->IsNumber())
+		{
+			V8_ARG_TO_NUMBER(1, value);
+
+			V8_RETURN_NUMBER(x * value + y * value);
+		}
+		else if (arg->IsArray())
+		{
+			v8::Local<v8::Array> arr = arg.As<v8::Array>();
+			V8_CHECK(arr->Length() == 2, "Argument must be an array of 2 numbers");
+
+			V8_TO_NUMBER(arr->Get(ctx, 0).ToLocalChecked(), x2);
+			V8_TO_NUMBER(arr->Get(ctx, 1).ToLocalChecked(), y2);
+
+			V8_RETURN_NUMBER(x * x2 + y * y2);
+		}
+		else if (arg->IsObject())
+		{
+			v8::Local<v8::Object> obj = arg.As<v8::Object>();
+
+			V8_TO_NUMBER(obj->Get(ctx, V8::Vector3_XKey(isolate)).ToLocalChecked(), x2);
+			V8_TO_NUMBER(obj->Get(ctx, V8::Vector3_YKey(isolate)).ToLocalChecked(), y2);
+
+			V8_RETURN_NUMBER(x * x2 + y * y2);
+		}
+		else
+		{
+			V8Helpers::Throw(isolate, "Argument must be a number, an array of 2 numbers or IVector2");
+		}
+	}
+}
+
 static void Negative(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT_RESOURCE();
