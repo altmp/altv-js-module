@@ -151,11 +151,9 @@ static void GetSyncedMeta(const v8::FunctionCallbackInfo<v8::Value> &info)
 static void Log(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
 	V8_GET_ISOLATE_CONTEXT();
-	
 	V8_CHECK_ARGS_LEN_MIN(1);
 
 	std::stringstream ss;
-
 	for (int i = 0; i < info.Length(); ++i)
 	{
 		v8::Local<v8::Value> val = info[i];
@@ -163,15 +161,10 @@ static void Log(const v8::FunctionCallbackInfo<v8::Value> &info)
 		if (i > 0)
 			ss << " ";
 
-		v8::Local<v8::String> str;
-		if(!val->ToString(ctx).ToLocal(&str)) continue;
-		if (val->IsObject() && strcmp(*v8::String::Utf8Value(isolate, str), "[object Object]") == 0) {
-			v8::MaybeLocal<v8::String> maybe = v8::JSON::Stringify(ctx, val);
-			v8::Local<v8::String> stringified;
-			if (maybe.ToLocal(&stringified)) str = stringified;
-		}
+		auto str = V8::Stringify(val, ctx);
+		if(str.IsEmpty()) continue;
 
-		ss << *v8::String::Utf8Value(isolate, str);
+		ss << str.CStr();
 	}
 
 	alt::ICore::Instance().LogColored(ss.str());
@@ -180,11 +173,9 @@ static void Log(const v8::FunctionCallbackInfo<v8::Value> &info)
 static void LogWarning(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
 	V8_GET_ISOLATE_CONTEXT();
-
 	V8_CHECK_ARGS_LEN_MIN(1);
 
 	std::stringstream ss;
-
 	for (int i = 0; i < info.Length(); ++i)
 	{
 		v8::Local<v8::Value> val = info[i];
@@ -192,15 +183,10 @@ static void LogWarning(const v8::FunctionCallbackInfo<v8::Value> &info)
 		if (i > 0)
 			ss << " ";
 
-		v8::Local<v8::String> str;
-		if(!val->ToString(ctx).ToLocal(&str)) continue;
-		if (val->IsObject() && strcmp(*v8::String::Utf8Value(isolate, str), "[object Object]") == 0) {
-			v8::MaybeLocal<v8::String> maybe = v8::JSON::Stringify(ctx, val);
-			v8::Local<v8::String> stringified;
-			if (maybe.ToLocal(&stringified)) str = stringified;
-		}
+		auto str = V8::Stringify(val, ctx);
+		if(str.IsEmpty()) continue;
 
-		ss << *v8::String::Utf8Value(isolate, str);
+		ss << str.CStr();
 	}
 
 	alt::ICore::Instance().LogWarning(ss.str());
@@ -209,11 +195,9 @@ static void LogWarning(const v8::FunctionCallbackInfo<v8::Value> &info)
 static void LogError(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
 	V8_GET_ISOLATE_CONTEXT();
-
 	V8_CHECK_ARGS_LEN_MIN(1);
 
 	std::stringstream ss;
-
 	for (int i = 0; i < info.Length(); ++i)
 	{
 		v8::Local<v8::Value> val = info[i];
@@ -221,15 +205,10 @@ static void LogError(const v8::FunctionCallbackInfo<v8::Value> &info)
 		if (i > 0)
 			ss << " ";
 
-		v8::Local<v8::String> str;
-		if(!val->ToString(ctx).ToLocal(&str)) continue;
-		if (val->IsObject() && strcmp(*v8::String::Utf8Value(isolate, str), "[object Object]") == 0) {
-			v8::MaybeLocal<v8::String> maybe = v8::JSON::Stringify(ctx, val);
-			v8::Local<v8::String> stringified;
-			if (maybe.ToLocal(&stringified)) str = stringified;
-		}
+		auto str = V8::Stringify(val, ctx);
+		if(str.IsEmpty()) continue;
 
-		ss << *v8::String::Utf8Value(isolate, str);
+		ss << str.CStr();
 	}
 
 	alt::ICore::Instance().LogError(ss.str());
