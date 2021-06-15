@@ -18,7 +18,7 @@ static void ResourceLoaded(const v8::FunctionCallbackInfo<v8::Value>& info)
 	}
 }
 
-static const char boorstrap_code[] = R"(
+static const char bootstrap_code[] = R"(
 'use strict';
 
 (async () => {
@@ -26,7 +26,6 @@ static const char boorstrap_code[] = R"(
   const path = require('path');
   const asyncESM = require('internal/process/esm_loader');
   const { pathToFileURL } = require('internal/url');
-  const decorateErrorStack = require('internal/util').decorateErrorStack;
   let _exports = null;
 
   try {
@@ -99,7 +98,7 @@ bool CNodeResourceImpl::Start()
 	node::IsolateSettings is;
 	node::SetIsolateUpForNode(isolate, is);
 
-	node::LoadEnvironment(env, boorstrap_code);
+	node::LoadEnvironment(env, bootstrap_code);
 
 	asyncResource.Reset(isolate, v8::Object::New(isolate));
 	asyncContext = node::EmitAsyncInit(isolate, asyncResource.Get(isolate), "CNodeResourceImpl");
