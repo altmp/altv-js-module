@@ -9,6 +9,7 @@
 #include "helpers/V8Helpers.h"
 
 #include "node.h"
+#include "uv.h"
 
 class CNodeScriptRuntime;
 
@@ -43,6 +44,7 @@ private:
 
 	node::IsolateData* nodeData = nullptr;
 	node::Environment* env = nullptr;
+	uv_loop_t* uvLoop = nullptr;
 	v8::Persistent<v8::Object> asyncResource;
 	node::async_context asyncContext{};
 };

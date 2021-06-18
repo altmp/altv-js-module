@@ -12,7 +12,7 @@ namespace protocol {
 
 class RuntimeAgent : public NodeRuntime::Backend {
  public:
-  explicit RuntimeAgent();
+  RuntimeAgent();
 
   void Wire(UberDispatcher* dispatcher);
 

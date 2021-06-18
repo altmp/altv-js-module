@@ -113,10 +113,10 @@ V8::LocalEventHandler fireEvent(
 		for (int i = 0; i < fires.GetSize(); ++i)
 		{
 			v8::Local<v8::Object> v8fire = v8::Object::New(isolate);
-			v8fire->Set(V8::Fire_PosKey(isolate), resource->CreateVector3(fires[i].position));
-			v8fire->Set(V8::Fire_WeaponKey(isolate), v8::Integer::NewFromUnsigned(isolate, fires[i].weaponHash));
+			v8fire->Set(resource->GetContext(), V8::Fire_PosKey(isolate), resource->CreateVector3(fires[i].position));
+			v8fire->Set(resource->GetContext(), V8::Fire_WeaponKey(isolate), v8::Integer::NewFromUnsigned(isolate, fires[i].weaponHash));
 
-			v8fires->Set(i, v8fire);
+			v8fires->Set(resource->GetContext(), i, v8fire);
 		}
 
 		args.push_back(resource->GetBaseObjectOrNull(ev->GetSource()));
@@ -144,7 +144,7 @@ V8::LocalEventHandler resourceStart(
 	"anyResourceStart",
 	[](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
 		auto ev = static_cast<const alt::CResourceStartEvent*>(e);
-		args.push_back(v8::String::NewFromUtf8(resource->GetIsolate(), ev->GetResource()->GetName().CStr()));
+		args.push_back(v8::String::NewFromUtf8(resource->GetIsolate(), ev->GetResource()->GetName().CStr()).ToLocalChecked());
 	}
 );
 
@@ -153,7 +153,7 @@ V8::LocalEventHandler resourceStop(
 	"anyResourceStop",
 	[](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
 		auto ev = static_cast<const alt::CResourceStopEvent*>(e);
-		args.push_back(v8::String::NewFromUtf8(resource->GetIsolate(), ev->GetResource()->GetName().CStr()));
+		args.push_back(v8::String::NewFromUtf8(resource->GetIsolate(), ev->GetResource()->GetName().CStr()).ToLocalChecked());
 	}
 );
 
@@ -162,7 +162,7 @@ V8::LocalEventHandler resourceError(
 	"anyResourceError",
 	[](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
 		auto ev = static_cast<const alt::CResourceErrorEvent*>(e);
-		args.push_back(v8::String::NewFromUtf8(resource->GetIsolate(), ev->GetResource()->GetName().CStr()));
+		args.push_back(v8::String::NewFromUtf8(resource->GetIsolate(), ev->GetResource()->GetName().CStr()).ToLocalChecked());
 	}
 );
 
@@ -173,7 +173,7 @@ V8::LocalEventHandler syncedMetaChange(
 		auto ev = static_cast<const alt::CSyncedMetaDataChangeEvent*>(e);
 
 		args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
-		args.push_back(v8::String::NewFromUtf8(resource->GetIsolate(), ev->GetKey().CStr()));
+		args.push_back(v8::String::NewFromUtf8(resource->GetIsolate(), ev->GetKey().CStr()).ToLocalChecked());
 		args.push_back(V8Helpers::MValueToV8(ev->GetVal()));
 		args.push_back(V8Helpers::MValueToV8(ev->GetOldVal()));
 	}
@@ -186,7 +186,7 @@ V8::LocalEventHandler streamSyncedMetaChange(
 		auto ev = static_cast<const alt::CStreamSyncedMetaDataChangeEvent*>(e);
 
 		args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
-		args.push_back(v8::String::NewFromUtf8(resource->GetIsolate(), ev->GetKey().CStr()));
+		args.push_back(v8::String::NewFromUtf8(resource->GetIsolate(), ev->GetKey().CStr()).ToLocalChecked());
 		args.push_back(V8Helpers::MValueToV8(ev->GetVal()));
 		args.push_back(V8Helpers::MValueToV8(ev->GetOldVal()));
 	}
@@ -198,7 +198,7 @@ V8::LocalEventHandler globalMetaChange(
 	[](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
 		auto ev = static_cast<const alt::CGlobalMetaDataChangeEvent*>(e);
 
-		args.push_back(v8::String::NewFromUtf8(resource->GetIsolate(), ev->GetKey().CStr()));
+		args.push_back(v8::String::NewFromUtf8(resource->GetIsolate(), ev->GetKey().CStr()).ToLocalChecked());
 		args.push_back(V8Helpers::MValueToV8(ev->GetVal()));
 		args.push_back(V8Helpers::MValueToV8(ev->GetOldVal()));
 	}
@@ -210,7 +210,7 @@ V8::LocalEventHandler globalSyncedMetaChange(
 	[](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
 		auto ev = static_cast<const alt::CGlobalSyncedMetaDataChangeEvent*>(e);
 
-		args.push_back(v8::String::NewFromUtf8(resource->GetIsolate(), ev->GetKey().CStr()));
+		args.push_back(v8::String::NewFromUtf8(resource->GetIsolate(), ev->GetKey().CStr()).ToLocalChecked());
 		args.push_back(V8Helpers::MValueToV8(ev->GetVal()));
 		args.push_back(V8Helpers::MValueToV8(ev->GetOldVal()));
 	}

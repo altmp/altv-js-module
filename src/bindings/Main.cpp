@@ -7,253 +7,259 @@ using namespace alt;
 
 static void OnClient(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_CHECK_ARGS_LEN2(1, 2);
 
-	V8_CHECK(info.Length() == 2, "2 args expected");
-	V8_CHECK(info[0]->IsString(), "string expected");
-	V8_CHECK(info[1]->IsFunction(), "function expected");
+	if(info.Length() == 1)
+	{
+		V8_ARG_TO_FUNCTION(1, callback);
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+		resource->SubscribeGenericRemote(callback, V8::SourceLocation::GetCurrent(isolate));
+	}
+	else if(info.Length() == 2)
+	{
+		V8_ARG_TO_STRING(1, eventName);
+		V8_ARG_TO_FUNCTION(2, callback);
 
-	v8::String::Utf8Value evName(isolate, info[0]);
-	resource->SubscribeRemote(*evName, info[1].As<v8::Function>(), V8::SourceLocation::GetCurrent(isolate));
+		resource->SubscribeRemote(eventName.ToString(), callback, V8::SourceLocation::GetCurrent(isolate));
+	}
 }
 
 static void OnceClient(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_CHECK_ARGS_LEN2(1, 2);
 
-	V8_CHECK(info.Length() == 2, "2 args expected");
-	V8_CHECK(info[0]->IsString(), "string expected");
-	V8_CHECK(info[1]->IsFunction(), "function expected");
+	if(info.Length() == 1)
+	{
+		V8_ARG_TO_FUNCTION(1, callback);
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+		resource->SubscribeGenericRemote(callback, V8::SourceLocation::GetCurrent(isolate), true);
+	}
+	else if(info.Length() == 2)
+	{
+		V8_ARG_TO_STRING(1, eventName);
+		V8_ARG_TO_FUNCTION(2, callback);
 
-	v8::String::Utf8Value evName(isolate, info[0]);
-	resource->SubscribeRemote(*evName, info[1].As<v8::Function>(), V8::SourceLocation::GetCurrent(isolate), true);
+		resource->SubscribeRemote(eventName.ToString(), callback, V8::SourceLocation::GetCurrent(isolate), true);
+	}
 }
 
 static void OffClient(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_CHECK_ARGS_LEN2(1, 2);
 
-	V8_CHECK(info.Length() == 2, "2 args expected");
-	V8_CHECK(info[0]->IsString(), "string expected");
-	V8_CHECK(info[1]->IsFunction(), "function expected");
+	if(info.Length() == 1)
+	{
+		V8_ARG_TO_FUNCTION(1, callback);
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+		resource->UnsubscribeGenericRemote(callback);
+	}
+	else if(info.Length() == 2)
+	{
+		V8_ARG_TO_STRING(1, evName);
+		V8_ARG_TO_FUNCTION(2, callback);
 
-	v8::String::Utf8Value evName(isolate, info[0]);
-	resource->UnsubscribeRemote(*evName, info[1].As<v8::Function>());
+		resource->UnsubscribeRemote(evName.ToString(), callback);
+	}
 }
 
 static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN_MIN(2);
 
-	V8_CHECK(info.Length() >= 2, "at least 2 args expected");
-	V8_CHECK(info[0]->IsObject() || info[0]->IsNull(), "player or null expected");
-	V8_CHECK(info[1]->IsString(), "string expected");
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	v8::String::Utf8Value evName(isolate, info[1]);
-	Ref<IPlayer> player;
-
-	if (!info[0]->IsNull())
-	{
-		V8Entity* v8Player = V8Entity::Get(info[0]);
-
-		V8_CHECK(v8Player && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER, "player or null expected");
-
-		player = v8Player->GetHandle().As<IPlayer>();
-	}
-
+	V8_ARG_TO_STRING(2, eventName);
+	
 	MValueArgs mvArgs;
 
 	for (int i = 2; i < info.Length(); ++i)
 		mvArgs.Push(V8Helpers::V8ToMValue(info[i]));
+	
+	Ref<IPlayer> singlePlayer;
 
-	ICore::Instance().TriggerClientEvent(player, *evName, mvArgs);
+	if (info[0]->IsNull()) 
+	{
+		//if first argument is null this event gets send to every player
+		ICore::Instance().TriggerClientEvent(singlePlayer, eventName.ToString(), mvArgs);
+		return;
+	}
+	
+	if (info[0]->IsArray())
+	{
+		//if first argument is an array of players this event will be sent to every player in array
+		v8::Local<v8::Array> arr = info[0].As<v8::Array>();
+
+		for (int i = 0; i < arr->Length(); ++i) 
+		{
+			Ref<IPlayer> player;
+			V8Entity* v8Player = V8Entity::Get(arr->Get(ctx, i).ToLocalChecked());
+
+			V8_CHECK(v8Player && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER, "player inside array expected");
+			player = v8Player->GetHandle().As<IPlayer>();
+
+			ICore::Instance().TriggerClientEvent(player, eventName.ToString(), mvArgs);
+		}
+		
+	} 
+	else 
+	{
+		//if first argument is not null and not an array this event gets sent to the specific player
+		V8Entity* v8Player = V8Entity::Get(info[0]);
+
+		V8_CHECK(v8Player && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER, "player or null expected");
+		singlePlayer = v8Player->GetHandle().As<IPlayer>();
+
+		ICore::Instance().TriggerClientEvent(singlePlayer, eventName.ToString(), mvArgs);
+	}
+}
+
+static void EmitAllClients(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN_MIN(1);
+	V8_ARG_TO_STRING(1, eventName);
+
+	Ref<IPlayer> player;
+	MValueArgs args;
+
+	for (int i = 1; i < info.Length(); ++i)
+		args.Push(V8Helpers::V8ToMValue(info[i]));
+
+	ICore::Instance().TriggerClientEvent(player, eventName, args);
 }
 
 static void SetSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(2);
 
-	V8_CHECK(info.Length() == 2, "2 args expected");
+	V8_ARG_TO_STRING(1, key);
+	V8_ARG_TO_MVALUE(2, value);
 
-	v8::Local<v8::String> key = info[0]->ToString(isolate);
-	alt::ICore::Instance().SetSyncedMetaData(*v8::String::Utf8Value(isolate, key), V8Helpers::V8ToMValue(info[1]));
+	alt::ICore::Instance().SetSyncedMetaData(key, value);
 }
 
 static void DeleteSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(1);
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
+	V8_ARG_TO_STRING(1, key);
 
-	v8::Local<v8::String> key = info[0]->ToString(isolate);
-	alt::ICore::Instance().DeleteSyncedMetaData(*v8::String::Utf8Value(isolate, key));
+	alt::ICore::Instance().DeleteSyncedMetaData(key);
 }
 
 static void GetPlayersByName(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
-
 	Log::Warning << "alt.getPlayersByName is deprecated and will be removed in future versions, "
 		<< "consider using alt.Player.all.filter(p => p.name == name)" << Log::Endl;
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
-	V8_CHECK(info[0]->IsString(), "string expected");
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_CHECK_ARGS_LEN(1);
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_ARG_TO_STRING(1, name);
 
-	v8::String::Utf8Value name(isolate, info[0]);
+	alt::Array<Ref<alt::IPlayer>> players = alt::ICore::Instance().GetPlayersByName(name);
 
-	alt::Array<Ref<alt::IPlayer>> players = alt::ICore::Instance().GetPlayersByName(*name);
 	v8::Local<v8::Array> arr = v8::Array::New(isolate, players.GetSize());
-	
-	for (uint32_t i = 0; i < players.GetSize(); ++i)
-		arr->Set(i, resource->GetBaseObjectOrNull(players[i]));
 
-	info.GetReturnValue().Set(arr);
+	for (uint32_t i = 0; i < players.GetSize(); ++i)
+		arr->Set(ctx, i, resource->GetBaseObjectOrNull(players[i]));
+
+	V8_RETURN(arr);
 }
 
 static void GetNetTime(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_GET_ISOLATE();
 
 	uint32_t netTime = alt::ICore::Instance().GetNetTime();
 
-	info.GetReturnValue().Set(v8::Integer::NewFromUnsigned(isolate, netTime));
+	V8_RETURN_UINTEGER(netTime);
+}
+
+static void SetPassword(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(1);
+
+	V8_ARG_TO_STRING(1, password);
+
+	alt::ICore::Instance().SetPassword(password);
 }
 
 static void StartResource(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(1);
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
-	V8_CHECK(info[0]->IsString(), "string expected");
+	V8_ARG_TO_STRING(1, name);
 
-	v8::String::Utf8Value name(isolate, info[0]);
-
-	alt::ICore::Instance().StartResource(*name);
+	alt::ICore::Instance().StartResource(name);
 }
 
 static void StopResource(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(1);
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
-	V8_CHECK(info[0]->IsString(), "string expected");
+	V8_ARG_TO_STRING(1, name);
 
-	v8::String::Utf8Value name(isolate, info[0]);
-
-	alt::ICore::Instance().StopResource(*name);
+	alt::ICore::Instance().StopResource(name);
 }
 
 static void RestartResource(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(1);
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
-	V8_CHECK(info[0]->IsString(), "string expected");
+	V8_ARG_TO_STRING(1, name);
 
-	v8::String::Utf8Value name(isolate, info[0]);
-
-	alt::ICore::Instance().RestartResource(*name);
+	alt::ICore::Instance().RestartResource(name);
 }
 
 static void GetResourceMain(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(1);
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
-	V8_CHECK(info[0]->IsString(), "string expected");
+	V8_ARG_TO_STRING(1, name);
 
-	v8::String::Utf8Value name(isolate, info[0]);
+	alt::IResource* resource = alt::ICore::Instance().GetResource(name);
 
-	alt::IResource* resource = alt::ICore::Instance().GetResource(*name);
+	V8_CHECK(resource, "Resource does not exist");
 
-	if (resource)
-		info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, resource->GetMain().CStr()));
+	V8_RETURN_STRING(resource->GetMain().CStr());
 }
 
 static void GetResourcePath(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(1);
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
-	V8_CHECK(info[0]->IsString(), "string expected");
+	V8_ARG_TO_STRING(1, name);
 
-	v8::String::Utf8Value name(isolate, info[0]);
+	alt::IResource* resource = alt::ICore::Instance().GetResource(name);
 
-	alt::IResource* resource = alt::ICore::Instance().GetResource(*name);
+	V8_CHECK(resource, "Resource does not exist");
 
-	if (resource)
-		info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, resource->GetPath().CStr()));
-}
-
-static void HasResource(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8_CHECK(info.Length() == 1, "1 arg expected");
-	V8_CHECK(info[0]->IsString(), "string expected");
-
-	v8::String::Utf8Value name(isolate, info[0]);
-
-	alt::IResource* resource = alt::ICore::Instance().GetResource(*name);
-
-	if (resource && resource->IsStarted())
-		info.GetReturnValue().Set(v8::True(isolate));
-	else
-		info.GetReturnValue().Set(v8::False(isolate));
+	V8_RETURN_STRING(resource->GetPath().CStr());
 }
 
 static void GetResourceExports(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(1);
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
-	V8_CHECK(info[0]->IsString(), "string expected");
+	V8_ARG_TO_STRING(1, name);
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	v8::String::Utf8Value name(isolate, info[0]);
-
-	alt::IResource* _resource = alt::ICore::Instance().GetResource(*name);
+	alt::IResource* _resource = alt::ICore::Instance().GetResource(name);
 	if (_resource)
 	{
 		v8::Local<v8::Value> exports = V8Helpers::MValueToV8(_resource->GetExports());
-		info.GetReturnValue().Set(exports);
-	}
-}
-
-static void ResourceLoaded(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8_CHECK(info.Length() == 2, "2 args expected");
-	V8_CHECK(info[0]->IsString(), "string expected");
-
-	v8::String::Utf8Value name(isolate, info[0]);
-
-	alt::IResource* resource = alt::ICore::Instance().GetResource(*name);
-	if (resource && resource->GetType() == "js")
-	{
-		CNodeResourceImpl* _resource = static_cast<CNodeResourceImpl*>(resource->GetImpl());
-		_resource->Started(info[1]);
+		V8_RETURN(exports);
 	}
 }
 
@@ -298,14 +304,12 @@ extern V8Module v8Alt("alt",
 	v8ColshapeRectangle
 },
 [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
-	v8::Isolate* isolate = v8::Isolate::GetCurrent();
+	v8::Isolate* isolate = ctx->GetIsolate();
 
 	V8::RegisterSharedMain(ctx, exports);
 
 	V8Helpers::RegisterFunc(exports, "getResourceMain", &GetResourceMain);
 	V8Helpers::RegisterFunc(exports, "getResourcePath", &GetResourcePath);
-	V8Helpers::RegisterFunc(exports, "resourceLoaded", &ResourceLoaded);
-	V8Helpers::RegisterFunc(exports, "hasResource", &HasResource);
 	V8Helpers::RegisterFunc(exports, "getResourceExports", &GetResourceExports);
 
 	V8Helpers::RegisterFunc(exports, "startResource", &StartResource);
@@ -316,6 +320,7 @@ extern V8Module v8Alt("alt",
 	V8Helpers::RegisterFunc(exports, "onceClient", &OnceClient);
 	V8Helpers::RegisterFunc(exports, "offClient", &OffClient);
 	V8Helpers::RegisterFunc(exports, "emitClient", &EmitClient);
+	V8Helpers::RegisterFunc(exports, "emitAllClients", &EmitAllClients);
 
 	V8Helpers::RegisterFunc(exports, "setSyncedMeta", &SetSyncedMeta);
 	V8Helpers::RegisterFunc(exports, "deleteSyncedMeta", &DeleteSyncedMeta);
@@ -324,9 +329,9 @@ extern V8Module v8Alt("alt",
 
 	V8Helpers::RegisterFunc(exports, "getNetTime", &GetNetTime);
 
-	alt::StringView rootDir = alt::ICore::Instance().GetRootDirectory();
-	exports->Set(isolate->GetEnteredContext(), v8::String::NewFromUtf8(isolate, "rootDir"), v8::String::NewFromUtf8(isolate, rootDir.CStr()));
+	V8Helpers::RegisterFunc(exports, "setPassword", &SetPassword);
 
-	exports->Set(isolate->GetEnteredContext(), v8::String::NewFromUtf8(isolate, "defaultDimension"), v8::Integer::New(isolate, alt::DEFAULT_DIMENSION));
-	exports->Set(isolate->GetEnteredContext(), v8::String::NewFromUtf8(isolate, "globalDimension"), v8::Integer::New(isolate, alt::GLOBAL_DIMENSION));
+	V8_OBJECT_SET_STRING(exports, "rootDir", alt::ICore::Instance().GetRootDirectory());
+	V8_OBJECT_SET_INTEGER(exports, "defaultDimension", alt::DEFAULT_DIMENSION);
+	V8_OBJECT_SET_INTEGER(exports, "globalDimension", alt::GLOBAL_DIMENSION);
 });
