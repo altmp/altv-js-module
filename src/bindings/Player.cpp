@@ -2,561 +2,173 @@
 
 #include "helpers/V8Helpers.h"
 #include "helpers/V8ResourceImpl.h"
+#include "helpers/V8BindHelpers.h"
 
 using namespace alt;
 
-static void PingGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-
-	info.GetReturnValue().Set(v8::Integer::NewFromUnsigned(isolate, player->GetPing()));
-}
-
-static void IPGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-
-	info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, player->GetIP().CStr()));
-}
-
-static void NameGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-
-	info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, player->GetName().CStr()));
-}
-
-static void VehicleGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	V8_GET_ISOLATE_CONTEXT_RESOURCE();
-	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
-	V8_RETURN_BASE_OBJECT(_this->GetVehicle());
-}
-
-static void SeatGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-
-	info.GetReturnValue().Set(v8::Integer::NewFromUnsigned(isolate, player->GetSeat()));
-}
-
-static void HealthGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-
-	info.GetReturnValue().Set(v8::Integer::NewFromUnsigned(isolate, player->GetHealth()));
-}
-
-static void HealthSetter(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
-{
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-	player->SetHealth(value->ToInt32(isolate)->Value());
-}
-
-static void MaxHealthGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-
-	info.GetReturnValue().Set(v8::Integer::NewFromUnsigned(isolate, player->GetMaxHealth()));
-}
-
-static void MaxHealthSetter(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
-{
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-	player->SetMaxHealth(value->ToInt32(isolate)->Value());
-}
-
-static void ArmourGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-
-	info.GetReturnValue().Set(v8::Integer::NewFromUnsigned(isolate, player->GetArmour()));
-}
-
-static void ArmourSetter(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
-{
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-	player->SetArmour(value->ToInt32(isolate)->Value());
-}
-
-static void MaxArmourGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-
-	info.GetReturnValue().Set(v8::Integer::NewFromUnsigned(isolate, player->GetMaxArmour()));
-}
-
-static void MaxArmourSetter(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
-{
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-	player->SetMaxArmour(value->ToInt32(isolate)->Value());
-}
-
-static void CurrentWeaponGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-
-	info.GetReturnValue().Set(v8::Integer::NewFromUnsigned(isolate, player->GetCurrentWeapon()));
-}
-
-static void CurrentWeaponSetter(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
-{
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-	player->SetCurrentWeapon(value->ToUint32(isolate->GetEnteredContext()).ToLocalChecked()->Value());
-}
-
-static void CurrentWeaponTintIndexGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-
-	info.GetReturnValue().Set(v8::Integer::NewFromUnsigned(isolate, player->GetCurrentWeaponTintIndex()));
-}
-
 static void CurrentWeaponComponentsGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-
-	alt::Array<uint32_t> comps = player->GetCurrentWeaponComponents();
-
+	alt::Array<uint32_t> comps = _this->GetCurrentWeaponComponents();
 	v8::Local<v8::Array> componentsArray = v8::Array::New(isolate, comps.GetSize());
 	
 	for (uint32_t i = 0; i < comps.GetSize(); ++i)
-		componentsArray->Set(i, v8::Integer::NewFromUnsigned(isolate, comps[i]));
+		componentsArray->Set(ctx, i, v8::Integer::NewFromUnsigned(isolate, comps[i]));
 
-	info.GetReturnValue().Set(componentsArray);
-}
-
-static void EntityAimingAtGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	V8_GET_ISOLATE_CONTEXT_RESOURCE();
-	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
-	V8_RETURN_BASE_OBJECT(_this->GetEntityAimingAt());
-}
-
-static void EntityAimOffsetGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-
-	alt::Position aimOffset = player->GetEntityAimOffset();
-
-	info.GetReturnValue().Set(resource->CreateVector3(aimOffset));
-}
-
-static void FlashlightActiveGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-
-	info.GetReturnValue().Set(v8::Boolean::New(isolate, player->IsFlashlightActive()));
-}
-
-static void SocialIdGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-
-	info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, std::to_string(player->GetSocialID()).c_str()));
-}
-
-static void HwidHashGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-
-	info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, std::to_string(player->GetHwidHash()).c_str()));
-}
-
-static void HwidExHashGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-
-	info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, std::to_string(player->GetHwidExHash()).c_str()));
-}
-
-static void AuthTokenGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	v8::Isolate* isolate = info.GetIsolate();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-
-	info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, player->GetAuthToken().CStr()));
+	V8_RETURN(componentsArray);
 }
 
 static void Spawn(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN_MIN_MAX(1, 4);
 
-	V8_CHECK(info.Length() == 3 || info.Length() == 4, "3 or 4 args expected");
+	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-
-	v8::Local<v8::Number> x = info[0]->ToNumber(isolate);
-	v8::Local<v8::Number> y = info[1]->ToNumber(isolate);
-	v8::Local<v8::Number> z = info[2]->ToNumber(isolate);
-	uint32_t timeDelay = 0;
-	if (info.Length() == 4)
+	alt::Position position;
+	uint32_t delay = 0;
+	if(info.Length() == 1 || info.Length() == 2)
 	{
-		v8::Local<v8::Integer> delay = info[3]->ToInteger(isolate);
-		timeDelay = delay->Value();
+		V8_ARG_TO_VECTOR3(1, pos);
+		if(info.Length() == 2)
+		{
+			V8_ARG_TO_UINT32(2, spawnDelay);
+			delay = spawnDelay;
+		}
+		position = { pos[0], pos[1], pos[2] };
+	}
+	else if(info.Length() == 3 || info.Length() == 4)
+	{
+		V8_ARG_TO_NUMBER(1, x);
+		V8_ARG_TO_NUMBER(2, y);
+		V8_ARG_TO_NUMBER(3, z);
+		if(info.Length() == 4)
+		{
+			V8_ARG_TO_UINT32(4, spawnDelay);
+			delay = spawnDelay;
+		}
+		position = { x, y, z };
 	}
 
-	player->Spawn({ float(x->Value()), float(y->Value()), float(z->Value()) }, timeDelay);
+	_this->Spawn(position, delay);
 }
 
 static void SetDateTime(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(6);
 
-	V8_CHECK(info.Length() == 6, "6 args expected");
+	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_ARG_TO_INTEGER(1, day);
+	V8_ARG_TO_INTEGER(2, month);
+	V8_ARG_TO_INTEGER(3, year);
+	V8_ARG_TO_INTEGER(4, hour);
+	V8_ARG_TO_INTEGER(5, minute);
+	V8_ARG_TO_INTEGER(6, second);
 
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-
-	v8::Local<v8::Integer> day = info[0]->ToInteger(isolate);
-	v8::Local<v8::Integer> month = info[1]->ToInteger(isolate);
-	v8::Local<v8::Integer> year = info[2]->ToInteger(isolate);
-	v8::Local<v8::Integer> hour = info[3]->ToInteger(isolate);
-	v8::Local<v8::Integer> minute = info[4]->ToInteger(isolate);
-	v8::Local<v8::Integer> second = info[5]->ToInteger(isolate);
-
-	player->SetDateTime(day->Value(), month->Value(), year->Value(), hour->Value(), minute->Value(), second->Value());
+	_this->SetDateTime(day, month, year, hour, minute, second);
 }
 
 static void SetWeather(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(1);
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
+	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_ARG_TO_INTEGER(1, weather);
 
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-
-	v8::Local<v8::Integer> weather = info[0]->ToInteger(isolate);
-
-	player->SetWeather(weather->Value());
+	_this->SetWeather(weather);
 }
 
 static void GiveWeapon(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(3);
 
-	V8_CHECK(info.Length() == 3, "3 args expected");
+	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_ARG_TO_INTEGER(1, weaponHash);
+	V8_ARG_TO_INTEGER(2, ammo);
+	V8_ARG_TO_BOOLEAN(3, equipNow);
 
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-
-	v8::Local<v8::Integer> weaponHash = info[0]->ToInteger(isolate);
-	v8::Local<v8::Integer> ammo = info[1]->ToInteger(isolate);
-	v8::Local<v8::Boolean> equipNow = info[2]->ToBoolean(isolate);
-
-	player->GiveWeapon(weaponHash->Value(), ammo->Value(), equipNow->Value());
+	_this->GiveWeapon(weaponHash, ammo, equipNow);
 }
 
 static void RemoveWeapon(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(1);
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
+	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_ARG_TO_INTEGER(1, weaponHash);
 
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-
-	v8::Local<v8::Integer> weaponHash = info[0]->ToInteger(isolate);
-
-	player->RemoveWeapon(weaponHash->Value());
+	_this->RemoveWeapon(weaponHash);
 }
 
 static void RemoveAllWeapons(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-
-	player->RemoveAllWeapons();
+	_this->RemoveAllWeapons();
 }
 
 static void ClearBloodDamage(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-
-	player->ClearBloodDamage();
+	_this->ClearBloodDamage();
 }
 
 static void AddWeaponComponent(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(2);
 
-	V8_CHECK(info.Length() == 2, "2 args expected");
+	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_ARG_TO_INTEGER(1, weaponHash);
+	V8_ARG_TO_INTEGER(2, component);
 
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-
-	v8::Local<v8::Integer> weaponHash = info[0]->ToInteger(isolate);
-	v8::Local<v8::Integer> component = info[1]->ToInteger(isolate);
-
-	player->AddWeaponComponent(weaponHash->ToUint32(isolate->GetEnteredContext()).ToLocalChecked()->Value(), component->ToUint32(isolate->GetEnteredContext()).ToLocalChecked()->Value());
+	_this->AddWeaponComponent(weaponHash, component);
 }
 
 static void RemoveWeaponComponent(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(2);
 
-	V8_CHECK(info.Length() == 2, "2 args expected");
+	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_ARG_TO_INTEGER(1, weaponHash);
+	V8_ARG_TO_INTEGER(2, component);
 
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-
-	v8::Local<v8::Integer> weaponHash = info[0]->ToInteger(isolate);
-	v8::Local<v8::Integer> component = info[1]->ToInteger(isolate);
-
-	player->RemoveWeaponComponent(weaponHash->ToUint32(isolate->GetEnteredContext()).ToLocalChecked()->Value(), component->ToUint32(isolate->GetEnteredContext()).ToLocalChecked()->Value());
+	_this->RemoveWeaponComponent(weaponHash, component);
 }
 
 static void SetWeaponTintIndex(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(2);
 
-	V8_CHECK(info.Length() == 2, "2 args expected");
+	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
+	V8_ARG_TO_INTEGER(1, weaponHash);
+	V8_ARG_TO_INTEGER(2, tintIndex);
 
-	V8Entity* _this = V8Entity::Get(info.This());
-	V8_CHECK(_this, "entity is invalid");
-
-	Ref<IPlayer> player = _this->GetHandle().As<IPlayer>();
-
-	v8::Local<v8::Integer> weaponHash = info[0]->ToInteger(isolate);
-	v8::Local<v8::Integer> tintIndex = info[1]->ToInteger(isolate);
-
-	player->SetWeaponTintIndex(weaponHash->ToUint32(isolate->GetEnteredContext()).ToLocalChecked()->Value(), tintIndex->ToUint32(isolate->GetEnteredContext()).ToLocalChecked()->Value());
+	_this->SetWeaponTintIndex(weaponHash, tintIndex);
 }
 
 static void Kick(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
-	V8_CHECK(info.Length() == 0 || info.Length() == 1, "0 or 1 arguments expected");
+	V8_CHECK_ARGS_LEN2(0, 1);
 
 	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 	
@@ -571,7 +183,191 @@ static void Kick(const v8::FunctionCallbackInfo<v8::Value>& info)
 	}
 }
 
-static void AllGetter(v8::Local<v8::Name> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+static void SocialIdGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	Log::Warning << "player.socialId is deprecated and will be removed in the future. Consider using player.socialID" << Log::Endl;
+	
+	V8_GET_ISOLATE();
+	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+	V8_RETURN_STRING(std::to_string(_this->GetSocialID()).c_str());
+}
+
+static void SocialIDGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE();
+	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+	V8_RETURN_STRING(std::to_string(_this->GetSocialID()).c_str());
+}
+
+static void HwidHashGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE();
+	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+	V8_RETURN_STRING(std::to_string(_this->GetHwidHash()).c_str());
+}
+
+static void HwidExHashGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE();
+	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+	V8_RETURN_STRING(std::to_string(_this->GetHwidExHash()).c_str());
+}
+
+static void SetClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN_MIN_MAX(3, 5);
+	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+	V8_ARG_TO_INTEGER(1, component);
+	V8_ARG_TO_INTEGER(2, drawable);
+	V8_ARG_TO_INTEGER(3, texture);
+
+	if(info.Length() == 3)
+	{
+		player->SetClothes(component, drawable, texture, 2);
+	}
+	else if(info.Length() == 4)
+	{
+		V8_ARG_TO_INTEGER(4, palette);
+		player->SetClothes(component, drawable, texture, palette);
+	}
+	else if(info.Length() == 5)
+	{
+		V8_ARG_TO_INTEGER(4, palette);
+		V8_ARG_TO_INTEGER(5, dlc);
+		player->SetDlcClothes(component, drawable, texture, palette, dlc);
+	}
+}
+
+static void GetClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN2(1, 2);
+	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+	V8_ARG_TO_INTEGER(1, component);
+
+	bool dlcCloth = false;
+	if(info.Length() == 2)
+	{
+		V8_ARG_TO_BOOLEAN(2, dlc);
+		dlcCloth = dlc;
+	}
+
+	V8_NEW_OBJECT(clothes);
+	if(!dlcCloth)
+	{
+		auto cloth = player->GetClothes(component);
+		V8_OBJECT_SET_INTEGER(clothes, "drawable", cloth.drawableId);
+		V8_OBJECT_SET_INTEGER(clothes, "texture", cloth.textureId);
+		V8_OBJECT_SET_INTEGER(clothes, "palette", cloth.paletteId);
+	}
+	else
+	{
+		auto cloth = player->GetDlcClothes(component);
+		V8_OBJECT_SET_INTEGER(clothes, "drawable", cloth.drawableId);
+		V8_OBJECT_SET_INTEGER(clothes, "texture", cloth.textureId);
+		V8_OBJECT_SET_INTEGER(clothes, "palette", cloth.paletteId);
+		V8_OBJECT_SET_INTEGER(clothes, "dlc", cloth.dlc);
+	}
+
+	V8_RETURN(clothes);
+}
+
+static void SetProps(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN_MIN_MAX(3, 4);
+	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+	V8_ARG_TO_INTEGER(1, component);
+	V8_ARG_TO_INTEGER(2, drawable);
+	V8_ARG_TO_INTEGER(3, texture);
+
+	if(info.Length() == 3)
+	{
+		player->SetProps(component, drawable, texture);
+	}
+	else if(info.Length() == 4)
+	{
+		V8_ARG_TO_INTEGER(4, dlc);
+		player->SetDlcProps(component, drawable, texture, dlc);
+	}
+}
+
+static void ClearProps(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(1);
+	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+	V8_ARG_TO_INTEGER(1, component);
+
+	player->ClearProps(component);
+}
+
+static void GetProps(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN2(1, 2);
+	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+	V8_ARG_TO_INTEGER(1, component);
+
+	bool dlcProp = false;
+	if(info.Length() == 2)
+	{
+		V8_ARG_TO_BOOLEAN(2, dlc);
+		dlcProp = dlc;
+	}
+
+	V8_NEW_OBJECT(prop);
+	if(!dlcProp)
+	{
+		auto props = player->GetProps(component);
+		V8_OBJECT_SET_INTEGER(prop, "drawable", props.drawableId);
+		V8_OBJECT_SET_INTEGER(prop, "texture", props.textureId);
+	}
+	else
+	{
+		auto props = player->GetDlcProps(component);
+		V8_OBJECT_SET_INTEGER(prop, "drawable", props.drawableId);
+		V8_OBJECT_SET_INTEGER(prop, "texture", props.textureId);
+		V8_OBJECT_SET_INTEGER(prop, "dlc", props.dlc);
+	}
+
+	V8_RETURN(prop);
+}
+
+static void IsEntityInStreamRange(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(1);
+	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+	V8_ARG_TO_BASE_OBJECT(1, entity, IEntity, "Entity");
+	
+	V8_RETURN_BOOLEAN(player->IsEntityInStreamingRange(entity));
+}
+
+static void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN_MIN(1);
+	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+	V8_ARG_TO_STRING(1, eventName);
+
+	MValueArgs mvArgs;
+
+	for (int i = 1; i < info.Length(); ++i)
+		mvArgs.Push(V8Helpers::V8ToMValue(info[i]));
+
+	ICore::Instance().TriggerClientEvent(player, eventName.ToString(), mvArgs);
+}
+
+static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
 	v8::Isolate* isolate = info.GetIsolate();
 
@@ -583,14 +379,10 @@ static void AllGetter(v8::Local<v8::Name> name, const v8::PropertyCallbackInfo<v
 
 static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_CHECK_ARGS_LEN(1);
 
-	V8_CHECK(info.Length() == 1, "1 arg expected");
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "invalid resource");
-
-	uint16_t id = info[0]->ToInteger(isolate)->Value();
+	V8_ARG_TO_INTEGER(1, id);
 
 	alt::Ref<alt::IEntity> entity = alt::ICore::Instance().GetEntityByID(id);
 
@@ -610,47 +402,60 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
 
 	v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
 
-	V8::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
+	V8::SetStaticMethod(isolate, tpl, "getByID", &StaticGetByID);
+	V8::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
 
-	tpl->SetNativeDataProperty(v8::String::NewFromUtf8(isolate, "all"), &AllGetter);
+	V8::SetAccessor<IPlayer, uint32_t, &IPlayer::GetPing>(isolate, tpl, "ping");
+	V8::SetAccessor<IPlayer, StringView, &IPlayer::GetIP>(isolate, tpl, "ip");
+	V8::SetAccessor<IPlayer, StringView, &IPlayer::GetName>(isolate, tpl, "name");
+	V8::SetAccessor<IPlayer, Ref<IVehicle>, &IPlayer::GetVehicle>(isolate, tpl, "vehicle");
+	V8::SetAccessor<IPlayer, uint8_t, &IPlayer::GetSeat>(isolate, tpl, "seat");
+	V8::SetAccessor<IPlayer, uint16_t, &IPlayer::GetHealth, &IPlayer::SetHealth>(isolate, tpl, "health");
+	V8::SetAccessor<IPlayer, uint16_t, &IPlayer::GetMaxHealth, &IPlayer::SetMaxHealth>(isolate, tpl, "maxHealth");
+	V8::SetAccessor<IPlayer, uint16_t, &IPlayer::GetArmour, &IPlayer::SetArmour>(isolate, tpl, "armour");
+	V8::SetAccessor<IPlayer, uint16_t, &IPlayer::GetMaxArmour, &IPlayer::SetMaxArmour>(isolate, tpl, "maxArmour");
+	V8::SetAccessor<IPlayer, bool, &IPlayer::IsDead>(isolate, tpl, "isDead");
 
-	V8::SetAccessor(isolate, tpl, "ping", &PingGetter);
-	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "ip"), &IPGetter);
-	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "name"), &NameGetter);
-	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "vehicle"), &VehicleGetter);
-	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "seat"), &SeatGetter);
-	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "health"), &HealthGetter, &HealthSetter);
-	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "maxHealth"), &MaxHealthGetter, &MaxHealthSetter);
-	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "armour"), &ArmourGetter, &ArmourSetter);
-	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "maxArmour"), &MaxArmourGetter, &MaxArmourSetter);
+	V8::SetAccessor<IPlayer, Ref<IEntity>, &IPlayer::GetEntityAimingAt>(isolate, tpl, "entityAimingAt");
+	V8::SetAccessor<IPlayer, Position, &IPlayer::GetEntityAimOffset>(isolate, tpl, "entityAimOffset");
 
-	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "entityAimingAt"), &EntityAimingAtGetter);
-	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "entityAimOffset"), &EntityAimOffsetGetter);
+	V8::SetAccessor<IPlayer, uint32_t, &IPlayer::GetCurrentWeapon, &IPlayer::SetCurrentWeapon>(isolate, tpl, "currentWeapon");
+	V8::SetAccessor(isolate, tpl, "currentWeaponComponents", &CurrentWeaponComponentsGetter);
+	V8::SetAccessor<IPlayer, uint8_t, &IPlayer::GetCurrentWeaponTintIndex>(isolate, tpl, "currentWeaponTintIndex");
 
-	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "currentWeapon"), &CurrentWeaponGetter, &CurrentWeaponSetter);
-	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "currentWeaponComponents"), &CurrentWeaponComponentsGetter);
-	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "currentWeaponTintIndex"), &CurrentWeaponTintIndexGetter);
+	V8::SetAccessor(isolate, tpl, "socialId", &SocialIdGetter);
+	V8::SetAccessor(isolate, tpl, "socialID", &SocialIDGetter);
+	V8::SetAccessor(isolate, tpl, "hwidHash", &HwidHashGetter);
+	V8::SetAccessor(isolate, tpl, "hwidExHash", &HwidExHashGetter);
 
-	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "socialId"), &SocialIdGetter);
-	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "hwidHash"), &HwidHashGetter);
-	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "hwidExHash"), &HwidExHashGetter);
-	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "authToken"), &AuthTokenGetter);
+	V8::SetAccessor<IPlayer, StringView, &IPlayer::GetAuthToken>(isolate, tpl, "authToken");
 
-	proto->SetAccessor(v8::String::NewFromUtf8(isolate, "flashlightActive"), &FlashlightActiveGetter);
+	V8::SetAccessor<IPlayer, bool, &IPlayer::IsFlashlightActive>(isolate, tpl, "flashlightActive");
 
-	proto->Set(v8::String::NewFromUtf8(isolate, "spawn"), v8::FunctionTemplate::New(isolate, &Spawn));
-	proto->Set(v8::String::NewFromUtf8(isolate, "setDateTime"), v8::FunctionTemplate::New(isolate, &SetDateTime));
-	proto->Set(v8::String::NewFromUtf8(isolate, "setWeather"), v8::FunctionTemplate::New(isolate, &SetWeather));
+	V8::SetMethod(isolate, tpl, "spawn", &Spawn);
+	V8::SetMethod(isolate, tpl, "setDateTime", &SetDateTime);
+	V8::SetMethod(isolate, tpl, "setWeather", &SetWeather);
 
-	proto->Set(v8::String::NewFromUtf8(isolate, "clearBloodDamage"), v8::FunctionTemplate::New(isolate, &ClearBloodDamage));
-	proto->Set(v8::String::NewFromUtf8(isolate, "giveWeapon"), v8::FunctionTemplate::New(isolate, &GiveWeapon));
-	proto->Set(v8::String::NewFromUtf8(isolate, "removeWeapon"), v8::FunctionTemplate::New(isolate, &RemoveWeapon));
-	proto->Set(v8::String::NewFromUtf8(isolate, "removeAllWeapons"), v8::FunctionTemplate::New(isolate, &RemoveAllWeapons));
+	V8::SetMethod(isolate, tpl, "clearBloodDamage", &ClearBloodDamage);
+	V8::SetMethod(isolate, tpl, "giveWeapon", &GiveWeapon);
+	V8::SetMethod(isolate, tpl, "removeWeapon", &RemoveWeapon);
+	V8::SetMethod(isolate, tpl, "removeAllWeapons", &RemoveAllWeapons);
 
-	proto->Set(v8::String::NewFromUtf8(isolate, "addWeaponComponent"), v8::FunctionTemplate::New(isolate, &AddWeaponComponent));
-	proto->Set(v8::String::NewFromUtf8(isolate, "removeWeaponComponent"), v8::FunctionTemplate::New(isolate, &RemoveWeaponComponent));
+	V8::SetMethod(isolate, tpl, "addWeaponComponent", &AddWeaponComponent);
+	V8::SetMethod(isolate, tpl, "removeWeaponComponent", &RemoveWeaponComponent);
 
-	proto->Set(v8::String::NewFromUtf8(isolate, "setWeaponTintIndex"), v8::FunctionTemplate::New(isolate, &SetWeaponTintIndex));
+	V8::SetMethod(isolate, tpl, "setWeaponTintIndex", &SetWeaponTintIndex);
 
-	proto->Set(v8::String::NewFromUtf8(isolate, "kick"), v8::FunctionTemplate::New(isolate, &Kick));
+	V8::SetMethod(isolate, tpl, "kick", &Kick);
+
+	V8::SetMethod(isolate, tpl, "isEntityInStreamRange", &IsEntityInStreamRange);
+	
+	V8::SetMethod(isolate, tpl, "setClothes", &SetClothes);
+	V8::SetMethod(isolate, tpl, "getClothes", &GetClothes);
+
+	V8::SetMethod(isolate, tpl, "setProp", &SetProps);
+	V8::SetMethod(isolate, tpl, "getProp", &GetProps);
+	V8::SetMethod(isolate, tpl, "clearProp", &ClearProps);
+
+	V8::SetMethod(isolate, tpl, "emit", &Emit);
 });

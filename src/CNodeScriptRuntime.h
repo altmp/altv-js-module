@@ -17,10 +17,7 @@ public:
 
 	v8::Isolate* GetIsolate() { return isolate; }
 
-	alt::IResource::Impl* CreateImpl(alt::IResource* resource) override
-	{
-		return new CNodeResourceImpl{ this, isolate, resource };
-	}
+	alt::IResource::Impl* CreateImpl(alt::IResource* resource) override;
 
 	void DestroyImpl(alt::IResource::Impl* impl) override
 	{
