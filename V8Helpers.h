@@ -284,6 +284,10 @@ namespace V8
 #define V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(idx, val, type) \
 	auto val = static_cast<type*>(info.This()->GetInternalField((idx)-1).As<v8::External>()->Value());
 
+// idx starts with 1
+#define V8_GET_THIS_INTERNAL_FIELD_PTR(idx, val, type) \
+	auto val = static_cast<type*>(info.This()->GetAlignedPointerFromInternalField((idx)-1));
+
 #define V8_CHECK_CONSTRUCTOR() V8_CHECK(info.IsConstructCall(), "function can't be called without new")
 
 #define V8_CHECK_ARGS_LEN(count) V8_CHECK(info.Length() == (count), #count " arguments expected")
