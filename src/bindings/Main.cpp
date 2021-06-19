@@ -177,7 +177,7 @@ static void GetNetTime(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 	uint32_t netTime = alt::ICore::Instance().GetNetTime();
 
-	V8_RETURN_UINTEGER(netTime);
+	V8_RETURN_UINT(netTime);
 }
 
 static void SetPassword(const v8::FunctionCallbackInfo<v8::Value>& info)

@@ -6,7 +6,7 @@ namespace V8::Vehicle
 	{
 		V8_GET_ISOLATE();
 		V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
-		V8_RETURN_INTEGER(_this->GetModKit());
+		V8_RETURN_INT(_this->GetModKit());
 	}
 
 	void ModKitSetter(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
@@ -79,7 +79,7 @@ namespace V8::Vehicle
 
 		V8_ARG_TO_INTEGER(1, category);
 
-		V8_RETURN_INTEGER(vehicle->GetModsCount(category));
+		V8_RETURN_INT(vehicle->GetModsCount(category));
 	}
 
 	void SetMod(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -108,7 +108,7 @@ namespace V8::Vehicle
 
 		V8_ARG_TO_INTEGER(1, category);
 
-		V8_RETURN_INTEGER(vehicle->GetMod(category));
+		V8_RETURN_INT(vehicle->GetMod(category));
 	}
 
 	void SetExtra(const v8::FunctionCallbackInfo<v8::Value>& info)
