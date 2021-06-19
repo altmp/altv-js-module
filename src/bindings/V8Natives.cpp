@@ -225,8 +225,16 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native
 			scrCtx->Push((char *)nullptr);
 		break;
 	case alt::INative::Type::ARG_STRUCT:
-		scrCtx->Push(ToMemoryBuffer(val, v8Ctx));
+	{
+		auto buffer = ToMemoryBuffer(val, v8Ctx);
+		if(buffer != nullptr) scrCtx->Push(buffer);
+		else
+		{
+			v8::String::Utf8Value type(isolate, val->TypeOf(isolate));
+			Log::Error << "Native argument " << "(" << *type << ")" << " could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
+		}
 		break;
+	}
 	default:
 		Log::Error << "Unknown native arg type " << (int)argType << " (" << native->GetName() << ")" << Log::Endl;
 	}
