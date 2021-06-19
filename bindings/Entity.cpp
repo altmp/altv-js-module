@@ -62,7 +62,7 @@ static void ModelGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8
 {
 	V8_GET_ISOLATE_CONTEXT();
 	V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
-	V8_RETURN_UINTEGER(ent->GetModel());
+	V8_RETURN_UINT(ent->GetModel());
 }
 
 static void ModelSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)

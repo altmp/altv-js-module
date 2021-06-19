@@ -9,7 +9,7 @@ static void HashCb(const v8::FunctionCallbackInfo<v8::Value> &info)
 	V8_CHECK_ARGS_LEN(1);
 	V8_ARG_TO_STRING(1, str);
 
-	V8_RETURN_UINTEGER(alt::ICore::Instance().Hash(str));
+	V8_RETURN_UINT(alt::ICore::Instance().Hash(str));
 }
 
 static void On(const v8::FunctionCallbackInfo<v8::Value> &info)
@@ -223,7 +223,7 @@ static void SetTimeout(const v8::FunctionCallbackInfo<v8::Value> &info)
 	V8_ARG_TO_FUNCTION(1, callback);
 	V8_ARG_TO_INTEGER(2, time);
 
-	V8_RETURN_INTEGER(resource->CreateTimer(ctx, callback, time, true, V8::SourceLocation::GetCurrent(isolate)));
+	V8_RETURN_INT(resource->CreateTimer(ctx, callback, time, true, V8::SourceLocation::GetCurrent(isolate)));
 }
 
 static void SetInterval(const v8::FunctionCallbackInfo<v8::Value> &info)
@@ -235,7 +235,7 @@ static void SetInterval(const v8::FunctionCallbackInfo<v8::Value> &info)
 	V8_ARG_TO_FUNCTION(1, callback);
 	V8_ARG_TO_INTEGER(2, time);
 
-	V8_RETURN_INTEGER(resource->CreateTimer(ctx, callback, time, false, V8::SourceLocation::GetCurrent(isolate)));
+	V8_RETURN_INT(resource->CreateTimer(ctx, callback, time, false, V8::SourceLocation::GetCurrent(isolate)));
 }
 
 static void NextTick(const v8::FunctionCallbackInfo<v8::Value> &info)
@@ -246,7 +246,7 @@ static void NextTick(const v8::FunctionCallbackInfo<v8::Value> &info)
 
 	V8_ARG_TO_FUNCTION(1, callback);
 
-	V8_RETURN_INTEGER(resource->CreateTimer(ctx, callback, 0, true, V8::SourceLocation::GetCurrent(isolate)));
+	V8_RETURN_INT(resource->CreateTimer(ctx, callback, 0, true, V8::SourceLocation::GetCurrent(isolate)));
 }
 
 static void EveryTick(const v8::FunctionCallbackInfo<v8::Value> &info)
@@ -257,7 +257,7 @@ static void EveryTick(const v8::FunctionCallbackInfo<v8::Value> &info)
 
 	V8_ARG_TO_FUNCTION(1, callback);
 
-	V8_RETURN_INTEGER(resource->CreateTimer(ctx, callback, 0, false, V8::SourceLocation::GetCurrent(isolate)));
+	V8_RETURN_INT(resource->CreateTimer(ctx, callback, 0, false, V8::SourceLocation::GetCurrent(isolate)));
 }
 
 static void ClearTimer(const v8::FunctionCallbackInfo<v8::Value> &info)

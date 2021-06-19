@@ -13,7 +13,7 @@ static void TypeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8:
 
 	V8_GET_THIS_BASE_OBJECT(obj, alt::IBaseObject);
 
-	V8_RETURN_INTEGER((uint32_t)obj->GetType());
+	V8_RETURN_INT((uint32_t)obj->GetType());
 }
 
 static void ValidGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
