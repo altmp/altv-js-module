@@ -17,11 +17,9 @@
 
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = info.GetIsolate();
-	auto ctx = isolate->GetEnteredContext();
-
-	V8_CHECK(info.IsConstructCall(), "MemoryBuffer constructor is not a function");
-	V8_CHECK(info.Length() == 1, "new MemoryBuffer(...) expects 1 arg");
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_CONSTRUCTOR();
+	V8_CHECK_ARGS_LEN(1);
 
     // Ask alt:V to add pattern searching to C++ SDK if you want this available
 // 	if(info[0]->IsString())
@@ -37,8 +35,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 // 	}
 // 	else 
     {
-		V8_CHECK(info[0]->IsNumber(), "size must be a number or a string pattern");
-		uint32_t size = info[0]->Uint32Value(ctx).ToChecked();
+		V8_ARG_TO_UINT32(1, size);
 		if(size == 0)
 		{
 			info.This()->SetAlignedPointerInInternalField(0, nullptr);
@@ -59,66 +56,57 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void FreeBuffer(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = v8::Isolate::GetCurrent();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "Invalid resource");
-
-	uint8_t* memory = (uint8_t*)info.This()->GetAlignedPointerFromInternalField(0);
+	V8_GET_ISOLATE_CONTEXT();
+	
+	V8_GET_THIS_INTERNAL_FIELD_PTR(1, memory, uint8_t);
 	if (memory != nullptr)
 	{
 		delete memory;
 		info.This()->SetAlignedPointerInInternalField(0, nullptr);
-		info.GetReturnValue().Set(v8::Boolean::New(isolate, true));
+		V8_RETURN_BOOLEAN(true);
 		return;
 	}
-	info.GetReturnValue().Set(v8::Boolean::New(isolate, false));
+	V8_RETURN_BOOLEAN(false);
 }
 
 static void GetAddress(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = v8::Isolate::GetCurrent();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "Invalid resource");
-
-	uintptr_t memory = (uintptr_t)info.This()->GetAlignedPointerFromInternalField(0);
-	info.GetReturnValue().Set(v8::BigInt::New(isolate, memory));
+	V8_GET_ISOLATE_CONTEXT();
+	
+	V8_GET_THIS_INTERNAL_FIELD_PTR(1, memory, uint8_t);
+	V8_RETURN_INT64((uintptr_t)memory);
 }
 
 template <typename T>
 static void GetDataOfType(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	v8::Isolate* isolate = v8::Isolate::GetCurrent();
-	auto ctx = isolate->GetEnteredContext();
-
-	V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-	V8_CHECK(resource, "Invalid resource");
+	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
 	bool isString = false;
 	if (std::is_same_v<T, std::string>)
 	{
-		V8_CHECK(info.Length() == 2, "2 args expected");
+		V8_CHECK_ARGS_LEN(2);
 		isString = true;
 	}
 	else
 	{
-		V8_CHECK(info.Length() == 1, "1 arg expected");
+		V8_CHECK_ARGS_LEN(1);
 	}
 
-	V8_CHECK(info[0]->IsNumber(), "offset must be a number");
-	uint32_t offset = info[0]->Uint32Value(ctx).ToChecked();
+	V8_ARG_TO_UINT32(1, offset);
 
 	uint32_t strLength = 0;
-
 	if (isString)
-		strLength = info[1]->Uint32Value(ctx).ToChecked();
+	{
+		V8_ARG_TO_UINT32(2, len);
+		strLength = len;
+	}
 
-	uint8_t* memory = (uint8_t*)info.This()->GetAlignedPointerFromInternalField(0);
-	uint16_t size = info.This()->GetInternalField(1)->Uint32Value(isolate->GetEnteredContext()).ToChecked();
+	V8_GET_THIS_INTERNAL_FIELD_PTR(1, memory, uint8_t);
+	V8_GET_THIS_INTERNAL_FIELD_UINT32(2, size);
 	if (memory == nullptr || size == 0)
 	{
-		info.GetReturnValue().Set(v8::Null(isolate));
+		V8_RETURN_NULL();
 		return;
 	}
 
@@ -137,27 +125,27 @@ static void GetDataOfType(const v8::FunctionCallbackInfo<v8::Value>& info)
 	{
 		if (std::is_same_v<T, uint8_t> || std::is_same_v<T, uint16_t> || std::is_same_v<T, uint32_t>)
 		{
-			info.GetReturnValue().Set(v8::Integer::NewFromUnsigned(isolate, *(uint32_t*)((uintptr_t)memory + offset)));
+			V8_RETURN_UINTEGER(*(uint32_t*)((uintptr_t)memory + offset));
 			return;
 		}
 		else if (std::is_same_v<T, uint64_t>)
 		{
-			info.GetReturnValue().Set(v8::BigInt::NewFromUnsigned(isolate, *(uint64_t*)((uintptr_t)memory + offset)));
+			V8_RETURN_UINT64(*(uint64_t*)((uintptr_t)memory + offset));
 			return;
 		}
 		else if (std::is_same_v<T, int8_t> || std::is_same_v<T, int16_t> || std::is_same_v<T, int32_t>)
 		{
-			info.GetReturnValue().Set(v8::Integer::New(isolate, *(int32_t*)((uintptr_t)memory + offset)));
+			V8_RETURN_INTEGER(*(int32_t*)((uintptr_t)memory + offset));
 			return;
 		}
 		else if (std::is_same_v<T, int64_t>)
 		{
-			info.GetReturnValue().Set(v8::BigInt::New(isolate, *(int64_t*)((uintptr_t)memory + offset)));
+			V8_RETURN_INT64(*(int64_t*)((uintptr_t)memory + offset));
 			return;
 		}
 		else if (std::is_same_v<T, float> || std::is_same_v<T, double>)
 		{
-			info.GetReturnValue().Set(v8::Number::New(isolate, *(double*)((uintptr_t)memory + offset)));
+			V8_RETURN_NUMBER(*(double*)((uintptr_t)memory + offset));
 			return;
 		}
 	}
@@ -166,7 +154,7 @@ static void GetDataOfType(const v8::FunctionCallbackInfo<v8::Value>& info)
 		char* newString = new char[strLength + 1];
 		memcpy_s(newString, strLength + 1, (void*)((uintptr_t)memory + offset), strLength);
 		newString[strLength] = 0;
-		info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, newString).ToLocalChecked());
+		V8_RETURN_STRING(newString);
 		delete newString;
 	}
 }
