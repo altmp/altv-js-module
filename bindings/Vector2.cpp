@@ -356,7 +356,9 @@ static void DistanceTo(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_TO_NUMBER(vec->Get(ctx, V8::Vector3_XKey(isolate)).ToLocalChecked(), x2);
 	V8_TO_NUMBER(vec->Get(ctx, V8::Vector3_YKey(isolate)).ToLocalChecked(), y2);
 
-	double dist = sqrt(std::pow(x - x2, 2) + std::pow(y - y2, 2));
+	double xFinal = x - x2;
+	double yFinal = y - y2;
+	double dist = sqrt((xFinal * xFinal) + (yFinal * yFinal));
 
 	V8_RETURN_NUMBER(dist);
 }
