@@ -125,7 +125,7 @@ static void GetDataOfType(const v8::FunctionCallbackInfo<v8::Value>& info)
 	{
 		if (std::is_same_v<T, uint8_t> || std::is_same_v<T, uint16_t> || std::is_same_v<T, uint32_t>)
 		{
-			V8_RETURN_UINTEGER(*(uint32_t*)((uintptr_t)memory + offset));
+			V8_RETURN_UINT(*(uint32_t*)((uintptr_t)memory + offset));
 			return;
 		}
 		else if (std::is_same_v<T, uint64_t>)
@@ -135,7 +135,7 @@ static void GetDataOfType(const v8::FunctionCallbackInfo<v8::Value>& info)
 		}
 		else if (std::is_same_v<T, int8_t> || std::is_same_v<T, int16_t> || std::is_same_v<T, int32_t>)
 		{
-			V8_RETURN_INTEGER(*(int32_t*)((uintptr_t)memory + offset));
+			V8_RETURN_INT(*(int32_t*)((uintptr_t)memory + offset));
 			return;
 		}
 		else if (std::is_same_v<T, int64_t>)

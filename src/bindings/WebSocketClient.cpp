@@ -206,7 +206,7 @@ static void ReadyStateGetter(v8::Local<v8::String> property, const v8::PropertyC
 
 	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
 
-	V8_RETURN_UINTEGER(webSocket->GetReadyState());
+	V8_RETURN_UINT(webSocket->GetReadyState());
 }
 
 static void AutoReconnectSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
@@ -266,7 +266,7 @@ static void PingIntervalGetter(v8::Local<v8::String> property, const v8::Propert
 
 	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
 
-	V8_RETURN_UINTEGER(webSocket->GetPingInterval());
+	V8_RETURN_UINT(webSocket->GetPingInterval());
 }
 
 extern V8Class v8BaseObject;

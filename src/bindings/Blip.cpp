@@ -128,7 +128,7 @@ static void SpriteGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v
 {
 	V8_GET_ISOLATE_CONTEXT();
 	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
-	V8_RETURN_INTEGER(blip->GetSprite());
+	V8_RETURN_INT(blip->GetSprite());
 }
 
 static void SpriteSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
@@ -143,7 +143,7 @@ static void ColorGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8
 {
 	V8_GET_ISOLATE_CONTEXT();
 	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
-	V8_RETURN_INTEGER(blip->GetColor());
+	V8_RETURN_INT(blip->GetColor());
 }
 
 static void ColorSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
@@ -178,7 +178,7 @@ static void AlphaGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8
 {
 	V8_GET_ISOLATE_CONTEXT();
 	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
-	V8_RETURN_INTEGER(blip->GetAlpha());
+	V8_RETURN_INT(blip->GetAlpha());
 }
 
 static void AlphaSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
@@ -193,7 +193,7 @@ static void FlashTimerGetter(v8::Local<v8::String>, const v8::PropertyCallbackIn
 {
 	V8_GET_ISOLATE_CONTEXT();
 	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
-	V8_RETURN_INTEGER(blip->GetFlashTimer());
+	V8_RETURN_INT(blip->GetFlashTimer());
 }
 
 static void FlashTimerSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
@@ -208,7 +208,7 @@ static void FlashIntervalGetter(v8::Local<v8::String>, const v8::PropertyCallbac
 {
 	V8_GET_ISOLATE_CONTEXT();
 	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
-	V8_RETURN_INTEGER(blip->GetFlashInterval());
+	V8_RETURN_INT(blip->GetFlashInterval());
 }
 
 static void FlashIntervalSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
@@ -268,7 +268,7 @@ static void NumberGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v
 {
 	V8_GET_ISOLATE_CONTEXT();
 	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
-	V8_RETURN_INTEGER(blip->GetNumber());
+	V8_RETURN_INT(blip->GetNumber());
 }
 
 static void NumberSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
@@ -283,7 +283,7 @@ static void DisplayGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<
 {
 	V8_GET_ISOLATE_CONTEXT();
 	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
-	V8_RETURN_INTEGER(blip->GetDisplay());
+	V8_RETURN_INT(blip->GetDisplay());
 }
 
 static void DisplaySetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
@@ -358,7 +358,7 @@ static void PriorityGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo
 {
 	V8_GET_ISOLATE_CONTEXT();
 	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
-	V8_RETURN_INTEGER(blip->GetPriority());
+	V8_RETURN_INT(blip->GetPriority());
 }
 
 static void PrioritySetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
@@ -544,7 +544,7 @@ static void CategoryGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo
 {
 	V8_GET_ISOLATE_CONTEXT();
 	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
-	V8_RETURN_INTEGER(blip->GetCategory());
+	V8_RETURN_INT(blip->GetCategory());
 }
 
 static void CategorySetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)

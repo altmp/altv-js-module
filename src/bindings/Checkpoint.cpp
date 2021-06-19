@@ -59,7 +59,7 @@ static void TypeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8:
 {
 	V8_GET_ISOLATE_CONTEXT();
 	V8_GET_THIS_BASE_OBJECT(cp, alt::ICheckpoint);
-	V8_RETURN_INTEGER(cp->GetCheckpointType());
+	V8_RETURN_INT(cp->GetCheckpointType());
 }
 
 static void TypeSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)

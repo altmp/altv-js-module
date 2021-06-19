@@ -77,7 +77,7 @@ static void CurrentWeaponTintIndexGetter(v8::Local<v8::String>, const v8::Proper
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
 
-    V8_RETURN_INTEGER(player->GetCurrentWeaponTintIndex());
+    V8_RETURN_INT(player->GetCurrentWeaponTintIndex());
 }
 
 static void CurrentWeaponGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -85,7 +85,7 @@ static void CurrentWeaponGetter(v8::Local<v8::String>, const v8::PropertyCallbac
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
 
-    V8_RETURN_UINTEGER(player->GetCurrentWeapon());
+    V8_RETURN_UINT(player->GetCurrentWeapon());
 }
 
 static void IsJumpingGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -133,7 +133,7 @@ static void ArmourGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
 
-    V8_RETURN_INTEGER(player->GetArmour());
+    V8_RETURN_INT(player->GetArmour());
 }
 
 static void MaxArmourGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -141,7 +141,7 @@ static void MaxArmourGetter(v8::Local<v8::String>, const v8::PropertyCallbackInf
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
 
-    V8_RETURN_INTEGER(player->GetMaxArmour());
+    V8_RETURN_INT(player->GetMaxArmour());
 }
 
 static void MoveSpeedGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -173,7 +173,7 @@ static void SeatGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8:
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
 
-    V8_RETURN_INTEGER(player->GetSeat());
+    V8_RETURN_INT(player->GetSeat());
 }
 
 static void EntityAimingAtGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -205,7 +205,7 @@ static void HealthGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
 
-    V8_RETURN_INTEGER(player->GetHealth());
+    V8_RETURN_INT(player->GetHealth());
 }
 
 static void MaxHealthGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -213,7 +213,7 @@ static void MaxHealthGetter(v8::Local<v8::String>, const v8::PropertyCallbackInf
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
 
-    V8_RETURN_INTEGER(player->GetMaxHealth());
+    V8_RETURN_INT(player->GetMaxHealth());
 }
 
 static void IsDeadGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -244,7 +244,7 @@ static void GetWeaponTintIndex(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(1);
     V8_ARG_TO_INTEGER(1, weaponHash);
 
-    V8_RETURN_INTEGER(player->GetWeaponTintIndex(weaponHash));
+    V8_RETURN_INT(player->GetWeaponTintIndex(weaponHash));
 }
 
 static void GetCurrentWeapon(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -252,7 +252,7 @@ static void GetCurrentWeapon(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
 
-    V8_RETURN_INTEGER(player->GetCurrentWeapon());
+    V8_RETURN_INT(player->GetCurrentWeapon());
 }
 
 static void SpatialVolumeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)

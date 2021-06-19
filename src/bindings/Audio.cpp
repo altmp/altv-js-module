@@ -139,7 +139,7 @@ static void CategoryGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo
     V8_GET_ISOLATE();
     V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
 
-    V8_RETURN_UINTEGER(audio->GetCategory());
+    V8_RETURN_UINT(audio->GetCategory());
 }
 
 static void CategorySetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)

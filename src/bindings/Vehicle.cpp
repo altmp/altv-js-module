@@ -49,7 +49,7 @@ static void GearGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8:
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8_RETURN_INTEGER(vehicle->GetCurrentGear());
+    V8_RETURN_INT(vehicle->GetCurrentGear());
 }
 
 static void GearSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
@@ -74,7 +74,7 @@ static void WheelsCountGetter(v8::Local<v8::String>, const v8::PropertyCallbackI
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8_RETURN_INTEGER(vehicle->GetWheelsCount());
+    V8_RETURN_INT(vehicle->GetWheelsCount());
 }
 
 static void SpeedVectorGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -106,7 +106,7 @@ static void ModKitsCountGetter(v8::Local<v8::String>, const v8::PropertyCallback
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8_RETURN_INTEGER(vehicle->GetModKitsCount());
+    V8_RETURN_INT(vehicle->GetModKitsCount());
 }
 
 static void ModKitGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -114,7 +114,7 @@ static void ModKitGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8_RETURN_INTEGER(vehicle->GetModKit());
+    V8_RETURN_INT(vehicle->GetModKit());
 }
 
 static void IsPrimaryColorRGBGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -130,7 +130,7 @@ static void PrimaryColorGetter(v8::Local<v8::String>, const v8::PropertyCallback
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8_RETURN_INTEGER(vehicle->GetPrimaryColor());
+    V8_RETURN_INT(vehicle->GetPrimaryColor());
 }
 
 static void PrimaryColorRGBGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -154,7 +154,7 @@ static void SecondaryColorGetter(v8::Local<v8::String>, const v8::PropertyCallba
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8_RETURN_INTEGER(vehicle->GetSecondaryColor());
+    V8_RETURN_INT(vehicle->GetSecondaryColor());
 }
 
 static void SecondaryColorRGBGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -170,7 +170,7 @@ static void PearlColorGetter(v8::Local<v8::String>, const v8::PropertyCallbackIn
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8_RETURN_INTEGER(vehicle->GetPearlColor());
+    V8_RETURN_INT(vehicle->GetPearlColor());
 }
 
 static void WheelColorGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -178,7 +178,7 @@ static void WheelColorGetter(v8::Local<v8::String>, const v8::PropertyCallbackIn
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8_RETURN_INTEGER(vehicle->GetWheelColor());
+    V8_RETURN_INT(vehicle->GetWheelColor());
 }
 
 static void InteriorColorGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -186,7 +186,7 @@ static void InteriorColorGetter(v8::Local<v8::String>, const v8::PropertyCallbac
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8_RETURN_INTEGER(vehicle->GetInteriorColor());
+    V8_RETURN_INT(vehicle->GetInteriorColor());
 }
 
 static void DashboardColorGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -194,7 +194,7 @@ static void DashboardColorGetter(v8::Local<v8::String>, const v8::PropertyCallba
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8_RETURN_INTEGER(vehicle->GetDashboardColor());
+    V8_RETURN_INT(vehicle->GetDashboardColor());
 }
 
 static void IsTireSmokeColorCustomGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -218,7 +218,7 @@ static void WheelTypeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInf
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8_RETURN_INTEGER(vehicle->GetWheelType());
+    V8_RETURN_INT(vehicle->GetWheelType());
 }
 
 static void WheelVariationGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -226,7 +226,7 @@ static void WheelVariationGetter(v8::Local<v8::String>, const v8::PropertyCallba
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8_RETURN_INTEGER(vehicle->GetWheelVariation());
+    V8_RETURN_INT(vehicle->GetWheelVariation());
 }
 
 static void RearWheelVariationGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -234,7 +234,7 @@ static void RearWheelVariationGetter(v8::Local<v8::String>, const v8::PropertyCa
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8_RETURN_INTEGER(vehicle->GetRearWheelVariation());
+    V8_RETURN_INT(vehicle->GetRearWheelVariation());
 }
 
 static void IsCustomTiresGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -250,7 +250,7 @@ static void SpecialDarknessGetter(v8::Local<v8::String>, const v8::PropertyCallb
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8_RETURN_INTEGER(vehicle->GetSpecialDarkness());
+    V8_RETURN_INT(vehicle->GetSpecialDarkness());
 }
 
 static void NumberplateIndexGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -258,7 +258,7 @@ static void NumberplateIndexGetter(v8::Local<v8::String>, const v8::PropertyCall
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8_RETURN_INTEGER(vehicle->GetNumberplateIndex());
+    V8_RETURN_INT(vehicle->GetNumberplateIndex());
 }
 
 static void NumberplateTextGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -274,7 +274,7 @@ static void WindowTintGetter(v8::Local<v8::String>, const v8::PropertyCallbackIn
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8_RETURN_INTEGER(vehicle->GetWindowTint());
+    V8_RETURN_INT(vehicle->GetWindowTint());
 }
 
 static void DirtLevelGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -282,7 +282,7 @@ static void DirtLevelGetter(v8::Local<v8::String>, const v8::PropertyCallbackInf
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8_RETURN_INTEGER(vehicle->GetDirtLevel());
+    V8_RETURN_INT(vehicle->GetDirtLevel());
 }
 
 static void IsNeonActiveGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -323,7 +323,7 @@ static void LiveryGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8_RETURN_INTEGER(vehicle->GetLivery());
+    V8_RETURN_INT(vehicle->GetLivery());
 }
 
 static void RoofLiveryGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -331,7 +331,7 @@ static void RoofLiveryGetter(v8::Local<v8::String>, const v8::PropertyCallbackIn
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8_RETURN_INTEGER(vehicle->GetRoofLivery());
+    V8_RETURN_INT(vehicle->GetRoofLivery());
 }
 
 static void EngineOnGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -355,7 +355,7 @@ static void HeadlightColorGetter(v8::Local<v8::String>, const v8::PropertyCallba
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8_RETURN_INTEGER(vehicle->GetHeadlightColor());
+    V8_RETURN_INT(vehicle->GetHeadlightColor());
 }
 
 static void RadioStationIndexGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -363,7 +363,7 @@ static void RadioStationIndexGetter(v8::Local<v8::String>, const v8::PropertyCal
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8_RETURN_INTEGER(vehicle->GetRadioStationIndex());
+    V8_RETURN_INT(vehicle->GetRadioStationIndex());
 }
 
 static void IsSirenActiveGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -379,7 +379,7 @@ static void LockStateGetter(v8::Local<v8::String>, const v8::PropertyCallbackInf
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8_RETURN_INTEGER(vehicle->GetLockState());
+    V8_RETURN_INT(vehicle->GetLockState());
 }
 
 static void IsDaylightOnGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -403,7 +403,7 @@ static void RoofStateGetter(v8::Local<v8::String>, const v8::PropertyCallbackInf
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8_RETURN_INTEGER(vehicle->GetRoofState());
+    V8_RETURN_INT(vehicle->GetRoofState());
 }
 
 static void IsFlamethrowerActiveGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -427,7 +427,7 @@ static void EngineHealthGetter(v8::Local<v8::String>, const v8::PropertyCallback
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8_RETURN_INTEGER(vehicle->GetEngineHealth());
+    V8_RETURN_INT(vehicle->GetEngineHealth());
 }
 
 static void PetrolTankHealthGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -435,7 +435,7 @@ static void PetrolTankHealthGetter(v8::Local<v8::String>, const v8::PropertyCall
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8_RETURN_INTEGER(vehicle->GetPetrolTankHealth());
+    V8_RETURN_INT(vehicle->GetPetrolTankHealth());
 }
 
 static void RepairsCountGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -443,7 +443,7 @@ static void RepairsCountGetter(v8::Local<v8::String>, const v8::PropertyCallback
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8_RETURN_INTEGER(vehicle->GetRepairsCount());
+    V8_RETURN_INT(vehicle->GetRepairsCount());
 }
 
 static void BodyHealthGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -451,7 +451,7 @@ static void BodyHealthGetter(v8::Local<v8::String>, const v8::PropertyCallbackIn
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8_RETURN_INTEGER(vehicle->GetBodyHealth());
+    V8_RETURN_INT(vehicle->GetBodyHealth());
 }
 
 static void BodyAdditionalHealthGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -459,7 +459,7 @@ static void BodyAdditionalHealthGetter(v8::Local<v8::String>, const v8::Property
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8_RETURN_INTEGER(vehicle->GetBodyAdditionalHealth());
+    V8_RETURN_INT(vehicle->GetBodyAdditionalHealth());
 }
 
 static void HasArmoredWindowsGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -542,7 +542,7 @@ static void MaxGearGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8_RETURN_INTEGER(vehicle->GetMaxGear());
+    V8_RETURN_INT(vehicle->GetMaxGear());
 }
 
 static void MaxGearSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
@@ -598,7 +598,7 @@ static void IndicatorLightsGetter(v8::Local<v8::String>, const v8::PropertyCallb
     V8_GET_ISOLATE(info);
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-    V8_RETURN_INTEGER(vehicle->GetLightsIndicator());
+    V8_RETURN_INT(vehicle->GetLightsIndicator());
 }
 
 static void IndicatorLightsSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
