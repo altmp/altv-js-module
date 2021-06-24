@@ -65,6 +65,10 @@
         "xutility": "cpp",
         "deque": "cpp",
         "queue": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "condition_variable": "cpp",
+        "set": "cpp"
     }
 }

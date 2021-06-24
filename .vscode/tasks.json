@@ -6,22 +6,12 @@
     {
       "label": "Build",
       "type": "shell",
-      "command": "cmake --build BUILD --config Release",
+      "command": ".\\tools\\build.bat",
       "problemMatcher": ["$msCompile"],
       "group": {
         "kind": "build",
         "isDefault": true
       },
-    },
-    {
-      "label": "Build (Debug)",
-      "type": "shell",
-      "command": "cmake --build BUILD --config Debug",
-      "problemMatcher": ["$msCompile"],
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      }
     }
   ]
 }
