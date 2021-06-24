@@ -118,6 +118,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native
 			{
 				v8::String::Utf8Value type(isolate, val->TypeOf(isolate));
 				Log::Error << "Native argument " << "(" << *type << ")" << " could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
+				scrCtx->Push(0);
 			}
 		}
 		else if (val->IsBigInt())
@@ -131,17 +132,20 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native
 			{
 				v8::String::Utf8Value type(isolate, val->TypeOf(isolate));
 				Log::Error << "Native argument " << "(" << *type << ")" << " could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
+				scrCtx->Push(0);
 			}
 		}
 		else if (val->IsObject())
 		{
 			auto ent = V8Entity::Get(val);
 			if(ent != nullptr) scrCtx->Push(ent->GetHandle().As<alt::IEntity>()->GetScriptGuid());
+			else scrCtx->Push(0);
 		}
 		else
 		{
 			v8::String::Utf8Value type(isolate, val->TypeOf(isolate));
 			Log::Error << "Native argument " << "(" << *type << ")" << " could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
+			scrCtx->Push(0);
 		}
 		break;
 	}
@@ -162,6 +166,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native
 			{
 				v8::String::Utf8Value type(isolate, val->TypeOf(isolate));
 				Log::Error << "Native argument " << "(" << *type << ")" << " could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
+				scrCtx->Push(0);
 			}
 		}
 		else if (val->IsBigInt())
@@ -175,12 +180,14 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native
 			{
 				v8::String::Utf8Value type(isolate, val->TypeOf(isolate));
 				Log::Error << "Native argument " << "(" << *type << ")" << " could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
+				scrCtx->Push(0);
 			}
 		}
 		else
 		{
 			v8::String::Utf8Value type(isolate, val->TypeOf(isolate));
 			Log::Error << "Native argument " << "(" << *type << ")" << " could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
+			scrCtx->Push(0);
 		}
 		break;
 	}
@@ -201,12 +208,14 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native
 			{
 				v8::String::Utf8Value type(isolate, val->TypeOf(isolate));
 				Log::Error << "Native argument " << "(" << *type << ")" << " could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
+				scrCtx->Push(0.f);
 			}
 		}
 		else
 		{
 			v8::String::Utf8Value type(isolate, val->TypeOf(isolate));
 			Log::Error << "Native argument " << "(" << *type << ")" << " could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
+			scrCtx->Push(0.f);
 		}
 		break;
 	}
@@ -232,6 +241,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native
 		{
 			v8::String::Utf8Value type(isolate, val->TypeOf(isolate));
 			Log::Error << "Native argument " << "(" << *type << ")" << " could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
+			scrCtx->Push((void*)nullptr);
 		}
 		break;
 	}
