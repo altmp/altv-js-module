@@ -224,7 +224,7 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, Constructor, [](v8::Local<v8::Func
 	V8::SetMethod(isolate, tpl, "setArmoredWindowShootCount", &SetArmoredWindowShootCount);
 	V8::SetMethod(isolate, tpl, "getDamageStatusBase64", &GetDamageStatus);
 	V8::SetMethod(isolate, tpl, "setDamageStatusBase64", &SetDamageStatus);
-	V8::SetMethod(isolate, tpl, "repair", &SetFixed);
+	V8::SetMethod<IVehicle, &IVehicle::SetFixed>(isolate, tpl, "repair");
 	V8::SetMethod(isolate, tpl, "setWheelFixed", &SetWheelFixed);
 
 	// Script getters/setters
@@ -233,7 +233,6 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, Constructor, [](v8::Local<v8::Func
 	// Script methods
 	V8::SetMethod(isolate, tpl, "getScriptDataBase64", &GetScriptData);
 	V8::SetMethod(isolate, tpl, "setScriptDataBase64", &SetScriptData);
-
 
 	V8::SetMethod(isolate, tpl, "getAttached", &GetAttached);
 	V8::SetMethod(isolate, tpl, "getAttachedTo", &GetAttachedTo);

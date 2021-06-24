@@ -110,22 +110,6 @@ static void RemoveWeapon(const v8::FunctionCallbackInfo<v8::Value>& info)
 	_this->RemoveWeapon(weaponHash);
 }
 
-static void RemoveAllWeapons(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-	V8_GET_ISOLATE_CONTEXT();
-	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
-
-	_this->RemoveAllWeapons();
-}
-
-static void ClearBloodDamage(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-	V8_GET_ISOLATE_CONTEXT();
-	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
-
-	_this->ClearBloodDamage();
-}
-
 static void AddWeaponComponent(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
@@ -420,10 +404,10 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
 	V8::SetMethod(isolate, tpl, "setDateTime", &SetDateTime);
 	V8::SetMethod(isolate, tpl, "setWeather", &SetWeather);
 
-	V8::SetMethod(isolate, tpl, "clearBloodDamage", &ClearBloodDamage);
+	V8::SetMethod<IPlayer, &IPlayer::ClearBloodDamage>(isolate, tpl, "clearBloodDamage");
 	V8::SetMethod(isolate, tpl, "giveWeapon", &GiveWeapon);
 	V8::SetMethod(isolate, tpl, "removeWeapon", &RemoveWeapon);
-	V8::SetMethod(isolate, tpl, "removeAllWeapons", &RemoveAllWeapons);
+	V8::SetMethod<IPlayer, &IPlayer::RemoveAllWeapons>(isolate, tpl, "removeAllWeapons");
 
 	V8::SetMethod(isolate, tpl, "addWeaponComponent", &AddWeaponComponent);
 	V8::SetMethod(isolate, tpl, "removeWeaponComponent", &RemoveWeaponComponent);
