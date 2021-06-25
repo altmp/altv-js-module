@@ -275,7 +275,7 @@ extern V8Class v8WebView("WebView", v8BaseObject, &Constructor,	[](v8::Local<v8:
 	V8::SetAccessor(isolate, tpl, "isVisible", &IsVisibleGetter, &IsVisibleSetter);
 	V8::SetAccessor(isolate, tpl, "url", &URLGetter, &URLSetter);
 	V8::SetAccessor(isolate, tpl, "isOverlay", &OverlayGetter);
-	V8::SetAccessor(isolate, tpl, "ready", &ReadyGetter);
+	V8::SetAccessor(isolate, tpl, "isReady", &ReadyGetter);
 	V8::SetAccessor(isolate, tpl, "focused", &FocusedGetter, &FocusedSetter);
 
 	V8::SetMethod(isolate, tpl, "on", &On);
