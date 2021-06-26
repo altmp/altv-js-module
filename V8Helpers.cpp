@@ -783,3 +783,35 @@ alt::String V8::Stringify(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx)
 	}
 	return *v8::String::Utf8Value(ctx->GetIsolate(), str);
 }
+
+alt::String V8::GetJSValueTypeName(v8::Local<v8::Value> val) 
+{
+	if(val->IsUndefined()) return "undefined";
+	if(val->IsNull()) return "null";
+	if(val->IsNumber()) return "number";
+	if(val->IsString()) return "string";
+	if(val->IsArray()) return "array";
+	if(val->IsBoolean()) return "bool";
+	if(val->IsBigInt()) return "bigint";
+	if(val->IsArrayBuffer()) return "arraybuffer";
+	if(val->IsArrayBufferView()) return "arraybufferview";
+	if(val->IsDate()) return "date";
+	if(val->IsArgumentsObject()) return "arguments";
+	if(val->IsAsyncFunction()) return "asyncfunction";
+	if(val->IsExternal()) return "external";
+	if(val->IsDataView()) return "dataview";
+	if(val->IsSymbol()) return "symbol";
+	if(val->IsFunction()) return "function";
+	if(val->IsRegExp()) return "regexp";
+	if(val->IsGeneratorFunction()) return "generatorfunction";
+	if(val->IsPromise()) return "promise";
+	if(val->IsProxy()) return "proxy";
+	if(val->IsMap()) return "map";
+	if(val->IsSet()) return "set";
+	if(val->IsWeakMap()) return "weakmap";
+	if(val->IsWeakSet()) return "weakset";
+	if(val->IsTypedArray()) return "typedarray";
+	if(val->IsProxy()) return "proxy";
+	if(val->IsObject()) return "object";
+	else return "unknown";
+}

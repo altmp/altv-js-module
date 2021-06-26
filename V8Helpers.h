@@ -219,6 +219,7 @@ namespace V8
 	}
 
 	alt::String Stringify(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx);
+	alt::String GetJSValueTypeName(v8::Local<v8::Value> val);
 } // namespace V8
 
 #define V8_GET_ISOLATE() v8::Isolate *isolate = info.GetIsolate()
