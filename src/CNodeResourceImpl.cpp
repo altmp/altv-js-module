@@ -45,8 +45,7 @@ static const char bootstrap_code[] = R"(
         return defaultGetFormat(url, context)
       }
     });
-    
-    const _path = path.resolve(alt.getResourcePath(__resourceName), alt.getResourceMain(__resourceName));
+    const _path = path.resolve(alt.getResourcePath(alt.resourceName), alt.getResourceMain(alt.resourceName));
 
     _exports = await loader.import(pathToFileURL(_path).pathname);
 
@@ -60,7 +59,7 @@ static const char bootstrap_code[] = R"(
     console.error(e);
   }
 
-  __resourceLoaded(__resourceName, _exports);
+  __resourceLoaded(alt.resourceName, _exports);
 })();
 )";
 
@@ -73,8 +72,6 @@ bool CNodeResourceImpl::Start()
 	v8::Local<v8::ObjectTemplate> global = v8::ObjectTemplate::New(isolate);
 
 	v8::Local<v8::String> resourceName = v8::String::NewFromUtf8(isolate, resource->GetName().CStr(), v8::NewStringType::kNormal).ToLocalChecked();
-
-	global->Set(v8::String::NewFromUtf8(isolate, "__resourceName", v8::NewStringType::kNormal).ToLocalChecked(), resourceName);
 
 	v8::Local<v8::Context> _context = node::NewContext(isolate, global);
 	v8::Context::Scope scope(_context);
