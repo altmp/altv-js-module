@@ -200,7 +200,7 @@ static void HwidExHashGetter(v8::Local<v8::String> name, const v8::PropertyCallb
 static void SetClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
-	V8_CHECK_ARGS_LEN_MIN_MAX(3, 5);
+	V8_CHECK_ARGS_LEN_MIN_MAX(3, 4);
 	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
 	V8_ARG_TO_INTEGER(1, component);
@@ -216,10 +216,26 @@ static void SetClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
 		V8_ARG_TO_INTEGER(4, palette);
 		player->SetClothes(component, drawable, texture, palette);
 	}
+}
+
+static void SetDlcClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN_MIN_MAX(4, 5);
+	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+	V8_ARG_TO_UINT32(1, dlc);
+	V8_ARG_TO_INTEGER(2, component);
+	V8_ARG_TO_INTEGER(3, drawable);
+	V8_ARG_TO_INTEGER(4, texture);
+
+	if(info.Length() == 4)
+	{
+		player->SetDlcClothes(component, drawable, texture, 2, dlc);
+	}
 	else if(info.Length() == 5)
 	{
-		V8_ARG_TO_INTEGER(4, palette);
-		V8_ARG_TO_INTEGER(5, dlc);
+		V8_ARG_TO_INTEGER(5, palette);
 		player->SetDlcClothes(component, drawable, texture, palette, dlc);
 	}
 }
@@ -227,34 +243,36 @@ static void SetClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void GetClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
-	V8_CHECK_ARGS_LEN2(1, 2);
+	V8_CHECK_ARGS_LEN(1);
 	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
 	V8_ARG_TO_INTEGER(1, component);
 
-	bool dlcCloth = false;
-	if(info.Length() == 2)
-	{
-		V8_ARG_TO_BOOLEAN(2, dlc);
-		dlcCloth = dlc;
-	}
+	V8_NEW_OBJECT(clothes);
+
+	auto cloth = player->GetClothes(component);
+	V8_OBJECT_SET_INTEGER(clothes, "drawable", cloth.drawableId);
+	V8_OBJECT_SET_INTEGER(clothes, "texture", cloth.textureId);
+	V8_OBJECT_SET_INTEGER(clothes, "palette", cloth.paletteId);
+
+	V8_RETURN(clothes);
+}
+
+static void GetDlcClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(1);
+	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+	V8_ARG_TO_INTEGER(1, component);
 
 	V8_NEW_OBJECT(clothes);
-	if(!dlcCloth)
-	{
-		auto cloth = player->GetClothes(component);
-		V8_OBJECT_SET_INTEGER(clothes, "drawable", cloth.drawableId);
-		V8_OBJECT_SET_INTEGER(clothes, "texture", cloth.textureId);
-		V8_OBJECT_SET_INTEGER(clothes, "palette", cloth.paletteId);
-	}
-	else
-	{
-		auto cloth = player->GetDlcClothes(component);
-		V8_OBJECT_SET_INTEGER(clothes, "drawable", cloth.drawableId);
-		V8_OBJECT_SET_INTEGER(clothes, "texture", cloth.textureId);
-		V8_OBJECT_SET_INTEGER(clothes, "palette", cloth.paletteId);
-		V8_OBJECT_SET_INTEGER(clothes, "dlc", cloth.dlc);
-	}
+
+	auto cloth = player->GetDlcClothes(component);
+	V8_OBJECT_SET_INTEGER(clothes, "drawable", cloth.drawableId);
+	V8_OBJECT_SET_INTEGER(clothes, "texture", cloth.textureId);
+	V8_OBJECT_SET_INTEGER(clothes, "palette", cloth.paletteId);
+	V8_OBJECT_SET_INTEGER(clothes, "dlc", cloth.dlc);
 
 	V8_RETURN(clothes);
 }
@@ -419,7 +437,9 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
 	V8::SetMethod(isolate, tpl, "isEntityInStreamRange", &IsEntityInStreamRange);
 	
 	V8::SetMethod(isolate, tpl, "setClothes", &SetClothes);
+	V8::SetMethod(isolate, tpl, "setDlcClothes", &SetDlcClothes);
 	V8::SetMethod(isolate, tpl, "getClothes", &GetClothes);
+	V8::SetMethod(isolate, tpl, "getDlcClothes", &GetDlcClothes);
 
 	V8::SetMethod(isolate, tpl, "setProp", &SetProps);
 	V8::SetMethod(isolate, tpl, "getProp", &GetProps);
