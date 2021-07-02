@@ -198,6 +198,7 @@ namespace V8
 	bool SafeToVector2(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, alt::Vector2f& out);
 	bool SafeToArrayBuffer(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::ArrayBuffer>& out);
 	bool SafeToArrayBufferView(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::ArrayBufferView>& out);
+	bool SafeToArray(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::Array>& out);
 
 	bool SafeToUInt64(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, uint64_t& out);
 	bool SafeToInt64(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, int64_t& out);
@@ -426,6 +427,10 @@ namespace V8
 #define V8_ARG_TO_ARRAY_BUFFER_VIEW(idx, val) \
 	v8::Local<v8::ArrayBufferView> val; \
 	V8_CHECK(V8::SafeToArrayBufferView(info[(idx) - 1], ctx, val), "Failed to convert argument " #idx " to ArrayBufferView")
+
+#define V8_ARG_TO_ARRAY(idx, val) \
+	v8::Local<v8::Array> val; \
+	V8_CHECK(V8::SafeToArray(info[(idx) - 1], ctx, val), "Failed to convert argument " #idx " to Array")
 
 // idx starts with 1
 #define V8_ARG_TO_UINT64(idx, val) \

@@ -721,6 +721,17 @@ bool V8::SafeToArrayBufferView(v8::Local<v8::Value> val, v8::Local<v8::Context> 
 	return false;
 }
 
+bool V8::SafeToArray(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::Array>& out) 
+{
+	if (val->IsArray())
+	{
+		out = val.As<v8::Array>();
+		return true;
+	}
+
+	return false;
+}
+
 std::vector<V8::EventCallback *> V8::EventHandler::GetCallbacks(V8ResourceImpl *impl, const alt::CEvent *e)
 {
 	return callbacksGetter(impl, e);
