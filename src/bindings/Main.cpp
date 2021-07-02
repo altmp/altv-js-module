@@ -296,31 +296,26 @@ static void GetLocale(const v8::FunctionCallbackInfo<v8::Value> &info)
 static void SetWeatherCycle(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
 	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(2);
 
-	V8_CHECK(info.Length() == 2, "2 args expected");
-	V8_CHECK(info[0]->IsArray(), "weathers must be an array");
-	V8_CHECK(info[1]->IsArray(), "timeMultipliers must be an array");
+	V8_ARG_TO_ARRAY(1, weathers);
+	V8_ARG_TO_ARRAY(2, multipliers);
 
-	v8::Local<v8::Array> weathers = info[0].As<v8::Array>();
-	v8::Local<v8::Array> multipliers = info[1].As<v8::Array>();
-
-	V8_CHECK(weathers->Length() <= 256, "weathers count must be <= 256");
-	V8_CHECK(multipliers->Length() <= 256, "multipliers count must be <= 256");
-	V8_CHECK(weathers->Length() == multipliers->Length(), "weathers count and multipliers count must be the same");
+	V8_CHECK(weathers->Length() < 256, "Weathers array size must be <= 255");
+	V8_CHECK(multipliers->Length() < 256, "Multipliers array size must be <= 255");
+	V8_CHECK(weathers->Length() == multipliers->Length(), "Weathers and multipliers array has to be the same size");
 
 	Array<uint8_t> weathersVec;
 	Array<uint8_t> multipliersVec;
 
 	for (int i = 0; i < weathers->Length(); ++i)
 	{
-		v8::Local<v8::Value> weatherVal = weathers->Get(ctx, i).ToLocalChecked();
-		uint32_t weatherNum = weatherVal->ToUint32(ctx).ToLocalChecked()->Value();
+		V8_TO_INTEGER(weathers->Get(ctx, i).ToLocalChecked(), weatherNum);
 		V8_CHECK(weatherNum >= 0 && weatherNum <= 14, "weather ids must be >= 0 && <= 14");
 		weathersVec.Push(weatherNum);
 
-		v8::Local<v8::Value> multiplierVal = multipliers->Get(ctx, i).ToLocalChecked();
-		uint32_t multiplierNum = multiplierVal->ToUint32(ctx).ToLocalChecked()->Value();
-		V8_CHECK(multiplierNum > 0 && multiplierNum <= 720, "multipliers must be > 0 && <= 720");
+		V8_TO_INTEGER(multipliers->Get(ctx, i).ToLocalChecked(), multiplierNum);
+		V8_CHECK(multiplierNum > 0 && multiplierNum < 256, "multipliers must be > 0 && <= 255");
 		multipliersVec.Push(multiplierNum);
 	}
 
