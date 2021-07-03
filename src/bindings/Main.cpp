@@ -660,7 +660,7 @@ static void TakeScreenshot(const v8::FunctionCallbackInfo<v8::Value> &info)
 	api.TakeScreenshot([](alt::StringView base64, const void *userData) {
 		// TODO: NOT PERFORMANCE EFFICIENT TO LOCK HERE, RESOLVE IN NEXT TICK INSTEAD
 
-		v8::Isolate *isolate = CV8ScriptRuntime::instance->GetIsolate();
+		v8::Isolate *isolate = CV8ScriptRuntime::Instance().GetIsolate();
 		v8::Locker locker(isolate);
 		v8::Isolate::Scope isolateScope(isolate);
 		v8::HandleScope handleScope(isolate);
@@ -695,7 +695,7 @@ static void TakeScreenshotGameOnly(const v8::FunctionCallbackInfo<v8::Value> &in
 	api.TakeScreenshotGameOnly([](alt::StringView base64, const void *userData) {
 		// TODO: NOT PERFORMANCE EFFICIENT TO LOCK HERE, RESOLVE IN NEXT TICK INSTEAD
 
-		v8::Isolate *isolate = CV8ScriptRuntime::instance->GetIsolate();
+		v8::Isolate *isolate = CV8ScriptRuntime::Instance().GetIsolate();
 		v8::Locker locker(isolate);
 		v8::Isolate::Scope isolateScope(isolate);
 		v8::HandleScope handleScope(isolate);

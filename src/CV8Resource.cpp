@@ -166,7 +166,7 @@ bool CV8ResourceImpl::Start()
 	DispatchStartEvent(!result);
 
 	// if all resources are already loaded
-	if(CV8ScriptRuntime::instance->resourcesLoaded) {
+	if(CV8ScriptRuntime::Instance().resourcesLoaded) {
 		ProcessDynamicImports();
 	}
 

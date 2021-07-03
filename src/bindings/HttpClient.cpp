@@ -53,7 +53,7 @@ static void Get(const v8::FunctionCallbackInfo<v8::Value>& info)
     auto callback = [](alt::IHttpClient::HttpResponse response, const void* userData) {
         // TODO: NOT PERFORMANCE EFFICIENT TO LOCK HERE, RESOLVE IN NEXT TICK INSTEAD
 
-        v8::Isolate* isolate = CV8ScriptRuntime::instance->GetIsolate();
+        v8::Isolate* isolate = CV8ScriptRuntime::Instance().GetIsolate();
         v8::Locker locker(isolate);
         v8::Isolate::Scope isolateScope(isolate);
         v8::HandleScope handleScope(isolate);
@@ -95,7 +95,7 @@ static void Head(const v8::FunctionCallbackInfo<v8::Value>& info)
     auto callback = [](alt::IHttpClient::HttpResponse response, const void* userData) {
         // TODO: NOT PERFORMANCE EFFICIENT TO LOCK HERE, RESOLVE IN NEXT TICK INSTEAD
 
-        v8::Isolate* isolate = CV8ScriptRuntime::instance->GetIsolate();
+        v8::Isolate* isolate = CV8ScriptRuntime::Instance().GetIsolate();
         v8::Locker locker(isolate);
         v8::Isolate::Scope isolateScope(isolate);
         v8::HandleScope handleScope(isolate);
@@ -138,7 +138,7 @@ static void Post(const v8::FunctionCallbackInfo<v8::Value>& info)
     auto callback = [](alt::IHttpClient::HttpResponse response, const void* userData) {
         // TODO: NOT PERFORMANCE EFFICIENT TO LOCK HERE, RESOLVE IN NEXT TICK INSTEAD
 
-        v8::Isolate* isolate = CV8ScriptRuntime::instance->GetIsolate();
+        v8::Isolate* isolate = CV8ScriptRuntime::Instance().GetIsolate();
         v8::Locker locker(isolate);
         v8::Isolate::Scope isolateScope(isolate);
         v8::HandleScope handleScope(isolate);
@@ -181,7 +181,7 @@ static void Put(const v8::FunctionCallbackInfo<v8::Value>& info)
     auto callback = [](alt::IHttpClient::HttpResponse response, const void* userData) {
         // TODO: NOT PERFORMANCE EFFICIENT TO LOCK HERE, RESOLVE IN NEXT TICK INSTEAD
 
-        v8::Isolate* isolate = CV8ScriptRuntime::instance->GetIsolate();
+        v8::Isolate* isolate = CV8ScriptRuntime::Instance().GetIsolate();
         v8::Locker locker(isolate);
         v8::Isolate::Scope isolateScope(isolate);
         v8::HandleScope handleScope(isolate);
@@ -224,7 +224,7 @@ static void Delete(const v8::FunctionCallbackInfo<v8::Value>& info)
     auto callback = [](alt::IHttpClient::HttpResponse response, const void* userData) {
         // TODO: NOT PERFORMANCE EFFICIENT TO LOCK HERE, RESOLVE IN NEXT TICK INSTEAD
 
-        v8::Isolate* isolate = CV8ScriptRuntime::instance->GetIsolate();
+        v8::Isolate* isolate = CV8ScriptRuntime::Instance().GetIsolate();
         v8::Locker locker(isolate);
         v8::Isolate::Scope isolateScope(isolate);
         v8::HandleScope handleScope(isolate);
@@ -267,7 +267,7 @@ static void Connect(const v8::FunctionCallbackInfo<v8::Value>& info)
     auto callback = [](alt::IHttpClient::HttpResponse response, const void* userData) {
         // TODO: NOT PERFORMANCE EFFICIENT TO LOCK HERE, RESOLVE IN NEXT TICK INSTEAD
 
-        v8::Isolate* isolate = CV8ScriptRuntime::instance->GetIsolate();
+        v8::Isolate* isolate = CV8ScriptRuntime::Instance().GetIsolate();
         v8::Locker locker(isolate);
         v8::Isolate::Scope isolateScope(isolate);
         v8::HandleScope handleScope(isolate);
@@ -310,7 +310,7 @@ static void Options(const v8::FunctionCallbackInfo<v8::Value>& info)
     auto callback = [](alt::IHttpClient::HttpResponse response, const void* userData) {
         // TODO: NOT PERFORMANCE EFFICIENT TO LOCK HERE, RESOLVE IN NEXT TICK INSTEAD
 
-        v8::Isolate* isolate = CV8ScriptRuntime::instance->GetIsolate();
+        v8::Isolate* isolate = CV8ScriptRuntime::Instance().GetIsolate();
         v8::Locker locker(isolate);
         v8::Isolate::Scope isolateScope(isolate);
         v8::HandleScope handleScope(isolate);
@@ -353,7 +353,7 @@ static void Trace(const v8::FunctionCallbackInfo<v8::Value>& info)
     auto callback = [](alt::IHttpClient::HttpResponse response, const void* userData) {
         // TODO: NOT PERFORMANCE EFFICIENT TO LOCK HERE, RESOLVE IN NEXT TICK INSTEAD
 
-        v8::Isolate* isolate = CV8ScriptRuntime::instance->GetIsolate();
+        v8::Isolate* isolate = CV8ScriptRuntime::Instance().GetIsolate();
         v8::Locker locker(isolate);
         v8::Isolate::Scope isolateScope(isolate);
         v8::HandleScope handleScope(isolate);
@@ -396,7 +396,7 @@ static void Patch(const v8::FunctionCallbackInfo<v8::Value>& info)
     auto callback = [](alt::IHttpClient::HttpResponse response, const void* userData) {
         // TODO: NOT PERFORMANCE EFFICIENT TO LOCK HERE, RESOLVE IN NEXT TICK INSTEAD
 
-        v8::Isolate* isolate = CV8ScriptRuntime::instance->GetIsolate();
+        v8::Isolate* isolate = CV8ScriptRuntime::Instance().GetIsolate();
         v8::Locker locker(isolate);
         v8::Isolate::Scope isolateScope(isolate);
         v8::HandleScope handleScope(isolate);

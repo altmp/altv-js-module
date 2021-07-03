@@ -302,7 +302,7 @@ static void StreamedInGetter(v8::Local<v8::String> name, const v8::PropertyCallb
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-    auto streamedIn = CV8ScriptRuntime::instance->GetStreamedInPlayers();
+    auto streamedIn = CV8ScriptRuntime::Instance().GetStreamedInPlayers();
     auto arr = v8::Array::New(isolate, streamedIn.size());
     int i = 0;
     for(auto kv : streamedIn)

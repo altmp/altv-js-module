@@ -25,7 +25,7 @@ V8_LOCAL_EVENT_HANDLER removeEntity(
 V8_EVENT_HANDLER gameEntityCreate(
 		EventType::GAME_ENTITY_CREATE,
 		[](V8ResourceImpl* resource, const alt::CEvent* e) {
-			CV8ScriptRuntime::instance->OnEntityStreamIn(static_cast<const alt::CGameEntityCreateEvent*>(e)->GetTarget());
+			CV8ScriptRuntime::Instance().OnEntityStreamIn(static_cast<const alt::CGameEntityCreateEvent*>(e)->GetTarget());
 
 			return resource->GetLocalHandlers("gameEntityCreate");
 		},
@@ -39,7 +39,7 @@ V8_EVENT_HANDLER gameEntityCreate(
 V8_EVENT_HANDLER gameEntityDestroy(
 		EventType::GAME_ENTITY_DESTROY,
 		[](V8ResourceImpl* resource, const alt::CEvent* e) {
-			CV8ScriptRuntime::instance->OnEntityStreamOut(static_cast<const alt::CGameEntityDestroyEvent*>(e)->GetTarget());
+			CV8ScriptRuntime::Instance().OnEntityStreamOut(static_cast<const alt::CGameEntityDestroyEvent*>(e)->GetTarget());
 			
 			return resource->GetLocalHandlers("gameEntityDestroy");
 		},

@@ -5,12 +5,8 @@
 #include "helpers/V8Module.h"
 #include "events/Events.h"
 
-CV8ScriptRuntime* CV8ScriptRuntime::instance = nullptr;
-
 CV8ScriptRuntime::CV8ScriptRuntime()
 {
-	instance = this;
-
 	platform = v8::platform::NewDefaultPlatform();
 	v8::V8::InitializePlatform(platform.get());
 	v8::V8::Initialize();
@@ -114,7 +110,7 @@ CV8ScriptRuntime::CV8ScriptRuntime()
 			});
 		};
 
-		if(instance->resourcesLoaded && resource->GetResource()->IsStarted())
+		if(Instance().resourcesLoaded && resource->GetResource()->IsStarted())
 		{
 			// instantly resolve the module
 			domodule();

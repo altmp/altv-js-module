@@ -27,9 +27,14 @@ class CV8ScriptRuntime : public alt::IScriptRuntime
 	std::unordered_map<uint16_t, alt::Ref<alt::IVehicle>> streamedInVehicles;
 
 public:
-	static CV8ScriptRuntime* instance;
 
 	CV8ScriptRuntime();
+
+	static CV8ScriptRuntime& Instance()
+	{
+		static CV8ScriptRuntime instance;
+		return instance;
+	}
 
 	v8::Isolate *GetIsolate() const { return isolate; }
 

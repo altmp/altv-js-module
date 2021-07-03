@@ -51,12 +51,12 @@ static void ClientJSCommand(alt::Array<alt::StringView> args, void*)
 ALTV_JS_EXPORT void CreateScriptRuntime(alt::ICore *core)
 {
     alt::ICore::SetInstance(core);
-    auto runtime = new CV8ScriptRuntime();
-    core->RegisterScriptRuntime("js", runtime);
+    auto& runtime = CV8ScriptRuntime::Instance();
+    core->RegisterScriptRuntime("js", &runtime);
 
     // Commands
-    core->SubscribeCommand("heap", &HeapCommand, runtime);
-    core->SubscribeCommand("timers", &TimersCommand, runtime);
+    core->SubscribeCommand("heap", &HeapCommand, &runtime);
+    core->SubscribeCommand("timers", &TimersCommand, &runtime);
     core->SubscribeCommand("js-module", &ClientJSCommand);
 }
 
