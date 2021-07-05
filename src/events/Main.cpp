@@ -96,6 +96,11 @@ V8_EVENT_HANDLER keyboardEvent(
 			return resource->GetLocalHandlers("keyup");
 		else if (ev->GetKeyState() == alt::CKeyboardEvent::KeyState::DOWN)
 			return resource->GetLocalHandlers("keydown");
+		else
+		{
+			Log::Error << "Unhandled keystate in keyboard event handler: " << (int)ev->GetKeyState() << Log::Endl;
+			return std::vector<V8::EventCallback*>();
+		}
 	},
 	[](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
 		auto ev = static_cast<const alt::CKeyboardEvent*>(e);
