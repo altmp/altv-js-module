@@ -53,7 +53,7 @@ static void Off(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void Start(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	V8_GET_ISOLATE(info);
+	V8_GET_ISOLATE();
 
 	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
 
@@ -94,7 +94,7 @@ static void Send(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void Stop(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	V8_GET_ISOLATE(info);
+	V8_GET_ISOLATE();
 
 	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
 
@@ -182,7 +182,7 @@ static void GetEventListeners(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void URLGetter(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	V8_GET_ISOLATE(info);
+	V8_GET_ISOLATE();
 
 	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
 
@@ -202,7 +202,7 @@ static void URLSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value
 
 static void ReadyStateGetter(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	V8_GET_ISOLATE(info);
+	V8_GET_ISOLATE();
 
 	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
 
@@ -222,7 +222,7 @@ static void AutoReconnectSetter(v8::Local<v8::String> property, v8::Local<v8::Va
 
 static void AutoReconnectGetter(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	V8_GET_ISOLATE(info);
+	V8_GET_ISOLATE();
 
 	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
 
@@ -242,7 +242,7 @@ static void PerMessageDeflateSetter(v8::Local<v8::String> property, v8::Local<v8
 
 static void PerMessageDeflateGetter(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	V8_GET_ISOLATE(info);
+	V8_GET_ISOLATE();
 
 	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
 
@@ -262,7 +262,7 @@ static void PingIntervalSetter(v8::Local<v8::String> property, v8::Local<v8::Val
 
 static void PingIntervalGetter(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	V8_GET_ISOLATE(info);
+	V8_GET_ISOLATE();
 
 	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
 

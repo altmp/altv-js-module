@@ -34,7 +34,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void Get(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-    V8_GET_ISOLATE(info);
+    V8_GET_ISOLATE();
     V8_CHECK_ARGS_LEN(1);
     V8_CHECK(info[0]->IsNumber() || info[0]->IsString(), "zoomDataId must be a number or string");
 
