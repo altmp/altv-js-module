@@ -228,7 +228,7 @@ static void SetDlcClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_ARG_TO_INTEGER(2, component);
 	V8_ARG_TO_INTEGER(3, drawable);
 	V8_ARG_TO_INTEGER(4, texture);
-	
+
 	if(info.Length() == 4)
 	{
 		player->SetDlcClothes(component, drawable, texture, 2, dlc);
