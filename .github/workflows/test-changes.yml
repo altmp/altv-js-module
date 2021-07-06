@@ -28,4 +28,6 @@ jobs:
 
       - name: Build
         shell: bash
-        run: ./build.sh
+        run: |
+          chmod 777 ./build.sh
+          ./build.sh
