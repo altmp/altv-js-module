@@ -1,0 +1,31 @@
+name: Test changes
+on: [pull_request]
+
+jobs:
+  test-windows:
+    name: Test changes on Windows
+    runs-on: windows-2019
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          lfs: true
+
+      - name: Build
+        shell: cmd
+        run: build.bat
+
+  test-linux:
+    name: Test changes on Linux
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          lfs: true
+
+      - name: Build
+        shell: cmd
+        run: ./build.sh
