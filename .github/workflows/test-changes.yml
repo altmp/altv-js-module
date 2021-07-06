@@ -27,5 +27,5 @@ jobs:
           lfs: true
 
       - name: Build
-        shell: cmd
+        shell: bash
         run: ./build.sh
