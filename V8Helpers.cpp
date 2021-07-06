@@ -156,8 +156,8 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val)
 		}
 		else if (val->IsArrayBuffer())
 		{
-			v8::ArrayBuffer::Contents v8Buffer = val.As<v8::ArrayBuffer>()->GetContents();
-			return core.CreateMValueByteArray((uint8_t*)v8Buffer.Data(), v8Buffer.ByteLength());
+			auto v8Buffer = val.As<v8::ArrayBuffer>()->GetBackingStore();
+			return core.CreateMValueByteArray((uint8_t*)v8Buffer->Data(), v8Buffer->ByteLength());
 		}
 		else
 		{
@@ -315,7 +315,7 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
 	{
 		alt::MValueByteArrayConst buffer = val.As<alt::IMValueByteArray>();
 		v8::Local<v8::ArrayBuffer> v8Buffer = v8::ArrayBuffer::New(isolate, buffer->GetSize());
-		std::memcpy(v8Buffer->GetContents().Data(), buffer->GetData(), buffer->GetSize());
+		std::memcpy(v8Buffer->GetBackingStore()->Data(), buffer->GetData(), buffer->GetSize());
 		return v8Buffer;
 	}
 	default:

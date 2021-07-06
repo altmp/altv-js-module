@@ -61,9 +61,9 @@ static void StaticRead(const v8::FunctionCallbackInfo<v8::Value> &info)
 	else if (encoding == "binary")
 	{
 		v8::Local<v8::ArrayBuffer> buffer = v8::ArrayBuffer::New(isolate, data.GetSize());
-		v8::ArrayBuffer::Contents contents = buffer->GetContents();
+		auto contents = buffer->GetBackingStore();
 
-		std::memcpy(contents.Data(), data.GetData(), data.GetSize());
+		std::memcpy(contents->Data(), data.GetData(), data.GetSize());
 
 		V8_RETURN(buffer);
 	}
