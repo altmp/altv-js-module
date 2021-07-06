@@ -7,7 +7,7 @@
 bool V8Helpers::TryCatch(const std::function<bool()>& fn)
 {
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
-	v8::Local<v8::Context> context = isolate->GetEnteredContext();
+	v8::Local<v8::Context> context = isolate->GetEnteredOrMicrotaskContext();
 	v8::TryCatch tryCatch(isolate);
 
 	alt::IResource* resource = V8ResourceImpl::GetResource(context);
@@ -73,7 +73,7 @@ bool V8Helpers::TryCatch(const std::function<bool()>& fn)
 void V8Helpers::RegisterFunc(v8::Local<v8::Object> exports, const std::string& _name, v8::FunctionCallback cb, void* data)
 {
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
-	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
+	v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
 
 	v8::Local<v8::String> name = v8::String::NewFromUtf8(isolate, _name.data(), v8::NewStringType::kNormal, _name.size()).ToLocalChecked();
 
@@ -88,10 +88,10 @@ void V8Helpers::FunctionCallback(const v8::FunctionCallbackInfo<v8::Value>& info
 	auto fn = static_cast<alt::MValueFunction*>(info.Data().As<v8::External>()->Value());
 
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
-	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
+	v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
 	V8ResourceImpl* resource = V8ResourceImpl::Get(ctx);
 
-	Log::Debug << "FunctionCallback " << resource->GetResource()->GetName() << " " << V8ResourceImpl::Get(isolate->GetEnteredContext())->GetResource()->GetName() << Log::Endl;
+	Log::Debug << "FunctionCallback " << resource->GetResource()->GetName() << " " << V8ResourceImpl::Get(isolate->GetEnteredOrMicrotaskContext())->GetResource()->GetName() << Log::Endl;
 
 	alt::MValueArgs args;
 
@@ -108,7 +108,7 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val)
 	auto& core = alt::ICore::Instance();
 
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
-	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
+	v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
 
 	if (val.IsEmpty())
 		return core.CreateMValueNone();
@@ -240,7 +240,7 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val)
 v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
 {
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
-	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
+	v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
 
 	switch (val->GetType())
 	{

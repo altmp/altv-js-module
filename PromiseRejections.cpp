@@ -28,7 +28,7 @@ void V8::PromiseRejections::HandlerAdded(V8ResourceImpl *resource, v8::PromiseRe
 void V8::PromiseRejections::ProcessQueue(V8ResourceImpl *resource)
 {
 	v8::Isolate *isolate = resource->GetIsolate();
-	v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
+	v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
 
 	for (auto &rejection : queue)
 	{

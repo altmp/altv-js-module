@@ -224,17 +224,17 @@ namespace V8
 } // namespace V8
 
 #define V8_GET_ISOLATE() v8::Isolate *isolate = info.GetIsolate()
-#define V8_GET_CONTEXT() v8::Local<v8::Context> ctx = isolate->GetEnteredContext()
+#define V8_GET_CONTEXT() v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext()
 #define V8_GET_ISOLATE_CONTEXT() \
 	V8_GET_ISOLATE();        \
 	V8_GET_CONTEXT()
 
 #define V8_GET_RESOURCE()                                                         \
-	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext()); \
+	V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredOrMicrotaskContext()); \
 	V8_CHECK(resource, "invalid resource");
 
 #define V8_GET_IRESOURCE()                                                         \
-	alt::IResource *resource = V8ResourceImpl::GetResource(isolate->GetEnteredContext()); \
+	alt::IResource *resource = V8ResourceImpl::GetResource(isolate->GetEnteredOrMicrotaskContext()); \
 	V8_CHECK(resource, "invalid resource");
 
 #define V8_GET_ISOLATE_CONTEXT_RESOURCE() \
@@ -264,15 +264,15 @@ namespace V8
 
 // idx starts with 1
 #define V8_GET_THIS_INTERNAL_FIELD_OBJECT(idx, val) \
-	auto val = info.This()->GetInternalField((idx)-1)->ToObject(isolate->GetEnteredContext()).ToLocalChecked();
+	auto val = info.This()->GetInternalField((idx)-1)->ToObject(isolate->GetEnteredOrMicrotaskContext()).ToLocalChecked();
 
 // idx starts with 1
 #define V8_GET_THIS_INTERNAL_FIELD_V8ENTITY(idx, val) \
-	auto val = V8Entity::Get(info.This()->GetInternalField((idx)-1)->ToObject(isolate->GetEnteredContext()).ToLocalChecked());
+	auto val = V8Entity::Get(info.This()->GetInternalField((idx)-1)->ToObject(isolate->GetEnteredOrMicrotaskContext()).ToLocalChecked());
 
 // idx starts with 1
 #define V8_GET_THIS_INTERNAL_FIELD_ENTITY(idx, val, type) \
-	auto val = V8Entity::Get(info.This()->GetInternalField((idx)-1)->ToObject(isolate->GetEnteredContext()).ToLocalChecked())->GetHandle().As<type>();
+	auto val = V8Entity::Get(info.This()->GetInternalField((idx)-1)->ToObject(isolate->GetEnteredOrMicrotaskContext()).ToLocalChecked())->GetHandle().As<type>();
 
 // idx starts with 1
 #define V8_GET_THIS_INTERNAL_FIELD_INTEGER(idx, val) \
