@@ -228,7 +228,7 @@ static void SetDlcClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_ARG_TO_INTEGER(2, component);
 	V8_ARG_TO_INTEGER(3, drawable);
 	V8_ARG_TO_INTEGER(4, texture);
-
+	
 	if(info.Length() == 4)
 	{
 		player->SetDlcClothes(component, drawable, texture, 2, dlc);
@@ -280,22 +280,28 @@ static void GetDlcClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void SetProps(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
-	V8_CHECK_ARGS_LEN_MIN_MAX(3, 4);
+	V8_CHECK_ARGS_LEN(3);
 	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
 	V8_ARG_TO_INTEGER(1, component);
 	V8_ARG_TO_INTEGER(2, drawable);
 	V8_ARG_TO_INTEGER(3, texture);
 
-	if(info.Length() == 3)
-	{
-		player->SetProps(component, drawable, texture);
-	}
-	else if(info.Length() == 4)
-	{
-		V8_ARG_TO_INTEGER(4, dlc);
-		player->SetDlcProps(component, drawable, texture, dlc);
-	}
+	player->SetProps(component, drawable, texture);
+}
+
+static void SetDlcProps(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(4);
+	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+	V8_ARG_TO_INTEGER(1, component);
+	V8_ARG_TO_INTEGER(2, drawable);
+	V8_ARG_TO_INTEGER(3, texture);
+	V8_ARG_TO_UINT32(4, dlc);
+	
+	player->SetDlcProps(component, drawable, texture, dlc);
 }
 
 static void ClearProps(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -312,32 +318,34 @@ static void ClearProps(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void GetProps(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
-	V8_CHECK_ARGS_LEN2(1, 2);
+	V8_CHECK_ARGS_LEN(1);
 	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
 	V8_ARG_TO_INTEGER(1, component);
 
-	bool dlcProp = false;
-	if(info.Length() == 2)
-	{
-		V8_ARG_TO_BOOLEAN(2, dlc);
-		dlcProp = dlc;
-	}
+	V8_NEW_OBJECT(prop);
+	
+	auto props = player->GetProps(component);
+	V8_OBJECT_SET_INTEGER(prop, "drawable", props.drawableId);
+	V8_OBJECT_SET_INTEGER(prop, "texture", props.textureId);
+
+	V8_RETURN(prop);
+}
+
+static void GetDlcProps(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(1);
+	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+	V8_ARG_TO_INTEGER(1, component);
 
 	V8_NEW_OBJECT(prop);
-	if(!dlcProp)
-	{
-		auto props = player->GetProps(component);
-		V8_OBJECT_SET_INTEGER(prop, "drawable", props.drawableId);
-		V8_OBJECT_SET_INTEGER(prop, "texture", props.textureId);
-	}
-	else
-	{
-		auto props = player->GetDlcProps(component);
-		V8_OBJECT_SET_INTEGER(prop, "drawable", props.drawableId);
-		V8_OBJECT_SET_INTEGER(prop, "texture", props.textureId);
-		V8_OBJECT_SET_INTEGER(prop, "dlc", props.dlc);
-	}
+
+	auto props = player->GetDlcProps(component);
+	V8_OBJECT_SET_INTEGER(prop, "drawable", props.drawableId);
+	V8_OBJECT_SET_INTEGER(prop, "texture", props.textureId);
+	V8_OBJECT_SET_INTEGER(prop, "dlc", props.dlc);
 
 	V8_RETURN(prop);
 }
@@ -442,6 +450,8 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
 	V8::SetMethod(isolate, tpl, "getDlcClothes", &GetDlcClothes);
 
 	V8::SetMethod(isolate, tpl, "setProp", &SetProps);
+	V8::SetMethod(isolate, tpl, "setDlcProp", &SetDlcProps);
 	V8::SetMethod(isolate, tpl, "getProp", &GetProps);
+	V8::SetMethod(isolate, tpl, "getDlcProp", &GetDlcProps);
 	V8::SetMethod(isolate, tpl, "clearProp", &ClearProps);
 });
