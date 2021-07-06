@@ -14,7 +14,11 @@ jobs:
 
       - name: Build
         shell: cmd
-        run: build.bat
+        run: |
+          mkdir build
+          pushd build
+          cmake -G"Visual Studio 16" -A x64 ..
+          cmake --build . --config Release
 
   test-linux:
     name: Test changes on Linux
@@ -27,7 +31,10 @@ jobs:
           lfs: true
 
       - name: Build
-        shell: bash
         run: |
-          chmod 777 ./build.sh
-          ./build.sh
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+          sudo apt-get update
+          sudo apt-get install gcc-8 g++-8
+          mkdir build-linux && cd build-linux
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-8 ..
+          cmake --build . --config Release
