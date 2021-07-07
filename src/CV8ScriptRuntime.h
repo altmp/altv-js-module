@@ -61,6 +61,7 @@ public:
 		v8::HandleScope handle_scope(isolate);
 
 		v8::platform::PumpMessageLoop(platform.get(), isolate);
+		isolate->PerformMicrotaskCheckpoint();
 	}
 
 	std::unordered_set<CV8ResourceImpl*> GetResources()

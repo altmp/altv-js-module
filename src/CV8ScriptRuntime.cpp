@@ -122,6 +122,8 @@ CV8ScriptRuntime::CV8ScriptRuntime()
 		return v8::MaybeLocal<v8::Promise>(resolver->GetPromise());
 	});
 
+	isolate->SetMicrotasksPolicy(v8::MicrotasksPolicy::kExplicit);
+
 	/*{
 		v8::Locker locker(isolate);
 		v8::Isolate::Scope isolate_scope(isolate);
