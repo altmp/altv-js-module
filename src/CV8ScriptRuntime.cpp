@@ -13,15 +13,6 @@ CV8ScriptRuntime::CV8ScriptRuntime()
 
 	create_params.array_buffer_allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
 
-	/*
-	!!! This increases the max heap size massively (when having 16GB RAM from 1.41GB to 4GB) 
-	!!! so enable this when there are ever any changes that require a increase in max heap size.
-	!!! Also needs #include <windows.h>
-	::MEMORYSTATUS buffer;
-	::GlobalMemoryStatus(&buffer);
-	create_params.constraints.ConfigureDefaults(buffer.dwTotalPhys, buffer.dwTotalVirtual);
-	*/
-
 	isolate = v8::Isolate::New(create_params);
 	isolate->SetFatalErrorHandler([](const char *location, const char *message) {
 		Log::Error << "[V8] " << location << ": " << message << Log::Endl;
