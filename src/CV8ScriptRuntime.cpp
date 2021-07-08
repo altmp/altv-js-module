@@ -26,7 +26,7 @@ CV8ScriptRuntime::CV8ScriptRuntime()
 
 	isolate->AddNearHeapLimitCallback([](void*, size_t current, size_t initial) {
 		Log::Warning << "[V8] The remaining V8 heap space is approaching critical levels. Forward this to the server developers." << Log::Endl;
-		Log::Warning << "[V8] Initial heap limit: " << CV8ScriptRuntime::formatBytes(initial) << " | Current heap limit: " << CV8ScriptRuntime::formatBytes(current) << Log::Endl;
+		Log::Warning << "[V8] Initial heap limit: " << CV8ScriptRuntime::FormatBytes(initial) << " | Current heap limit: " << CV8ScriptRuntime::FormatBytes(current) << Log::Endl;
 
 		// Increase the heap limit by 100MB if the heap limit has not exceeded 4GB
 		uint64_t currentLimitMb = (current / 1024) / 1024;
