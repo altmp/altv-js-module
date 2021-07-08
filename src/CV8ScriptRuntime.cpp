@@ -29,9 +29,19 @@ CV8ScriptRuntime::CV8ScriptRuntime()
 
 	isolate->SetOOMErrorHandler([](const char* location, bool isHeap) {
 		if(!isHeap) return;
-		Log::Error << "[V8] " << location << ": Heap out of memory." << Log::Endl;
+		Log::Error << "[V8] " << location << ": Heap out of memory. Forward this to the server developers." << Log::Endl;
 		Log::Error << "[V8] The current heap limit can be shown with the 'heap' console command. Consider increasing your system RAM." << Log::Endl;
 	});
+
+	isolate->AddNearHeapLimitCallback([](void*, size_t current, size_t initial) {
+		Log::Warning << "[V8] The remaining V8 heap space is approaching critical levels. Forward this to the server developers." << Log::Endl;
+		Log::Warning << "[V8] Initial heap limit: " << CV8ScriptRuntime::formatBytes(initial) << " | Current heap limit: " << CV8ScriptRuntime::formatBytes(current) << Log::Endl;
+
+		// Increase the heap limit by 100MB if the heap limit has not exceeded 4GB
+		uint64_t currentLimitMb = (current / 1024) / 1024;
+		if(currentLimitMb < 4096) return current + (100 * 1024 * 1024);
+		else return current;
+	}, nullptr);
 
 	isolate->SetPromiseRejectCallback([](v8::PromiseRejectMessage message) {
 		v8::Isolate *isolate = v8::Isolate::GetCurrent();
