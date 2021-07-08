@@ -160,4 +160,6 @@ private:
 	std::unordered_set<alt::Ref<alt::IBaseObject>> ownedObjects;
 
 	v8::Persistent<v8::Object> localStorage;
+
+	std::unique_ptr<v8::MicrotaskQueue> microtaskQueue;
 };

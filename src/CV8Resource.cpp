@@ -68,7 +68,15 @@ bool CV8ResourceImpl::Start()
 	v8::Isolate::Scope isolate_scope(isolate);
 	v8::HandleScope handle_scope(isolate);
 
-	v8::Local<v8::Context> ctx = v8::Context::New(isolate);
+	microtaskQueue = v8::MicrotaskQueue::New(isolate, v8::MicrotasksPolicy::kExplicit);
+	v8::Local<v8::Context> ctx = v8::Context::New(
+		isolate, 
+		nullptr, 
+		v8::MaybeLocal<v8::ObjectTemplate>(), 
+		v8::MaybeLocal<v8::Value>(), 
+		v8::DeserializeInternalFieldsCallback(), 
+		microtaskQueue.get()
+	);
 
 	context.Reset(isolate, ctx);
 	ctx->SetAlignedPointerInEmbedderData(1, resource);
@@ -329,8 +337,9 @@ void CV8ResourceImpl::OnTick()
 	v8::Locker locker(isolate);
 	v8::Isolate::Scope isolateScope(isolate);
 	v8::HandleScope handleScope(isolate);
-
 	v8::Context::Scope scope(GetContext());
+
+	microtaskQueue->PerformCheckpoint(isolate);
 
 	int64_t time = GetTime();
 
