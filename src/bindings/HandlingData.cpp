@@ -28,7 +28,7 @@ static void GetForHandlingName(const v8::FunctionCallbackInfo<v8::Value>& info)
 	};
 
 	extern V8Class v8HandlingData;
-	V8_RETURN(v8HandlingData.New(isolate->GetEnteredContext(), args));
+	V8_RETURN(v8HandlingData.New(isolate->GetEnteredOrMicrotaskContext(), args));
 }
 
 static void GetForHandlingNameDeprecated(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -43,7 +43,7 @@ static void GetForHandlingNameDeprecated(const v8::FunctionCallbackInfo<v8::Valu
 	};
 
 	extern V8Class v8HandlingData;
-	V8_RETURN(v8HandlingData.New(isolate->GetEnteredContext(), args));
+	V8_RETURN(v8HandlingData.New(isolate->GetEnteredOrMicrotaskContext(), args));
 
 	Log::Warning << "alt.HandlingData.getForModelName is deprecated and will be removed in the future. Please use alt.HandlingData.getForHandlingName" << Log::Endl;
 }
@@ -375,7 +375,7 @@ static void InitialDriveGearsSetter(v8::Local<v8::String>, v8::Local<v8::Value> 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetInitialDriveGears(val->ToUint32(isolate->GetEnteredContext()).ToLocalChecked()->Value());
+	handling->SetInitialDriveGears(val->ToUint32(isolate->GetEnteredOrMicrotaskContext()).ToLocalChecked()->Value());
 }
 
 static void DriveInertiaGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -1701,7 +1701,7 @@ static void MonetaryValueSetter(v8::Local<v8::String>, v8::Local<v8::Value> val,
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetMonetaryValue(val->ToUint32(isolate->GetEnteredContext()).ToLocalChecked()->Value());
+	handling->SetMonetaryValue(val->ToUint32(isolate->GetEnteredOrMicrotaskContext()).ToLocalChecked()->Value());
 }
 
 static void ModelFlagsGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -1725,7 +1725,7 @@ static void ModelFlagsSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, co
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetModelFlags(val->ToUint32(isolate->GetEnteredContext()).ToLocalChecked()->Value());
+	handling->SetModelFlags(val->ToUint32(isolate->GetEnteredOrMicrotaskContext()).ToLocalChecked()->Value());
 }
 
 static void HandlingFlagsGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -1749,7 +1749,7 @@ static void HandlingFlagsSetter(v8::Local<v8::String>, v8::Local<v8::Value> val,
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetHandlingFlags(val->ToUint32(isolate->GetEnteredContext()).ToLocalChecked()->Value());
+	handling->SetHandlingFlags(val->ToUint32(isolate->GetEnteredOrMicrotaskContext()).ToLocalChecked()->Value());
 }
 
 static void DamageFlagsGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -1773,7 +1773,7 @@ static void DamageFlagsSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, c
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "handling data for vehicle not found");
 
-	handling->SetDamageFlags(val->ToUint32(isolate->GetEnteredContext()).ToLocalChecked()->Value());
+	handling->SetDamageFlags(val->ToUint32(isolate->GetEnteredOrMicrotaskContext()).ToLocalChecked()->Value());
 }
 
 extern V8Class v8HandlingData("HandlingData", Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {

@@ -520,7 +520,7 @@ static void ToggleExtra(const v8::FunctionCallbackInfo<v8::Value>& info)
 //     V8_GET_ISOLATE();
 //     V8_CHECK(val->IsNumber(), "val must be a number");
 
-//     V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
+//     V8ResourceImpl *resource = V8ResourceImpl::Get(isolate->GetEnteredOrMicrotaskContext());
 //     V8_CHECK(resource, "invalid resource");
 
 //     V8_CHECK(val->IsNumber(), "val needs to be a nummber (float)");

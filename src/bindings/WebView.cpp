@@ -200,7 +200,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 	V8_ARG_TO_STRING(1, url);
 
-	alt::IResource* altres = V8ResourceImpl::GetResource(isolate->GetEnteredContext());
+	alt::IResource* altres = V8ResourceImpl::GetResource(isolate->GetEnteredOrMicrotaskContext());
 	V8_CHECK(altres, "invalid resource");
 
 	alt::Ref<IWebView> view = nullptr;

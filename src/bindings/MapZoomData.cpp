@@ -39,7 +39,7 @@ static void Get(const v8::FunctionCallbackInfo<v8::Value> &info)
     V8_CHECK(info[0]->IsNumber() || info[0]->IsString(), "zoomDataId must be a number or string");
 
     std::vector<v8::Local<v8::Value>> args{ info[0] };
-    V8_RETURN(v8MapZoomData.New(isolate->GetEnteredContext(), args));
+    V8_RETURN(v8MapZoomData.New(isolate->GetEnteredOrMicrotaskContext(), args));
 }
 
 static void ResetAll(const v8::FunctionCallbackInfo<v8::Value> &info)

@@ -667,10 +667,10 @@ static void TakeScreenshot(const v8::FunctionCallbackInfo<v8::Value> &info)
 
 		auto persistent = (v8::UniquePersistent<v8::Promise::Resolver> *)userData;
 		auto resolver = persistent->Get(isolate);
-		auto ctx = resolver->CreationContext();
+		auto ctx = resolver->GetCreationContext().ToLocalChecked();
 		{
 			v8::Context::Scope ctxscope(ctx);
-			resolver->Resolve(resolver->CreationContext(), v8::String::NewFromUtf8(isolate, base64.CStr()).ToLocalChecked());
+			resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), v8::String::NewFromUtf8(isolate, base64.CStr()).ToLocalChecked());
 		}
 
 		promises.remove(*persistent);
@@ -702,10 +702,10 @@ static void TakeScreenshotGameOnly(const v8::FunctionCallbackInfo<v8::Value> &in
 
 		auto persistent = (v8::UniquePersistent<v8::Promise::Resolver> *)userData;
 		auto resolver = persistent->Get(isolate);
-		auto ctx = resolver->CreationContext();
+		auto ctx = resolver->GetCreationContext().ToLocalChecked();
 		{
 			v8::Context::Scope ctxscope(ctx);
-			resolver->Resolve(resolver->CreationContext(), v8::String::NewFromUtf8(isolate, base64.CStr()).ToLocalChecked());
+			resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), v8::String::NewFromUtf8(isolate, base64.CStr()).ToLocalChecked());
 		}
 
 		promises.remove(*persistent);

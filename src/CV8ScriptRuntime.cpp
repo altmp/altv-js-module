@@ -46,7 +46,7 @@ CV8ScriptRuntime::CV8ScriptRuntime()
 	isolate->SetPromiseRejectCallback([](v8::PromiseRejectMessage message) {
 		v8::Isolate *isolate = v8::Isolate::GetCurrent();
 		v8::Local<v8::Value> value = message.GetValue();
-		v8::Local<v8::Context> ctx = isolate->GetEnteredContext();
+		v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
 
 		CV8ResourceImpl *resource = static_cast<CV8ResourceImpl *>(V8ResourceImpl::Get(ctx));
 		if (resource)
@@ -80,7 +80,7 @@ CV8ScriptRuntime::CV8ScriptRuntime()
 		}
 	});
 
-	isolate->SetHostImportModuleDynamicallyCallback([](v8::Local<v8::Context> context, v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier) {
+	isolate->SetHostImportModuleDynamicallyCallback([](v8::Local<v8::Context> context, v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray>) {
 		v8::Isolate* isolate = context->GetIsolate();
 
 		auto referrerVal = referrer->GetResourceName();
@@ -106,10 +106,10 @@ CV8ScriptRuntime::CV8ScriptRuntime()
 			auto resolver = presolver.Get(isolate);
 			auto specifier = pspecifier.Get(isolate);
 
-			auto ctx = resolver->CreationContext();
+			auto ctx = resolver->GetCreationContext().ToLocalChecked();
 			v8::Context::Scope ctxs(ctx);
 
-			auto mmodule = ResolveModule(ctx, specifier, referrerModule);
+			auto mmodule = ResolveModule(ctx, specifier, v8::Local<v8::FixedArray>(), referrerModule);
 			if(mmodule.IsEmpty())
 			{
 				resolver->Reject(ctx, v8::Exception::ReferenceError(V8_NEW_STRING("Could not resolve module")));

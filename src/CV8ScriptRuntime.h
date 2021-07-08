@@ -96,7 +96,7 @@ public:
 		delete create_params.array_buffer_allocator;
 	}
 
-	static v8::MaybeLocal<v8::Module> ResolveModule(v8::Local<v8::Context> ctx, v8::Local<v8::String> specifier, v8::Local<v8::Module> referrer)
+	static v8::MaybeLocal<v8::Module> ResolveModule(v8::Local<v8::Context> ctx, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray>, v8::Local<v8::Module> referrer)
 	{
 		auto isolate = ctx->GetIsolate();
 		V8ResourceImpl *resource = V8ResourceImpl::Get(ctx);

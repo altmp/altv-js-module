@@ -18,7 +18,7 @@ static void StaticGet(const v8::FunctionCallbackInfo<v8::Value> &info)
 	}
 	else
 	{
-		alt::IResource *iresource = V8ResourceImpl::GetResource(isolate->GetEnteredContext());
+		alt::IResource *iresource = V8ResourceImpl::GetResource(isolate->GetEnteredOrMicrotaskContext());
 		V8_ARG_TO_STRING(1, key);
 		V8_RETURN(V8Helpers::MValueToV8(iresource->GetLocalStorage()->Get(key)));
 	}

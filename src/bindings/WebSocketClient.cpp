@@ -15,7 +15,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 	V8_ARG_TO_STRING(1, url);
 
-	alt::IResource* altres = V8ResourceImpl::GetResource(isolate->GetEnteredContext());
+	alt::IResource* altres = V8ResourceImpl::GetResource(isolate->GetEnteredOrMicrotaskContext());
 	V8_CHECK(altres, "invalid resource");
 
 	alt::Ref<IWebSocketClient> webSocket = nullptr;
@@ -76,14 +76,14 @@ static void Send(const v8::FunctionCallbackInfo<v8::Value>& info)
 	else if (info[0]->IsArrayBufferView()) 
 	{
 		V8_ARG_TO_ARRAY_BUFFER_VIEW(1, v8ArrayBufferView);
-		auto v8Buffer = v8ArrayBufferView->Buffer()->GetContents();
-		ret = webSocket->SendBinary(alt::StringView((char*)v8Buffer.Data(), v8Buffer.ByteLength()));
+		auto v8Buffer = v8ArrayBufferView->Buffer()->GetBackingStore();
+		ret = webSocket->SendBinary(alt::StringView((char*)v8Buffer->Data(), v8Buffer->ByteLength()));
 	}
 	else if (info[0]->IsArrayBuffer()) 
 	{
 		V8_ARG_TO_ARRAY_BUFFER(1, v8ArrayBuffer);
-		auto v8Buffer = v8ArrayBuffer->GetContents();
-		ret = webSocket->SendBinary(alt::StringView((char*)v8Buffer.Data(), v8Buffer.ByteLength()));
+		auto v8Buffer = v8ArrayBuffer->GetBackingStore();
+		ret = webSocket->SendBinary(alt::StringView((char*)v8Buffer->Data(), v8Buffer->ByteLength()));
 	}
 	else 
 	{

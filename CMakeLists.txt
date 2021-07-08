@@ -10,7 +10,7 @@ project(altv-client-js)
 # v8
 message("alt:V JS - Fetching v8 deps, can take a while")
 FetchContent_Declare(altv-js-deps
-  URL     https://github.com/altmp/altv-client-js/releases/download/deps2/deps.zip
+  URL     https://github.com/altmp/altv-client-js/releases/download/deps3/deps.zip
 )
 FetchContent_Populate(altv-js-deps)
 set(ALTV_JS_DL_DEPS ${altv-js-deps_SOURCE_DIR})
@@ -51,6 +51,7 @@ set(ALTV_JS_LINKS
   # Platform binaries
   Winmm.lib
   DbgHelp.lib
+  shlwapi.lib
 
   # V8
   ${ALTV_JS_DL_DEPS}/lib/$<IF:$<CONFIG:Debug>,Debug,Release>/v8_monolith.lib
@@ -71,6 +72,7 @@ set(ALTV_JS_DEFS
   # v8
   -DV8_COMPRESS_POINTERS
   -DV8_31BIT_SMIS_ON_64BIT_ARCH
+  -DV8_IMMINENT_DEPRECATION_WARNINGS
 )
 
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD /Zi /bigobj")
