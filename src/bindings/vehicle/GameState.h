@@ -22,7 +22,7 @@ namespace V8::Vehicle
 
 		V8_ARG_TO_INTEGER(1, door);
 
-		V8_RETURN_INTEGER(vehicle->GetDoorState(door));
+		V8_RETURN_INT(vehicle->GetDoorState(door));
 	}
 
 	void SetWindowOpened(const v8::FunctionCallbackInfo<v8::Value>& info)

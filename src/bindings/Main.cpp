@@ -76,13 +76,11 @@ static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 	for (int i = 2; i < info.Length(); ++i)
 		mvArgs.Push(V8Helpers::V8ToMValue(info[i]));
-	
-	Ref<IPlayer> singlePlayer;
 
 	if (info[0]->IsNull()) 
 	{
 		//if first argument is null this event gets send to every player
-		ICore::Instance().TriggerClientEvent(singlePlayer, eventName.ToString(), mvArgs);
+		ICore::Instance().TriggerClientEventForAll(eventName.ToString(), mvArgs);
 		return;
 	}
 	
@@ -90,6 +88,8 @@ static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
 	{
 		//if first argument is an array of players this event will be sent to every player in array
 		v8::Local<v8::Array> arr = info[0].As<v8::Array>();
+		Array<Ref<IPlayer>> targets;
+		targets.Reserve(arr->Length());
 
 		for (int i = 0; i < arr->Length(); ++i) 
 		{
@@ -97,21 +97,18 @@ static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
 			V8Entity* v8Player = V8Entity::Get(arr->Get(ctx, i).ToLocalChecked());
 
 			V8_CHECK(v8Player && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER, "player inside array expected");
-			player = v8Player->GetHandle().As<IPlayer>();
-
-			ICore::Instance().TriggerClientEvent(player, eventName.ToString(), mvArgs);
+			targets.Push(v8Player->GetHandle().As<IPlayer>());
 		}
-		
+
+		ICore::Instance().TriggerClientEvent(targets, eventName.ToString(), mvArgs);
 	} 
 	else 
 	{
 		//if first argument is not null and not an array this event gets sent to the specific player
 		V8Entity* v8Player = V8Entity::Get(info[0]);
-
 		V8_CHECK(v8Player && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER, "player or null expected");
-		singlePlayer = v8Player->GetHandle().As<IPlayer>();
 
-		ICore::Instance().TriggerClientEvent(singlePlayer, eventName.ToString(), mvArgs);
+		ICore::Instance().TriggerClientEvent(v8Player->GetHandle().As<IPlayer>(), eventName.ToString(), mvArgs);
 	}
 }
 
@@ -121,13 +118,12 @@ static void EmitAllClients(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_CHECK_ARGS_LEN_MIN(1);
 	V8_ARG_TO_STRING(1, eventName);
 
-	Ref<IPlayer> player;
 	MValueArgs args;
 
 	for (int i = 1; i < info.Length(); ++i)
 		args.Push(V8Helpers::V8ToMValue(info[i]));
 
-	ICore::Instance().TriggerClientEvent(player, eventName, args);
+	ICore::Instance().TriggerClientEventForAll(eventName, args);
 }
 
 static void SetSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -177,7 +173,7 @@ static void GetNetTime(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 	uint32_t netTime = alt::ICore::Instance().GetNetTime();
 
-	V8_RETURN_UINTEGER(netTime);
+	V8_RETURN_UINT(netTime);
 }
 
 static void SetPassword(const v8::FunctionCallbackInfo<v8::Value>& info)
