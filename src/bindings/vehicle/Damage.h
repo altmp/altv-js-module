@@ -91,7 +91,7 @@ namespace V8::Vehicle
 
 		V8_ARG_TO_INTEGER(1, bumper);
 
-		V8_RETURN_INTEGER(vehicle->GetBumperDamageLevel(bumper));
+		V8_RETURN_INT(vehicle->GetBumperDamageLevel(bumper));
 	}
 
 	void HasArmoredWindowsGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -122,7 +122,7 @@ namespace V8::Vehicle
 
 		V8_ARG_TO_INTEGER(1, part);
 
-		V8_RETURN_INTEGER(vehicle->GetPartDamageLevel(part));
+		V8_RETURN_INT(vehicle->GetPartDamageLevel(part));
 	}
 
 	void SetPartBulletHoles(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -145,7 +145,7 @@ namespace V8::Vehicle
 
 		V8_ARG_TO_INTEGER(1, part);
 
-		V8_RETURN_INTEGER(vehicle->GetPartBulletHoles(part));
+		V8_RETURN_INT(vehicle->GetPartBulletHoles(part));
 	}
 
 	void SetArmoredWindowHealth(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -191,7 +191,7 @@ namespace V8::Vehicle
 
 		V8_ARG_TO_INTEGER(1, window);
 
-		V8_RETURN_INTEGER(vehicle->GetArmoredWindowShootCount(window));
+		V8_RETURN_INT(vehicle->GetArmoredWindowShootCount(window));
 	}
 
 	void SetDamageStatus(const v8::FunctionCallbackInfo<v8::Value>& info)
