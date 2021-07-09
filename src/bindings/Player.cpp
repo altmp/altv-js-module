@@ -296,10 +296,10 @@ static void SetDlcProps(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_CHECK_ARGS_LEN(4);
 	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-	V8_ARG_TO_INTEGER(1, component);
-	V8_ARG_TO_INTEGER(2, drawable);
-	V8_ARG_TO_INTEGER(3, texture);
-	V8_ARG_TO_UINT32(4, dlc);
+	V8_ARG_TO_UINT32(1, dlc);
+	V8_ARG_TO_INTEGER(2, component);
+	V8_ARG_TO_INTEGER(3, drawable);
+	V8_ARG_TO_INTEGER(4, texture);
 	
 	player->SetDlcProps(component, drawable, texture, dlc);
 }
