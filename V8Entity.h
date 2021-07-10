@@ -49,7 +49,7 @@ public:
 #ifdef ALT_SERVER_API
         extern V8Class v8VoiceChannel, v8Colshape, v8Checkpoint;
 #else
-        extern V8Class v8WebView;
+        extern V8Class v8WebView, v8LocalPlayer;
 #endif
 
         if (!handle)
@@ -73,6 +73,8 @@ public:
 #else
         case alt::IBaseObject::Type::WEBVIEW:
             return &v8WebView;
+        case alt::IBaseObject::Type::LOCAL_PLAYER:
+            return &v8LocalPlayer;
 #endif
         }
 
