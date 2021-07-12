@@ -147,26 +147,6 @@ static void DeleteSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 	alt::ICore::Instance().DeleteSyncedMetaData(key);
 }
 
-static void GetPlayersByName(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-	Log::Warning << "alt.getPlayersByName is deprecated and will be removed in future versions, "
-		<< "consider using alt.Player.all.filter(p => p.name == name)" << Log::Endl;
-
-	V8_GET_ISOLATE_CONTEXT_RESOURCE();
-	V8_CHECK_ARGS_LEN(1);
-
-	V8_ARG_TO_STRING(1, name);
-
-	alt::Array<Ref<alt::IPlayer>> players = alt::ICore::Instance().GetPlayersByName(name);
-
-	v8::Local<v8::Array> arr = v8::Array::New(isolate, players.GetSize());
-
-	for (uint32_t i = 0; i < players.GetSize(); ++i)
-		arr->Set(ctx, i, resource->GetBaseObjectOrNull(players[i]));
-
-	V8_RETURN(arr);
-}
-
 static void GetNetTime(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE();
@@ -320,8 +300,6 @@ extern V8Module v8Alt("alt",
 
 	V8Helpers::RegisterFunc(exports, "setSyncedMeta", &SetSyncedMeta);
 	V8Helpers::RegisterFunc(exports, "deleteSyncedMeta", &DeleteSyncedMeta);
-
-	V8Helpers::RegisterFunc(exports, "getPlayersByName", &GetPlayersByName);
 
 	V8Helpers::RegisterFunc(exports, "getNetTime", &GetNetTime);
 
