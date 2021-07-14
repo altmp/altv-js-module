@@ -44,7 +44,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(2);
 
-		V8_ARG_TO_INTEGER(1, wheel);
+		V8_ARG_TO_INT(1, wheel);
 		V8_ARG_TO_BOOLEAN(2, state);
 
 		vehicle->SetWheelBurst(wheel, state);
@@ -56,7 +56,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(1);
 
-		V8_ARG_TO_INTEGER(1, wheel);
+		V8_ARG_TO_INT(1, wheel);
 
 		V8_RETURN_BOOLEAN(vehicle->IsWheelBurst(wheel));
 	}
@@ -67,7 +67,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(2);
 
-		V8_ARG_TO_INTEGER(1, wheel);
+		V8_ARG_TO_INT(1, wheel);
 		V8_ARG_TO_BOOLEAN(2, state);
 
 		vehicle->SetWheelHasTire(wheel, state);
@@ -79,7 +79,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(1);
 
-		V8_ARG_TO_INTEGER(1, wheel);
+		V8_ARG_TO_INT(1, wheel);
 
 		V8_RETURN_BOOLEAN(vehicle->DoesWheelHasTire(wheel));
 	}
@@ -90,7 +90,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(2);
 
-		V8_ARG_TO_INTEGER(1, wheel);
+		V8_ARG_TO_INT(1, wheel);
 		V8_ARG_TO_BOOLEAN(2, state);
 
 		vehicle->SetWheelDetached(wheel, state);
@@ -102,7 +102,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(1);
 
-		V8_ARG_TO_INTEGER(1, wheel);
+		V8_ARG_TO_INT(1, wheel);
 
 		V8_RETURN_BOOLEAN(vehicle->IsWheelDetached(wheel));
 	}
@@ -113,7 +113,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(2);
 
-		V8_ARG_TO_INTEGER(1, wheel);
+		V8_ARG_TO_INT(1, wheel);
 		V8_ARG_TO_BOOLEAN(2, state);
 
 		vehicle->SetWheelOnFire(wheel, state);
@@ -125,7 +125,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(1);
 
-		V8_ARG_TO_INTEGER(1, wheel);
+		V8_ARG_TO_INT(1, wheel);
 
 		V8_RETURN_BOOLEAN(vehicle->IsWheelOnFire(wheel));
 	}
@@ -136,7 +136,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(2);
 
-		V8_ARG_TO_INTEGER(1, wheel);
+		V8_ARG_TO_INT(1, wheel);
 		V8_ARG_TO_NUMBER(2, health);
 
 		vehicle->SetWheelHealth(wheel, health);
@@ -148,7 +148,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(1);
 
-		V8_ARG_TO_INTEGER(1, wheel);
+		V8_ARG_TO_INT(1, wheel);
 
 		V8_RETURN_NUMBER(vehicle->GetWheelHealth(wheel));
 	}

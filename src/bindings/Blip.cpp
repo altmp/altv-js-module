@@ -11,7 +11,7 @@ static void PointConstructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 	V8_CHECK_ARGS_LEN(4);
 
-	V8_ARG_TO_INTEGER(1, type);
+	V8_ARG_TO_INT(1, type);
 	V8_ARG_TO_NUMBER(2, x);
 	V8_ARG_TO_NUMBER(3, y);
 	V8_ARG_TO_NUMBER(4, z);

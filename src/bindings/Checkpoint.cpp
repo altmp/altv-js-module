@@ -12,16 +12,16 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_CHECK(info.IsConstructCall(), "Checkpoint constructor is not a function");
 	V8_CHECK_ARGS_LEN(10);
 
-	V8_ARG_TO_INTEGER(1, type);
+	V8_ARG_TO_INT(1, type);
 	V8_ARG_TO_NUMBER(2, x);
 	V8_ARG_TO_NUMBER(3, y);
 	V8_ARG_TO_NUMBER(4, z);
 	V8_ARG_TO_NUMBER(5, radius);
 	V8_ARG_TO_NUMBER(6, height);
-	V8_ARG_TO_INTEGER(7, r);
-	V8_ARG_TO_INTEGER(8, g);
-	V8_ARG_TO_INTEGER(9, b);
-	V8_ARG_TO_INTEGER(10, a);
+	V8_ARG_TO_INT(7, r);
+	V8_ARG_TO_INT(8, g);
+	V8_ARG_TO_INT(9, b);
+	V8_ARG_TO_INT(10, a);
 
 	alt::Position pos(x, y, z);
 	alt::RGBA color(r, g, b, a);
