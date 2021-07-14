@@ -8,7 +8,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_CHECK_CONSTRUCTOR();
 	if(info.Length() == 6)
 	{
-		V8_ARG_TO_INTEGER(1, type);
+		V8_ARG_TO_INT(1, type);
 		V8_ARG_TO_OBJECT(2, pos);
 		V8_ARG_TO_OBJECT(3, nextPos);
 		V8_ARG_TO_NUMBER(4, radius);
@@ -33,7 +33,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 	}
 	else if(info.Length() == 10)
 	{
-		V8_ARG_TO_INTEGER(1, type);
+		V8_ARG_TO_INT(1, type);
 		V8_ARG_TO_NUMBER(2, x);
 		V8_ARG_TO_NUMBER(3, y);
 		V8_ARG_TO_NUMBER(4, z);

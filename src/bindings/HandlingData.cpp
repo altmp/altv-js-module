@@ -8,7 +8,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_CHECK_CONSTRUCTOR();
 
 	V8_CHECK_ARGS_LEN(1);
-	V8_ARG_TO_INTEGER(1, modelHash);
+	V8_ARG_TO_INT(1, modelHash);
 
 	auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
 	V8_CHECK(handling, "model doesn't exist");
@@ -21,7 +21,7 @@ static void GetForHandlingName(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_GET_ISOLATE_CONTEXT();
 
 	V8_CHECK_ARGS_LEN(1);
-	V8_ARG_TO_INTEGER(1, modelHash);
+	V8_ARG_TO_INT(1, modelHash);
 
 	std::vector<v8::Local<v8::Value>> args{
 		v8::Number::New(isolate, modelHash)
@@ -36,7 +36,7 @@ static void GetForHandlingNameDeprecated(const v8::FunctionCallbackInfo<v8::Valu
 	V8_GET_ISOLATE_CONTEXT();
 
 	V8_CHECK_ARGS_LEN(1);
-	V8_ARG_TO_INTEGER(1, modelHash);
+	V8_ARG_TO_INT(1, modelHash);
 
 	std::vector<v8::Local<v8::Value>> args{
 		v8::Number::New(isolate, modelHash)

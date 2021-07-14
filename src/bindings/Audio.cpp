@@ -177,7 +177,7 @@ static void AddOutput(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     if(info[0]->IsInt32() || info[0]->IsUint32())
     {
-        V8_ARG_TO_INTEGER(1, scriptId);
+        V8_ARG_TO_INT(1, scriptId);
         audio->AddOutput(scriptId);
     }
     else
@@ -195,7 +195,7 @@ static void RemoveOutput(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     if(info[0]->IsInt32() || info[0]->IsUint32())
     {
-        V8_ARG_TO_INTEGER(1, scriptId);
+        V8_ARG_TO_INT(1, scriptId);
         audio->RemoveOutput(scriptId);
     }
     else

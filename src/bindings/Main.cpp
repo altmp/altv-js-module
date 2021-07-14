@@ -158,7 +158,7 @@ static void IsTextureExistInArchetype(const v8::FunctionCallbackInfo<v8::Value> 
 	V8_GET_ISOLATE_CONTEXT();
 
 	V8_CHECK_ARGS_LEN(2);
-	V8_ARG_TO_INTEGER(1, modelHash);
+	V8_ARG_TO_INT(1, modelHash);
 	V8_ARG_TO_STRING(2, modelName);
 
 	V8_RETURN_BOOLEAN(nullptr != ICore::Instance().GetTextureFromDrawable(modelHash, modelName));
@@ -271,7 +271,7 @@ static void SetMsPerGameMinute(const v8::FunctionCallbackInfo<v8::Value> &info)
 	V8_GET_ISOLATE_CONTEXT();
 
 	V8_CHECK_ARGS_LEN(1);
-	V8_ARG_TO_INTEGER(1, ms);
+	V8_ARG_TO_INT(1, ms);
 
 	ICore::Instance().SetMsPerGameMinute(ms);
 }
@@ -346,7 +346,7 @@ static void SetCharStat(const v8::FunctionCallbackInfo<v8::Value> &info)
 
 	if (!strcmp(targetStat->GetStatType(), "INT"))
 	{
-		V8_ARG_TO_INTEGER(2, value);
+		V8_ARG_TO_INT(2, value);
 		targetStat->SetInt32Value(value);
 		V8_RETURN_BOOLEAN(true);
 		return;
@@ -526,7 +526,7 @@ static void IsKeyDown(const v8::FunctionCallbackInfo<v8::Value> &info)
 	V8_GET_ISOLATE_CONTEXT();
 
 	V8_CHECK_ARGS_LEN(1);
-	V8_ARG_TO_INTEGER(1, keycode);
+	V8_ARG_TO_INT(1, keycode);
 
 	V8_RETURN_BOOLEAN(alt::ICore::Instance().GetKeyState(keycode).IsDown());
 }
@@ -536,7 +536,7 @@ static void IsKeyToggled(const v8::FunctionCallbackInfo<v8::Value> &info)
 	V8_GET_ISOLATE_CONTEXT();
 
 	V8_CHECK_ARGS_LEN(1);
-	V8_ARG_TO_INTEGER(1, keycode);
+	V8_ARG_TO_INT(1, keycode);
 
 	V8_RETURN_BOOLEAN(alt::ICore::Instance().GetKeyState(keycode).IsToggled());
 }
@@ -603,7 +603,7 @@ static void UnloadYtyp(const v8::FunctionCallbackInfo<v8::Value>& info)
 // #endif
 
 // 	V8_CHECK_ARGS_LEN(1);
-// 	V8_ARG_TO_INTEGER(1, id);
+// 	V8_ARG_TO_INT(1, id);
 
 // 	::CEntity *addr = funcs::GetEntityFromScriptID<::CEntity *>(id);
 
@@ -619,7 +619,7 @@ static void SetAngularVelocity(const v8::FunctionCallbackInfo<v8::Value> &info)
 	V8_GET_ISOLATE_CONTEXT();
  	V8_CHECK_ARGS_LEN(4);
 
-	V8_ARG_TO_INTEGER(1, id);
+	V8_ARG_TO_INT(1, id);
  	V8_ARG_TO_NUMBER(2, x);
  	V8_ARG_TO_NUMBER(3, y);
  	V8_ARG_TO_NUMBER(4, z);
@@ -632,7 +632,7 @@ static void GetPermissionState(const v8::FunctionCallbackInfo<v8::Value> &info)
 	V8_GET_ISOLATE_CONTEXT();
 
 	V8_CHECK_ARGS_LEN(1);
-	V8_ARG_TO_INTEGER(1, permnum);
+	V8_ARG_TO_INT(1, permnum);
 
 	V8_RETURN_INT((uint8_t)alt::ICore::Instance().GetPermissionState((alt::Permission)permnum));
 }

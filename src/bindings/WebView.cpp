@@ -234,7 +234,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 	}
 	else if (info.Length() == 3)
 	{
-		V8_ARG_TO_INTEGER(2, drawableHash);
+		V8_ARG_TO_INT(2, drawableHash);
 		V8_ARG_TO_STRING(3, targetTextureStr);
 
 		auto texture = alt::ICore::Instance().GetTextureFromDrawable(drawableHash, targetTextureStr);

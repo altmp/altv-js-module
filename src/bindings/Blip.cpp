@@ -70,7 +70,7 @@ static void ConstructorPedBlip(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 	V8_CHECK_CONSTRUCTOR();
 	V8_CHECK_ARGS_LEN(1);
-	V8_ARG_TO_INTEGER(1, pedId);
+	V8_ARG_TO_INT(1, pedId);
 
     alt::Ref<alt::IBlip> blip = alt::ICore::Instance().CreateBlip(alt::IBlip::BlipType::PED, pedId);
 	V8_BIND_BASE_OBJECT(blip, "Failed to create PedBlip");
@@ -81,7 +81,7 @@ static void ConstructorVehicleBlip(const v8::FunctionCallbackInfo<v8::Value>& in
 	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 	V8_CHECK_CONSTRUCTOR();
 	V8_CHECK_ARGS_LEN(1);
-	V8_ARG_TO_INTEGER(1, vehicleId);
+	V8_ARG_TO_INT(1, vehicleId);
 
     alt::Ref<alt::IBlip> blip = alt::ICore::Instance().CreateBlip(alt::IBlip::BlipType::VEHICLE, vehicleId);
 	V8_BIND_BASE_OBJECT(blip, "Failed to create VehicleBlip");
@@ -589,8 +589,8 @@ static void Fade(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
 	V8_CHECK_ARGS_LEN(2);
-	V8_ARG_TO_INTEGER(1, opacity);
-	V8_ARG_TO_INTEGER(2, duration);
+	V8_ARG_TO_INT(1, opacity);
+	V8_ARG_TO_INT(2, duration);
 	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
     blip->Fade(opacity, duration);
 }
