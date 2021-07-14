@@ -221,7 +221,7 @@ static void SetTimeout(const v8::FunctionCallbackInfo<v8::Value> &info)
 	V8_CHECK_ARGS_LEN(2);
 
 	V8_ARG_TO_FUNCTION(1, callback);
-	V8_ARG_TO_INTEGER(2, time);
+	V8_ARG_TO_INT(2, time);
 
 	V8_RETURN_INT(resource->CreateTimer(ctx, callback, time, true, V8::SourceLocation::GetCurrent(isolate)));
 }
@@ -233,7 +233,7 @@ static void SetInterval(const v8::FunctionCallbackInfo<v8::Value> &info)
 	V8_CHECK_ARGS_LEN(2);
 
 	V8_ARG_TO_FUNCTION(1, callback);
-	V8_ARG_TO_INTEGER(2, time);
+	V8_ARG_TO_INT(2, time);
 
 	V8_RETURN_INT(resource->CreateTimer(ctx, callback, time, false, V8::SourceLocation::GetCurrent(isolate)));
 }
@@ -266,7 +266,7 @@ static void ClearTimer(const v8::FunctionCallbackInfo<v8::Value> &info)
 
 	V8_CHECK_ARGS_LEN(1);
 
-	V8_ARG_TO_INTEGER(1, timer);
+	V8_ARG_TO_INT(1, timer);
 
 	resource->RemoveTimer(timer);
 }
