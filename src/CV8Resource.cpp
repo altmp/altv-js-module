@@ -281,6 +281,23 @@ bool CV8ResourceImpl::OnEvent(const alt::CEvent* e)
 		InvokeEventHandlers(e, callbacks, args);
 	}
 
+	// Dynamic imports
+	{
+		if(e->GetType() == alt::CEvent::Type::CONNECTION_COMPLETE)
+		{
+			CV8ScriptRuntime& runtime = CV8ScriptRuntime::Instance();
+			if(!runtime.resourcesLoaded) 
+			{
+				runtime.resourcesLoaded = true;
+				ProcessDynamicImports();
+			}
+		}
+		else if(e->GetType() == alt::CEvent::Type::DISCONNECT_EVENT)
+		{
+			CV8ScriptRuntime::Instance().resourcesLoaded = false;
+		}
+	}
+
 	return true;
 }
 

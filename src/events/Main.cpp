@@ -120,17 +120,10 @@ V8_LOCAL_EVENT_HANDLER connectionComplete(
 	EventType::CONNECTION_COMPLETE,
 	"connectionComplete",
 	[](V8ResourceImpl *resource, const alt::CEvent *e, std::vector<v8::Local<v8::Value>> &args) {
-        CV8ScriptRuntime& runtime = CV8ScriptRuntime::Instance();
-		if(!runtime.resourcesLoaded) 
-        {
-            runtime.resourcesLoaded = true;
-            static_cast<CV8ResourceImpl*>(resource)->ProcessDynamicImports();
-        }
 	});
 
 V8_LOCAL_EVENT_HANDLER disconnect(
 	EventType::DISCONNECT_EVENT,
 	"disconnect",
 	[](V8ResourceImpl *resource, const alt::CEvent *e, std::vector<v8::Local<v8::Value>> &args) {
-        CV8ScriptRuntime::Instance().resourcesLoaded = false;
 	});
