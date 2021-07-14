@@ -389,7 +389,7 @@ namespace V8
 	alt::MValue val = V8Helpers::V8ToMValue(info[(idx)-1]);
 
 // idx starts with 1
-#define V8_ARG_TO_INTEGER(idx, val) \
+#define V8_ARG_TO_INT(idx, val) \
 	int64_t val;                    \
 	V8_CHECK(V8::SafeToInteger(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to integer")
 
