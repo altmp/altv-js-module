@@ -14,15 +14,10 @@ using namespace alt;
 
 using namespace V8::Vehicle;
 
-static void DriverGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	V8_GET_ISOLATE_CONTEXT_RESOURCE();
-	V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
-	V8_RETURN_BASE_OBJECT(_this->GetDriver());
-}
-
 static void GetAttached(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
+	Log::Warning << "vehicle.getAttached() is deprecated. Consider using vehicle.attached" << Log::Endl;
+
 	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 	V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
 	V8_RETURN_BASE_OBJECT(_this->GetAttached());
@@ -30,31 +25,26 @@ static void GetAttached(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void GetAttachedTo(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
+	Log::Warning << "vehicle.getAttachedTo() is deprecated. Consider using vehicle.attachedTo" << Log::Endl;
+
 	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 	V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
 	V8_RETURN_BASE_OBJECT(_this->GetAttachedTo());
-}
-
-static void DestroyedGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	V8_GET_ISOLATE_CONTEXT();
-	V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
-	V8_RETURN_BOOLEAN(_this->IsDestroyed());
 }
 
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 	V8_CHECK_CONSTRUCTOR();
-	V8_CHECK_ARGS_LEN(7);
+	V8_CHECK_ARGS_LEN2(3, 7);
 
 	V8_CHECK(info[0]->IsString() || info[0]->IsNumber(), "string or number expected");
 
 	uint32_t modelHash;
-
 	if (info[0]->IsNumber())
 	{
-		modelHash = info[0]->ToUint32(isolate->GetEnteredContext()).ToLocalChecked()->Value();
+		V8_ARG_TO_UINT32(1, model);
+		modelHash = model;
 	}
 	else
 	{
@@ -62,22 +52,34 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 		modelHash = alt::ICore::Instance().Hash(model);
 	}
 
-	V8_ARG_TO_NUMBER(2, x);
-	V8_ARG_TO_NUMBER(3, y);
-	V8_ARG_TO_NUMBER(4, z);
-	V8_ARG_TO_NUMBER(5, rx);
-	V8_ARG_TO_NUMBER(6, ry);
-	V8_ARG_TO_NUMBER(7, rz);
+	alt::Position pos;
+	alt::Rotation rot;
+	if(info.Length() == 3)
+	{
+		V8_ARG_TO_VECTOR3(2, position);
+		V8_ARG_TO_VECTOR3(3, rotation);
 
-	alt::Position pos(x, y, z);
-	alt::Rotation rot(rx, ry, rz);
+		pos = position;
+		rot = rotation;
+	}
+	else
+	{
+		V8_ARG_TO_NUMBER(2, x);
+		V8_ARG_TO_NUMBER(3, y);
+		V8_ARG_TO_NUMBER(4, z);
+		V8_ARG_TO_NUMBER(5, rx);
+		V8_ARG_TO_NUMBER(6, ry);
+		V8_ARG_TO_NUMBER(7, rz);
+
+		pos = { x, y, z };
+		rot = { rx, ry, rz };
+	}
 
 	Ref<IVehicle> veh = alt::ICore::Instance().CreateVehicle(modelHash, pos, rot);
 
-	if (veh)
-		resource->BindEntity(info.This(), veh.Get());
-	else
-		V8Helpers::Throw(isolate, "Failed to create Vehicle");
+	V8_CHECK(veh, "Failed to create vehicle");
+
+	resource->BindEntity(info.This(), veh.Get());
 }
 
 static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -236,4 +238,7 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, Constructor, [](v8::Local<v8::Func
 
 	V8::SetMethod(isolate, tpl, "getAttached", &GetAttached);
 	V8::SetMethod(isolate, tpl, "getAttachedTo", &GetAttachedTo);
+	
+	V8::SetAccessor<IVehicle, Ref<IVehicle>, &IVehicle::GetAttached>(isolate, tpl, "attached");
+	V8::SetAccessor<IVehicle, Ref<IVehicle>, &IVehicle::GetAttachedTo>(isolate, tpl, "attachedTo");
 });
