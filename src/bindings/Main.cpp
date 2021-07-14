@@ -786,6 +786,56 @@ static void GetHeadshotBase64(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_RETURN_STRING(alt::ICore::Instance().HeadshotToBase64(id).CStr());
 }
 
+static void SetPedDlcClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN2(5, 6);
+
+	V8_ARG_TO_INT(1, scriptId);
+	V8_ARG_TO_UINT32(2, dlc);
+	V8_ARG_TO_INT(3, component);
+	V8_ARG_TO_INT(4, drawable);
+	V8_ARG_TO_INT(5, texture);
+	
+	uint8_t palette;
+	if(info.Length() == 5)
+	{
+		palette = 2;
+	}
+	else if(info.Length() == 6)
+	{
+		V8_ARG_TO_INT(6, paletteArg);
+		palette = paletteArg;
+	}
+
+	alt::ICore::Instance().SetDlcClothes(scriptId, component, drawable, texture, palette, dlc);
+}
+
+static void SetPedDlcProps(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(5);
+
+	V8_ARG_TO_INT(1, scriptId);
+	V8_ARG_TO_UINT32(2, dlc);
+	V8_ARG_TO_INT(3, component);
+	V8_ARG_TO_INT(4, drawable);
+	V8_ARG_TO_INT(5, texture);
+	
+	alt::ICore::Instance().SetDlcProps(scriptId, component, drawable, texture, dlc);
+}
+
+static void ClearPedProps(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(2);
+
+	V8_ARG_TO_INT(1, scriptId);
+	V8_ARG_TO_INT(2, component);
+
+	alt::ICore::Instance().ClearProps(scriptId, component);
+}
+
 extern V8Class v8Vector3,
 	v8Vector2,
 	v8RGBA,
@@ -927,4 +977,8 @@ extern V8Module altModule(
 		V8Helpers::RegisterFunc(exports, "evalModule", &EvalModule);
 
 		V8Helpers::RegisterFunc(exports, "getHeadshotBase64", &GetHeadshotBase64);
+
+		V8Helpers::RegisterFunc(exports, "setPedDlcClothes", &SetPedDlcClothes);
+		V8Helpers::RegisterFunc(exports, "setPedDlcProp", &SetPedDlcProps);
+		V8Helpers::RegisterFunc(exports, "clearPedProp", &ClearPedProps);
 	});
