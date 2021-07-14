@@ -70,10 +70,10 @@ static const char* GetNativeTypeName(alt::INative::Type type)
 			return "bool";
 		case Type::ARG_INT32:
 		case Type::ARG_INT32_PTR:
-			return "int32";
+			return "int";
 		case Type::ARG_UINT32:
 		case Type::ARG_UINT32_PTR:
-			return "uint32";
+			return "unsigned int";
 		case Type::ARG_FLOAT:
 		case Type::ARG_FLOAT_PTR:
 			return "float";
@@ -90,7 +90,15 @@ static const char* GetNativeTypeName(alt::INative::Type type)
 	return "unknown";
 }
 
-static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native, alt::INative::Type argType, v8::Isolate *isolate, V8ResourceImpl* resource, v8::Local<v8::Value> val)
+inline void ShowNativeArgParseErrorMsg(v8::Isolate* isolate, v8::Local<v8::Value> val, alt::INative* native, alt::INative::Type argType, uint32_t idx)
+{
+	V8::SourceLocation source = V8::SourceLocation::GetCurrent(isolate);
+	Log::Error << "[" << source.GetFileName() << ":" << source.GetLineNumber() << "] " 
+			   << "Native argument at index " << idx << " " << "(" << V8::GetJSValueTypeName(val) << ")" << " could not be parsed to type " << GetNativeTypeName(argType) 
+			   << " (" << native->GetName() << ")" << Log::Endl;
+}
+
+static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native, alt::INative::Type argType, v8::Isolate *isolate, V8ResourceImpl* resource, v8::Local<v8::Value> val, uint32_t idx)
 {
 	using ArgType = alt::INative::Type;
 
@@ -116,7 +124,6 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native
 			}
 			else
 			{
-				Log::Error << "Native argument " << "(" << V8::GetJSValueTypeName(val) << ")" << " could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
 				scrCtx->Push(0);
 			}
 		}
@@ -129,7 +136,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native
 			}
 			else
 			{
-				Log::Error << "Native argument " << "(" << V8::GetJSValueTypeName(val) << ")" << " could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
+				ShowNativeArgParseErrorMsg(isolate, val, native, argType, idx);
 				scrCtx->Push(0);
 			}
 		}
@@ -141,7 +148,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native
 		}
 		else
 		{
-			Log::Error << "Native argument " << "(" << V8::GetJSValueTypeName(val) << ")" << " could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
+			ShowNativeArgParseErrorMsg(isolate, val, native, argType, idx);
 			scrCtx->Push(0);
 		}
 		break;
@@ -161,7 +168,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native
 			}
 			else
 			{
-				Log::Error << "Native argument " << "(" << V8::GetJSValueTypeName(val) << ")" << " could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
+				ShowNativeArgParseErrorMsg(isolate, val, native, argType, idx);
 				scrCtx->Push(0);
 			}
 		}
@@ -174,13 +181,13 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native
 			}
 			else
 			{
-				Log::Error << "Native argument " << "(" << V8::GetJSValueTypeName(val) << ")" << " could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
+				ShowNativeArgParseErrorMsg(isolate, val, native, argType, idx);
 				scrCtx->Push(0);
 			}
 		}
 		else
 		{
-			Log::Error << "Native argument " << "(" << V8::GetJSValueTypeName(val) << ")" << " could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
+			ShowNativeArgParseErrorMsg(isolate, val, native, argType, idx);
 			scrCtx->Push(0);
 		}
 		break;
@@ -200,13 +207,13 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native
 			}
 			else
 			{
-				Log::Error << "Native argument " << "(" << V8::GetJSValueTypeName(val) << ")" << " could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
+				ShowNativeArgParseErrorMsg(isolate, val, native, argType, idx);
 				scrCtx->Push(0.f);
 			}
 		}
 		else
 		{
-			Log::Error << "Native argument " << "(" << V8::GetJSValueTypeName(val) << ")" << " could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
+			ShowNativeArgParseErrorMsg(isolate, val, native, argType, idx);
 			scrCtx->Push(0.f);
 		}
 		break;
@@ -231,7 +238,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native
 		if(buffer != nullptr) scrCtx->Push(buffer);
 		else
 		{
-			Log::Error << "Native argument " << "(" << V8::GetJSValueTypeName(val) << ")" << " could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")" << Log::Endl;
+			ShowNativeArgParseErrorMsg(isolate, val, native, argType, idx);
 			scrCtx->Push((void*)nullptr);
 		}
 		break;
@@ -334,7 +341,7 @@ static void InvokeNative(const v8::FunctionCallbackInfo<v8::Value> &info)
 
 	auto resource = V8ResourceImpl::Get(v8Ctx);
 	for (uint32_t i = 0; i < argsSize; ++i)
-		PushArg(ctx, native, args[i], isolate, resource, info[i]);
+		PushArg(ctx, native, args[i], isolate, resource, info[i], i);
 
 	if (!native->Invoke(ctx))
 	{
