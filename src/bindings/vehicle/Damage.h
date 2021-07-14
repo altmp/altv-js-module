@@ -8,7 +8,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(2);
 
-		V8_ARG_TO_INTEGER(1, light);
+		V8_ARG_TO_INT(1, light);
 		V8_ARG_TO_BOOLEAN(2, state);
 
 		vehicle->SetLightDamaged(light, state);
@@ -20,7 +20,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(1);
 
-		V8_ARG_TO_INTEGER(1, light);
+		V8_ARG_TO_INT(1, light);
 
 		V8_RETURN_BOOLEAN(vehicle->IsLightDamaged(light));
 	}
@@ -31,7 +31,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(2);
 
-		V8_ARG_TO_INTEGER(1, window);
+		V8_ARG_TO_INT(1, window);
 		V8_ARG_TO_BOOLEAN(2, state);
 
 		vehicle->SetWindowDamaged(window, state);
@@ -43,7 +43,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(1);
 
-		V8_ARG_TO_INTEGER(1, window);
+		V8_ARG_TO_INT(1, window);
 
 		V8_RETURN_BOOLEAN(vehicle->IsWindowDamaged(window));
 	}
@@ -54,7 +54,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(2);
 
-		V8_ARG_TO_INTEGER(1, light);
+		V8_ARG_TO_INT(1, light);
 		V8_ARG_TO_BOOLEAN(2, state);
 
 		vehicle->SetSpecialLightDamaged(light, state);
@@ -66,7 +66,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(1);
 
-		V8_ARG_TO_INTEGER(1, light);
+		V8_ARG_TO_INT(1, light);
 
 		V8_RETURN_BOOLEAN(vehicle->IsSpecialLightDamaged(light));
 	}
@@ -77,8 +77,8 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(2);
 
-		V8_ARG_TO_INTEGER(1, bumper);
-		V8_ARG_TO_INTEGER(2, damage);
+		V8_ARG_TO_INT(1, bumper);
+		V8_ARG_TO_INT(2, damage);
 
 		vehicle->SetBumperDamageLevel(bumper, damage);
 	}
@@ -89,7 +89,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(1);
 
-		V8_ARG_TO_INTEGER(1, bumper);
+		V8_ARG_TO_INT(1, bumper);
 
 		V8_RETURN_INT(vehicle->GetBumperDamageLevel(bumper));
 	}
@@ -108,8 +108,8 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(2);
 
-		V8_ARG_TO_INTEGER(1, part);
-		V8_ARG_TO_INTEGER(2, damage);
+		V8_ARG_TO_INT(1, part);
+		V8_ARG_TO_INT(2, damage);
 
 		vehicle->SetPartDamageLevel(part, damage);
 	}
@@ -120,7 +120,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(1);
 
-		V8_ARG_TO_INTEGER(1, part);
+		V8_ARG_TO_INT(1, part);
 
 		V8_RETURN_INT(vehicle->GetPartDamageLevel(part));
 	}
@@ -131,8 +131,8 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(2);
 
-		V8_ARG_TO_INTEGER(1, part);
-		V8_ARG_TO_INTEGER(2, holes);
+		V8_ARG_TO_INT(1, part);
+		V8_ARG_TO_INT(2, holes);
 
 		vehicle->SetPartBulletHoles(part, holes);
 	}
@@ -143,7 +143,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(1);
 
-		V8_ARG_TO_INTEGER(1, part);
+		V8_ARG_TO_INT(1, part);
 
 		V8_RETURN_INT(vehicle->GetPartBulletHoles(part));
 	}
@@ -154,7 +154,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(2);
 
-		V8_ARG_TO_INTEGER(1, window);
+		V8_ARG_TO_INT(1, window);
 		V8_ARG_TO_NUMBER(2, damage);
 
 		vehicle->SetArmoredWindowHealth(window, damage);
@@ -166,7 +166,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(1);
 
-		V8_ARG_TO_INTEGER(1, window);
+		V8_ARG_TO_INT(1, window);
 
 		V8_RETURN_NUMBER(vehicle->GetArmoredWindowHealth(window));
 	}
@@ -177,8 +177,8 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(2);
 
-		V8_ARG_TO_INTEGER(1, window);
-		V8_ARG_TO_INTEGER(2, count);
+		V8_ARG_TO_INT(1, window);
+		V8_ARG_TO_INT(2, count);
 
 		vehicle->SetArmoredWindowShootCount(window, count);
 	}
@@ -189,7 +189,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(1);
 
-		V8_ARG_TO_INTEGER(1, window);
+		V8_ARG_TO_INT(1, window);
 
 		V8_RETURN_INT(vehicle->GetArmoredWindowShootCount(window));
 	}
@@ -227,7 +227,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(1);
 
-		V8_ARG_TO_INTEGER(1, wheelId);
+		V8_ARG_TO_INT(1, wheelId);
 
 		vehicle->SetWheelFixed(wheelId);
 	}
