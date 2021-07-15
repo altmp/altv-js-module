@@ -93,7 +93,8 @@ static const char* GetNativeTypeName(alt::INative::Type type)
 inline void ShowNativeArgParseErrorMsg(v8::Isolate* isolate, v8::Local<v8::Value> val, alt::INative* native, alt::INative::Type argType, uint32_t idx)
 {
 	V8::SourceLocation source = V8::SourceLocation::GetCurrent(isolate);
-	Log::Error << "[" << source.GetFileName() << ":" << source.GetLineNumber() << "] " 
+	auto resource = V8ResourceImpl::GetResource(isolate->GetEnteredOrMicrotaskContext());
+	Log::Error << "[" << resource->GetName() << ":" << source.GetFileName() << ":" << source.GetLineNumber() << "] " 
 			   << "Native argument at index " << idx << " " << "(" << V8::GetJSValueTypeName(val) << ")" << " could not be parsed to type " << GetNativeTypeName(argType) 
 			   << " (" << native->GetName() << ")" << Log::Endl;
 }
