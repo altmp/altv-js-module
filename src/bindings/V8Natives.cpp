@@ -124,6 +124,7 @@ static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native
 			}
 			else
 			{
+				ShowNativeArgParseErrorMsg(isolate, val, native, argType, idx);
 				scrCtx->Push(0);
 			}
 		}
