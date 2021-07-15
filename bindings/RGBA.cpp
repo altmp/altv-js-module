@@ -24,10 +24,10 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 	V8_CHECK_ARGS_LEN(4);
 
-	V8_ARG_TO_INTEGER(1, r);
-	V8_ARG_TO_INTEGER(2, g);
-	V8_ARG_TO_INTEGER(3, b);
-	V8_ARG_TO_INTEGER(4, a);
+	V8_ARG_TO_INT(1, r);
+	V8_ARG_TO_INT(2, g);
+	V8_ARG_TO_INT(3, b);
+	V8_ARG_TO_INT(4, a);
 
 	V8::DefineOwnProperty(isolate, ctx, info.This(), V8::RGBA_RKey(isolate), v8::Integer::New(isolate, r), v8::PropertyAttribute::ReadOnly);
 	V8::DefineOwnProperty(isolate, ctx, info.This(), V8::RGBA_GKey(isolate), v8::Integer::New(isolate, g), v8::PropertyAttribute::ReadOnly);

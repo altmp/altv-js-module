@@ -208,7 +208,7 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val)
 
 				if (!ent)
 				{
-					Log::Warning << "Has internal field but is not entity" << Log::Endl;
+					Log::Error << "Unable to convert base object to MValue because it was destroyed and is now invalid" << Log::Endl;
 					return core.CreateMValueNil();
 				}
 				else
@@ -319,7 +319,7 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
 		return v8Buffer;
 	}
 	default:
-		Log::Warning << "V8::MValueToV8 Unknown MValue type" << (int)val->GetType() << Log::Endl;
+		Log::Warning << "V8::MValueToV8 Unknown MValue type " << (int)val->GetType() << Log::Endl;
 	}
 
 	return v8::Undefined(isolate);
