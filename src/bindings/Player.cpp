@@ -251,9 +251,9 @@ static void GetClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_NEW_OBJECT(clothes);
 
 	auto cloth = player->GetClothes(component);
-	V8_OBJECT_SET_INTEGER(clothes, "drawable", cloth.drawableId);
-	V8_OBJECT_SET_INTEGER(clothes, "texture", cloth.textureId);
-	V8_OBJECT_SET_INTEGER(clothes, "palette", cloth.paletteId);
+	V8_OBJECT_SET_INT(clothes, "drawable", cloth.drawableId);
+	V8_OBJECT_SET_INT(clothes, "texture", cloth.textureId);
+	V8_OBJECT_SET_INT(clothes, "palette", cloth.paletteId);
 
 	V8_RETURN(clothes);
 }
@@ -269,10 +269,10 @@ static void GetDlcClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_NEW_OBJECT(clothes);
 
 	auto cloth = player->GetDlcClothes(component);
-	V8_OBJECT_SET_INTEGER(clothes, "drawable", cloth.drawableId);
-	V8_OBJECT_SET_INTEGER(clothes, "texture", cloth.textureId);
-	V8_OBJECT_SET_INTEGER(clothes, "palette", cloth.paletteId);
-	V8_OBJECT_SET_UNSIGNEDINTEGER(clothes, "dlc", cloth.dlc);
+	V8_OBJECT_SET_INT(clothes, "drawable", cloth.drawableId);
+	V8_OBJECT_SET_INT(clothes, "texture", cloth.textureId);
+	V8_OBJECT_SET_INT(clothes, "palette", cloth.paletteId);
+	V8_OBJECT_SET_UINT(clothes, "dlc", cloth.dlc);
 
 	V8_RETURN(clothes);
 }
@@ -326,8 +326,8 @@ static void GetProps(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_NEW_OBJECT(prop);
 	
 	auto props = player->GetProps(component);
-	V8_OBJECT_SET_INTEGER(prop, "drawable", props.drawableId);
-	V8_OBJECT_SET_INTEGER(prop, "texture", props.textureId);
+	V8_OBJECT_SET_INT(prop, "drawable", props.drawableId);
+	V8_OBJECT_SET_INT(prop, "texture", props.textureId);
 
 	V8_RETURN(prop);
 }
@@ -343,9 +343,9 @@ static void GetDlcProps(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_NEW_OBJECT(prop);
 
 	auto props = player->GetDlcProps(component);
-	V8_OBJECT_SET_INTEGER(prop, "drawable", props.drawableId);
-	V8_OBJECT_SET_INTEGER(prop, "texture", props.textureId);
-	V8_OBJECT_SET_UNSIGNEDINTEGER(prop, "dlc", props.dlc);
+	V8_OBJECT_SET_INT(prop, "drawable", props.drawableId);
+	V8_OBJECT_SET_INT(prop, "texture", props.textureId);
+	V8_OBJECT_SET_UINT(prop, "dlc", props.dlc);
 
 	V8_RETURN(prop);
 }
