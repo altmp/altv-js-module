@@ -8,8 +8,8 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(2);
 
-		V8_ARG_TO_INTEGER(1, door);
-		V8_ARG_TO_INTEGER(2, state);
+		V8_ARG_TO_INT(1, door);
+		V8_ARG_TO_INT(2, state);
 
 		vehicle->SetDoorState(door, state);
 	}
@@ -20,7 +20,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(1);
 
-		V8_ARG_TO_INTEGER(1, door);
+		V8_ARG_TO_INT(1, door);
 
 		V8_RETURN_INT(vehicle->GetDoorState(door));
 	}
@@ -31,7 +31,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(2);
 
-		V8_ARG_TO_INTEGER(1, window);
+		V8_ARG_TO_INT(1, window);
 		V8_ARG_TO_BOOLEAN(2, state);
 
 		vehicle->SetWindowOpened(window, state);
@@ -43,7 +43,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(1);
 
-		V8_ARG_TO_INTEGER(1, window);
+		V8_ARG_TO_INT(1, window);
 
 		V8_RETURN_BOOLEAN(vehicle->IsWindowOpened(window));
 	}

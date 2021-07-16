@@ -54,8 +54,8 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(2);
 
-		V8_ARG_TO_INTEGER(1, type);
-		V8_ARG_TO_INTEGER(2, variation);
+		V8_ARG_TO_INT(1, type);
+		V8_ARG_TO_INT(2, variation);
 
 		vehicle->SetWheels(type, variation);
 	}
@@ -66,7 +66,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(1);
 
-		V8_ARG_TO_INTEGER(1, variation);
+		V8_ARG_TO_INT(1, variation);
 
 		vehicle->SetRearWheels(variation);
 	}
@@ -77,7 +77,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(1);
 
-		V8_ARG_TO_INTEGER(1, category);
+		V8_ARG_TO_INT(1, category);
 
 		V8_RETURN_INT(vehicle->GetModsCount(category));
 	}
@@ -88,8 +88,8 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(2);
 
-		V8_ARG_TO_INTEGER(1, category);
-		V8_ARG_TO_INTEGER(2, id);
+		V8_ARG_TO_INT(1, category);
+		V8_ARG_TO_INT(2, id);
 
 		if (!vehicle->SetMod(category, id))
 		{
@@ -106,7 +106,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(1);
 
-		V8_ARG_TO_INTEGER(1, category);
+		V8_ARG_TO_INT(1, category);
 
 		V8_RETURN_INT(vehicle->GetMod(category));
 	}
@@ -117,7 +117,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(2);
 
-		V8_ARG_TO_INTEGER(1, category);
+		V8_ARG_TO_INT(1, category);
 		V8_ARG_TO_BOOLEAN(2, state);
 
 		vehicle->ToggleExtra(category, state);
@@ -129,7 +129,7 @@ namespace V8::Vehicle
 		V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 		V8_CHECK_ARGS_LEN(1);
 
-		V8_ARG_TO_INTEGER(1, category);
+		V8_ARG_TO_INT(1, category);
 
 		V8_RETURN_BOOLEAN(vehicle->IsExtraOn(category));
 	}

@@ -306,6 +306,6 @@ extern V8Module v8Alt("alt",
 	V8Helpers::RegisterFunc(exports, "setPassword", &SetPassword);
 
 	V8_OBJECT_SET_STRING(exports, "rootDir", alt::ICore::Instance().GetRootDirectory());
-	V8_OBJECT_SET_INTEGER(exports, "defaultDimension", alt::DEFAULT_DIMENSION);
-	V8_OBJECT_SET_INTEGER(exports, "globalDimension", alt::GLOBAL_DIMENSION);
+	V8_OBJECT_SET_INT(exports, "defaultDimension", alt::DEFAULT_DIMENSION);
+	V8_OBJECT_SET_INT(exports, "globalDimension", alt::GLOBAL_DIMENSION);
 });

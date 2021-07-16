@@ -62,12 +62,12 @@ static void SetDateTime(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 
-	V8_ARG_TO_INTEGER(1, day);
-	V8_ARG_TO_INTEGER(2, month);
-	V8_ARG_TO_INTEGER(3, year);
-	V8_ARG_TO_INTEGER(4, hour);
-	V8_ARG_TO_INTEGER(5, minute);
-	V8_ARG_TO_INTEGER(6, second);
+	V8_ARG_TO_INT(1, day);
+	V8_ARG_TO_INT(2, month);
+	V8_ARG_TO_INT(3, year);
+	V8_ARG_TO_INT(4, hour);
+	V8_ARG_TO_INT(5, minute);
+	V8_ARG_TO_INT(6, second);
 
 	_this->SetDateTime(day, month, year, hour, minute, second);
 }
@@ -79,7 +79,7 @@ static void SetWeather(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 
-	V8_ARG_TO_INTEGER(1, weather);
+	V8_ARG_TO_UINT32(1, weather);
 
 	_this->SetWeather(weather);
 }
@@ -91,8 +91,8 @@ static void GiveWeapon(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 
-	V8_ARG_TO_INTEGER(1, weaponHash);
-	V8_ARG_TO_INTEGER(2, ammo);
+	V8_ARG_TO_UINT32(1, weaponHash);
+	V8_ARG_TO_INT(2, ammo);
 	V8_ARG_TO_BOOLEAN(3, equipNow);
 
 	_this->GiveWeapon(weaponHash, ammo, equipNow);
@@ -105,7 +105,7 @@ static void RemoveWeapon(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 
-	V8_ARG_TO_INTEGER(1, weaponHash);
+	V8_ARG_TO_UINT32(1, weaponHash);
 
 	_this->RemoveWeapon(weaponHash);
 }
@@ -117,8 +117,8 @@ static void AddWeaponComponent(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 
-	V8_ARG_TO_INTEGER(1, weaponHash);
-	V8_ARG_TO_INTEGER(2, component);
+	V8_ARG_TO_UINT32(1, weaponHash);
+	V8_ARG_TO_UINT32(2, component);
 
 	_this->AddWeaponComponent(weaponHash, component);
 }
@@ -130,8 +130,8 @@ static void RemoveWeaponComponent(const v8::FunctionCallbackInfo<v8::Value>& inf
 
 	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 
-	V8_ARG_TO_INTEGER(1, weaponHash);
-	V8_ARG_TO_INTEGER(2, component);
+	V8_ARG_TO_UINT32(1, weaponHash);
+	V8_ARG_TO_UINT32(2, component);
 
 	_this->RemoveWeaponComponent(weaponHash, component);
 }
@@ -143,8 +143,8 @@ static void SetWeaponTintIndex(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 	V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 
-	V8_ARG_TO_INTEGER(1, weaponHash);
-	V8_ARG_TO_INTEGER(2, tintIndex);
+	V8_ARG_TO_UINT32(1, weaponHash);
+	V8_ARG_TO_INT(2, tintIndex);
 
 	_this->SetWeaponTintIndex(weaponHash, tintIndex);
 }
@@ -203,9 +203,9 @@ static void SetClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_CHECK_ARGS_LEN_MIN_MAX(3, 4);
 	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-	V8_ARG_TO_INTEGER(1, component);
-	V8_ARG_TO_INTEGER(2, drawable);
-	V8_ARG_TO_INTEGER(3, texture);
+	V8_ARG_TO_INT(1, component);
+	V8_ARG_TO_INT(2, drawable);
+	V8_ARG_TO_INT(3, texture);
 
 	if(info.Length() == 3)
 	{
@@ -213,7 +213,7 @@ static void SetClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
 	}
 	else if(info.Length() == 4)
 	{
-		V8_ARG_TO_INTEGER(4, palette);
+		V8_ARG_TO_INT(4, palette);
 		player->SetClothes(component, drawable, texture, palette);
 	}
 }
@@ -225,9 +225,9 @@ static void SetDlcClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
 	V8_ARG_TO_UINT32(1, dlc);
-	V8_ARG_TO_INTEGER(2, component);
-	V8_ARG_TO_INTEGER(3, drawable);
-	V8_ARG_TO_INTEGER(4, texture);
+	V8_ARG_TO_INT(2, component);
+	V8_ARG_TO_INT(3, drawable);
+	V8_ARG_TO_INT(4, texture);
 	
 	if(info.Length() == 4)
 	{
@@ -235,7 +235,7 @@ static void SetDlcClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
 	}
 	else if(info.Length() == 5)
 	{
-		V8_ARG_TO_INTEGER(5, palette);
+		V8_ARG_TO_INT(5, palette);
 		player->SetDlcClothes(component, drawable, texture, palette, dlc);
 	}
 }
@@ -246,14 +246,14 @@ static void GetClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_CHECK_ARGS_LEN(1);
 	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-	V8_ARG_TO_INTEGER(1, component);
+	V8_ARG_TO_INT(1, component);
 
 	V8_NEW_OBJECT(clothes);
 
 	auto cloth = player->GetClothes(component);
-	V8_OBJECT_SET_INTEGER(clothes, "drawable", cloth.drawableId);
-	V8_OBJECT_SET_INTEGER(clothes, "texture", cloth.textureId);
-	V8_OBJECT_SET_INTEGER(clothes, "palette", cloth.paletteId);
+	V8_OBJECT_SET_INT(clothes, "drawable", cloth.drawableId);
+	V8_OBJECT_SET_INT(clothes, "texture", cloth.textureId);
+	V8_OBJECT_SET_INT(clothes, "palette", cloth.paletteId);
 
 	V8_RETURN(clothes);
 }
@@ -264,15 +264,15 @@ static void GetDlcClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_CHECK_ARGS_LEN(1);
 	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-	V8_ARG_TO_INTEGER(1, component);
+	V8_ARG_TO_INT(1, component);
 
 	V8_NEW_OBJECT(clothes);
 
 	auto cloth = player->GetDlcClothes(component);
-	V8_OBJECT_SET_INTEGER(clothes, "drawable", cloth.drawableId);
-	V8_OBJECT_SET_INTEGER(clothes, "texture", cloth.textureId);
-	V8_OBJECT_SET_INTEGER(clothes, "palette", cloth.paletteId);
-	V8_OBJECT_SET_INTEGER(clothes, "dlc", cloth.dlc);
+	V8_OBJECT_SET_INT(clothes, "drawable", cloth.drawableId);
+	V8_OBJECT_SET_INT(clothes, "texture", cloth.textureId);
+	V8_OBJECT_SET_INT(clothes, "palette", cloth.paletteId);
+	V8_OBJECT_SET_UINT(clothes, "dlc", cloth.dlc);
 
 	V8_RETURN(clothes);
 }
@@ -283,9 +283,9 @@ static void SetProps(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_CHECK_ARGS_LEN(3);
 	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-	V8_ARG_TO_INTEGER(1, component);
-	V8_ARG_TO_INTEGER(2, drawable);
-	V8_ARG_TO_INTEGER(3, texture);
+	V8_ARG_TO_INT(1, component);
+	V8_ARG_TO_INT(2, drawable);
+	V8_ARG_TO_INT(3, texture);
 
 	player->SetProps(component, drawable, texture);
 }
@@ -297,9 +297,9 @@ static void SetDlcProps(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
 	V8_ARG_TO_UINT32(1, dlc);
-	V8_ARG_TO_INTEGER(2, component);
-	V8_ARG_TO_INTEGER(3, drawable);
-	V8_ARG_TO_INTEGER(4, texture);
+	V8_ARG_TO_INT(2, component);
+	V8_ARG_TO_INT(3, drawable);
+	V8_ARG_TO_INT(4, texture);
 	
 	player->SetDlcProps(component, drawable, texture, dlc);
 }
@@ -310,7 +310,7 @@ static void ClearProps(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_CHECK_ARGS_LEN(1);
 	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-	V8_ARG_TO_INTEGER(1, component);
+	V8_ARG_TO_INT(1, component);
 
 	player->ClearProps(component);
 }
@@ -321,13 +321,13 @@ static void GetProps(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_CHECK_ARGS_LEN(1);
 	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-	V8_ARG_TO_INTEGER(1, component);
+	V8_ARG_TO_INT(1, component);
 
 	V8_NEW_OBJECT(prop);
 	
 	auto props = player->GetProps(component);
-	V8_OBJECT_SET_INTEGER(prop, "drawable", props.drawableId);
-	V8_OBJECT_SET_INTEGER(prop, "texture", props.textureId);
+	V8_OBJECT_SET_INT(prop, "drawable", props.drawableId);
+	V8_OBJECT_SET_INT(prop, "texture", props.textureId);
 
 	V8_RETURN(prop);
 }
@@ -338,14 +338,14 @@ static void GetDlcProps(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_CHECK_ARGS_LEN(1);
 	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-	V8_ARG_TO_INTEGER(1, component);
+	V8_ARG_TO_INT(1, component);
 
 	V8_NEW_OBJECT(prop);
 
 	auto props = player->GetDlcProps(component);
-	V8_OBJECT_SET_INTEGER(prop, "drawable", props.drawableId);
-	V8_OBJECT_SET_INTEGER(prop, "texture", props.textureId);
-	V8_OBJECT_SET_INTEGER(prop, "dlc", props.dlc);
+	V8_OBJECT_SET_INT(prop, "drawable", props.drawableId);
+	V8_OBJECT_SET_INT(prop, "texture", props.textureId);
+	V8_OBJECT_SET_UINT(prop, "dlc", props.dlc);
 
 	V8_RETURN(prop);
 }
@@ -376,7 +376,7 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_GET_ISOLATE_CONTEXT_RESOURCE();
 	V8_CHECK_ARGS_LEN(1);
 
-	V8_ARG_TO_INTEGER(1, id);
+	V8_ARG_TO_INT(1, id);
 
 	alt::Ref<alt::IEntity> entity = alt::ICore::Instance().GetEntityByID(id);
 
