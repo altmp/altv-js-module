@@ -167,9 +167,9 @@ static void SecondaryColorSetter(v8::Local<v8::String> property, v8::Local<v8::V
 	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
 
 	V8_TO_OBJECT(value, color);
-	V8_OBJECT_GET_INTEGER(color, "r", r);
-	V8_OBJECT_GET_INTEGER(color, "g", g);
-	V8_OBJECT_GET_INTEGER(color, "b", b);
+	V8_OBJECT_GET_INT(color, "r", r);
+	V8_OBJECT_GET_INT(color, "g", g);
+	V8_OBJECT_GET_INT(color, "b", b);
 
 	blip->SetSecondaryColor({ (uint8_t)r, (uint8_t)g, (uint8_t)b, 255 });
 }
@@ -427,10 +427,10 @@ static void RouteColorSetter(v8::Local<v8::String> property, v8::Local<v8::Value
 	V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
 
 	V8_TO_OBJECT(value, color);
-	V8_OBJECT_GET_INTEGER(color, "r", r);
-	V8_OBJECT_GET_INTEGER(color, "g", g);
-	V8_OBJECT_GET_INTEGER(color, "b", b);
-	V8_OBJECT_GET_INTEGER(color, "a", a);
+	V8_OBJECT_GET_INT(color, "r", r);
+	V8_OBJECT_GET_INT(color, "g", g);
+	V8_OBJECT_GET_INT(color, "b", b);
+	V8_OBJECT_GET_INT(color, "a", a);
 
 	blip->SetRouteColor({ (uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a });
 }

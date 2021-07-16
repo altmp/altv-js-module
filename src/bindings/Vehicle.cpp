@@ -16,7 +16,7 @@ static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_GET_ISOLATE_CONTEXT();
 
     auto vehicle = info.This();
-    V8_OBJECT_GET_INTEGER(vehicle, "id", id);
+    V8_OBJECT_GET_INT(vehicle, "id", id);
 	V8_OBJECT_GET_NUMBER(vehicle, "model", model);
 
 	std::ostringstream ss;

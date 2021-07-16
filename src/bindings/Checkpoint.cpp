@@ -23,10 +23,10 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 		V8_OBJECT_GET_NUMBER(nextPos, "y", y2);
 		V8_OBJECT_GET_NUMBER(nextPos, "z", z2);
 
-		V8_OBJECT_GET_INTEGER(color, "r", r);
-		V8_OBJECT_GET_INTEGER(color, "g", g);
-		V8_OBJECT_GET_INTEGER(color, "b", b);
-		V8_OBJECT_GET_INTEGER(color, "a", a);
+		V8_OBJECT_GET_INT(color, "r", r);
+		V8_OBJECT_GET_INT(color, "g", g);
+		V8_OBJECT_GET_INT(color, "b", b);
+		V8_OBJECT_GET_INT(color, "a", a);
 
 		alt::Ref<alt::ICheckpoint> cp = alt::ICore::Instance().CreateCheckpoint(type, { x, y, z }, { x2, y2, z2 }, radius, height, { (uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a });
 		V8_BIND_BASE_OBJECT(cp, "Failed to create Checkpoint");
@@ -44,10 +44,10 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 		V8_ARG_TO_NUMBER(9, height);
 		V8_ARG_TO_OBJECT(10, color);
 
-		V8_OBJECT_GET_INTEGER(color, "r", r);
-		V8_OBJECT_GET_INTEGER(color, "g", g);
-		V8_OBJECT_GET_INTEGER(color, "b", b);
-		V8_OBJECT_GET_INTEGER(color, "a", a);
+		V8_OBJECT_GET_INT(color, "r", r);
+		V8_OBJECT_GET_INT(color, "g", g);
+		V8_OBJECT_GET_INT(color, "b", b);
+		V8_OBJECT_GET_INT(color, "a", a);
 
 		alt::Ref<alt::ICheckpoint> cp = alt::ICore::Instance().CreateCheckpoint(type, { x, y, z }, { x2, y2, z2 }, radius, height, { (uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a });
 		V8_BIND_BASE_OBJECT(cp, "Failed to create Checkpoint");
@@ -113,10 +113,10 @@ static void ColorSetter(v8::Local<v8::String> property, v8::Local<v8::Value> val
 	V8_GET_THIS_BASE_OBJECT(cp, alt::ICheckpoint);
 
 	V8_TO_OBJECT(value, color);
-	V8_OBJECT_GET_INTEGER(color, "r", r);
-	V8_OBJECT_GET_INTEGER(color, "g", g);
-	V8_OBJECT_GET_INTEGER(color, "b", b);
-	V8_OBJECT_GET_INTEGER(color, "a", a);
+	V8_OBJECT_GET_INT(color, "r", r);
+	V8_OBJECT_GET_INT(color, "g", g);
+	V8_OBJECT_GET_INT(color, "b", b);
+	V8_OBJECT_GET_INT(color, "a", a);
 
 	cp->SetColor({ (uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a });
 }

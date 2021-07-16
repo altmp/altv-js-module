@@ -211,11 +211,11 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 		V8_ARG_TO_OBJECT(3, pos);
 		V8_ARG_TO_OBJECT(4, size);
 
-		V8_OBJECT_GET_INTEGER(pos, "x", posX);
-		V8_OBJECT_GET_INTEGER(pos, "y", posY);
+		V8_OBJECT_GET_INT(pos, "x", posX);
+		V8_OBJECT_GET_INT(pos, "y", posY);
 
-		V8_OBJECT_GET_INTEGER(size, "x", sizeX);
-		V8_OBJECT_GET_INTEGER(size, "y", sizeY);
+		V8_OBJECT_GET_INT(size, "x", sizeX);
+		V8_OBJECT_GET_INT(size, "y", sizeY);
 
 		view = alt::ICore::Instance().CreateWebView(altres, url, { posX, posY }, { sizeX, sizeY }, true, isOverlayBool);
 	}
@@ -224,11 +224,11 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 		V8_ARG_TO_OBJECT(2, pos);
 		V8_ARG_TO_OBJECT(3, size);
 
-		V8_OBJECT_GET_INTEGER(pos, "x", posX);
-		V8_OBJECT_GET_INTEGER(pos, "y", posY);
+		V8_OBJECT_GET_INT(pos, "x", posX);
+		V8_OBJECT_GET_INT(pos, "y", posY);
 
-		V8_OBJECT_GET_INTEGER(size, "x", sizeX);
-		V8_OBJECT_GET_INTEGER(size, "y", sizeY);
+		V8_OBJECT_GET_INT(size, "x", sizeX);
+		V8_OBJECT_GET_INT(size, "y", sizeY);
 
 		view = alt::ICore::Instance().CreateWebView(altres, url, { posX, posY }, { sizeX, sizeY }, true, false);
 	}
@@ -247,8 +247,8 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 	{
 		V8_ARG_TO_OBJECT(2, pos);
 
-		V8_OBJECT_GET_INTEGER(pos, "x", posX);
-		V8_OBJECT_GET_INTEGER(pos, "y", posY);
+		V8_OBJECT_GET_INT(pos, "x", posX);
+		V8_OBJECT_GET_INT(pos, "y", posY);
 
 		view = alt::ICore::Instance().CreateWebView(altres, url, { posX, posY }, { 0, 0 }, true, false);
 	}

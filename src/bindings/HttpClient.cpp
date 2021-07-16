@@ -64,7 +64,7 @@ static void Get(const v8::FunctionCallbackInfo<v8::Value>& info)
         {
             v8::Context::Scope ctxscope(ctx);
             V8_NEW_OBJECT(responseObj);
-            V8_OBJECT_SET_INTEGER(responseObj, "statusCode", response.statusCode);
+            V8_OBJECT_SET_INT(responseObj, "statusCode", response.statusCode);
             V8_OBJECT_SET_STRING(responseObj, "body", response.body);
             V8_NEW_OBJECT(headers);
             for(auto it = response.headers->Begin(); it; it = response.headers->Next())
@@ -106,7 +106,7 @@ static void Head(const v8::FunctionCallbackInfo<v8::Value>& info)
         {
             v8::Context::Scope ctxscope(ctx);
             V8_NEW_OBJECT(responseObj);
-            V8_OBJECT_SET_INTEGER(responseObj, "statusCode", response.statusCode);
+            V8_OBJECT_SET_INT(responseObj, "statusCode", response.statusCode);
             V8_OBJECT_SET_STRING(responseObj, "body", response.body);
             V8_NEW_OBJECT(headers);
             for(auto it = response.headers->Begin(); it; it = response.headers->Next())
@@ -149,7 +149,7 @@ static void Post(const v8::FunctionCallbackInfo<v8::Value>& info)
         {
             v8::Context::Scope ctxscope(ctx);
             V8_NEW_OBJECT(responseObj);
-            V8_OBJECT_SET_INTEGER(responseObj, "statusCode", response.statusCode);
+            V8_OBJECT_SET_INT(responseObj, "statusCode", response.statusCode);
             V8_OBJECT_SET_STRING(responseObj, "body", response.body);
             V8_NEW_OBJECT(headers);
             for(auto it = response.headers->Begin(); it; it = response.headers->Next())
@@ -192,7 +192,7 @@ static void Put(const v8::FunctionCallbackInfo<v8::Value>& info)
         {
             v8::Context::Scope ctxscope(ctx);
             V8_NEW_OBJECT(responseObj);
-            V8_OBJECT_SET_INTEGER(responseObj, "statusCode", response.statusCode);
+            V8_OBJECT_SET_INT(responseObj, "statusCode", response.statusCode);
             V8_OBJECT_SET_STRING(responseObj, "body", response.body);
             V8_NEW_OBJECT(headers);
             for(auto it = response.headers->Begin(); it; it = response.headers->Next())
@@ -235,7 +235,7 @@ static void Delete(const v8::FunctionCallbackInfo<v8::Value>& info)
         {
             v8::Context::Scope ctxscope(ctx);
             V8_NEW_OBJECT(responseObj);
-            V8_OBJECT_SET_INTEGER(responseObj, "statusCode", response.statusCode);
+            V8_OBJECT_SET_INT(responseObj, "statusCode", response.statusCode);
             V8_OBJECT_SET_STRING(responseObj, "body", response.body);
             V8_NEW_OBJECT(headers);
             for(auto it = response.headers->Begin(); it; it = response.headers->Next())
@@ -278,7 +278,7 @@ static void Connect(const v8::FunctionCallbackInfo<v8::Value>& info)
         {
             v8::Context::Scope ctxscope(ctx);
             V8_NEW_OBJECT(responseObj);
-            V8_OBJECT_SET_INTEGER(responseObj, "statusCode", response.statusCode);
+            V8_OBJECT_SET_INT(responseObj, "statusCode", response.statusCode);
             V8_OBJECT_SET_STRING(responseObj, "body", response.body);
             V8_NEW_OBJECT(headers);
             for(auto it = response.headers->Begin(); it; it = response.headers->Next())
@@ -321,7 +321,7 @@ static void Options(const v8::FunctionCallbackInfo<v8::Value>& info)
         {
             v8::Context::Scope ctxscope(ctx);
             V8_NEW_OBJECT(responseObj);
-            V8_OBJECT_SET_INTEGER(responseObj, "statusCode", response.statusCode);
+            V8_OBJECT_SET_INT(responseObj, "statusCode", response.statusCode);
             V8_OBJECT_SET_STRING(responseObj, "body", response.body);
             V8_NEW_OBJECT(headers);
             for(auto it = response.headers->Begin(); it; it = response.headers->Next())
@@ -364,7 +364,7 @@ static void Trace(const v8::FunctionCallbackInfo<v8::Value>& info)
         {
             v8::Context::Scope ctxscope(ctx);
             V8_NEW_OBJECT(responseObj);
-            V8_OBJECT_SET_INTEGER(responseObj, "statusCode", response.statusCode);
+            V8_OBJECT_SET_INT(responseObj, "statusCode", response.statusCode);
             V8_OBJECT_SET_STRING(responseObj, "body", response.body);
             V8_NEW_OBJECT(headers);
             for(auto it = response.headers->Begin(); it; it = response.headers->Next())
@@ -407,7 +407,7 @@ static void Patch(const v8::FunctionCallbackInfo<v8::Value>& info)
         {
             v8::Context::Scope ctxscope(ctx);
             V8_NEW_OBJECT(responseObj);
-            V8_OBJECT_SET_INTEGER(responseObj, "statusCode", response.statusCode);
+            V8_OBJECT_SET_INT(responseObj, "statusCode", response.statusCode);
             V8_OBJECT_SET_STRING(responseObj, "body", response.body);
             V8_NEW_OBJECT(headers);
             for(auto it = response.headers->Begin(); it; it = response.headers->Next())

@@ -16,7 +16,7 @@ static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_GET_ISOLATE_CONTEXT();
 
     auto player = info.This();
-    V8_OBJECT_GET_INTEGER(player, "id", id);
+    V8_OBJECT_GET_INT(player, "id", id);
 	V8_OBJECT_GET_STRING(player, "name", name);
 
 	std::ostringstream ss;

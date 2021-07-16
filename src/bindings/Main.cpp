@@ -147,8 +147,8 @@ static void SetCursorPos(const v8::FunctionCallbackInfo<v8::Value> &info)
 
 	V8_CHECK_ARGS_LEN(1);
 	V8_ARG_TO_OBJECT(1, pos);
-	V8_OBJECT_GET_INTEGER(pos, "x", x);
-	V8_OBJECT_GET_INTEGER(pos, "y", y);
+	V8_OBJECT_GET_INT(pos, "x", x);
+	V8_OBJECT_GET_INT(pos, "y", y);
 
 	ICore::Instance().SetCursorPosition({ x, y });
 }
