@@ -35,6 +35,8 @@ public:
 	}
 
 	const V8::SourceLocation &GetLocation() const { return location; }
+	int64_t GetInterval() { return interval; }
+	bool IsOnce() { return once; }
 
 private:
 	v8::Isolate *isolate;

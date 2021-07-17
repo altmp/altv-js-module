@@ -199,9 +199,15 @@ public:
 		oldTimers.push_back(id);
 	}
 
-	uint32_t GetTimersCount()
+	void GetTimersCount(size_t* totalCount, size_t* everyTickCount, size_t* intervalCount, size_t* timeoutCount)
 	{
-		return timers.size();
+		*totalCount = timers.size();
+		for(auto [id, timer] : timers)
+		{
+			if(timer->GetInterval() == 0 && !timer->IsOnce()) *everyTickCount += 1;
+			else if(timer->IsOnce()) *timeoutCount += 1;
+			else *intervalCount += 1;
+		}
 	}
 
 	void NotifyPoolUpdate(alt::IBaseObject *ent);
