@@ -19,7 +19,11 @@ static void TimersCommand(alt::Array<alt::StringView>, void* runtime)
     Log::Info << "================ Timer info =================" << Log::Endl;
     for(auto resource : resources)
     {
-        Log::Info << resource->GetResource()->GetName() << ": " << resource->GetTimersCount() << " running timers";
+        size_t total, everyTick, interval, timeout;
+        resource->GetTimersCount(&total, &everyTick, &interval, &timeout);
+        Log::Info << resource->GetResource()->GetName() << ": " << total << " running timers (" 
+                  << everyTick << " EveryTick, " << interval << " Interval, " << timeout << " Timeout"
+                  << ")" << Log::Endl;
     }
     Log::Info << "======================================================" << Log::Endl;
 }
