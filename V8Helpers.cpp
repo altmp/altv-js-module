@@ -266,7 +266,7 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
 		if (_val <= UINT_MAX)
 			return v8::Integer::NewFromUnsigned(isolate, _val);
 
-		return v8::BigInt::New(isolate, _val);
+		return v8::BigInt::NewFromUnsigned(isolate, _val);
 	}
 	case alt::IMValue::Type::DOUBLE:
 		return v8::Number::New(isolate, val.As<alt::IMValueDouble>()->Value());
