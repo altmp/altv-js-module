@@ -1,5 +1,6 @@
 
 #include "../helpers/V8Helpers.h"
+#include "../helpers/V8BindHelpers.h"
 #include "../helpers/V8Class.h"
 #include "../helpers/V8Entity.h"
 #include "../helpers/V8ResourceImpl.h"
@@ -25,38 +26,6 @@ static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_RETURN_STRING(ss.str().c_str());
 }
 
-static void NameGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
-
-    V8_RETURN_STRING(player->GetName().CStr());
-}
-
-static void VehicleGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
-
-    V8_RETURN_BASE_OBJECT(player->GetVehicle());
-}
-
-static void TalkingGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
-
-    V8_RETURN_BOOLEAN(player->IsTalking());
-}
-
-static void MicLevelGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
-
-    V8_RETURN_NUMBER(player->GetMicLevel());
-}
-
 static void CurrentWeaponComponentsGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -70,158 +39,6 @@ static void CurrentWeaponComponentsGetter(v8::Local<v8::String>, const v8::Prope
         componentsArray->Set(ctx, i, v8::Integer::NewFromUnsigned(isolate, comps[i]));
 
     V8_RETURN(componentsArray);
-}
-
-static void CurrentWeaponTintIndexGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
-
-    V8_RETURN_INT(player->GetCurrentWeaponTintIndex());
-}
-
-static void CurrentWeaponGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
-
-    V8_RETURN_UINT(player->GetCurrentWeapon());
-}
-
-static void IsJumpingGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
-
-    V8_RETURN_BOOLEAN(player->IsJumping());
-}
-
-static void IsInRagdollGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
-
-    V8_RETURN_BOOLEAN(player->IsInRagdoll());
-}
-
-static void IsAimingGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
-
-    V8_RETURN_BOOLEAN(player->IsAiming());
-}
-
-static void IsShootingGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
-
-    V8_RETURN_BOOLEAN(player->IsShooting());
-}
-
-static void IsReloadingGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
-
-    V8_RETURN_BOOLEAN(player->IsReloading());
-}
-
-static void ArmourGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
-
-    V8_RETURN_INT(player->GetArmour());
-}
-
-static void MaxArmourGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
-
-    V8_RETURN_INT(player->GetMaxArmour());
-}
-
-static void MoveSpeedGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
-
-    V8_RETURN_NUMBER(player->GetMoveSpeed());
-}
-
-static void AimPosGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
-
-    V8_RETURN(resource->CreateVector3(player->GetAimPos()));
-}
-
-static void HeadRotationGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
-
-    V8_RETURN(resource->CreateVector3(player->GetHeadRotation()));
-}
-
-static void SeatGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
-
-    V8_RETURN_INT(player->GetSeat());
-}
-
-static void EntityAimingAtGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
-
-    V8_RETURN_BASE_OBJECT(player->GetEntityAimingAt());
-}
-
-static void EntityAimOffsetGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
-
-    V8_RETURN(resource->CreateVector3(player->GetEntityAimOffset()));
-}
-
-static void FlashlightActiveGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
-
-    V8_RETURN_BOOLEAN(player->IsFlashlightActive());
-}
-
-static void HealthGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
-
-    V8_RETURN_INT(player->GetHealth());
-}
-
-static void MaxHealthGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
-
-    V8_RETURN_INT(player->GetMaxHealth());
-}
-
-static void IsDeadGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
-
-    V8_RETURN_BOOLEAN(player->IsDead());
 }
 
 static void WeaponHasComponent(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -245,50 +62,6 @@ static void GetWeaponTintIndex(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_INT(1, weaponHash);
 
     V8_RETURN_INT(player->GetWeaponTintIndex(weaponHash));
-}
-
-static void GetCurrentWeapon(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
-
-    V8_RETURN_INT(player->GetCurrentWeapon());
-}
-
-static void SpatialVolumeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(_this, alt::IPlayer);
-
-    V8_RETURN_NUMBER(_this->GetSpatialVolume());
-}
-
-static void SpatialVolumeSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(_this, alt::IPlayer);
-
-    V8_TO_NUMBER(val, volume);
-
-    _this->SetSpatialVolume(volume);
-}
-
-static void NonSpatialVolumeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(_this, alt::IPlayer);
-
-    V8_RETURN_NUMBER(_this->GetNonSpatialVolume());
-}
-
-static void NonSpatialVolumeSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(_this, alt::IPlayer);
-
-    V8_TO_NUMBER(val, volume);
-
-    _this->SetNonSpatialVolume(volume);
 }
 
 static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -351,34 +124,34 @@ extern V8Class v8Player("Player", v8Entity, [](v8::Local<v8::FunctionTemplate> t
     V8::SetStaticAccessor(isolate, tpl, "local", &LocalGetter);
 
     // Common getters
-    V8::SetAccessor(isolate, tpl, "name", &NameGetter);
-    V8::SetAccessor(isolate, tpl, "vehicle", &VehicleGetter);
-    V8::SetAccessor(isolate, tpl, "seat", &SeatGetter);
-    V8::SetAccessor(isolate, tpl, "isTalking", &TalkingGetter);
-    V8::SetAccessor(isolate, tpl, "micLevel", &MicLevelGetter);
-    V8::SetAccessor(isolate, tpl, "health", &HealthGetter);
-    V8::SetAccessor(isolate, tpl, "maxHealth", &MaxHealthGetter);
-    V8::SetAccessor(isolate, tpl, "armour", &ArmourGetter);
-    V8::SetAccessor(isolate, tpl, "maxArmour", &MaxArmourGetter);
-    V8::SetAccessor(isolate, tpl, "spatialVolume", &SpatialVolumeGetter, &SpatialVolumeSetter);
-    V8::SetAccessor(isolate, tpl, "nonSpatialVolume", &NonSpatialVolumeGetter, &NonSpatialVolumeSetter);
+    V8::SetAccessor<IPlayer, StringView, &IPlayer::GetName>(isolate, tpl, "name");
+    V8::SetAccessor<IPlayer, Ref<IVehicle>, &IPlayer::GetVehicle>(isolate, tpl, "vehicle");
+    V8::SetAccessor<IPlayer, uint8_t, &IPlayer::GetSeat>(isolate, tpl, "seat");
+    V8::SetAccessor<IPlayer, bool, &IPlayer::IsTalking>(isolate, tpl, "isTalking");
+    V8::SetAccessor<IPlayer, float, &IPlayer::GetMicLevel>(isolate, tpl, "micLevel");
+    V8::SetAccessor<IPlayer, uint16_t, &IPlayer::GetHealth>(isolate, tpl, "health");
+    V8::SetAccessor<IPlayer, uint16_t, &IPlayer::GetMaxHealth>(isolate, tpl, "maxHealth");
+    V8::SetAccessor<IPlayer, uint16_t, &IPlayer::GetArmour>(isolate, tpl, "armour");
+    V8::SetAccessor<IPlayer, uint16_t, &IPlayer::GetMaxArmour>(isolate, tpl, "maxArmour");
+    V8::SetAccessor<IPlayer, float, &IPlayer::GetSpatialVolume, &IPlayer::SetSpatialVolume>(isolate, tpl, "spatialVolume");
+    V8::SetAccessor<IPlayer, float, &IPlayer::GetNonSpatialVolume, &IPlayer::SetNonSpatialVolume>(isolate, tpl, "nonSpatialVolume");
 
     // Weapon getters
     V8::SetAccessor(isolate, tpl, "currentWeaponComponents", &CurrentWeaponComponentsGetter);
     //V8::SetAccessor(isolate, tpl, "currentWeaponTintIndex", &CurrentWeaponTintIndexGetter);
-    V8::SetAccessor(isolate, tpl, "currentWeapon", &CurrentWeaponGetter);
-    V8::SetAccessor(isolate, tpl, "entityAimingAt", &EntityAimingAtGetter);
-    V8::SetAccessor(isolate, tpl, "entityAimOffset", &EntityAimOffsetGetter);
-    V8::SetAccessor(isolate, tpl, "flashlightActive", &FlashlightActiveGetter);
-    V8::SetAccessor(isolate, tpl, "aimPos", &AimPosGetter);
+    V8::SetAccessor<IPlayer, uint32_t, &IPlayer::GetCurrentWeapon>(isolate, tpl, "currentWeapon");
+    V8::SetAccessor<IPlayer, Ref<IEntity>, &IPlayer::GetEntityAimingAt>(isolate, tpl, "entityAimingAt");
+    V8::SetAccessor<IPlayer, Position, &IPlayer::GetEntityAimOffset>(isolate, tpl, "entityAimOffset");
+    V8::SetAccessor<IPlayer, bool, &IPlayer::IsFlashlightActive>(isolate, tpl, "flashlightActive");
+    V8::SetAccessor<IPlayer, Position, &IPlayer::GetAimPos>(isolate, tpl, "aimPos");
 
     // Gamestate getters
     //V8::SetAccessor(isolate, tpl, "isJumping", &IsJumpingGetter);
-    V8::SetAccessor(isolate, tpl, "isInRagdoll", &IsInRagdollGetter);
-    V8::SetAccessor(isolate, tpl, "isAiming", &IsAimingGetter);
+    V8::SetAccessor<IPlayer, bool, &IPlayer::IsInRagdoll>(isolate, tpl, "isInRagdoll");
+    V8::SetAccessor<IPlayer, bool, &IPlayer::IsAiming>(isolate, tpl, "isAiming");
     //V8::SetAccessor(isolate, tpl, "isShooting", &IsShootingGetter);
     //V8::SetAccessor(isolate, tpl, "isReloading", &IsReloadingGetter);
-    V8::SetAccessor(isolate, tpl, "isDead", &IsDeadGetter);
-    V8::SetAccessor(isolate, tpl, "moveSpeed", &MoveSpeedGetter);
-    V8::SetAccessor(isolate, tpl, "headRot", &HeadRotationGetter);
+    V8::SetAccessor<IPlayer, bool, &IPlayer::IsDead>(isolate, tpl, "isDead");
+    V8::SetAccessor<IPlayer, float, &IPlayer::GetMoveSpeed>(isolate, tpl, "moveSpeed");
+    V8::SetAccessor<IPlayer, Rotation, &IPlayer::GetHeadRotation>(isolate, tpl, "headRot");
 });

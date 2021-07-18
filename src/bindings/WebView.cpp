@@ -1,5 +1,6 @@
 
 #include "../helpers/V8Helpers.h"
+#include "../helpers/V8BindHelpers.h"
 #include "../helpers/V8Class.h"
 #include "../helpers/V8Entity.h"
 #include "../helpers/V8ResourceImpl.h"
@@ -77,24 +78,6 @@ static void Emit(const v8::FunctionCallbackInfo<v8::Value> &info)
 	view->Trigger(evName, mvArgs);
 }
 
-static void Focus(const v8::FunctionCallbackInfo<v8::Value> &info)
-{
-	V8_GET_ISOLATE();
-
-	V8_GET_THIS_BASE_OBJECT(view, alt::IWebView);
-
-	view->Focus();
-}
-
-static void Unfocus(const v8::FunctionCallbackInfo<v8::Value> &info)
-{
-	V8_GET_ISOLATE();
-
-	V8_GET_THIS_BASE_OBJECT(view, alt::IWebView);
-
-	view->Unfocus();
-}
-
 static void GetEventListeners(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -112,63 +95,6 @@ static void GetEventListeners(const v8::FunctionCallbackInfo<v8::Value>& info)
 	}
 
 	V8_RETURN(array);
-}
-
-static void IsVisibleGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
-{
-	V8_GET_ISOLATE();
-
-	V8_GET_THIS_BASE_OBJECT(view, alt::IWebView);
-
-	V8_RETURN_BOOLEAN(view->IsVisible());
-}
-
-static void IsVisibleSetter(v8::Local<v8::String>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
-{
-	V8_GET_ISOLATE();
-
-	V8_GET_THIS_BASE_OBJECT(view, alt::IWebView);
-
-	V8_TO_BOOLEAN(value, state);
-	view->SetVisible(state);
-}
-
-static void URLGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
-{
-	V8_GET_ISOLATE();
-
-	V8_GET_THIS_BASE_OBJECT(view, alt::IWebView);
-
-	V8_RETURN_STRING(view->GetUrl().CStr());
-}
-
-static void URLSetter(v8::Local<v8::String>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
-{
-	V8_GET_ISOLATE_CONTEXT();
-
-	V8_GET_THIS_BASE_OBJECT(view, alt::IWebView);
-
-	V8_TO_STRING(value, url);
-
-	view->SetUrl(url);
-}
-
-static void OverlayGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
-{
-	V8_GET_ISOLATE();
-
-	V8_GET_THIS_BASE_OBJECT(view, alt::IWebView);
-
-	V8_RETURN_BOOLEAN(view->IsOverlay());
-}
-
-static void ReadyGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
-{
-	V8_GET_ISOLATE();
-
-	V8_GET_THIS_BASE_OBJECT(view, alt::IWebView);
-
-	V8_RETURN_BOOLEAN(view->IsReady());
 }
 
 static void FocusedGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
@@ -272,10 +198,10 @@ extern V8Class v8WebView("WebView", v8BaseObject, &Constructor,	[](v8::Local<v8:
 
 	V8::SetMethod(isolate, tpl, "toString", ToString);
 
-	V8::SetAccessor(isolate, tpl, "isVisible", &IsVisibleGetter, &IsVisibleSetter);
-	V8::SetAccessor(isolate, tpl, "url", &URLGetter, &URLSetter);
-	V8::SetAccessor(isolate, tpl, "isOverlay", &OverlayGetter);
-	V8::SetAccessor(isolate, tpl, "isReady", &ReadyGetter);
+	V8::SetAccessor<IWebView, bool, &IWebView::IsVisible, &IWebView::SetVisible>(isolate, tpl, "isVisible");
+	V8::SetAccessor<IWebView, StringView, &IWebView::GetUrl, &IWebView::SetUrl>(isolate, tpl, "url");
+	V8::SetAccessor<IWebView, bool, &IWebView::IsOverlay>(isolate, tpl, "isOverlay");
+	V8::SetAccessor<IWebView, bool, &IWebView::IsReady>(isolate, tpl, "isReady");
 	V8::SetAccessor(isolate, tpl, "focused", &FocusedGetter, &FocusedSetter);
 
 	V8::SetMethod(isolate, tpl, "on", &On);
@@ -283,6 +209,6 @@ extern V8Class v8WebView("WebView", v8BaseObject, &Constructor,	[](v8::Local<v8:
 	V8::SetMethod(isolate, tpl, "off", &Off);
 	V8::SetMethod(isolate, tpl, "getEventListeners", GetEventListeners);
 	V8::SetMethod(isolate, tpl, "emit", &Emit);
-	V8::SetMethod(isolate, tpl, "focus", &Focus);
-	V8::SetMethod(isolate, tpl, "unfocus", &Unfocus);
+	V8::SetMethod<IWebView, &IWebView::Focus>(isolate, tpl, "focus");
+	V8::SetMethod<IWebView, &IWebView::Unfocus>(isolate, tpl, "unfocus");
 });

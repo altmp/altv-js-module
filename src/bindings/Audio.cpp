@@ -1,4 +1,5 @@
 #include "../helpers/V8Helpers.h"
+#include "../helpers/V8BindHelpers.h"
 #include "../helpers/V8ResourceImpl.h"
 #include "../helpers/V8Class.h"
 #include "../CV8ScriptRuntime.h"
@@ -83,57 +84,6 @@ static void GetEventListeners(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN(array);
 }
 
-static void SourceGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
-
-    V8_RETURN_ALT_STRING(audio->GetSource());
-}
-
-static void SourceSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
-    
-    V8_TO_STRING(val, source);
-    audio->SetSource(source);
-}
-
-static void LoopedGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
-
-    V8_RETURN_BOOLEAN(audio->IsLoop());
-}
-
-static void LoopedSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
-    
-    V8_TO_BOOLEAN(val, looped);
-    audio->SetLoop(looped);
-}
-
-static void VolumeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
-
-    V8_RETURN_NUMBER(audio->GetVolume());
-}
-
-static void VolumeSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
-    
-    V8_TO_NUMBER(val, volume);
-    audio->SetVolume(volume);
-}
-
 static void CategoryGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE();
@@ -159,14 +109,6 @@ static void CategorySetter(v8::Local<v8::String>, v8::Local<v8::Value> val, cons
         category = alt::ICore::Instance().Hash(categ);
     }
     audio->SetCategory(category);
-}
-
-static void FrontendPlayGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
-
-    V8_RETURN_BOOLEAN(audio->IsFrontendPlay());
 }
 
 static void AddOutput(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -227,54 +169,6 @@ static void GetOutputs(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN(arr);
 }
 
-static void CurrentTimeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
-
-    V8_RETURN_NUMBER(audio->GetCurrentTime());
-}
-
-static void MaxTimeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
-
-    V8_RETURN_NUMBER(audio->GetMaxTime());
-}
-
-static void PlayingGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
-
-    V8_RETURN_BOOLEAN(audio->IsPlaying());
-}
-
-static void Play(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-	V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
-
-    audio->Play();
-}
-
-static void Pause(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-	V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
-
-    audio->Pause();
-}
-
-static void Reset(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-	V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
-
-    audio->Reset();
-}
-
 static void Seek(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
@@ -288,27 +182,28 @@ static void Seek(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 extern V8Class v8BaseObject;
 extern V8Class v8Audio("Audio", v8BaseObject, &Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
+    using namespace alt;
     v8::Isolate *isolate = v8::Isolate::GetCurrent();
 
     V8::SetMethod(isolate, tpl, "on", &On);
     V8::SetMethod(isolate, tpl, "off", &Off);
     V8::SetMethod(isolate, tpl, "getEventListeners", GetEventListeners);
 
-    V8::SetAccessor(isolate, tpl, "source", &SourceGetter, &SourceSetter);
-    V8::SetAccessor(isolate, tpl, "looped", &LoopedGetter, &LoopedSetter);
-    V8::SetAccessor(isolate, tpl, "volume", &VolumeGetter, &VolumeSetter);
+    V8::SetAccessor<IAudio, StringView, &IAudio::GetSource, &IAudio::SetSource>(isolate, tpl, "source");
+    V8::SetAccessor<IAudio, bool, &IAudio::IsLoop, &IAudio::SetLoop>(isolate, tpl, "looped");
+    V8::SetAccessor<IAudio, float, &IAudio::GetVolume, &IAudio::SetVolume>(isolate, tpl, "volume");
     V8::SetAccessor(isolate, tpl, "category", &CategoryGetter, &CategorySetter);
-    V8::SetAccessor(isolate, tpl, "frontendPlay", &FrontendPlayGetter);
-    V8::SetAccessor(isolate, tpl, "currentTime", &CurrentTimeGetter);
-    V8::SetAccessor(isolate, tpl, "maxTime", &MaxTimeGetter);
-    V8::SetAccessor(isolate, tpl, "playing", &PlayingGetter);
+    V8::SetAccessor<IAudio, bool, &IAudio::IsFrontendPlay>(isolate, tpl, "frontendPlay");
+    V8::SetAccessor<IAudio, double, &IAudio::GetCurrentTime>(isolate, tpl, "currentTime");
+    V8::SetAccessor<IAudio, double, &IAudio::GetMaxTime>(isolate, tpl, "maxTime");
+    V8::SetAccessor<IAudio, bool, &IAudio::IsPlaying>(isolate, tpl, "playing");
 
     V8::SetMethod(isolate, tpl, "addOutput", &AddOutput);
     V8::SetMethod(isolate, tpl, "removeOutput", &RemoveOutput);
     V8::SetMethod(isolate, tpl, "getOutputs", &GetOutputs);
 
-    V8::SetMethod(isolate, tpl, "play", &Play);
-    V8::SetMethod(isolate, tpl, "pause", &Pause);
-    V8::SetMethod(isolate, tpl, "reset", &Reset);
+    V8::SetMethod<IAudio, &IAudio::Play>(isolate, tpl, "play");
+    V8::SetMethod<IAudio, &IAudio::Pause>(isolate, tpl, "pause");
+    V8::SetMethod<IAudio, &IAudio::Reset>(isolate, tpl, "reset");
     V8::SetMethod(isolate, tpl, "seek", &Seek);
 });

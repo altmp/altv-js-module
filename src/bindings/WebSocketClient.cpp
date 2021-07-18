@@ -1,4 +1,5 @@
 #include "../helpers/V8Helpers.h"
+#include "../helpers/V8BindHelpers.h"
 #include "../helpers/V8Class.h"
 #include "../helpers/V8Entity.h"
 #include "../helpers/V8ResourceImpl.h"
@@ -51,15 +52,6 @@ static void Off(const v8::FunctionCallbackInfo<v8::Value>& info)
 	static_cast<CV8ResourceImpl*>(resource)->UnsubscribeWebSocketClient(webSocket, evName.ToString(), fun);
 }
 
-static void Start(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-	V8_GET_ISOLATE();
-
-	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
-
-	webSocket->Start();
-}
-
 static void Send(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
@@ -90,15 +82,6 @@ static void Send(const v8::FunctionCallbackInfo<v8::Value>& info)
 		V8_CHECK(false, "Unknown parameter type specified for IWebSocketClient::Send");
 	}
 	V8_RETURN_BOOLEAN(ret);
-}
-
-static void Stop(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-	V8_GET_ISOLATE();
-
-	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
-
-	webSocket->Stop();
 }
 
 static void AddSubProtocol(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -180,95 +163,6 @@ static void GetEventListeners(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_RETURN(array);
 }
 
-static void URLGetter(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	V8_GET_ISOLATE();
-
-	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
-
-	V8_RETURN_STRING(webSocket->GetUrl().CStr());
-}
-
-static void URLSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
-{
-	V8_GET_ISOLATE_CONTEXT();
-
-	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
-
-	V8_TO_STRING(value, url);
-
-	webSocket->SetUrl(url);
-}
-
-static void ReadyStateGetter(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	V8_GET_ISOLATE();
-
-	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
-
-	V8_RETURN_UINT(webSocket->GetReadyState());
-}
-
-static void AutoReconnectSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
-{
-	V8_GET_ISOLATE_CONTEXT();
-
-	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
-
-	V8_TO_BOOLEAN(value, toggle);
-
-	webSocket->SetAutoReconnectEnabled(toggle);
-}
-
-static void AutoReconnectGetter(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	V8_GET_ISOLATE();
-
-	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
-
-	V8_RETURN_BOOLEAN(webSocket->IsAutoReconnectEnabled());
-}
-
-static void PerMessageDeflateSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
-{
-	V8_GET_ISOLATE_CONTEXT();
-
-	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
-
-	V8_TO_BOOLEAN(value, toggle);
-
-	webSocket->SetPerMessageDeflateEnabled(toggle);
-}
-
-static void PerMessageDeflateGetter(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	V8_GET_ISOLATE();
-
-	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
-
-	V8_RETURN_BOOLEAN(webSocket->IsPerMessageDeflateEnabled());
-}
-
-static void PingIntervalSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
-{
-	V8_GET_ISOLATE_CONTEXT();
-
-	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
-
-	V8_TO_INTEGER(value, interval);
-
-	webSocket->SetPingInterval(interval);
-}
-
-static void PingIntervalGetter(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	V8_GET_ISOLATE();
-
-	V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
-
-	V8_RETURN_UINT(webSocket->GetPingInterval());
-}
-
 extern V8Class v8BaseObject;
 extern V8Class v8WebSocketClient("WebSocketClient", v8BaseObject, &Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -277,9 +171,9 @@ extern V8Class v8WebSocketClient("WebSocketClient", v8BaseObject, &Constructor, 
 	V8::SetMethod(isolate, tpl, "off", &Off);
 	V8::SetMethod(isolate, tpl, "getEventListeners", GetEventListeners);
 
-	V8::SetMethod(isolate, tpl, "start", &Start);
+	V8::SetMethod<IWebSocketClient, &IWebSocketClient::Start>(isolate, tpl, "start");
+	V8::SetMethod<IWebSocketClient, &IWebSocketClient::Stop>(isolate, tpl, "stop");
 	V8::SetMethod(isolate, tpl, "send", &Send);
-	V8::SetMethod(isolate, tpl, "stop", &Stop);
 
 	V8::SetMethod(isolate, tpl, "addSubProtocol", &AddSubProtocol);
 	V8::SetMethod(isolate, tpl, "getSubProtocols", &GetSubProtocols);
@@ -287,9 +181,9 @@ extern V8Class v8WebSocketClient("WebSocketClient", v8BaseObject, &Constructor, 
 	V8::SetMethod(isolate, tpl, "setExtraHeader", &SetExtraHeader);
 	V8::SetMethod(isolate, tpl, "getExtraHeaders", &GetExtraHeaders);
 
-	V8::SetAccessor(isolate, tpl, "autoReconnect", &AutoReconnectGetter, &AutoReconnectSetter);
-	V8::SetAccessor(isolate, tpl, "perMessageDeflate", &PerMessageDeflateGetter, &PerMessageDeflateSetter);
-	V8::SetAccessor(isolate, tpl, "pingInterval", &PingIntervalGetter, &PingIntervalSetter);
-	V8::SetAccessor(isolate, tpl, "url", &URLGetter, &URLSetter);
-	V8::SetAccessor(isolate, tpl, "readyState", &ReadyStateGetter, nullptr);
+	V8::SetAccessor<IWebSocketClient, bool, &IWebSocketClient::IsAutoReconnectEnabled, &IWebSocketClient::SetAutoReconnectEnabled>(isolate, tpl, "autoReconnect");
+	V8::SetAccessor<IWebSocketClient, bool, &IWebSocketClient::IsPerMessageDeflateEnabled, &IWebSocketClient::SetPerMessageDeflateEnabled>(isolate, tpl, "perMessageDeflate");
+	V8::SetAccessor<IWebSocketClient, uint16_t, &IWebSocketClient::GetPingInterval, &IWebSocketClient::SetPingInterval>(isolate, tpl, "pingInterval");
+	V8::SetAccessor<IWebSocketClient, StringView, &IWebSocketClient::GetUrl, &IWebSocketClient::SetUrl>(isolate, tpl, "url");
+	V8::SetAccessor<IWebSocketClient, uint8_t, &IWebSocketClient::GetReadyState>(isolate, tpl, "readyState");
 });

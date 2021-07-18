@@ -1,5 +1,6 @@
 #include "../CV8Resource.h"
 #include "../helpers/V8Helpers.h"
+#include "../helpers/V8BindHelpers.h"
 #include "cpp-sdk/script-objects/ICheckpoint.h"
 
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -55,93 +56,6 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 	else V8Helpers::Throw(isolate, "6 or 10 arguments expected");
 }
 
-static void TypeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	V8_GET_ISOLATE_CONTEXT();
-	V8_GET_THIS_BASE_OBJECT(cp, alt::ICheckpoint);
-	V8_RETURN_INT(cp->GetCheckpointType());
-}
-
-static void TypeSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
-{
-	V8_GET_ISOLATE_CONTEXT();
-	V8_GET_THIS_BASE_OBJECT(cp, alt::ICheckpoint);
-	V8_TO_INTEGER(value, val);
-	cp->SetCheckpointType(val);
-}
-
-static void RadiusGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	V8_GET_ISOLATE_CONTEXT();
-	V8_GET_THIS_BASE_OBJECT(cp, alt::ICheckpoint);
-	V8_RETURN_NUMBER(cp->GetRadius());
-}
-
-static void RadiusSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
-{
-	V8_GET_ISOLATE_CONTEXT();
-	V8_GET_THIS_BASE_OBJECT(cp, alt::ICheckpoint);
-	V8_TO_NUMBER(value, val);
-	cp->SetRadius(val);
-}
-
-static void HeightGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	V8_GET_ISOLATE_CONTEXT();
-	V8_GET_THIS_BASE_OBJECT(cp, alt::ICheckpoint);
-	V8_RETURN_NUMBER(cp->GetHeight());
-}
-
-static void HeightSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
-{
-	V8_GET_ISOLATE_CONTEXT();
-	V8_GET_THIS_BASE_OBJECT(cp, alt::ICheckpoint);
-	V8_TO_NUMBER(value, val);
-	cp->SetHeight(val);
-}
-
-static void ColorGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	V8_GET_ISOLATE_CONTEXT_RESOURCE();
-	V8_GET_THIS_BASE_OBJECT(cp, alt::ICheckpoint);
-	V8_RETURN(resource->CreateRGBA(cp->GetColor()));
-}
-
-static void ColorSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
-{
-	V8_GET_ISOLATE_CONTEXT();
-	V8_GET_THIS_BASE_OBJECT(cp, alt::ICheckpoint);
-
-	V8_TO_OBJECT(value, color);
-	V8_OBJECT_GET_INT(color, "r", r);
-	V8_OBJECT_GET_INT(color, "g", g);
-	V8_OBJECT_GET_INT(color, "b", b);
-	V8_OBJECT_GET_INT(color, "a", a);
-
-	cp->SetColor({ (uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a });
-}
-
-static void NextPosGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	V8_GET_ISOLATE_CONTEXT_RESOURCE();
-	V8_GET_THIS_BASE_OBJECT(cp, alt::ICheckpoint);
-
-	V8_RETURN(resource->CreateVector3(cp->GetNextPosition()));
-}
-
-static void NextPosSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
-{
-	V8_GET_ISOLATE_CONTEXT();
-	V8_GET_THIS_BASE_OBJECT(cp, alt::ICheckpoint);
-
-	V8_TO_OBJECT(val, pos);
-	V8_OBJECT_GET_NUMBER(pos, "x", x);
-	V8_OBJECT_GET_NUMBER(pos, "y", y);
-	V8_OBJECT_GET_NUMBER(pos, "z", z);
-
-	cp->SetNextPosition({ x, y, z });
-}
-
 static void IsEntityIn(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -167,13 +81,14 @@ static void IsPointIn(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 extern V8Class v8WorldObject;
 extern V8Class v8Checkpoint("Checkpoint", v8WorldObject, Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
+	using namespace alt;
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-	V8::SetAccessor(isolate, tpl, "checkpointType", &TypeGetter, &TypeSetter);
-	V8::SetAccessor(isolate, tpl, "radius", &RadiusGetter, &RadiusSetter);
-	V8::SetAccessor(isolate, tpl, "height", &HeightGetter, &HeightSetter);
-	V8::SetAccessor(isolate, tpl, "color", &ColorGetter, &ColorSetter);
-	V8::SetAccessor(isolate, tpl, "nextPos", &NextPosGetter, &NextPosSetter);
+	V8::SetAccessor<ICheckpoint, uint8_t, &ICheckpoint::GetCheckpointType, &ICheckpoint::SetCheckpointType>(isolate, tpl, "checkpointType");
+	V8::SetAccessor<ICheckpoint, float, &ICheckpoint::GetRadius, &ICheckpoint::SetRadius>(isolate, tpl, "radius");
+	V8::SetAccessor<ICheckpoint, float, &ICheckpoint::GetHeight, &ICheckpoint::SetHeight>(isolate, tpl, "height");
+	V8::SetAccessor<ICheckpoint, RGBA, &ICheckpoint::GetColor, &ICheckpoint::SetColor>(isolate, tpl, "color");
+	V8::SetAccessor<ICheckpoint, Position, &ICheckpoint::GetNextPosition, &ICheckpoint::SetNextPosition>(isolate, tpl, "nextPos");
 
 	V8::SetMethod(isolate, tpl, "isEntityIn", &IsEntityIn);
 	V8::SetMethod(isolate, tpl, "isPointIn", &IsPointIn);
