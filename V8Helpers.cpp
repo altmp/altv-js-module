@@ -661,6 +661,7 @@ bool V8::SafeToVector3(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, alt
 
 bool V8::SafeToVector2(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, alt::Vector2f& out)
 {
+	if(!val->IsObject()) return false;
 	v8::MaybeLocal maybeVal = val->ToObject(ctx);
 	if (!maybeVal.IsEmpty())
 	{
