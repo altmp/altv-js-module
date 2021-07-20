@@ -252,9 +252,9 @@ extern V8Class v8Player,
     v8ColshapeCuboid,
     v8ColshapeRectangle;
 
-extern V8Module v8Shared;
+extern V8Module sharedModule;
 
-extern V8Module v8Alt("alt", &v8Shared,
+extern V8Module v8Alt("alt", &sharedModule,
 {
 	v8Player,
 	v8Vehicle,

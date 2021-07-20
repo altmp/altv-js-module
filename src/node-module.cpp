@@ -37,7 +37,7 @@ static void Initialize(v8::Local<v8::Object> exports)
 NODE_MODULE_LINKED(alt, Initialize)
 }
 
-extern V8Module v8Shared;
+extern V8Module sharedModule;
 namespace shared
 {
 static void InitializeShared(v8::Local<v8::Object> exports)
@@ -45,7 +45,7 @@ static void InitializeShared(v8::Local<v8::Object> exports)
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 	v8::HandleScope handle_scope(isolate);
 
-	v8Shared.Register(isolate, isolate->GetEnteredContext(), exports);
+	sharedModule.Register(isolate, isolate->GetEnteredContext(), exports);
 }
 NODE_MODULE_LINKED(altShared, InitializeShared)
 }
