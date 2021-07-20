@@ -380,4 +380,4 @@ static void RegisterNatives(v8::Local<v8::Context> ctx, v8::Local<v8::Object> ex
 	}
 }
 
-extern V8Module nativesModule("natives", {}, RegisterNatives);
+extern V8Module nativesModule("natives", nullptr, {}, RegisterNatives);

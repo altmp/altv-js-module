@@ -836,13 +836,8 @@ static void ClearPedProps(const v8::FunctionCallbackInfo<v8::Value>& info)
 	alt::ICore::Instance().ClearProps(scriptId, component);
 }
 
-extern V8Class v8Vector3,
-	v8Vector2,
-	v8RGBA,
-	v8BaseObject,
-	v8WorldObject,
-	v8Entity,
-	v8Player,
+extern V8Module v8Shared;
+extern V8Class v8Player,
 	v8Player,
 	v8Vehicle,
 	v8WebView,
@@ -853,7 +848,6 @@ extern V8Class v8Vector3,
 	v8HandlingData,
 	v8LocalStorage,
 	v8MemoryBuffer,
-	v8File,
 	v8MapZoomData,
 	v8Discord,
 	v8Voice,
@@ -866,13 +860,8 @@ extern V8Class v8Vector3,
 	v8LocalPlayer;
 extern V8Module altModule(
 	"alt",
-	{v8Vector3,
-	 v8Vector2,
-	 v8RGBA,
-	 v8BaseObject,
-	 v8WorldObject,
-	 v8Entity,
-	 v8Player,
+	&v8Shared,
+	{v8Player,
 	 v8Vehicle,
 	 v8WebView,
 	 v8Blip,
@@ -882,7 +871,6 @@ extern V8Module altModule(
 	 v8HandlingData,
 	 v8LocalStorage,
 	 v8MemoryBuffer,
-	 v8File,
 	 v8MapZoomData,
 	 v8Discord,
 	 v8Voice,
@@ -892,8 +880,6 @@ extern V8Module altModule(
 	 v8Audio,
 	 v8LocalPlayer},
 	[](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
-		V8::RegisterSharedMain(ctx, exports);
-
 		V8Helpers::RegisterFunc(exports, "onServer", &OnServer);
 		V8Helpers::RegisterFunc(exports, "onceServer", &OnceServer);
 		V8Helpers::RegisterFunc(exports, "offServer", &OffServer);
