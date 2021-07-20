@@ -161,8 +161,8 @@ CV8ScriptRuntime::CV8ScriptRuntime()
 
 		V8Class::LoadAll(isolate);
 
-		extern V8Module altModule, nativesModule;
-		V8Module::Add({altModule, nativesModule});
+		extern V8Module altModule, nativesModule, sharedModule;
+		V8Module::Add({altModule, nativesModule, sharedModule});
 	}
 
 	RegisterEvents();
