@@ -459,11 +459,11 @@ namespace V8
 	V8_CHECK(V8::SafeToVector3(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to vector3")
 
 #define V8_RETURN(val) info.GetReturnValue().Set(val)
-#define V8_RETURN_NULL() V8_RETURN(v8::Null(isolate))
-#define V8_RETURN_BOOLEAN(val) V8_RETURN(v8::Boolean::New(isolate, (val)))
-#define V8_RETURN_INT(val) V8_RETURN(v8::Integer::New(isolate, static_cast<int32_t>(val)))
-#define V8_RETURN_UINT(val) V8_RETURN(v8::Integer::NewFromUnsigned(isolate, static_cast<uint32_t>(val)))
-#define V8_RETURN_NUMBER(val) V8_RETURN(v8::Number::New(isolate, static_cast<double>(val)))
+#define V8_RETURN_NULL() info.GetReturnValue().SetNull()
+#define V8_RETURN_BOOLEAN(val) V8_RETURN(val)
+#define V8_RETURN_INT(val) V8_RETURN(static_cast<int32_t>(val))
+#define V8_RETURN_UINT(val) V8_RETURN(static_cast<uint32_t>(val))
+#define V8_RETURN_NUMBER(val) V8_RETURN(static_cast<double>(val))
 #define V8_RETURN_STRING(val) V8_RETURN(v8::String::NewFromUtf8(isolate, (val), v8::NewStringType::kNormal).ToLocalChecked())
 #define V8_RETURN_ALT_STRING(val) V8_RETURN(v8::String::NewFromUtf8(isolate, (val).CStr(), v8::NewStringType::kNormal).ToLocalChecked())
 #define V8_RETURN_MVALUE(val) V8_RETURN(V8Helpers::MValueToV8(val))
@@ -472,7 +472,7 @@ namespace V8
 #define V8_RETURN_VECTOR3(val) V8_RETURN(resource->CreateVector3(val))
 #define V8_RETURN_VECTOR2(val) V8_RETURN(resource->CreateVector2(val))
 #define V8_RETURN_RGBA(val) V8_RETURN(resource->CreateRGBA(val))
-#define V8_RETURN_ENUM(val) V8_RETURN(v8::Integer::NewFromUnsigned(isolate, uint32_t(val)))
+#define V8_RETURN_ENUM(val) V8_RETURN(uint32_t(val))
 
 #define V8_RETURN_BASE_OBJECT(baseObjectRef) V8_RETURN(resource->GetBaseObjectOrNull(baseObjectRef))
 
