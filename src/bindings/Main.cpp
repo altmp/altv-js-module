@@ -836,7 +836,7 @@ static void ClearPedProps(const v8::FunctionCallbackInfo<v8::Value>& info)
 	alt::ICore::Instance().ClearProps(scriptId, component);
 }
 
-extern V8Module v8Shared;
+extern V8Module sharedModule;
 extern V8Class v8Player,
 	v8Player,
 	v8Vehicle,
@@ -860,7 +860,7 @@ extern V8Class v8Player,
 	v8LocalPlayer;
 extern V8Module altModule(
 	"alt",
-	&v8Shared,
+	&sharedModule,
 	{v8Player,
 	 v8Vehicle,
 	 v8WebView,
