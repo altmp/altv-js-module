@@ -170,8 +170,6 @@ namespace V8
 	v8::Local<v8::Value> Get(v8::Local<v8::Context> ctx, v8::Local<v8::Object> obj, const char *name);
 	v8::Local<v8::Value> Get(v8::Local<v8::Context> ctx, v8::Local<v8::Object> obj, v8::Local<v8::Name> name);
 
-	void RegisterSharedMain(v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports);
-
 	v8::Local<v8::Value> New(v8::Isolate *isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Function> constructor, std::vector<v8::Local<v8::Value>> &args);
 
 	// TODO: create c++ classes for v8 classes and move there

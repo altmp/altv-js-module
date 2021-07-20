@@ -1,6 +1,7 @@
 
 #include "../V8Helpers.h"
 #include "../V8ResourceImpl.h"
+#include "../V8Module.h"
 
 static void HashCb(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
@@ -335,8 +336,25 @@ static void GetRemoteEventListeners(const v8::FunctionCallbackInfo<v8::Value>& i
 	V8_RETURN(array);
 }
 
-void V8::RegisterSharedMain(v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports)
+extern V8Class v8BaseObject,
+	v8WorldObject,
+	v8Entity,
+	v8File,
+	v8RGBA,
+	v8Vector2,
+	v8Vector3;
+
+extern V8Module v8Shared("alt-shared", nullptr,
 {
+	v8BaseObject,
+	v8WorldObject,
+	v8Entity,
+	v8File,
+	v8RGBA,
+	v8Vector2,
+	v8Vector3
+},
+[](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
 	v8::Isolate *isolate = ctx->GetIsolate();
 
 	V8Helpers::RegisterFunc(exports, "hash", &HashCb);
@@ -373,12 +391,19 @@ void V8::RegisterSharedMain(v8::Local<v8::Context> ctx, v8::Local<v8::Object> ex
 
 	V8Helpers::RegisterFunc(exports, "hasResource", &HasResource);
 
-	V8::DefineOwnProperty(isolate, ctx, exports, "version", v8::String::NewFromUtf8(isolate, alt::ICore::Instance().GetVersion().CStr()).ToLocalChecked());
-	V8::DefineOwnProperty(isolate, ctx, exports, "branch", v8::String::NewFromUtf8(isolate, alt::ICore::Instance().GetBranch().CStr()).ToLocalChecked());
+	V8_OBJECT_SET_STRING(exports, "version", alt::ICore::Instance().GetVersion());
+	V8_OBJECT_SET_STRING(exports, "branch", alt::ICore::Instance().GetBranch());
+	V8_OBJECT_SET_INT(exports, "sdkVersion", alt::ICore::Instance().SDK_VERSION);
+	V8_OBJECT_SET_BOOLEAN(exports, "debug", alt::ICore::Instance().IsDebug());
 
-	V8::DefineOwnProperty(isolate, ctx, exports, "resourceName", v8::String::NewFromUtf8(isolate, V8ResourceImpl::GetResource(ctx)->GetName().CStr()).ToLocalChecked());
+	V8_OBJECT_SET_STRING(exports, "resourceName", V8ResourceImpl::GetResource(ctx)->GetName());
 
-	V8::DefineOwnProperty(isolate, ctx, exports, "sdkVersion", v8::Integer::New(isolate, alt::ICore::Instance().SDK_VERSION));
-
-	V8::DefineOwnProperty(isolate, ctx, exports, "debug", v8::Boolean::New(isolate, alt::ICore::Instance().IsDebug()));
-}
+#ifdef ALT_CLIENT_API
+	V8_OBJECT_SET_BOOLEAN(exports, "isClient", true);
+	V8_OBJECT_SET_BOOLEAN(exports, "isServer", false);
+#endif
+#ifdef ALT_SERVER_API
+	V8_OBJECT_SET_BOOLEAN(exports, "isClient", false);
+	V8_OBJECT_SET_BOOLEAN(exports, "isServer", true);
+#endif
+});

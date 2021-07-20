@@ -40,12 +40,14 @@ public:
     std::string moduleName;
     std::unordered_set<V8Class *> classes;
     Callback creator;
+    V8Module* parentModule;
 
     template <class... cc>
     V8Module(
         std::string moduleName,
+        V8Module* parent,
         std::initializer_list<std::reference_wrapper<V8Class>> _classes,
-        Callback fn) : moduleName(moduleName), creator(fn)
+        Callback fn) : moduleName(moduleName), creator(fn), parentModule(parent)
     {
         for (auto &c : _classes)
             classes.insert(&c.get());
@@ -55,6 +57,7 @@ public:
 
     void Register(v8::Isolate *isolate, v8::Local<v8::Context> context, v8::Local<v8::Object> exports)
     {
+        if(parentModule) parentModule->Register(isolate, context, exports);
         // Load all classes
         for (auto c : classes)
         {
