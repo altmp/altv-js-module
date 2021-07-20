@@ -239,13 +239,7 @@ static void GetResourceExports(const v8::FunctionCallbackInfo<v8::Value>& info)
 	}
 }
 
-extern V8Class v8Vector3,
-    v8RGBA,
-    v8File,
-    v8BaseObject,
-    v8WorldObject,
-    v8Entity,
-    v8Player,
+extern V8Class v8Player,
     v8Vehicle,
     v8Blip,
     v8PointBlip,
@@ -258,14 +252,10 @@ extern V8Class v8Vector3,
     v8ColshapeCuboid,
     v8ColshapeRectangle;
 
-extern V8Module v8Alt("alt",
+extern V8Module v8Shared;
+
+extern V8Module v8Alt("alt", &v8Shared,
 {
-	v8Vector3,
-	v8RGBA,
-	v8File,
-	v8BaseObject,
-	v8WorldObject,
-	v8Entity,
 	v8Player,
 	v8Vehicle,
 	v8Blip,
@@ -281,8 +271,6 @@ extern V8Module v8Alt("alt",
 },
 [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
 	v8::Isolate* isolate = ctx->GetIsolate();
-
-	V8::RegisterSharedMain(ctx, exports);
 
 	V8Helpers::RegisterFunc(exports, "getResourceMain", &GetResourceMain);
 	V8Helpers::RegisterFunc(exports, "getResourcePath", &GetResourcePath);

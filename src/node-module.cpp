@@ -25,6 +25,8 @@
 }*/
 
 extern V8Module v8Alt;
+namespace main
+{
 static void Initialize(v8::Local<v8::Object> exports)
 {
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -33,6 +35,20 @@ static void Initialize(v8::Local<v8::Object> exports)
 	v8Alt.Register(isolate, isolate->GetEnteredContext(), exports);
 }
 NODE_MODULE_LINKED(alt, Initialize)
+}
+
+extern V8Module v8Shared;
+namespace shared
+{
+static void InitializeShared(v8::Local<v8::Object> exports)
+{
+	v8::Isolate* isolate = v8::Isolate::GetCurrent();
+	v8::HandleScope handle_scope(isolate);
+
+	v8Shared.Register(isolate, isolate->GetEnteredContext(), exports);
+}
+NODE_MODULE_LINKED(altShared, InitializeShared)
+}
 
 static void CommandHandler(alt::Array<alt::StringView> args, void* userData)
 {
