@@ -344,7 +344,7 @@ extern V8Class v8BaseObject,
 	v8Vector2,
 	v8Vector3;
 
-extern V8Module v8Shared("alt-shared", nullptr,
+extern V8Module sharedModule("alt-shared", nullptr,
 {
 	v8BaseObject,
 	v8WorldObject,
