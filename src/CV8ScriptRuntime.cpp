@@ -15,7 +15,6 @@ CV8ScriptRuntime::CV8ScriptRuntime()
 
 	isolate = v8::Isolate::New(create_params);
 	isolate->SetFatalErrorHandler([](const char *location, const char *message) {
-		Log::Warning << "SetFatalErrorHandler" << Log::Endl;
 		Log::Error << "[V8] " << location << ": " << message << Log::Endl;
 	});
 
@@ -36,7 +35,6 @@ CV8ScriptRuntime::CV8ScriptRuntime()
 	}, nullptr);
 
 	isolate->SetPromiseRejectCallback([](v8::PromiseRejectMessage message) {
-		Log::Warning << "SetPromiseRejectCallback" << Log::Endl;
 		v8::Isolate *isolate = v8::Isolate::GetCurrent();
 		v8::Local<v8::Value> value = message.GetValue();
 		v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
