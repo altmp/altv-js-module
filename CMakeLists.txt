@@ -79,36 +79,39 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD /Zi /bigobj")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd /bigobj")
 set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /DEBUG:FULL /OPT:REF /OPT:ICF")
 
-## SHARED
-add_library(
-  ${PROJECT_NAME} SHARED
-  ${PROJECT_SOURCE_FILES}
-)
-set_target_properties(${PROJECT_NAME} PROPERTIES
-  CXX_STANDARD 17
-)
-target_compile_definitions(${PROJECT_NAME} PRIVATE
-  ${ALTV_JS_DEFS}
-  -DALTV_JS_SHARED
-)
-target_link_libraries(${PROJECT_NAME} PRIVATE
-  ${ALTV_JS_LINKS}
-)
+if(DYNAMIC_BUILD)
+  ## SHARED
+  add_library(
+    ${PROJECT_NAME} SHARED
+    ${PROJECT_SOURCE_FILES}
+  )
+  set_target_properties(${PROJECT_NAME} PROPERTIES
+    CXX_STANDARD 17
+  )
+  target_compile_definitions(${PROJECT_NAME} PRIVATE
+    ${ALTV_JS_DEFS}
+    -DALTV_JS_SHARED
+  )
+  target_link_libraries(${PROJECT_NAME} PRIVATE
+    ${ALTV_JS_LINKS}
+  )
+else()
+  ## STATIC
+  add_library(
+    ${PROJECT_NAME}-static STATIC
+    ${PROJECT_SOURCE_FILES}
+  )
+  set_target_properties(${PROJECT_NAME}-static PROPERTIES
+    CXX_STANDARD 17
+  )
+  target_compile_definitions(${PROJECT_NAME}-static PRIVATE
+    ${ALTV_JS_DEFS}
+  )
+  target_link_libraries(${PROJECT_NAME}-static PRIVATE
+    ${ALTV_JS_LINKS}
+  )
+endif()
 
-## STATIC
-add_library(
-  ${PROJECT_NAME}-static STATIC
-  ${PROJECT_SOURCE_FILES}
-)
-set_target_properties(${PROJECT_NAME}-static PROPERTIES
-  CXX_STANDARD 17
-)
-target_compile_definitions(${PROJECT_NAME}-static PRIVATE
-  ${ALTV_JS_DEFS}
-)
-target_link_libraries(${PROJECT_NAME}-static PRIVATE
-  ${ALTV_JS_LINKS}
-)
 if(ALTV_JS_DEINIT_CPPSDK)
   add_custom_command(TARGET ${PROJECT_NAME}-static
     PRE_BUILD
