@@ -153,7 +153,11 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val)
 			alt::MValueList list = core.CreateMValueList(v8Arr->Length());
 
 			for (uint32_t i = 0; i < v8Arr->Length(); ++i)
-				list->Set(i, V8ToMValue(v8Arr->Get(ctx, i).ToLocalChecked()));
+			{
+				v8::Local<v8::Value> value;
+				if(!v8Arr->Get(ctx, i).ToLocal(&value)) continue;
+				list->Set(i, V8ToMValue(value));
+			}
 
 			return list;
 		}
@@ -225,16 +229,31 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val)
 			else
 			{
 				alt::MValueDict dict = core.CreateMValueDict();
-				v8::Local<v8::Array> keys = v8Obj->GetOwnPropertyNames(ctx).ToLocalChecked();
-
+				v8::Local<v8::Array> keys;
+				if(!v8Obj->GetOwnPropertyNames(ctx).ToLocal(&keys))
+				{
+					Log::Error << "Failed to convert object to MValue" << Log::Endl;
+					return core.CreateMValueNil();
+				}
 				for (uint32_t i = 0; i < keys->Length(); ++i)
 				{
-					v8::Local<v8::Value> v8Key = keys->Get(ctx, i).ToLocalChecked();
-					if (!v8Obj->Get(ctx, v8Key).ToLocalChecked()->IsUndefined())
+					v8::Local<v8::Value> v8Key;
+					if(!keys->Get(ctx, i).ToLocal(&v8Key))
 					{
-						std::string key = *v8::String::Utf8Value(isolate, v8Key->ToString(ctx).ToLocalChecked());
-						dict->Set(key, V8ToMValue(v8Obj->Get(ctx, v8Key).ToLocalChecked()));
+						Log::Error << "Failed to convert object to MValue" << Log::Endl;
+						return core.CreateMValueNil();
 					}
+
+					v8::Local<v8::Value> value;
+					if(!v8Obj->Get(ctx, v8Key).ToLocal(&value))
+					{
+						Log::Error << "Failed to convert object to MValue" << Log::Endl;
+						return core.CreateMValueNil();
+					}
+
+					if(value->IsUndefined()) continue;
+					std::string key = *v8::String::Utf8Value(isolate, v8Key);
+					dict->Set(key, V8ToMValue(value));
 				}
 
 				return dict;
