@@ -49,6 +49,7 @@ void V8::PromiseRejections::ProcessQueue(V8ResourceImpl *resource)
 		
 		resource->DispatchErrorEvent(
 			rejectionMsg,
+			"",
 			fileName,
 			rejection->location.GetLineNumber());
 	}
