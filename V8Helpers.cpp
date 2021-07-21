@@ -10,7 +10,8 @@ bool V8Helpers::TryCatch(const std::function<bool()>& fn)
 	v8::Local<v8::Context> context = isolate->GetEnteredOrMicrotaskContext();
 	v8::TryCatch tryCatch(isolate);
 
-	alt::IResource* resource = V8ResourceImpl::GetResource(context);
+	V8ResourceImpl* v8resource = V8ResourceImpl::Get(context);
+	alt::IResource* resource = v8resource->GetResource();
 
 	if (!fn())
 	{
@@ -41,6 +42,11 @@ bool V8Helpers::TryCatch(const std::function<bool()>& fn)
 						Log::Error << "  " << std::string{ *v8::String::Utf8Value(isolate, sourceLine), 80 } << "..." << Log::Endl;
 					}
 				}
+
+				v8resource->DispatchErrorEvent(
+					exception.IsEmpty() ? "unknown" : *v8::String::Utf8Value(isolate, exception),
+					*v8::String::Utf8Value(isolate, origin.ResourceName()),
+					line.ToChecked());
 			}
 			else
 			{

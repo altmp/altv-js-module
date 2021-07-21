@@ -32,18 +32,25 @@ void V8::PromiseRejections::ProcessQueue(V8ResourceImpl *resource)
 
 	for (auto &rejection : queue)
 	{
+		auto rejectionMsg = *v8::String::Utf8Value(isolate, rejection->value.Get(isolate)->ToString(ctx).ToLocalChecked());
+		auto fileName = rejection->location.GetFileName();
 		if (rejection->location.GetLineNumber() != 0)
 		{
 			Log::Error << "[V8] Unhandled promise rejection at "
-					   << resource->GetResource()->GetName() << ":" << rejection->location.GetFileName() << ":" << rejection->location.GetLineNumber()
-					   << " (" << *v8::String::Utf8Value(isolate, rejection->value.Get(isolate)->ToString(ctx).ToLocalChecked()) << ")" << Log::Endl;
+					   << resource->GetResource()->GetName() << ":" << fileName << ":" << rejection->location.GetLineNumber()
+					   << " (" << rejectionMsg << ")" << Log::Endl;
 		}
 		else
 		{
 			Log::Error << "[V8] Unhandled promise rejection at "
-					   << resource->GetResource()->GetName() << ":" << rejection->location.GetFileName()
-					   << " (" << *v8::String::Utf8Value(isolate, rejection->value.Get(isolate)->ToString(ctx).ToLocalChecked()) << ")" << Log::Endl;
+					   << resource->GetResource()->GetName() << ":" << fileName
+					   << " (" << rejectionMsg << ")" << Log::Endl;
 		}
+		
+		resource->DispatchErrorEvent(
+			rejectionMsg,
+			fileName,
+			rejection->location.GetLineNumber());
 	}
 
 	queue.clear();
