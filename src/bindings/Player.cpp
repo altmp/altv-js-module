@@ -207,6 +207,8 @@ static void SetClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_ARG_TO_INT(2, drawable);
 	V8_ARG_TO_INT(3, texture);
 
+	V8_CHECK(component >= 0 && drawable >= 0 && texture >= 0, "setClothes args have to be positive, -1 won't reset");
+
 	if(info.Length() == 3)
 	{
 		player->SetClothes(component, drawable, texture, 2);
@@ -229,6 +231,8 @@ static void SetDlcClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_ARG_TO_INT(3, drawable);
 	V8_ARG_TO_INT(4, texture);
 	
+	V8_CHECK(component >= 0 && drawable >= 0 && texture >= 0, "setDlcClothes args have to be positive, -1 won't reset");
+
 	if(info.Length() == 4)
 	{
 		player->SetDlcClothes(component, drawable, texture, 2, dlc);
@@ -287,6 +291,8 @@ static void SetProps(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_ARG_TO_INT(2, drawable);
 	V8_ARG_TO_INT(3, texture);
 
+	V8_CHECK(component >= 0 && drawable >= 0 && texture >= 0, "setProp args have to be positive, -1 won't reset use clearProp");
+
 	player->SetProps(component, drawable, texture);
 }
 
@@ -301,6 +307,8 @@ static void SetDlcProps(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_ARG_TO_INT(3, drawable);
 	V8_ARG_TO_INT(4, texture);
 	
+	V8_CHECK(component >= 0 && drawable >= 0 && texture >= 0, "setDlcProp args have to be positive, -1 won't reset use clearProp");
+
 	player->SetDlcProps(component, drawable, texture, dlc);
 }
 
