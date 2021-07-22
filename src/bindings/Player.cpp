@@ -307,7 +307,7 @@ static void SetDlcProps(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_ARG_TO_INT(3, drawable);
 	V8_ARG_TO_INT(4, texture);
 	
-	V8_CHECK(component >= 0 && drawable >= 0 && texture >= 0, "setDlcProps args have to be positive, -1 won´t reset use clearProp");
+	V8_CHECK(component >= 0 && drawable >= 0 && texture >= 0, "setDlcProp args have to be positive, -1 won´t reset use clearProp");
 
 	player->SetDlcProps(component, drawable, texture, dlc);
 }
