@@ -287,7 +287,6 @@ static void SetProps(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_CHECK_ARGS_LEN(3);
 	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-	
 	V8_ARG_TO_INT(1, component);
 	V8_ARG_TO_INT(2, drawable);
 	V8_ARG_TO_INT(3, texture);
