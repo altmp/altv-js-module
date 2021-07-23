@@ -307,6 +307,10 @@ namespace V8
 	int64_t val; \
 	V8_CHECK(V8::SafeToInteger((v8Val), ctx, val), "Failed to convert value to integer")
 
+#define V8_TO_INT32(v8Val, val) \
+	int32_t val; \
+	V8_CHECK(V8::SafeToInt32((v8Val), ctx, val), "Failed to convert value to integer")
+
 #define V8_TO_STRING(v8Val, val) \
 	alt::String val; \
 	V8_CHECK(V8::SafeToString((v8Val), isolate, ctx, val), "Failed to convert value to string")
