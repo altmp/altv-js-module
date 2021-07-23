@@ -857,7 +857,8 @@ extern V8Class v8Player,
 	v8Checkpoint,
 	v8HttpClient,
 	v8Audio,
-	v8LocalPlayer;
+	v8LocalPlayer,
+	v8Profiler;
 extern V8Module altModule(
 	"alt",
 	&sharedModule,
@@ -878,7 +879,8 @@ extern V8Module altModule(
 	 v8Checkpoint,
 	 v8HttpClient,
 	 v8Audio,
-	 v8LocalPlayer},
+	 v8LocalPlayer,
+	 v8Profiler},
 	[](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
 		V8Helpers::RegisterFunc(exports, "onServer", &OnServer);
 		V8Helpers::RegisterFunc(exports, "onceServer", &OnceServer);

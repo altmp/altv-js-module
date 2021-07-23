@@ -154,6 +154,11 @@ CV8ScriptRuntime::CV8ScriptRuntime()
 		inspectorSession = inspector->connect(1, inspectorChannel.get(), inspectorView);
 	}*/
 
+	profiler = v8::CpuProfiler::New(isolate);
+	profiler->SetUsePreciseSampling(true);
+	profiler->SetSamplingInterval(profilerSamplingInterval);
+	v8::CpuProfiler::UseDetailedSourcePositionsForProfiling(isolate);
+
 	{
 		v8::Locker locker(isolate);
 		v8::Isolate::Scope isolate_scope(isolate);
