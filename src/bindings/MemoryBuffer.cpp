@@ -162,21 +162,19 @@ static void GetDataOfType(const v8::FunctionCallbackInfo<v8::Value>& info)
 extern V8Class v8MemoryBuffer("MemoryBuffer", Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-	v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
-
 	tpl->InstanceTemplate()->SetInternalFieldCount(2);
 
-	proto->Set(isolate, "free", v8::FunctionTemplate::New(isolate, &FreeBuffer));
-	proto->Set(isolate, "address", v8::FunctionTemplate::New(isolate, &GetAddress));
-	proto->Set(isolate, "ubyte", v8::FunctionTemplate::New(isolate, &GetDataOfType<uint8_t>));
-	proto->Set(isolate, "ushort", v8::FunctionTemplate::New(isolate, &GetDataOfType<uint16_t>));
-	proto->Set(isolate, "uint", v8::FunctionTemplate::New(isolate, &GetDataOfType<uint32_t>));
-	proto->Set(isolate, "ulong", v8::FunctionTemplate::New(isolate, &GetDataOfType<uint64_t>));
-	proto->Set(isolate, "byte", v8::FunctionTemplate::New(isolate, &GetDataOfType<int8_t>));
-	proto->Set(isolate, "short", v8::FunctionTemplate::New(isolate, &GetDataOfType<int16_t>));
-	proto->Set(isolate, "int", v8::FunctionTemplate::New(isolate, &GetDataOfType<int32_t>));
-	proto->Set(isolate, "long", v8::FunctionTemplate::New(isolate, &GetDataOfType<int64_t>));
-	proto->Set(isolate, "float", v8::FunctionTemplate::New(isolate, &GetDataOfType<float>));
-	proto->Set(isolate, "double", v8::FunctionTemplate::New(isolate, &GetDataOfType<double>));
-	proto->Set(isolate, "string", v8::FunctionTemplate::New(isolate, &GetDataOfType<std::string>));
+	V8::SetMethod(isolate, tpl, "free", FreeBuffer);
+	V8::SetMethod(isolate, tpl, "address", GetAddress);
+	V8::SetMethod(isolate, tpl, "ubyte", GetDataOfType<uint8_t>);
+	V8::SetMethod(isolate, tpl, "ushort", GetDataOfType<uint16_t>);
+	V8::SetMethod(isolate, tpl, "uint", GetDataOfType<uint32_t>);
+	V8::SetMethod(isolate, tpl, "ulong", GetDataOfType<uint64_t>);
+	V8::SetMethod(isolate, tpl, "byte", GetDataOfType<int8_t>);
+	V8::SetMethod(isolate, tpl, "short", GetDataOfType<int16_t>);
+	V8::SetMethod(isolate, tpl, "int", GetDataOfType<int32_t>);
+	V8::SetMethod(isolate, tpl, "long", GetDataOfType<int64_t>);
+	V8::SetMethod(isolate, tpl, "float", GetDataOfType<float>);
+	V8::SetMethod(isolate, tpl, "double", GetDataOfType<double>);
+	V8::SetMethod(isolate, tpl, "string", GetDataOfType<std::string>);
 });
