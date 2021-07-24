@@ -69,15 +69,6 @@ static void FreeBuffer(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_RETURN_BOOLEAN(false);
 }
 
-static void GetAddress(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-	Log::Warning << "MemoryBuffer.address() method is deprecated. Use the property instead." << Log::Endl;
-	V8_GET_ISOLATE_CONTEXT();
-	
-	V8_GET_THIS_INTERNAL_FIELD_PTR(1, memory, uint8_t);
-	V8_RETURN_INT64((uintptr_t)memory);
-}
-
 static void SizeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
@@ -185,7 +176,6 @@ extern V8Class v8MemoryBuffer("MemoryBuffer", Constructor, [](v8::Local<v8::Func
 	V8::SetAccessor(isolate, tpl, "address", AddressGetter);
 
 	V8::SetMethod(isolate, tpl, "free", FreeBuffer);
-	V8::SetMethod(isolate, tpl, "address", GetAddress);
 	V8::SetMethod(isolate, tpl, "ubyte", GetDataOfType<uint8_t>);
 	V8::SetMethod(isolate, tpl, "ushort", GetDataOfType<uint16_t>);
 	V8::SetMethod(isolate, tpl, "uint", GetDataOfType<uint32_t>);
