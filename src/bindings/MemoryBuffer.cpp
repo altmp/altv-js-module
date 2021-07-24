@@ -77,6 +77,14 @@ static void GetAddress(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_RETURN_INT64((uintptr_t)memory);
 }
 
+static void SizeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	
+	V8_GET_THIS_INTERNAL_FIELD_UINT32(1, size);
+	V8_RETURN_UINT(size);
+}
+
 template <typename T>
 static void GetDataOfType(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
@@ -163,6 +171,8 @@ extern V8Class v8MemoryBuffer("MemoryBuffer", Constructor, [](v8::Local<v8::Func
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
 	tpl->InstanceTemplate()->SetInternalFieldCount(2);
+
+	V8::SetAccessor(isolate, tpl, "size", SizeGetter);
 
 	V8::SetMethod(isolate, tpl, "free", FreeBuffer);
 	V8::SetMethod(isolate, tpl, "address", GetAddress);
