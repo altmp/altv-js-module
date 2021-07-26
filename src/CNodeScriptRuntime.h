@@ -10,6 +10,7 @@ class CNodeScriptRuntime : public alt::IScriptRuntime
 {
 	v8::Isolate* isolate;
 	std::unique_ptr<node::MultiIsolatePlatform> platform;
+	std::unordered_set<CNodeResourceImpl*> resources;
 
 public:
 	CNodeScriptRuntime();
@@ -21,6 +22,7 @@ public:
 
 	void DestroyImpl(alt::IResource::Impl* impl) override
 	{
+		resources.insert(static_cast<CNodeResourceImpl*>(impl));
 		delete static_cast<CNodeResourceImpl*>(impl);
 	}
 
@@ -28,6 +30,8 @@ public:
 	void OnDispose() override;
 
 	node::MultiIsolatePlatform* GetPlatform() const { return platform.get(); }
+
+	std::unordered_set<CNodeResourceImpl*> GetResources() { return resources; }
 
 	static CNodeScriptRuntime& Instance()
 	{

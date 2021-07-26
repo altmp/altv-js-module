@@ -74,6 +74,17 @@ static void CommandHandler(alt::Array<alt::StringView> args, void* userData)
 	}
 }
 
+static void TimersCommand(alt::Array<alt::StringView>, void* runtime)
+{
+    auto resources = static_cast<CNodeScriptRuntime*>(runtime)->GetResources();
+    Log::Info << "================ Timer info =================" << Log::Endl;
+    for(auto resource : resources)
+    {
+        resource->TimerBenchmark();
+    }
+    Log::Info << "======================================================" << Log::Endl;
+}
+
 EXPORT uint32_t GetSDKVersion()
 {
 	return alt::ICore::SDK_VERSION;
@@ -88,6 +99,7 @@ EXPORT bool altMain(alt::ICore* _core)
 
 	apiCore.RegisterScriptRuntime("js", &runtime);
 	apiCore.SubscribeCommand("js-module", &CommandHandler);
+	apiCore.SubscribeCommand("timers", &TimersCommand);
 
 	return true;
 }
