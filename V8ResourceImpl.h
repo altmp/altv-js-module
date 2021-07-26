@@ -205,15 +205,20 @@ public:
 		oldTimers.push_back(id);
 	}
 
-	void GetTimersCount(size_t* totalCount, size_t* everyTickCount, size_t* intervalCount, size_t* timeoutCount)
+	void TimerBenchmark()
 	{
-		*totalCount = timers.size();
+		size_t totalCount = 0, everyTickCount = 0, intervalCount = 0, timeoutCount = 0;
+		totalCount = timers.size();
 		for(auto [id, timer] : timers)
 		{
-			if(timer->GetInterval() == 0 && !timer->IsOnce()) *everyTickCount += 1;
-			else if(timer->IsOnce()) *timeoutCount += 1;
-			else *intervalCount += 1;
+			if(timer->GetInterval() == 0 && !timer->IsOnce()) everyTickCount += 1;
+			else if(timer->IsOnce()) timeoutCount += 1;
+			else intervalCount += 1;
 		}
+
+		Log::Info << GetResource()->GetName() << ": " << totalCount << " running timers (" 
+                  << everyTickCount << " EveryTick, " << intervalCount << " Interval, " << timeoutCount << " Timeout"
+                  << ")" << Log::Endl;
 	}
 
 	void NotifyPoolUpdate(alt::IBaseObject *ent);
