@@ -555,14 +555,12 @@ v8::Local<v8::String> V8::Fire_WeaponKey(v8::Isolate* isolate)
 
 bool V8::SafeToBoolean(v8::Local<v8::Value> val, v8::Isolate* isolate, bool& out)
 {
-	if(!val->IsBoolean()) return false;
 	out = val->ToBoolean(isolate)->Value();
 	return true;
 }
 
 bool V8::SafeToInteger(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, int64_t& out)
 {
-	if(!val->IsNumber()) return false;
 	v8::MaybeLocal maybeVal = val->ToInteger(ctx);
 	if(maybeVal.IsEmpty()) return false;
 	out = maybeVal.ToLocalChecked()->Value();
@@ -571,7 +569,6 @@ bool V8::SafeToInteger(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, int
 
 bool V8::SafeToUInt64(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, uint64_t& out)
 {
-	if(!val->IsNumber()) return false;
 	v8::MaybeLocal maybeVal = val->ToBigInt(ctx);
 	if(maybeVal.IsEmpty()) return false;
 	out = maybeVal.ToLocalChecked()->Uint64Value();
@@ -580,7 +577,6 @@ bool V8::SafeToUInt64(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, uint
 
 bool V8::SafeToInt64(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, int64_t& out)
 {
-	if(!val->IsNumber()) return false;
 	v8::MaybeLocal maybeVal = val->ToBigInt(ctx);
 	if(maybeVal.IsEmpty()) return false;
 	out = maybeVal.ToLocalChecked()->Int64Value();
@@ -589,7 +585,6 @@ bool V8::SafeToInt64(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, int64
 
 bool V8::SafeToUInt32(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, uint32_t& out)
 {
-	if(!val->IsNumber()) return false;
 	v8::MaybeLocal maybeVal = val->ToUint32(ctx);
 	if(maybeVal.IsEmpty()) return false;
 	out = maybeVal.ToLocalChecked()->Value();
@@ -598,7 +593,6 @@ bool V8::SafeToUInt32(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, uint
 
 bool V8::SafeToInt32(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, int32_t& out)
 {
-	if(!val->IsNumber()) return false;
 	v8::MaybeLocal maybeVal = val->ToInt32(ctx);
 	if(maybeVal.IsEmpty()) return false;
 	out = maybeVal.ToLocalChecked()->Value();
@@ -607,7 +601,6 @@ bool V8::SafeToInt32(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, int32
 
 bool V8::SafeToNumber(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, double& out)
 {
-	if(!val->IsNumber()) return false;
 	v8::MaybeLocal maybeVal = val->ToNumber(ctx);
 	if(maybeVal.IsEmpty()) return false;
 	out = maybeVal.ToLocalChecked()->Value();
@@ -616,7 +609,6 @@ bool V8::SafeToNumber(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, doub
 
 bool V8::SafeToString(v8::Local<v8::Value> val, v8::Isolate* isolate, v8::Local<v8::Context> ctx, alt::String& out)
 {
-	if(!val->IsString()) return false;
 	v8::MaybeLocal maybeVal = val->ToString(ctx);
 	if(maybeVal.IsEmpty()) return false;
 	out = *v8::String::Utf8Value(isolate, maybeVal.ToLocalChecked());
@@ -636,7 +628,6 @@ bool V8::SafeToFunction(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8
 
 bool V8::SafeToObject(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::Object>& out)
 {
-	if(!val->IsObject()) return false;
 	v8::MaybeLocal maybeVal = val->ToObject(ctx);
 	if (maybeVal.IsEmpty()) return false;
 	out = maybeVal.ToLocalChecked();
@@ -645,7 +636,6 @@ bool V8::SafeToObject(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::
 
 bool V8::SafeToRGBA(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, alt::RGBA& out)
 {
-	if(!val->IsObject()) return false;
 	v8::MaybeLocal maybeVal = val->ToObject(ctx);
 	if (!maybeVal.IsEmpty())
 	{
@@ -667,7 +657,6 @@ bool V8::SafeToRGBA(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, alt::R
 
 bool V8::SafeToVector3(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, alt::Vector3f& out)
 {
-	if(!val->IsObject()) return false;
 	v8::MaybeLocal maybeVal = val->ToObject(ctx);
 	if (!maybeVal.IsEmpty())
 	{
@@ -688,7 +677,6 @@ bool V8::SafeToVector3(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, alt
 
 bool V8::SafeToVector2(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, alt::Vector2f& out)
 {
-	if(!val->IsObject()) return false;
 	v8::MaybeLocal maybeVal = val->ToObject(ctx);
 	if (!maybeVal.IsEmpty())
 	{
