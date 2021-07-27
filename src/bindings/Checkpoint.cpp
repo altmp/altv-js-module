@@ -8,23 +8,43 @@ using namespace alt;
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+	V8_CHECK_CONSTRUCTOR();
+	V8_CHECK_ARGS_LEN2(5, 10);
 
-	V8_CHECK(info.IsConstructCall(), "Checkpoint constructor is not a function");
-	V8_CHECK_ARGS_LEN(10);
+	alt::Position pos;
+	alt::RGBA color;
+	float radius, height;
 
 	V8_ARG_TO_INT(1, type);
-	V8_ARG_TO_NUMBER(2, x);
-	V8_ARG_TO_NUMBER(3, y);
-	V8_ARG_TO_NUMBER(4, z);
-	V8_ARG_TO_NUMBER(5, radius);
-	V8_ARG_TO_NUMBER(6, height);
-	V8_ARG_TO_INT(7, r);
-	V8_ARG_TO_INT(8, g);
-	V8_ARG_TO_INT(9, b);
-	V8_ARG_TO_INT(10, a);
+	if(info.Length() == 5)
+	{
+		V8_ARG_TO_VECTOR3(2, posVal);
+		V8_ARG_TO_NUMBER(3, radiusVal);
+		V8_ARG_TO_NUMBER(4, heightVal);
+		V8_ARG_TO_RGBA(5, colorVal);
 
-	alt::Position pos(x, y, z);
-	alt::RGBA color(r, g, b, a);
+		pos = posVal;
+		color = colorVal;
+		radius = radiusVal;
+		height = heightVal;
+	}
+	else
+	{
+		V8_ARG_TO_NUMBER(2, x);
+		V8_ARG_TO_NUMBER(3, y);
+		V8_ARG_TO_NUMBER(4, z);
+		V8_ARG_TO_NUMBER(5, radiusVal);
+		V8_ARG_TO_NUMBER(6, heightVal);
+		V8_ARG_TO_INT(7, r);
+		V8_ARG_TO_INT(8, g);
+		V8_ARG_TO_INT(9, b);
+		V8_ARG_TO_INT(10, a);
+
+		pos = { x, y, z };
+		color = { r, g, b, a };
+		radius = radiusVal;
+		height = heightVal;
+	}
 
 	Ref<ICheckpoint> cp = ICore::Instance().CreateCheckpoint(type, pos, radius, height, color);
 
