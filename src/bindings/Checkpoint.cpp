@@ -41,7 +41,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 		V8_ARG_TO_INT(10, a);
 
 		pos = { x, y, z };
-		color = { r, g, b, a };
+		color = { (uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a };
 		radius = radiusVal;
 		height = heightVal;
 	}
