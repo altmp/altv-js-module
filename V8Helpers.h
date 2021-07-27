@@ -462,6 +462,11 @@ namespace V8
 	alt::Vector3f val;                    \
 	V8_CHECK(V8::SafeToVector3(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to vector3")
 
+// idx starts with 1
+#define V8_ARG_TO_RGBA(idx, val) \
+	alt::RGBA val;               \
+	V8_CHECK(V8::SafeToRGBA(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to rgba")
+
 #define V8_RETURN(val) info.GetReturnValue().Set(val)
 #define V8_RETURN_NULL() info.GetReturnValue().SetNull()
 #define V8_RETURN_BOOLEAN(val) V8_RETURN(val)
