@@ -99,6 +99,16 @@ inline void ShowNativeArgParseErrorMsg(v8::Isolate* isolate, v8::Local<v8::Value
 			   << " (" << native->GetName() << ")" << Log::Endl;
 }
 
+inline void ShowNativeArgMismatchErrorMsg(v8::Isolate* isolate, alt::INative* native, int expected, int received)
+{
+	V8::SourceLocation source = V8::SourceLocation::GetCurrent(isolate);
+	auto resource = V8ResourceImpl::GetResource(isolate->GetEnteredOrMicrotaskContext());
+	Log::Error << "[" << resource->GetName() << ":" << source.GetFileName() << ":" << source.GetLineNumber() << "] " 
+			   << "Native argument size mismatch. Expected: " << expected << ", Received: " << received
+			   << " (" << native->GetName() << ")" << Log::Endl;
+	Log::Error << "Check the documentation for the needed arguments of this native." << Log::Endl;
+}
+
 static void PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native, alt::INative::Type argType, v8::Isolate *isolate, V8ResourceImpl* resource, v8::Local<v8::Value> val, uint32_t idx)
 {
 	using ArgType = alt::INative::Type;
@@ -319,6 +329,20 @@ static v8::Local<v8::Value> GetReturn(alt::Ref<alt::INative::Context> scrCtx, al
 	}
 }
 
+static inline int GetNativeNeededArgCount(alt::INative* native)
+{
+	int count = 0;
+	auto args = native->GetArgTypes();
+	for(auto arg : args)
+	{
+		if(arg == alt::INative::Type::ARG_BOOL_PTR  || arg == alt::INative::Type::ARG_INT32_PTR || arg == alt::INative::Type::ARG_UINT32_PTR ||
+		   arg == alt::INative::Type::ARG_FLOAT_PTR || arg == alt::INative::Type::ARG_INT32_PTR || arg == alt::INative::Type::ARG_VECTOR3_PTR)
+		   continue;
+		count++;
+	}
+	return count;
+}
+
 static void InvokeNative(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
 	static auto ctx = alt::ICore::Instance().CreateNativesContext();
@@ -336,6 +360,13 @@ static void InvokeNative(const v8::FunctionCallbackInfo<v8::Value> &info)
 
 	auto args = native->GetArgTypes();
 	uint32_t argsSize = args.GetSize();
+
+	auto neededArgs = GetNativeNeededArgCount(native);
+	if(neededArgs != info.Length())
+	{
+		ShowNativeArgMismatchErrorMsg(isolate, native, neededArgs, info.Length());
+		return;
+	}
 
 	ctx->Reset();
 	pointersCount = 0;
