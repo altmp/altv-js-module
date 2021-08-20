@@ -336,7 +336,7 @@ static inline int GetNativeNeededArgCount(alt::INative* native)
 	for(auto arg : args)
 	{
 		if(arg == alt::INative::Type::ARG_BOOL_PTR  || arg == alt::INative::Type::ARG_INT32_PTR || arg == alt::INative::Type::ARG_UINT32_PTR ||
-		   arg == alt::INative::Type::ARG_FLOAT_PTR || arg == alt::INative::Type::ARG_INT32_PTR || arg == alt::INative::Type::ARG_VECTOR3_PTR)
+		   arg == alt::INative::Type::ARG_FLOAT_PTR || arg == alt::INative::Type::ARG_VOID 		|| arg == alt::INative::Type::ARG_VECTOR3_PTR)
 		   continue;
 		count++;
 	}
@@ -362,7 +362,7 @@ static void InvokeNative(const v8::FunctionCallbackInfo<v8::Value> &info)
 	uint32_t argsSize = args.GetSize();
 
 	auto neededArgs = GetNativeNeededArgCount(native);
-	if(neededArgs != info.Length())
+	if(neededArgs > info.Length())
 	{
 		ShowNativeArgMismatchErrorMsg(isolate, native, neededArgs, info.Length());
 		return;
