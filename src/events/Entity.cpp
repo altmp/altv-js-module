@@ -6,6 +6,7 @@
 #include "cpp-sdk/events/CRemoveEntityEvent.h"
 #include "cpp-sdk/events/CGameEntityCreateEvent.h"
 #include "cpp-sdk/events/CGameEntityDestroyEvent.h"
+#include "cpp-sdk/events/CTaskChangeEvent.h"
 
 #include "cpp-sdk/SDK.h"
 
@@ -49,3 +50,14 @@ V8_EVENT_HANDLER gameEntityDestroy(
 
 			args.push_back(resource->GetOrCreateEntity(ev->GetTarget().Get())->GetJSVal(isolate));
 		});
+
+V8_LOCAL_EVENT_HANDLER taskChange(
+	EventType::TASK_CHANGE,
+	"taskChange",
+	[](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+		auto ev = static_cast<const alt::CTaskChangeEvent*>(e);
+		v8::Isolate* isolate = resource->GetIsolate();
+
+		args.push_back(v8::Integer::NewFromUnsigned(isolate, ev->GetOldTask()));
+		args.push_back(v8::Integer::NewFromUnsigned(isolate, ev->GetNewTask()));
+	});
