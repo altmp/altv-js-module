@@ -199,6 +199,13 @@ bool CV8ResourceImpl::Stop()
 
 	//runtime->GetInspector()->contextDestroyed(context.Get(isolate));
 
+	for(auto pair : timers)
+	{
+		delete pair.second;
+	}
+	timers.clear();
+	oldTimers.clear();
+
 	if (!context.IsEmpty())
 	{
 		auto nscope = resource->PushNativesScope();
