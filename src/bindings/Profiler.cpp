@@ -92,10 +92,11 @@ static void StopProfiling(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     // Clear the nodemap to not cause a memory leak
     nodeMap.clear();
-
-    V8_RETURN(resultObj);
+    result->Delete();
 
     profilerRunningCount--;
+
+    V8_RETURN(resultObj);
 }
 
 static void SamplingIntervalSetter(v8::Local<v8::String>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
