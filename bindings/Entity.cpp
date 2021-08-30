@@ -244,6 +244,7 @@ extern V8Class v8Entity("Entity", v8WorldObject, [](v8::Local<v8::FunctionTempla
 	V8::SetAccessor<IEntity, Rotation, &IEntity::GetRotation, &IEntity::SetRotation>(isolate, tpl, "rot");
 	V8::SetAccessor(isolate, tpl, "model", &ModelGetter, &ModelSetter);
 	V8::SetAccessor<IEntity, bool, &IEntity::GetVisible, &IEntity::SetVisible>(isolate, tpl, "visible");
+	V8::SetAccessor<IEntity, bool, &IEntity::GetStreamed, &IEntity::SetStreamed>(isolate, tpl, "streamed");
 
 	V8::SetMethod(isolate, tpl, "setSyncedMeta", SetSyncedMeta);
 	V8::SetMethod(isolate, tpl, "deleteSyncedMeta", DeleteSyncedMeta);
