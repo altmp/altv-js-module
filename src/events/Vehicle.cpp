@@ -52,3 +52,20 @@ V8::LocalEventHandler netOwnerChange(
 		args.push_back(resource->GetBaseObjectOrNull(ev->GetOldOwner()));
 	}
 );
+
+V8::LocalEventHandler vehicleDamage(
+	EventType::VEHICLE_DAMAGE,
+	"vehicleDamage",
+	[](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+		auto ev = static_cast<const alt::CVehicleDamageEvent*>(e);
+		auto isolate = resource->GetIsolate();
+
+		args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
+		args.push_back(resource->GetBaseObjectOrNull(ev->GetDamager()));
+		args.push_back(v8::Integer::NewFromUnsigned(isolate, ev->GetBodyHealthDamage()));
+		args.push_back(v8::Integer::NewFromUnsigned(isolate, ev->GetBodyAdditionalHealthDamage()));
+		args.push_back(v8::Integer::NewFromUnsigned(isolate, ev->GetEngineHealthDamage()));
+		args.push_back(v8::Integer::NewFromUnsigned(isolate, ev->GetPetrolTankHealthDamage()));
+		args.push_back(v8::Integer::NewFromUnsigned(isolate, ev->GetDamagedWith()));
+	}
+);
