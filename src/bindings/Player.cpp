@@ -16,12 +16,10 @@ static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
 
-    auto player = info.This();
-    V8_OBJECT_GET_INT(player, "id", id);
-	V8_OBJECT_GET_STRING(player, "name", name);
+    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
 
 	std::ostringstream ss;
-	ss << "Player{ id: " << std::to_string(id) << ", name: " << name.CStr() << " }";
+	ss << "Player{ id: " << std::to_string(player->GetID()) << ", name: " << player->GetName().CStr() << " }";
 
 	V8_RETURN_STRING(ss.str().c_str());
 }

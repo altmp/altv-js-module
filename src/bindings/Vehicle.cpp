@@ -16,12 +16,10 @@ static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
 
-    auto vehicle = info.This();
-    V8_OBJECT_GET_INT(vehicle, "id", id);
-	V8_OBJECT_GET_NUMBER(vehicle, "model", model);
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
 	std::ostringstream ss;
-	ss << "Vehicle{ id: " << std::to_string(id) << ", model: " << std::to_string((uint64_t)model) << " }";
+	ss << "Vehicle{ id: " << std::to_string(vehicle->GetID()) << ", model: " << std::to_string((uint64_t)vehicle->GetModel()) << " }";
 
 	V8_RETURN_STRING(ss.str().c_str());
 }
