@@ -869,6 +869,8 @@ extern V8Module altModule(
 	 v8AreaBlip,
 	 v8RadiusBlip,
 	 v8PointBlip,
+	 v8PedBlip,
+	 v8VehicleBlip,
 	 v8HandlingData,
 	 v8LocalStorage,
 	 v8MemoryBuffer,
