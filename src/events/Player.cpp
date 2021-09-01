@@ -45,7 +45,8 @@ V8::LocalEventHandler playerDamage(
 
 		args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
 		args.push_back(resource->GetBaseObjectOrNull(ev->GetAttacker()));
-		args.push_back(v8::Integer::New(isolate, ev->GetDamage()));
+		args.push_back(v8::Integer::New(isolate, ev->GetHealthDamage()));
+		args.push_back(v8::Integer::New(isolate, ev->GetArmourDamage()));
 		args.push_back(v8::Integer::NewFromUnsigned(isolate, ev->GetWeapon()));
 	}
 );

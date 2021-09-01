@@ -25,6 +25,8 @@
 }*/
 
 extern V8Module v8Alt;
+namespace main
+{
 static void Initialize(v8::Local<v8::Object> exports)
 {
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -33,6 +35,20 @@ static void Initialize(v8::Local<v8::Object> exports)
 	v8Alt.Register(isolate, isolate->GetEnteredContext(), exports);
 }
 NODE_MODULE_LINKED(alt, Initialize)
+}
+
+extern V8Module sharedModule;
+namespace shared
+{
+static void InitializeShared(v8::Local<v8::Object> exports)
+{
+	v8::Isolate* isolate = v8::Isolate::GetCurrent();
+	v8::HandleScope handle_scope(isolate);
+
+	sharedModule.Register(isolate, isolate->GetEnteredContext(), exports);
+}
+NODE_MODULE_LINKED(altShared, InitializeShared)
+}
 
 static void CommandHandler(alt::Array<alt::StringView> args, void* userData)
 {
@@ -58,6 +74,17 @@ static void CommandHandler(alt::Array<alt::StringView> args, void* userData)
 	}
 }
 
+static void TimersCommand(alt::Array<alt::StringView>, void* runtime)
+{
+    auto resources = static_cast<CNodeScriptRuntime*>(runtime)->GetResources();
+    Log::Info << "================ Timer info =================" << Log::Endl;
+    for(auto resource : resources)
+    {
+        resource->TimerBenchmark();
+    }
+    Log::Info << "======================================================" << Log::Endl;
+}
+
 EXPORT uint32_t GetSDKVersion()
 {
 	return alt::ICore::SDK_VERSION;
@@ -72,6 +99,7 @@ EXPORT bool altMain(alt::ICore* _core)
 
 	apiCore.RegisterScriptRuntime("js", &runtime);
 	apiCore.SubscribeCommand("js-module", &CommandHandler);
+	apiCore.SubscribeCommand("timers", &TimersCommand);
 
 	return true;
 }
