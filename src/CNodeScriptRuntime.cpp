@@ -45,7 +45,9 @@ CNodeScriptRuntime::~CNodeScriptRuntime()
 
 alt::IResource::Impl* CNodeScriptRuntime::CreateImpl(alt::IResource* resource)
 {
-	return new CNodeResourceImpl{ this, isolate, resource };
+	auto res = new CNodeResourceImpl{ this, isolate, resource };
+	resources.insert(res);
+	return res;
 }
 
 void CNodeScriptRuntime::OnTick()
