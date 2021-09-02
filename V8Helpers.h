@@ -356,7 +356,7 @@ namespace V8
 	V8_TO_STRING((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)
 
 #define V8_OBJECT_SET_STRING(v8Val, prop, val) \
-	(v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::String::NewFromUtf8(isolate, val.CStr()).ToLocalChecked());
+	if(!val.IsEmpty()) (v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::String::NewFromUtf8(isolate, val.CStr()).ToLocalChecked());
 
 #define V8_NEW_STRING(val) v8::String::NewFromUtf8(isolate, val).ToLocalChecked()
 
