@@ -434,6 +434,8 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
 
 	V8::SetAccessor<IPlayer, bool, &IPlayer::IsFlashlightActive>(isolate, tpl, "flashlightActive");
 
+	V8::SetAccessor<IPlayer, float, &IPlayer::GetMoveSpeed>(isolate, tpl, "moveSpeed");
+
 	V8::SetMethod(isolate, tpl, "spawn", &Spawn);
 	V8::SetMethod(isolate, tpl, "setDateTime", &SetDateTime);
 	V8::SetMethod(isolate, tpl, "setWeather", &SetWeather);
