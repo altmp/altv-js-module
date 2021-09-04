@@ -583,6 +583,15 @@ static void IsInRange(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_RETURN_BOOLEAN(isInRange);
 }
 
+static void StaticZero(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE();
+	V8_GET_RESOURCE();
+	static auto zero = v8::Eternal<v8::Object>(isolate, resource->CreateVector3({0, 0, 0}).As<v8::Object>());
+	
+	V8_RETURN(zero.Get(isolate));
+}
+
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	V8_GET_ISOLATE_CONTEXT();
@@ -647,6 +656,8 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 extern V8Class v8Vector3("Vector3", Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
 	v8::Isolate *isolate = v8::Isolate::GetCurrent();
+
+	V8::SetStaticAccessor(isolate, tpl, "zero", StaticZero);
 
 	V8::SetAccessor(isolate, tpl, "length", Length);
 	V8::SetMethod(isolate, tpl, "toString", ToString);
