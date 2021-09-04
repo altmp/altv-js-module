@@ -579,7 +579,7 @@ static void IsInRange(const v8::FunctionCallbackInfo<v8::Value>& info)
 		dy <= range &&
 		dz <= range &&
 		dx * dx + dy * dy + dz * dz <= range * range; // perform exact check
-			
+
 	V8_RETURN_BOOLEAN(isInRange);
 }
 
@@ -588,9 +588,95 @@ static void StaticZero(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8:
 	V8_GET_ISOLATE();
 	V8_GET_RESOURCE();
 	static auto zero = v8::Eternal<v8::Object>(isolate, resource->CreateVector3({0, 0, 0}).As<v8::Object>());
-	
+
 	V8_RETURN(zero.Get(isolate));
 }
+
+static void StaticOne(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE();
+	V8_GET_RESOURCE();
+	static auto one = v8::Eternal<v8::Object>(isolate, resource->CreateVector3({1, 1, 1}).As<v8::Object>());
+
+	V8_RETURN(one.Get(isolate));
+}
+
+static void StaticBack(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE();
+	V8_GET_RESOURCE();
+	static auto back = v8::Eternal<v8::Object>(isolate, resource->CreateVector3({0, 0, -1}).As<v8::Object>());
+
+	V8_RETURN(back.Get(isolate));
+}
+
+static void StaticDown(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE();
+	V8_GET_RESOURCE();
+	static auto down = v8::Eternal<v8::Object>(isolate, resource->CreateVector3({0, -1, 0}).As<v8::Object>());
+
+	V8_RETURN(down.Get(isolate));
+}
+
+static void StaticForward(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE();
+	V8_GET_RESOURCE();
+	static auto forward = v8::Eternal<v8::Object>(isolate, resource->CreateVector3({0, 0, 1}).As<v8::Object>());
+
+	V8_RETURN(forward.Get(isolate));
+}
+
+static void StaticLeft(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE();
+	V8_GET_RESOURCE();
+	static auto left = v8::Eternal<v8::Object>(isolate, resource->CreateVector3({-1, 0, 0}).As<v8::Object>());
+
+	V8_RETURN(left.Get(isolate));
+}
+
+static void StaticRight(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE();
+	V8_GET_RESOURCE();
+	static auto right = v8::Eternal<v8::Object>(isolate, resource->CreateVector3({1, 0, 0}).As<v8::Object>());
+
+	V8_RETURN(right.Get(isolate));
+}
+
+static void StaticUp(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE();
+	V8_GET_RESOURCE();
+	static auto up = v8::Eternal<v8::Object>(isolate, resource->CreateVector3({0, 1, 0}).As<v8::Object>());
+
+	V8_RETURN(up.Get(isolate));
+}
+
+static void StaticNegativeInfinity(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE();
+	V8_GET_RESOURCE();
+
+	float infinity = -std::numeric_limits<float>::infinity();
+	static auto negativeInfinity = v8::Eternal<v8::Object>(isolate, resource->CreateVector3({infinity, infinity, infinity}).As<v8::Object>());
+
+	V8_RETURN(negativeInfinity.Get(isolate));
+}
+
+static void StaticPositiveInfinity(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE();
+	V8_GET_RESOURCE();
+
+	float infinity = std::numeric_limits<float>::infinity();
+	static auto positiveInfinity = v8::Eternal<v8::Object>(isolate, resource->CreateVector3({infinity, infinity, infinity}).As<v8::Object>());
+
+	V8_RETURN(positiveInfinity.Get(isolate));
+}
+
 
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
@@ -658,6 +744,15 @@ extern V8Class v8Vector3("Vector3", Constructor, [](v8::Local<v8::FunctionTempla
 	v8::Isolate *isolate = v8::Isolate::GetCurrent();
 
 	V8::SetStaticAccessor(isolate, tpl, "zero", StaticZero);
+	V8::SetStaticAccessor(isolate, tpl, "one", StaticOne);
+	V8::SetStaticAccessor(isolate, tpl, "back", StaticBack);
+	V8::SetStaticAccessor(isolate, tpl, "down", StaticDown);
+	V8::SetStaticAccessor(isolate, tpl, "forward", StaticForward);
+	V8::SetStaticAccessor(isolate, tpl, "left", StaticLeft);
+	V8::SetStaticAccessor(isolate, tpl, "right", StaticRight);
+	V8::SetStaticAccessor(isolate, tpl, "up", StaticUp);
+	V8::SetStaticAccessor(isolate, tpl, "negativeInfinity", StaticNegativeInfinity);
+	V8::SetStaticAccessor(isolate, tpl, "positiveInfinity", StaticPositiveInfinity);
 
 	V8::SetAccessor(isolate, tpl, "length", Length);
 	V8::SetMethod(isolate, tpl, "toString", ToString);
