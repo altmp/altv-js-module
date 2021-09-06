@@ -205,6 +205,18 @@ static void SetExtraHeader(const v8::FunctionCallbackInfo<v8::Value>& info)
 	view->SetExtraHeader(name, value);
 }
 
+static void SetZoomLevel(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+
+	V8_GET_THIS_BASE_OBJECT(view, alt::IWebView);
+
+	V8_CHECK_ARGS_LEN(1);
+	V8_ARG_TO_NUMBER(1, zoomLevel);
+
+	view->SetZoomLevel(zoomLevel);
+}
+
 extern V8Class v8BaseObject;
 extern V8Class v8WebView("WebView", v8BaseObject, &Constructor,	[](v8::Local<v8::FunctionTemplate> tpl) {
 	v8::Isolate *isolate = v8::Isolate::GetCurrent();
@@ -226,4 +238,5 @@ extern V8Class v8WebView("WebView", v8BaseObject, &Constructor,	[](v8::Local<v8:
 	V8::SetMethod<IWebView, &IWebView::Unfocus>(isolate, tpl, "unfocus");
 
 	V8::SetMethod(isolate, tpl, "setExtraHeader", &SetExtraHeader);
+	V8::SetMethod(isolate, tpl, "setZoomLevel", &SetZoomLevel);
 });
