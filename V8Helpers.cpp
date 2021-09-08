@@ -48,7 +48,7 @@ bool V8Helpers::TryCatch(const std::function<bool()>& fn)
 					exception.IsEmpty() ? "unknown" : *v8::String::Utf8Value(isolate, exception),
 					(!stackTrace.IsEmpty() && stackTrace.ToLocalChecked()->IsString()) ? *v8::String::Utf8Value(isolate, stackTrace.ToLocalChecked()) : "",
 					*v8::String::Utf8Value(isolate, origin.ResourceName()),
-					line.ToChecked());
+					line.IsNothing() ? -1 : line.ToChecked());
 			}
 			else
 			{
@@ -179,77 +179,63 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val)
 			//if (v8Obj->InstanceOf(ctx, v8Vector3->JSValue(isolate, ctx)).ToChecked())
 			if (resource->IsVector3(v8Obj))
 			{
-				v8::Local<v8::Number> x = v8Obj->Get(ctx, V8::Vector3_XKey(isolate)).ToLocalChecked()->ToNumber(ctx).ToLocalChecked();
-				v8::Local<v8::Number> y = v8Obj->Get(ctx, V8::Vector3_YKey(isolate)).ToLocalChecked()->ToNumber(ctx).ToLocalChecked();
-				v8::Local<v8::Number> z = v8Obj->Get(ctx, V8::Vector3_ZKey(isolate)).ToLocalChecked()->ToNumber(ctx).ToLocalChecked();
+				v8::Local<v8::Value> x, y, z;
+				V8_CHECK_RETN(v8Obj->Get(ctx, V8::Vector3_XKey(isolate)).ToLocal(&x), "Failed to convert Vector3 to MValue", core.CreateMValueNil());
+				V8_CHECK_RETN(v8Obj->Get(ctx, V8::Vector3_YKey(isolate)).ToLocal(&y), "Failed to convert Vector3 to MValue", core.CreateMValueNil());
+				V8_CHECK_RETN(v8Obj->Get(ctx, V8::Vector3_ZKey(isolate)).ToLocal(&z), "Failed to convert Vector3 to MValue", core.CreateMValueNil());
 
 				return core.CreateMValueVector3(
 					alt::Vector3f{
-						x->Value(),
-						y->Value(),
-						z->Value() });
+						x.As<v8::Number>()->Value(),
+						y.As<v8::Number>()->Value(),
+						z.As<v8::Number>()->Value() });
 			}
 			else if (resource->IsVector2(v8Obj))
 			{
-				v8::Local<v8::Number> x = v8Obj->Get(ctx, V8::Vector3_XKey(isolate)).ToLocalChecked()->ToNumber(ctx).ToLocalChecked();
-				v8::Local<v8::Number> y = v8Obj->Get(ctx, V8::Vector3_YKey(isolate)).ToLocalChecked()->ToNumber(ctx).ToLocalChecked();
+				v8::Local<v8::Value> x, y;
+				V8_CHECK_RETN(v8Obj->Get(ctx, V8::Vector3_XKey(isolate)).ToLocal(&x), "Failed to convert Vector2 to MValue", core.CreateMValueNil());
+				V8_CHECK_RETN(v8Obj->Get(ctx, V8::Vector3_YKey(isolate)).ToLocal(&y), "Failed to convert Vector2 to MValue", core.CreateMValueNil());
 
 				return core.CreateMValueVector2(
 					alt::Vector2f{
-						x->Value(),
-						y->Value() });
+						x.As<v8::Number>()->Value(),
+						y.As<v8::Number>()->Value() });
 			}
 			else if (resource->IsRGBA(v8Obj))
 			{
-				v8::Local<v8::Number> r = v8Obj->Get(ctx, V8::RGBA_RKey(isolate)).ToLocalChecked()->ToNumber(ctx).ToLocalChecked();
-				v8::Local<v8::Number> g = v8Obj->Get(ctx, V8::RGBA_GKey(isolate)).ToLocalChecked()->ToNumber(ctx).ToLocalChecked();
-				v8::Local<v8::Number> b = v8Obj->Get(ctx, V8::RGBA_BKey(isolate)).ToLocalChecked()->ToNumber(ctx).ToLocalChecked();
-				v8::Local<v8::Number> a = v8Obj->Get(ctx, V8::RGBA_AKey(isolate)).ToLocalChecked()->ToNumber(ctx).ToLocalChecked();
+				v8::Local<v8::Value> r, g, b, a;
+				V8_CHECK_RETN(v8Obj->Get(ctx, V8::RGBA_RKey(isolate)).ToLocal(&r), "Failed to convert RGBA to MValue", core.CreateMValueNil());
+				V8_CHECK_RETN(v8Obj->Get(ctx, V8::RGBA_GKey(isolate)).ToLocal(&g), "Failed to convert RGBA to MValue", core.CreateMValueNil());
+				V8_CHECK_RETN(v8Obj->Get(ctx, V8::RGBA_BKey(isolate)).ToLocal(&b), "Failed to convert RGBA to MValue", core.CreateMValueNil());
+				V8_CHECK_RETN(v8Obj->Get(ctx, V8::RGBA_AKey(isolate)).ToLocal(&a), "Failed to convert RGBA to MValue", core.CreateMValueNil());
 
 				return core.CreateMValueRGBA(
 					alt::RGBA{
-						(uint8_t)r->Value(),
-						(uint8_t)g->Value(),
-						(uint8_t)b->Value(),
-						(uint8_t)a->Value() });
+						(uint8_t)r.As<v8::Number>()->Value(),
+						(uint8_t)g.As<v8::Number>()->Value(),
+						(uint8_t)b.As<v8::Number>()->Value(),
+						(uint8_t)a.As<v8::Number>()->Value() });
 			}
 			else if (resource->IsBaseObject(v8Obj))
 			{
 				V8Entity* ent = V8Entity::Get(v8Obj);
 				Log::Debug << "Instanceof BaseObject" << Log::Endl;
 
-				if (!ent)
-				{
-					Log::Error << "Unable to convert base object to MValue because it was destroyed and is now invalid" << Log::Endl;
-					return core.CreateMValueNil();
-				}
-				else
-					return core.CreateMValueBaseObject(ent->GetHandle());
+				V8_CHECK_RETN(ent, "Unable to convert base object to MValue because it was destroyed and is now invalid", core.CreateMValueNil());
+				return core.CreateMValueBaseObject(ent->GetHandle());
 			}
 			else
 			{
 				alt::MValueDict dict = core.CreateMValueDict();
 				v8::Local<v8::Array> keys;
-				if(!v8Obj->GetOwnPropertyNames(ctx).ToLocal(&keys))
-				{
-					Log::Error << "Failed to convert object to MValue" << Log::Endl;
-					return core.CreateMValueNil();
-				}
+
+				V8_CHECK_RETN(v8Obj->GetOwnPropertyNames(ctx).ToLocal(&keys), "Failed to convert object to MValue", core.CreateMValueNil());
 				for (uint32_t i = 0; i < keys->Length(); ++i)
 				{
 					v8::Local<v8::Value> v8Key;
-					if(!keys->Get(ctx, i).ToLocal(&v8Key))
-					{
-						Log::Error << "Failed to convert object to MValue" << Log::Endl;
-						return core.CreateMValueNil();
-					}
-
+					V8_CHECK_RETN(keys->Get(ctx, i).ToLocal(&v8Key), "Failed to convert object to MValue", core.CreateMValueNil());
 					v8::Local<v8::Value> value;
-					if(!v8Obj->Get(ctx, v8Key).ToLocal(&value))
-					{
-						Log::Error << "Failed to convert object to MValue" << Log::Endl;
-						return core.CreateMValueNil();
-					}
+					V8_CHECK_RETN(v8Obj->Get(ctx, v8Key).ToLocal(&value), "Failed to convert object to MValue", core.CreateMValueNil());
 
 					if(value->IsUndefined()) continue;
 					std::string key = *v8::String::Utf8Value(isolate, v8Key);
@@ -330,7 +316,10 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
 	{
 		alt::MValueFunctionConst fn = val.As<alt::IMValueFunction>();
 		v8::Local<v8::External> extFn = v8::External::New(isolate, new alt::MValueFunctionConst(fn));
-		return v8::Function::New(ctx, V8Helpers::FunctionCallback, extFn).ToLocalChecked();
+
+		v8::Local<v8::Function> func;
+		V8_CHECK_RETN(v8::Function::New(ctx, V8Helpers::FunctionCallback, extFn).ToLocal(&func), "Failed to convert MValue to function", v8::Undefined(isolate));
+		return func;
 	}
 	case alt::IMValue::Type::VECTOR3:
 		return V8ResourceImpl::Get(ctx)->CreateVector3(val.As<alt::IMValueVector3>()->Value());

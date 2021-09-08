@@ -10,7 +10,14 @@ v8::Local<v8::Value> V8Class::New(v8::Local<v8::Context> ctx, std::vector<v8::Lo
 	v8::Local<v8::Value> obj;
 
 	V8Helpers::TryCatch([&] {
-		v8::MaybeLocal<v8::Value> maybeObj = _tpl->GetFunction(ctx).ToLocalChecked()->CallAsConstructor(ctx, args.size(), args.data());
+		v8::Local<v8::Function> func;
+		if(!_tpl->GetFunction(ctx).ToLocal(&func))
+		{
+			Log::Error << "V8Class::New Invalid constructor called" << Log::Endl;
+			return false;
+		}
+		
+		v8::MaybeLocal<v8::Value> maybeObj = func->CallAsConstructor(ctx, args.size(), args.data());
 
 		if (!maybeObj.IsEmpty())
 		{
