@@ -94,7 +94,9 @@ static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
 		for (int i = 0; i < arr->Length(); ++i) 
 		{
 			Ref<IPlayer> player;
-			V8Entity* v8Player = V8Entity::Get(arr->Get(ctx, i).ToLocalChecked());
+			v8::Local<v8::Value> ply;
+			V8_CHECK(arr->Get(ctx, i).ToLocal(&ply), "Invalid player in emitClient players array");
+			V8Entity* v8Player = V8Entity::Get(ply);
 
 			V8_CHECK(v8Player && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER, "player inside array expected");
 			targets.Push(v8Player->GetHandle().As<IPlayer>());
