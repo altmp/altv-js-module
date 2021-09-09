@@ -182,6 +182,8 @@ void V8ResourceImpl::OnCreateBaseObject(alt::Ref<alt::IBaseObject> handle)
 		CreateEntity(handle.Get());
 	}*/
 
+	DispatchBaseObjectCreateEvent(handle);
+
 	NotifyPoolUpdate(handle.Get());
 }
 
@@ -199,6 +201,8 @@ void V8ResourceImpl::OnRemoveBaseObject(alt::Ref<alt::IBaseObject> handle)
 
 	if (!ent)
 		return;
+
+	DispatchBaseObjectRemoveEvent(handle);
 
 	entities.erase(handle.Get());
 

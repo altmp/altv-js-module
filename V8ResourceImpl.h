@@ -131,6 +131,17 @@ public:
 		InvokeEventHandlers(nullptr, GetLocalHandlers("resourceError"), args);
 	}
 
+	void DispatchBaseObjectCreateEvent(alt::Ref<alt::IBaseObject> object)
+	{
+		std::vector<v8::Local<v8::Value>> args = { GetOrCreateEntity(object.Get())->GetJSVal(isolate) };
+		InvokeEventHandlers(nullptr, GetLocalHandlers("baseObjectCreate"), args);
+	}
+	void DispatchBaseObjectRemoveEvent(alt::Ref<alt::IBaseObject> object)
+	{
+		std::vector<v8::Local<v8::Value>> args = { GetOrCreateEntity(object.Get())->GetJSVal(isolate) };
+		InvokeEventHandlers(nullptr, GetLocalHandlers("baseObjectRemove"), args);
+	}
+
 	V8Entity *GetEntity(alt::IBaseObject *handle)
 	{
 		auto it = entities.find(handle);
