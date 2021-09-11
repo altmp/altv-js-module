@@ -51,6 +51,7 @@ macro(GroupSources curdir groupindex)
 endmacro()
 
 GroupSources(${PROJECT_SOURCE_DIR}/src "Source Files")
+GroupSources("../shared" "Shared Files")
 
 include_directories(
   src
