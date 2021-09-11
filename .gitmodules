@@ -1,0 +1,6 @@
+[submodule "src/helpers"]
+	path = src/helpers
+	url = https://github.com/altmp/v8-helpers.git
+[submodule "deps/cpp-sdk/cpp-sdk"]
+	path = deps/cpp-sdk/cpp-sdk
+	url = https://github.com/altmp/cpp-sdk.git
