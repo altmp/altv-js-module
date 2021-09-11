@@ -30,6 +30,7 @@ jobs:
       - name: Build
         shell: cmd
         run: |
+          cd server
           mkdir build
           pushd build
           cmake -G"Visual Studio 16" -A x64 -DJS_MODULE_VERSION=%VERSION% ..
@@ -44,7 +45,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: js-module-windows
-          path: ./dist/
+          path: ./server/dist/
 
   build-linux:
     name: Build linux release
@@ -66,6 +67,7 @@ jobs:
 
       - name: Build
         run: |
+          cd server
           sudo add-apt-repository ppa:ubuntu-toolchain-r/test
           sudo apt-get update
           sudo apt-get install gcc-8 g++-8
@@ -82,7 +84,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: js-module-linux
-          path: ./dist/
+          path: ./server/dist/
 
   deploy-cdn:
     name: Deploy release to alt:V CDN
