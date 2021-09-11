@@ -1,4 +1,4 @@
-name: Build & deploy
+name: Build & deploy server
 on:
   push:
     branches-ignore: 

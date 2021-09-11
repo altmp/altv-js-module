@@ -1,8 +1,8 @@
 #include "../CV8Resource.h"
 #include "../CV8ScriptRuntime.h"
 
-#include "../helpers/V8ResourceImpl.h"
-#include "../helpers/V8Helpers.h"
+#include "V8ResourceImpl.h"
+#include "V8Helpers.h"
 
 #include "cpp-sdk/events/CConnectionComplete.h"
 #include "cpp-sdk/events/CDisconnectEvent.h"

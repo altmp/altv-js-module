@@ -1,0 +1,20 @@
+{
+  "configurations": [
+    {
+      "name": "Win32 Static",
+      "defines": [
+        "_DEBUG",
+        "UNICODE",
+        "_UNICODE",
+        "ALT_CLIENT_API",
+        "ALT_CLIENT",
+        "ALT_SERVER_API",
+        "ALT_SERVER"
+      ],
+      "windowsSdkVersion": "10.0.19041.0",
+      "cppStandard": "c++17",
+      "intelliSenseMode": "msvc-x64"
+    }
+  ],
+  "version": 4
+}

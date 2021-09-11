@@ -1,6 +1,6 @@
 ﻿#include "stdafx.h"
 
-#include "helpers/V8Module.h"
+#include "V8Module.h"
 #include "CNodeScriptRuntime.h"
 
 /*static void NodeStop()

@@ -1,7 +1,7 @@
 
 #include "../CV8Resource.h"
-#include "../helpers/V8Class.h"
-#include "../helpers/V8Helpers.h"
+#include "V8Class.h"
+#include "V8Helpers.h"
 
 struct DiscordRequestOAuth2TokenCallbackData
 {

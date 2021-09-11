@@ -1,6 +1,6 @@
 #include "cpp-sdk/SDK.h"
 #include "CV8ScriptRuntime.h"
-#include "helpers/Log.h"
+#include "Log.h"
 
 #ifdef ALTV_JS_SHARED
 #define ALTV_JS_EXPORT extern "C" __declspec(dllexport)

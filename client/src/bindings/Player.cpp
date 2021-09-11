@@ -1,9 +1,9 @@
 
-#include "../helpers/V8Helpers.h"
-#include "../helpers/V8BindHelpers.h"
-#include "../helpers/V8Class.h"
-#include "../helpers/V8Entity.h"
-#include "../helpers/V8ResourceImpl.h"
+#include "V8Helpers.h"
+#include "V8BindHelpers.h"
+#include "V8Class.h"
+#include "V8Entity.h"
+#include "V8ResourceImpl.h"
 
 #include "../CV8ScriptRuntime.h"
 

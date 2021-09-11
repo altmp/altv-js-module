@@ -3,11 +3,11 @@
 #include "cpp-sdk/IResource.h"
 #include "cpp-sdk/objects/IEntity.h"
 
-#include "helpers/V8ResourceImpl.h"
+#include "V8ResourceImpl.h"
 
 #include <queue>
 
-#include "helpers/Log.h"
+#include "Log.h"
 
 class CV8ScriptRuntime;
 

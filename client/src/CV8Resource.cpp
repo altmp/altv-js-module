@@ -23,8 +23,8 @@
 
 #include "CV8ScriptRuntime.h"
 #include "CV8Resource.h"
-#include "helpers/V8Helpers.h"
-#include "helpers/V8Module.h"
+#include "V8Helpers.h"
+#include "V8Module.h"
 
 static void StaticRequire(const v8::FunctionCallbackInfo<v8::Value> &info)
 {

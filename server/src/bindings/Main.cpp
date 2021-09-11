@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#include "helpers/V8Module.h"
+#include "V8Module.h"
 #include "CNodeResourceImpl.h"
 
 using namespace alt;

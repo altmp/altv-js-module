@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
-#include "helpers/V8Helpers.h"
-#include "helpers/V8ResourceImpl.h"
+#include "V8Helpers.h"
+#include "V8ResourceImpl.h"
 
 using namespace alt;
 

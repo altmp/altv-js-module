@@ -1,5 +1,5 @@
-#include "../helpers/V8Helpers.h"
-#include "../helpers/V8Class.h"
+#include "V8Helpers.h"
+#include "V8Class.h"
 #include "../CV8ScriptRuntime.h"
 #include "v8-profiler.h"
 #include <chrono>

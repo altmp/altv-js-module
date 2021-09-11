@@ -4,9 +4,9 @@
 #include "cpp-sdk/IPackage.h"
 #include "cpp-sdk/IResource.h"
 
-#include "helpers/V8ResourceImpl.h"
-#include "helpers/V8Entity.h"
-#include "helpers/V8Helpers.h"
+#include "V8ResourceImpl.h"
+#include "V8Entity.h"
+#include "V8Helpers.h"
 
 #include "node.h"
 #include "uv.h"

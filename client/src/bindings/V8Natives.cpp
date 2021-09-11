@@ -1,8 +1,8 @@
 
-#include "../helpers/V8Helpers.h"
-#include "../helpers/V8Module.h"
-#include "../helpers/Log.h"
-#include "../helpers/V8ResourceImpl.h"
+#include "V8Helpers.h"
+#include "V8Module.h"
+#include "Log.h"
+#include "V8ResourceImpl.h"
 
 static uint64_t pointers[32];
 static uint32_t pointersCount = 0;

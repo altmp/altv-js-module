@@ -3,7 +3,7 @@
 #include "cpp-sdk/IScriptRuntime.h"
 #include "cpp-sdk/events/CRemoveEntityEvent.h"
 
-#include "helpers/V8Helpers.h"
+#include "V8Helpers.h"
 #include "CNodeResourceImpl.h"
 
 class CNodeScriptRuntime : public alt::IScriptRuntime

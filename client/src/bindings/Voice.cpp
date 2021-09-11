@@ -1,7 +1,7 @@
 
-#include "../helpers/V8Helpers.h"
-#include "../helpers/V8ResourceImpl.h"
-#include "../helpers/V8Class.h"
+#include "V8Helpers.h"
+#include "V8ResourceImpl.h"
+#include "V8Class.h"
 
 static void StaticGetInputMuted(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
 {

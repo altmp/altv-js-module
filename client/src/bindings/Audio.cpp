@@ -1,7 +1,7 @@
-#include "../helpers/V8Helpers.h"
-#include "../helpers/V8BindHelpers.h"
-#include "../helpers/V8ResourceImpl.h"
-#include "../helpers/V8Class.h"
+#include "V8Helpers.h"
+#include "V8BindHelpers.h"
+#include "V8ResourceImpl.h"
+#include "V8Class.h"
 #include "../CV8ScriptRuntime.h"
 #include "cpp-sdk/script-objects/IAudio.h"
 

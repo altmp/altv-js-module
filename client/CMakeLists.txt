@@ -17,13 +17,14 @@ set(ALTV_JS_DL_DEPS ${altv-js-deps_SOURCE_DIR})
 
 # cpp-sdk
 if(NOT ALTV_JS_CPP_SDK)
-  set(ALTV_JS_CPP_SDK deps/cpp-sdk)
+  set(ALTV_JS_CPP_SDK ../shared/deps)
 else()
   set(ALTV_JS_DEINIT_CPPSDK 1)
 endif()
 # Fetch deps
 
 file(GLOB_RECURSE PROJECT_SOURCE_FILES "src/*.h" "src/*.hpp" "src/*.cpp" "src/*.c")
+file(GLOB_RECURSE PROJECT_SHARED_FILES "../shared/*.h" "../shared/*.cpp")
 
 macro(GroupSources curdir groupindex)
   file(GLOB children RELATIVE ${curdir} ${curdir}/*)
@@ -41,10 +42,13 @@ macro(GroupSources curdir groupindex)
 endmacro()
 
 GroupSources(${PROJECT_SOURCE_DIR}/src "Source Files")
+GroupSources("../shared" "Shared Files")
 
 include_directories(
   ${ALTV_JS_CPP_SDK}
   ${ALTV_JS_DL_DEPS}/include
+  ${PROJECT_SOURCE_DIR}
+  ../shared
 )
 
 set(ALTV_JS_LINKS
@@ -84,6 +88,7 @@ if(DYNAMIC_BUILD)
   add_library(
     ${PROJECT_NAME} SHARED
     ${PROJECT_SOURCE_FILES}
+    ${PROJECT_SHARED_FILES}
   )
   set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_STANDARD 17
@@ -100,6 +105,7 @@ else()
   add_library(
     ${PROJECT_NAME}-static STATIC
     ${PROJECT_SOURCE_FILES}
+    ${PROJECT_SHARED_FILES}
   )
   set_target_properties(${PROJECT_NAME}-static PROPERTIES
     CXX_STANDARD 17

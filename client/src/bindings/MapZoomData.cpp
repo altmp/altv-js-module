@@ -1,5 +1,5 @@
 #include "../CV8Resource.h"
-#include "../helpers/V8Class.h"
+#include "V8Class.h"
 
 extern V8Class v8MapZoomData;
 
