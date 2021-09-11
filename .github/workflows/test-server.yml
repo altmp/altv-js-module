@@ -1,4 +1,4 @@
-name: Test client changes
+name: Test server changes
 on:
   push:
     paths:
