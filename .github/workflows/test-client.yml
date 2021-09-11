@@ -25,9 +25,13 @@ jobs:
 
     - name: Generate
       shell: bash
-      run: cmake . -BBUILD
+      run: |
+        cd client
+        cmake . -BBUILD
 
     - name: Build
       shell: bash
-      run: cmake --build BUILD --config $BUILD_TYPE
+      run: |
+        cd client
+        cmake --build BUILD --config $BUILD_TYPE
       
