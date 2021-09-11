@@ -1,6 +1,6 @@
-#include "../helpers/V8Helpers.h"
-#include "../helpers/V8ResourceImpl.h"
-#include "../helpers/V8Class.h"
+#include "V8Helpers.h"
+#include "V8ResourceImpl.h"
+#include "V8Class.h"
 #include "../CV8ScriptRuntime.h"
 
 static void SetExtraHeader(const v8::FunctionCallbackInfo<v8::Value>& info)

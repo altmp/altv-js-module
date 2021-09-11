@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../helpers/V8Helpers.h"
+#include "V8Helpers.h"
 
 /**
  * Needed cause MSVC requires globals to be references

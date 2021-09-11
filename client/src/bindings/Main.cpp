@@ -1,11 +1,11 @@
 
 #include "../CV8ScriptRuntime.h"
 #include "cpp-sdk/objects/IPlayer.h"
-#include "../helpers/V8Module.h"
+#include "V8Module.h"
 
 #include "cpp-sdk/SDK.h"
 
-#include "../helpers/Log.h"
+#include "Log.h"
 
 using namespace alt;
 

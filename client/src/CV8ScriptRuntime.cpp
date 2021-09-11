@@ -2,7 +2,7 @@
 #include "CV8ScriptRuntime.h"
 #include "inspector/CV8InspectorClient.h"
 #include "inspector/CV8InspectorChannel.h"
-#include "helpers/V8Module.h"
+#include "V8Module.h"
 #include "events/Events.h"
 
 CV8ScriptRuntime::CV8ScriptRuntime()

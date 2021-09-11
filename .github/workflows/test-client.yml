@@ -1,6 +1,11 @@
-name: CMake
-
-on: [push, pull_request]
+name: Test client changes
+on:
+  push:
+    paths:
+      - "client/**"
+  pull_request:
+    paths:
+      - "client/**"
 
 env:
   BUILD_TYPE: Release

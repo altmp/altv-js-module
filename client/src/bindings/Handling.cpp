@@ -1,9 +1,9 @@
 
 #include "../CV8Resource.h"
-#include "../helpers/V8Helpers.h"
-#include "../helpers/V8Class.h"
-#include "../helpers/V8Entity.h"
-#include "../helpers/V8ResourceImpl.h"
+#include "V8Helpers.h"
+#include "V8Class.h"
+#include "V8Entity.h"
+#include "V8ResourceImpl.h"
 #include "cpp-sdk/objects/IVehicle.h"
 
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)

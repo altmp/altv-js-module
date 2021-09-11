@@ -1,5 +1,11 @@
-name: Test changes
-on: [pull_request]
+name: Test client changes
+on:
+  push:
+    paths:
+      - "server/**"
+  pull_request:
+    paths:
+      - "server/**"
 
 jobs:
   test-windows:

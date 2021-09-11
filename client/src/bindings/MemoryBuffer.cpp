@@ -1,6 +1,6 @@
 
 #include "../CV8Resource.h"
-#include "../helpers/V8Class.h"
+#include "V8Class.h"
 
 //static void weakCallbackForObjectHolder(const v8::WeakCallbackInfo<v8::Object>& data) {
 //	uint8_t* memory = (uint8_t*)data.GetInternalField(0);

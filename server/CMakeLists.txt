@@ -33,6 +33,7 @@ add_definitions(-DHAVE_INSPECTOR=1)
 add_definitions(-DALT_SERVER_API)
 
 file(GLOB_RECURSE PROJECT_SOURCE_FILES "src/*.h" "src/*.hpp" "src/*.cpp")
+file(GLOB_RECURSE PROJECT_SHARED_FILES "../shared/*.h" "../shared/*.cpp")
 
 macro(GroupSources curdir groupindex)
   file(GLOB children RELATIVE ${curdir} ${curdir}/*)
@@ -53,11 +54,11 @@ GroupSources(${PROJECT_SOURCE_DIR}/src "Source Files")
 
 include_directories(
   src
-  src/api
-  src/fivenet-shared/src
   deps/nodejs/include
   deps/nodejs/deps/v8/include
   deps/nodejs/deps/uv/include
+  ../shared
+  ../shared/deps
 )
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -121,6 +122,7 @@ link_directories(
 add_library(
   ${PROJECT_NAME} SHARED
   ${PROJECT_SOURCE_FILES}
+  ${PROJECT_SHARED_FILES}
 )
 
 if (WIN32)

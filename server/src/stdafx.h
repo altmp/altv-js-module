@@ -1,9 +1,9 @@
 #pragma once
 
-#define JS_MODULE_COPYRIGHT		u8"Copyright © 2020 altMP team."
+#define JS_MODULE_COPYRIGHT		u8"Copyright ï¿½ 2020 altMP team."
 
 #define NODEJS_VERSION			u8"v12.4.0"
-#define NODEJS_COPYRIGHT		u8"Copyright © 2020 Node.js Foundation."
+#define NODEJS_COPYRIGHT		u8"Copyright ï¿½ 2020 Node.js Foundation."
 
 #define NODE_WANT_INTERNALS 1
 
@@ -18,7 +18,7 @@
 #include <iomanip>
 
 #include "cpp-sdk/SDK.h"
-#include "helpers/Log.h"
+#include "Log.h"
 #include "node.h"
 #include "node_platform.h"
 #include "node_internals.h"

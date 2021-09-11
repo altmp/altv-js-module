@@ -1,6 +1,6 @@
 #include "../CV8Resource.h"
-#include "../helpers/V8Helpers.h"
-#include "../helpers/V8BindHelpers.h"
+#include "V8Helpers.h"
+#include "V8BindHelpers.h"
 #include "cpp-sdk/script-objects/ICheckpoint.h"
 
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)

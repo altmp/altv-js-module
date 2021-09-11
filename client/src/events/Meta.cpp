@@ -1,5 +1,5 @@
-#include "../helpers/V8ResourceImpl.h"
-#include "../helpers/V8Helpers.h"
+#include "V8ResourceImpl.h"
+#include "V8Helpers.h"
 
 #include "cpp-sdk/events/CSyncedMetaDataChangeEvent.h"
 #include "cpp-sdk/events/CStreamSyncedMetaDataChangeEvent.h"

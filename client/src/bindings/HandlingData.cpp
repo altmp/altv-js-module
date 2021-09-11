@@ -1,6 +1,6 @@
 
 #include "../CV8Resource.h"
-#include "../helpers/V8Class.h"
+#include "V8Class.h"
 
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
