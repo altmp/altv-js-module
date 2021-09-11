@@ -182,13 +182,6 @@ void V8ResourceImpl::OnCreateBaseObject(alt::Ref<alt::IBaseObject> handle)
 		CreateEntity(handle.Get());
 	}*/
 
-	v8::Locker locker(isolate);
-	v8::Isolate::Scope isolateScope(isolate);
-	v8::HandleScope handleScope(isolate);
-	v8::Context::Scope scope(GetContext());
-
-	DispatchBaseObjectCreateEvent(handle);
-
 	NotifyPoolUpdate(handle.Get());
 }
 
@@ -205,8 +198,6 @@ void V8ResourceImpl::OnRemoveBaseObject(alt::Ref<alt::IBaseObject> handle)
 
 	if (!ent)
 		return;
-
-	DispatchBaseObjectRemoveEvent(handle);
 
 	entities.erase(handle.Get());
 
