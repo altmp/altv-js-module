@@ -47,7 +47,6 @@ GroupSources("../shared" "Shared Files")
 include_directories(
   ${ALTV_JS_CPP_SDK}
   ${ALTV_JS_DL_DEPS}/include
-  ${PROJECT_SOURCE_DIR}
   ../shared
 )
 
