@@ -9,7 +9,8 @@
                 "ALT_CLIENT_API",
                 "ALT_CLIENT",
                 "ALT_SERVER_API",
-                "ALT_SERVER"
+                "ALT_SERVER",
+                "JS_MODULE_VERSION"
             ],
             "windowsSdkVersion": "10.0.19041.0",
             "cppStandard": "c++17",
