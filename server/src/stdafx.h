@@ -2,7 +2,6 @@
 
 #define JS_MODULE_COPYRIGHT		u8"Copyright � 2020 altMP team."
 
-#define NODEJS_VERSION			u8"v12.4.0"
 #define NODEJS_COPYRIGHT		u8"Copyright � 2020 Node.js Foundation."
 
 #define NODE_WANT_INTERNALS 1

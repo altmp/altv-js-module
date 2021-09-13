@@ -57,7 +57,7 @@ static void CommandHandler(alt::Array<alt::StringView> args, void* userData)
 		Log::Colored << "~ly~js-module: " << JS_MODULE_VERSION << Log::Endl;
 		Log::Colored << "~ly~" JS_MODULE_COPYRIGHT << Log::Endl;
 
-		Log::Colored << "~ly~nodejs: " NODEJS_VERSION << Log::Endl;
+		Log::Colored << "~ly~nodejs: " << NODE_MAJOR_VERSION << "." << NODE_MINOR_VERSION << "." << NODE_PATCH_VERSION << Log::Endl;
 		Log::Colored << "~ly~" NODEJS_COPYRIGHT << Log::Endl;
 	}
 	else if (args.GetSize() > 0 && args[0] == "--help")
