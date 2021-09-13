@@ -32,7 +32,7 @@ static void Initialize(v8::Local<v8::Object> exports)
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 	v8::HandleScope handle_scope(isolate);
 
-	v8Alt.Register(isolate, isolate->GetEnteredContext(), exports);
+	v8Alt.Register(isolate, isolate->GetEnteredOrMicrotaskContext(), exports);
 }
 NODE_MODULE_LINKED(alt, Initialize)
 }
@@ -45,7 +45,7 @@ static void InitializeShared(v8::Local<v8::Object> exports)
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
 	v8::HandleScope handle_scope(isolate);
 
-	sharedModule.Register(isolate, isolate->GetEnteredContext(), exports);
+	sharedModule.Register(isolate, isolate->GetEnteredOrMicrotaskContext(), exports);
 }
 NODE_MODULE_LINKED(altShared, InitializeShared)
 }
