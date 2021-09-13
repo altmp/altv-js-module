@@ -1,7 +1,7 @@
 @echo off
 mkdir build
 pushd build
-cmake -G"Visual Studio 16" -A x64 ..
+cmake -G"Visual Studio 16" -A x64 -DJS_MODULE_VERSION=DEV ..
 cmake --build . --config Release
 popd
 
