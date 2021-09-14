@@ -55,6 +55,7 @@ and is included and built by them individually.
 
 ## Tips
 
+### Symlinks
 To make the development experience smoother when working on the module, it is recommended to create a *symlink* to the custom build,
 instead of copying the file after every compilation.
 
@@ -67,3 +68,7 @@ When you now compile your module and start the server, it will run with the new 
 
 > Make sure to stop the server before compilation finishes, otherwise you will get a file access error, 
 and the compiled module DLL won't be copied to the `dist` directory.
+
+### Submodules
+If you get errors about missing headers for the `cpp-sdk` make sure you have pulled the *submodules*.
+You can do this by cloning the repo with the `--recurse-submodules` flag, or by running `git submodule init && git submodule update` in the repository directory.
