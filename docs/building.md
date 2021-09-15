@@ -10,12 +10,14 @@ To simplify the build process, the module has build scripts on both sides which 
 
 ## Server
 
+### Building
 To build the server module simply run the `build.bat` / `build.sh` script. 
 > There are also VSCode tasks provided to run the build, to build the server simply run the
 `Build server` task from VSCode.
 
 The compiled `js-module.dll` will then be in the `dist` directory.
 
+### Testing
 Drag this file into your `modules` folder for your alt:V server and start the server.
 The JS module should then be running, and by typing `js-module --version` it should show
 you that the current JS module version is `DEV`. 
@@ -25,6 +27,7 @@ so make sure you have properly replaced the file.
 
 ## Client
 
+### Building
 To build the client module simply run the `build-debug.bat` script.
 
 Make sure to actually run the build-**debug**.bat. The `build.bat` file is for statically building the module,
@@ -36,6 +39,7 @@ simply run the `Build client` task from VSCode.
 After running the script the compiled `altv-client-js.dll` will be in the `dist` directory,
 along with the debug symbols to debug crashdumps in the client module.
 
+### Testing
 To use the custom client module build, create a folder named `modules` in your alt:V installation (where the `altv.exe` is located),
 and *inside* that folder create another folder named `altv-client-js`.
 Now you can drag the `altv-client-js.dll` into that folder.
