@@ -103,6 +103,21 @@ So an example todo comment would look like this:
 // todo: Use std::set instead of std::list
 ```
 
+### Deprecations
+When changing a function name for example it is important to **not** remove the old function, but instead add a deprecation warning
+so we can provide backwards compatibility.
+
+A deprecation warning can just be added by using `Log::Warning` to the end of the old function body.
+It should also have a comment with the *date and current alt:V release version* when the deprecation was added.
+
+After a reasonable amount of times deprecated functions are removed, usually after a few release updates.
+
+An example for a deprecation can be found here:
+```cpp
+// Deprecation added: 09/17/2021 (version 5.3)
+Log::Warning << "alt.oldFunction is deprecated. Consider using alt.newFunction instead." << Log::Endl;
+```
+
 ## Contact
 
 If you have any questions about making a pull request, don't hesitate to contact a module maintainer, 
