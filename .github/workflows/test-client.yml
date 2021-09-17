@@ -1,0 +1,37 @@
+name: Test client changes
+on:
+  push:
+    paths:
+      - "client/**"
+  pull_request:
+    paths:
+      - "client/**"
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Fetch Submodules
+      shell: bash
+      run: |
+        git submodule init
+        git submodule update
+
+    - name: Generate
+      shell: bash
+      run: |
+        cd client
+        cmake . -BBUILD
+
+    - name: Build
+      shell: bash
+      run: |
+        cd client
+        cmake --build BUILD --config $BUILD_TYPE
+      
