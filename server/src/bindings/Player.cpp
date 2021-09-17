@@ -203,11 +203,9 @@ static void SetClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_CHECK_ARGS_LEN_MIN_MAX(3, 4);
 	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-	V8_ARG_TO_INT(1, component);
-	V8_ARG_TO_INT(2, drawable);
-	V8_ARG_TO_INT(3, texture);
-
-	V8_CHECK(component >= 0 && drawable >= 0 && texture >= 0, "setClothes args have to be positive, -1 won't reset");
+	V8_ARG_TO_UINT32(1, component);
+	V8_ARG_TO_UINT32(2, drawable);
+	V8_ARG_TO_UINT32(3, texture);
 
 	if(info.Length() == 3)
 	{
@@ -227,11 +225,9 @@ static void SetDlcClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
 	V8_ARG_TO_UINT32(1, dlc);
-	V8_ARG_TO_INT(2, component);
-	V8_ARG_TO_INT(3, drawable);
-	V8_ARG_TO_INT(4, texture);
-	
-	V8_CHECK(component >= 0 && drawable >= 0 && texture >= 0, "setDlcClothes args have to be positive, -1 won't reset");
+	V8_ARG_TO_UINT32(2, component);
+	V8_ARG_TO_UINT32(3, drawable);
+	V8_ARG_TO_UINT32(4, texture);
 
 	if(info.Length() == 4)
 	{
@@ -250,7 +246,7 @@ static void GetClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_CHECK_ARGS_LEN(1);
 	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-	V8_ARG_TO_INT(1, component);
+	V8_ARG_TO_UINT32(1, component);
 
 	V8_NEW_OBJECT(clothes);
 
@@ -268,7 +264,7 @@ static void GetDlcClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_CHECK_ARGS_LEN(1);
 	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-	V8_ARG_TO_INT(1, component);
+	V8_ARG_TO_UINT32(1, component);
 
 	V8_NEW_OBJECT(clothes);
 
@@ -287,11 +283,9 @@ static void SetProps(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_CHECK_ARGS_LEN(3);
 	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-	V8_ARG_TO_INT(1, component);
-	V8_ARG_TO_INT(2, drawable);
-	V8_ARG_TO_INT(3, texture);
-
-	V8_CHECK(component >= 0 && drawable >= 0 && texture >= 0, "setProp args have to be positive, -1 won't reset use clearProp");
+	V8_ARG_TO_UINT32(1, component);
+	V8_ARG_TO_UINT32(2, drawable);
+	V8_ARG_TO_UINT32(3, texture);
 
 	player->SetProps(component, drawable, texture);
 }
@@ -303,12 +297,10 @@ static void SetDlcProps(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
 	V8_ARG_TO_UINT32(1, dlc);
-	V8_ARG_TO_INT(2, component);
-	V8_ARG_TO_INT(3, drawable);
-	V8_ARG_TO_INT(4, texture);
+	V8_ARG_TO_UINT32(2, component);
+	V8_ARG_TO_UINT32(3, drawable);
+	V8_ARG_TO_UINT32(4, texture);
 	
-	V8_CHECK(component >= 0 && drawable >= 0 && texture >= 0, "setDlcProp args have to be positive, -1 won't reset use clearProp");
-
 	player->SetDlcProps(component, drawable, texture, dlc);
 }
 
@@ -318,7 +310,7 @@ static void ClearProps(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_CHECK_ARGS_LEN(1);
 	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-	V8_ARG_TO_INT(1, component);
+	V8_ARG_TO_UINT32(1, component);
 
 	player->ClearProps(component);
 }
@@ -329,7 +321,7 @@ static void GetProps(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_CHECK_ARGS_LEN(1);
 	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-	V8_ARG_TO_INT(1, component);
+	V8_ARG_TO_UINT32(1, component);
 
 	V8_NEW_OBJECT(prop);
 	
@@ -346,7 +338,7 @@ static void GetDlcProps(const v8::FunctionCallbackInfo<v8::Value>& info)
 	V8_CHECK_ARGS_LEN(1);
 	V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-	V8_ARG_TO_INT(1, component);
+	V8_ARG_TO_UINT32(1, component);
 
 	V8_NEW_OBJECT(prop);
 
