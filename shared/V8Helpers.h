@@ -440,22 +440,22 @@ namespace V8
 // idx starts with 1
 #define V8_ARG_TO_UINT64(idx, val) \
 	uint64_t val;                    \
-	V8_CHECK(V8::SafeToUInt64(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to integer")
+	V8_CHECK(V8::SafeToUInt64(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to uint64")
 
 // idx starts with 1
 #define V8_ARG_TO_INT64(idx, val) \
 	int64_t val;                    \
-	V8_CHECK(V8::SafeToInt64(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to integer")
+	V8_CHECK(V8::SafeToInt64(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to int64")
 
 // idx starts with 1
 #define V8_ARG_TO_UINT32(idx, val) \
 	uint32_t val;                    \
-	V8_CHECK(V8::SafeToUInt32(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to integer")
+	V8_CHECK(V8::SafeToUInt32(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to uint32")
 
 // idx starts with 1
 #define V8_ARG_TO_INT32(idx, val) \
 	int32_t val;                    \
-	V8_CHECK(V8::SafeToInt32(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to integer")
+	V8_CHECK(V8::SafeToInt32(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to int32")
 
 // idx starts with 1
 #define V8_ARG_TO_VECTOR3(idx, val) \
