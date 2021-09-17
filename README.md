@@ -1,27 +1,18 @@
-# altv-js-module
-JS module for alt:V Multiplayer. Powered by NodeJS &amp; v8
+# alt:V JS module
 
-## Troubleshooting
-**Problem**: I want to build a native Node.js addon with
-[node-gyp](https://github.com/nodejs/node-gyp) but the alt:V server can not load
-it and responds with following error:
-```
-./altv-server: symbol lookup error: /usr/share/addon/binding.node: undefined symbol: node_module_register
-```
-**Solution**: Add a C++ file to your project with following content and include
-it the  ```sources``` in your ```binding.gyp``` file.
-```cpp
-#include <node.h>
-#include <dlfcn.h>
+Repository containing the JS module for [alt:V multiplayer](https://altv.mp/).
 
-extern "C" NODE_EXTERN void node_module_register(void* mod) {
-  auto base_ptr = dlopen("libnode.so.72", RTLD_NOW | RTLD_GLOBAL);
-  if (base_ptr == nullptr) {
-    return;
-  }
-  auto register_func = reinterpret_cast<decltype(&node_module_register)>(dlsym(base_ptr, "node_module_register"));
-  if (register_func == nullptr) {
-    return;
-  }
-  register_func(mod);
-}
+## Structure
+
+| Directory          | Description                                             |
+| ------------------ | ------------------------------------------------------- |
+| [/client](/client) | Clientside JS module powered by V8                      |
+| [/server](/server) | Serverside JS module powered by Node.js                 |
+| [/shared](/shared) | Shared code for the clientside & serverside module      |
+| [/docs](/docs)     | Documentation for the internal workings of the module   |
+
+## Contributions
+
+All contributions are greatly appreciated.
+If there are any questions or you would like to discuss a feature,
+contact the *module maintainer*.

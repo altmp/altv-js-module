@@ -1,0 +1,33 @@
+{
+    "configurations": [
+        {
+            "name": "Win32 Static",
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "ALT_CLIENT_API",
+                "ALT_CLIENT",
+                "ALT_SERVER_API",
+                "ALT_SERVER",
+                "JS_MODULE_VERSION"
+            ],
+            "windowsSdkVersion": "10.0.19041.0",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "msvc-x64",
+            "configurationProvider": "ms-vscode.cmake-tools",
+            "includePath": [
+                "client/src",
+                "client/BUILD/_deps/altv-js-deps-src/include",
+                "server/src",
+                "server/deps",
+                "server/deps/nodejs/include",
+                "server/deps/nodejs/deps/v8/include",
+                "server/deps/nodejs/deps/uv/include",
+                "shared/",
+                "shared/deps"
+            ]
+        }
+    ],
+    "version": 4
+}

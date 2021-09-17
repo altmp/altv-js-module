@@ -1,0 +1,11 @@
+# Build files
+BUILD/
+deps/v8/
+dist/
+
+# Editors
+.vs/
+.vscode/settings.json
+
+# Extra
+tools/extra.bat
