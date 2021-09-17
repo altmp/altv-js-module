@@ -558,6 +558,8 @@ bool V8::SafeToInteger(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, int
 
 bool V8::SafeToUInt64(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, uint64_t& out)
 {
+	auto check = val->ToInteger(ctx);
+	if(check.IsEmpty() || check.ToLocalChecked()->Value() < 0) return false; // Check for negative values
 	v8::MaybeLocal maybeVal = val->ToBigInt(ctx);
 	if(maybeVal.IsEmpty()) return false;
 	out = maybeVal.ToLocalChecked()->Uint64Value();
@@ -574,6 +576,8 @@ bool V8::SafeToInt64(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, int64
 
 bool V8::SafeToUInt32(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, uint32_t& out)
 {
+	auto check = val->ToInteger(ctx);
+	if(check.IsEmpty() || check.ToLocalChecked()->Value() < 0) return false; // Check for negative values
 	v8::MaybeLocal maybeVal = val->ToUint32(ctx);
 	if(maybeVal.IsEmpty()) return false;
 	out = maybeVal.ToLocalChecked()->Value();
