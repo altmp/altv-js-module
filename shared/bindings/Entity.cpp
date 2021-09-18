@@ -170,14 +170,6 @@ static void AttachTo(const v8::FunctionCallbackInfo<v8::Value>& info)
     _this->AttachToEntity(entity, otherBone, ownBone, pos, rot, collision, noFixedRot);
 }
 
-static void Detach(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_THIS_BASE_OBJECT(_this, IEntity);
-
-    _this->Detach();
-}
-
 #endif  // ALT_SERVER_API
 
 #ifdef ALT_CLIENT_API
@@ -255,7 +247,7 @@ extern V8Class v8Entity("Entity", v8WorldObject, [](v8::Local<v8::FunctionTempla
     V8::SetMethod(isolate, tpl, "resetNetOwner", ResetNetOwner);
 
     V8::SetMethod(isolate, tpl, "attachTo", AttachTo);
-    V8::SetMethod(isolate, tpl, "detach", Detach);
+    V8::SetMethod<IEntity, &IEntity::Detach>(isolate, tpl, "detach");
 #endif  // ALT_SERVER_API
 
 #ifdef ALT_CLIENT_API
