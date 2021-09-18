@@ -97,7 +97,7 @@ namespace V8
         static SourceLocation GetCurrent(v8::Isolate* isolate);
 
     private:
-        v8::Persistent<v8::Context, v8::CopyablePersistentTraits<v8::Context>> context;
+        CPersistent<v8::Context> context;
         std::string fileName;
         int line = 0;
     };
