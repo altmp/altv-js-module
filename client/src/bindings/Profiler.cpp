@@ -8,18 +8,18 @@
 
 static void GetHeapStatistics(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	V8_GET_ISOLATE_CONTEXT();
+    V8_GET_ISOLATE_CONTEXT();
 
-	v8::HeapStatistics heapStats;
-	isolate->GetHeapStatistics(&heapStats);
-	V8_NEW_OBJECT(stats);
-	V8_OBJECT_SET_UINT(stats, "heapSizeLimit", heapStats.heap_size_limit());
-	V8_OBJECT_SET_UINT(stats, "totalHeapSize", heapStats.total_heap_size());
-	V8_OBJECT_SET_UINT(stats, "usedHeapSize", heapStats.used_heap_size());
-	V8_OBJECT_SET_UINT(stats, "mallocedMemory", heapStats.malloced_memory());
-	V8_OBJECT_SET_UINT(stats, "peakMallocedMemory", heapStats.peak_malloced_memory());
+    v8::HeapStatistics heapStats;
+    isolate->GetHeapStatistics(&heapStats);
+    V8_NEW_OBJECT(stats);
+    V8_OBJECT_SET_UINT(stats, "heapSizeLimit", heapStats.heap_size_limit());
+    V8_OBJECT_SET_UINT(stats, "totalHeapSize", heapStats.total_heap_size());
+    V8_OBJECT_SET_UINT(stats, "usedHeapSize", heapStats.used_heap_size());
+    V8_OBJECT_SET_UINT(stats, "mallocedMemory", heapStats.malloced_memory());
+    V8_OBJECT_SET_UINT(stats, "peakMallocedMemory", heapStats.peak_malloced_memory());
 
-	V8_RETURN(stats);
+    V8_RETURN(stats);
 }
 
 // Key = Node ID, Value = Timestamp
@@ -34,37 +34,41 @@ static void StartProfiling(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_CHECK_ARGS_LEN2(0, 1);
-    
+
     v8::Local<v8::String> name;
     if(info.Length() == 1)
     {
         V8_ARG_TO_STRING(1, profileName);
         name = V8_NEW_STRING(profileName.CStr());
     }
-    else name = v8::String::Empty(isolate);
+    else
+        name = v8::String::Empty(isolate);
 
     v8::CpuProfilingStatus status = CV8ScriptRuntime::Instance().GetProfiler()->StartProfiling(name, true);
-    if(status == v8::CpuProfilingStatus::kStarted) 
+    if(status == v8::CpuProfilingStatus::kStarted)
     {
         profilerRunningCount++;
         return;
     }
-    else if(status == v8::CpuProfilingStatus::kAlreadyStarted) V8Helpers::Throw(isolate, "A profile with the given name is already running");
-    else if(status == v8::CpuProfilingStatus::kErrorTooManyProfilers) V8Helpers::Throw(isolate, "There are already too many profilers running");
+    else if(status == v8::CpuProfilingStatus::kAlreadyStarted)
+        V8Helpers::Throw(isolate, "A profile with the given name is already running");
+    else if(status == v8::CpuProfilingStatus::kErrorTooManyProfilers)
+        V8Helpers::Throw(isolate, "There are already too many profilers running");
 }
 
 static void StopProfiling(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_CHECK_ARGS_LEN2(0, 1);
-    
+
     v8::Local<v8::String> name;
     if(info.Length() == 1)
     {
         V8_ARG_TO_STRING(1, profileName);
         name = V8_NEW_STRING(profileName.CStr());
     }
-    else name = v8::String::Empty(isolate);
+    else
+        name = v8::String::Empty(isolate);
 
     v8::CpuProfile* result = CV8ScriptRuntime::Instance().GetProfiler()->StopProfiling(name);
     V8_CHECK(result, "The specified profiler is not running");
@@ -99,7 +103,7 @@ static void StopProfiling(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN(resultObj);
 }
 
-static void SamplingIntervalSetter(v8::Local<v8::String>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &info)
+static void SamplingIntervalSetter(v8::Local<v8::String>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_TO_INT32(value, interval);
@@ -109,18 +113,18 @@ static void SamplingIntervalSetter(v8::Local<v8::String>, v8::Local<v8::Value> v
     CV8ScriptRuntime::Instance().SetProfilerSamplingInterval(interval);
 }
 
-static void SamplingIntervalGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void SamplingIntervalGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_RETURN_INT(CV8ScriptRuntime::Instance().GetProfilerSamplingInterval());
 }
 
-static void ProfilesRunningGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void ProfilesRunningGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_RETURN_UINT(profilerRunningCount);
 }
 
 extern V8Class v8Profiler("Profiler", [](v8::Local<v8::FunctionTemplate> tpl) {
-    v8::Isolate *isolate = v8::Isolate::GetCurrent();
+    v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
     V8::SetStaticAccessor(isolate, tpl, "heapStats", GetHeapStatistics);
     V8::SetStaticAccessor(isolate, tpl, "samplingInterval", SamplingIntervalGetter, SamplingIntervalSetter);
@@ -154,13 +158,15 @@ static void GetProfileNodeData(v8::Isolate* isolate, const v8::CpuProfileNode* n
     v8::Local<v8::String> functionName;
     const char* name = node->GetFunctionNameStr();
     if(name == NULL || strlen(name) == 0) functionName = V8_NEW_STRING("(anonymous function)");
-    else functionName = V8_NEW_STRING(name);
+    else
+        functionName = V8_NEW_STRING(name);
     result->Set(ctx, V8_NEW_STRING("function"), functionName);
 
     v8::Local<v8::String> sourceName;
     const char* source = node->GetScriptResourceNameStr();
     if(source == NULL || strlen(source) == 0) sourceName = V8_NEW_STRING("(unknown)");
-    else sourceName = V8_NEW_STRING(source);
+    else
+        sourceName = V8_NEW_STRING(source);
     result->Set(ctx, V8_NEW_STRING("source"), sourceName);
 
     result->Set(ctx, V8_NEW_STRING("sourceType"), V8_NEW_STRING(GetSourceTypeName(node->GetSourceType())));
@@ -169,21 +175,23 @@ static void GetProfileNodeData(v8::Isolate* isolate, const v8::CpuProfileNode* n
     v8::Local<v8::Value> bailoutReason;
     const char* reason = node->GetBailoutReason();
     if(reason == NULL || strlen(reason) == 0) bailoutReason = v8::Null(isolate);
-    else bailoutReason = V8_NEW_STRING(reason);
+    else
+        bailoutReason = V8_NEW_STRING(reason);
     result->Set(ctx, V8_NEW_STRING("bailoutReason"), bailoutReason);
 
     result->Set(ctx, V8_NEW_STRING("hitCount"), v8::Integer::NewFromUnsigned(isolate, node->GetHitCount()));
 
     int64_t timestamp;
     if(nodeMap.count(node->GetNodeId()) == 0) timestamp = -1;
-    else timestamp = nodeMap.at(node->GetNodeId());
+    else
+        timestamp = nodeMap.at(node->GetNodeId());
     result->Set(ctx, V8_NEW_STRING("timestamp"), v8::Integer::New(isolate, timestamp));
 
     // Children
     {
         int childrenCount = node->GetChildrenCount();
         v8::Local<v8::Value> children;
-        if(childrenCount != 0) 
+        if(childrenCount != 0)
         {
             children = v8::Array::New(isolate, childrenCount);
             for(int i = 0; i < childrenCount; i++)
@@ -193,8 +201,9 @@ static void GetProfileNodeData(v8::Isolate* isolate, const v8::CpuProfileNode* n
                 children.As<v8::Array>()->Set(ctx, i, child);
             }
         }
-        else children = v8::Null(isolate);
-        
+        else
+            children = v8::Null(isolate);
+
         result->Set(ctx, V8_NEW_STRING("children"), children);
     }
 
@@ -215,7 +224,8 @@ static void GetProfileNodeData(v8::Isolate* isolate, const v8::CpuProfileNode* n
                 val.As<v8::Array>()->Set(ctx, i, tickObj);
             }
         }
-        else val = v8::Null(isolate);
+        else
+            val = v8::Null(isolate);
         result->Set(ctx, V8_NEW_STRING("lineTicks"), val);
     }
 }
