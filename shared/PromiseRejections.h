@@ -11,8 +11,8 @@ namespace V8
 {
     struct PromiseRejection
     {
-        v8::Persistent<v8::Promise> promise;
-        v8::Persistent<v8::Value> value;
+        V8::CPersistent<v8::Promise> promise;
+        V8::CPersistent<v8::Value> value;
         V8::SourceLocation location;
 
         PromiseRejection(v8::Isolate* isolate, v8::Local<v8::Promise> promise, v8::Local<v8::Value> value, V8::SourceLocation&& location);

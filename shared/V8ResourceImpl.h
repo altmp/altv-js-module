@@ -242,7 +242,7 @@ protected:
     v8::Isolate* isolate;
     alt::IResource* resource;
 
-    v8::Persistent<v8::Context> context;
+    V8::CPersistent<v8::Context> context;
 
     std::unordered_map<alt::IBaseObject*, V8Entity*> entities;
     std::unordered_map<uint32_t, V8Timer*> timers;
@@ -263,10 +263,10 @@ protected:
 
     V8::PromiseRejections promiseRejections;
 
-    v8::Persistent<v8::Function> vector3Class;
-    v8::Persistent<v8::Function> vector2Class;
-    v8::Persistent<v8::Function> rgbaClass;
-    v8::Persistent<v8::Function> baseObjectClass;
+    V8::CPersistent<v8::Function> vector3Class;
+    V8::CPersistent<v8::Function> vector2Class;
+    V8::CPersistent<v8::Function> rgbaClass;
+    V8::CPersistent<v8::Function> baseObjectClass;
 
     // TEMP
     static int64_t GetTime()

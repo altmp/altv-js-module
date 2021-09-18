@@ -10,7 +10,7 @@ class V8Entity
 {
     V8Class* _class;
     alt::Ref<alt::IBaseObject> handle;
-    v8::Persistent<v8::Object> jsVal;
+    v8::Persistent<v8::Object, v8::CopyablePersistentTraits<v8::Object>> jsVal;
 
 public:
     V8Entity(v8::Local<v8::Context> ctx, V8Class* __class, v8::Local<v8::Object> obj, alt::Ref<alt::IBaseObject> _handle) : _class(__class), handle(_handle)

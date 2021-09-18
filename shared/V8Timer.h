@@ -44,8 +44,8 @@ public:
 
 private:
     v8::Isolate* isolate;
-    v8::Persistent<v8::Context> context;
-    v8::Persistent<v8::Function> callback;
+    V8::CPersistent<v8::Context> context;
+    V8::CPersistent<v8::Function> callback;
     int64_t interval;
     int64_t lastRun = 0;
     bool once;
