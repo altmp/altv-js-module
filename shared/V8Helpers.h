@@ -81,8 +81,7 @@ namespace V8
     class SourceLocation
     {
     public:
-        SourceLocation(std::string&& fileName, int line);
-        SourceLocation(){};
+        SourceLocation(std::string&& fileName, int line, v8::Local<v8::Context> ctx);
 
         const std::string& GetFileName() const
         {
@@ -93,9 +92,12 @@ namespace V8
             return line;
         }
 
+        std::string ToString();
+
         static SourceLocation GetCurrent(v8::Isolate* isolate);
 
     private:
+        v8::Persistent<v8::Context, v8::CopyablePersistentTraits<v8::Context>> context;
         std::string fileName;
         int line = 0;
     };
