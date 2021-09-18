@@ -8,7 +8,7 @@
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
-	V8_CHECK_CONSTRUCTOR();
+    V8_CHECK_CONSTRUCTOR();
     V8_CHECK_ARGS_LEN_MIN_MAX(2, 4);
 
     V8_ARG_TO_STRING(1, source);
@@ -28,7 +28,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
             V8_ARG_TO_STRING(3, categ);
             category = alt::ICore::Instance().Hash(categ);
         }
-        if (info.Length() == 4)
+        if(info.Length() == 4)
         {
             V8_ARG_TO_BOOLEAN(4, frntnd);
             frontend = frntnd;
@@ -76,7 +76,7 @@ static void GetEventListeners(const v8::FunctionCallbackInfo<v8::Value>& info)
     std::vector<V8::EventCallback*> handlers = static_cast<CV8ResourceImpl*>(resource)->GetAudioHandlers(audio, eventName.ToString());
 
     auto array = v8::Array::New(isolate, handlers.size());
-    for (int i = 0; i < handlers.size(); i++)
+    for(int i = 0; i < handlers.size(); i++)
     {
         array->Set(ctx, i, handlers[i]->fn.Get(isolate));
     }
@@ -96,7 +96,7 @@ static void CategorySetter(v8::Local<v8::String>, v8::Local<v8::Value> val, cons
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
-    
+
     int64_t category;
     if(val->IsNumber())
     {
@@ -113,7 +113,7 @@ static void CategorySetter(v8::Local<v8::String>, v8::Local<v8::Value> val, cons
 
 static void AddOutput(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	V8_GET_ISOLATE_CONTEXT();
+    V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
     V8_CHECK_ARGS_LEN(1);
 
@@ -131,7 +131,7 @@ static void AddOutput(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void RemoveOutput(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	V8_GET_ISOLATE_CONTEXT();
+    V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
     V8_CHECK_ARGS_LEN(1);
 
@@ -149,7 +149,7 @@ static void RemoveOutput(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void GetOutputs(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
 
     auto list = audio->GetOutputs();
@@ -157,12 +157,12 @@ static void GetOutputs(const v8::FunctionCallbackInfo<v8::Value>& info)
     for(int i = 0; i < list->GetSize(); i++)
     {
         auto val = list->Get(i);
-        if(val->GetType() == alt::IMValue::Type::BASE_OBJECT) 
+        if(val->GetType() == alt::IMValue::Type::BASE_OBJECT)
         {
             auto baseObj = resource->GetBaseObjectOrNull(val.As<alt::IMValueBaseObject>()->Value());
             arr->Set(ctx, i, baseObj);
         }
-        else if(val->GetType() == alt::IMValue::Type::UINT) 
+        else if(val->GetType() == alt::IMValue::Type::UINT)
             arr->Set(ctx, i, v8::Integer::NewFromUnsigned(isolate, val.As<alt::IMValueUInt>()->Value()));
     }
 
@@ -171,7 +171,7 @@ static void GetOutputs(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void Seek(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	V8_GET_ISOLATE_CONTEXT();
+    V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
     V8_CHECK_ARGS_LEN(1);
 
@@ -183,7 +183,7 @@ static void Seek(const v8::FunctionCallbackInfo<v8::Value>& info)
 extern V8Class v8BaseObject;
 extern V8Class v8Audio("Audio", v8BaseObject, &Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
     using namespace alt;
-    v8::Isolate *isolate = v8::Isolate::GetCurrent();
+    v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
     V8::SetMethod(isolate, tpl, "on", &On);
     V8::SetMethod(isolate, tpl, "off", &Off);

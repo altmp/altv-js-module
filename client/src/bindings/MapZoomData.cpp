@@ -12,7 +12,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_CHECK(info[0]->IsNumber() || info[0]->IsString(), "zoomDataId must be a number or string");
 
-    if (info[0]->IsNumber())
+    if(info[0]->IsNumber())
     {
         V8_ARG_TO_UINT32(1, zoomDataId);
         auto data = alt::ICore::Instance().GetMapData(zoomDataId);
@@ -32,7 +32,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
 }
 
-static void Get(const v8::FunctionCallbackInfo<v8::Value> &info)
+static void Get(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE();
     V8_CHECK_ARGS_LEN(1);
@@ -42,12 +42,12 @@ static void Get(const v8::FunctionCallbackInfo<v8::Value> &info)
     V8_RETURN(v8MapZoomData.New(isolate->GetEnteredOrMicrotaskContext(), args));
 }
 
-static void ResetAll(const v8::FunctionCallbackInfo<v8::Value> &info)
+static void ResetAll(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     alt::ICore::Instance().ResetAllMapData();
 }
 
-static void fZoomScaleGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void fZoomScaleGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, zoomDataId);
@@ -58,7 +58,7 @@ static void fZoomScaleGetter(v8::Local<v8::String>, const v8::PropertyCallbackIn
     V8_RETURN_NUMBER(data->GetZoomScale());
 }
 
-static void fZoomScaleSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void fZoomScaleSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, zoomDataId);
@@ -70,7 +70,7 @@ static void fZoomScaleSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, co
     data->SetZoomScale((float)fvalue);
 }
 
-static void fZoomSpeedGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void fZoomSpeedGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, zoomDataId);
@@ -82,7 +82,7 @@ static void fZoomSpeedGetter(v8::Local<v8::String>, const v8::PropertyCallbackIn
     V8_RETURN_NUMBER(data->GetZoomSpeed());
 }
 
-static void fZoomSpeedSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void fZoomSpeedSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, zoomDataId);
@@ -94,7 +94,7 @@ static void fZoomSpeedSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, co
     data->SetZoomSpeed((float)fvalue);
 }
 
-static void fScrollSpeedGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void fScrollSpeedGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, zoomDataId);
@@ -106,7 +106,7 @@ static void fScrollSpeedGetter(v8::Local<v8::String>, const v8::PropertyCallback
     V8_RETURN_NUMBER(data->GetScrollSpeed());
 }
 
-static void fScrollSpeedSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void fScrollSpeedSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, zoomDataId);
@@ -118,7 +118,7 @@ static void fScrollSpeedSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, 
     data->SetScrollSpeed((float)fvalue);
 }
 
-static void vTilesXGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void vTilesXGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, zoomDataId);
@@ -130,7 +130,7 @@ static void vTilesXGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<
     V8_RETURN_NUMBER(data->GetTilesCountX());
 }
 
-static void vTilesXSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void vTilesXSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, zoomDataId);
@@ -142,7 +142,7 @@ static void vTilesXSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const
     data->SetTilesCountX((float)fvalue);
 }
 
-static void vTilesYGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value> &info)
+static void vTilesYGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, zoomDataId);
@@ -154,7 +154,7 @@ static void vTilesYGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<
     V8_RETURN_NUMBER(data->GetTilesCountY());
 }
 
-static void vTilesYSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void vTilesYSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, zoomDataId);
@@ -166,7 +166,7 @@ static void vTilesYSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const
     data->SetTilesCountY((float)fvalue);
 }
 
-static void Reset(const v8::FunctionCallbackInfo<v8::Value> &info)
+static void Reset(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, zoomDataId);
@@ -176,7 +176,7 @@ static void Reset(const v8::FunctionCallbackInfo<v8::Value> &info)
 
 // Perhaps rename or something
 extern V8Class v8MapZoomData("MapZoomData", Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
-    v8::Isolate *isolate = v8::Isolate::GetCurrent();
+    v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
     v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
 
