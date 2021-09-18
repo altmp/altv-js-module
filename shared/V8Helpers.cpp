@@ -390,6 +390,7 @@ v8::Local<v8::Value> V8::New(v8::Isolate* isolate, v8::Local<v8::Context> ctx, v
 V8::SourceLocation V8::SourceLocation::GetCurrent(v8::Isolate* isolate)
 {
     v8::Local<v8::StackTrace> stackTrace = v8::StackTrace::CurrentStackTrace(isolate, 1);
+    auto ctx = isolate->GetEnteredOrMicrotaskContext();
     if(stackTrace->GetFrameCount() > 0)
     {
         v8::Local<v8::StackFrame> frame = stackTrace->GetFrame(isolate, 0);
@@ -400,18 +401,28 @@ V8::SourceLocation V8::SourceLocation::GetCurrent(v8::Isolate* isolate)
             std::string fileName = *v8::String::Utf8Value(isolate, frame->GetScriptName());
             int line = frame->GetLineNumber();
 
-            return SourceLocation{ std::move(fileName), line };
+            return SourceLocation{ std::move(fileName), line, ctx };
         }
         else if(frame->IsEval())
         {
-            return SourceLocation{ "[eval]", 0 };
+            return SourceLocation{ "[eval]", 0, ctx };
         }
     }
 
-    return SourceLocation{ "[unknown]", 0 };
+    return SourceLocation{ "[unknown]", 0, ctx };
 }
 
-V8::SourceLocation::SourceLocation(std::string&& _fileName, int _line) : fileName(_fileName), line(_line) {}
+V8::SourceLocation::SourceLocation(std::string&& _fileName, int _line, v8::Local<v8::Context> ctx) : fileName(_fileName), line(_line)
+{
+    context.Reset(ctx->GetIsolate(), ctx);
+}
+
+std::string V8::SourceLocation::ToString()
+{
+    std::stringstream stream;
+    stream << "[" << V8ResourceImpl::Get(context.Get(v8::Isolate::GetCurrent()))->GetResource()->GetName().CStr() << ":" << fileName << ":" << line << "]";
+    return stream.str();
+}
 
 v8::Local<v8::String> V8::Vector3_XKey(v8::Isolate* isolate)
 {
