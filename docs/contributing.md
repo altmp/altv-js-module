@@ -86,12 +86,10 @@ and if they think that the documentation for the code is lacking, they might ask
 to your code.
 
 ### Style
-~~This repository includes `.editorconfig` and `ClangFormat` code style definitions to make sure the style is consistent across the whole codebase.~~
+This repository includes `.editorconfig` and `ClangFormat` code style definitions to make sure the style is consistent across the whole codebase.
 
-~~Please make sure to configure your code editor to conform to these style definitions, it is also recommended to enable `Format on save`
-to make sure you don't forget to format the files using the provided style.~~
-
-**This section is currently under construction.**
+Please make sure to configure your code editor to conform to these style definitions, it is also recommended to enable `Format on save`
+to make sure you don't forget to format the files using the provided style.
 
 ### ToDos
 It is allowed to add `todo` comments to your code, for e.g. later optimizations that aren't needed for the initial implementation
@@ -120,5 +118,5 @@ Log::Warning << "alt.oldFunction is deprecated. Consider using alt.newFunction i
 
 ## Contact
 
-If you have any questions about making a pull request, don't hesitate to contact a module maintainer, 
+If you have any questions about making a pull request, don't hesitate to contact a module maintainer,
 you can usually find them by asking on the [official Discord server](https://discord.altv.mp).

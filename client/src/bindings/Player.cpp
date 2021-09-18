@@ -14,14 +14,14 @@ using namespace alt;
 
 static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	V8_GET_ISOLATE_CONTEXT();
+    V8_GET_ISOLATE_CONTEXT();
 
     V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
 
-	std::ostringstream ss;
-	ss << "Player{ id: " << std::to_string(player->GetID()) << ", name: " << player->GetName().CStr() << " }";
+    std::ostringstream ss;
+    ss << "Player{ id: " << std::to_string(player->GetID()) << ", name: " << player->GetName().CStr() << " }";
 
-	V8_RETURN_STRING(ss.str().c_str());
+    V8_RETURN_STRING(ss.str().c_str());
 }
 
 static void CurrentWeaponComponentsGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -33,8 +33,7 @@ static void CurrentWeaponComponentsGetter(v8::Local<v8::String>, const v8::Prope
 
     v8::Local<v8::Array> componentsArray = v8::Array::New(isolate, comps.GetSize());
 
-    for (uint32_t i = 0; i < comps.GetSize(); ++i)
-        componentsArray->Set(ctx, i, v8::Integer::NewFromUnsigned(isolate, comps[i]));
+    for(uint32_t i = 0; i < comps.GetSize(); ++i) componentsArray->Set(ctx, i, v8::Integer::NewFromUnsigned(isolate, comps[i]));
 
     V8_RETURN(componentsArray);
 }
@@ -136,7 +135,7 @@ extern V8Class v8Player("Player", v8Entity, [](v8::Local<v8::FunctionTemplate> t
 
     // Weapon getters
     V8::SetAccessor(isolate, tpl, "currentWeaponComponents", &CurrentWeaponComponentsGetter);
-    //V8::SetAccessor(isolate, tpl, "currentWeaponTintIndex", &CurrentWeaponTintIndexGetter);
+    // V8::SetAccessor(isolate, tpl, "currentWeaponTintIndex", &CurrentWeaponTintIndexGetter);
     V8::SetAccessor<IPlayer, uint32_t, &IPlayer::GetCurrentWeapon>(isolate, tpl, "currentWeapon");
     V8::SetAccessor<IPlayer, Ref<IEntity>, &IPlayer::GetEntityAimingAt>(isolate, tpl, "entityAimingAt");
     V8::SetAccessor<IPlayer, Position, &IPlayer::GetEntityAimOffset>(isolate, tpl, "entityAimOffset");
@@ -144,11 +143,11 @@ extern V8Class v8Player("Player", v8Entity, [](v8::Local<v8::FunctionTemplate> t
     V8::SetAccessor<IPlayer, Position, &IPlayer::GetAimPos>(isolate, tpl, "aimPos");
 
     // Gamestate getters
-    //V8::SetAccessor(isolate, tpl, "isJumping", &IsJumpingGetter);
+    // V8::SetAccessor(isolate, tpl, "isJumping", &IsJumpingGetter);
     V8::SetAccessor<IPlayer, bool, &IPlayer::IsInRagdoll>(isolate, tpl, "isInRagdoll");
     V8::SetAccessor<IPlayer, bool, &IPlayer::IsAiming>(isolate, tpl, "isAiming");
-    //V8::SetAccessor(isolate, tpl, "isShooting", &IsShootingGetter);
-    //V8::SetAccessor(isolate, tpl, "isReloading", &IsReloadingGetter);
+    // V8::SetAccessor(isolate, tpl, "isShooting", &IsShootingGetter);
+    // V8::SetAccessor(isolate, tpl, "isReloading", &IsReloadingGetter);
     V8::SetAccessor<IPlayer, bool, &IPlayer::IsDead>(isolate, tpl, "isDead");
     V8::SetAccessor<IPlayer, float, &IPlayer::GetMoveSpeed>(isolate, tpl, "moveSpeed");
     V8::SetAccessor<IPlayer, Rotation, &IPlayer::GetHeadRotation>(isolate, tpl, "headRot");
