@@ -84,12 +84,9 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate* isolate = info.GetIsolate();
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-    V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredContext());
-    V8_CHECK(resource, "invalid resource");
-
-    info.GetReturnValue().Set(resource->GetAllVehicles());
+    V8_RETURN(resource->GetAllVehicles());
 }
 
 static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
