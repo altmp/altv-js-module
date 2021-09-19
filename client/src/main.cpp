@@ -3,9 +3,9 @@
 #include "Log.h"
 
 #ifdef ALTV_JS_SHARED
-#define ALTV_JS_EXPORT extern "C" __declspec(dllexport)
+    #define ALTV_JS_EXPORT extern "C" __declspec(dllexport)
 #else
-#define ALTV_JS_EXPORT extern "C"
+    #define ALTV_JS_EXPORT extern "C"
 #endif
 
 static void HeapCommand(alt::Array<alt::StringView>, void* runtime)
@@ -26,29 +26,29 @@ static void TimersCommand(alt::Array<alt::StringView>, void* runtime)
 
 static void ClientJSCommand(alt::Array<alt::StringView> args, void*)
 {
-    if (args.GetSize() > 0 && args[0] == "--version")
-	{
-		Log::Colored << "~ly~cpp-sdk: v" << alt::ICore::SDK_VERSION << Log::Endl;
-		Log::Colored << "~ly~" << u8"Copyright © 2020 altMP team." << Log::Endl;
+    if(args.GetSize() > 0 && args[0] == "--version")
+    {
+        Log::Colored << "~ly~cpp-sdk: v" << alt::ICore::SDK_VERSION << Log::Endl;
+        Log::Colored << "~ly~" << u8"Copyright © 2020 altMP team." << Log::Endl;
 
-		Log::Colored << "~ly~v8: v" << V8_MAJOR_VERSION << "." << V8_MINOR_VERSION << Log::Endl;
-		Log::Colored << "~ly~" << u8"Copyright © 2014 The V8 project authors." << Log::Endl;
-	}
-	else if (args.GetSize() > 0 && args[0] == "--help")
-	{
-		Log::Colored << "~y~Usage: ~w~js-module [options]" << Log::Endl;
-		Log::Colored << "~y~Options:" << Log::Endl;
-		Log::Colored << "  ~ly~--help    ~w~- this message." << Log::Endl;
-		Log::Colored << "  ~ly~--version ~w~- version info." << Log::Endl;
-	}
-	else
-	{
-		Log::Colored << "~y~Usage: ~w~js-module [options]" << Log::Endl;
-		Log::Colored << "  Use: ~ly~\"js-module --help\" ~w~for more info" << Log::Endl;
-	}
+        Log::Colored << "~ly~v8: v" << V8_MAJOR_VERSION << "." << V8_MINOR_VERSION << Log::Endl;
+        Log::Colored << "~ly~" << u8"Copyright © 2014 The V8 project authors." << Log::Endl;
+    }
+    else if(args.GetSize() > 0 && args[0] == "--help")
+    {
+        Log::Colored << "~y~Usage: ~w~js-module [options]" << Log::Endl;
+        Log::Colored << "~y~Options:" << Log::Endl;
+        Log::Colored << "  ~ly~--help    ~w~- this message." << Log::Endl;
+        Log::Colored << "  ~ly~--version ~w~- version info." << Log::Endl;
+    }
+    else
+    {
+        Log::Colored << "~y~Usage: ~w~js-module [options]" << Log::Endl;
+        Log::Colored << "  Use: ~ly~\"js-module --help\" ~w~for more info" << Log::Endl;
+    }
 }
 
-ALTV_JS_EXPORT void CreateScriptRuntime(alt::ICore *core)
+ALTV_JS_EXPORT void CreateScriptRuntime(alt::ICore* core)
 {
     alt::ICore::SetInstance(core);
     auto& runtime = CV8ScriptRuntime::Instance();

@@ -14,14 +14,14 @@ using namespace alt;
 
 static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	V8_GET_ISOLATE_CONTEXT();
+    V8_GET_ISOLATE_CONTEXT();
 
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-	std::ostringstream ss;
-	ss << "Vehicle{ id: " << std::to_string(vehicle->GetID()) << ", model: " << std::to_string((uint64_t)vehicle->GetModel()) << " }";
+    std::ostringstream ss;
+    ss << "Vehicle{ id: " << std::to_string(vehicle->GetID()) << ", model: " << std::to_string((uint64_t)vehicle->GetModel()) << " }";
 
-	V8_RETURN_STRING(ss.str().c_str());
+    V8_RETURN_STRING(ss.str().c_str());
 }
 
 static void HandlingGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -109,7 +109,7 @@ static void IndicatorLightsGetter(v8::Local<v8::String>, const v8::PropertyCallb
     V8_RETURN_INT(vehicle->GetLightsIndicator());
 }
 
-static void IndicatorLightsSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void IndicatorLightsSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
