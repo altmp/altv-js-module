@@ -836,6 +836,16 @@ static void ClearPedProps(const v8::FunctionCallbackInfo<v8::Value>& info)
 	alt::ICore::Instance().ClearProps(scriptId, component);
 }
 
+static void SetWatermarkPosition(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+	V8_GET_ISOLATE_CONTEXT();
+	V8_CHECK_ARGS_LEN(1);
+
+	V8_ARG_TO_INT(1, pos);
+
+	alt::ICore::Instance().SetWatermarkPosition(pos);
+}
+
 extern V8Module sharedModule;
 extern V8Class v8Player,
 	v8Player,
@@ -971,4 +981,6 @@ extern V8Module altModule(
 		V8Helpers::RegisterFunc(exports, "setPedDlcClothes", &SetPedDlcClothes);
 		V8Helpers::RegisterFunc(exports, "setPedDlcProp", &SetPedDlcProps);
 		V8Helpers::RegisterFunc(exports, "clearPedProp", &ClearPedProps);
+
+		V8Helpers::RegisterFunc(exports, "setWatermarkPosition", &SetWatermarkPosition);
 	});
