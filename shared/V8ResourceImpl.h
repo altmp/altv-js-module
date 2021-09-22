@@ -222,6 +222,7 @@ public:
 
     v8::Local<v8::Array> GetAllPlayers();
     v8::Local<v8::Array> GetAllVehicles();
+    v8::Local<v8::Array> GetAllBlips();
 
     std::vector<V8::EventCallback*> GetLocalHandlers(const std::string& name);
     std::vector<V8::EventCallback*> GetRemoteHandlers(const std::string& name);

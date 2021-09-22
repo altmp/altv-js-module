@@ -218,6 +218,16 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllPlayers()
     return players.Get(isolate);
 }
 
+v8::Local<v8::Array> V8ResourceImpl::GetAllBlips()
+{
+    Array<Ref<IBlip>> all = ICore::Instance().GetBlips();
+    v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.GetSize());
+
+    for(uint32_t i = 0; i < all.GetSize(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
+
+    return jsAll;
+}
+
 v8::Local<v8::Array> V8ResourceImpl::GetAllVehicles()
 {
     if(vehiclePoolDirty)
