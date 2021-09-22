@@ -134,13 +134,21 @@ static void Fade(const v8::FunctionCallbackInfo<v8::Value>& info)
     blip->Fade(opacity, duration);
 }
 
+static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+
+    V8_RETURN(resource->GetAllBlips()->Clone());
+}
+
 extern V8Class v8WorldObject;
 extern V8Class v8Blip("Blip", v8WorldObject, Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
     using namespace alt;
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
     V8::SetMethod(isolate, tpl, "toString", ToString);
-
+    
+    V8::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
     V8::SetStaticAccessor(isolate, tpl, "routeColor", &RouteColorGetter, &RouteColorSetter);
 
     V8::SetAccessor<IBlip, int32_t, &IBlip::GetSprite, &IBlip::SetSprite>(isolate, tpl, "sprite");
@@ -161,8 +169,8 @@ extern V8Class v8Blip("Blip", v8WorldObject, Constructor, [](v8::Local<v8::Funct
     V8::SetAccessor<IBlip, bool, &IBlip::GetAsShortRange, &IBlip::SetAsShortRange>(isolate, tpl, "shortRange");
     V8::SetAccessor<IBlip, int32_t, &IBlip::GetPriority, &IBlip::SetPriority>(isolate, tpl, "priority");
     V8::SetAccessor<IBlip, float, &IBlip::GetRotation, &IBlip::SetRotation>(isolate, tpl, "heading");
-    V8::SetAccessor<IBlip, alt::StringView, &IBlip::GetGxtName, &IBlip::SetGxtName>(isolate, tpl, "gxtName");
-    V8::SetAccessor<IBlip, alt::StringView, &IBlip::GetName, &IBlip::SetName>(isolate, tpl, "name");
+    V8::SetAccessor<IBlip, alt::String, &IBlip::GetGxtName, &IBlip::SetGxtName>(isolate, tpl, "gxtName");
+    V8::SetAccessor<IBlip, alt::String, &IBlip::GetName, &IBlip::SetName>(isolate, tpl, "name");
     V8::SetAccessor<IBlip, bool, &IBlip::GetPulse, &IBlip::SetPulse>(isolate, tpl, "pulse");
     V8::SetAccessor<IBlip, bool, &IBlip::GetAsMissionCreator, &IBlip::SetAsMissionCreator>(isolate, tpl, "asMissionCreator");
     V8::SetAccessor<IBlip, bool, &IBlip::GetTickVisible, &IBlip::SetTickVisible>(isolate, tpl, "tickVisible");
