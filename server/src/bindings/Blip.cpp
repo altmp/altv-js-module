@@ -10,15 +10,25 @@ static void PointConstructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-    V8_CHECK_ARGS_LEN(3);
+    V8_CHECK_ARGS_LEN2(1, 3);
 
-    V8_ARG_TO_NUMBER(1, x);
-    V8_ARG_TO_NUMBER(2, y);
-    V8_ARG_TO_NUMBER(3, z);
+    Ref<IBlip> blip;
 
-    alt::Position pos(x, y, z);
+    if (info.Length() == 3)
+    {
+        V8_ARG_TO_NUMBER(1, x);
+        V8_ARG_TO_NUMBER(2, y);
+        V8_ARG_TO_NUMBER(3, z);
 
-    Ref<IBlip> blip = ICore::Instance().CreateBlip(nullptr, alt::IBlip::BlipType::DESTINATION, pos);
+        alt::Position pos(x, y, z);
+        blip = ICore::Instance().CreateBlip(nullptr, alt::IBlip::BlipType::DESTINATION, pos);
+    }
+
+    if (info.Length() == 1)
+    {
+        V8_ARG_TO_BASE_OBJECT(1, ent, IEntity, "entity");
+        blip = ICore::Instance().CreateBlip(nullptr, alt::IBlip::BlipType::DESTINATION, ent);
+    }    
 
     V8_BIND_BASE_OBJECT(blip, "Failed to create blip!");
 }
