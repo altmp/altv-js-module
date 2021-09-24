@@ -332,10 +332,10 @@ static void GetRemoteEventListeners(const v8::FunctionCallbackInfo<v8::Value>& i
     V8_RETURN(array);
 }
 
-extern V8Class v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2, v8Vector3;
+extern V8Class v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2, v8Vector3, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip;
 
 extern V8Module
-  sharedModule("alt-shared", nullptr, { v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2, v8Vector3 }, [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
+  sharedModule("alt-shared", nullptr, { v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2, v8Vector3, v8Blip,	v8AreaBlip,	v8RadiusBlip, v8PointBlip }, [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
       v8::Isolate* isolate = ctx->GetIsolate();
 
       V8Helpers::RegisterFunc(exports, "hash", &HashCb);
