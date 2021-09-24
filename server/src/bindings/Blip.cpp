@@ -116,10 +116,20 @@ static void Fade(const v8::FunctionCallbackInfo<v8::Value>& info)
     blip->Fade(opacity, duration);
 }
 
+static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+
+    V8_RETURN(resource->GetAllBlips()->Clone());
+}
+
 extern V8Class v8WorldObject;
 extern V8Class v8Blip("Blip", v8WorldObject, Constructor, [](v8::Local<v8::FunctionTemplate> tpl)
 {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
+
+    V8::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
+    V8::SetStaticAccessor(isolate, tpl, "routeColor", &RouteColorGetter, &RouteColorSetter);
 
     V8::SetAccessor<IBlip, int32_t, &IBlip::GetSprite, &IBlip::SetSprite>(isolate, tpl, "sprite");
     V8::SetAccessor<IBlip, Vector2f, &IBlip::GetScaleXY, &IBlip::SetScaleXY>(isolate, tpl, "size");
