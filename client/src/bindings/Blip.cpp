@@ -66,28 +66,6 @@ static void ConstructorPointBlip(const v8::FunctionCallbackInfo<v8::Value>& info
     V8_BIND_BASE_OBJECT(blip, "Failed to create PointBlip");
 }
 
-static void ConstructorPedBlip(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_CHECK_CONSTRUCTOR();
-    V8_CHECK_ARGS_LEN(1);
-    V8_ARG_TO_INT(1, pedId);
-
-    alt::Ref<alt::IBlip> blip = alt::ICore::Instance().CreateBlip(alt::IBlip::BlipType::PED, pedId);
-    V8_BIND_BASE_OBJECT(blip, "Failed to create PedBlip");
-}
-
-static void ConstructorVehicleBlip(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_CHECK_CONSTRUCTOR();
-    V8_CHECK_ARGS_LEN(1);
-    V8_ARG_TO_INT(1, vehicleId);
-
-    alt::Ref<alt::IBlip> blip = alt::ICore::Instance().CreateBlip(alt::IBlip::BlipType::VEHICLE, vehicleId);
-    V8_BIND_BASE_OBJECT(blip, "Failed to create VehicleBlip");
-}
-
 static void RouteColorGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -200,18 +178,6 @@ extern V8Class v8RadiusBlip("RadiusBlip", v8Blip, ConstructorRadiusBlip, [](v8::
 });
 
 extern V8Class v8PointBlip("PointBlip", v8Blip, ConstructorPointBlip, [](v8::Local<v8::FunctionTemplate> tpl) {
-    v8::Isolate* isolate = v8::Isolate::GetCurrent();
-
-    v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
-});
-
-extern V8Class v8PedBlip("PedBlip", v8Blip, ConstructorPedBlip, [](v8::Local<v8::FunctionTemplate> tpl) {
-    v8::Isolate* isolate = v8::Isolate::GetCurrent();
-
-    v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
-});
-
-extern V8Class v8VehicleBlip("VehicleBlip", v8Blip, ConstructorVehicleBlip, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
     v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
