@@ -6,7 +6,45 @@
 
 using namespace alt;
 
-static void PointConstructor(const v8::FunctionCallbackInfo<v8::Value>& info)
+static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_CONSTRUCTOR();
+    V8_CHECK(false, "You can't use constructor of abstract class");
+}
+
+static void ConstructorAreaBlip(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_CONSTRUCTOR();
+    V8_CHECK_ARGS_LEN(5);
+    V8_ARG_TO_NUMBER(1, x);
+    V8_ARG_TO_NUMBER(2, y);
+    V8_ARG_TO_NUMBER(3, z);
+    V8_ARG_TO_NUMBER(4, width);
+    V8_ARG_TO_NUMBER(5, height);
+
+    alt::Ref<alt::IBlip> blip = ICore::Instance().CreateBlip(nullptr, alt::IBlip::BlipType::AREA, { x, y, z });
+    V8_BIND_BASE_OBJECT(blip, "Failed to create AreaBlip");
+    blip->SetScaleXY({ width, height });
+}
+
+static void ConstructorRadiusBlip(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_CONSTRUCTOR();
+    V8_CHECK_ARGS_LEN(4);
+    V8_ARG_TO_NUMBER(1, x);
+    V8_ARG_TO_NUMBER(2, y);
+    V8_ARG_TO_NUMBER(3, z);
+    V8_ARG_TO_NUMBER(4, radius);
+
+    alt::Ref<alt::IBlip> blip = ICore::Instance().CreateBlip(nullptr, alt::IBlip::BlipType::RADIUS, { x, y, z });
+    V8_BIND_BASE_OBJECT(blip, "Failed to create RadiusBlip");
+    blip->SetScaleXY({ radius, radius });
+}
+
+static void ConstructorPointBlip(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
@@ -20,8 +58,7 @@ static void PointConstructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_ARG_TO_NUMBER(2, y);
         V8_ARG_TO_NUMBER(3, z);
 
-        alt::Position pos(x, y, z);
-        blip = ICore::Instance().CreateBlip(nullptr, alt::IBlip::BlipType::DESTINATION, pos);
+        blip = ICore::Instance().CreateBlip(nullptr, alt::IBlip::BlipType::DESTINATION, { x, y, z });
     }
 
     if (info.Length() == 1)
@@ -30,7 +67,7 @@ static void PointConstructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         blip = ICore::Instance().CreateBlip(nullptr, alt::IBlip::BlipType::DESTINATION, ent);
     }    
 
-    V8_BIND_BASE_OBJECT(blip, "Failed to create blip!");
+    V8_BIND_BASE_OBJECT(blip, "Failed to create PointBlip");
 }
 
 static void RouteColorGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -69,10 +106,18 @@ static void ScaleSetter(v8::Local<v8::String>, v8::Local<v8::Value> value, const
     blip->SetScaleXY({ val, val });
 }
 
-extern V8Class v8WorldObject;
-extern V8Class v8Blip("Blip", v8WorldObject, nullptr, [](v8::Local<v8::FunctionTemplate> tpl) { v8::Isolate* isolate = v8::Isolate::GetCurrent(); });
+static void Fade(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+    V8_ARG_TO_INT(1, opacity);
+    V8_ARG_TO_INT(2, duration);
+    V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+    blip->Fade(opacity, duration);
+}
 
-extern V8Class v8PointBlip("PointBlip", v8Blip, PointConstructor, [](v8::Local<v8::FunctionTemplate> tpl)
+extern V8Class v8WorldObject;
+extern V8Class v8Blip("Blip", v8WorldObject, Constructor, [](v8::Local<v8::FunctionTemplate> tpl)
 {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
@@ -106,12 +151,22 @@ extern V8Class v8PointBlip("PointBlip", v8Blip, PointConstructor, [](v8::Local<v
     V8::SetAccessor<IBlip, int32_t, &IBlip::GetCategory, &IBlip::SetCategory>(isolate, tpl, "category");
     V8::SetAccessor<IBlip, bool, &IBlip::GetAsHighDetail, &IBlip::SetAsHighDetail>(isolate, tpl, "highDetail");
     V8::SetAccessor<IBlip, bool, &IBlip::GetShrinked, &IBlip::SetShrinked>(isolate, tpl, "shrinked");
+    V8::SetAccessor<IBlip, Ref<IEntity>, &IBlip::AttachedTo, &IBlip::AttachTo>(isolate, tpl, "attachedTo");
 
-    //V8::SetAccessor<IBlip, uint32_t, &IBlip::GetScriptID>(isolate, tpl, "scriptID");
-
-    //V8::SetMethod(isolate, tpl, "fade", &Fade);
+    V8::SetMethod(isolate, tpl, "fade", &Fade);
 });
 
-/*static V8Class v8EntityBlip("EntityBlip", "Blip", nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
-        v8::Isolate* isolate = v8::Isolate::GetCurrent();
-});*/
+extern V8Class v8AreaBlip("AreaBlip", v8Blip, ConstructorAreaBlip, [](v8::Local<v8::FunctionTemplate> tpl) {
+    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+    v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
+});
+
+extern V8Class v8RadiusBlip("RadiusBlip", v8Blip, ConstructorRadiusBlip, [](v8::Local<v8::FunctionTemplate> tpl) {
+    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+    v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
+});
+
+extern V8Class v8PointBlip("PointBlip", v8Blip, ConstructorPointBlip, [](v8::Local<v8::FunctionTemplate> tpl) {
+    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+    v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
+});

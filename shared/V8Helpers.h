@@ -331,6 +331,10 @@ namespace V8
     alt::RGBA val;             \
     V8_CHECK(V8::SafeToRGBA((v8Val), ctx, val), "Failed to convert value to RGBA")
 
+#define V8_TO_ENTITY(v8Val, val) \
+    alt::Ref<IEntity> val;                                    \
+    V8_CHECK(V8::SafeToBaseObject<IEntity>(v8Val, isolate, val), "Failed to convert to BaseObject")
+
 #define V8_OBJECT_GET_NUMBER(v8Val, prop, val) V8_TO_NUMBER((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)
 
 #define V8_OBJECT_SET_NUMBER(v8Val, prop, val) (v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::Number::New(isolate, val));
