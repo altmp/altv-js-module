@@ -8,7 +8,7 @@ on:
       - "server/**"
 
 jobs:
-  test-windows:
+  test-server-windows:
     name: Test changes on Windows
     runs-on: windows-2019
     steps:
@@ -27,7 +27,7 @@ jobs:
           cmake -G"Visual Studio 16" -A x64 ..
           cmake --build . --config Release
 
-  test-linux:
+  test-server-linux:
     name: Test changes on Linux
     runs-on: ubuntu-18.04
     steps:
