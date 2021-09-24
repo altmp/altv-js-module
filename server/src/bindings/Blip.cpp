@@ -116,6 +116,21 @@ static void Fade(const v8::FunctionCallbackInfo<v8::Value>& info)
     blip->Fade(opacity, duration);
 }
 
+static void AttachedToGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+    V8_RETURN_BASE_OBJECT(blip);
+}
+
+static void AttachedToSetter(v8::Local<v8::String>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+    V8_TO_ENTITY(value, val);
+    blip->AttachTo(val);
+}
+
 static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -161,7 +176,8 @@ extern V8Class v8Blip("Blip", v8WorldObject, Constructor, [](v8::Local<v8::Funct
     V8::SetAccessor<IBlip, int32_t, &IBlip::GetCategory, &IBlip::SetCategory>(isolate, tpl, "category");
     V8::SetAccessor<IBlip, bool, &IBlip::GetAsHighDetail, &IBlip::SetAsHighDetail>(isolate, tpl, "highDetail");
     V8::SetAccessor<IBlip, bool, &IBlip::GetShrinked, &IBlip::SetShrinked>(isolate, tpl, "shrinked");
-    V8::SetAccessor<IBlip, Ref<IEntity>, &IBlip::AttachedTo, &IBlip::AttachTo>(isolate, tpl, "attachedTo");
+
+    V8::SetAccessor(isolate, tpl, "attachedTo", &AttachedToGetter, &AttachedToSetter);
 
     V8::SetMethod(isolate, tpl, "fade", &Fade);
 });
