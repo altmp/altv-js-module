@@ -65,7 +65,7 @@ namespace V8
         V8_CALL_SETTER(alt::Vector3f, V8_GET_ISOLATE_CONTEXT, V8_TO_VECTOR3);
         V8_CALL_SETTER(alt::Vector2f, V8_GET_ISOLATE_CONTEXT, V8_TO_VECTOR2);
         V8_CALL_SETTER(alt::RGBA, V8_GET_ISOLATE_CONTEXT, V8_TO_RGBA);
-        V8_CALL_SETTER(alt::Ref<alt::IEntity>, V8_GET_ISOLATE_CONTEXT, V8_TO_ENTITY);
+        //V8_CALL_SETTER(alt::Ref<alt::IEntity>, V8_GET_ISOLATE_CONTEXT, V8_TO_ENTITY);
 
         template<class T, class U, U (T::*Getter)() const>
         static void WrapGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
