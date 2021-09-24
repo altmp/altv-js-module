@@ -5,13 +5,13 @@ IndentWidth: 4
 Language: Cpp
 ColumnLimit: 190
 AccessModifierOffset: 0
-AlignAfterOpenBracket: Align
+AlignAfterOpenBracket: true
 #AlignConsecutiveAssignments: true
 AlignConsecutiveBitFields: true
 #AlignConsecutiveDeclarations: true
 AlignConsecutiveMacros: true
 AlignEscapedNewlines: Left
-AlignOperands: Align
+AlignOperands: true
 AlignTrailingComments: true
 AllowAllArgumentsOnNextLine: true
 AllowAllConstructorInitializersOnNextLine: true
@@ -27,7 +27,7 @@ AlwaysBreakBeforeMultilineStrings: false
 AlwaysBreakTemplateDeclarations: Yes
 BinPackArguments: false
 BinPackParameters: false
-BitFieldColonSpacing: Both
+#BitFieldColonSpacing: Both
 BraceWrapping: Custom
 BraceWrapping:
   AfterCaseLabel: true
