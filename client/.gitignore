@@ -1,6 +1,5 @@
 # Build files
 BUILD/
-deps/v8/
 dist/
 
 # Editors
