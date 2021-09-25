@@ -1,0 +1,32 @@
+# Set build arguments here. See `gn help buildargs`.
+#
+# dynamic_crt (/MD): http://blogs.stonesteps.ca/showpost.aspx?pid=65
+# If you would like to build the v8 as a static library, but use a dynamically-linked C runtime,
+# you need to edit build/config/win/BUILD.gn and change the section config("default_crt"),
+# under the line # Desktop Windows: static CRT. to dynamic_crt.
+#
+
+is_debug = false
+v8_enable_backtrace = false
+v8_enable_slow_dchecks = false
+v8_optimized_debug = false
+symbol_level = 0
+v8_symbol_level = 0
+enable_iterator_debugging = false
+
+target_cpu = "x64"
+v8_target_cpu = "x64"
+target_os = "win"
+is_component_build = false
+v8_static_library = true
+v8_monolithic = true
+v8_use_external_startup_data = false
+
+use_custom_libcxx = false
+use_custom_libcxx_for_host = false
+treat_warnings_as_errors = false
+v8_enable_i18n_support = false
+
+is_clang = false
+use_lld = false
+visual_studio_version = "2019"
