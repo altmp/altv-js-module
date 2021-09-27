@@ -273,7 +273,6 @@ namespace V8
     {
         return v8::BigInt::NewFromUnsigned(v8::Isolate::GetCurrent(), val);
     }
-    // * This needs to be implemented in the header because of the template
     template<class T>
     inline v8::Local<v8::Array> JSValue(alt::Array<T>& arr)
     {
