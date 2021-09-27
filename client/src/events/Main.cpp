@@ -100,7 +100,7 @@ V8_EVENT_HANDLER keyboardEvent(
       auto ev = static_cast<const alt::CKeyboardEvent*>(e);
       v8::Isolate* isolate = resource->GetIsolate();
 
-      args.push_back(v8::Integer::NewFromUnsigned(isolate, ev->GetKeyCode()));
+      args.push_back(V8::JSValue(ev->GetKeyCode()));
   });
 
 V8_LOCAL_EVENT_HANDLER render(EventType::RENDER, "render", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {});

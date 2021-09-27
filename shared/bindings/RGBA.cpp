@@ -33,10 +33,10 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_INT(4, a);
     V8_CHECK(a >= 0 && a < 256, "Invalid RGBA A value. Allowed is 0 - 255");
 
-    V8::DefineOwnProperty(isolate, ctx, info.This(), V8::RGBA_RKey(isolate), v8::Integer::New(isolate, r), v8::PropertyAttribute::ReadOnly);
-    V8::DefineOwnProperty(isolate, ctx, info.This(), V8::RGBA_GKey(isolate), v8::Integer::New(isolate, g), v8::PropertyAttribute::ReadOnly);
-    V8::DefineOwnProperty(isolate, ctx, info.This(), V8::RGBA_BKey(isolate), v8::Integer::New(isolate, b), v8::PropertyAttribute::ReadOnly);
-    V8::DefineOwnProperty(isolate, ctx, info.This(), V8::RGBA_AKey(isolate), v8::Integer::New(isolate, a), v8::PropertyAttribute::ReadOnly);
+    V8::DefineOwnProperty(isolate, ctx, info.This(), V8::RGBA_RKey(isolate), V8::JSValue(r), v8::PropertyAttribute::ReadOnly);
+    V8::DefineOwnProperty(isolate, ctx, info.This(), V8::RGBA_GKey(isolate), V8::JSValue(g), v8::PropertyAttribute::ReadOnly);
+    V8::DefineOwnProperty(isolate, ctx, info.This(), V8::RGBA_BKey(isolate), V8::JSValue(b), v8::PropertyAttribute::ReadOnly);
+    V8::DefineOwnProperty(isolate, ctx, info.This(), V8::RGBA_AKey(isolate), V8::JSValue(a), v8::PropertyAttribute::ReadOnly);
 }
 
 extern V8Class v8RGBA("RGBA", &Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {

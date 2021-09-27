@@ -104,10 +104,7 @@ static void GetSubProtocols(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     auto protocols = webSocket->GetSubProtocols();
 
-    v8::Local<v8::Array> protocolsArray = v8::Array::New(isolate, protocols.GetSize());
-
-    int idx = 0;
-    for(auto& protocol : protocols) protocolsArray->Set(ctx, idx++, v8::String::NewFromUtf8(isolate, protocol.CStr()).ToLocalChecked());
+    v8::Local<v8::Array> protocolsArray = V8::JSValue(protocols);
 
     V8_RETURN(protocolsArray);
 }

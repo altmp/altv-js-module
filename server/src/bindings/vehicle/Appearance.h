@@ -26,10 +26,10 @@ namespace V8::Vehicle
         _this->GetNeonActive(&left, &right, &front, &back);
 
         v8::Local<v8::Object> neonActive = v8::Object::New(isolate);
-        V8::DefineOwnProperty(isolate, ctx, neonActive, "left", v8::Boolean::New(isolate, left));
-        V8::DefineOwnProperty(isolate, ctx, neonActive, "right", v8::Boolean::New(isolate, right));
-        V8::DefineOwnProperty(isolate, ctx, neonActive, "front", v8::Boolean::New(isolate, front));
-        V8::DefineOwnProperty(isolate, ctx, neonActive, "back", v8::Boolean::New(isolate, back));
+        V8::DefineOwnProperty(isolate, ctx, neonActive, "left", V8::JSValue(left));
+        V8::DefineOwnProperty(isolate, ctx, neonActive, "right", V8::JSValue(right));
+        V8::DefineOwnProperty(isolate, ctx, neonActive, "front", V8::JSValue(front));
+        V8::DefineOwnProperty(isolate, ctx, neonActive, "back", V8::JSValue(back));
 
         V8_RETURN(neonActive);
     }

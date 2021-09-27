@@ -231,7 +231,7 @@ namespace V8
 
     inline v8::Local<v8::String> JSValue(const char* val)
     {
-        return v8::String::NewFromUtf8(v8::Isolate::GetCurrent(), val, v8::NewStringType::kNormal, (int)strlen(val)).ToLocalChecked();
+        return v8::String::NewFromUtf8(v8::Isolate::GetCurrent(), val).ToLocalChecked();
     }
     inline v8::Local<v8::String> JSValue(const std::string& val)
     {

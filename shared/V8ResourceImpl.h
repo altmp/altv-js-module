@@ -113,7 +113,7 @@ public:
     void DispatchStartEvent(bool error)
     {
         std::vector<v8::Local<v8::Value>> args;
-        args.push_back(v8::Boolean::New(isolate, error));
+        args.push_back(V8::JSValue(error));
 
         InvokeEventHandlers(nullptr, GetLocalHandlers("resourceStart"), args);
     }
@@ -126,7 +126,7 @@ public:
 
     void DispatchErrorEvent(const std::string& error, const std::string& stackTrace, const std::string& file, int32_t line)
     {
-        std::vector<v8::Local<v8::Value>> args = { V8_NEW_STRING(error.c_str()), V8_NEW_STRING(stackTrace.c_str()), V8_NEW_STRING(file.c_str()), v8::Integer::New(isolate, line) };
+        std::vector<v8::Local<v8::Value>> args = { V8::JSValue(error), V8::JSValue(stackTrace), V8::JSValue(file), V8::JSValue(line) };
         InvokeEventHandlers(nullptr, GetLocalHandlers("resourceError"), args);
     }
 

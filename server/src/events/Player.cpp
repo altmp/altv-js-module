@@ -25,7 +25,7 @@ V8::LocalEventHandler playerDisconnect(EventType::PLAYER_DISCONNECT, "playerDisc
     auto ev = static_cast<const alt::CPlayerDisconnectEvent*>(e);
 
     args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
-    args.push_back(v8::String::NewFromUtf8(resource->GetIsolate(), ev->GetReason().CStr()).ToLocalChecked());
+    args.push_back(V8::JSValue(ev->GetReason()));
 });
 
 V8::LocalEventHandler playerDamage(EventType::PLAYER_DAMAGE, "playerDamage", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
@@ -34,9 +34,9 @@ V8::LocalEventHandler playerDamage(EventType::PLAYER_DAMAGE, "playerDamage", [](
 
     args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
     args.push_back(resource->GetBaseObjectOrNull(ev->GetAttacker()));
-    args.push_back(v8::Integer::New(isolate, ev->GetHealthDamage()));
-    args.push_back(v8::Integer::New(isolate, ev->GetArmourDamage()));
-    args.push_back(v8::Integer::NewFromUnsigned(isolate, ev->GetWeapon()));
+    args.push_back(V8::JSValue(ev->GetHealthDamage()));
+    args.push_back(V8::JSValue(ev->GetArmourDamage()));
+    args.push_back(V8::JSValue(ev->GetWeapon()));
 });
 
 V8::LocalEventHandler playerDeath(EventType::PLAYER_DEATH, "playerDeath", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
@@ -45,7 +45,7 @@ V8::LocalEventHandler playerDeath(EventType::PLAYER_DEATH, "playerDeath", [](V8R
 
     args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
     args.push_back(resource->GetBaseObjectOrNull(ev->GetKiller()));
-    args.push_back(v8::Integer::NewFromUnsigned(isolate, ev->GetWeapon()));
+    args.push_back(V8::JSValue(ev->GetWeapon()));
 });
 
 V8::LocalEventHandler playerEnterVehicle(EventType::PLAYER_ENTER_VEHICLE,
@@ -55,7 +55,7 @@ V8::LocalEventHandler playerEnterVehicle(EventType::PLAYER_ENTER_VEHICLE,
 
                                              args.push_back(resource->GetBaseObjectOrNull(ev->GetPlayer()));
                                              args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
-                                             args.push_back(v8::Integer::New(resource->GetIsolate(), ev->GetSeat()));
+                                             args.push_back(V8::JSValue(ev->GetSeat()));
                                          });
 
 V8::LocalEventHandler playerEnteringVehicle(EventType::PLAYER_ENTERING_VEHICLE,
@@ -65,7 +65,7 @@ V8::LocalEventHandler playerEnteringVehicle(EventType::PLAYER_ENTERING_VEHICLE,
 
                                                 args.push_back(resource->GetBaseObjectOrNull(ev->GetPlayer()));
                                                 args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
-                                                args.push_back(v8::Integer::New(resource->GetIsolate(), ev->GetSeat()));
+                                                args.push_back(V8::JSValue(ev->GetSeat()));
                                             });
 
 V8::LocalEventHandler playerLeaveVehicle(EventType::PLAYER_LEAVE_VEHICLE,
@@ -75,7 +75,7 @@ V8::LocalEventHandler playerLeaveVehicle(EventType::PLAYER_LEAVE_VEHICLE,
 
                                              args.push_back(resource->GetBaseObjectOrNull(ev->GetPlayer()));
                                              args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
-                                             args.push_back(v8::Integer::New(resource->GetIsolate(), ev->GetSeat()));
+                                             args.push_back(V8::JSValue(ev->GetSeat()));
                                          });
 
 V8::LocalEventHandler playerChangeVehicleSeat(EventType::PLAYER_CHANGE_VEHICLE_SEAT,
@@ -85,14 +85,14 @@ V8::LocalEventHandler playerChangeVehicleSeat(EventType::PLAYER_CHANGE_VEHICLE_S
 
                                                   args.push_back(resource->GetBaseObjectOrNull(ev->GetPlayer()));
                                                   args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
-                                                  args.push_back(v8::Integer::New(resource->GetIsolate(), ev->GetOldSeat()));
-                                                  args.push_back(v8::Integer::New(resource->GetIsolate(), ev->GetNewSeat()));
+                                                  args.push_back(V8::JSValue(ev->GetOldSeat()));
+                                                  args.push_back(V8::JSValue(ev->GetNewSeat()));
                                               });
 
 V8::LocalEventHandler playerWeaponChange(EventType::PLAYER_WEAPON_CHANGE, "playerWeaponChange", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
     auto ev = static_cast<const alt::CPlayerWeaponChangeEvent*>(e);
 
     args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
-    args.push_back(v8::Integer::NewFromUnsigned(resource->GetIsolate(), ev->GetOldWeapon()));
-    args.push_back(v8::Integer::NewFromUnsigned(resource->GetIsolate(), ev->GetNewWeapon()));
+    args.push_back(V8::JSValue(ev->GetOldWeapon()));
+    args.push_back(V8::JSValue(ev->GetNewWeapon()));
 });
