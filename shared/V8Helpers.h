@@ -237,11 +237,11 @@ namespace V8
     {
         return v8::String::NewFromUtf8(v8::Isolate::GetCurrent(), val.c_str(), v8::NewStringType::kNormal, (int)val.size()).ToLocalChecked();
     }
-    inline v8::Local<v8::String> JSValue(alt::String& val)
+    inline v8::Local<v8::String> JSValue(alt::String val)
     {
         return v8::String::NewFromUtf8(v8::Isolate::GetCurrent(), val.GetData(), v8::NewStringType::kNormal, (int)val.GetSize()).ToLocalChecked();
     }
-    inline v8::Local<v8::String> JSValue(alt::StringView& val)
+    inline v8::Local<v8::String> JSValue(alt::StringView val)
     {
         return v8::String::NewFromUtf8(v8::Isolate::GetCurrent(), val.GetData(), v8::NewStringType::kNormal, (int)val.GetSize()).ToLocalChecked();
     }
