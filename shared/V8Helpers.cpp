@@ -80,7 +80,7 @@ void V8Helpers::RegisterFunc(v8::Local<v8::Object> exports, const std::string& _
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
     v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
 
-    v8::Local<v8::String> name = v8::String::NewFromUtf8(isolate, _name.data(), v8::NewStringType::kNormal, _name.size()).ToLocalChecked();
+    v8::Local<v8::String> name = V8::JSValue(_name);
 
     v8::Local<v8::Function> fn = v8::Function::New(ctx, cb, v8::External::New(isolate, data)).ToLocalChecked();
     fn->SetName(name);
@@ -234,26 +234,26 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
     switch(val->GetType())
     {
         case alt::IMValue::Type::NONE: return v8::Undefined(isolate);
-        case alt::IMValue::Type::NIL: return v8::Null(isolate);
-        case alt::IMValue::Type::BOOL: return v8::Boolean::New(isolate, val.As<alt::IMValueBool>()->Value());
+        case alt::IMValue::Type::NIL: return V8::JSValue(nullptr);
+        case alt::IMValue::Type::BOOL: return V8::JSValue(val.As<alt::IMValueBool>()->Value());
         case alt::IMValue::Type::INT:
         {
             int64_t _val = val.As<alt::IMValueInt>()->Value();
 
-            if(_val >= INT_MIN && _val <= INT_MAX) return v8::Integer::New(isolate, _val);
+            if(_val >= INT_MIN && _val <= INT_MAX) return V8::JSValue((int32_t)_val);
 
-            return v8::BigInt::New(isolate, _val);
+            return V8::JSValue(_val);
         }
         case alt::IMValue::Type::UINT:
         {
             uint64_t _val = val.As<alt::IMValueUInt>()->Value();
 
-            if(_val <= UINT_MAX) return v8::Integer::NewFromUnsigned(isolate, _val);
+            if(_val <= UINT_MAX) return V8::JSValue((uint32_t)_val);
 
-            return v8::BigInt::NewFromUnsigned(isolate, _val);
+            return V8::JSValue(_val);
         }
-        case alt::IMValue::Type::DOUBLE: return v8::Number::New(isolate, val.As<alt::IMValueDouble>()->Value());
-        case alt::IMValue::Type::STRING: return v8::String::NewFromUtf8(isolate, val.As<alt::IMValueString>()->Value().CStr(), v8::NewStringType::kNormal).ToLocalChecked();
+        case alt::IMValue::Type::DOUBLE: return V8::JSValue(val.As<alt::IMValueDouble>()->Value());
+        case alt::IMValue::Type::STRING: return V8::JSValue(val.As<alt::IMValueString>()->Value());
         case alt::IMValue::Type::LIST:
         {
             alt::MValueListConst list = val.As<alt::IMValueList>();
@@ -270,7 +270,7 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
 
             for(auto it = dict->Begin(); it; it = dict->Next())
             {
-                v8Obj->Set(ctx, v8::String::NewFromUtf8(isolate, it->GetKey().CStr(), v8::NewStringType::kNormal).ToLocalChecked(), MValueToV8(it->GetValue()));
+                v8Obj->Set(ctx, V8::JSValue(it->GetKey()), MValueToV8(it->GetValue()));
             }
 
             return v8Obj;
