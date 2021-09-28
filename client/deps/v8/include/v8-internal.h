@@ -15,9 +15,12 @@
 
 namespace v8 {
 
+class Array;
 class Context;
 class Data;
 class Isolate;
+template <typename T>
+class Local;
 
 namespace internal {
 
@@ -138,14 +141,12 @@ using ExternalPointer_t = Address;
 // the same time.
 enum ExternalPointerTag : uint64_t {
   kExternalPointerNullTag = 0x0000000000000000,
-  kArrayBufferBackingStoreTag = 0x00ff000000000000,      // 0b000000011111111
-  kTypedArrayExternalPointerTag = 0x017f000000000000,    // 0b000000101111111
-  kDataViewDataPointerTag = 0x01bf000000000000,          // 0b000000110111111
-  kExternalStringResourceTag = 0x01df000000000000,       // 0b000000111011111
-  kExternalStringResourceDataTag = 0x01ef000000000000,   // 0b000000111101111
-  kForeignForeignAddressTag = 0x01f7000000000000,        // 0b000000111110111
-  kNativeContextMicrotaskQueueTag = 0x01fb000000000000,  // 0b000000111111011
-  kEmbedderDataSlotPayloadTag = 0x01fd000000000000,      // 0b000000111111101
+  kExternalStringResourceTag = 0x00ff000000000000,       // 0b000000011111111
+  kExternalStringResourceDataTag = 0x017f000000000000,   // 0b000000101111111
+  kForeignForeignAddressTag = 0x01bf000000000000,        // 0b000000110111111
+  kNativeContextMicrotaskQueueTag = 0x01df000000000000,  // 0b000000111011111
+  kEmbedderDataSlotPayloadTag = 0x01ef000000000000,      // 0b000000111101111
+  kCodeEntryPointTag = 0x01f7000000000000,               // 0b000000111110111
 };
 
 constexpr uint64_t kExternalPointerTagMask = 0xffff000000000000;
@@ -183,6 +184,8 @@ V8_EXPORT internal::Isolate* IsolateFromNeverReadOnlySpaceObject(Address obj);
 // mode based on the current context and the closure. This returns true if the
 // language mode is strict.
 V8_EXPORT bool ShouldThrowOnError(v8::internal::Isolate* isolate);
+
+V8_EXPORT bool CanHaveInternalField(int instance_type);
 
 /**
  * This class exports constants and functionality from within v8 that
@@ -262,8 +265,9 @@ class Internals {
   static const int kOddballType = 0x43;
   static const int kForeignType = 0x46;
   static const int kJSSpecialApiObjectType = 0x410;
-  static const int kJSApiObjectType = 0x420;
   static const int kJSObjectType = 0x421;
+  static const int kFirstJSApiObjectType = 0x422;
+  static const int kLastJSApiObjectType = 0x80A;
 
   static const int kUndefinedOddballKind = 5;
   static const int kNullOddballKind = 3;
@@ -475,6 +479,62 @@ class Internals {
 #endif  // V8_COMPRESS_POINTERS
 };
 
+constexpr bool VirtualMemoryCageIsEnabled() {
+#ifdef V8_VIRTUAL_MEMORY_CAGE
+  return true;
+#else
+  return false;
+#endif
+}
+
+#ifdef V8_VIRTUAL_MEMORY_CAGE
+// Size of the pointer compression cage located at the start of the virtual
+// memory cage.
+constexpr size_t kVirtualMemoryCagePointerCageSize =
+    Internals::kPtrComprCageReservationSize;
+
+// Size of the virtual memory cage, excluding the guard regions surrounding it.
+constexpr size_t kVirtualMemoryCageSize = size_t{1} << 40;  // 1 TB
+
+static_assert(kVirtualMemoryCageSize > kVirtualMemoryCagePointerCageSize,
+              "The virtual memory cage must be larger than the pointer "
+              "compression cage contained within it.");
+
+// Required alignment of the virtual memory cage. For simplicity, we require the
+// size of the guard regions to be a multiple of this, so that this specifies
+// the alignment of the cage including and excluding surrounding guard regions.
+// The alignment requirement is due to the pointer compression cage being
+// located at the start of the virtual memory cage.
+constexpr size_t kVirtualMemoryCageAlignment =
+    Internals::kPtrComprCageBaseAlignment;
+
+// Size of the guard regions surrounding the virtual memory cage. This assumes a
+// worst-case scenario of a 32-bit unsigned index being used to access an array
+// of 64-bit values.
+constexpr size_t kVirtualMemoryCageGuardRegionSize = size_t{32} << 30;  // 32 GB
+
+static_assert((kVirtualMemoryCageGuardRegionSize %
+               kVirtualMemoryCageAlignment) == 0,
+              "The size of the virtual memory cage guard region must be a "
+              "multiple of its required alignment.");
+
+// Minimum possible size of the virtual memory cage, excluding the guard regions
+// surrounding it. Used by unit tests.
+constexpr size_t kVirtualMemoryCageMinimumSize =
+    2 * kVirtualMemoryCagePointerCageSize;
+
+// For now, even if the virtual memory cage is enabled, we still allow backing
+// stores to be allocated outside of it as fallback. This will simplify the
+// initial rollout. However, if the heap sandbox is also enabled, we already use
+// the "enforcing mode" of the virtual memory cage. This is useful for testing.
+#ifdef V8_HEAP_SANDBOX
+constexpr bool kAllowBackingStoresOutsideDataCage = false;
+#else
+constexpr bool kAllowBackingStoresOutsideDataCage = true;
+#endif  // V8_HEAP_SANDBOX
+
+#endif  // V8_VIRTUAL_MEMORY_CAGE
+
 // Only perform cast check for types derived from v8::Data since
 // other types do not implement the Cast method.
 template <bool PerformCheck>
@@ -504,6 +564,15 @@ V8_INLINE void PerformCastCheck(T* data) {
 class BackingStoreBase {};
 
 }  // namespace internal
+
+V8_EXPORT bool CopyAndConvertArrayToCppBufferInt32(Local<Array> src,
+                                                   int32_t* dst,
+                                                   uint32_t max_length);
+
+V8_EXPORT bool CopyAndConvertArrayToCppBufferFloat64(Local<Array> src,
+                                                     double* dst,
+                                                     uint32_t max_length);
+
 }  // namespace v8
 
 #endif  // INCLUDE_V8_INTERNAL_H_
