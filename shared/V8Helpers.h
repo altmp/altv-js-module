@@ -61,7 +61,7 @@ namespace V8Helpers
 
     void FunctionCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
 
-    alt::MValue V8ToMValue(v8::Local<v8::Value> val);
+    alt::MValue V8ToMValue(v8::Local<v8::Value> val, bool allowFunction = true);
 
     v8::Local<v8::Value> MValueToV8(alt::MValueConst val);
 
@@ -332,7 +332,7 @@ namespace V8
     V8_CHECK(V8::SafeToRGBA((v8Val), ctx, val), "Failed to convert value to RGBA")
 
 #define V8_TO_ENTITY(v8Val, val) \
-    alt::Ref<IEntity> val;                                    \
+    alt::Ref<IEntity> val;       \
     V8_CHECK(V8::SafeToBaseObject<IEntity>(v8Val, isolate, val), "Failed to convert to BaseObject")
 
 #define V8_OBJECT_GET_NUMBER(v8Val, prop, val) V8_TO_NUMBER((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)

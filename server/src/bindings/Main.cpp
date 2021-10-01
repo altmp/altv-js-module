@@ -74,7 +74,7 @@ static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     MValueArgs mvArgs;
 
-    for(int i = 2; i < info.Length(); ++i) mvArgs.Push(V8Helpers::V8ToMValue(info[i]));
+    for(int i = 2; i < info.Length(); ++i) mvArgs.Push(V8Helpers::V8ToMValue(info[i], false));
 
     if(info[0]->IsNull())
     {
@@ -121,7 +121,7 @@ static void EmitAllClients(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     MValueArgs args;
 
-    for(int i = 1; i < info.Length(); ++i) args.Push(V8Helpers::V8ToMValue(info[i]));
+    for(int i = 1; i < info.Length(); ++i) args.Push(V8Helpers::V8ToMValue(info[i], false));
 
     ICore::Instance().TriggerClientEventForAll(eventName, args);
 }
