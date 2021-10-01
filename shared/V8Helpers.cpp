@@ -107,7 +107,7 @@ void V8Helpers::FunctionCallback(const v8::FunctionCallbackInfo<v8::Value>& info
     info.GetReturnValue().Set(V8Helpers::MValueToV8(res));
 }
 
-alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val)
+alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
 {
     auto& core = alt::ICore::Instance();
 
@@ -143,13 +143,19 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val)
             {
                 v8::Local<v8::Value> value;
                 if(!v8Arr->Get(ctx, i).ToLocal(&value)) continue;
-                list->Set(i, V8ToMValue(value));
+                list->Set(i, V8ToMValue(value, allowFunction));
             }
 
             return list;
         }
         else if(val->IsFunction())
         {
+            if(!allowFunction)
+            {
+                Log::Error << V8::SourceLocation::GetCurrent(isolate).ToString() << " "
+                           << "Cannot convert function to MValue" << Log::Endl;
+                return core.CreateMValueNone();
+            }
             v8::Local<v8::Function> v8Func = val.As<v8::Function>();
             return V8ResourceImpl::Get(ctx)->GetFunction(v8Func);
         }
@@ -215,7 +221,7 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val)
 
                     if(value->IsUndefined()) continue;
                     std::string key = *v8::String::Utf8Value(isolate, v8Key);
-                    dict->Set(key, V8ToMValue(value));
+                    dict->Set(key, V8ToMValue(value, allowFunction));
                 }
 
                 return dict;

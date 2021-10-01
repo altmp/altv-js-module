@@ -78,7 +78,7 @@ static void EmitServer(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     alt::MValueArgs args;
 
-    for(int i = 1; i < info.Length(); ++i) args.Push(V8Helpers::V8ToMValue(info[i]));
+    for(int i = 1; i < info.Length(); ++i) args.Push(V8Helpers::V8ToMValue(info[i], false));
 
     alt::ICore::Instance().TriggerServerEvent(eventName.ToString(), args);
 }
