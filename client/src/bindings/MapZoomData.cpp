@@ -28,7 +28,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_CHECK(data, "zoomData with this id not found");
 
         uint8_t id = alt::ICore::Instance().GetMapDataIDFromAlias(zoomDataAlias);
-        info.This()->SetInternalField(0, v8::Integer::NewFromUnsigned(isolate, id));
+        info.This()->SetInternalField(0, V8::JSValue(id));
     }
 }
 
@@ -78,7 +78,6 @@ static void fZoomSpeedGetter(v8::Local<v8::String>, const v8::PropertyCallbackIn
     auto data = alt::ICore::Instance().GetMapData(zoomDataId);
     V8_CHECK(data, "zoom data not found");
 
-    info.GetReturnValue().Set(v8::Number::New(isolate, data->GetZoomSpeed()));
     V8_RETURN_NUMBER(data->GetZoomSpeed());
 }
 
@@ -102,7 +101,6 @@ static void fScrollSpeedGetter(v8::Local<v8::String>, const v8::PropertyCallback
     auto data = alt::ICore::Instance().GetMapData(zoomDataId);
     V8_CHECK(data, "zoom data not found");
 
-    info.GetReturnValue().Set(v8::Number::New(isolate, data->GetScrollSpeed()));
     V8_RETURN_NUMBER(data->GetScrollSpeed());
 }
 
@@ -126,7 +124,6 @@ static void vTilesXGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<
     auto data = alt::ICore::Instance().GetMapData(zoomDataId);
     V8_CHECK(data, "zoom data not found");
 
-    info.GetReturnValue().Set(v8::Number::New(isolate, data->GetTilesCountX()));
     V8_RETURN_NUMBER(data->GetTilesCountX());
 }
 
@@ -150,7 +147,6 @@ static void vTilesYGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<
     auto data = alt::ICore::Instance().GetMapData(zoomDataId);
     V8_CHECK(data, "zoom data not found");
 
-    info.GetReturnValue().Set(v8::Number::New(isolate, data->GetTilesCountY()));
     V8_RETURN_NUMBER(data->GetTilesCountY());
 }
 

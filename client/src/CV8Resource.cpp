@@ -98,7 +98,7 @@ bool CV8ResourceImpl::Start()
 
     Log::Info << "[V8] Starting script " << path << Log::Endl;
 
-    v8::Local<v8::String> sourceCode = v8::String::NewFromUtf8(isolate, src.GetData(), v8::NewStringType::kNormal, src.GetSize()).ToLocalChecked();
+    v8::Local<v8::String> sourceCode = V8::JSValue(src);
 
     v8::ScriptOrigin scriptOrigin(isolate, V8_NEW_STRING(path.c_str()), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
 
@@ -128,7 +128,7 @@ bool CV8ResourceImpl::Start()
         ctx->Global()->Set(ctx, V8_NEW_STRING("clearInterval"), exports->Get(ctx, V8_NEW_STRING("clearInterval")).ToLocalChecked());
         ctx->Global()->Set(ctx, V8_NEW_STRING("clearTimeout"), exports->Get(ctx, V8_NEW_STRING("clearTimeout")).ToLocalChecked());
 
-        ctx->Global()->Set(ctx, v8::String::NewFromUtf8(isolate, "__internal_get_exports").ToLocalChecked(), v8::Function::New(ctx, &StaticRequire).ToLocalChecked());
+        ctx->Global()->Set(ctx, V8::JSValue("__internal_get_exports"), v8::Function::New(ctx, &StaticRequire).ToLocalChecked());
 
         bool res = curModule->InstantiateModule(ctx, CV8ScriptRuntime::ResolveModule).IsJust();
 
@@ -383,9 +383,9 @@ void CV8ResourceImpl::OnPromiseHandlerAdded(v8::PromiseRejectMessage& data)
 
 static v8::MaybeLocal<v8::Module> CompileESM(v8::Isolate* isolate, const std::string& name, const std::string& src)
 {
-    v8::Local<v8::String> sourceCode = v8::String::NewFromUtf8(isolate, src.data(), v8::NewStringType::kNormal, src.size()).ToLocalChecked();
+    v8::Local<v8::String> sourceCode = V8::JSValue(src);
 
-    v8::ScriptOrigin scriptOrigin(isolate, V8_NEW_STRING(name.c_str()), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
+    v8::ScriptOrigin scriptOrigin(isolate, V8::JSValue(name), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
 
     v8::ScriptCompiler::Source source{ sourceCode, scriptOrigin };
     return v8::ScriptCompiler::CompileModule(isolate, &source);
@@ -632,7 +632,7 @@ v8::MaybeLocal<v8::Module> CV8ResourceImpl::ResolveModule(const std::string& _na
             if(maybeModule.IsEmpty())
             {
                 modules.erase(name);
-                isolate->ThrowException(v8::Exception::ReferenceError(v8::String::NewFromUtf8(isolate, ("Failed to load module: " + name).c_str()).ToLocalChecked()));
+                isolate->ThrowException(v8::Exception::ReferenceError(V8::JSValue(("Failed to load module: " + name))));
                 return v8::MaybeLocal<v8::Module>{};
             }
         }
@@ -646,7 +646,7 @@ v8::MaybeLocal<v8::Module> CV8ResourceImpl::ResolveModule(const std::string& _na
     if(maybeModule.IsEmpty())
     {
         modules.erase(name);
-        isolate->ThrowException(v8::Exception::ReferenceError(v8::String::NewFromUtf8(isolate, ("No such module: " + name).c_str()).ToLocalChecked()));
+        isolate->ThrowException(v8::Exception::ReferenceError(V8::JSValue(("No such module: " + name))));
         return v8::MaybeLocal<v8::Module>{};
     }
 

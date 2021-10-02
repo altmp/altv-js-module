@@ -71,12 +71,12 @@ bool CNodeResourceImpl::Start()
 
     v8::Local<v8::ObjectTemplate> global = v8::ObjectTemplate::New(isolate);
 
-    v8::Local<v8::String> resourceName = v8::String::NewFromUtf8(isolate, resource->GetName().CStr(), v8::NewStringType::kNormal).ToLocalChecked();
+    v8::Local<v8::String> resourceName = V8::JSValue(resource->GetName());
 
     v8::Local<v8::Context> _context = node::NewContext(isolate, global);
     v8::Context::Scope scope(_context);
 
-    _context->Global()->Set(_context, v8::String::NewFromUtf8(isolate, "__resourceLoaded").ToLocalChecked(), v8::Function::New(_context, &ResourceLoaded).ToLocalChecked());
+    _context->Global()->Set(_context, V8::JSValue("__resourceLoaded"), v8::Function::New(_context, &ResourceLoaded).ToLocalChecked());
 
     _context->SetAlignedPointerInEmbedderData(1, resource);
     context.Reset(isolate, _context);

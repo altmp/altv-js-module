@@ -12,9 +12,7 @@ static void CurrentWeaponComponentsGetter(v8::Local<v8::String> name, const v8::
     V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 
     alt::Array<uint32_t> comps = _this->GetCurrentWeaponComponents();
-    v8::Local<v8::Array> componentsArray = v8::Array::New(isolate, comps.GetSize());
-
-    for(uint32_t i = 0; i < comps.GetSize(); ++i) componentsArray->Set(ctx, i, v8::Integer::NewFromUnsigned(isolate, comps[i]));
+    v8::Local<v8::Array> componentsArray = V8::JSValue(comps);
 
     V8_RETURN(componentsArray);
 }
