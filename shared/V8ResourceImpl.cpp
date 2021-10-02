@@ -107,21 +107,21 @@ v8::Local<v8::Value> V8ResourceImpl::GetBaseObjectOrNull(alt::IBaseObject* handl
 
 v8::Local<v8::Value> V8ResourceImpl::CreateVector3(alt::Vector3f vec)
 {
-    std::vector<v8::Local<v8::Value>> args{ v8::Number::New(isolate, vec[0]), v8::Number::New(isolate, vec[1]), v8::Number::New(isolate, vec[2]) };
+    std::vector<v8::Local<v8::Value>> args{ V8::JSValue(vec[0]), V8::JSValue(vec[1]), V8::JSValue(vec[2]) };
 
     return v8Vector3.CreateInstance(isolate, GetContext(), args);
 }
 
 v8::Local<v8::Value> V8ResourceImpl::CreateVector2(alt::Vector2f vec)
 {
-    std::vector<v8::Local<v8::Value>> args{ v8::Number::New(isolate, vec[0]), v8::Number::New(isolate, vec[1]) };
+    std::vector<v8::Local<v8::Value>> args{ V8::JSValue(vec[0]), V8::JSValue(vec[1]) };
 
     return v8Vector2.CreateInstance(isolate, GetContext(), args);
 }
 
 v8::Local<v8::Value> V8ResourceImpl::CreateRGBA(alt::RGBA rgba)
 {
-    std::vector<v8::Local<v8::Value>> args{ v8::Number::New(isolate, rgba.r), v8::Number::New(isolate, rgba.g), v8::Number::New(isolate, rgba.b), v8::Number::New(isolate, rgba.a) };
+    std::vector<v8::Local<v8::Value>> args{ V8::JSValue(rgba.r), V8::JSValue(rgba.g), V8::JSValue(rgba.b), V8::JSValue(rgba.a) };
 
     return V8::New(isolate, GetContext(), rgbaClass.Get(isolate), args);
 }

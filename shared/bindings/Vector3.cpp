@@ -34,9 +34,9 @@ static void ToArray(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_ZKey(isolate)), z);
 
     v8::Local<v8::Array> arr = v8::Array::New(isolate, 3);
-    arr->Set(ctx, 0, v8::Number::New(isolate, x));
-    arr->Set(ctx, 1, v8::Number::New(isolate, y));
-    arr->Set(ctx, 2, v8::Number::New(isolate, z));
+    arr->Set(ctx, 0, V8::JSValue(x));
+    arr->Set(ctx, 1, V8::JSValue(y));
+    arr->Set(ctx, 2, V8::JSValue(z));
 
     V8_RETURN(arr);
 }

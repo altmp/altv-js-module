@@ -39,7 +39,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         if(size == 0)
         {
             info.This()->SetAlignedPointerInInternalField(0, nullptr);
-            info.This()->SetInternalField(1, v8::Integer::NewFromUnsigned(isolate, 0));
+            info.This()->SetInternalField(1, V8::JSValue(0));
             return;
         }
         V8_CHECK(size <= 1024, "You can't allocate > 1KB");
@@ -47,7 +47,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         uint8_t* allocatedMemory = new uint8_t[size];
         memset(allocatedMemory, 0, size);
         info.This()->SetAlignedPointerInInternalField(0, allocatedMemory);
-        info.This()->SetInternalField(1, v8::Integer::NewFromUnsigned(isolate, size));
+        info.This()->SetInternalField(1, V8::JSValue(size));
     }
 
     /*v8::UniquePersistent<v8::Object> persistent(isolate, info.This());

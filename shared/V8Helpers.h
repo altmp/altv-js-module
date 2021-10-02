@@ -225,6 +225,80 @@ namespace V8
 
     alt::String Stringify(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx);
     alt::String GetJSValueTypeName(v8::Local<v8::Value> val);
+
+    // * Function utilizing overloads to quickly convert a C++ value to a JS value
+    // * These functions are defined in the header directly to utilize the 'inline' modifier
+
+    inline v8::Local<v8::String> JSValue(const char* val)
+    {
+        return v8::String::NewFromUtf8(v8::Isolate::GetCurrent(), val).ToLocalChecked();
+    }
+    inline v8::Local<v8::String> JSValue(const std::string& val)
+    {
+        return v8::String::NewFromUtf8(v8::Isolate::GetCurrent(), val.c_str(), v8::NewStringType::kNormal, (int)val.size()).ToLocalChecked();
+    }
+    inline v8::Local<v8::String> JSValue(alt::String val)
+    {
+        return v8::String::NewFromUtf8(v8::Isolate::GetCurrent(), val.GetData(), v8::NewStringType::kNormal, (int)val.GetSize()).ToLocalChecked();
+    }
+    inline v8::Local<v8::String> JSValue(alt::StringView val)
+    {
+        return v8::String::NewFromUtf8(v8::Isolate::GetCurrent(), val.GetData(), v8::NewStringType::kNormal, (int)val.GetSize()).ToLocalChecked();
+    }
+    inline v8::Local<v8::String> JSValue(const uint16_t* val)
+    {
+        return v8::String::NewFromTwoByte(v8::Isolate::GetCurrent(), val).ToLocalChecked();
+    }
+    inline v8::Local<v8::Boolean> JSValue(bool val)
+    {
+        return v8::Boolean::New(v8::Isolate::GetCurrent(), val);
+    }
+    inline v8::Local<v8::Number> JSValue(double val)
+    {
+        return v8::Number::New(v8::Isolate::GetCurrent(), val);
+    }
+    inline v8::Local<v8::Integer> JSValue(int32_t val)
+    {
+        return v8::Integer::New(v8::Isolate::GetCurrent(), val);
+    }
+    inline v8::Local<v8::Integer> JSValue(uint32_t val)
+    {
+        return v8::Integer::NewFromUnsigned(v8::Isolate::GetCurrent(), val);
+    }
+    inline v8::Local<v8::BigInt> JSValue(int64_t val)
+    {
+        return v8::BigInt::New(v8::Isolate::GetCurrent(), val);
+    }
+    inline v8::Local<v8::BigInt> JSValue(uint64_t val)
+    {
+        return v8::BigInt::NewFromUnsigned(v8::Isolate::GetCurrent(), val);
+    }
+    template<class T>
+    inline v8::Local<v8::Array> JSValue(alt::Array<T>& arr)
+    {
+        auto jsArr = v8::Array::New(v8::Isolate::GetCurrent(), arr.GetSize());
+        for(int i = 0; i < arr.GetSize(); i++)
+        {
+            jsArr->Set(v8::Isolate::GetCurrent()->GetEnteredOrMicrotaskContext(), i, JSValue(arr[i]));
+        }
+        return jsArr;
+    }
+    template<class T>
+    inline v8::Local<v8::Array> JSValue(std::vector<T>& arr)
+    {
+        auto jsArr = v8::Array::New(v8::Isolate::GetCurrent(), arr.size());
+        for(int i = 0; i < arr.size(); i++)
+        {
+            jsArr->Set(v8::Isolate::GetCurrent()->GetEnteredOrMicrotaskContext(), i, JSValue(arr[i]));
+        }
+        return jsArr;
+    }
+    // Returns null
+    inline v8::Local<v8::Primitive> JSValue(std::nullptr_t val)
+    {
+        return v8::Null(v8::Isolate::GetCurrent());
+    }
+
 }  // namespace V8
 
 #define V8_GET_ISOLATE() v8::Isolate* isolate = info.GetIsolate()

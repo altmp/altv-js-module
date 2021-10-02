@@ -52,11 +52,11 @@ static void StaticRead(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     if(encoding == "utf-8")
     {
-        V8_RETURN(v8::String::NewFromUtf8(isolate, data.GetData(), v8::NewStringType::kNormal, data.GetSize()).ToLocalChecked());
+        V8_RETURN(V8::JSValue(data));
     }
     else if(encoding == "utf-16")
     {
-        V8_RETURN(v8::String::NewFromTwoByte(isolate, (uint16_t*)data.GetData(), v8::NewStringType::kNormal, data.GetSize() / 2).ToLocalChecked());
+        V8_RETURN(V8::JSValue((uint16_t*)data.GetData()));
     }
     else if(encoding == "binary")
     {

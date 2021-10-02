@@ -43,9 +43,9 @@ V8::LocalEventHandler vehicleDamage(EventType::VEHICLE_DAMAGE, "vehicleDamage", 
 
     args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
     args.push_back(resource->GetBaseObjectOrNull(ev->GetDamager()));
-    args.push_back(v8::Integer::NewFromUnsigned(isolate, ev->GetBodyHealthDamage()));
-    args.push_back(v8::Integer::NewFromUnsigned(isolate, ev->GetBodyAdditionalHealthDamage()));
-    args.push_back(v8::Integer::NewFromUnsigned(isolate, ev->GetEngineHealthDamage()));
-    args.push_back(v8::Integer::NewFromUnsigned(isolate, ev->GetPetrolTankHealthDamage()));
-    args.push_back(v8::Integer::NewFromUnsigned(isolate, ev->GetDamagedWith()));
+    args.push_back(V8::JSValue(ev->GetBodyHealthDamage()));
+    args.push_back(V8::JSValue(ev->GetBodyAdditionalHealthDamage()));
+    args.push_back(V8::JSValue(ev->GetEngineHealthDamage()));
+    args.push_back(V8::JSValue(ev->GetPetrolTankHealthDamage()));
+    args.push_back(V8::JSValue(ev->GetDamagedWith()));
 });

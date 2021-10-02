@@ -124,14 +124,14 @@ public:
         V8ResourceImpl* resource = V8ResourceImpl::Get(ctx);
         if(!resource)
         {
-            isolate->ThrowException(v8::Exception::ReferenceError(v8::String::NewFromUtf8(ctx->GetIsolate(), "Invalid resource").ToLocalChecked()));
+            V8Helpers::Throw(isolate, "Invalid resource");
             return v8::MaybeLocal<v8::Module>{};
         }
 
         std::string _specifier = *v8::String::Utf8Value{ isolate, specifier };
         if(_specifier == resource->GetResource()->GetName().ToString())
         {
-            isolate->ThrowException(v8::Exception::ReferenceError(v8::String::NewFromUtf8(ctx->GetIsolate(), "Cannot import the resource itself (self-importing)").ToLocalChecked()));
+            V8Helpers::Throw(isolate, "Cannot import the resource itself (self-importing)");
             return v8::MaybeLocal<v8::Module>{};
         }
 
