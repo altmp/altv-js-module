@@ -12,6 +12,7 @@ env:
 
 jobs:
   test-client:
+    name: Test client changes
     runs-on: windows-2019
 
     steps:

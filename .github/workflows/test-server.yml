@@ -9,7 +9,7 @@ on:
 
 jobs:
   test-server-windows:
-    name: Test changes on Windows
+    name: Test server changes on Windows
     runs-on: windows-2019
     steps:
       - name: Checkout repository
@@ -28,7 +28,7 @@ jobs:
           cmake --build . --config Release
 
   test-server-linux:
-    name: Test changes on Linux
+    name: Test server changes on Linux
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout repository
