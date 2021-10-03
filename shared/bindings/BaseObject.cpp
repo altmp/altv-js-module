@@ -83,6 +83,16 @@ static void Destroy(const v8::FunctionCallbackInfo<v8::Value>& info)
     alt::ICore::Instance().DestroyBaseObject(obj);
 }
 
+static void RefCountGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK(alt::ICore::Instance().IsDebug(), "baseObject.refCount is only available in debug mode");
+
+    V8_GET_THIS_BASE_OBJECT(obj, alt::IBaseObject);
+
+    V8_RETURN_UINT(obj->GetRefCount());
+}
+
 extern V8Class v8BaseObject("BaseObject", [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
@@ -96,4 +106,6 @@ extern V8Class v8BaseObject("BaseObject", [](v8::Local<v8::FunctionTemplate> tpl
     V8::SetMethod(isolate, tpl, "setMeta", SetMeta);
     V8::SetMethod(isolate, tpl, "deleteMeta", DeleteMeta);
     V8::SetMethod(isolate, tpl, "destroy", Destroy);
+
+    V8::SetAccessor(isolate, tpl, "refCount", RefCountGetter);
 });
