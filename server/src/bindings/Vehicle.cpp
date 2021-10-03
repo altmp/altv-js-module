@@ -118,6 +118,7 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, Constructor, [](v8::Local<v8::Func
     // Common getter/setters
     V8::SetAccessor<IVehicle, bool, &IVehicle::IsDestroyed>(isolate, tpl, "destroyed");
     V8::SetAccessor<IVehicle, Ref<IPlayer>, &IVehicle::GetDriver>(isolate, tpl, "driver");
+    V8::SetAccessor<IVehicle, Vector3f, &IVehicle::GetVelocity>(isolate, tpl, "velocity");
 
     // Appearance getters/setters
     V8::SetAccessor(isolate, tpl, "modKit", &ModKitGetter, &ModKitSetter);
