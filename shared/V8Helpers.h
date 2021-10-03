@@ -514,8 +514,8 @@ namespace V8
     V8_CHECK(V8::SafeToInt64(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to int64")
 
 // idx starts with 1
-#define V8_ARG_TO_UINT32(idx, val) \
-    uint32_t val;                  \
+#define V8_ARG_TO_UINT(idx, val) \
+    uint32_t val;                \
     V8_CHECK(V8::SafeToUInt32(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to uint32")
 
 // idx starts with 1

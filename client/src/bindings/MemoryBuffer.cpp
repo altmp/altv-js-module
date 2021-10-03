@@ -35,7 +35,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     // 	}
     // 	else
     {
-        V8_ARG_TO_UINT32(1, size);
+        V8_ARG_TO_UINT(1, size);
         if(size == 0)
         {
             info.This()->SetAlignedPointerInInternalField(0, nullptr);
@@ -101,12 +101,12 @@ static void GetDataOfType(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_CHECK_ARGS_LEN(1);
     }
 
-    V8_ARG_TO_UINT32(1, offset);
+    V8_ARG_TO_UINT(1, offset);
 
     uint32_t strLength = 0;
     if(isString)
     {
-        V8_ARG_TO_UINT32(2, len);
+        V8_ARG_TO_UINT(2, len);
         strLength = len;
     }
 

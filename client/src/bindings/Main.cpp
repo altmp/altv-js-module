@@ -229,7 +229,7 @@ static void AddGxtText(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
     else
     {
-        V8_ARG_TO_UINT32(1, hash);
+        V8_ARG_TO_UINT(1, hash);
         gxtHash = hash;
     }
 
@@ -387,21 +387,21 @@ static void SetCharStat(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
     else if(!strcmp(targetStat->GetStatType(), "UINT8"))
     {
-        V8_ARG_TO_UINT32(2, value);
+        V8_ARG_TO_UINT(2, value);
         targetStat->SetUInt8Value(value);
         V8_RETURN_BOOLEAN(true);
         return;
     }
     else if(!strcmp(targetStat->GetStatType(), "UINT16"))
     {
-        V8_ARG_TO_UINT32(2, value);
+        V8_ARG_TO_UINT(2, value);
         targetStat->SetUInt16Value(value);
         V8_RETURN_BOOLEAN(true);
         return;
     }
     else if(!strcmp(targetStat->GetStatType(), "UINT32"))
     {
-        V8_ARG_TO_UINT32(2, value);
+        V8_ARG_TO_UINT(2, value);
         targetStat->SetUInt32Value(value);
         V8_RETURN_BOOLEAN(true);
         return;
@@ -720,7 +720,7 @@ static void LoadModel(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
 
     V8_CHECK_ARGS_LEN(1);
-    V8_ARG_TO_UINT32(1, hash);
+    V8_ARG_TO_UINT(1, hash);
 
     alt::ICore::Instance().LoadModel(hash);
 
@@ -732,7 +732,7 @@ static void LoadModelAsync(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
 
     V8_CHECK_ARGS_LEN(1);
-    V8_ARG_TO_UINT32(1, hash);
+    V8_ARG_TO_UINT(1, hash);
 
     alt::ICore::Instance().LoadModelAsync(hash);
 
@@ -776,7 +776,7 @@ static void GetHeadshotBase64(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
 
     V8_CHECK_ARGS_LEN(1);
-    V8_ARG_TO_UINT32(1, id);
+    V8_ARG_TO_UINT(1, id);
 
     V8_RETURN_STRING(alt::ICore::Instance().HeadshotToBase64(id).CStr());
 }
@@ -787,7 +787,7 @@ static void SetPedDlcClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN2(5, 6);
 
     V8_ARG_TO_INT(1, scriptId);
-    V8_ARG_TO_UINT32(2, dlc);
+    V8_ARG_TO_UINT(2, dlc);
     V8_ARG_TO_INT(3, component);
     V8_ARG_TO_INT(4, drawable);
     V8_ARG_TO_INT(5, texture);
@@ -812,7 +812,7 @@ static void SetPedDlcProps(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(5);
 
     V8_ARG_TO_INT(1, scriptId);
-    V8_ARG_TO_UINT32(2, dlc);
+    V8_ARG_TO_UINT(2, dlc);
     V8_ARG_TO_INT(3, component);
     V8_ARG_TO_INT(4, drawable);
     V8_ARG_TO_INT(5, texture);

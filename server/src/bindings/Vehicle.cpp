@@ -43,7 +43,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     uint32_t modelHash;
     if(info[0]->IsNumber())
     {
-        V8_ARG_TO_UINT32(1, model);
+        V8_ARG_TO_UINT(1, model);
         modelHash = model;
     }
     else
