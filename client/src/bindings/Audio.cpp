@@ -20,7 +20,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
         if(info[2]->IsNumber())
         {
-            V8_ARG_TO_UINT32(3, categ);
+            V8_ARG_TO_UINT(3, categ);
             category = categ;
         }
         else

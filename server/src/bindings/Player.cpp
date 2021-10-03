@@ -31,7 +31,7 @@ static void Spawn(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_ARG_TO_VECTOR3(1, pos);
         if(info.Length() == 2)
         {
-            V8_ARG_TO_UINT32(2, spawnDelay);
+            V8_ARG_TO_UINT(2, spawnDelay);
             delay = spawnDelay;
         }
         position = { pos[0], pos[1], pos[2] };
@@ -43,7 +43,7 @@ static void Spawn(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_ARG_TO_NUMBER(3, z);
         if(info.Length() == 4)
         {
-            V8_ARG_TO_UINT32(4, spawnDelay);
+            V8_ARG_TO_UINT(4, spawnDelay);
             delay = spawnDelay;
         }
         position = { x, y, z };
@@ -76,7 +76,7 @@ static void SetWeather(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 
-    V8_ARG_TO_UINT32(1, weather);
+    V8_ARG_TO_UINT(1, weather);
 
     _this->SetWeather(weather);
 }
@@ -88,7 +88,7 @@ static void GiveWeapon(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 
-    V8_ARG_TO_UINT32(1, weaponHash);
+    V8_ARG_TO_UINT(1, weaponHash);
     V8_ARG_TO_INT(2, ammo);
     V8_ARG_TO_BOOLEAN(3, equipNow);
 
@@ -102,7 +102,7 @@ static void RemoveWeapon(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 
-    V8_ARG_TO_UINT32(1, weaponHash);
+    V8_ARG_TO_UINT(1, weaponHash);
 
     _this->RemoveWeapon(weaponHash);
 }
@@ -114,8 +114,8 @@ static void AddWeaponComponent(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 
-    V8_ARG_TO_UINT32(1, weaponHash);
-    V8_ARG_TO_UINT32(2, component);
+    V8_ARG_TO_UINT(1, weaponHash);
+    V8_ARG_TO_UINT(2, component);
 
     _this->AddWeaponComponent(weaponHash, component);
 }
@@ -127,8 +127,8 @@ static void RemoveWeaponComponent(const v8::FunctionCallbackInfo<v8::Value>& inf
 
     V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 
-    V8_ARG_TO_UINT32(1, weaponHash);
-    V8_ARG_TO_UINT32(2, component);
+    V8_ARG_TO_UINT(1, weaponHash);
+    V8_ARG_TO_UINT(2, component);
 
     _this->RemoveWeaponComponent(weaponHash, component);
 }
@@ -140,7 +140,7 @@ static void SetWeaponTintIndex(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 
-    V8_ARG_TO_UINT32(1, weaponHash);
+    V8_ARG_TO_UINT(1, weaponHash);
     V8_ARG_TO_INT(2, tintIndex);
 
     _this->SetWeaponTintIndex(weaponHash, tintIndex);
@@ -200,9 +200,9 @@ static void SetClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN_MIN_MAX(3, 4);
     V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-    V8_ARG_TO_UINT32(1, component);
-    V8_ARG_TO_UINT32(2, drawable);
-    V8_ARG_TO_UINT32(3, texture);
+    V8_ARG_TO_UINT(1, component);
+    V8_ARG_TO_UINT(2, drawable);
+    V8_ARG_TO_UINT(3, texture);
 
     if(info.Length() == 3)
     {
@@ -221,10 +221,10 @@ static void SetDlcClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN_MIN_MAX(4, 5);
     V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-    V8_ARG_TO_UINT32(1, dlc);
-    V8_ARG_TO_UINT32(2, component);
-    V8_ARG_TO_UINT32(3, drawable);
-    V8_ARG_TO_UINT32(4, texture);
+    V8_ARG_TO_UINT(1, dlc);
+    V8_ARG_TO_UINT(2, component);
+    V8_ARG_TO_UINT(3, drawable);
+    V8_ARG_TO_UINT(4, texture);
 
     if(info.Length() == 4)
     {
@@ -243,7 +243,7 @@ static void GetClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(1);
     V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-    V8_ARG_TO_UINT32(1, component);
+    V8_ARG_TO_UINT(1, component);
 
     V8_NEW_OBJECT(clothes);
 
@@ -261,7 +261,7 @@ static void GetDlcClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(1);
     V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-    V8_ARG_TO_UINT32(1, component);
+    V8_ARG_TO_UINT(1, component);
 
     V8_NEW_OBJECT(clothes);
 
@@ -280,9 +280,9 @@ static void SetProps(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(3);
     V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-    V8_ARG_TO_UINT32(1, component);
-    V8_ARG_TO_UINT32(2, drawable);
-    V8_ARG_TO_UINT32(3, texture);
+    V8_ARG_TO_UINT(1, component);
+    V8_ARG_TO_UINT(2, drawable);
+    V8_ARG_TO_UINT(3, texture);
 
     player->SetProps(component, drawable, texture);
 }
@@ -293,10 +293,10 @@ static void SetDlcProps(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(4);
     V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-    V8_ARG_TO_UINT32(1, dlc);
-    V8_ARG_TO_UINT32(2, component);
-    V8_ARG_TO_UINT32(3, drawable);
-    V8_ARG_TO_UINT32(4, texture);
+    V8_ARG_TO_UINT(1, dlc);
+    V8_ARG_TO_UINT(2, component);
+    V8_ARG_TO_UINT(3, drawable);
+    V8_ARG_TO_UINT(4, texture);
 
     player->SetDlcProps(component, drawable, texture, dlc);
 }
@@ -307,7 +307,7 @@ static void ClearProps(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(1);
     V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-    V8_ARG_TO_UINT32(1, component);
+    V8_ARG_TO_UINT(1, component);
 
     player->ClearProps(component);
 }
@@ -318,7 +318,7 @@ static void GetProps(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(1);
     V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-    V8_ARG_TO_UINT32(1, component);
+    V8_ARG_TO_UINT(1, component);
 
     V8_NEW_OBJECT(prop);
 
@@ -335,7 +335,7 @@ static void GetDlcProps(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(1);
     V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-    V8_ARG_TO_UINT32(1, component);
+    V8_ARG_TO_UINT(1, component);
 
     V8_NEW_OBJECT(prop);
 
@@ -365,7 +365,7 @@ static void SetIntoVehicle(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
     V8_ARG_TO_BASE_OBJECT(1, vehicle, alt::IVehicle, "Vehicle");
-    V8_ARG_TO_UINT32(2, seat);
+    V8_ARG_TO_UINT(2, seat);
 
     player->SetIntoVehicle(vehicle, seat);
 }

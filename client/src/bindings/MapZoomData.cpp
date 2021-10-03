@@ -14,7 +14,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     if(info[0]->IsNumber())
     {
-        V8_ARG_TO_UINT32(1, zoomDataId);
+        V8_ARG_TO_UINT(1, zoomDataId);
         auto data = alt::ICore::Instance().GetMapData(zoomDataId);
         V8_CHECK(data, "zoomData with this id not found");
 
