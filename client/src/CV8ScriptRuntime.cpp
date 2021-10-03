@@ -139,6 +139,8 @@ CV8ScriptRuntime::CV8ScriptRuntime()
 
     isolate->SetMicrotasksPolicy(v8::MicrotasksPolicy::kExplicit);
 
+    isolate->SetCaptureStackTraceForUncaughtExceptions(true, 1);
+
     /*{
             v8::Locker locker(isolate);
             v8::Isolate::Scope isolate_scope(isolate);
