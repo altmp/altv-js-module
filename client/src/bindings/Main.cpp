@@ -841,6 +841,16 @@ static void SetWatermarkPosition(const v8::FunctionCallbackInfo<v8::Value>& info
     alt::ICore::Instance().SetWatermarkPosition(pos);
 }
 
+static void FpsGetter(v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_RETURN(alt::ICore::Instance().GetFps());
+}
+
+static void PingGetter(v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_RETURN(alt::ICore::Instance().GetPing());
+}
+
 extern V8Module sharedModule;
 extern V8Class v8Player, v8Player, v8Vehicle, v8WebView, v8HandlingData, v8LocalStorage, v8MemoryBuffer, v8MapZoomData, v8Discord, v8Voice, v8WebSocketClient, v8Checkpoint, v8HttpClient,
   v8Audio, v8LocalPlayer, v8Profiler;
@@ -951,4 +961,7 @@ extern V8Module altModule("alt",
                               V8Helpers::RegisterFunc(exports, "clearPedProp", &ClearPedProps);
 
                               V8Helpers::RegisterFunc(exports, "setWatermarkPosition", &SetWatermarkPosition);
+
+                              V8Helpers::RegisterProperty(exports, "fps", &FpsGetter);
+                              V8Helpers::RegisterProperty(exports, "ping", &PingGetter);
                           });
