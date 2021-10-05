@@ -396,6 +396,19 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
 }
 
+static void PlayAmbientSpeech(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(3);
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    V8_ARG_TO_STRING(1, speechName);
+    V8_ARG_TO_STRING(2, speechParam);
+    V8_ARG_TO_UINT(3, speechDictHash);
+
+    player->PlayAmbientSpeech(speechName, speechParam, speechDictHash);
+}
+
 extern V8Class v8Entity;
 extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -474,4 +487,6 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
     V8::SetMethod(isolate, tpl, "clearProp", &ClearProps);
 
     V8::SetMethod(isolate, tpl, "setIntoVehicle", &SetIntoVehicle);
+
+    V8::SetMethod(isolate, tpl, "playAmbientSpeech", &PlayAmbientSpeech);
 });
