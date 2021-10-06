@@ -714,8 +714,6 @@ static void LoadModel(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_UINT(1, hash);
 
     alt::ICore::Instance().LoadModel(hash);
-
-    Log::Warning << "loadModel is deprecated and it will be removed in the future. Please use the native requestModel." << Log::Endl;
 }
 
 static void LoadModelAsync(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -726,8 +724,6 @@ static void LoadModelAsync(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_UINT(1, hash);
 
     alt::ICore::Instance().LoadModelAsync(hash);
-
-    Log::Warning << "loadModelAsync is deprecated and it will be removed in the future. Please use the native requestModel." << Log::Endl;
 }
 
 static void EvalModule(const v8::FunctionCallbackInfo<v8::Value>& info)
