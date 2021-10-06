@@ -100,8 +100,19 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_ARGS_LEN(1);
+
     V8_ARG_TO_INT(1, id);
-    V8_RETURN_BASE_OBJECT(alt::ICore::Instance().GetEntityByID(id).As<alt::IPlayer>());
+
+    alt::Ref<alt::IEntity> entity = alt::ICore::Instance().GetEntityByID(id);
+
+    if(entity && entity->GetType() == alt::IEntity::Type::PLAYER)
+    {
+        V8_RETURN_BASE_OBJECT(entity);
+    }
+    else
+    {
+        V8_RETURN_NULL();
+    }
 }
 
 extern V8Class v8Entity;
