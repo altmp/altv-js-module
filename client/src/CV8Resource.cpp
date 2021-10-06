@@ -18,7 +18,6 @@
 #include "cpp-sdk/events/CResourceStartEvent.h"
 #include "cpp-sdk/events/CResourceStopEvent.h"
 #include "cpp-sdk/events/CResourceErrorEvent.h"
-#include "cpp-sdk/events/CRenderEvent.h"
 #include "cpp-sdk/SDK.h"
 
 #include "CV8ScriptRuntime.h"
