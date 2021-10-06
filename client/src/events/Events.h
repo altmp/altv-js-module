@@ -22,7 +22,6 @@ inline void RegisterEvents()
     V8_REFERENCE_EVENT_HANDLER(webSocketEvent);
     V8_REFERENCE_EVENT_HANDLER(audioEvent);
     V8_REFERENCE_EVENT_HANDLER(keyboardEvent);
-    V8_REFERENCE_LOCAL_EVENT_HANDLER(render);
     V8_REFERENCE_LOCAL_EVENT_HANDLER(connectionComplete);
     V8_REFERENCE_LOCAL_EVENT_HANDLER(disconnect);
 
