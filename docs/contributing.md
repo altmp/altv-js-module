@@ -105,7 +105,7 @@ So an example todo comment would look like this:
 When changing a function name for example it is important to **not** remove the old function, but instead add a deprecation warning
 so we can provide backwards compatibility.
 
-A deprecation warning can just be added by using `Log::Warning` to the end of the old function body.
+A deprecation warning can just be added by using the `V8_DEPRECATE` macro.
 It should also have a comment with the *date and current alt:V release version* when the deprecation was added.
 
 After a reasonable amount of times deprecated functions are removed, usually after a few release updates.
@@ -113,8 +113,11 @@ After a reasonable amount of times deprecated functions are removed, usually aft
 An example for a deprecation can be found here:
 ```cpp
 // Deprecation added: 09/17/2021 (version 5.3)
-Log::Warning << "alt.oldFunction is deprecated. Consider using alt.newFunction instead." << Log::Endl;
+V8_DEPRECATE("alt.oldFunction", "alt.newFunction");
 ```
+
+The first argument of the `V8_DEPRECATE` macro is the old name of the function, and the second argument
+is the new name of the function, that should now be used instead.
 
 ## Contact
 
