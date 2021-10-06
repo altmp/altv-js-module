@@ -207,15 +207,6 @@ static void IsInDebug(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_BOOLEAN(alt::ICore::Instance().IsDebug());
 }
 
-static void IsVoiceActivityInputEnabled(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-
-    Log::Warning << "alt.isVoiceActivityInputEnabled is deprecated and will be removed in the future. Please use alt.Voice.activityInputEnabled" << Log::Endl;
-
-    V8_RETURN_BOOLEAN(ICore::Instance().IsVoiceActivationEnabled());
-}
-
 static void AddGxtText(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_IRESOURCE();
@@ -899,9 +890,6 @@ extern V8Module altModule("alt",
                               V8Helpers::RegisterFunc(exports, "addGxtText", &AddGxtText);
                               V8Helpers::RegisterFunc(exports, "removeGxtText", &RemoveGxtText);
                               V8Helpers::RegisterFunc(exports, "getGxtText", &GetGxtText);
-
-                              // Voice functions
-                              V8Helpers::RegisterFunc(exports, "isVoiceActivityInputEnabled", &IsVoiceActivityInputEnabled);
 
                               // Time managements functions
                               V8Helpers::RegisterFunc(exports, "setMsPerGameMinute", &SetMsPerGameMinute);

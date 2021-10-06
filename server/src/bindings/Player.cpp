@@ -164,15 +164,6 @@ static void Kick(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
 }
 
-static void SocialIdGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    Log::Warning << "player.socialId is deprecated and will be removed in the future. Consider using player.socialID" << Log::Endl;
-
-    V8_GET_ISOLATE();
-    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
-    V8_RETURN_STRING(std::to_string(_this->GetSocialID()).c_str());
-}
-
 static void SocialIDGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE();
@@ -444,7 +435,6 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
     V8::SetAccessor(isolate, tpl, "currentWeaponComponents", &CurrentWeaponComponentsGetter);
     V8::SetAccessor<IPlayer, uint8_t, &IPlayer::GetCurrentWeaponTintIndex>(isolate, tpl, "currentWeaponTintIndex");
 
-    V8::SetAccessor(isolate, tpl, "socialId", &SocialIdGetter);
     V8::SetAccessor(isolate, tpl, "socialID", &SocialIDGetter);
     V8::SetAccessor(isolate, tpl, "hwidHash", &HwidHashGetter);
     V8::SetAccessor(isolate, tpl, "hwidExHash", &HwidExHashGetter);

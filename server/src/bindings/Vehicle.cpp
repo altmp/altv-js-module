@@ -14,24 +14,6 @@ using namespace alt;
 
 using namespace V8::Vehicle;
 
-static void GetAttached(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    Log::Warning << "vehicle.getAttached() is deprecated. Consider using vehicle.attached" << Log::Endl;
-
-    V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
-    V8_RETURN_BASE_OBJECT(_this->GetAttached());
-}
-
-static void GetAttachedTo(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    Log::Warning << "vehicle.getAttachedTo() is deprecated. Consider using vehicle.attachedTo" << Log::Endl;
-
-    V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
-    V8_RETURN_BASE_OBJECT(_this->GetAttachedTo());
-}
-
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -233,9 +215,6 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, Constructor, [](v8::Local<v8::Func
     // Script methods
     V8::SetMethod(isolate, tpl, "getScriptDataBase64", &GetScriptData);
     V8::SetMethod(isolate, tpl, "setScriptDataBase64", &SetScriptData);
-
-    V8::SetMethod(isolate, tpl, "getAttached", &GetAttached);
-    V8::SetMethod(isolate, tpl, "getAttachedTo", &GetAttachedTo);
 
     V8::SetAccessor<IVehicle, Ref<IVehicle>, &IVehicle::GetAttached>(isolate, tpl, "attached");
     V8::SetAccessor<IVehicle, Ref<IVehicle>, &IVehicle::GetAttachedTo>(isolate, tpl, "attachedTo");
