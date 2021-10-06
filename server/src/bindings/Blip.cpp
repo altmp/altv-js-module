@@ -47,7 +47,7 @@ static void ConstructorRadiusBlip(const v8::FunctionCallbackInfo<v8::Value>& inf
 static void ConstructorPointBlip(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
-
+    V8_CHECK_CONSTRUCTOR();
     V8_CHECK_ARGS_LEN2(1, 3);
 
     Ref<IBlip> blip;
