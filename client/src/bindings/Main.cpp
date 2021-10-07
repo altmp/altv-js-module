@@ -779,6 +779,8 @@ static void SetPedDlcClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_INT(4, drawable);
     V8_ARG_TO_INT(5, texture);
 
+    V8_CHECK(drawable < 128, "Drawable can't be higher than 127");
+
     uint8_t palette;
     if(info.Length() == 5)
     {
