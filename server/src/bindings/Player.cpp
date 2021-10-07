@@ -217,6 +217,8 @@ static void SetDlcClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_UINT(3, drawable);
     V8_ARG_TO_UINT(4, texture);
 
+    V8_CHECK(drawable < 128, "Drawable can't be higher than 127");
+
     if(info.Length() == 4)
     {
         player->SetDlcClothes(component, drawable, texture, 2, dlc);
