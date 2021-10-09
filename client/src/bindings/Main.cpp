@@ -733,27 +733,34 @@ static void EvalModule(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(1);
     V8_ARG_TO_STRING(1, code);
 
-    auto maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(code.ToString(), V8::SourceLocation::GetCurrent(isolate));
-    if(maybeModule.IsEmpty())
-    {
-        V8Helpers::Throw(isolate, "Failed to resolve module");
-        return;
-    }
+    v8::Local<v8::Module> module;
 
-    auto module = maybeModule.ToLocalChecked();
-    v8::Maybe<bool> result = module->InstantiateModule(ctx, CV8ScriptRuntime::ResolveModule);
-    if(result.IsNothing() || result.ToChecked() == false)
-    {
-        V8Helpers::Throw(isolate, "Failed to instantiate module");
-        return;
-    }
+    auto result = V8Helpers::TryCatch([&] {
+        auto maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(code.ToString(), V8::SourceLocation::GetCurrent(isolate));
+        if(maybeModule.IsEmpty())
+        {
+            V8Helpers::Throw(isolate, "Failed to resolve module");
+            return false;
+        }
 
-    auto returnValue = module->Evaluate(ctx);
-    if(returnValue.IsEmpty())
-    {
-        V8Helpers::Throw(isolate, "Failed to evaluate module");
-        return;
-    }
+        module = maybeModule.ToLocalChecked();
+        v8::Maybe<bool> result = module->InstantiateModule(ctx, CV8ScriptRuntime::ResolveModule);
+        if(result.IsNothing() || result.ToChecked() == false)
+        {
+            V8Helpers::Throw(isolate, "Failed to instantiate module");
+            return false;
+        }
+
+        auto returnValue = module->Evaluate(ctx);
+        if(returnValue.IsEmpty())
+        {
+            V8Helpers::Throw(isolate, "Failed to evaluate module");
+            return false;
+        }
+
+        return true;
+    });
+    if(!result) return;
 
     V8_RETURN(module->GetModuleNamespace());
 }
