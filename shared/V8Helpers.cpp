@@ -42,11 +42,8 @@ bool V8Helpers::TryCatch(const std::function<bool()>& fn)
                     }
                 }
 
-                auto stackTrace = tryCatch.StackTrace(context);
-                v8resource->DispatchErrorEvent(exception.IsEmpty() ? "unknown" : *v8::String::Utf8Value(isolate, exception),
-                                               (!stackTrace.IsEmpty() && stackTrace.ToLocalChecked()->IsString()) ? *v8::String::Utf8Value(isolate, stackTrace.ToLocalChecked()) : "",
-                                               *v8::String::Utf8Value(isolate, origin.ResourceName()),
-                                               line.IsNothing() ? -1 : line.ToChecked());
+                v8resource->DispatchErrorEvent(
+                  *v8::String::Utf8Value(isolate, message->Get()), *v8::String::Utf8Value(isolate, origin.ResourceName()), line.IsNothing() ? -1 : line.ToChecked());
             }
             else
             {

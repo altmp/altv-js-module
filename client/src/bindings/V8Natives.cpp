@@ -93,13 +93,14 @@ inline void ShowNativeArgParseErrorMsg(v8::Isolate* isolate, v8::Local<v8::Value
     Log::Error << source.ToString() << " " << errorMsg.str() << Log::Endl;
     Log::Error << "Check the documentation for the needed arguments of this native." << Log::Endl;
 
-    resource->DispatchErrorEvent(errorMsg.str(), "", source.GetFileName(), source.GetLineNumber());
+    resource->DispatchErrorEvent(errorMsg.str(), source.GetFileName(), source.GetLineNumber());
 }
 
 inline void ShowNativeArgMismatchErrorMsg(v8::Isolate* isolate, alt::INative* native, int expected, int received)
 {
     V8::SourceLocation source = V8::SourceLocation::GetCurrent(isolate);
-    V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredOrMicrotaskContext());
+    auto ctx = isolate->GetEnteredOrMicrotaskContext();
+    V8ResourceImpl* resource = V8ResourceImpl::Get(ctx);
 
     std::stringstream errorMsg;
     errorMsg << "Native argument size mismatch. Expected: " << expected << ", Received: " << received << " (" << native->GetName() << ")";
@@ -107,7 +108,7 @@ inline void ShowNativeArgMismatchErrorMsg(v8::Isolate* isolate, alt::INative* na
     Log::Error << source.ToString() << " " << errorMsg.str() << Log::Endl;
     Log::Error << "Check the documentation for the needed arguments of this native." << Log::Endl;
 
-    resource->DispatchErrorEvent(errorMsg.str(), "", source.GetFileName(), source.GetLineNumber());
+    resource->DispatchErrorEvent(errorMsg.str(), source.GetFileName(), source.GetLineNumber());
 }
 
 static void
