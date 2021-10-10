@@ -301,6 +301,16 @@ namespace V8
         return v8::Null(v8::Isolate::GetCurrent());
     }
 
+    inline std::string GetStackTrace(const std::string errorMsg)
+    {
+        auto isolate = v8::Isolate::GetCurrent();
+        auto ctx = isolate->GetEnteredOrMicrotaskContext();
+
+        auto exception = v8::Exception::Error(JSValue(errorMsg));
+        auto stackTrace = v8::TryCatch::StackTrace(ctx, exception).ToLocalChecked();
+        return *v8::String::Utf8Value(isolate, stackTrace);
+    }
+
 }  // namespace V8
 
 #define V8_GET_ISOLATE() v8::Isolate* isolate = info.GetIsolate()
