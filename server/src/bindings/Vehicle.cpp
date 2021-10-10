@@ -151,6 +151,7 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, Constructor, [](v8::Local<v8::Func
     V8::SetAccessor<IVehicle, bool, &IVehicle::IsFlamethrowerActive>(isolate, tpl, "flamethrowerActive");
     V8::SetAccessor<IVehicle, uint32_t, &IVehicle::GetRadioStationIndex, &IVehicle::SetRadioStationIndex>(isolate, tpl, "activeRadioStation");
     V8::SetAccessor<IVehicle, float, &IVehicle::GetLightsMultiplier, &IVehicle::SetLightsMultiplier>(isolate, tpl, "lightsMultiplier");
+    V8::SetAccessor<IVehicle, bool, &IVehicle::IsDriftMode, &IVehicle::SetDriftMode>(isolate, tpl, "driftModeOn");
 
     // Gamestate methods
     V8::SetMethod(isolate, tpl, "getDoorState", &GetDoorState);
