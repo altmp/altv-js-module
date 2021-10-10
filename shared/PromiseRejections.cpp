@@ -39,7 +39,7 @@ void V8::PromiseRejections::ProcessQueue(V8ResourceImpl* resource)
             Log::Error << "[V8] Unhandled promise rejection at " << resource->GetResource()->GetName() << ":" << fileName << " (" << rejectionMsg << ")" << Log::Endl;
         }
 
-        resource->DispatchErrorEvent(rejectionMsg, "", fileName, rejection->location.GetLineNumber());
+        resource->DispatchErrorEvent(rejectionMsg, fileName, rejection->location.GetLineNumber());
     }
 
     queue.clear();

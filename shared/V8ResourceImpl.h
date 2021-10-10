@@ -124,9 +124,9 @@ public:
         InvokeEventHandlers(nullptr, GetLocalHandlers("resourceStop"), args);
     }
 
-    void DispatchErrorEvent(const std::string& error, const std::string& stackTrace, const std::string& file, int32_t line)
+    void DispatchErrorEvent(const std::string& errorMsg, const std::string& file, int32_t line)
     {
-        std::vector<v8::Local<v8::Value>> args = { V8::JSValue(error), V8::JSValue(stackTrace), V8::JSValue(file), V8::JSValue(line) };
+        std::vector<v8::Local<v8::Value>> args = { v8::Exception::Error(V8::JSValue(errorMsg)), V8::JSValue(file), V8::JSValue(line) };
         InvokeEventHandlers(nullptr, GetLocalHandlers("resourceError"), args);
     }
 
