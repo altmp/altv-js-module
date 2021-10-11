@@ -376,11 +376,10 @@ namespace V8
 
 #define V8_CHECK_CONSTRUCTOR() V8_CHECK(info.IsConstructCall(), "function can't be called without new")
 
-#define V8_CHECK_ARGS_LEN(count)           V8_CHECK(info.Length() == (count), #count " arguments expected (" __FUNCTION__ ")")
-#define V8_CHECK_ARGS_LEN2(count1, count2) V8_CHECK(info.Length() == (count1) || info.Length() == (count2), #count1 " or " #count2 " arguments expected (" __FUNCTION__ ")")
-#define V8_CHECK_ARGS_LEN_MIN_MAX(count1, count2) \
-    V8_CHECK(info.Length() >= (count1) && info.Length() <= (count2), "Minimum " #count1 ", maximum " #count2 " arguments expected (" __FUNCTION__ ")")
-#define V8_CHECK_ARGS_LEN_MIN(count) V8_CHECK(info.Length() >= (count), "Minimum " #count " arguments expected (" __FUNCTION__ ")")
+#define V8_CHECK_ARGS_LEN(count)                  V8_CHECK(info.Length() == (count), #count " arguments expected")
+#define V8_CHECK_ARGS_LEN2(count1, count2)        V8_CHECK(info.Length() == (count1) || info.Length() == (count2), #count1 " or " #count2 " arguments expected")
+#define V8_CHECK_ARGS_LEN_MIN_MAX(count1, count2) V8_CHECK(info.Length() >= (count1) && info.Length() <= (count2), "Minimum " #count1 ", maximum " #count2 " arguments expected")
+#define V8_CHECK_ARGS_LEN_MIN(count)              V8_CHECK(info.Length() >= (count), "Minimum " #count " arguments expected")
 
 #define V8_TO_BOOLEAN(v8Val, val) \
     bool val;                     \
