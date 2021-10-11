@@ -66,7 +66,6 @@ void CNodeScriptRuntime::OnDispose()
                     platform->DrainTasks(isolate);
             } while (uv_loop_alive(uv_default_loop()));
     }*/
-
 #ifdef WIN32
     v8::V8::Dispose();
     v8::V8::ShutdownPlatform();
