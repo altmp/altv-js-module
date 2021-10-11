@@ -27,7 +27,7 @@ void V8::PromiseRejections::ProcessQueue(V8ResourceImpl* resource)
 
     for(auto& rejection : queue)
     {
-        auto rejectionMsg = *v8::String::Utf8Value(isolate, rejection->value.Get(isolate)->ToString(ctx).ToLocalChecked());
+        std::string rejectionMsg = *v8::String::Utf8Value(isolate, rejection->value.Get(isolate)->ToString(ctx).ToLocalChecked());
         auto fileName = rejection->location.GetFileName();
         if(rejection->location.GetLineNumber() != 0)
         {
