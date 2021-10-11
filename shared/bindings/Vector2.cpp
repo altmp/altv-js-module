@@ -479,6 +479,23 @@ static void IsInRange(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_BOOLEAN(isInRange);
 }
 
+static void Lerp(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(2);
+
+    V8_TO_VECTOR2(info.This(), _this);
+    V8_ARG_TO_VECTOR2(1, vec);
+    V8_ARG_TO_NUMBER(2, ratio);
+
+    constexpr auto lerp = [](float a, float b, float t) { return a + (b - a) * t; };
+    auto lerpedX = lerp(_this[0], vec[0], (float)ratio);
+    auto lerpedY = lerp(_this[1], vec[1], (float)ratio);
+    alt::Vector2f lerpedVector = { lerpedX, lerpedY };
+
+    V8_RETURN_VECTOR2(lerpedVector);
+}
+
 static void StaticZero(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE();
@@ -637,4 +654,5 @@ extern V8Class v8Vector2("Vector2", Constructor, [](v8::Local<v8::FunctionTempla
     V8::SetMethod(isolate, tpl, "toRadians", ToRadians);
     V8::SetMethod(isolate, tpl, "toDegrees", ToDegrees);
     V8::SetMethod(isolate, tpl, "isInRange", IsInRange);
+    V8::SetMethod(isolate, tpl, "lerp", Lerp);
 });
