@@ -3,12 +3,6 @@
 #include "V8Class.h"
 #include "V8Helpers.h"
 
-struct DiscordRequestOAuth2TokenCallbackData
-{
-    CV8ResourceImpl* resource;
-    v8::Persistent<v8::Promise::Resolver> resolver;
-};
-
 static void CurrentUserGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
