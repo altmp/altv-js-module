@@ -72,6 +72,10 @@ bool CWorker::EventLoop()
 {
     if(shouldTerminate) return false;
 
+    v8::Locker locker(isolate);
+    v8::Isolate::Scope isolate_scope(isolate);
+    v8::HandleScope handle_scope(isolate);
+
     HandleWorkerEventQueue();
     v8::platform::PumpMessageLoop(CV8ScriptRuntime::Instance().GetPlatform(), isolate);
 
@@ -144,6 +148,8 @@ bool CWorker::SetupIsolate()
 void CWorker::DestroyIsolate()
 {
     // todo: clean up isolate and stuff
+    isolate->Dispose();
+    context.Reset();
 }
 
 void CWorker::SetupGlobals(v8::Local<v8::Object> global)
