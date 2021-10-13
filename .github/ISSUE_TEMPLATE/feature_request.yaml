@@ -42,17 +42,6 @@ body:
     validations:
       required: false
   - type: dropdown
-    id: branch
-    attributes:
-      label: Branch
-      description: On what branch is the issue present
-      options:
-        - release
-        - rc
-        - dev
-    validations:
-      required: false
-  - type: dropdown
     id: scope
     attributes:
       label: Scope

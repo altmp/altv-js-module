@@ -50,17 +50,6 @@ body:
     validations:
       required: true
   - type: dropdown
-    id: branch
-    attributes:
-      label: Branch
-      description: On what branch is the issue present
-      options:
-        - release
-        - rc
-        - dev
-    validations:
-      required: true
-  - type: dropdown
     id: scope
     attributes:
       label: Scope
