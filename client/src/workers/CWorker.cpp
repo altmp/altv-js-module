@@ -1,11 +1,12 @@
 #include "CWorker.h"
 #include "Globals.h"
 #include "libplatform/libplatform.h"
-#include "CV8ScriptRuntime.h"
+#include "../CV8ScriptRuntime.h"
+#include "../CV8Resource.h"
 
 #include <functional>
 
-CWorker::CWorker(const std::string& filePath) : filePath(filePath)
+CWorker::CWorker(const std::string& filePath, CV8ResourceImpl* resource) : filePath(filePath), resource(resource)
 {
     Start();
 }
@@ -47,11 +48,14 @@ void CWorker::Start()
 
 void CWorker::Thread()
 {
-    SetupIsolate();
-
-    // Isolate is set up, the worker is now ready
-    isReady = true;
-    EmitToMain("load", std::vector<alt::MValue>());
+    bool result = SetupIsolate();
+    if(!result) shouldTerminate = true;
+    else
+    {
+        // Isolate is set up, the worker is now ready
+        isReady = true;
+        EmitToMain("load", std::vector<alt::MValue>());
+    }
 
     while(true)
     {
@@ -67,10 +71,6 @@ void CWorker::Thread()
 bool CWorker::EventLoop()
 {
     if(shouldTerminate) return false;
-    v8::Locker locker(isolate);
-    v8::Isolate::Scope isolate_scope(isolate);
-    v8::HandleScope handle_scope(isolate);
-    v8::Context::Scope scope(context.Get(isolate));
 
     HandleWorkerEventQueue();
     v8::platform::PumpMessageLoop(CV8ScriptRuntime::Instance().GetPlatform(), isolate);
@@ -78,9 +78,67 @@ bool CWorker::EventLoop()
     return true;
 }
 
-void CWorker::SetupIsolate()
+bool CWorker::SetupIsolate()
 {
-    // todo: create isolate and stuff
+    // Create the isolate
+    v8::Isolate::CreateParams params;
+    params.array_buffer_allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
+    isolate = v8::Isolate::New(params);
+
+    // Set up locker and scopes
+    v8::Locker locker(isolate);
+    v8::Isolate::Scope isolate_scope(isolate);
+    v8::HandleScope handle_scope(isolate);
+
+    // Create and set up the context
+    context.Reset(isolate, v8::Context::New(isolate));
+    v8::Context::Scope scope(context.Get(isolate));
+    SetupGlobals(context.Get(isolate)->Global());
+
+    // Load code
+    auto path = alt::ICore::Instance().Resolve(resource->GetResource(), filePath, "");
+    if(!path.pkg)
+    {
+        Log::Error << "Worker file not found" << Log::Endl;
+        return false;
+    }
+    auto file = path.pkg->OpenFile(path.fileName);
+    std::string src(path.pkg->GetFileSize(file), '\0');
+    path.pkg->ReadFile(file, src.data(), src.size());
+    path.pkg->CloseFile(file);
+
+    // Compile the code
+    v8::ScriptOrigin scriptOrigin(isolate, V8::JSValue(path.fileName.ToString()), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
+    v8::ScriptCompiler::Source source(V8::JSValue(src), scriptOrigin);
+    auto maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source);
+    if(maybeModule.IsEmpty())
+    {
+        Log::Error << "Failed to compile worker module" << Log::Endl;
+        return false;
+    }
+    auto module = maybeModule.ToLocalChecked();
+
+    // Start the code
+    v8::Maybe<bool> result = module->InstantiateModule(
+      context.Get(isolate), [](v8::Local<v8::Context> context, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray> import_assertions, v8::Local<v8::Module> referrer) {
+          // todo: implement imports
+          return v8::MaybeLocal<v8::Module>();
+      });
+    if(result.IsNothing() || result.ToChecked() == false)
+    {
+        Log::Error << "Failed to instantiate worker module" << Log::Endl;
+        return false;
+    }
+
+    // Evaluate the code
+    auto returnValue = module->Evaluate(context.Get(isolate));
+    if(returnValue.IsEmpty())
+    {
+        Log::Error << "Failed to evaluate worker module" << Log::Endl;
+        return false;
+    }
+
+    return true;
 }
 
 void CWorker::DestroyIsolate()
@@ -128,7 +186,6 @@ void CWorker::HandleMainEventQueue()
 
 void CWorker::HandleWorkerEventQueue()
 {
-    // todo: handle event queue
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
     auto context = isolate->GetEnteredOrMicrotaskContext();
     std::unique_lock<std::mutex> lock(worker_queueLock);
