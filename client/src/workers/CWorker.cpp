@@ -3,6 +3,7 @@
 #include "libplatform/libplatform.h"
 #include "../CV8ScriptRuntime.h"
 #include "../CV8Resource.h"
+#include "V8Module.h"
 
 #include <functional>
 
@@ -150,12 +151,26 @@ void CWorker::DestroyIsolate()
     isolate->Dispose();
 }
 
+extern V8Module altModule;
 void CWorker::SetupGlobals(v8::Local<v8::Object> global)
 {
     V8Helpers::RegisterFunc(global, "emit", &Emit);
     V8Helpers::RegisterFunc(global, "on", &On);
     V8Helpers::RegisterFunc(global, "once", &Once);
     V8Helpers::RegisterFunc(global, "setDestroyHandler", &::SetDestroyHandler);
+
+    auto altExports = altModule.GetExports(isolate, context);
+    auto console = global->Get(context, V8_NEW_STRING("console")).ToLocalChecked().As<v8::Object>();
+    if(!console.IsEmpty())
+    {
+        console->Set(context, V8_NEW_STRING("log"), altExports->Get(context, V8_NEW_STRING("log")).ToLocalChecked());
+        console->Set(context, V8_NEW_STRING("warn"), altExports->Get(context, V8_NEW_STRING("logWarning")).ToLocalChecked());
+        console->Set(context, V8_NEW_STRING("error"), altExports->Get(context, V8_NEW_STRING("logError")).ToLocalChecked());
+    }
+    // global->Set(context, V8_NEW_STRING("setInterval"), altExports->Get(context, V8_NEW_STRING("setInterval")).ToLocalChecked());
+    // global->Set(context, V8_NEW_STRING("setTimeout"), altExports->Get(context, V8_NEW_STRING("setTimeout")).ToLocalChecked());
+    // global->Set(context, V8_NEW_STRING("clearInterval"), altExports->Get(context, V8_NEW_STRING("clearInterval")).ToLocalChecked());
+    // global->Set(context, V8_NEW_STRING("clearTimeout"), altExports->Get(context, V8_NEW_STRING("clearTimeout")).ToLocalChecked());
 }
 
 void CWorker::HandleMainEventQueue()
