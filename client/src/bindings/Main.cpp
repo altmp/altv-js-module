@@ -849,7 +849,7 @@ static void PingGetter(v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::V
 
 extern V8Module sharedModule;
 extern V8Class v8Player, v8Player, v8Vehicle, v8WebView, v8HandlingData, v8LocalStorage, v8MemoryBuffer, v8MapZoomData, v8Discord, v8Voice, v8WebSocketClient, v8Checkpoint, v8HttpClient,
-  v8Audio, v8LocalPlayer, v8Profiler;
+  v8Audio, v8LocalPlayer, v8Profiler, v8Worker;
 extern V8Module altModule("alt",
                           &sharedModule,
                           { v8Player,
@@ -866,7 +866,8 @@ extern V8Module altModule("alt",
                             v8HttpClient,
                             v8Audio,
                             v8LocalPlayer,
-                            v8Profiler },
+                            v8Profiler,
+                            v8Worker },
                           [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
                               V8Helpers::RegisterFunc(exports, "onServer", &OnServer);
                               V8Helpers::RegisterFunc(exports, "onceServer", &OnceServer);
