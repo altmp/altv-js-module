@@ -17,7 +17,6 @@ class CWorker
     bool shouldTerminate = false;
     bool isReady = false;
 
-    void Start();
     void Thread();
 
     std::unordered_multimap<std::string, V8::EventCallback> main_eventHandlers;
@@ -42,6 +41,7 @@ public:
     CWorker(const std::string& filePath, CV8ResourceImpl* resource);
     ~CWorker() = default;
 
+    void Start();
     void Destroy();
 
     void EmitToWorker(const std::string& eventName, std::vector<alt::MValue>& args);
