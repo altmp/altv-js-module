@@ -29,7 +29,9 @@ class CWorker
     std::mutex worker_queueLock;
 
     v8::Isolate* isolate = nullptr;
-    V8::CPersistent<v8::Context> context;
+    v8::Local<v8::Context> context;
+
+    v8::Local<v8::Function> destroyHandler;
 
     bool EventLoop();
 
@@ -52,6 +54,8 @@ public:
 
     void HandleMainEventQueue();
     void HandleWorkerEventQueue();
+
+    void SetDestroyHandler(v8::Local<v8::Function> handler);
 
     std::string GetFilePath()
     {
