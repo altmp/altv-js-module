@@ -1,4 +1,8 @@
 #include "CWorker.h"
+#include "Globals.h"
+#include "libplatform/libplatform.h"
+#include "CV8ScriptRuntime.h"
+
 #include <functional>
 
 CWorker::CWorker(const std::string& filePath) : filePath(filePath)
@@ -63,9 +67,13 @@ void CWorker::Thread()
 bool CWorker::EventLoop()
 {
     if(shouldTerminate) return false;
-    // todo: event loop
+    v8::Locker locker(isolate);
+    v8::Isolate::Scope isolate_scope(isolate);
+    v8::HandleScope handle_scope(isolate);
+    v8::Context::Scope scope(context.Get(isolate));
 
     HandleWorkerEventQueue();
+    v8::platform::PumpMessageLoop(CV8ScriptRuntime::Instance().GetPlatform(), isolate);
 
     return true;
 }
@@ -82,7 +90,9 @@ void CWorker::DestroyIsolate()
 
 void CWorker::SetupGlobals(v8::Local<v8::Object> global)
 {
-    // todo: set up global functions for the isolate
+    V8Helpers::RegisterFunc(global, "emit", &Emit);
+    V8Helpers::RegisterFunc(global, "on", &On);
+    V8Helpers::RegisterFunc(global, "once", &Once);
 }
 
 void CWorker::HandleMainEventQueue()
