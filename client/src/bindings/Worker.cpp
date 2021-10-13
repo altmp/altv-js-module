@@ -7,6 +7,8 @@
 
 #include "./workers/CWorker.h"
 
+static constexpr int MAX_WORKERS_PER_RESOURCE = 20;
+
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -14,6 +16,9 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(1);
 
     V8_ARG_TO_STRING(1, path);
+
+    V8_CHECK(static_cast<CV8ResourceImpl*>(resource)->GetWorkerCount() < MAX_WORKERS_PER_RESOURCE,
+             ("Maximum amount of workers per resource reached (" + std::to_string(MAX_WORKERS_PER_RESOURCE) + ")"));
 
     auto worker = new CWorker(path.ToString());
     info.This()->SetInternalField(0, v8::External::New(isolate, worker));

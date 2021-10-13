@@ -143,6 +143,10 @@ public:
 
     void AddWorker(CWorker* worker);
     void RemoveWorker(CWorker* worker);
+    size_t GetWorkerCount()
+    {
+        return workers.size();
+    }
 
 private:
     using WebViewEvents = std::unordered_multimap<std::string, V8::EventCallback>;
