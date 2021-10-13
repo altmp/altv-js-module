@@ -72,7 +72,8 @@ static void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_STRING(1, eventName);
 
-    std::vector<alt::MValue> args(info.Length() - 1);
+    std::vector<alt::MValue> args;
+    args.reserve(info.Length() - 1);
     for(int i = 1; i < info.Length(); i++)
     {
         V8_ARG_TO_MVALUE(i + 1, arg);
