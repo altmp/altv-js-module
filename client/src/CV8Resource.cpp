@@ -25,7 +25,7 @@
 #include "V8Helpers.h"
 #include "V8Module.h"
 
-#include "bindings/workers/CWorker.h"
+#include "workers/CWorker.h"
 
 static void StaticRequire(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
