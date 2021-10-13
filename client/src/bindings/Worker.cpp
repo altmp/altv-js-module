@@ -5,7 +5,7 @@
 #include "V8ResourceImpl.h"
 #include "../CV8Resource.h"
 
-#include "./workers/CWorker.h"
+#include "../workers/CWorker.h"
 
 static constexpr int MAX_WORKERS_PER_RESOURCE = 20;
 
