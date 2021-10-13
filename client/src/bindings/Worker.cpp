@@ -42,6 +42,15 @@ static void ValidGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8
     V8_RETURN_BOOLEAN(worker == nullptr);
 }
 
+static void Start(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, worker, CWorker);
+
+    V8_CHECK(!worker->IsReady(), "Worker is already started");
+    worker->Start();
+}
+
 static void Destroy(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -104,6 +113,7 @@ extern V8Class v8Worker("Worker", &Constructor, [](v8::Local<v8::FunctionTemplat
 
     V8::SetMethod(isolate, tpl, "toString", ToString);
     V8::SetAccessor(isolate, tpl, "valid", ValidGetter);
+    V8::SetMethod(isolate, tpl, "start", Start);
     V8::SetMethod(isolate, tpl, "destroy", Destroy);
 
     V8::SetMethod(isolate, tpl, "emit", Emit);

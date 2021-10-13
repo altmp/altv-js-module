@@ -6,9 +6,12 @@
 
 #include <functional>
 
-CWorker::CWorker(const std::string& filePath, CV8ResourceImpl* resource) : filePath(filePath), resource(resource)
+CWorker::CWorker(const std::string& filePath, CV8ResourceImpl* resource) : filePath(filePath), resource(resource) {}
+
+void CWorker::Start()
 {
-    Start();
+    thread = std::thread(std::bind(&CWorker::Thread, this));
+    thread.detach();
 }
 
 void CWorker::Destroy()
@@ -38,12 +41,6 @@ void CWorker::SubscribeToMain(const std::string& eventName, v8::Local<v8::Functi
 {
     auto isolate = v8::Isolate::GetCurrent();
     main_eventHandlers.insert({ eventName, V8::EventCallback(isolate, callback, V8::SourceLocation::GetCurrent(isolate), once) });
-}
-
-void CWorker::Start()
-{
-    thread = std::thread(std::bind(&CWorker::Thread, this));
-    thread.detach();
 }
 
 void CWorker::Thread()
