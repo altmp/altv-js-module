@@ -1,20 +1,68 @@
----
 name: Feature request
 about: Suggest an idea for this project
 title: ''
-labels: ''
+labels: ['type: enhancement']
 assignees: ''
 
----
-
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
-
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
-
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
-
-**Additional context**
-Add any other context or screenshots about the feature request here.
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description of the problem
+      description: Is your feature request related to a problem? Please describe
+      placeholder: A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Desired solution for the problem
+      description: Describe the solution you'd like
+      placeholder: A clear and concise description of what you want to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you considered
+      description: Describe alternatives you've considered
+      placeholder: A clear and concise description of any alternative solutions or features you've considered.
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Any other additional context you'd like to add
+      placeholder: Add any other context or screenshots about the feature request here.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: On what version is the issue present
+      placeholder: e.g. dev/7.0-dev3
+    validations:
+      required: true
+  - type: dropdown
+    id: branch
+    attributes:
+      label: Branch
+      description: On what branch is the issue present
+      options:
+        - release
+        - rc
+        - dev
+      validations:
+        required: true
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      description: Select which scopes are affected by the issue
+      multiple: true
+      options:
+        - shared
+        - server
+        - client
+        - docs
+      
