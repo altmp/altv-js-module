@@ -42,3 +42,13 @@ void Once(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     worker->SubscribeToWorker(eventName.ToString(), callback, true);
 }
+
+void SetDestroyHandler(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, worker, CWorker);
+
+    V8_ARG_TO_FUNCTION(1, callback);
+    worker->SetDestroyHandler(callback);
+}

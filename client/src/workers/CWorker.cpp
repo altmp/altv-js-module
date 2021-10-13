@@ -92,9 +92,9 @@ bool CWorker::SetupIsolate()
     v8::HandleScope handle_scope(isolate);
 
     // Create and set up the context
-    context.Reset(isolate, v8::Context::New(isolate));
-    v8::Context::Scope scope(context.Get(isolate));
-    SetupGlobals(context.Get(isolate)->Global());
+    context = v8::Context::New(isolate);
+    v8::Context::Scope scope(context);
+    SetupGlobals(context->Global());
 
     // Load code
     auto path = alt::ICore::Instance().Resolve(resource->GetResource(), filePath, "");
@@ -120,8 +120,8 @@ bool CWorker::SetupIsolate()
     auto module = maybeModule.ToLocalChecked();
 
     // Start the code
-    v8::Maybe<bool> result = module->InstantiateModule(
-      context.Get(isolate), [](v8::Local<v8::Context> context, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray> import_assertions, v8::Local<v8::Module> referrer) {
+    v8::Maybe<bool> result =
+      module->InstantiateModule(context, [](v8::Local<v8::Context> context, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray> import_assertions, v8::Local<v8::Module> referrer) {
           // todo: implement imports
           return v8::MaybeLocal<v8::Module>();
       });
@@ -132,7 +132,7 @@ bool CWorker::SetupIsolate()
     }
 
     // Evaluate the code
-    auto returnValue = module->Evaluate(context.Get(isolate));
+    auto returnValue = module->Evaluate(context);
     if(returnValue.IsEmpty())
     {
         Log::Error << "Failed to evaluate worker module" << Log::Endl;
@@ -145,8 +145,9 @@ bool CWorker::SetupIsolate()
 void CWorker::DestroyIsolate()
 {
     // todo: clean up isolate and stuff
+    // Call destroy handler
+    if(!destroyHandler.IsEmpty()) destroyHandler->Call(context, v8::Undefined(isolate), 0, nullptr);
     isolate->Dispose();
-    context.Reset();
 }
 
 void CWorker::SetupGlobals(v8::Local<v8::Object> global)
@@ -154,6 +155,7 @@ void CWorker::SetupGlobals(v8::Local<v8::Object> global)
     V8Helpers::RegisterFunc(global, "emit", &Emit);
     V8Helpers::RegisterFunc(global, "on", &On);
     V8Helpers::RegisterFunc(global, "once", &Once);
+    V8Helpers::RegisterFunc(global, "setDestroyHandler", &::SetDestroyHandler);
 }
 
 void CWorker::HandleMainEventQueue()
@@ -216,4 +218,9 @@ void CWorker::HandleWorkerEventQueue()
         // Pop the event from the queue
         worker_queuedEvents.pop();
     }
+}
+
+void CWorker::SetDestroyHandler(v8::Local<v8::Function> handler)
+{
+    destroyHandler = handler;
 }
