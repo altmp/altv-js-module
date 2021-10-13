@@ -40,7 +40,7 @@ body:
       description: On what operating system is the issue present
       placeholder: E.g. Ubuntu 20.04
     validations:
-      required: true;
+      required: true
   - type: input
     id: version
     attributes:
