@@ -17,8 +17,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_STRING(1, path);
 
-    V8_CHECK(static_cast<CV8ResourceImpl*>(resource)->GetWorkerCount() < MAX_WORKERS_PER_RESOURCE,
-             ("Maximum amount of workers per resource reached (" + std::to_string(MAX_WORKERS_PER_RESOURCE) + ")"));
+    V8_CHECK(static_cast<CV8ResourceImpl*>(resource)->GetWorkerCount() < MAX_WORKERS_PER_RESOURCE, "Maximum amount of workers per resource reached");
 
     auto worker = new CWorker(path.ToString());
     info.This()->SetInternalField(0, v8::External::New(isolate, worker));
@@ -100,6 +99,8 @@ static void Once(const v8::FunctionCallbackInfo<v8::Value>& info)
 extern V8Class v8Worker("Worker", &Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
     tpl->InstanceTemplate()->SetInternalFieldCount(1);
+
+    tpl->Set(V8::JSValue("maxWorkers"), V8::JSValue(MAX_WORKERS_PER_RESOURCE), v8::PropertyAttribute::ReadOnly);
 
     V8::SetMethod(isolate, tpl, "toString", ToString);
     V8::SetAccessor(isolate, tpl, "valid", ValidGetter);
