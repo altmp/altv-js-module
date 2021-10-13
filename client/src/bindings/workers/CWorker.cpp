@@ -44,7 +44,10 @@ void CWorker::Start()
 void CWorker::Thread()
 {
     SetupIsolate();
+
+    // Isolate is set up, the worker is now ready
     isReady = true;
+    EmitToMain("load", {});
 
     while(true)
     {
