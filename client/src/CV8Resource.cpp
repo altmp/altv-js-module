@@ -25,6 +25,8 @@
 #include "V8Helpers.h"
 #include "V8Module.h"
 
+#include "bindings/workers/CWorker.h"
+
 static void StaticRequire(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     v8::Isolate* isolate = info.GetIsolate();
@@ -368,6 +370,11 @@ void CV8ResourceImpl::OnTick()
                 ++it;
         }
     }
+
+    for(auto worker : workers)
+    {
+        worker->HandleMainEventQueue();
+    }
 }
 
 void CV8ResourceImpl::OnPromiseRejectedWithNoHandler(v8::PromiseRejectMessage& data)
@@ -668,4 +675,14 @@ v8::MaybeLocal<v8::Module> CV8ResourceImpl::ResolveCode(const std::string& code,
     maybeModule = CompileESM(isolate, name.str(), code);
 
     return maybeModule;
+}
+
+void CV8ResourceImpl::AddWorker(CWorker* worker)
+{
+    workers.insert(worker);
+}
+
+void CV8ResourceImpl::RemoveWorker(CWorker* worker)
+{
+    workers.erase(worker);
 }
