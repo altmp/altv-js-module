@@ -1,8 +1,6 @@
 name: Feature request
 description: Suggest an idea for this project
-title: ''
 labels: ['type: enhancement']
-assignees: ''
 
 body:
   - type: textarea
@@ -52,8 +50,8 @@ body:
         - release
         - rc
         - dev
-      validations:
-        required: true
+    validations:
+      required: true
   - type: dropdown
     id: scope
     attributes:
@@ -65,4 +63,4 @@ body:
         - server
         - client
         - docs
-      
+
