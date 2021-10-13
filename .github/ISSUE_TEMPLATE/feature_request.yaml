@@ -63,3 +63,5 @@ body:
         - server
         - client
         - docs
+    validations:
+      required: true
