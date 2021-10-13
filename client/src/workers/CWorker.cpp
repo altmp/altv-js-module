@@ -23,13 +23,13 @@ void CWorker::Destroy()
 void CWorker::EmitToWorker(const std::string& eventName, std::vector<alt::MValue>& args)
 {
     std::unique_lock<std::mutex> lock(worker_queueLock);
-    worker_queuedEvents.push(std::make_pair(eventName, args));
+    worker_queuedEvents.push(std::make_pair(eventName, std::move(args)));
 }
 
 void CWorker::EmitToMain(const std::string& eventName, std::vector<alt::MValue>& args)
 {
     std::unique_lock<std::mutex> lock(main_queueLock);
-    main_queuedEvents.push(std::make_pair(eventName, args));
+    main_queuedEvents.push(std::make_pair(eventName, std::move(args)));
 }
 
 void CWorker::SubscribeToWorker(const std::string& eventName, v8::Local<v8::Function> callback, bool once)
@@ -73,6 +73,7 @@ bool CWorker::EventLoop()
     v8::Locker locker(isolate);
     v8::Isolate::Scope isolate_scope(isolate);
     v8::HandleScope handle_scope(isolate);
+    v8::Context::Scope context_scope(context.Get(isolate));
 
     HandleWorkerEventQueue();
     v8::platform::PumpMessageLoop(CV8ScriptRuntime::Instance().GetPlatform(), isolate);
@@ -93,20 +94,22 @@ bool CWorker::SetupIsolate()
     v8::HandleScope handle_scope(isolate);
 
     // Create and set up the context
-    context = v8::Context::New(isolate);
-    v8::Context::Scope scope(context);
-    SetupGlobals(context->Global());
+    auto ctx = v8::Context::New(isolate);
+    context.Reset(isolate, ctx);
+    v8::Context::Scope scope(ctx);
+    SetupGlobals(ctx->Global());
+    ctx->SetAlignedPointerInEmbedderData(1, this);
 
     // Load code
     auto path = alt::ICore::Instance().Resolve(resource->GetResource(), filePath, "");
-    if(!path.pkg)
+    if(!path.pkg || !path.pkg->FileExists(path.fileName))
     {
-        Log::Error << "Worker file not found" << Log::Endl;
+        EmitError("Worker file not found");
         return false;
     }
     auto file = path.pkg->OpenFile(path.fileName);
     std::string src(path.pkg->GetFileSize(file), '\0');
-    path.pkg->ReadFile(file, src.data(), src.size());
+    auto size = path.pkg->ReadFile(file, src.data(), src.size());
     path.pkg->CloseFile(file);
 
     // Compile the code
@@ -115,28 +118,28 @@ bool CWorker::SetupIsolate()
     auto maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source);
     if(maybeModule.IsEmpty())
     {
-        Log::Error << "Failed to compile worker module" << Log::Endl;
+        EmitError("Failed to compile worker module");
         return false;
     }
     auto module = maybeModule.ToLocalChecked();
 
     // Start the code
     v8::Maybe<bool> result =
-      module->InstantiateModule(context, [](v8::Local<v8::Context> context, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray> import_assertions, v8::Local<v8::Module> referrer) {
+      module->InstantiateModule(ctx, [](v8::Local<v8::Context> context, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray> import_assertions, v8::Local<v8::Module> referrer) {
           // todo: implement imports
           return v8::MaybeLocal<v8::Module>();
       });
     if(result.IsNothing() || result.ToChecked() == false)
     {
-        Log::Error << "Failed to instantiate worker module" << Log::Endl;
+        EmitError("Failed to instantiate worker module");
         return false;
     }
 
     // Evaluate the code
-    auto returnValue = module->Evaluate(context);
+    auto returnValue = module->Evaluate(ctx);
     if(returnValue.IsEmpty())
     {
-        Log::Error << "Failed to evaluate worker module" << Log::Endl;
+        EmitError("Failed to evaluate worker module");
         return false;
     }
 
@@ -145,9 +148,7 @@ bool CWorker::SetupIsolate()
 
 void CWorker::DestroyIsolate()
 {
-    // todo: clean up isolate and stuff
-    // Call destroy handler
-    if(!destroyHandler.IsEmpty()) destroyHandler->Call(context, v8::Undefined(isolate), 0, nullptr);
+    while(isolate->IsInUse()) isolate->Exit();
     isolate->Dispose();
 }
 
@@ -157,20 +158,25 @@ void CWorker::SetupGlobals(v8::Local<v8::Object> global)
     V8Helpers::RegisterFunc(global, "emit", &Emit);
     V8Helpers::RegisterFunc(global, "on", &On);
     V8Helpers::RegisterFunc(global, "once", &Once);
-    V8Helpers::RegisterFunc(global, "setDestroyHandler", &::SetDestroyHandler);
 
-    auto altExports = altModule.GetExports(isolate, context);
-    auto console = global->Get(context, V8_NEW_STRING("console")).ToLocalChecked().As<v8::Object>();
+    auto console = global->Get(context.Get(isolate), V8_NEW_STRING("console")).ToLocalChecked().As<v8::Object>();
     if(!console.IsEmpty())
     {
-        console->Set(context, V8_NEW_STRING("log"), altExports->Get(context, V8_NEW_STRING("log")).ToLocalChecked());
-        console->Set(context, V8_NEW_STRING("warn"), altExports->Get(context, V8_NEW_STRING("logWarning")).ToLocalChecked());
-        console->Set(context, V8_NEW_STRING("error"), altExports->Get(context, V8_NEW_STRING("logError")).ToLocalChecked());
+        V8Helpers::RegisterFunc(console, "log", &::Log);
+        V8Helpers::RegisterFunc(console, "warn", &::LogWarning);
+        V8Helpers::RegisterFunc(console, "error", &::LogError);
     }
+    // todo: add timers
     // global->Set(context, V8_NEW_STRING("setInterval"), altExports->Get(context, V8_NEW_STRING("setInterval")).ToLocalChecked());
     // global->Set(context, V8_NEW_STRING("setTimeout"), altExports->Get(context, V8_NEW_STRING("setTimeout")).ToLocalChecked());
     // global->Set(context, V8_NEW_STRING("clearInterval"), altExports->Get(context, V8_NEW_STRING("clearInterval")).ToLocalChecked());
     // global->Set(context, V8_NEW_STRING("clearTimeout"), altExports->Get(context, V8_NEW_STRING("clearTimeout")).ToLocalChecked());
+}
+
+void CWorker::EmitError(const std::string& error)
+{
+    std::vector<alt::MValue> args = { alt::ICore::Instance().CreateMValueString(error) };
+    EmitToMain("error", args);
 }
 
 void CWorker::HandleMainEventQueue()
@@ -185,7 +191,8 @@ void CWorker::HandleMainEventQueue()
         auto& event = main_queuedEvents.front();
 
         // Create a vector of the event arguments
-        std::vector<v8::Local<v8::Value>> args(event.second.size());
+        std::vector<v8::Local<v8::Value>> args;
+        args.reserve(event.second.size());
         for(auto& arg : event.second)
         {
             args.push_back(V8Helpers::MValueToV8(arg));
@@ -216,7 +223,8 @@ void CWorker::HandleWorkerEventQueue()
         auto& event = worker_queuedEvents.front();
 
         // Create a vector of the event arguments
-        std::vector<v8::Local<v8::Value>> args(event.second.size());
+        std::vector<v8::Local<v8::Value>> args;
+        args.reserve(event.second.size());
         for(auto& arg : event.second)
         {
             args.push_back(V8Helpers::MValueToV8(arg));
@@ -233,9 +241,4 @@ void CWorker::HandleWorkerEventQueue()
         // Pop the event from the queue
         worker_queuedEvents.pop();
     }
-}
-
-void CWorker::SetDestroyHandler(v8::Local<v8::Function> handler)
-{
-    destroyHandler = handler;
 }
