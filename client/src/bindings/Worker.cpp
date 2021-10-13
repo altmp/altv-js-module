@@ -19,7 +19,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_CHECK(static_cast<CV8ResourceImpl*>(resource)->GetWorkerCount() < MAX_WORKERS_PER_RESOURCE, "Maximum amount of workers per resource reached");
 
-    auto worker = new CWorker(path.ToString());
+    auto worker = new CWorker(path.ToString(), static_cast<CV8ResourceImpl*>(resource));
     info.This()->SetInternalField(0, v8::External::New(isolate, worker));
     static_cast<CV8ResourceImpl*>(resource)->AddWorker(worker);
 }

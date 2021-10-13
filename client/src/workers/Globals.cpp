@@ -2,7 +2,7 @@
 #include "CWorker.h"
 #include "V8Helpers.h"
 
-static void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
+void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_CHECK_ARGS_LEN_MIN(1);
@@ -19,7 +19,7 @@ static void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
     worker->EmitToMain(eventName.ToString(), args);
 }
 
-static void On(const v8::FunctionCallbackInfo<v8::Value>& info)
+void On(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_CHECK_ARGS_LEN(2);
@@ -31,7 +31,7 @@ static void On(const v8::FunctionCallbackInfo<v8::Value>& info)
     worker->SubscribeToWorker(eventName.ToString(), callback);
 }
 
-static void Once(const v8::FunctionCallbackInfo<v8::Value>& info)
+void Once(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_CHECK_ARGS_LEN(2);

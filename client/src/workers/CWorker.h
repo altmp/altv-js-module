@@ -7,10 +7,13 @@
 #include <map>
 #include <queue>
 
+class CV8ResourceImpl;
+
 class CWorker
 {
     std::string filePath;
     std::thread thread;
+    CV8ResourceImpl* resource;
     bool shouldTerminate = false;
     bool isReady = false;
 
@@ -31,12 +34,12 @@ class CWorker
 
     bool EventLoop();
 
-    void SetupIsolate();
+    bool SetupIsolate();
     void DestroyIsolate();
     void SetupGlobals(v8::Local<v8::Object> global);
 
 public:
-    CWorker(const std::string& filePath);
+    CWorker(const std::string& filePath, CV8ResourceImpl* resource);
     ~CWorker() = default;
 
     void Destroy();
