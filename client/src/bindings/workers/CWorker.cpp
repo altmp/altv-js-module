@@ -47,7 +47,7 @@ void CWorker::Thread()
 
     // Isolate is set up, the worker is now ready
     isReady = true;
-    EmitToMain("load", {});
+    EmitToMain("load", std::vector<alt::MValue>());
 
     while(true)
     {
