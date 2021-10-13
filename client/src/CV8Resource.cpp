@@ -185,6 +185,12 @@ bool CV8ResourceImpl::Stop()
     timers.clear();
     oldTimers.clear();
 
+    for(auto worker : workers)
+    {
+        worker->Destroy();
+    }
+    workers.clear();
+
     if(!context.IsEmpty())
     {
         auto nscope = resource->PushNativesScope();
