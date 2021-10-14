@@ -82,6 +82,7 @@ bool CWorker::EventLoop()
         if(!p.second->Update(time)) RemoveTimer(p.first);
     }
 
+    microtaskQueue->PerformCheckpoint(isolate);
     HandleWorkerEventQueue();
     v8::platform::PumpMessageLoop(CV8ScriptRuntime::Instance().GetPlatform(), isolate);
 
@@ -103,8 +104,10 @@ bool CWorker::SetupIsolate()
     v8::Isolate::Scope isolate_scope(isolate);
     v8::HandleScope handle_scope(isolate);
 
+    microtaskQueue = v8::MicrotaskQueue::New(isolate, v8::MicrotasksPolicy::kExplicit);
+
     // Create and set up the context
-    auto ctx = v8::Context::New(isolate);
+    auto ctx = v8::Context::New(isolate, nullptr, v8::MaybeLocal<v8::ObjectTemplate>(), v8::MaybeLocal<v8::Value>(), v8::DeserializeInternalFieldsCallback(), microtaskQueue.get());
     context.Reset(isolate, ctx);
     v8::Context::Scope scope(ctx);
     SetupGlobals(ctx->Global());

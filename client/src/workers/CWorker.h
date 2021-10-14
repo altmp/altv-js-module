@@ -37,6 +37,7 @@ private:
 
     v8::Isolate* isolate = nullptr;
     V8::CPersistent<v8::Context> context;
+    std::unique_ptr<v8::MicrotaskQueue> microtaskQueue;
 
     TimerId nextTimerId = 0;
     std::vector<TimerId> oldTimers;
