@@ -163,6 +163,7 @@ bool CWorker::SetupIsolate()
 void CWorker::DestroyIsolate()
 {
     while(isolate->IsInUse()) isolate->Exit();
+    context.Reset();
     isolate->Dispose();
 }
 
