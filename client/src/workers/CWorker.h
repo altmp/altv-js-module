@@ -21,6 +21,7 @@ public:
 
 private:
     std::string filePath;
+    std::string origin;
     std::thread thread;
     CV8ResourceImpl* resource;
     bool shouldTerminate = false;
@@ -59,7 +60,7 @@ private:
     }
 
 public:
-    CWorker(const std::string& filePath, CV8ResourceImpl* resource);
+    CWorker(const std::string& filePath, const std::string& origin, CV8ResourceImpl* resource);
     ~CWorker() = default;
 
     void Start();

@@ -8,7 +8,7 @@
 
 #include <functional>
 
-CWorker::CWorker(const std::string& filePath, CV8ResourceImpl* resource) : filePath(filePath), resource(resource) {}
+CWorker::CWorker(const std::string& filePath, const std::string& origin, CV8ResourceImpl* resource) : filePath(filePath), origin(origin), resource(resource) {}
 
 void CWorker::Start()
 {
@@ -114,7 +114,7 @@ bool CWorker::SetupIsolate()
     ctx->SetAlignedPointerInEmbedderData(2, this);
 
     // Load code
-    auto path = alt::ICore::Instance().Resolve(resource->GetResource(), filePath, "");
+    auto path = alt::ICore::Instance().Resolve(resource->GetResource(), filePath, origin);
     if(!path.pkg || !path.pkg->FileExists(path.fileName))
     {
         EmitError("Worker file not found");

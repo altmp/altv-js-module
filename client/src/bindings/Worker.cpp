@@ -19,7 +19,11 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_CHECK(static_cast<CV8ResourceImpl*>(resource)->GetWorkerCount() < MAX_WORKERS_PER_RESOURCE, "Maximum amount of workers per resource reached");
 
-    auto worker = new CWorker(path.ToString(), static_cast<CV8ResourceImpl*>(resource));
+    // todo: use a proper way to get the current path
+    auto stackTrace = v8::StackTrace::CurrentStackTrace(isolate, 1);
+    std::string origin = *v8::String::Utf8Value(isolate, stackTrace->GetFrame(isolate, 0)->GetScriptName());
+
+    auto worker = new CWorker(path.ToString(), origin, static_cast<CV8ResourceImpl*>(resource));
     info.This()->SetInternalField(0, v8::External::New(isolate, worker));
     static_cast<CV8ResourceImpl*>(resource)->AddWorker(worker);
 }
