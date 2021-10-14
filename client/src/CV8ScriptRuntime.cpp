@@ -160,6 +160,9 @@ CV8ScriptRuntime::CV8ScriptRuntime()
     profiler->SetSamplingInterval(profilerSamplingInterval);
     v8::CpuProfiler::UseDetailedSourcePositionsForProfiling(isolate);
 
+    // IsWorker data slot
+    isolate->SetData(99, new bool(false));
+
     {
         v8::Locker locker(isolate);
         v8::Isolate::Scope isolate_scope(isolate);

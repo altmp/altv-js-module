@@ -10,7 +10,9 @@ bool V8Helpers::TryCatch(const std::function<bool()>& fn)
     v8::Local<v8::Context> context = isolate->GetEnteredOrMicrotaskContext();
     v8::TryCatch tryCatch(isolate);
 
+    if(*static_cast<bool*>(isolate->GetData(99))) return true;
     V8ResourceImpl* v8resource = V8ResourceImpl::Get(context);
+    if(!v8resource) return true;
     alt::IResource* resource = v8resource->GetResource();
 
     if(!fn())
