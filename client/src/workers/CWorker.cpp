@@ -16,11 +16,6 @@ void CWorker::Start()
     thread.detach();
 }
 
-void CWorker::Destroy()
-{
-    shouldTerminate = true;
-}
-
 void CWorker::EmitToWorker(const std::string& eventName, std::vector<alt::MValue>& args)
 {
     std::unique_lock<std::mutex> lock(worker_queueLock);
@@ -70,6 +65,7 @@ void CWorker::Thread()
 bool CWorker::EventLoop()
 {
     if(shouldTerminate) return false;
+    if(isPaused) return true;
 
     v8::Locker locker(isolate);
     v8::Isolate::Scope isolate_scope(isolate);
