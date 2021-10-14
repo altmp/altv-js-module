@@ -25,6 +25,7 @@ private:
     CV8ResourceImpl* resource;
     bool shouldTerminate = false;
     bool isReady = false;
+    bool isPaused = false;
 
     EventHandlerMap main_eventHandlers;
     EventHandlerMap worker_eventHandlers;
@@ -61,7 +62,19 @@ public:
     ~CWorker() = default;
 
     void Start();
-    void Destroy();
+    void Destroy()
+    {
+        shouldTerminate = true;
+    }
+
+    void Pause()
+    {
+        isPaused = true;
+    }
+    void Resume()
+    {
+        isPaused = false;
+    }
 
     void EmitToWorker(const std::string& eventName, std::vector<alt::MValue>& args);
     void EmitToMain(const std::string& eventName, std::vector<alt::MValue>& args);
@@ -85,5 +98,9 @@ public:
     bool IsReady()
     {
         return isReady;
+    }
+    bool IsPaused()
+    {
+        return isPaused;
     }
 };
