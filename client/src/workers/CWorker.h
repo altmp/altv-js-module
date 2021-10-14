@@ -13,25 +13,30 @@ class V8Timer;
 
 class CWorker
 {
+public:
+    using EventHandlerMap = std::unordered_multimap<std::string, V8::EventCallback>;
+    using QueuedEvent = std::pair<std::string, std::vector<alt::MValue>>;
+    using EventQueue = std::queue<QueuedEvent>;
+    using TimerId = uint32_t;
+
+private:
     std::string filePath;
     std::thread thread;
     CV8ResourceImpl* resource;
     bool shouldTerminate = false;
     bool isReady = false;
 
-    std::unordered_multimap<std::string, V8::EventCallback> main_eventHandlers;
-    std::unordered_multimap<std::string, V8::EventCallback> worker_eventHandlers;
+    EventHandlerMap main_eventHandlers;
+    EventHandlerMap worker_eventHandlers;
 
-    using QueuedEvent = std::pair<std::string, std::vector<alt::MValue>>;
-    std::queue<QueuedEvent> main_queuedEvents;
-    std::queue<QueuedEvent> worker_queuedEvents;
+    EventQueue main_queuedEvents;
+    EventQueue worker_queuedEvents;
     std::mutex main_queueLock;
     std::mutex worker_queueLock;
 
     v8::Isolate* isolate = nullptr;
     V8::CPersistent<v8::Context> context;
 
-    using TimerId = uint32_t;
     TimerId nextTimerId = 0;
     std::vector<TimerId> oldTimers;
     std::unordered_map<TimerId, V8Timer*> timers;
