@@ -90,6 +90,51 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
 }
 
+static void SetTrainEngineId(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
+
+    if (info[0]->IsNull())
+    {
+        alt::Ref<alt::IVehicle> ref;
+        _this->SetTrainEngineId(ref);
+    } else {
+        V8_ARG_TO_BASE_OBJECT(1, vehicle, IVehicle, "Vehicle");
+        _this->SetTrainEngineId(vehicle);
+    }
+}
+
+static void SetTrainLinkedToBackwardId(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
+
+    if (info[0]->IsNull())
+    {
+        alt::Ref<alt::IVehicle> ref;
+        _this->SetTrainLinkedToBackwardId(ref);
+    } else {
+        V8_ARG_TO_BASE_OBJECT(1, vehicle, IVehicle, "Vehicle");
+        _this->SetTrainLinkedToBackwardId(vehicle);
+    };
+}
+
+static void SetTrainLinkedToForwardId(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
+
+    if (info[0]->IsNull())
+    {
+        alt::Ref<alt::IVehicle> ref;
+        _this->SetTrainLinkedToForwardId(ref);
+    } else {
+        V8_ARG_TO_BASE_OBJECT(1, vehicle, IVehicle, "Vehicle");
+        _this->SetTrainLinkedToForwardId(vehicle);
+    };
+}
+
 extern V8Class v8Entity;
 extern V8Class v8Vehicle("Vehicle", v8Entity, Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -219,4 +264,24 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, Constructor, [](v8::Local<v8::Func
 
     V8::SetAccessor<IVehicle, Ref<IVehicle>, &IVehicle::GetAttached>(isolate, tpl, "attached");
     V8::SetAccessor<IVehicle, Ref<IVehicle>, &IVehicle::GetAttachedTo>(isolate, tpl, "attachedTo");
+
+    // Train getter/setter
+    V8::SetAccessor<IVehicle, bool, &IVehicle::IsTrainMissionTrain, &IVehicle::SetTrainMissionTrain>(isolate, tpl, "isMissionTrain");
+    V8::SetAccessor<IVehicle, int8_t, &IVehicle::GetTrainTrackId, &IVehicle::SetTrainTrackId>(isolate, tpl, "trainTrackId");
+    V8::SetAccessor<IVehicle, Ref<IVehicle>, &IVehicle::GetTrainEngineId>(isolate, tpl, "trainEngineId");
+    V8::SetMethod(isolate, tpl, "setTrainEngineId", &SetTrainEngineId);
+    V8::SetAccessor<IVehicle, int8_t, &IVehicle::GetTrainConfigIndex, &IVehicle::SetTrainConfigIndex>(isolate, tpl, "trainConfigIndex");
+    V8::SetAccessor<IVehicle, float, &IVehicle::GetTrainDistanceFromEngine, &IVehicle::SetTrainDistanceFromEngine>(isolate, tpl, "trainDistanceFromEngine");
+    V8::SetAccessor<IVehicle, bool, &IVehicle::IsTrainEngine, &IVehicle::SetTrainIsEngine>(isolate, tpl, "isTrainEngine");
+    V8::SetAccessor<IVehicle, bool, &IVehicle::IsTrainCaboose, &IVehicle::SetTrainIsCaboose>(isolate, tpl, "isTrainCaboose");
+    V8::SetAccessor<IVehicle, bool, &IVehicle::GetTrainDirection, &IVehicle::SetTrainDirection>(isolate, tpl, "trainDirection");
+    V8::SetAccessor<IVehicle, bool, &IVehicle::HasTrainPassengerCarriages, &IVehicle::SetTrainHasPassengerCarriages>(isolate, tpl, "trainPassengerCarriages");
+    V8::SetAccessor<IVehicle, bool, &IVehicle::GetTrainRenderDerailed, &IVehicle::SetTrainRenderDerailed>(isolate, tpl, "trainRenderDerailed");
+    V8::SetAccessor<IVehicle, bool, &IVehicle::GetTrainForceDoorsOpen, &IVehicle::SetTrainForceDoorsOpen>(isolate, tpl, "trainForceDoorsOpen");
+    V8::SetAccessor<IVehicle, float, &IVehicle::GetTrainCruiseSpeed, &IVehicle::SetTrainCruiseSpeed>(isolate, tpl, "trainCruiseSpeed");
+    V8::SetAccessor<IVehicle, int8_t, &IVehicle::GetTrainCarriageConfigIndex, &IVehicle::SetTrainCarriageConfigIndex>(isolate, tpl, "trainCarriageConfigIndex");
+    V8::SetAccessor<IVehicle, Ref<IVehicle>, &IVehicle::GetTrainLinkedToBackwardId>(isolate, tpl, "trainLinkedToBackwardId");
+    V8::SetMethod(isolate, tpl, "setTrainLinkedToBackwardId", &SetTrainLinkedToBackwardId);
+    V8::SetAccessor<IVehicle, Ref<IVehicle>, &IVehicle::GetTrainLinkedToForwardId>(isolate, tpl, "trainLinkedToForwardId");
+    V8::SetMethod(isolate, tpl, "setTrainLinkedToForwardId", &SetTrainLinkedToForwardId);
 });
