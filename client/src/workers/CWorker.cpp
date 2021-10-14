@@ -62,6 +62,42 @@ void CWorker::Thread()
     delete this;  // ! IMPORTANT TO DO THIS LAST !
 }
 
+// Returns error message or empty string
+static std::string TryCatch(const std::function<void()>& func)
+{
+    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+    v8::TryCatch tryCatch(isolate);
+    std::ostringstream stream;
+
+    func();
+
+    // Check if an error occured
+    v8::Local<v8::Value> exception = tryCatch.Exception();
+    v8::Local<v8::Message> message = tryCatch.Message();
+    if(!message.IsEmpty())
+    {
+        v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
+        v8::MaybeLocal<v8::String> maybeSourceLine = message->GetSourceLine(ctx);
+        v8::Maybe<int32_t> line = message->GetLineNumber(ctx);
+        v8::ScriptOrigin origin = message->GetScriptOrigin();
+
+        // Location
+        stream << "[" << *v8::String::Utf8Value(isolate, origin.ResourceName()) << ":" << (line.IsNothing() ? 0 : line.FromJust()) << "] ";
+
+        // Add stack trace if exists
+        v8::MaybeLocal<v8::Value> stackTrace = tryCatch.StackTrace(ctx);
+        if(!stackTrace.IsEmpty() && stackTrace.ToLocalChecked()->IsString())
+        {
+            v8::String::Utf8Value stackTraceStr(isolate, stackTrace.ToLocalChecked().As<v8::String>());
+            stream << *stackTraceStr;
+        }
+
+        return stream.str();
+    }
+    else
+        return std::string();
+}
+
 bool CWorker::EventLoop()
 {
     if(shouldTerminate) return false;
@@ -82,9 +118,15 @@ bool CWorker::EventLoop()
         if(!p.second->Update(time)) RemoveTimer(p.first);
     }
 
-    microtaskQueue->PerformCheckpoint(isolate);
-    HandleWorkerEventQueue();
-    v8::platform::PumpMessageLoop(CV8ScriptRuntime::Instance().GetPlatform(), isolate);
+    auto error = TryCatch([&]() {
+        microtaskQueue->PerformCheckpoint(isolate);
+        HandleWorkerEventQueue();
+        v8::platform::PumpMessageLoop(CV8ScriptRuntime::Instance().GetPlatform(), isolate);
+    });
+    if(!error.empty())
+    {
+        EmitError(error);
+    }
 
     return true;
 }
@@ -95,6 +137,50 @@ bool CWorker::SetupIsolate()
     v8::Isolate::CreateParams params;
     params.array_buffer_allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
     isolate = v8::Isolate::New(params);
+
+    isolate->SetFatalErrorHandler([](const char* location, const char* message) { Log::Error << "[Worker] " << location << ": " << message << Log::Endl; });
+
+    isolate->SetPromiseRejectCallback([](v8::PromiseRejectMessage message) {
+        v8::Isolate* isolate = v8::Isolate::GetCurrent();
+        v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
+        auto worker = static_cast<CWorker*>(ctx->GetAlignedPointerFromEmbedderData(2));
+        if(!worker) return;
+
+        v8::Local<v8::Value> value = message.GetValue();
+        auto location = V8::SourceLocation::GetCurrent(isolate);
+
+        switch(message.GetEvent())
+        {
+            case v8::kPromiseRejectWithNoHandler:
+            {
+                std::ostringstream stream;
+                stream << location.ToString() << " Unhandled promise rejection (" << *v8::String::Utf8Value(isolate, value->ToString(ctx).ToLocalChecked()) << ")";
+                worker->EmitError(stream.str());
+                break;
+            }
+            case v8::kPromiseHandlerAddedAfterReject:
+            {
+                std::ostringstream stream;
+                stream << location.ToString() << " Promise handler added after being rejected (" << *v8::String::Utf8Value(isolate, value->ToString(ctx).ToLocalChecked()) << ")";
+                worker->EmitError(stream.str());
+                break;
+            }
+            case v8::kPromiseRejectAfterResolved:
+            {
+                std::ostringstream stream;
+                stream << location.ToString() << " Promise rejected after being resolved (" << *v8::String::Utf8Value(isolate, value->ToString(ctx).ToLocalChecked()) << ")";
+                worker->EmitError(stream.str());
+                break;
+            }
+            case v8::kPromiseResolveAfterResolved:
+            {
+                std::ostringstream stream;
+                stream << location.ToString() << " Promise resolved after being resolved (" << *v8::String::Utf8Value(isolate, value->ToString(ctx).ToLocalChecked()) << ")";
+                worker->EmitError(stream.str());
+                break;
+            }
+        }
+    });
 
     // IsWorker data slot
     isolate->SetData(99, new bool(true));
@@ -126,33 +212,40 @@ bool CWorker::SetupIsolate()
     path.pkg->CloseFile(file);
 
     // Compile the code
-    v8::ScriptOrigin scriptOrigin(isolate, V8::JSValue(path.fileName.ToString()), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
-    v8::ScriptCompiler::Source source(V8::JSValue(src), scriptOrigin);
-    auto maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source);
-    if(maybeModule.IsEmpty())
-    {
-        EmitError("Failed to compile worker module");
-        return false;
-    }
-    auto module = maybeModule.ToLocalChecked();
+    auto error = TryCatch([&]() {
+        v8::ScriptOrigin scriptOrigin(isolate, V8::JSValue(path.fileName.ToString()), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
+        v8::ScriptCompiler::Source source(V8::JSValue(src), scriptOrigin);
+        auto maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source);
+        if(maybeModule.IsEmpty())
+        {
+            EmitError("Failed to compile worker module");
+            return;
+        }
+        auto module = maybeModule.ToLocalChecked();
 
-    // Start the code
-    v8::Maybe<bool> result =
-      module->InstantiateModule(ctx, [](v8::Local<v8::Context> context, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray> import_assertions, v8::Local<v8::Module> referrer) {
-          // todo: implement imports
-          return v8::MaybeLocal<v8::Module>();
-      });
-    if(result.IsNothing() || result.ToChecked() == false)
-    {
-        EmitError("Failed to instantiate worker module");
-        return false;
-    }
+        // Start the code
+        v8::Maybe<bool> result =
+          module->InstantiateModule(ctx, [](v8::Local<v8::Context> context, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray> import_assertions, v8::Local<v8::Module> referrer) {
+              // todo: implement imports
+              return v8::MaybeLocal<v8::Module>();
+          });
+        if(result.IsNothing() || result.ToChecked() == false)
+        {
+            EmitError("Failed to instantiate worker module");
+            return;
+        }
 
-    // Evaluate the code
-    auto returnValue = module->Evaluate(ctx);
-    if(returnValue.IsEmpty())
+        // Evaluate the code
+        auto returnValue = module->Evaluate(ctx);
+        if(returnValue.IsEmpty())
+        {
+            EmitError("Failed to evaluate worker module");
+            return;
+        }
+    });
+    if(!error.empty())
     {
-        EmitError("Failed to evaluate worker module");
+        EmitError(error);
         return false;
     }
 
@@ -191,6 +284,7 @@ void CWorker::SetupGlobals(v8::Local<v8::Object> global)
 
 void CWorker::EmitError(const std::string& error)
 {
+    Log::Error << "[Worker] " << error << Log::Endl;
     std::vector<alt::MValue> args = { alt::ICore::Instance().CreateMValueString(error) };
     EmitToMain("error", args);
 }

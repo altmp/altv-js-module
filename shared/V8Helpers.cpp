@@ -432,8 +432,16 @@ V8::SourceLocation::SourceLocation(std::string&& _fileName, int _line, v8::Local
 
 std::string V8::SourceLocation::ToString()
 {
+    auto isolate = v8::Isolate::GetCurrent();
+
     std::stringstream stream;
-    stream << "[" << V8ResourceImpl::Get(context.Get(v8::Isolate::GetCurrent()))->GetResource()->GetName().CStr() << ":" << fileName << ":" << line << "]";
+    stream << "[";
+    // Check if not inside a worker
+    if(!(*static_cast<bool*>(isolate->GetData(99))))
+    {
+        stream << V8ResourceImpl::Get(context.Get(v8::Isolate::GetCurrent()))->GetResource()->GetName().CStr() << ":";
+    }
+    stream << fileName << ":" << line << "]";
     return stream.str();
 }
 
