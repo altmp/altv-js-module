@@ -29,6 +29,9 @@ CNodeScriptRuntime::CNodeScriptRuntime()
 
     v8::Isolate::Initialize(isolate, params);
 
+    // IsWorker data slot
+    isolate->SetData(99, new bool(false));
+
     {
         v8::Locker locker(isolate);
         v8::Isolate::Scope isolate_scope(isolate);

@@ -4,6 +4,7 @@
 #include "../CV8ScriptRuntime.h"
 #include "../CV8Resource.h"
 #include "V8Module.h"
+#include "V8Timer.h"
 
 #include <functional>
 
@@ -75,6 +76,16 @@ bool CWorker::EventLoop()
     v8::HandleScope handle_scope(isolate);
     v8::Context::Scope context_scope(context.Get(isolate));
 
+    // Timers
+    for(auto& id : oldTimers) timers.erase(id);
+    oldTimers.clear();
+
+    for(auto& p : timers)
+    {
+        int64_t time = GetTime();
+        if(!p.second->Update(time)) RemoveTimer(p.first);
+    }
+
     HandleWorkerEventQueue();
     v8::platform::PumpMessageLoop(CV8ScriptRuntime::Instance().GetPlatform(), isolate);
 
@@ -88,6 +99,9 @@ bool CWorker::SetupIsolate()
     params.array_buffer_allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
     isolate = v8::Isolate::New(params);
 
+    // IsWorker data slot
+    isolate->SetData(99, new bool(true));
+
     // Set up locker and scopes
     v8::Locker locker(isolate);
     v8::Isolate::Scope isolate_scope(isolate);
@@ -98,7 +112,7 @@ bool CWorker::SetupIsolate()
     context.Reset(isolate, ctx);
     v8::Context::Scope scope(ctx);
     SetupGlobals(ctx->Global());
-    ctx->SetAlignedPointerInEmbedderData(1, this);
+    ctx->SetAlignedPointerInEmbedderData(2, this);
 
     // Load code
     auto path = alt::ICore::Instance().Resolve(resource->GetResource(), filePath, "");
@@ -166,11 +180,13 @@ void CWorker::SetupGlobals(v8::Local<v8::Object> global)
         V8Helpers::RegisterFunc(console, "warn", &::LogWarning);
         V8Helpers::RegisterFunc(console, "error", &::LogError);
     }
-    // todo: add timers
-    // global->Set(context, V8_NEW_STRING("setInterval"), altExports->Get(context, V8_NEW_STRING("setInterval")).ToLocalChecked());
-    // global->Set(context, V8_NEW_STRING("setTimeout"), altExports->Get(context, V8_NEW_STRING("setTimeout")).ToLocalChecked());
-    // global->Set(context, V8_NEW_STRING("clearInterval"), altExports->Get(context, V8_NEW_STRING("clearInterval")).ToLocalChecked());
-    // global->Set(context, V8_NEW_STRING("clearTimeout"), altExports->Get(context, V8_NEW_STRING("clearTimeout")).ToLocalChecked());
+
+    V8Helpers::RegisterFunc(global, "nextTick", &NextTick);
+    V8Helpers::RegisterFunc(global, "setInterval", &SetInterval);
+    V8Helpers::RegisterFunc(global, "setTimeout", &SetTimeout);
+    V8Helpers::RegisterFunc(global, "clearNextTick", &ClearTimer);
+    V8Helpers::RegisterFunc(global, "clearInterval", &ClearTimer);
+    V8Helpers::RegisterFunc(global, "clearTimeout", &ClearTimer);
 }
 
 void CWorker::EmitError(const std::string& error)
@@ -241,4 +257,11 @@ void CWorker::HandleWorkerEventQueue()
         // Pop the event from the queue
         worker_queuedEvents.pop();
     }
+}
+
+CWorker::TimerId CWorker::CreateTimer(v8::Local<v8::Function> callback, uint32_t interval, bool once, V8::SourceLocation&& location)
+{
+    TimerId id = nextTimerId++;
+    timers.insert({ id, new V8Timer(isolate, context.Get(isolate), GetTime(), callback, interval, once, std::move(location)) });
+    return id;
 }
