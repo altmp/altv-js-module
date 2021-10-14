@@ -52,8 +52,6 @@ private:
     void DestroyIsolate();
     void SetupGlobals(v8::Local<v8::Object> global);
 
-    void EmitError(const std::string& error);
-
     static inline int64_t GetTime()
     {
         return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
@@ -86,6 +84,8 @@ public:
 
     void HandleMainEventQueue();
     void HandleWorkerEventQueue();
+
+    void EmitError(const std::string& error);
 
     TimerId CreateTimer(v8::Local<v8::Function> callback, uint32_t interval, bool once, V8::SourceLocation&& location);
     void RemoveTimer(TimerId id)
