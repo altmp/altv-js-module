@@ -92,6 +92,8 @@ bool CWorker::EventLoop()
         EmitError(error);
     }
 
+    promiseRejections.ProcessQueue(this);
+
     return true;
 }
 
@@ -111,22 +113,19 @@ bool CWorker::SetupIsolate()
         if(!worker) return;
 
         v8::Local<v8::Value> value = message.GetValue();
+        if(value.IsEmpty()) value = v8::Undefined(isolate);
         auto location = V8::SourceLocation::GetCurrent(isolate);
 
         switch(message.GetEvent())
         {
             case v8::kPromiseRejectWithNoHandler:
             {
-                std::ostringstream stream;
-                stream << location.ToString() << " Unhandled promise rejection (" << *v8::String::Utf8Value(isolate, value->ToString(ctx).ToLocalChecked()) << ")";
-                worker->EmitError(stream.str());
+                worker->OnPromiseRejectedWithNoHandler(message);
                 break;
             }
             case v8::kPromiseHandlerAddedAfterReject:
             {
-                std::ostringstream stream;
-                stream << location.ToString() << " Promise handler added after being rejected (" << *v8::String::Utf8Value(isolate, value->ToString(ctx).ToLocalChecked()) << ")";
-                worker->EmitError(stream.str());
+                worker->OnPromiseHandlerAdded(message);
                 break;
             }
             case v8::kPromiseRejectAfterResolved:

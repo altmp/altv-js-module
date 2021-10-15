@@ -1,6 +1,7 @@
 #pragma once
 #include "v8.h"
 #include "V8Helpers.h"
+#include "WorkerPromiseRejections.h"
 
 #include <string>
 #include <thread>
@@ -27,6 +28,8 @@ private:
     bool shouldTerminate = false;
     bool isReady = false;
     bool isPaused = false;
+
+    WorkerPromiseRejections promiseRejections;
 
     EventHandlerMap main_eventHandlers;
     EventHandlerMap worker_eventHandlers;
@@ -104,6 +107,19 @@ public:
     bool IsPaused()
     {
         return isPaused;
+    }
+    v8::Isolate* GetIsolate()
+    {
+        return isolate;
+    }
+
+    void OnPromiseRejectedWithNoHandler(v8::PromiseRejectMessage& data)
+    {
+        promiseRejections.RejectedWithNoHandler(this, data);
+    }
+    void OnPromiseHandlerAdded(v8::PromiseRejectMessage& data)
+    {
+        promiseRejections.HandlerAdded(this, data);
     }
 
     // Returns error or empty string
