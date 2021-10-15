@@ -161,7 +161,7 @@ CV8ScriptRuntime::CV8ScriptRuntime()
     v8::CpuProfiler::UseDetailedSourcePositionsForProfiling(isolate);
 
     // IsWorker data slot
-    isolate->SetData(99, new bool(false));
+    isolate->SetData(v8::Isolate::GetNumberOfDataSlots() - 1, new bool(false));
 
     {
         v8::Locker locker(isolate);
