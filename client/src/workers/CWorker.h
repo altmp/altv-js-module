@@ -9,7 +9,7 @@
 #include <chrono>
 
 class CV8ResourceImpl;
-class V8Timer;
+class WorkerTimer;
 
 class CWorker
 {
@@ -42,7 +42,7 @@ private:
 
     TimerId nextTimerId = 0;
     std::vector<TimerId> oldTimers;
-    std::unordered_map<TimerId, V8Timer*> timers;
+    std::unordered_map<TimerId, WorkerTimer*> timers;
 
     void Thread();
 
@@ -105,4 +105,7 @@ public:
     {
         return isPaused;
     }
+
+    // Returns error or empty string
+    static std::string TryCatch(const std::function<void()>& func);
 };
