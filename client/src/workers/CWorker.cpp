@@ -4,7 +4,7 @@
 #include "../CV8ScriptRuntime.h"
 #include "../CV8Resource.h"
 #include "V8Module.h"
-#include "V8Timer.h"
+#include "WorkerTimer.h"
 
 #include <functional>
 
@@ -60,42 +60,6 @@ void CWorker::Thread()
 
     DestroyIsolate();
     delete this;  // ! IMPORTANT TO DO THIS LAST !
-}
-
-// Returns error message or empty string
-static std::string TryCatch(const std::function<void()>& func)
-{
-    v8::Isolate* isolate = v8::Isolate::GetCurrent();
-    v8::TryCatch tryCatch(isolate);
-    std::ostringstream stream;
-
-    func();
-
-    // Check if an error occured
-    v8::Local<v8::Value> exception = tryCatch.Exception();
-    v8::Local<v8::Message> message = tryCatch.Message();
-    if(!message.IsEmpty())
-    {
-        v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
-        v8::MaybeLocal<v8::String> maybeSourceLine = message->GetSourceLine(ctx);
-        v8::Maybe<int32_t> line = message->GetLineNumber(ctx);
-        v8::ScriptOrigin origin = message->GetScriptOrigin();
-
-        // Location
-        stream << "[" << *v8::String::Utf8Value(isolate, origin.ResourceName()) << ":" << (line.IsNothing() ? 0 : line.FromJust()) << "] ";
-
-        // Add stack trace if exists
-        v8::MaybeLocal<v8::Value> stackTrace = tryCatch.StackTrace(ctx);
-        if(!stackTrace.IsEmpty() && stackTrace.ToLocalChecked()->IsString())
-        {
-            v8::String::Utf8Value stackTraceStr(isolate, stackTrace.ToLocalChecked().As<v8::String>());
-            stream << *stackTraceStr;
-        }
-
-        return stream.str();
-    }
-    else
-        return std::string();
 }
 
 bool CWorker::EventLoop()
@@ -183,7 +147,7 @@ bool CWorker::SetupIsolate()
     });
 
     // IsWorker data slot
-    isolate->SetData(99, new bool(true));
+    isolate->SetData(v8::Isolate::GetNumberOfDataSlots() - 1, new bool(true));
 
     // Set up locker and scopes
     v8::Locker locker(isolate);
@@ -333,6 +297,46 @@ void CWorker::HandleWorkerEventQueue()
 CWorker::TimerId CWorker::CreateTimer(v8::Local<v8::Function> callback, uint32_t interval, bool once, V8::SourceLocation&& location)
 {
     TimerId id = nextTimerId++;
-    timers.insert({ id, new V8Timer(isolate, context.Get(isolate), GetTime(), callback, interval, once, std::move(location)) });
+    timers.insert({ id, new WorkerTimer(this, isolate, context.Get(isolate), GetTime(), callback, interval, once, std::move(location)) });
     return id;
+}
+
+std::string CWorker::TryCatch(const std::function<void()>& func)
+{
+    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+    v8::TryCatch tryCatch(isolate);
+    std::ostringstream stream;
+
+    func();
+
+    // Check if an error occured
+    v8::Local<v8::Value> exception = tryCatch.Exception();
+    v8::Local<v8::Message> message = tryCatch.Message();
+    if(!message.IsEmpty())
+    {
+        v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
+        v8::MaybeLocal<v8::String> maybeSourceLine = message->GetSourceLine(ctx);
+        v8::Maybe<int32_t> line = message->GetLineNumber(ctx);
+        v8::ScriptOrigin origin = message->GetScriptOrigin();
+
+        // Location
+        stream << "[" << *v8::String::Utf8Value(isolate, origin.ResourceName()) << ":" << (line.IsNothing() ? 0 : line.FromJust()) << "] ";
+
+        // Add stack trace if exists
+        v8::MaybeLocal<v8::Value> stackTrace = tryCatch.StackTrace(ctx);
+        if(!stackTrace.IsEmpty() && stackTrace.ToLocalChecked()->IsString())
+        {
+            v8::String::Utf8Value stackTraceStr(isolate, stackTrace.ToLocalChecked().As<v8::String>());
+            stream << *stackTraceStr;
+        }
+
+        return stream.str();
+    }
+    else if(!exception.IsEmpty())
+    {
+        stream << *v8::String::Utf8Value(isolate, exception);
+        return stream.str();
+    }
+    else
+        return std::string();
 }
