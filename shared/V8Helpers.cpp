@@ -10,13 +10,11 @@ bool V8Helpers::TryCatch(const std::function<bool()>& fn)
     v8::Local<v8::Context> context = isolate->GetEnteredOrMicrotaskContext();
     v8::TryCatch tryCatch(isolate);
 
+    V8ResourceImpl* v8resource = V8ResourceImpl::Get(context);
+    alt::IResource* resource = v8resource->GetResource();
+
     if(!fn())
     {
-        if(*static_cast<bool*>(isolate->GetData(99))) return true;
-        V8ResourceImpl* v8resource = V8ResourceImpl::Get(context);
-        if(!v8resource) return true;
-        alt::IResource* resource = v8resource->GetResource();
-
         v8::Local<v8::Value> exception = tryCatch.Exception();
         v8::Local<v8::Message> message = tryCatch.Message();
 
@@ -437,7 +435,7 @@ std::string V8::SourceLocation::ToString()
     std::stringstream stream;
     stream << "[";
     // Check if not inside a worker
-    if(!(*static_cast<bool*>(isolate->GetData(99))))
+    if(!(*static_cast<bool*>(isolate->GetData(v8::Isolate::GetNumberOfDataSlots() - 1))))
     {
         stream << V8ResourceImpl::Get(context.Get(v8::Isolate::GetCurrent()))->GetResource()->GetName().CStr() << ":";
     }
