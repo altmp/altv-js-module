@@ -225,9 +225,20 @@ void CWorker::DestroyIsolate()
 extern V8Module altModule;
 void CWorker::SetupGlobals(v8::Local<v8::Object> global)
 {
-    V8Helpers::RegisterFunc(global, "emit", &Emit);
-    V8Helpers::RegisterFunc(global, "on", &On);
-    V8Helpers::RegisterFunc(global, "once", &Once);
+    V8_NEW_OBJECT(alt);
+    V8Helpers::RegisterFunc(alt, "emit", &Emit);
+    V8Helpers::RegisterFunc(alt, "on", &On);
+    V8Helpers::RegisterFunc(alt, "once", &Once);
+    V8Helpers::RegisterFunc(alt, "log", &::Log);
+    V8Helpers::RegisterFunc(alt, "logWarning", &::LogWarning);
+    V8Helpers::RegisterFunc(alt, "logError", &::LogError);
+    V8Helpers::RegisterFunc(alt, "nextTick", &NextTick);
+    V8Helpers::RegisterFunc(alt, "setInterval", &SetInterval);
+    V8Helpers::RegisterFunc(alt, "setTimeout", &SetTimeout);
+    V8Helpers::RegisterFunc(alt, "clearNextTick", &ClearTimer);
+    V8Helpers::RegisterFunc(alt, "clearInterval", &ClearTimer);
+    V8Helpers::RegisterFunc(alt, "clearTimeout", &ClearTimer);
+    global->Set(context.Get(isolate), V8_NEW_STRING("alt"), alt);
 
     auto console = global->Get(context.Get(isolate), V8_NEW_STRING("console")).ToLocalChecked().As<v8::Object>();
     if(!console.IsEmpty())
@@ -237,10 +248,8 @@ void CWorker::SetupGlobals(v8::Local<v8::Object> global)
         V8Helpers::RegisterFunc(console, "error", &::LogError);
     }
 
-    V8Helpers::RegisterFunc(global, "nextTick", &NextTick);
     V8Helpers::RegisterFunc(global, "setInterval", &SetInterval);
     V8Helpers::RegisterFunc(global, "setTimeout", &SetTimeout);
-    V8Helpers::RegisterFunc(global, "clearNextTick", &ClearTimer);
     V8Helpers::RegisterFunc(global, "clearInterval", &ClearTimer);
     V8Helpers::RegisterFunc(global, "clearTimeout", &ClearTimer);
 }
