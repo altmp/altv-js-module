@@ -135,6 +135,17 @@ static void SetTrainLinkedToForwardId(const v8::FunctionCallbackInfo<v8::Value>&
     };
 }
 
+static void SetSearchLight(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
+
+    V8_ARG_TO_BASE_OBJECT(1, spottedEntity, IEntity, "Entity");
+    V8_ARG_TO_BOOLEAN(2, state)
+
+    _this->SetSearchLight(state, spottedEntity);
+}
+
 extern V8Class v8Entity;
 extern V8Class v8Vehicle("Vehicle", v8Entity, Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -284,4 +295,7 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, Constructor, [](v8::Local<v8::Func
     V8::SetMethod(isolate, tpl, "setTrainLinkedToBackwardId", &SetTrainLinkedToBackwardId);
     V8::SetAccessor<IVehicle, Ref<IVehicle>, &IVehicle::GetTrainLinkedToForwardId>(isolate, tpl, "trainLinkedToForwardId");
     V8::SetMethod(isolate, tpl, "setTrainLinkedToForwardId", &SetTrainLinkedToForwardId);
+
+    //Heli setter
+    V8::SetMethod(isolate, tpl, "setSearchLightTo", &SetSearchLight);
 });
