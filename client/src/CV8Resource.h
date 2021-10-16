@@ -10,6 +10,7 @@
 #include "Log.h"
 
 class CV8ScriptRuntime;
+class CWorker;
 
 class CV8ResourceImpl : public V8ResourceImpl
 {
@@ -140,6 +141,13 @@ public:
     v8::MaybeLocal<v8::Module> ResolveModule(const std::string& name, v8::Local<v8::Module> referrer);
     v8::MaybeLocal<v8::Module> ResolveCode(const std::string& code, const V8::SourceLocation& location);
 
+    void AddWorker(CWorker* worker);
+    void RemoveWorker(CWorker* worker);
+    size_t GetWorkerCount()
+    {
+        return workers.size();
+    }
+
 private:
     using WebViewEvents = std::unordered_multimap<std::string, V8::EventCallback>;
 
@@ -151,6 +159,8 @@ private:
     std::unordered_map<alt::Ref<alt::IAudio>, WebViewEvents> audioHandlers;
 
     std::unordered_set<alt::Ref<alt::IBaseObject>> ownedObjects;
+
+    std::unordered_set<CWorker*> workers;
 
     v8::Persistent<v8::Object> localStorage;
 

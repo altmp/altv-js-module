@@ -63,6 +63,11 @@ public:
         profiler->SetSamplingInterval(interval);
     }
 
+    v8::Platform* GetPlatform()
+    {
+        return platform.get();
+    }
+
     alt::IResource::Impl* CreateImpl(alt::IResource* resource) override
     {
         auto res = new CV8ResourceImpl(resource, isolate);
