@@ -7,4 +7,5 @@ popd
 
 mkdir dist
 copy build\Release\js-module.dll dist
+copy build\Release\js-module.pdb dist
 copy deps\nodejs\lib\Release\libnode.dll dist
