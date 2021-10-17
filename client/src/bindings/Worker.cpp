@@ -32,6 +32,7 @@ static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, worker, CWorker);
+    V8_CHECK(worker, "Worker is invalid");
 
     std::ostringstream stream;
     stream << "Worker{ file: " << worker->GetFilePath() << " }";
@@ -50,6 +51,7 @@ static void FilePathGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo
 {
     V8_GET_ISOLATE();
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, worker, CWorker);
+    V8_CHECK(worker, "Worker is invalid");
 
     V8_RETURN_STRING(worker->GetFilePath().c_str());
 }
@@ -58,6 +60,7 @@ static void Start(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, worker, CWorker);
+    V8_CHECK(worker, "Worker is invalid");
 
     V8_CHECK(!worker->IsReady(), "Worker is already started");
     worker->Start();
@@ -67,8 +70,8 @@ static void Destroy(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, worker, CWorker);
+    V8_CHECK(worker, "Worker is invalid");
 
-    V8_CHECK(worker, "This worker is already destroyed");
     worker->Destroy();
     info.This()->SetInternalField(0, v8::External::New(isolate, nullptr));
     static_cast<CV8ResourceImpl*>(resource)->RemoveWorker(worker);
@@ -79,6 +82,7 @@ static void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
     V8_CHECK_ARGS_LEN_MIN(1);
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, worker, CWorker);
+    V8_CHECK(worker, "Worker is invalid");
 
     V8_CHECK(worker->IsReady(), "The worker is not ready yet, wait for the 'load' event");
 
@@ -99,6 +103,7 @@ static void On(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
     V8_CHECK_ARGS_LEN(2);
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, worker, CWorker);
+    V8_CHECK(worker, "Worker is invalid");
 
     V8_ARG_TO_STRING(1, eventName);
     V8_ARG_TO_FUNCTION(2, callback);
@@ -111,6 +116,7 @@ static void Once(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
     V8_CHECK_ARGS_LEN(2);
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, worker, CWorker);
+    V8_CHECK(worker, "Worker is invalid");
 
     V8_ARG_TO_STRING(1, eventName);
     V8_ARG_TO_FUNCTION(2, callback);
@@ -122,6 +128,7 @@ static void IsPausedGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo
 {
     V8_GET_ISOLATE();
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, worker, CWorker);
+    V8_CHECK(worker, "Worker is invalid");
 
     V8_RETURN_BOOLEAN(worker->IsPaused());
 }
@@ -131,6 +138,7 @@ static void Pause(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
     V8_CHECK_ARGS_LEN(2);
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, worker, CWorker);
+    V8_CHECK(worker, "Worker is invalid");
 
     V8_CHECK(!worker->IsPaused(), "The worker is already paused");
     worker->Pause();
@@ -141,6 +149,7 @@ static void Resume(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
     V8_CHECK_ARGS_LEN(2);
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, worker, CWorker);
+    V8_CHECK(worker, "Worker is invalid");
 
     V8_CHECK(worker->IsPaused(), "The worker is not paused");
     worker->Resume();
