@@ -21,8 +21,8 @@ public:
     using TimerId = uint32_t;
 
 private:
-    std::string filePath;
-    std::string origin;
+    alt::String filePath;
+    alt::String origin;
     std::thread thread;
     CV8ResourceImpl* resource;
     bool shouldTerminate = false;
@@ -61,7 +61,7 @@ private:
     }
 
 public:
-    CWorker(const std::string& filePath, const std::string& origin, CV8ResourceImpl* resource);
+    CWorker(alt::String& filePath, alt::String& origin, CV8ResourceImpl* resource);
     ~CWorker() = default;
 
     void Start();
@@ -98,7 +98,7 @@ public:
 
     std::string GetFilePath()
     {
-        return filePath;
+        return filePath.ToString();
     }
     bool IsReady()
     {

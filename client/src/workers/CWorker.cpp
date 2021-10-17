@@ -8,7 +8,7 @@
 
 #include <functional>
 
-CWorker::CWorker(const std::string& filePath, const std::string& origin, CV8ResourceImpl* resource) : filePath(filePath), origin(origin), resource(resource) {}
+CWorker::CWorker(alt::String& filePath, alt::String& origin, CV8ResourceImpl* resource) : filePath(filePath), origin(origin), resource(resource) {}
 
 void CWorker::Start()
 {
