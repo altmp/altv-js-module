@@ -155,11 +155,37 @@ static void Resume(const v8::FunctionCallbackInfo<v8::Value>& info)
     worker->Resume();
 }
 
+static void AddSharedArrayBuffer(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_CHECK(info[0]->IsSharedArrayBuffer(), "Failed to convert argument 1 to SharedArrayBuffer");
+    auto buffer = info[0].As<v8::SharedArrayBuffer>();
+
+    CWorker::BufferId index = CWorker::AddSharedArrayBuffer(buffer);
+    V8_RETURN(index);
+}
+
+static void RemoveSharedArrayBuffer(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_UINT(1, index);
+
+    auto result = CWorker::RemoveSharedArrayBuffer(index);
+    V8_CHECK(result, "Invalid shared array buffer index");
+}
+
 extern V8Class v8Worker("Worker", &Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
     tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
     tpl->Set(V8::JSValue("maxWorkers"), V8::JSValue(MAX_WORKERS_PER_RESOURCE), v8::PropertyAttribute::ReadOnly);
+
+    V8::SetStaticMethod(isolate, tpl, "addSharedArrayBuffer", AddSharedArrayBuffer);
+    V8::SetStaticMethod(isolate, tpl, "removeSharedArrayBuffer", RemoveSharedArrayBuffer);
 
     V8::SetMethod(isolate, tpl, "toString", ToString);
     V8::SetAccessor(isolate, tpl, "valid", ValidGetter);

@@ -241,6 +241,7 @@ void CWorker::SetupGlobals(v8::Local<v8::Object> global)
     V8Helpers::RegisterFunc(alt, "clearNextTick", &ClearTimer);
     V8Helpers::RegisterFunc(alt, "clearInterval", &ClearTimer);
     V8Helpers::RegisterFunc(alt, "clearTimeout", &ClearTimer);
+    V8Helpers::RegisterFunc(alt, "getSharedArrayBuffer", &::GetSharedArrayBuffer);
     global->Set(context.Get(isolate), V8_NEW_STRING("alt"), alt);
 
     auto console = global->Get(context.Get(isolate), V8_NEW_STRING("console")).ToLocalChecked().As<v8::Object>();
@@ -350,4 +351,27 @@ std::string CWorker::TryCatch(const std::function<void()>& func)
     }
     else
         return std::string();
+}
+
+// Shared array buffers
+CWorker::BufferId CWorker::nextBufferId = 0;
+std::unordered_map<CWorker::BufferId, std::shared_ptr<v8::BackingStore>> CWorker::sharedArrayBuffers = std::unordered_map<CWorker::BufferId, std::shared_ptr<v8::BackingStore>>();
+
+CWorker::BufferId CWorker::AddSharedArrayBuffer(v8::Local<v8::SharedArrayBuffer> buffer)
+{
+    BufferId id = ++nextBufferId;
+    sharedArrayBuffers.insert({ id, buffer->GetBackingStore() });
+    return id;
+}
+bool CWorker::RemoveSharedArrayBuffer(CWorker::BufferId index)
+{
+    if(sharedArrayBuffers.count(index) == 0) return false;
+    sharedArrayBuffers.erase(index);
+    return true;
+}
+
+v8::Local<v8::SharedArrayBuffer> CWorker::GetSharedArrayBuffer(v8::Isolate* isolate, CWorker::BufferId index)
+{
+    if(sharedArrayBuffers.count(index) == 0) return v8::Local<v8::SharedArrayBuffer>();
+    return v8::SharedArrayBuffer::New(isolate, sharedArrayBuffers.at(index));
 }
