@@ -148,7 +148,20 @@ void ClearTimer(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(1);
     auto worker = static_cast<CWorker*>(ctx->GetAlignedPointerFromEmbedderData(2));
 
-    V8_ARG_TO_INT(1, timer);
+    V8_ARG_TO_UINT(1, timer);
 
     worker->RemoveTimer(timer);
+}
+
+void GetSharedArrayBuffer(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    auto worker = static_cast<CWorker*>(ctx->GetAlignedPointerFromEmbedderData(2));
+
+    V8_ARG_TO_UINT(1, index);
+
+    auto buffer = worker->GetSharedArrayBuffer(isolate, index);
+    V8_CHECK(!buffer.IsEmpty(), "Invalid shared array buffer index");
+    V8_RETURN(buffer);
 }

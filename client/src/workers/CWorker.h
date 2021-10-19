@@ -19,6 +19,7 @@ public:
     using QueuedEvent = std::pair<std::string, std::vector<alt::MValue>>;
     using EventQueue = std::queue<QueuedEvent>;
     using TimerId = uint32_t;
+    using BufferId = uint32_t;
 
 private:
     alt::String filePath;
@@ -46,6 +47,9 @@ private:
     TimerId nextTimerId = 0;
     std::vector<TimerId> oldTimers;
     std::unordered_map<TimerId, WorkerTimer*> timers;
+
+    static BufferId nextBufferId;
+    static std::unordered_map<BufferId, std::shared_ptr<v8::BackingStore>> sharedArrayBuffers;
 
     void Thread();
 
@@ -124,4 +128,9 @@ public:
 
     // Returns error or empty string
     static std::string TryCatch(const std::function<void()>& func);
+
+    // Shared array buffers
+    static BufferId AddSharedArrayBuffer(v8::Local<v8::SharedArrayBuffer> buffer);
+    static bool RemoveSharedArrayBuffer(BufferId index);
+    static v8::Local<v8::SharedArrayBuffer> GetSharedArrayBuffer(v8::Isolate* isolate, BufferId index);
 };
