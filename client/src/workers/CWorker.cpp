@@ -145,6 +145,9 @@ bool CWorker::SetupIsolate()
         }
     });
 
+    // Disable creating shared array buffers in Workers
+    isolate->SetSharedArrayBufferConstructorEnabledCallback([](v8::Local<v8::Context>) { return false; });
+
     // IsWorker data slot
     isolate->SetData(v8::Isolate::GetNumberOfDataSlots() - 1, new bool(true));
 
