@@ -616,6 +616,11 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
             V8_CHECK(x->IsNumber(), "x must be a number");
             V8_CHECK(y->IsNumber(), "y must be a number");
         }
+        else if(val->IsNumber())
+        {
+            x = val;
+            y = val;
+        }
         else
         {
             V8Helpers::Throw(isolate, "Argument must be an array of 2 numbers or IVector2");
