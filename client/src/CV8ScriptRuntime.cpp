@@ -12,6 +12,7 @@ CV8ScriptRuntime::CV8ScriptRuntime()
     v8::V8::Initialize();
 
     create_params.array_buffer_allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
+    create_params.allow_atomics_wait = false;
 
     isolate = v8::Isolate::New(create_params);
     isolate->SetFatalErrorHandler([](const char* location, const char* message) { Log::Error << "[V8] " << location << ": " << message << Log::Endl; });
