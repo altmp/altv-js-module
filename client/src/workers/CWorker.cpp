@@ -177,6 +177,7 @@ bool CWorker::SetupIsolate()
     auto size = path.pkg->ReadFile(file, src.data(), src.size());
     path.pkg->CloseFile(file);
 
+    bool failed = false;
     // Compile the code
     auto error = TryCatch([&]() {
         v8::ScriptOrigin scriptOrigin(isolate, V8::JSValue(path.fileName.ToString()), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
@@ -185,6 +186,7 @@ bool CWorker::SetupIsolate()
         if(maybeModule.IsEmpty())
         {
             EmitError("Failed to compile worker module");
+            failed = true;
             return;
         }
         auto module = maybeModule.ToLocalChecked();
@@ -193,11 +195,13 @@ bool CWorker::SetupIsolate()
         v8::Maybe<bool> result =
           module->InstantiateModule(ctx, [](v8::Local<v8::Context> context, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray> import_assertions, v8::Local<v8::Module> referrer) {
               // todo: implement imports
+              Log::Warning << "[Worker] Imports in workers are not implemented yet" << Log::Endl;
               return v8::MaybeLocal<v8::Module>();
           });
         if(result.IsNothing() || result.ToChecked() == false)
         {
             EmitError("Failed to instantiate worker module");
+            failed = true;
             return;
         }
 
@@ -206,12 +210,13 @@ bool CWorker::SetupIsolate()
         if(returnValue.IsEmpty())
         {
             EmitError("Failed to evaluate worker module");
+            failed = true;
             return;
         }
     });
-    if(!error.empty())
+    if(!error.empty() || failed)
     {
-        EmitError(error);
+        if(!error.empty()) EmitError(error);
         return false;
     }
 
@@ -241,6 +246,7 @@ void CWorker::SetupGlobals(v8::Local<v8::Object> global)
     V8Helpers::RegisterFunc(alt, "clearNextTick", &ClearTimer);
     V8Helpers::RegisterFunc(alt, "clearInterval", &ClearTimer);
     V8Helpers::RegisterFunc(alt, "clearTimeout", &ClearTimer);
+    V8Helpers::RegisterFunc(alt, "getSharedArrayBuffer", &::GetSharedArrayBuffer);
     global->Set(context.Get(isolate), V8_NEW_STRING("alt"), alt);
 
     auto console = global->Get(context.Get(isolate), V8_NEW_STRING("console")).ToLocalChecked().As<v8::Object>();
@@ -323,31 +329,59 @@ std::string CWorker::TryCatch(const std::function<void()>& func)
     // Check if an error occured
     v8::Local<v8::Value> exception = tryCatch.Exception();
     v8::Local<v8::Message> message = tryCatch.Message();
-    if(!message.IsEmpty())
+    if(tryCatch.HasCaught())
     {
-        v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
-        v8::MaybeLocal<v8::String> maybeSourceLine = message->GetSourceLine(ctx);
-        v8::Maybe<int32_t> line = message->GetLineNumber(ctx);
-        v8::ScriptOrigin origin = message->GetScriptOrigin();
-
-        // Location
-        stream << "[" << *v8::String::Utf8Value(isolate, origin.ResourceName()) << ":" << (line.IsNothing() ? 0 : line.FromJust()) << "] ";
-
-        // Add stack trace if exists
-        v8::MaybeLocal<v8::Value> stackTrace = tryCatch.StackTrace(ctx);
-        if(!stackTrace.IsEmpty() && stackTrace.ToLocalChecked()->IsString())
+        if(!message.IsEmpty())
         {
-            v8::String::Utf8Value stackTraceStr(isolate, stackTrace.ToLocalChecked().As<v8::String>());
-            stream << *stackTraceStr;
-        }
+            v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
+            v8::MaybeLocal<v8::String> maybeSourceLine = message->GetSourceLine(ctx);
+            v8::Maybe<int32_t> line = message->GetLineNumber(ctx);
+            v8::ScriptOrigin origin = message->GetScriptOrigin();
 
-        return stream.str();
-    }
-    else if(!exception.IsEmpty())
-    {
-        stream << *v8::String::Utf8Value(isolate, exception);
-        return stream.str();
+            // Location
+            stream << "[" << *v8::String::Utf8Value(isolate, origin.ResourceName()) << ":" << (line.IsNothing() ? 0 : line.FromJust()) << "] ";
+
+            // Add stack trace if exists
+            v8::MaybeLocal<v8::Value> stackTrace = tryCatch.StackTrace(ctx);
+            if(!stackTrace.IsEmpty() && stackTrace.ToLocalChecked()->IsString())
+            {
+                v8::String::Utf8Value stackTraceStr(isolate, stackTrace.ToLocalChecked().As<v8::String>());
+                stream << *stackTraceStr;
+            }
+
+            return stream.str();
+        }
+        else if(!exception.IsEmpty())
+        {
+            stream << *v8::String::Utf8Value(isolate, exception);
+            return stream.str();
+        }
+        else
+            return std::string("An error occured");
     }
     else
         return std::string();
+}
+
+// Shared array buffers
+CWorker::BufferId CWorker::nextBufferId = 0;
+std::unordered_map<CWorker::BufferId, std::shared_ptr<v8::BackingStore>> CWorker::sharedArrayBuffers = std::unordered_map<CWorker::BufferId, std::shared_ptr<v8::BackingStore>>();
+
+CWorker::BufferId CWorker::AddSharedArrayBuffer(v8::Local<v8::SharedArrayBuffer> buffer)
+{
+    BufferId id = ++nextBufferId;
+    sharedArrayBuffers.insert({ id, buffer->GetBackingStore() });
+    return id;
+}
+bool CWorker::RemoveSharedArrayBuffer(CWorker::BufferId index)
+{
+    if(sharedArrayBuffers.count(index) == 0) return false;
+    sharedArrayBuffers.erase(index);
+    return true;
+}
+
+v8::Local<v8::SharedArrayBuffer> CWorker::GetSharedArrayBuffer(v8::Isolate* isolate, CWorker::BufferId index)
+{
+    if(sharedArrayBuffers.count(index) == 0) return v8::Local<v8::SharedArrayBuffer>();
+    return v8::SharedArrayBuffer::New(isolate, sharedArrayBuffers.at(index));
 }
