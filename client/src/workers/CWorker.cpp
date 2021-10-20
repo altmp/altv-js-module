@@ -177,6 +177,7 @@ bool CWorker::SetupIsolate()
     auto size = path.pkg->ReadFile(file, src.data(), src.size());
     path.pkg->CloseFile(file);
 
+    bool failed = false;
     // Compile the code
     auto error = TryCatch([&]() {
         v8::ScriptOrigin scriptOrigin(isolate, V8::JSValue(path.fileName.ToString()), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
@@ -185,6 +186,7 @@ bool CWorker::SetupIsolate()
         if(maybeModule.IsEmpty())
         {
             EmitError("Failed to compile worker module");
+            failed = true;
             return;
         }
         auto module = maybeModule.ToLocalChecked();
@@ -198,6 +200,7 @@ bool CWorker::SetupIsolate()
         if(result.IsNothing() || result.ToChecked() == false)
         {
             EmitError("Failed to instantiate worker module");
+            failed = true;
             return;
         }
 
@@ -206,12 +209,13 @@ bool CWorker::SetupIsolate()
         if(returnValue.IsEmpty())
         {
             EmitError("Failed to evaluate worker module");
+            failed = true;
             return;
         }
     });
-    if(!error.empty())
+    if(!error.empty() || failed)
     {
-        EmitError(error);
+        if(!error.empty()) EmitError(error);
         return false;
     }
 
