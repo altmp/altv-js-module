@@ -856,7 +856,7 @@ static void TotalPacketsSentGetter(v8::Local<v8::Name>, const v8::PropertyCallba
 static void TotalPacketsLostGetter(v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_RETURN_UINT64(alt::ICore::Instance().GetTotalPacketsLost());
+    V8_RETURN_UINT(alt::ICore::Instance().GetTotalPacketsLost());
 }
 
 extern V8Module sharedModule;
