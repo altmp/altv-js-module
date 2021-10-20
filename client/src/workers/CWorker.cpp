@@ -195,6 +195,7 @@ bool CWorker::SetupIsolate()
         v8::Maybe<bool> result =
           module->InstantiateModule(ctx, [](v8::Local<v8::Context> context, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray> import_assertions, v8::Local<v8::Module> referrer) {
               // todo: implement imports
+              Log::Warning << "[Worker] Imports in workers are not implemented yet" << Log::Endl;
               return v8::MaybeLocal<v8::Module>();
           });
         if(result.IsNothing() || result.ToChecked() == false)
