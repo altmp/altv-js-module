@@ -847,6 +847,18 @@ static void PingGetter(v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::V
     V8_RETURN(alt::ICore::Instance().GetPing());
 }
 
+static void TotalPacketsSentGetter(v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_RETURN_UINT64(alt::ICore::Instance().GetTotalPacketsSent());
+}
+
+static void TotalPacketsLostGetter(v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_RETURN_UINT64(alt::ICore::Instance().GetTotalPacketsLost());
+}
+
 extern V8Module sharedModule;
 extern V8Class v8Player, v8Player, v8Vehicle, v8WebView, v8HandlingData, v8LocalStorage, v8MemoryBuffer, v8MapZoomData, v8Discord, v8Voice, v8WebSocketClient, v8Checkpoint, v8HttpClient,
   v8Audio, v8LocalPlayer, v8Profiler, v8Worker;
@@ -958,4 +970,7 @@ extern V8Module altModule("alt",
 
                               V8Helpers::RegisterProperty(exports, "fps", &FpsGetter);
                               V8Helpers::RegisterProperty(exports, "ping", &PingGetter);
+
+                              V8Helpers::RegisterProperty(exports, "totalPacketsSent", &TotalPacketsSentGetter);
+                              V8Helpers::RegisterProperty(exports, "totalPacketsLost", &TotalPacketsLostGetter);
                           });
