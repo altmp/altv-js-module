@@ -324,30 +324,35 @@ std::string CWorker::TryCatch(const std::function<void()>& func)
     // Check if an error occured
     v8::Local<v8::Value> exception = tryCatch.Exception();
     v8::Local<v8::Message> message = tryCatch.Message();
-    if(!message.IsEmpty())
+    if(tryCatch.HasCaught())
     {
-        v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
-        v8::MaybeLocal<v8::String> maybeSourceLine = message->GetSourceLine(ctx);
-        v8::Maybe<int32_t> line = message->GetLineNumber(ctx);
-        v8::ScriptOrigin origin = message->GetScriptOrigin();
-
-        // Location
-        stream << "[" << *v8::String::Utf8Value(isolate, origin.ResourceName()) << ":" << (line.IsNothing() ? 0 : line.FromJust()) << "] ";
-
-        // Add stack trace if exists
-        v8::MaybeLocal<v8::Value> stackTrace = tryCatch.StackTrace(ctx);
-        if(!stackTrace.IsEmpty() && stackTrace.ToLocalChecked()->IsString())
+        if(!message.IsEmpty())
         {
-            v8::String::Utf8Value stackTraceStr(isolate, stackTrace.ToLocalChecked().As<v8::String>());
-            stream << *stackTraceStr;
-        }
+            v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
+            v8::MaybeLocal<v8::String> maybeSourceLine = message->GetSourceLine(ctx);
+            v8::Maybe<int32_t> line = message->GetLineNumber(ctx);
+            v8::ScriptOrigin origin = message->GetScriptOrigin();
 
-        return stream.str();
-    }
-    else if(!exception.IsEmpty())
-    {
-        stream << *v8::String::Utf8Value(isolate, exception);
-        return stream.str();
+            // Location
+            stream << "[" << *v8::String::Utf8Value(isolate, origin.ResourceName()) << ":" << (line.IsNothing() ? 0 : line.FromJust()) << "] ";
+
+            // Add stack trace if exists
+            v8::MaybeLocal<v8::Value> stackTrace = tryCatch.StackTrace(ctx);
+            if(!stackTrace.IsEmpty() && stackTrace.ToLocalChecked()->IsString())
+            {
+                v8::String::Utf8Value stackTraceStr(isolate, stackTrace.ToLocalChecked().As<v8::String>());
+                stream << *stackTraceStr;
+            }
+
+            return stream.str();
+        }
+        else if(!exception.IsEmpty())
+        {
+            stream << *v8::String::Utf8Value(isolate, exception);
+            return stream.str();
+        }
+        else
+            return std::string("An error occured");
     }
     else
         return std::string();
