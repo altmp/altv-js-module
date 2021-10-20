@@ -12,3 +12,5 @@ void NextTick(const v8::FunctionCallbackInfo<v8::Value>& info);
 void SetTimeout(const v8::FunctionCallbackInfo<v8::Value>& info);
 void SetInterval(const v8::FunctionCallbackInfo<v8::Value>& info);
 void ClearTimer(const v8::FunctionCallbackInfo<v8::Value>& info);
+
+void GetSharedArrayBuffer(const v8::FunctionCallbackInfo<v8::Value>& info);
