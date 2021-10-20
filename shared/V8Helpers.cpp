@@ -169,6 +169,28 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
             auto v8Buffer = val.As<v8::ArrayBuffer>()->GetBackingStore();
             return core.CreateMValueByteArray((uint8_t*)v8Buffer->Data(), v8Buffer->ByteLength());
         }
+        else if(val->IsMap())
+        {
+            v8::Local<v8::Map> map = val.As<v8::Map>();
+            v8::Local<v8::Array> mapArr = map->AsArray();
+            size_t size = map->Size();
+
+            alt::MValueDict dict = alt::ICore::Instance().CreateMValueDict();
+            for(size_t i = 0; i < size + 2; i += 2)
+            {
+                auto maybeKey = mapArr->Get(ctx, i);
+                auto maybeValue = mapArr->Get(ctx, i + 1);
+                v8::Local<v8::Value> key;
+                v8::Local<v8::Value> value;
+
+                if(!maybeKey.ToLocal(&key)) continue;
+                v8::String::Utf8Value keyString = v8::String::Utf8Value(isolate, key);
+                if(keyString.length() == 0) continue;
+                if(!maybeValue.ToLocal(&value)) continue;
+                dict->Set(*keyString, V8ToMValue(value, false));
+            }
+            return dict;
+        }
         else
         {
             V8ResourceImpl* resource = V8ResourceImpl::Get(ctx);
