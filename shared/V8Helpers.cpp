@@ -173,10 +173,10 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
         {
             v8::Local<v8::Map> map = val.As<v8::Map>();
             v8::Local<v8::Array> mapArr = map->AsArray();
-            size_t size = map->Size();
+            uint32_t size = mapArr->Length();
 
             alt::MValueDict dict = alt::ICore::Instance().CreateMValueDict();
-            for(size_t i = 0; i < size + 2; i += 2)
+            for(uint32_t i = 0; i < size; i += 2)
             {
                 auto maybeKey = mapArr->Get(ctx, i);
                 auto maybeValue = mapArr->Get(ctx, i + 1);
@@ -184,10 +184,10 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
                 v8::Local<v8::Value> value;
 
                 if(!maybeKey.ToLocal(&key)) continue;
-                v8::String::Utf8Value keyString = v8::String::Utf8Value(isolate, key);
-                if(keyString.length() == 0) continue;
                 if(!maybeValue.ToLocal(&value)) continue;
-                dict->Set(*keyString, V8ToMValue(value, false));
+                alt::String keyString = V8::Stringify(key, ctx);
+                if(keyString.IsEmpty()) continue;
+                dict->Set(keyString, V8ToMValue(value, false));
             }
             return dict;
         }
