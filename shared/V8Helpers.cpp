@@ -185,7 +185,7 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
 
                 if(!maybeKey.ToLocal(&key)) continue;
                 if(!maybeValue.ToLocal(&value)) continue;
-                alt::String keyString = V8::Stringify(key, ctx);
+                alt::String keyString = V8::Stringify(ctx, val);
                 if(keyString.IsEmpty()) continue;
                 dict->Set(keyString, V8ToMValue(value, false));
             }
@@ -751,7 +751,7 @@ void V8::EventHandler::Reference()
     Log::Info << "[V8] Registered handler for " << std::to_string((int)type) << Log::Endl;
 }
 
-alt::String V8::Stringify(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx)
+alt::String V8::Stringify(v8::Local<v8::Context> ctx, v8::Local<v8::Value> val)
 {
     v8::Local<v8::String> str;
     if(!val->ToString(ctx).ToLocal(&str)) return nullptr;
@@ -761,7 +761,8 @@ alt::String V8::Stringify(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx)
         v8::Local<v8::String> stringified;
         if(maybe.ToLocal(&stringified)) str = stringified;
     }
-    return *v8::String::Utf8Value(ctx->GetIsolate(), str);
+    const char* result = *v8::String::Utf8Value(ctx->GetIsolate(), str);
+    return result == nullptr ? alt::String() : alt::String(result);
 }
 
 alt::String V8::GetJSValueTypeName(v8::Local<v8::Value> val)

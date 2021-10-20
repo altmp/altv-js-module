@@ -225,7 +225,7 @@ namespace V8
         return true;
     }
 
-    alt::String Stringify(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx);
+    alt::String Stringify(v8::Local<v8::Context> ctx, v8::Local<v8::Value> val);
     alt::String GetJSValueTypeName(v8::Local<v8::Value> val);
 
     // * Function utilizing overloads to quickly convert a C++ value to a JS value
