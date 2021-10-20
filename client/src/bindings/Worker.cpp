@@ -7,7 +7,7 @@
 
 #include "../workers/CWorker.h"
 
-static constexpr int MAX_WORKERS_PER_RESOURCE = 20;
+static constexpr int MAX_WORKERS_PER_RESOURCE = 10;
 
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
