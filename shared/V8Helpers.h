@@ -311,6 +311,13 @@ namespace V8
         return *v8::String::Utf8Value(isolate, stackTrace);
     }
 
+    inline std::string GetCurrentSourceOrigin(v8::Isolate* isolate)
+    {
+        auto stackTrace = v8::StackTrace::CurrentStackTrace(isolate, 1);
+        if(stackTrace->GetFrameCount() == 0) return "";
+        return *v8::String::Utf8Value(isolate, stackTrace->GetFrame(isolate, 0)->GetScriptName());
+    }
+
 }  // namespace V8
 
 #define V8_GET_ISOLATE() v8::Isolate* isolate = info.GetIsolate()
