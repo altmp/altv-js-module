@@ -11,7 +11,8 @@ static void StaticExists(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(1, _path);
 
 #ifdef ALT_CLIENT
-    auto path = alt::ICore::Instance().Resolve(resource, _path, "");
+    alt::String origin = V8::GetCurrentSourceOrigin(isolate);
+    auto path = alt::ICore::Instance().Resolve(resource, _path, origin);
     V8_CHECK(path.pkg, "invalid asset pack");
     bool exists = path.pkg->FileExists(path.fileName);
 #else
@@ -37,7 +38,8 @@ static void StaticRead(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
 
 #ifdef ALT_CLIENT
-    auto path = alt::ICore::Instance().Resolve(resource, name, "");
+    alt::String origin = V8::GetCurrentSourceOrigin(isolate);
+    auto path = alt::ICore::Instance().Resolve(resource, name, origin);
     V8_CHECK(path.pkg, "invalid asset pack");
 
     alt::IPackage::File* file = path.pkg->OpenFile(path.fileName);
