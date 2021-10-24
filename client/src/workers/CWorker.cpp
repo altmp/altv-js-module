@@ -162,8 +162,9 @@ bool CWorker::SetupIsolate()
     auto ctx = v8::Context::New(isolate, nullptr, v8::MaybeLocal<v8::ObjectTemplate>(), v8::MaybeLocal<v8::Value>(), v8::DeserializeInternalFieldsCallback(), microtaskQueue.get());
     context.Reset(isolate, ctx);
     v8::Context::Scope scope(ctx);
-    SetupGlobals(ctx->Global());
+    ctx->SetAlignedPointerInEmbedderData(1, resource->GetResource());
     ctx->SetAlignedPointerInEmbedderData(2, this);
+    SetupGlobals(ctx->Global());
 
     // Load code
     auto path = alt::ICore::Instance().Resolve(resource->GetResource(), filePath, origin);
@@ -230,31 +231,22 @@ void CWorker::DestroyIsolate()
     isolate->Dispose();
 }
 
-extern V8Module altModule;
+extern V8Module altWorker;
 void CWorker::SetupGlobals(v8::Local<v8::Object> global)
 {
+    V8Class::LoadAll(isolate);
+
     V8_NEW_OBJECT(alt);
-    V8Helpers::RegisterFunc(alt, "emit", &Emit);
-    V8Helpers::RegisterFunc(alt, "on", &On);
-    V8Helpers::RegisterFunc(alt, "once", &Once);
-    V8Helpers::RegisterFunc(alt, "log", &::Log);
-    V8Helpers::RegisterFunc(alt, "logWarning", &::LogWarning);
-    V8Helpers::RegisterFunc(alt, "logError", &::LogError);
-    V8Helpers::RegisterFunc(alt, "nextTick", &NextTick);
-    V8Helpers::RegisterFunc(alt, "setInterval", &SetInterval);
-    V8Helpers::RegisterFunc(alt, "setTimeout", &SetTimeout);
-    V8Helpers::RegisterFunc(alt, "clearNextTick", &ClearTimer);
-    V8Helpers::RegisterFunc(alt, "clearInterval", &ClearTimer);
-    V8Helpers::RegisterFunc(alt, "clearTimeout", &ClearTimer);
-    V8Helpers::RegisterFunc(alt, "getSharedArrayBuffer", &::GetSharedArrayBuffer);
+    altWorker.Register(isolate, context.Get(isolate), alt);
     global->Set(context.Get(isolate), V8_NEW_STRING("alt"), alt);
 
     auto console = global->Get(context.Get(isolate), V8_NEW_STRING("console")).ToLocalChecked().As<v8::Object>();
     if(!console.IsEmpty())
     {
-        V8Helpers::RegisterFunc(console, "log", &::Log);
-        V8Helpers::RegisterFunc(console, "warn", &::LogWarning);
-        V8Helpers::RegisterFunc(console, "error", &::LogError);
+        auto alt = altWorker.GetExports(isolate, context.Get(isolate));
+        console->Set(context.Get(isolate), V8::JSValue("log"), alt->Get(context.Get(isolate), V8::JSValue("log")).ToLocalChecked());
+        console->Set(context.Get(isolate), V8::JSValue("warn"), alt->Get(context.Get(isolate), V8::JSValue("logWarning")).ToLocalChecked());
+        console->Set(context.Get(isolate), V8::JSValue("error"), alt->Get(context.Get(isolate), V8::JSValue("logError")).ToLocalChecked());
     }
 
     V8Helpers::RegisterFunc(global, "setInterval", &SetInterval);
