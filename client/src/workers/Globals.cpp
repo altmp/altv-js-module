@@ -104,7 +104,7 @@ void GetSharedArrayBuffer(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN(buffer);
 }
 
-extern V8Module sharedModule;
+extern V8Module altModule;
 extern V8Class v8File;
 extern V8Module altWorker("alt-worker", nullptr, { v8File }, [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
     V8Helpers::RegisterFunc(exports, "emit", &Emit);
@@ -118,10 +118,8 @@ extern V8Module altWorker("alt-worker", nullptr, { v8File }, [](v8::Local<v8::Co
     V8Helpers::RegisterFunc(exports, "clearTimeout", &ClearTimer);
     V8Helpers::RegisterFunc(exports, "getSharedArrayBuffer", &::GetSharedArrayBuffer);
 
-    auto alt = sharedModule.GetExports(ctx->GetIsolate(), ctx);
+    auto alt = altModule.GetExports(ctx->GetIsolate(), ctx);
     exports->Set(ctx, V8::JSValue("log"), alt->Get(ctx, V8::JSValue("log")).ToLocalChecked());
     exports->Set(ctx, V8::JSValue("logWarning"), alt->Get(ctx, V8::JSValue("logWarning")).ToLocalChecked());
     exports->Set(ctx, V8::JSValue("logError"), alt->Get(ctx, V8::JSValue("logError")).ToLocalChecked());
-    exports->Set(ctx, V8::JSValue("takeScreenshot"), alt->Get(ctx, V8::JSValue("takeScreenshot")).ToLocalChecked());
-    exports->Set(ctx, V8::JSValue("takeScreenshotGameOnly"), alt->Get(ctx, V8::JSValue("takeScreenshotGameOnly")).ToLocalChecked());
 });
