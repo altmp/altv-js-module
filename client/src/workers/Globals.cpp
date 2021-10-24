@@ -1,6 +1,7 @@
 #include "Globals.h"
 #include "CWorker.h"
 #include "V8Helpers.h"
+#include "V8Module.h"
 
 void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
@@ -42,69 +43,6 @@ void Once(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_FUNCTION(2, callback);
 
     worker->SubscribeToWorker(eventName.ToString(), callback, true);
-}
-
-void Log(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-    V8_CHECK_ARGS_LEN_MIN(1);
-
-    std::stringstream ss;
-    for(int i = 0; i < info.Length(); ++i)
-    {
-        v8::Local<v8::Value> val = info[i];
-
-        if(i > 0) ss << " ";
-
-        auto str = V8::Stringify(ctx, val);
-        if(str.IsEmpty()) continue;
-
-        ss << str.CStr();
-    }
-
-    alt::ICore::Instance().LogColored(ss.str());
-}
-
-void LogWarning(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-    V8_CHECK_ARGS_LEN_MIN(1);
-
-    std::stringstream ss;
-    for(int i = 0; i < info.Length(); ++i)
-    {
-        v8::Local<v8::Value> val = info[i];
-
-        if(i > 0) ss << " ";
-
-        auto str = V8::Stringify(ctx, val);
-        if(str.IsEmpty()) continue;
-
-        ss << str.CStr();
-    }
-
-    alt::ICore::Instance().LogWarning(ss.str());
-}
-
-void LogError(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-    V8_CHECK_ARGS_LEN_MIN(1);
-
-    std::stringstream ss;
-    for(int i = 0; i < info.Length(); ++i)
-    {
-        v8::Local<v8::Value> val = info[i];
-
-        if(i > 0) ss << " ";
-
-        auto str = V8::Stringify(ctx, val);
-        if(str.IsEmpty()) continue;
-
-        ss << str.CStr();
-    }
-
-    alt::ICore::Instance().LogError(ss.str());
 }
 
 void NextTick(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -165,3 +103,25 @@ void GetSharedArrayBuffer(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK(!buffer.IsEmpty(), "Invalid shared array buffer index");
     V8_RETURN(buffer);
 }
+
+extern V8Module sharedModule;
+extern V8Class v8File, v8WebSocketClient, v8HttpClient;
+extern V8Module altWorker("alt-worker", nullptr, { v8File, v8WebSocketClient, v8HttpClient }, [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
+    V8Helpers::RegisterFunc(exports, "emit", &Emit);
+    V8Helpers::RegisterFunc(exports, "on", &On);
+    V8Helpers::RegisterFunc(exports, "once", &Once);
+    V8Helpers::RegisterFunc(exports, "nextTick", &NextTick);
+    V8Helpers::RegisterFunc(exports, "setInterval", &SetInterval);
+    V8Helpers::RegisterFunc(exports, "setTimeout", &SetTimeout);
+    V8Helpers::RegisterFunc(exports, "clearNextTick", &ClearTimer);
+    V8Helpers::RegisterFunc(exports, "clearInterval", &ClearTimer);
+    V8Helpers::RegisterFunc(exports, "clearTimeout", &ClearTimer);
+    V8Helpers::RegisterFunc(exports, "getSharedArrayBuffer", &::GetSharedArrayBuffer);
+
+    auto alt = sharedModule.GetExports(ctx->GetIsolate(), ctx);
+    exports->Set(ctx, V8::JSValue("log"), alt->Get(ctx, V8::JSValue("log")).ToLocalChecked());
+    exports->Set(ctx, V8::JSValue("logWarning"), alt->Get(ctx, V8::JSValue("logWarning")).ToLocalChecked());
+    exports->Set(ctx, V8::JSValue("logError"), alt->Get(ctx, V8::JSValue("logError")).ToLocalChecked());
+    exports->Set(ctx, V8::JSValue("takeScreenshot"), alt->Get(ctx, V8::JSValue("takeScreenshot")).ToLocalChecked());
+    exports->Set(ctx, V8::JSValue("takeScreenshotGameOnly"), alt->Get(ctx, V8::JSValue("takeScreenshotGameOnly")).ToLocalChecked());
+});
