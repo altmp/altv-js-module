@@ -181,7 +181,8 @@ bool CWorker::SetupIsolate()
     bool failed = false;
     // Compile the code
     auto error = TryCatch([&]() {
-        v8::ScriptOrigin scriptOrigin(isolate, V8::JSValue(path.prefix + path.fileName), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
+        std::string fullPath = (path.prefix + path.fileName).ToString();
+        v8::ScriptOrigin scriptOrigin(isolate, V8::JSValue(fullPath), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
         v8::ScriptCompiler::Source source(V8::JSValue(src), scriptOrigin);
         auto maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source);
         if(maybeModule.IsEmpty())
@@ -195,9 +196,9 @@ bool CWorker::SetupIsolate()
         // Start the code
         v8::Maybe<bool> result =
           module->InstantiateModule(ctx, [](v8::Local<v8::Context> context, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray> import_assertions, v8::Local<v8::Module> referrer) {
-              // todo: implement imports
-              Log::Warning << "[Worker] Imports in workers are not implemented yet" << Log::Endl;
-              return v8::MaybeLocal<v8::Module>();
+              CWorker* worker = static_cast<CWorker*>(context->GetAlignedPointerFromEmbedderData(2));
+              auto result = worker->ResolveFile(*v8::String::Utf8Value(worker->GetIsolate(), specifier), referrer, worker->GetResource()->GetResource());
+              return result;
           });
         if(result.IsNothing() || result.ToChecked() == false)
         {
@@ -214,6 +215,8 @@ bool CWorker::SetupIsolate()
             failed = true;
             return;
         }
+
+        modules.emplace(fullPath, v8::UniquePersistent<v8::Module>{ isolate, module });
     });
     if(!error.empty() || failed)
     {
