@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <map>
 #include <v8.h>
 
 #include "Log.h"
@@ -13,8 +14,7 @@ class V8Class
     std::string name;
     v8::FunctionCallback constructor;
     InitCallback initCb;
-    v8::Persistent<v8::FunctionTemplate> tpl;
-    bool loaded = false;
+    std::unordered_map<v8::Isolate*, v8::Persistent<v8::FunctionTemplate, v8::CopyablePersistentTraits<v8::FunctionTemplate>>> tplMap;
 
 public:
     static auto& All()
@@ -53,7 +53,7 @@ public:
     {
         v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-        v8::Local<v8::FunctionTemplate> _tpl = tpl.Get(isolate);
+        v8::Local<v8::FunctionTemplate> _tpl = tplMap.at(isolate).Get(isolate);
         v8::Local<v8::Object> obj = _tpl->InstanceTemplate()->NewInstance(ctx).ToLocalChecked();
 
         return obj;
@@ -63,7 +63,7 @@ public:
 
     v8::Local<v8::Function> JSValue(v8::Isolate* isolate, v8::Local<v8::Context> ctx)
     {
-        return tpl.Get(isolate)->GetFunction(ctx).ToLocalChecked();
+        return tplMap.at(isolate).Get(isolate)->GetFunction(ctx).ToLocalChecked();
     }
 
     v8::Local<v8::Value> New(v8::Local<v8::Context> ctx, std::vector<v8::Local<v8::Value>>& args);
@@ -75,9 +75,7 @@ public:
 
     void Load(v8::Isolate* isolate)
     {
-        if(loaded) return;
-
-        loaded = true;
+        if(tplMap.count(isolate) != 0) return;
 
         v8::Local<v8::FunctionTemplate> _tpl = v8::FunctionTemplate::New(isolate, constructor);
         _tpl->SetClassName(v8::String::NewFromUtf8(isolate, name.c_str(), v8::NewStringType::kNormal).ToLocalChecked());
@@ -87,7 +85,7 @@ public:
         if(parent)
         {
             parent->Load(isolate);
-            auto parenttpl = parent->tpl.Get(isolate);
+            auto parenttpl = parent->tplMap.at(isolate).Get(isolate);
             _tpl->Inherit(parenttpl);
 
             // if parent has more internal fields,
@@ -96,16 +94,12 @@ public:
             if(parentInternalFieldCount > _tpl->InstanceTemplate()->InternalFieldCount()) _tpl->InstanceTemplate()->SetInternalFieldCount(parentInternalFieldCount);
         }
 
-        if(!tpl.IsEmpty())
-        {
-            Log::Error << "Already loaded " << name << Log::Endl;
-        }
-
-        tpl.Reset(isolate, _tpl);
+        tplMap.insert({ isolate, { isolate, _tpl } });
     }
 
     void Register(v8::Isolate* isolate, v8::Local<v8::Context> context, v8::Local<v8::Object> exports)
     {
-        exports->Set(context, v8::String::NewFromUtf8(isolate, name.c_str(), v8::NewStringType::kNormal).ToLocalChecked(), tpl.Get(isolate)->GetFunction(context).ToLocalChecked());
+        exports->Set(
+          context, v8::String::NewFromUtf8(isolate, name.c_str(), v8::NewStringType::kNormal).ToLocalChecked(), tplMap.at(isolate).Get(isolate)->GetFunction(context).ToLocalChecked());
     }
 };
