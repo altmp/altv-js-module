@@ -181,7 +181,7 @@ bool CWorker::SetupIsolate()
     bool failed = false;
     // Compile the code
     auto error = TryCatch([&]() {
-        v8::ScriptOrigin scriptOrigin(isolate, V8::JSValue(path.fileName.ToString()), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
+        v8::ScriptOrigin scriptOrigin(isolate, V8::JSValue(path.prefix + path.fileName), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
         v8::ScriptCompiler::Source source(V8::JSValue(src), scriptOrigin);
         auto maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source);
         if(maybeModule.IsEmpty())
