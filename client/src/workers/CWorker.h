@@ -2,6 +2,7 @@
 #include "v8.h"
 #include "V8Helpers.h"
 #include "WorkerPromiseRejections.h"
+#include "../IImportHandler.h"
 
 #include <string>
 #include <thread>
@@ -12,7 +13,7 @@
 class CV8ResourceImpl;
 class WorkerTimer;
 
-class CWorker
+class CWorker : public IImportHandler
 {
 public:
     using EventHandlerMap = std::unordered_multimap<std::string, V8::EventCallback>;
@@ -115,6 +116,10 @@ public:
     v8::Isolate* GetIsolate()
     {
         return isolate;
+    }
+    CV8ResourceImpl* GetResource()
+    {
+        return resource;
     }
 
     void OnPromiseRejectedWithNoHandler(v8::PromiseRejectMessage& data)
