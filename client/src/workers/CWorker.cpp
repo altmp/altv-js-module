@@ -193,6 +193,8 @@ bool CWorker::SetupIsolate()
         }
         auto module = maybeModule.ToLocalChecked();
 
+        modules.emplace(fullPath, v8::UniquePersistent<v8::Module>{ isolate, module });
+
         // Start the code
         v8::Maybe<bool> result =
           module->InstantiateModule(ctx, [](v8::Local<v8::Context> context, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray> import_assertions, v8::Local<v8::Module> referrer) {
@@ -204,6 +206,7 @@ bool CWorker::SetupIsolate()
         {
             EmitError("Failed to instantiate worker module");
             failed = true;
+            modules.erase(fullPath);
             return;
         }
 
@@ -213,10 +216,9 @@ bool CWorker::SetupIsolate()
         {
             EmitError("Failed to evaluate worker module");
             failed = true;
+            modules.erase(fullPath);
             return;
         }
-
-        modules.emplace(fullPath, v8::UniquePersistent<v8::Module>{ isolate, module });
     });
     if(!error.empty() || failed)
     {
