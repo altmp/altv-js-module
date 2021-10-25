@@ -6,7 +6,7 @@ v8::Local<v8::Value> V8Class::New(v8::Local<v8::Context> ctx, std::vector<v8::Lo
 {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    v8::Local<v8::FunctionTemplate> _tpl = tpl.Get(isolate);
+    v8::Local<v8::FunctionTemplate> _tpl = tplMap.at(isolate).Get(isolate);
     v8::Local<v8::Value> obj;
 
     V8Helpers::TryCatch([&] {
