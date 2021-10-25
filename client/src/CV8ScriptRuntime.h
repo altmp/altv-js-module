@@ -141,7 +141,7 @@ public:
             return v8::MaybeLocal<v8::Module>{};
         }
 
-        return static_cast<CV8ResourceImpl*>(resource)->ResolveModule(_specifier, referrer);
+        return static_cast<CV8ResourceImpl*>(resource)->ResolveModule(_specifier, referrer, resource->GetResource());
     }
 
     static std::string FormatBytes(uint64_t bytes)
