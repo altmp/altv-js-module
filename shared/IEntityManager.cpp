@@ -116,7 +116,6 @@ void IEntityManager::OnRemoveBaseObject(alt::Ref<alt::IBaseObject> handle)
     v8::Locker locker(isolate);
     v8::Isolate::Scope isolateScope(isolate);
     v8::HandleScope handleScope(isolate);
-    v8::Context::Scope scope(GetContext());
 
     V8Entity* ent = GetEntity(handle.Get());
 
