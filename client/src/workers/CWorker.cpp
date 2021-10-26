@@ -49,15 +49,18 @@ void CWorker::Thread()
         // Isolate is set up, the worker is now ready
         isReady = true;
         EmitToMain("load", std::vector<alt::MValue>());
-    }
 
-    while(true)
-    {
-        // Sleep for a short while to not overload the thread
-        std::this_thread::sleep_for(std::chrono::milliseconds(3));
-        if(!EventLoop()) break;
+        v8::Locker locker(isolate);
+        v8::Isolate::Scope isolate_scope(isolate);
+        v8::HandleScope handle_scope(isolate);
+        v8::Context::Scope context_scope(context.Get(isolate));
+        while(true)
+        {
+            // Sleep for a short while to not overload the thread
+            std::this_thread::sleep_for(std::chrono::milliseconds(3));
+            if(!EventLoop()) break;
+        }
     }
-
     DestroyIsolate();
     delete this;  // ! IMPORTANT TO DO THIS LAST !
 }
@@ -66,11 +69,6 @@ bool CWorker::EventLoop()
 {
     if(shouldTerminate) return false;
     if(isPaused) return true;
-
-    v8::Locker locker(isolate);
-    v8::Isolate::Scope isolate_scope(isolate);
-    v8::HandleScope handle_scope(isolate);
-    v8::Context::Scope context_scope(context.Get(isolate));
 
     // Timers
     for(auto& id : oldTimers) timers.erase(id);
@@ -269,6 +267,8 @@ void CWorker::EmitError(const std::string& error)
 
 static inline void RunEventQueue(CWorker::EventQueue& queue, CWorker::EventHandlerMap& eventHandlers, std::mutex& queueMutex)
 {
+    if(queue.empty()) return;
+
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
     auto context = isolate->GetEnteredOrMicrotaskContext();
     std::unique_lock<std::mutex> lock(queueMutex);
