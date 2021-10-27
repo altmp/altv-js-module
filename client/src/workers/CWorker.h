@@ -60,6 +60,8 @@ private:
     void DestroyIsolate();
     void SetupGlobals(v8::Local<v8::Object> global);
 
+    static v8::MaybeLocal<v8::Module> Import(v8::Local<v8::Context> context, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray>, v8::Local<v8::Module> referrer);
+
     static inline int64_t GetTime()
     {
         return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();

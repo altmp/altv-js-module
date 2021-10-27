@@ -194,12 +194,7 @@ bool CWorker::SetupIsolate()
         modules.emplace(fullPath, v8::UniquePersistent<v8::Module>{ isolate, module });
 
         // Start the code
-        v8::Maybe<bool> result =
-          module->InstantiateModule(ctx, [](v8::Local<v8::Context> context, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray> import_assertions, v8::Local<v8::Module> referrer) {
-              CWorker* worker = static_cast<CWorker*>(context->GetAlignedPointerFromEmbedderData(2));
-              auto result = worker->ResolveFile(*v8::String::Utf8Value(worker->GetIsolate(), specifier), referrer, worker->GetResource()->GetResource());
-              return result;
-          });
+        v8::Maybe<bool> result = module->InstantiateModule(ctx, Import);
         if(result.IsNothing() || result.ToChecked() == false)
         {
             EmitError("Failed to instantiate worker module");
@@ -230,23 +225,22 @@ bool CWorker::SetupIsolate()
 void CWorker::DestroyIsolate()
 {
     while(isolate->IsInUse()) isolate->Exit();
+    V8Module::Clear(isolate);
     context.Reset();
     isolate->Dispose();
 }
 
+extern void StaticRequire(const v8::FunctionCallbackInfo<v8::Value>& info);
 extern V8Module altWorker;
 void CWorker::SetupGlobals(v8::Local<v8::Object> global)
 {
     V8Class::LoadAll(isolate);
+    V8Module::Add(isolate, { altWorker });
 
-    V8_NEW_OBJECT(alt);
-    altWorker.Register(isolate, context.Get(isolate), alt);
-    global->Set(context.Get(isolate), V8_NEW_STRING("alt"), alt);
-
+    auto alt = altWorker.GetExports(isolate, context.Get(isolate));
     auto console = global->Get(context.Get(isolate), V8_NEW_STRING("console")).ToLocalChecked().As<v8::Object>();
     if(!console.IsEmpty())
     {
-        auto alt = altWorker.GetExports(isolate, context.Get(isolate));
         console->Set(context.Get(isolate), V8::JSValue("log"), alt->Get(context.Get(isolate), V8::JSValue("log")).ToLocalChecked());
         console->Set(context.Get(isolate), V8::JSValue("warn"), alt->Get(context.Get(isolate), V8::JSValue("logWarning")).ToLocalChecked());
         console->Set(context.Get(isolate), V8::JSValue("error"), alt->Get(context.Get(isolate), V8::JSValue("logError")).ToLocalChecked());
@@ -256,6 +250,17 @@ void CWorker::SetupGlobals(v8::Local<v8::Object> global)
     V8Helpers::RegisterFunc(global, "setTimeout", &SetTimeout);
     V8Helpers::RegisterFunc(global, "clearInterval", &ClearTimer);
     V8Helpers::RegisterFunc(global, "clearTimeout", &ClearTimer);
+
+    global->Set(context.Get(isolate), V8::JSValue("__internal_get_exports"), v8::Function::New(context.Get(isolate), &StaticRequire).ToLocalChecked());
+}
+
+v8::MaybeLocal<v8::Module> CWorker::Import(v8::Local<v8::Context> context, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray>, v8::Local<v8::Module> referrer)
+{
+    CWorker* worker = static_cast<CWorker*>(context->GetAlignedPointerFromEmbedderData(2));
+    std::string importName = *v8::String::Utf8Value(worker->GetIsolate(), specifier);
+    alt::IResource* resource = worker->GetResource()->GetResource();
+
+    return worker->ResolveModule(importName, referrer, resource);
 }
 
 void CWorker::EmitError(const std::string& error)
