@@ -1,7 +1,7 @@
 #include "IImportHandler.h"
 #include "V8Module.h"
 
-static v8::MaybeLocal<v8::Module> CompileESM(v8::Isolate* isolate, const std::string& name, const std::string& src)
+static inline v8::MaybeLocal<v8::Module> CompileESM(v8::Isolate* isolate, const std::string& name, const std::string& src)
 {
     v8::Local<v8::String> sourceCode = V8::JSValue(src);
 
@@ -11,7 +11,12 @@ static v8::MaybeLocal<v8::Module> CompileESM(v8::Isolate* isolate, const std::st
     return v8::ScriptCompiler::CompileModule(isolate, &source);
 }
 
-static v8::MaybeLocal<v8::Module> WrapModule(v8::Isolate* isolate, const std::deque<std::string>& _exportKeys, const std::string& name, bool exportAsDefault = false)
+static inline bool IsSystemModule(v8::Isolate* isolate, const std::string& name)
+{
+    return V8Module::Exists(isolate, name);
+}
+
+static inline v8::MaybeLocal<v8::Module> WrapModule(v8::Isolate* isolate, const std::deque<std::string>& _exportKeys, const std::string& name, bool exportAsDefault = false)
 {
     bool hasDefault = false;
     std::stringstream src;
@@ -36,14 +41,10 @@ static v8::MaybeLocal<v8::Module> WrapModule(v8::Isolate* isolate, const std::de
     return CompileESM(isolate, name, src.str());
 }
 
-static bool IsSystemModule(const std::string& name)
-{
-    return V8Module::Exists(name);
-}
-
 bool IImportHandler::IsValidModule(const std::string& name)
 {
-    if(V8Module::Exists(name)) return true;
+    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+    if(V8Module::Exists(isolate, name)) return true;
 
     alt::IResource* resource = alt::ICore::Instance().GetResource(name);
     if(resource) return true;
@@ -55,8 +56,8 @@ std::deque<std::string> IImportHandler::GetModuleKeys(const std::string& name)
 {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
     auto context = isolate->GetEnteredOrMicrotaskContext();
-    auto& v8module = V8Module::All().find(name);
-    if(v8module != V8Module::All().end())
+    auto& v8module = V8Module::All()[isolate].find(name);
+    if(v8module != V8Module::All()[isolate].end())
     {
         auto _exports = v8module->second->GetExports(isolate, context);
         v8::Local<v8::Array> v8Keys = _exports->GetOwnPropertyNames(context).ToLocalChecked();
@@ -113,8 +114,8 @@ v8::MaybeLocal<v8::Value> IImportHandler::Require(const std::string& name)
     auto it = requires.find(name);
     if(it != requires.end()) return it->second.Get(isolate);
 
-    auto& v8module = V8Module::All().find(name);
-    if(v8module != V8Module::All().end())
+    auto& v8module = V8Module::All()[isolate].find(name);
+    if(v8module != V8Module::All()[isolate].end())
     {
         auto _exports = v8module->second->GetExports(isolate, isolate->GetEnteredOrMicrotaskContext());
         requires.insert({ name, v8::UniquePersistent<v8::Value>{ isolate, _exports } });
@@ -219,7 +220,7 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveModule(const std::string& _nam
         if(IsValidModule(name))
         {
             V8Helpers::TryCatch([&] {
-                maybeModule = WrapModule(isolate, GetModuleKeys(name), name, IsSystemModule(name));
+                maybeModule = WrapModule(isolate, GetModuleKeys(name), name, IsSystemModule(isolate, name));
 
                 if(!maybeModule.IsEmpty())
                 {

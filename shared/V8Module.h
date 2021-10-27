@@ -10,27 +10,33 @@
 class V8Module
 {
     using Callback = std::function<void(v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports)>;
+    using ModuleMap = std::unordered_map<v8::Isolate*, std::unordered_map<std::string, V8Module*>>;
 
 public:
-    static std::map<std::string, V8Module*>& All()
+    static ModuleMap& All()
     {
-        static std::map<std::string, V8Module*> all;
+        static ModuleMap all;
         return all;
     }
 
-    static void Add(V8Module& module)
+    static void Add(v8::Isolate* isolate, V8Module& module)
     {
-        All()[module.moduleName] = &module;
+        All()[isolate][module.moduleName] = &module;
     }
 
-    static void Add(std::initializer_list<std::reference_wrapper<V8Module>> modules)
+    static void Add(v8::Isolate* isolate, std::initializer_list<std::reference_wrapper<V8Module>> modules)
     {
-        for(auto& m : modules) All()[m.get().moduleName] = &m.get();
+        for(auto& m : modules) All()[isolate][m.get().moduleName] = &m.get();
     }
 
-    static bool Exists(const std::string& name)
+    static void Clear(v8::Isolate* isolate)
     {
-        if(All().find(name) == All().end()) return false;
+        All().erase(isolate);
+    }
+
+    static bool Exists(v8::Isolate* isolate, const std::string& name)
+    {
+        if(All()[isolate].find(name) == All()[isolate].end()) return false;
         else
             return true;
     }
