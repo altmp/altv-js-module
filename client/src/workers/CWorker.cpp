@@ -226,6 +226,7 @@ void CWorker::DestroyIsolate()
 {
     while(isolate->IsInUse()) isolate->Exit();
     V8Module::Clear(isolate);
+    V8Class::UnloadAll(isolate);
     context.Reset();
     isolate->Dispose();
 }
