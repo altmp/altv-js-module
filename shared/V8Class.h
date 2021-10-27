@@ -72,6 +72,10 @@ public:
     {
         for(auto& p : All()) p.second->Load(isolate);
     }
+    static void UnloadAll(v8::Isolate* isolate)
+    {
+        for(auto& p : All()) p.second->Unload(isolate);
+    }
 
     void Load(v8::Isolate* isolate)
     {
@@ -95,6 +99,11 @@ public:
         }
 
         tplMap.insert({ isolate, { isolate, _tpl } });
+    }
+
+    void Unload(v8::Isolate* isolate)
+    {
+        tplMap.erase(isolate);
     }
 
     void Register(v8::Isolate* isolate, v8::Local<v8::Context> context, v8::Local<v8::Object> exports)

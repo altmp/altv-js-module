@@ -27,7 +27,7 @@
 
 #include "workers/CWorker.h"
 
-static void StaticRequire(const v8::FunctionCallbackInfo<v8::Value>& info)
+extern void StaticRequire(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     v8::Isolate* isolate = info.GetIsolate();
 
