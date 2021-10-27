@@ -167,6 +167,11 @@ alt::MValue V8ResourceImpl::FunctionImpl::Call(alt::MValueArgs args) const
 
 #ifdef ALT_SERVER_API
     CNodeResourceImpl* nodeRes = static_cast<CNodeResourceImpl*>(resource);
+    if(!nodeRes->IsEnvStarted())
+    {
+        V8Helpers::Throw(isolate, "Tried to call exported function of invalid resource");
+        return alt::ICore::Instance().CreateMValueNone();
+    }
     node::CallbackScope callbackScope(isolate, nodeRes->GetAsyncResource(), nodeRes->GetAsyncContext());
 #endif  // ALT_SERVER_API
 
