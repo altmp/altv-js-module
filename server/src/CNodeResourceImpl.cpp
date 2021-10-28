@@ -149,6 +149,8 @@ bool CNodeResourceImpl::Stop()
     node::FreeEnvironment(env);
     node::FreeIsolateData(nodeData);
 
+    envStarted = false;
+
     return true;
 }
 

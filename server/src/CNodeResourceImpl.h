@@ -39,6 +39,10 @@ public:
     {
         return asyncResource.Get(isolate);
     }
+    bool IsEnvStarted()
+    {
+        return envStarted;
+    }
 
 private:
     CNodeScriptRuntime* runtime;
