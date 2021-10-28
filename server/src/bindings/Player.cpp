@@ -402,6 +402,220 @@ static void PlayAmbientSpeech(const v8::FunctionCallbackInfo<v8::Value>& info)
     player->PlayAmbientSpeech(speechName, speechParam, speechDictHash);
 }
 
+static void SetHeadOverlay(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(3);
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    V8_ARG_TO_UINT(1, overlayID);
+    V8_ARG_TO_UINT(2, index);
+    V8_ARG_TO_NUMBER(3, opacity);
+
+    player->SetHeadOverlay(overlayID, index, opacity);
+}
+
+static void RemoveHeadOverlay(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    V8_ARG_TO_UINT(1, overlayID);
+
+    player->RemoveHeadOverlay(overlayID);
+}
+
+static void SetHeadOverlayColor(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(4);
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    V8_ARG_TO_UINT(1, overlayID);
+    V8_ARG_TO_UINT(2, colorType);
+    V8_ARG_TO_UINT(3, colorIndex);
+    V8_ARG_TO_UINT(4, secondColorIndex);
+
+    player->SetHeadOverlayColor(overlayID, colorType, colorIndex, secondColorIndex);
+}
+
+static void GetHeadOverlay(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    V8_ARG_TO_UINT(1, overlayID);
+
+    V8_NEW_OBJECT(headOverlayData);
+
+    auto headOverlay = player->GetHeadOverlay(overlayID);
+    V8_OBJECT_SET_UINT(headOverlayData, "index", headOverlay.index);
+    V8_OBJECT_SET_NUMBER(headOverlayData, "opacity", headOverlay.opacity);
+    V8_OBJECT_SET_UINT(headOverlayData, "colorType", headOverlay.colorType);
+    V8_OBJECT_SET_UINT(headOverlayData, "colorIndex", headOverlay.colorIndex);
+    V8_OBJECT_SET_UINT(headOverlayData, "secondColorIndex", headOverlay.secondColorIndex);
+
+    V8_RETURN(headOverlayData);
+}
+
+static void SetFaceFeature(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    V8_ARG_TO_UINT(1, index);
+    V8_ARG_TO_NUMBER(2, scale);
+
+    player->SetFaceFeature(index, scale);
+}
+
+static void GetFaceFeatureScale(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    V8_ARG_TO_UINT(1, index);
+
+    V8_RETURN_NUMBER(player->GetFaceFeatureScale(index));
+}
+
+static void RemoveFaceFeature(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    V8_ARG_TO_UINT(1, index);
+
+    player->RemoveFaceFeature(index);
+}
+
+static void SetHeadBlendPaletteColor(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(4);
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    V8_ARG_TO_UINT(1, id);
+    V8_ARG_TO_UINT(2, red);
+    V8_ARG_TO_UINT(3, green);
+    V8_ARG_TO_UINT(4, blue);
+
+    player->SetHeadBlendPaletteColor(id, red, green, blue);
+}
+
+static void GetHeadBlendPaletteColor(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(1);
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    V8_ARG_TO_UINT(1, id);
+
+    V8_RETURN_RGBA(player->GetHeadBlendPaletteColor(id));
+}
+
+static void SetHeadBlendData(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(9);
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    V8_ARG_TO_UINT(1, shapeFirstID);
+    V8_ARG_TO_UINT(2, shapeSecondID);
+    V8_ARG_TO_UINT(3, shapeThirdID);
+    V8_ARG_TO_UINT(4, skinFirstID);
+    V8_ARG_TO_UINT(5, skinSecondID);
+    V8_ARG_TO_UINT(6, skinThirdID);
+    V8_ARG_TO_NUMBER(7, shapeMix);
+    V8_ARG_TO_NUMBER(8, skinMix);
+    V8_ARG_TO_NUMBER(9, thirdMix);
+
+    player->SetHeadBlendData(shapeFirstID, shapeSecondID, shapeThirdID, skinFirstID, skinSecondID, skinThirdID, shapeMix, skinMix, thirdMix);
+}
+
+static void GetHeadBlendData(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    V8_NEW_OBJECT(headBlendData);
+
+    auto headBlend = player->GetHeadBlendData();
+    V8_OBJECT_SET_UINT(headBlendData, "shapeFirstID", headBlend.shapeFirstID);
+    V8_OBJECT_SET_UINT(headBlendData, "shapeSecondID", headBlend.shapeSecondID);
+    V8_OBJECT_SET_UINT(headBlendData, "shapeThirdID", headBlend.shapeThirdID);
+    V8_OBJECT_SET_UINT(headBlendData, "skinFirstID", headBlend.skinFirstID);
+    V8_OBJECT_SET_UINT(headBlendData, "skinSecondID", headBlend.skinSecondID);
+    V8_OBJECT_SET_UINT(headBlendData, "skinThirdID", headBlend.skinThirdID);
+    V8_OBJECT_SET_NUMBER(headBlendData, "shapeMix", headBlend.shapeMix);
+    V8_OBJECT_SET_NUMBER(headBlendData, "skinMix", headBlend.skinMix);
+    V8_OBJECT_SET_NUMBER(headBlendData, "thirdMix", headBlend.thirdMix);
+
+    V8_RETURN(headBlendData);
+}
+
+static void SetEyeColor(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    V8_ARG_TO_INT(1, eyeColor);
+
+    player->SetEyeColor(eyeColor);
+}
+
+static void GetEyeColor(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    V8_RETURN_INT(player->GetEyeColor());
+}
+
+static void SetHairColor(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    V8_ARG_TO_UINT(1, hairColor);
+
+    player->SetHairColor(hairColor);
+}
+
+static void GetHairColor(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    V8_RETURN_UINT(player->GetHairColor());
+}
+
+static void SetHairHighlightColor(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    V8_ARG_TO_UINT(1, hairHighlightColor);
+
+    player->SetHairHighlightColor(hairHighlightColor);
+}
+
+static void GetHairHighlightColor(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    V8_RETURN_UINT(player->GetHairHighlightColor());
+}
+
 extern V8Class v8Entity;
 extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -484,4 +698,23 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
     V8::SetMethod(isolate, tpl, "setIntoVehicle", &SetIntoVehicle);
 
     V8::SetMethod(isolate, tpl, "playAmbientSpeech", &PlayAmbientSpeech);
+
+    //Appearance getter & setter
+    V8::SetMethod(isolate, tpl, "setHeadOverlay", &SetHeadOverlay);
+    V8::SetMethod(isolate, tpl, "removeHeadOverlay", &RemoveHeadOverlay);
+    V8::SetMethod(isolate, tpl, "setHeadOverlayColor", &SetHeadOverlayColor);
+    V8::SetMethod(isolate, tpl, "getHeadOverlay", &GetHeadOverlay);
+    V8::SetMethod(isolate, tpl, "setFaceFeature", &SetFaceFeature);
+    V8::SetMethod(isolate, tpl, "getFaceFeatureScale", &GetFaceFeatureScale);
+    V8::SetMethod(isolate, tpl, "removeFaceFeature", &RemoveFaceFeature);
+    V8::SetMethod(isolate, tpl, "setHeadBlendPaletteColor", &SetHeadBlendPaletteColor);
+    V8::SetMethod(isolate, tpl, "getHeadBlendPaletteColor", &GetHeadBlendPaletteColor);
+    V8::SetMethod(isolate, tpl, "setHeadBlendData", &SetHeadBlendData);
+    V8::SetMethod(isolate, tpl, "getHeadBlendData", &GetHeadBlendData);
+    V8::SetMethod(isolate, tpl, "setEyeColor", &SetEyeColor);
+    V8::SetMethod(isolate, tpl, "getEyeColor", &GetEyeColor);
+    V8::SetMethod(isolate, tpl, "setHairColor", &SetHairColor);
+    V8::SetMethod(isolate, tpl, "getHairColor", &GetHairColor);
+    V8::SetMethod(isolate, tpl, "setHairHighlightColor", &SetHairHighlightColor);
+    V8::SetMethod(isolate, tpl, "getHairHighlightColor", &GetHairHighlightColor);
 });
