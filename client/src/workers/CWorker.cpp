@@ -143,6 +143,37 @@ bool CWorker::SetupIsolate()
         }
     });
 
+    isolate->SetHostImportModuleDynamicallyCallback(
+      [](v8::Local<v8::Context> context, v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray> assertions) {
+          v8::Isolate* isolate = context->GetIsolate();
+          v8::MaybeLocal<v8::Promise::Resolver> maybeResolver = v8::Promise::Resolver::New(context);
+          if(maybeResolver.IsEmpty()) return v8::MaybeLocal<v8::Promise>();
+          v8::Local<v8::Promise::Resolver> resolver = maybeResolver.ToLocalChecked();
+
+          CWorker* worker = static_cast<CWorker*>(context->GetAlignedPointerFromEmbedderData(2));
+          v8::Local<v8::Module> referrerModule = worker->GetModuleFromPath(*v8::String::Utf8Value(isolate, referrer->GetResourceName()));
+          if(referrerModule.IsEmpty()) resolver->Reject(context, v8::Exception::ReferenceError(V8::JSValue("Could not resolve referrer module")));
+          else
+          {
+              v8::MaybeLocal<v8::Module> maybeModule = CWorker::Import(context, specifier, assertions, referrerModule);
+              if(maybeModule.IsEmpty()) resolver->Reject(context, v8::Exception::ReferenceError(V8::JSValue("Could not resolve module")));
+              else
+              {
+                  v8::Local<v8::Module> module = maybeModule.ToLocalChecked();
+                  if(module->GetStatus() == v8::Module::Status::kUninstantiated && !module->InstantiateModule(context, Import).ToChecked())
+                      resolver->Reject(context, v8::Exception::ReferenceError(V8::JSValue("Error instantiating module")));
+
+                  if(module->GetStatus() != v8::Module::Status::kEvaluated && module->Evaluate(context).IsEmpty())
+                      resolver->Reject(context, v8::Exception::ReferenceError(V8::JSValue("Error evaluating module")));
+
+                  else
+                      resolver->Resolve(context, module->GetModuleNamespace());
+              }
+          }
+
+          return v8::MaybeLocal<v8::Promise>(resolver->GetPromise());
+      });
+
     // Disable creating shared array buffers in Workers
     isolate->SetSharedArrayBufferConstructorEnabledCallback([](v8::Local<v8::Context>) { return false; });
 
