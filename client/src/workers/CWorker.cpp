@@ -160,7 +160,8 @@ bool CWorker::SetupIsolate()
               else
               {
                   v8::Local<v8::Module> module = maybeModule.ToLocalChecked();
-                  if(module->GetStatus() == v8::Module::Status::kUninstantiated && !module->InstantiateModule(context, Import).ToChecked())
+                  if((module->GetStatus() != v8::Module::Status::kEvaluated && module->GetStatus() != v8::Module::Status::kErrored) &&
+                     !module->InstantiateModule(context, Import).ToChecked())
                       resolver->Reject(context, v8::Exception::ReferenceError(V8::JSValue("Error instantiating module")));
 
                   if(module->GetStatus() != v8::Module::Status::kEvaluated && module->Evaluate(context).IsEmpty())
