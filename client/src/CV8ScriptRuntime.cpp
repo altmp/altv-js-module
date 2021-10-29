@@ -113,7 +113,7 @@ CV8ScriptRuntime::CV8ScriptRuntime()
                     return false;
                 }
 
-                if(module->GetStatus() != v8::Module::Status::kEvaluated && module->Evaluate(ctx).IsEmpty())
+                if((module->GetStatus() != v8::Module::Status::kEvaluated && module->GetStatus() != v8::Module::Status::kErrored) && module->Evaluate(ctx).IsEmpty())
                 {
                     resolver->Reject(ctx, v8::Exception::ReferenceError(V8_NEW_STRING("Error evaluating module")));
                     return false;
