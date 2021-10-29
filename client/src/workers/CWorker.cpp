@@ -164,7 +164,7 @@ bool CWorker::SetupIsolate()
                      !module->InstantiateModule(context, Import).ToChecked())
                       resolver->Reject(context, v8::Exception::ReferenceError(V8::JSValue("Error instantiating module")));
 
-                  if(module->GetStatus() != v8::Module::Status::kEvaluated && module->Evaluate(context).IsEmpty())
+                  if((module->GetStatus() != v8::Module::Status::kEvaluated && module->GetStatus() != v8::Module::Status::kErrored) && module->Evaluate(context).IsEmpty())
                       resolver->Reject(context, v8::Exception::ReferenceError(V8::JSValue("Error evaluating module")));
 
                   else
