@@ -16,8 +16,6 @@ class CWorker;
 class CV8ResourceImpl : public V8ResourceImpl, public IImportHandler
 {
 public:
-    std::list<std::function<void()>> dynamicImports;
-
     CV8ResourceImpl(alt::IResource* resource, v8::Isolate* isolate) : V8ResourceImpl(isolate, resource) {}
 
     ~CV8ResourceImpl()
@@ -153,4 +151,7 @@ private:
     v8::Persistent<v8::Object> localStorage;
 
     std::unique_ptr<v8::MicrotaskQueue> microtaskQueue;
+
+    std::list<std::function<void()>> dynamicImports;
+    friend class CV8ScriptRuntime;
 };
