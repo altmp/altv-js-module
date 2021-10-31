@@ -4,6 +4,7 @@
 #include "V8Helpers.h"
 
 #include "cpp-sdk/events/CPlayerConnectEvent.h"
+#include "cpp-sdk/events/CPlayerBeforeConnectEvent.h"
 #include "cpp-sdk/events/CPlayerDisconnectEvent.h"
 #include "cpp-sdk/events/CPlayerDamageEvent.h"
 #include "cpp-sdk/events/CPlayerDeathEvent.h"
@@ -19,6 +20,13 @@ using EventType = CEvent::Type;
 V8::LocalEventHandler playerConnect(EventType::PLAYER_CONNECT, "playerConnect", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
     auto ev = static_cast<const alt::CPlayerConnectEvent*>(e);
     args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
+});
+
+V8::LocalEventHandler beforePlayerConnect(EventType::PLAYER_BEFORE_CONNECT, "beforePlayerConnect", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+    auto ev = static_cast<const alt::CPlayerBeforeConnectEvent*>(e);
+    args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
+    args.push_back(V8::JSValue(ev->GetPasswordHash()));
+    args.push_back(V8::JSValue(ev->GetCdnUrl()));
 });
 
 V8::LocalEventHandler playerDisconnect(EventType::PLAYER_DISCONNECT, "playerDisconnect", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
