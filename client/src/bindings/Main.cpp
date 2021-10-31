@@ -971,6 +971,6 @@ extern V8Module altModule("alt",
                               V8Helpers::RegisterProperty(exports, "fps", &FpsGetter);
                               V8Helpers::RegisterProperty(exports, "ping", &PingGetter);
 
-                              V8Helpers::RegisterProperty(exports, "totalPacketsSent", &TotalPacketsSentGetter);
-                              V8Helpers::RegisterProperty(exports, "totalPacketsLost", &TotalPacketsLostGetter);
+                              //V8Helpers::RegisterProperty(exports, "totalPacketsSent", &TotalPacketsSentGetter);
+                              //V8Helpers::RegisterProperty(exports, "totalPacketsLost", &TotalPacketsLostGetter);
                           });
