@@ -616,6 +616,36 @@ static void GetHairHighlightColor(const v8::FunctionCallbackInfo<v8::Value>& inf
     V8_RETURN_UINT(player->GetHairHighlightColor());
 }
 
+static void GetWeapons(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    alt::Array<alt::Weapon> weapons = player->GetWeapons();
+    alt::Size size = weapons.GetSize();
+    v8::Local<v8::Array> weaponsArr = v8::Array::New(isolate, (int)size);
+    for(alt::Size i = 0; i < size; i++)
+    {
+        alt::Weapon& weapon = weapons[i];
+        V8_NEW_OBJECT(weaponObj);
+        V8_OBJECT_SET_UINT(weaponObj, "hash", weapon.hash);
+        V8_OBJECT_SET_UINT(weaponObj, "tintIndex", weapon.tintIndex);
+
+        auto& components = weapon.components;
+        v8::Local<v8::Array> componentsArr = v8::Array::New(isolate);
+        size_t idx = 0;
+        for(auto it : components)
+        {
+            componentsArr->Set(ctx, idx++, V8::JSValue(it));
+        }
+        weaponObj->Set(ctx, V8::JSValue("components"), componentsArr);
+
+        weaponsArr->Set(ctx, i, weaponObj);
+    }
+
+    V8_RETURN(weaponsArr);
+}
+
 extern V8Class v8Entity;
 extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -634,11 +664,12 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
     V8::SetAccessor<IPlayer, uint16_t, &IPlayer::GetMaxHealth, &IPlayer::SetMaxHealth>(isolate, tpl, "maxHealth");
     V8::SetAccessor<IPlayer, uint16_t, &IPlayer::GetArmour, &IPlayer::SetArmour>(isolate, tpl, "armour");
     V8::SetAccessor<IPlayer, uint16_t, &IPlayer::GetMaxArmour, &IPlayer::SetMaxArmour>(isolate, tpl, "maxArmour");
+    V8::SetAccessor(isolate, tpl, "weapons", &GetWeapons);
     V8::SetAccessor<IPlayer, bool, &IPlayer::IsDead>(isolate, tpl, "isDead");
     V8::SetAccessor<IPlayer, bool, &IPlayer::IsInRagdoll>(isolate, tpl, "isInRagdoll");
     V8::SetAccessor<IPlayer, bool, &IPlayer::IsAiming>(isolate, tpl, "isAiming");
-    //V8::SetAccessor<IPlayer, bool, &IPlayer::IsJumping>(isolate, tpl, "isJumping");
-    //V8::SetAccessor<IPlayer, bool, &IPlayer::IsShooting>(isolate, tpl, "isShooting");
+    // V8::SetAccessor<IPlayer, bool, &IPlayer::IsJumping>(isolate, tpl, "isJumping");
+    // V8::SetAccessor<IPlayer, bool, &IPlayer::IsShooting>(isolate, tpl, "isShooting");
     V8::SetAccessor<IPlayer, bool, &IPlayer::IsReloading>(isolate, tpl, "isReloading");
     V8::SetAccessor<IPlayer, Position, &IPlayer::GetAimPos>(isolate, tpl, "aimPos");
     V8::SetAccessor<IPlayer, Rotation, &IPlayer::GetHeadRotation>(isolate, tpl, "headRot");
@@ -699,7 +730,7 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
 
     V8::SetMethod(isolate, tpl, "playAmbientSpeech", &PlayAmbientSpeech);
 
-    //Appearance getter & setter
+    // Appearance getter & setter
     V8::SetMethod(isolate, tpl, "setHeadOverlay", &SetHeadOverlay);
     V8::SetMethod(isolate, tpl, "removeHeadOverlay", &RemoveHeadOverlay);
     V8::SetMethod(isolate, tpl, "setHeadOverlayColor", &SetHeadOverlayColor);
