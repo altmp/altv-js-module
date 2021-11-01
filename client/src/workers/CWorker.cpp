@@ -260,6 +260,7 @@ void CWorker::DestroyIsolate()
     V8Module::Clear(isolate);
     V8Class::UnloadAll(isolate);
     context.Reset();
+    v8::platform::NotifyIsolateShutdown(CV8ScriptRuntime::Instance().GetPlatform(), isolate);
     isolate->Dispose();
 }
 
