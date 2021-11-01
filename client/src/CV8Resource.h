@@ -115,7 +115,7 @@ public:
 
         if(handle->GetType() == alt::IBaseObject::Type::WEBSOCKET_CLIENT) webSocketClientHandlers.erase(handle.As<alt::IWebSocketClient>());
 
-        IEntityManager::OnRemoveBaseObject(handle);
+        V8ResourceImpl::OnRemoveBaseObject(handle);
     }
 
     v8::Local<v8::Object> GetLocalStorage()

@@ -11,9 +11,7 @@
 #include "V8Timer.h"
 #include "PromiseRejections.h"
 
-#include "IEntityManager.h"
-
-class V8ResourceImpl : public alt::IResource::Impl, public IEntityManager
+class V8ResourceImpl : public alt::IResource::Impl
 {
 public:
     class FunctionImpl : public alt::IMValueFunction::Impl
@@ -28,7 +26,7 @@ public:
         v8::UniquePersistent<v8::Function> function;
     };
 
-    V8ResourceImpl(v8::Isolate* _isolate, alt::IResource* _resource) : IEntityManager(_isolate), isolate(_isolate), resource(_resource) {}
+    V8ResourceImpl(v8::Isolate* _isolate, alt::IResource* _resource) : isolate(_isolate), resource(_resource) {}
 
     ~V8ResourceImpl();
 
@@ -132,6 +130,57 @@ public:
         InvokeEventHandlers(nullptr, GetLocalHandlers("resourceError"), args);
     }
 
+    V8Entity* GetEntity(alt::IBaseObject* handle)
+    {
+        auto it = entities.find(handle);
+
+        if(it == entities.end()) return nullptr;
+
+        return it->second;
+    }
+
+    V8Entity* CreateEntity(alt::IBaseObject* handle)
+    {
+        V8Class* _class = V8Entity::GetClass(handle);
+
+        V8Entity* ent = new V8Entity(GetContext(), _class, _class->CreateInstance(GetContext()), handle);
+        entities.insert({ handle, ent });
+        return ent;
+    }
+
+    void BindEntity(v8::Local<v8::Object> val, alt::Ref<alt::IBaseObject> handle);
+
+    V8Entity* GetOrCreateEntity(alt::IBaseObject* handle, const char* className = "")
+    {
+        if(!handle) Log::Error << __FUNCTION__ << " received invalid handle please contact developers if you see this" << Log::Endl;
+
+        V8Entity* ent = GetEntity(handle);
+
+        if(!ent) ent = CreateEntity(handle);
+
+        return ent;
+    }
+
+    v8::Local<v8::Value> GetBaseObjectOrNull(alt::IBaseObject* handle);
+
+    template<class T>
+    v8::Local<v8::Value> GetBaseObjectOrNull(const alt::Ref<T>& handle)
+    {
+        return GetBaseObjectOrNull(handle.Get());
+    }
+
+    v8::Local<v8::Value> CreateVector3(alt::Vector3f vec);
+    v8::Local<v8::Value> CreateVector2(alt::Vector2f vec);
+    v8::Local<v8::Value> CreateRGBA(alt::RGBA rgba);
+
+    bool IsVector3(v8::Local<v8::Value> val);
+    bool IsVector2(v8::Local<v8::Value> val);
+    bool IsRGBA(v8::Local<v8::Value> val);
+    bool IsBaseObject(v8::Local<v8::Value> val);
+
+    void OnCreateBaseObject(alt::Ref<alt::IBaseObject> handle) override;
+    void OnRemoveBaseObject(alt::Ref<alt::IBaseObject> handle) override;
+
     alt::MValue GetFunction(v8::Local<v8::Value> val)
     {
         FunctionImpl* impl = new FunctionImpl{ this, val.As<v8::Function>() };
@@ -169,6 +218,12 @@ public:
                   << ")" << Log::Endl;
     }
 
+    void NotifyPoolUpdate(alt::IBaseObject* ent);
+
+    v8::Local<v8::Array> GetAllPlayers();
+    v8::Local<v8::Array> GetAllVehicles();
+    v8::Local<v8::Array> GetAllBlips();
+
     std::vector<V8::EventCallback*> GetLocalHandlers(const std::string& name);
     std::vector<V8::EventCallback*> GetRemoteHandlers(const std::string& name);
     std::vector<V8::EventCallback*> GetGenericHandlers(bool local);
@@ -190,6 +245,7 @@ protected:
 
     V8::CPersistent<v8::Context> context;
 
+    std::unordered_map<alt::IBaseObject*, V8Entity*> entities;
     std::unordered_map<uint32_t, V8Timer*> timers;
 
     std::unordered_multimap<std::string, V8::EventCallback> localHandlers;
@@ -200,7 +256,18 @@ protected:
     uint32_t nextTimerId = 0;
     std::vector<uint32_t> oldTimers;
 
+    bool playerPoolDirty = true;
+    v8::UniquePersistent<v8::Array> players;
+
+    bool vehiclePoolDirty = true;
+    v8::UniquePersistent<v8::Array> vehicles;
+
     V8::PromiseRejections promiseRejections;
+
+    V8::CPersistent<v8::Function> vector3Class;
+    V8::CPersistent<v8::Function> vector2Class;
+    V8::CPersistent<v8::Function> rgbaClass;
+    V8::CPersistent<v8::Function> baseObjectClass;
 
     // TEMP
     static int64_t GetTime()
