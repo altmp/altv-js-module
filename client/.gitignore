@@ -10,3 +10,5 @@ dist/
 tools/extra.bat
 
 # v8 Deps
+deps/v8/include/
+deps/v8/lib/
