@@ -30,13 +30,6 @@ public:
 
     ~V8ResourceImpl();
 
-    struct PathInfo
-    {
-        alt::IPackage* pkg = nullptr;
-        std::string fileName;
-        std::string prefix;
-    };
-
     bool Start() override;
 
     void OnTick() override;
