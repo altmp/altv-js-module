@@ -15,7 +15,7 @@ void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
     args.reserve(info.Length() - 1);
     for(int i = 1; i < info.Length(); i++)
     {
-        V8_ARG_TO_MVALUE(i + 1, arg);
+        alt::MValue arg = V8Helpers::V8ToMValue(info[i], false);
         args.push_back(arg);
     }
     worker->EmitToMain(eventName.ToString(), args);
