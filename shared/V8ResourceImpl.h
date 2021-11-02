@@ -221,6 +221,12 @@ public:
     std::vector<V8::EventCallback*> GetRemoteHandlers(const std::string& name);
     std::vector<V8::EventCallback*> GetGenericHandlers(bool local);
 
+    using NextTickCallback = std::function<void()>;
+    void RunOnNextTick(NextTickCallback&& callback)
+    {
+        nextTickCallbacks.push_back(callback);
+    }
+
     static V8ResourceImpl* Get(v8::Local<v8::Context> ctx)
     {
         alt::IResource* resource = GetResource(ctx);
@@ -261,6 +267,8 @@ protected:
     V8::CPersistent<v8::Function> vector2Class;
     V8::CPersistent<v8::Function> rgbaClass;
     V8::CPersistent<v8::Function> baseObjectClass;
+
+    std::vector<NextTickCallback> nextTickCallbacks;
 
     // TEMP
     static int64_t GetTime()
