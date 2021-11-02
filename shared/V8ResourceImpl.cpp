@@ -34,6 +34,9 @@ bool V8ResourceImpl::Start()
 
 void V8ResourceImpl::OnTick()
 {
+    for(auto& nextTickCb : nextTickCallbacks) nextTickCb();
+    nextTickCallbacks.clear();
+
     for(auto& id : oldTimers) timers.erase(id);
 
     oldTimers.clear();
