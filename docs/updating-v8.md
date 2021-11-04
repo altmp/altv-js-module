@@ -44,7 +44,22 @@ Now we have the correct V8 source code checked out and can begin actually buildi
 We will [build V8 manually using GN](https://v8.dev/docs/build-gn).
 First install [GN](https://gn.googlesource.com/gn/) from Google to your machine, then we can start the manual workflow of building V8.
 
-First we generate the needed build files with GN, we do this by invoking the following command:
+First, we have to make sure the binaries are compiled with `/MD` instead of the default `/MT`.
+The clientside module uses the dynamic runtime so we need to also build the V8 binaries with dynamic runtime.
+To do this, we go to `build/config/win/BUILD.gn` in the V8 repo and open that file and go to line `481`.
+That line should look something like this:
+```gn
+configs = [ ":static_crt" ]
+```
+If not, search for the `# Desktop Windows: static CRT` comment, the line right below is what we are looking for.
+We change that line to this:
+```gn
+configs = [ ":dynamic_crt" ]
+```
+And save the file.
+Now we have made sure that the binaries will be compiled with `/MD` and work with our client module.
+
+Next we generate the needed build files with GN, we do this by invoking the following command:
 ```sh
 gn args out/release
 ```
