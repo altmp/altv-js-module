@@ -52,7 +52,7 @@ static void ConstructorPointBlip(const v8::FunctionCallbackInfo<v8::Value>& info
 
     Ref<IBlip> blip;
 
-    if (info.Length() == 3)
+    if(info.Length() == 3)
     {
         V8_ARG_TO_NUMBER(1, x);
         V8_ARG_TO_NUMBER(2, y);
@@ -61,34 +61,13 @@ static void ConstructorPointBlip(const v8::FunctionCallbackInfo<v8::Value>& info
         blip = ICore::Instance().CreateBlip(nullptr, alt::IBlip::BlipType::DESTINATION, { x, y, z });
     }
 
-    if (info.Length() == 1)
+    if(info.Length() == 1)
     {
         V8_ARG_TO_BASE_OBJECT(1, ent, IEntity, "entity");
         blip = ICore::Instance().CreateBlip(nullptr, alt::IBlip::BlipType::DESTINATION, ent);
-    }    
+    }
 
     V8_BIND_BASE_OBJECT(blip, "Failed to create PointBlip");
-}
-
-static void RouteColorGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
-    V8_RETURN(resource->CreateRGBA(blip->GetRouteColor()));
-}
-
-static void RouteColorSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
-
-    V8_TO_OBJECT(value, color);
-    V8_OBJECT_GET_INT(color, "r", r);
-    V8_OBJECT_GET_INT(color, "g", g);
-    V8_OBJECT_GET_INT(color, "b", b);
-    V8_OBJECT_GET_INT(color, "a", a);
-
-    blip->SetRouteColor({ (uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a });
 }
 
 static void ScaleGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -139,13 +118,12 @@ static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo
 }
 
 extern V8Class v8WorldObject;
-extern V8Class v8Blip("Blip", v8WorldObject, Constructor, [](v8::Local<v8::FunctionTemplate> tpl)
-{
+extern V8Class v8Blip("Blip", v8WorldObject, Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
     V8::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
-    V8::SetStaticAccessor(isolate, tpl, "routeColor", &RouteColorGetter, &RouteColorSetter);
 
+    V8::SetAccessor<IBlip, RGBA, &IBlip::GetRouteColor, &IBlip::SetRouteColor>(isolate, tpl, "routeColor");
     V8::SetAccessor<IBlip, int32_t, &IBlip::GetSprite, &IBlip::SetSprite>(isolate, tpl, "sprite");
     V8::SetAccessor<IBlip, Vector2f, &IBlip::GetScaleXY, &IBlip::SetScaleXY>(isolate, tpl, "size");
     V8::SetAccessor(isolate, tpl, "scale", &ScaleGetter, &ScaleSetter);
