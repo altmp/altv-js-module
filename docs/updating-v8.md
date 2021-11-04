@@ -46,6 +46,7 @@ First install [GN](https://gn.googlesource.com/gn/) from Google to your machine,
 
 First, we have to make sure the binaries are compiled with `/MD` instead of the default `/MT`.
 The clientside module uses the dynamic runtime so we need to also build the V8 binaries with dynamic runtime.
+
 To do this, we go to `build/config/win/BUILD.gn` in the V8 repo and open that file and go to line `481`.
 That line should look something like this:
 ```gn
