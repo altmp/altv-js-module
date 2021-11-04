@@ -125,10 +125,10 @@ extern V8Class v8Blip("Blip", v8WorldObject, Constructor, [](v8::Local<v8::Funct
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
     V8::SetMethod(isolate, tpl, "toString", ToString);
-    
-    V8::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
-    V8::SetStaticAccessor(isolate, tpl, "routeColor", &RouteColorGetter, &RouteColorSetter);
 
+    V8::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
+
+    V8::SetAccessor<IBlip, RGBA, &IBlip::GetRouteColor, &IBlip::SetRouteColor>(isolate, tpl, "routeColor");
     V8::SetAccessor<IBlip, int32_t, &IBlip::GetSprite, &IBlip::SetSprite>(isolate, tpl, "sprite");
     V8::SetAccessor<IBlip, Vector2f, &IBlip::GetScaleXY, &IBlip::SetScaleXY>(isolate, tpl, "size");
     V8::SetAccessor(isolate, tpl, "scale", &ScaleGetter, &ScaleSetter);
