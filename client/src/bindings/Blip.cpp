@@ -66,27 +66,6 @@ static void ConstructorPointBlip(const v8::FunctionCallbackInfo<v8::Value>& info
     V8_BIND_BASE_OBJECT(blip, "Failed to create PointBlip");
 }
 
-static void RouteColorGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
-    V8_RETURN(resource->CreateRGBA(blip->GetRouteColor()));
-}
-
-static void RouteColorSetter(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
-
-    V8_TO_OBJECT(value, color);
-    V8_OBJECT_GET_INT(color, "r", r);
-    V8_OBJECT_GET_INT(color, "g", g);
-    V8_OBJECT_GET_INT(color, "b", b);
-    V8_OBJECT_GET_INT(color, "a", a);
-
-    blip->SetRouteColor({ (uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a });
-}
-
 static void ScaleGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
