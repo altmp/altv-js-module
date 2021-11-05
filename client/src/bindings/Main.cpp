@@ -728,6 +728,8 @@ static void LoadModelAsync(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void EvalModule(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
+    // Deprecation added: 11/05/2021 (version 7.0)
+    V8_DEPRECATE("alt.evalModule", "the 'source' import type assertion");
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
     V8_CHECK_ARGS_LEN(1);
@@ -971,6 +973,6 @@ extern V8Module altModule("alt",
                               V8Helpers::RegisterProperty(exports, "fps", &FpsGetter);
                               V8Helpers::RegisterProperty(exports, "ping", &PingGetter);
 
-                              //V8Helpers::RegisterProperty(exports, "totalPacketsSent", &TotalPacketsSentGetter);
-                              //V8Helpers::RegisterProperty(exports, "totalPacketsLost", &TotalPacketsLostGetter);
+                              // V8Helpers::RegisterProperty(exports, "totalPacketsSent", &TotalPacketsSentGetter);
+                              // V8Helpers::RegisterProperty(exports, "totalPacketsLost", &TotalPacketsLostGetter);
                           });
