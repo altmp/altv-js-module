@@ -255,6 +255,37 @@ v8::MaybeLocal<v8::Module>
                 // Handle as module source code
                 maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(specifierStr, V8::SourceLocation::GetCurrent(isolate));
             }
+            else if(typeValueStr == "json")
+            {
+                // Handle as JSON file
+
+                // Read the JSON file
+                auto path =
+                  alt::ICore::Instance().Resolve(static_cast<CV8ResourceImpl*>(resource)->GetResource(), specifierStr, static_cast<CV8ResourceImpl*>(resource)->GetModulePath(referrer));
+                if(!path.pkg || !path.pkg->FileExists(path.fileName))
+                {
+                    V8Helpers::Throw(isolate, "Invalid JSON file path");
+                    return false;
+                }
+                alt::IPackage::File* file = path.pkg->OpenFile(path.fileName);
+                std::string src(path.pkg->GetFileSize(file), '\0');
+                path.pkg->ReadFile(file, src.data(), src.size());
+                path.pkg->CloseFile(file);
+
+                // Parse the JSON first to check if its valid
+                // todo: do we really need this?
+                v8::MaybeLocal<v8::Value> result = v8::JSON::Parse(ctx, V8::JSValue(src));
+                if(result.IsEmpty())
+                {
+                    V8Helpers::Throw(isolate, "Invalid JSON syntax");
+                    return false;
+                }
+
+                // Create a fake module that just wraps the JSON file to an object as the default export
+                std::stringstream codeStream;
+                codeStream << "export default " << src << ";";
+                maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(codeStream.str(), V8::SourceLocation::GetCurrent(isolate));
+            }
             else
             {
                 V8Helpers::Throw(isolate, "Invalid import assertion type");
