@@ -140,6 +140,10 @@ CV8ScriptRuntime::CV8ScriptRuntime()
           return v8::MaybeLocal<v8::Promise>(resolver->GetPromise());
       });
 
+    isolate->SetHostInitializeImportMetaObjectCallback([](v8::Local<v8::Context> context, v8::Local<v8::Module>, v8::Local<v8::Object> meta) {
+        meta->CreateDataProperty(context, V8::JSValue("url"), V8::JSValue(V8::GetCurrentSourceOrigin(context->GetIsolate())));
+    });
+
     isolate->SetMicrotasksPolicy(v8::MicrotasksPolicy::kExplicit);
 
     isolate->SetCaptureStackTraceForUncaughtExceptions(true, 1);
