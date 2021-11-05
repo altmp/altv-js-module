@@ -124,25 +124,7 @@ public:
         delete create_params.array_buffer_allocator;
     }
 
-    static v8::MaybeLocal<v8::Module> ResolveModule(v8::Local<v8::Context> ctx, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray>, v8::Local<v8::Module> referrer)
-    {
-        auto isolate = ctx->GetIsolate();
-        V8ResourceImpl* resource = V8ResourceImpl::Get(ctx);
-        if(!resource)
-        {
-            V8Helpers::Throw(isolate, "Invalid resource");
-            return v8::MaybeLocal<v8::Module>{};
-        }
-
-        std::string _specifier = *v8::String::Utf8Value{ isolate, specifier };
-        if(_specifier == resource->GetResource()->GetName().ToString())
-        {
-            V8Helpers::Throw(isolate, "Cannot import the resource itself (self-importing)");
-            return v8::MaybeLocal<v8::Module>{};
-        }
-
-        return static_cast<CV8ResourceImpl*>(resource)->ResolveModule(_specifier, referrer, resource->GetResource());
-    }
+    static v8::MaybeLocal<v8::Module> ResolveModule(v8::Local<v8::Context> ctx, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray> importAssertions, v8::Local<v8::Module> referrer);
 
     static std::string FormatBytes(uint64_t bytes)
     {

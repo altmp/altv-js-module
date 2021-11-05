@@ -7,6 +7,7 @@
 
 CV8ScriptRuntime::CV8ScriptRuntime()
 {
+    v8::V8::SetFlagsFromString("--harmony-import-assertions");
     platform = v8::platform::NewDefaultPlatform();
     v8::V8::InitializePlatform(platform.get());
     v8::V8::InitializeICU((alt::ICore::Instance().GetClientPath() + "/libs/icudtl.dat").CStr());
@@ -70,74 +71,74 @@ CV8ScriptRuntime::CV8ScriptRuntime()
         }
     });
 
-    isolate->SetHostImportModuleDynamicallyCallback([](v8::Local<v8::Context> context, v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray>) {
-        v8::Isolate* isolate = context->GetIsolate();
+    isolate->SetHostImportModuleDynamicallyCallback(
+      [](v8::Local<v8::Context> context, v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray> importAssertions) {
+          v8::Isolate* isolate = context->GetIsolate();
 
-        auto referrerVal = referrer->GetResourceName();
-        if(referrerVal->IsUndefined())
-        {
-            return v8::MaybeLocal<v8::Promise>();
-        }
+          auto referrerVal = referrer->GetResourceName();
+          if(referrerVal->IsUndefined()) return v8::MaybeLocal<v8::Promise>();
 
-        std::string referrerUrl = *v8::String::Utf8Value(isolate, referrer->GetResourceName());
-        auto resource = static_cast<CV8ResourceImpl*>(V8ResourceImpl::Get(context));
+          std::string referrerUrl = *v8::String::Utf8Value(isolate, referrer->GetResourceName());
+          auto resource = static_cast<CV8ResourceImpl*>(V8ResourceImpl::Get(context));
 
-        auto resolver = v8::Promise::Resolver::New(context).ToLocalChecked();
+          auto resolver = v8::Promise::Resolver::New(context).ToLocalChecked();
 
-        V8::CPersistent<v8::Promise::Resolver> presolver(isolate, resolver);
-        V8::CPersistent<v8::String> pspecifier(isolate, specifier);
-        V8::CPersistent<v8::Module> preferrerModule(isolate, resource->GetModuleFromPath(referrerUrl));
+          V8::CPersistent<v8::Promise::Resolver> presolver(isolate, resolver);
+          V8::CPersistent<v8::String> pspecifier(isolate, specifier);
+          V8::CPersistent<v8::Module> preferrerModule(isolate, resource->GetModuleFromPath(referrerUrl));
+          V8::CPersistent<v8::FixedArray> pimportAssertions(isolate, importAssertions);
 
-        // careful what we take in by value in the lambda
-        // it is possible pass v8::Local but should not be done
-        // make a V8::CPersistent out of it and pass that
-        auto domodule = [isolate, presolver, pspecifier, preferrerModule] {
-            auto referrerModule = preferrerModule.Get(isolate);
-            auto resolver = presolver.Get(isolate);
-            auto specifier = pspecifier.Get(isolate);
+          // careful what we take in by value in the lambda
+          // it is possible pass v8::Local but should not be done
+          // make a V8::CPersistent out of it and pass that
+          auto domodule = [isolate, presolver, pspecifier, preferrerModule, pimportAssertions] {
+              auto referrerModule = preferrerModule.Get(isolate);
+              auto resolver = presolver.Get(isolate);
+              auto specifier = pspecifier.Get(isolate);
+              auto importAssertions = pimportAssertions.Get(isolate);
 
-            auto ctx = resolver->GetCreationContext().ToLocalChecked();
-            v8::Context::Scope ctxs(ctx);
+              auto ctx = resolver->GetCreationContext().ToLocalChecked();
+              v8::Context::Scope ctxs(ctx);
 
-            auto mmodule = ResolveModule(ctx, specifier, v8::Local<v8::FixedArray>(), referrerModule);
-            if(mmodule.IsEmpty())
-            {
-                resolver->Reject(ctx, v8::Exception::ReferenceError(V8_NEW_STRING("Could not resolve module")));
-                return;
-            }
+              auto mmodule = ResolveModule(ctx, specifier, importAssertions, referrerModule);
+              if(mmodule.IsEmpty())
+              {
+                  resolver->Reject(ctx, v8::Exception::ReferenceError(V8_NEW_STRING("Could not resolve module")));
+                  return;
+              }
 
-            auto module = mmodule.ToLocalChecked();
-            V8Helpers::TryCatch([&] {
-                if(module->GetStatus() == v8::Module::Status::kUninstantiated && !module->InstantiateModule(ctx, ResolveModule).ToChecked())
-                {
-                    resolver->Reject(ctx, v8::Exception::ReferenceError(V8_NEW_STRING("Error instantiating module")));
-                    return false;
-                }
+              auto module = mmodule.ToLocalChecked();
+              V8Helpers::TryCatch([&] {
+                  if(module->GetStatus() == v8::Module::Status::kUninstantiated && !module->InstantiateModule(ctx, ResolveModule).ToChecked())
+                  {
+                      resolver->Reject(ctx, v8::Exception::ReferenceError(V8_NEW_STRING("Error instantiating module")));
+                      return false;
+                  }
 
-                if((module->GetStatus() != v8::Module::Status::kEvaluated && module->GetStatus() != v8::Module::Status::kErrored) && module->Evaluate(ctx).IsEmpty())
-                {
-                    resolver->Reject(ctx, v8::Exception::ReferenceError(V8_NEW_STRING("Error evaluating module")));
-                    return false;
-                }
+                  if((module->GetStatus() != v8::Module::Status::kEvaluated && module->GetStatus() != v8::Module::Status::kErrored) && module->Evaluate(ctx).IsEmpty())
+                  {
+                      resolver->Reject(ctx, v8::Exception::ReferenceError(V8_NEW_STRING("Error evaluating module")));
+                      return false;
+                  }
 
-                resolver->Resolve(ctx, module->GetModuleNamespace());
-                return true;
-            });
-        };
+                  resolver->Resolve(ctx, module->GetModuleNamespace());
+                  return true;
+              });
+          };
 
-        if(Instance().resourcesLoaded && resource->GetResource()->IsStarted())
-        {
-            // instantly resolve the module
-            domodule();
-        }
-        else
-        {
-            // put it in the queue to resolve after all resource are loaded
-            resource->dynamicImports.emplace_back(domodule);
-        }
+          if(Instance().resourcesLoaded && resource->GetResource()->IsStarted())
+          {
+              // instantly resolve the module
+              domodule();
+          }
+          else
+          {
+              // put it in the queue to resolve after all resource are loaded
+              resource->dynamicImports.emplace_back(domodule);
+          }
 
-        return v8::MaybeLocal<v8::Promise>(resolver->GetPromise());
-    });
+          return v8::MaybeLocal<v8::Promise>(resolver->GetPromise());
+      });
 
     isolate->SetMicrotasksPolicy(v8::MicrotasksPolicy::kExplicit);
 
@@ -177,6 +178,104 @@ CV8ScriptRuntime::CV8ScriptRuntime()
     }
 
     RegisterEvents();
+}
+
+static std::string Base64Decode(const std::string& in)
+{
+    std::string out;
+    std::vector<int> T(256, -1);
+    for(int i = 0; i < 64; i++) T["ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[i]] = i;
+
+    int val = 0, valb = -8;
+    for(unsigned char c : in)
+    {
+        if(T[c] == -1) break;
+        val = (val << 6) + T[c];
+        valb += 6;
+        if(valb >= 0)
+        {
+            out.push_back(char((val >> valb) & 0xFF));
+            valb -= 8;
+        }
+    }
+    return out;
+}
+v8::MaybeLocal<v8::Module>
+  CV8ScriptRuntime::ResolveModule(v8::Local<v8::Context> ctx, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray> importAssertions, v8::Local<v8::Module> referrer)
+{
+    auto isolate = ctx->GetIsolate();
+    V8ResourceImpl* resource = V8ResourceImpl::Get(ctx);
+    if(!resource)
+    {
+        V8Helpers::Throw(isolate, "Invalid resource");
+        return v8::MaybeLocal<v8::Module>{};
+    }
+
+    std::string _specifier = *v8::String::Utf8Value{ isolate, specifier };
+    if(_specifier == resource->GetResource()->GetName().ToString())
+    {
+        V8Helpers::Throw(isolate, "Cannot import the resource itself (self-importing)");
+        return v8::MaybeLocal<v8::Module>{};
+    }
+
+    if(importAssertions->Length() > 0)
+    {
+        // todo: maybe check all import assertions?
+        std::string assertionKey = *v8::String::Utf8Value(isolate, importAssertions->Get(ctx, 0).As<v8::Value>().As<v8::String>());
+        if(assertionKey != "type")
+        {
+            V8Helpers::Throw(isolate, "Invalid import assertion format");
+            return v8::MaybeLocal<v8::Module>();
+        }
+
+        v8::Local<v8::Data> assertionValue = importAssertions->Get(ctx, 1);
+        v8::Local<v8::Value> typeValue;
+        std::string typeValueStr;
+        if(assertionValue->IsValue() && assertionValue.As<v8::Value>()->IsString()) typeValueStr = *v8::String::Utf8Value(isolate, assertionValue.As<v8::Value>().As<v8::String>());
+        if(typeValueStr.empty())
+        {
+            V8Helpers::Throw(isolate, "Invalid import assertion format");
+            return v8::MaybeLocal<v8::Module>();
+        }
+
+        if(typeValueStr == "base64")
+        {
+            // Handle as base64 source string
+            std::string sourceStr = Base64Decode(*v8::String::Utf8Value(isolate, specifier));
+
+            v8::Local<v8::Module> module;
+            bool result = V8Helpers::TryCatch([&] {
+                auto maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(sourceStr, V8::SourceLocation::GetCurrent(isolate));
+                if(maybeModule.IsEmpty())
+                {
+                    V8Helpers::Throw(isolate, "Failed to resolve module");
+                    return false;
+                }
+
+                module = maybeModule.ToLocalChecked();
+                v8::Maybe<bool> result = module->InstantiateModule(ctx, CV8ScriptRuntime::ResolveModule);
+                if(result.IsNothing() || result.ToChecked() == false)
+                {
+                    V8Helpers::Throw(isolate, "Failed to instantiate module");
+                    return false;
+                }
+
+                auto returnValue = module->Evaluate(ctx);
+                if(returnValue.IsEmpty())
+                {
+                    V8Helpers::Throw(isolate, "Failed to evaluate module");
+                    return false;
+                }
+
+                return true;
+            });
+            if(!result) return v8::MaybeLocal<v8::Module>();
+            else
+                return v8::MaybeLocal<v8::Module>(module);
+        }
+    }
+
+    return static_cast<CV8ResourceImpl*>(resource)->ResolveModule(_specifier, referrer, resource->GetResource());
 }
 
 void CV8ScriptRuntime::OnEntityStreamIn(alt::Ref<alt::IEntity> entity)
