@@ -238,41 +238,55 @@ v8::MaybeLocal<v8::Module>
             return v8::MaybeLocal<v8::Module>();
         }
 
-        if(typeValueStr == "base64")
-        {
-            // Handle as base64 source string
-            std::string sourceStr = Base64Decode(*v8::String::Utf8Value(isolate, specifier));
+        v8::Local<v8::Module> module;
+        bool result = V8Helpers::TryCatch([&] {
+            v8::MaybeLocal<v8::Module> maybeModule;
+            std::string specifierStr = *v8::String::Utf8Value(isolate, specifier);
 
-            v8::Local<v8::Module> module;
-            bool result = V8Helpers::TryCatch([&] {
-                auto maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(sourceStr, V8::SourceLocation::GetCurrent(isolate));
-                if(maybeModule.IsEmpty())
-                {
-                    V8Helpers::Throw(isolate, "Failed to resolve module");
-                    return false;
-                }
-
-                module = maybeModule.ToLocalChecked();
-                v8::Maybe<bool> result = module->InstantiateModule(ctx, CV8ScriptRuntime::ResolveModule);
-                if(result.IsNothing() || result.ToChecked() == false)
-                {
-                    V8Helpers::Throw(isolate, "Failed to instantiate module");
-                    return false;
-                }
-
-                auto returnValue = module->Evaluate(ctx);
-                if(returnValue.IsEmpty())
-                {
-                    V8Helpers::Throw(isolate, "Failed to evaluate module");
-                    return false;
-                }
-
-                return true;
-            });
-            if(!result) return v8::MaybeLocal<v8::Module>();
+            // Check assertion type
+            if(typeValueStr == "base64")
+            {
+                // Handle as base64 source string
+                std::string sourceStr = Base64Decode(specifierStr);
+                maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(sourceStr, V8::SourceLocation::GetCurrent(isolate));
+            }
+            else if(typeValueStr == "source")
+            {
+                // Handle as module source code
+                maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(specifierStr, V8::SourceLocation::GetCurrent(isolate));
+            }
             else
-                return v8::MaybeLocal<v8::Module>(module);
-        }
+            {
+                V8Helpers::Throw(isolate, "Invalid import assertion type");
+                return false;
+            }
+
+            // Run the module
+            if(maybeModule.IsEmpty())
+            {
+                V8Helpers::Throw(isolate, "Failed to resolve module");
+                return false;
+            }
+            module = maybeModule.ToLocalChecked();
+            v8::Maybe<bool> result = module->InstantiateModule(ctx, CV8ScriptRuntime::ResolveModule);
+            if(result.IsNothing() || result.ToChecked() == false)
+            {
+                V8Helpers::Throw(isolate, "Failed to instantiate module");
+                return false;
+            }
+
+            auto returnValue = module->Evaluate(ctx);
+            if(returnValue.IsEmpty())
+            {
+                V8Helpers::Throw(isolate, "Failed to evaluate module");
+                return false;
+            }
+
+            return true;
+        });
+        if(!result) return v8::MaybeLocal<v8::Module>();
+        else
+            return v8::MaybeLocal<v8::Module>(module);
     }
 
     return static_cast<CV8ResourceImpl*>(resource)->ResolveModule(_specifier, referrer, resource->GetResource());
