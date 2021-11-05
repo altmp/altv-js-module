@@ -175,6 +175,10 @@ bool CWorker::SetupIsolate()
           return v8::MaybeLocal<v8::Promise>(resolver->GetPromise());
       });
 
+    isolate->SetHostInitializeImportMetaObjectCallback([](v8::Local<v8::Context> context, v8::Local<v8::Module>, v8::Local<v8::Object> meta) {
+        meta->CreateDataProperty(context, V8::JSValue("url"), V8::JSValue(V8::GetCurrentSourceOrigin(context->GetIsolate())));
+    });
+
     // Disable creating shared array buffers in Workers
     isolate->SetSharedArrayBufferConstructorEnabledCallback([](v8::Local<v8::Context>) { return false; });
 
