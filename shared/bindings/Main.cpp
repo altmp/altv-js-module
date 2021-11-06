@@ -161,9 +161,9 @@ static void Log(const v8::FunctionCallbackInfo<v8::Value>& info)
         if(i > 0) ss << " ";
 
         auto str = V8::Stringify(ctx, val);
-        if(str.IsEmpty()) continue;
+        if(str.empty()) continue;
 
-        ss << str.CStr();
+        ss << str;
     }
 
     alt::ICore::Instance().LogColored(ss.str());
@@ -182,9 +182,9 @@ static void LogWarning(const v8::FunctionCallbackInfo<v8::Value>& info)
         if(i > 0) ss << " ";
 
         auto str = V8::Stringify(ctx, val);
-        if(str.IsEmpty()) continue;
+        if(str.empty()) continue;
 
-        ss << str.CStr();
+        ss << str;
     }
 
     alt::ICore::Instance().LogWarning(ss.str());
@@ -203,9 +203,9 @@ static void LogError(const v8::FunctionCallbackInfo<v8::Value>& info)
         if(i > 0) ss << " ";
 
         auto str = V8::Stringify(ctx, val);
-        if(str.IsEmpty()) continue;
+        if(str.empty()) continue;
 
-        ss << str.CStr();
+        ss << str;
     }
 
     alt::ICore::Instance().LogError(ss.str());
