@@ -16,8 +16,26 @@ class WorkerTimer;
 class CWorker : public IImportHandler
 {
 public:
+    struct EventDataItem
+    {
+        uint8_t* data;
+        size_t size;
+
+        bool Valid() const
+        {
+            return data != nullptr && size > 0;
+        }
+
+        EventDataItem() : data(nullptr), size(0) {}
+        EventDataItem(uint8_t* data, size_t size) : data(data), size(size) {}
+        ~EventDataItem()
+        {
+            free(data);
+        }
+    };
+
     using EventHandlerMap = std::unordered_multimap<std::string, V8::EventCallback>;
-    using QueuedEvent = std::pair<std::string, std::vector<alt::MValue>>;
+    using QueuedEvent = std::pair<std::string, std::vector<EventDataItem>>;
     using EventQueue = std::queue<QueuedEvent>;
     using TimerId = uint32_t;
     using BufferId = uint32_t;
@@ -84,8 +102,8 @@ public:
         isPaused = false;
     }
 
-    void EmitToWorker(const std::string& eventName, std::vector<alt::MValue>& args);
-    void EmitToMain(const std::string& eventName, std::vector<alt::MValue>& args);
+    void EmitToWorker(const std::string& eventName, std::vector<CWorker::EventDataItem>& args);
+    void EmitToMain(const std::string& eventName, std::vector<CWorker::EventDataItem>& args);
 
     void SubscribeToWorker(const std::string& eventName, v8::Local<v8::Function> callback, bool once = false);
     void SubscribeToMain(const std::string& eventName, v8::Local<v8::Function> callback, bool once = false);
@@ -130,6 +148,9 @@ public:
     {
         promiseRejections.HandlerAdded(this, data);
     }
+
+    static EventDataItem SerializeValue(v8::Local<v8::Context> context, v8::Local<v8::Value> value);
+    static v8::MaybeLocal<v8::Value> DeserializeValue(v8::Local<v8::Context> context, const EventDataItem& item);
 
     static v8::MaybeLocal<v8::Module> Import(v8::Local<v8::Context> context, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray>, v8::Local<v8::Module> referrer);
 
