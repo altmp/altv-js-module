@@ -85,11 +85,16 @@ static void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_STRING(1, eventName);
 
-    std::vector<alt::MValue> args;
+    std::vector<CWorker::EventDataItem> args;
     args.reserve(info.Length() - 1);
     for(int i = 1; i < info.Length(); i++)
     {
-        alt::MValue arg = V8Helpers::V8ToMValue(info[i], false);
+        auto arg = CWorker::SerializeValue(ctx, info[i]);
+        if(!arg.Valid())
+        {
+            V8Helpers::Throw(isolate, "Invalid argument");
+            return;
+        }
         args.push_back(arg);
     }
     worker->EmitToWorker(eventName.ToString(), args);
