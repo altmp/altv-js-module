@@ -16,13 +16,13 @@ void CWorker::Start()
     thread.detach();
 }
 
-void CWorker::EmitToWorker(const std::string& eventName, std::vector<CWorker::EventDataItem>& args)
+void CWorker::EmitToWorker(const std::string& eventName, std::vector<V8::Serialization::Value>& args)
 {
     std::unique_lock<std::mutex> lock(worker_queueLock);
     worker_queuedEvents.push(std::make_pair(eventName, std::move(args)));
 }
 
-void CWorker::EmitToMain(const std::string& eventName, std::vector<CWorker::EventDataItem>& args)
+void CWorker::EmitToMain(const std::string& eventName, std::vector<V8::Serialization::Value>& args)
 {
     std::unique_lock<std::mutex> lock(main_queueLock);
     main_queuedEvents.push(std::make_pair(eventName, std::move(args)));
@@ -48,7 +48,7 @@ void CWorker::Thread()
     {
         // Isolate is set up, the worker is now ready
         isReady = true;
-        EmitToMain("load", std::vector<CWorker::EventDataItem>());
+        EmitToMain("load", std::vector<V8::Serialization::Value>());
 
         v8::Locker locker(isolate);
         v8::Isolate::Scope isolate_scope(isolate);
@@ -292,24 +292,6 @@ void CWorker::SetupGlobals(v8::Local<v8::Object> global)
     global->Set(context.Get(isolate), V8::JSValue("__internal_get_exports"), v8::Function::New(context.Get(isolate), &StaticRequire).ToLocalChecked());
 }
 
-CWorker::EventDataItem CWorker::SerializeValue(v8::Local<v8::Context> context, v8::Local<v8::Value> value)
-{
-    v8::ValueSerializer serializer(context->GetIsolate());
-    serializer.WriteHeader();
-    if(serializer.WriteValue(context, value).IsNothing()) return EventDataItem{};
-    auto data = serializer.Release();
-    return EventDataItem{ data.first, data.second };
-}
-
-v8::MaybeLocal<v8::Value> CWorker::DeserializeValue(v8::Local<v8::Context> context, const CWorker::EventDataItem& item)
-{
-    v8::ValueDeserializer deserializer(context->GetIsolate(), item.data, item.size);
-    v8::Maybe<bool> header = deserializer.ReadHeader(context);
-    if(header.IsNothing() || header.FromJust() == false) return v8::MaybeLocal<v8::Value>();
-    auto value = deserializer.ReadValue(context);
-    return value;
-}
-
 v8::MaybeLocal<v8::Module> CWorker::Import(v8::Local<v8::Context> context, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray>, v8::Local<v8::Module> referrer)
 {
     CWorker* worker = static_cast<CWorker*>(context->GetAlignedPointerFromEmbedderData(2));
@@ -322,7 +304,7 @@ v8::MaybeLocal<v8::Module> CWorker::Import(v8::Local<v8::Context> context, v8::L
 void CWorker::EmitError(const std::string& error)
 {
     Log::Error << "[Worker] " << error << Log::Endl;
-    std::vector<CWorker::EventDataItem> args = { CWorker::SerializeValue(context.Get(isolate), V8::JSValue(error)) };
+    std::vector<V8::Serialization::Value> args = { V8::Serialization::Serialize(context.Get(isolate), V8::JSValue(error)) };
     EmitToMain("error", args);
 }
 
@@ -344,7 +326,7 @@ static inline void RunEventQueue(CWorker::EventQueue& queue, CWorker::EventHandl
         args.reserve(event.second.size());
         for(auto& arg : event.second)
         {
-            auto value = CWorker::DeserializeValue(context, arg);
+            auto value = V8::Serialization::Deserialize(context, arg);
             if(value.IsEmpty())
             {
                 Log::Error << "Failed to deserialize worker event argument" << Log::Endl;
