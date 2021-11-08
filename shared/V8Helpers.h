@@ -301,6 +301,36 @@ namespace V8
         return v8::Null(v8::Isolate::GetCurrent());
     }
 
+    // Converts a JS value to a C++ value
+    inline std::string CppValue(v8::Local<v8::String> val)
+    {
+        return *v8::String::Utf8Value(v8::Isolate::GetCurrent(), val);
+    }
+    inline double CppValue(v8::Local<v8::Number> val)
+    {
+        return val->Value();
+    }
+    inline int64_t CppValue(v8::Local<v8::Integer> val)
+    {
+        return val->Value();
+    }
+    inline uint32_t CppValue(v8::Local<v8::Uint32> val)
+    {
+        return val->Value();
+    }
+    inline int32_t CppValue(v8::Local<v8::Int32> val)
+    {
+        return val->Value();
+    }
+    inline uint64_t CppValue(v8::Local<v8::BigInt> val)
+    {
+        return val->Uint64Value();
+    }
+    inline bool CppValue(v8::Local<v8::Boolean> val)
+    {
+        return val->Value();
+    }
+
     inline std::string GetStackTrace(const std::string errorMsg)
     {
         auto isolate = v8::Isolate::GetCurrent();
