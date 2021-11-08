@@ -18,13 +18,13 @@ void CWorker::Start()
 
 void CWorker::EmitToWorker(const std::string& eventName, std::vector<V8::Serialization::Value>& args)
 {
-    std::unique_lock<std::mutex> lock(worker_queueLock);
+    std::scoped_lock lock(worker_queueLock);
     worker_queuedEvents.push(std::make_pair(eventName, std::move(args)));
 }
 
 void CWorker::EmitToMain(const std::string& eventName, std::vector<V8::Serialization::Value>& args)
 {
-    std::unique_lock<std::mutex> lock(main_queueLock);
+    std::scoped_lock lock(main_queueLock);
     main_queuedEvents.push(std::make_pair(eventName, std::move(args)));
 }
 
@@ -314,7 +314,7 @@ static inline void RunEventQueue(CWorker::EventQueue& queue, CWorker::EventHandl
 
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
     auto context = isolate->GetEnteredOrMicrotaskContext();
-    std::unique_lock<std::mutex> lock(queueMutex);
+    std::scoped_lock lock(queueMutex);
 
     while(!queue.empty())
     {
