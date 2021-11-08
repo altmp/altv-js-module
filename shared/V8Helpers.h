@@ -71,6 +71,9 @@ namespace V8Helpers
 
     void SetAccessor(v8::Local<v8::Template> tpl, v8::Isolate* isolate, const char* name, v8::AccessorGetterCallback getter, v8::AccessorSetterCallback setter = nullptr);
 
+    alt::MValueByteArray V8ToRawBytes(v8::Local<v8::Value> val);
+    v8::MaybeLocal<v8::Value> RawBytesToV8(alt::MValueByteArrayConst bytes);
+
 };  // namespace V8Helpers
 
 class V8ResourceImpl;
@@ -355,18 +358,18 @@ namespace V8
         {
             uint8_t* data;
             size_t size;
+            bool ownPtr;  // If true, the data pointer is owned by this object and must be freed when this object is destroyed
 
             bool Valid() const
             {
                 return data != nullptr && size > 0;
             }
 
-            Value() : data(nullptr), size(0) {}
-            Value(uint8_t* data, size_t size) : data(data), size(size) {}
+            Value() : data(nullptr), size(0), ownPtr(false) {}
+            Value(uint8_t* data, size_t size, bool ownPtr = true) : data(data), size(size), ownPtr(ownPtr) {}
             ~Value()
             {
-                // Make sure we free the data here, because V8 transfered ownership of the data to us
-                free(data);
+                if(ownPtr) free(data);
             }
         };
 
