@@ -516,11 +516,14 @@ v8::MaybeLocal<v8::Value> V8Helpers::RawBytesToV8(alt::MValueByteArrayConst rawB
         }
         case RawValueType::RGBA:
         {
-            uint8_t r, g, b, a;
-            if(!deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&r) || !deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&g) ||
-               !deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&b) || !deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&a))
+            uint8_t* rPtr;
+            uint8_t* gPtr;
+            uint8_t* bPtr;
+            uint8_t* aPtr;
+            if(!deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&rPtr) || !deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&gPtr) ||
+               !deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&bPtr) || !deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&aPtr))
                 return v8::MaybeLocal<v8::Value>();
-            result = resource->CreateRGBA({ r, g, b, a });
+            result = resource->CreateRGBA({ *rPtr, *gPtr, *bPtr, *aPtr });
             break;
         }
     }
