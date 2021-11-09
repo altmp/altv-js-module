@@ -358,15 +358,21 @@ static uint8_t magicBytes[] = { 'J', 'S', 'V', 'a', 'l' };
 enum class RawValueType : uint32_t
 {
     GENERIC,
-    ENTITY
+    ENTITY,
+    VECTOR3,
+    VECTOR2,
+    RGBA
 };
 
 extern V8Class v8Entity;
 static inline RawValueType GetValueType(v8::Local<v8::Context> ctx, v8::Local<v8::Value> val)
 {
-    // All values that are not objects are considered generic
+    V8ResourceImpl* resource = V8ResourceImpl::Get(ctx);
     bool result;
     if(val->InstanceOf(ctx, v8Entity.JSValue(ctx->GetIsolate(), ctx)).To(&result) && result) return RawValueType::ENTITY;
+    if(resource->IsVector3(val)) return RawValueType::VECTOR3;
+    if(resource->IsVector2(val)) return RawValueType::VECTOR2;
+    if(resource->IsRGBA(val)) return RawValueType::RGBA;
     else
         return RawValueType::GENERIC;
 }
@@ -397,6 +403,33 @@ alt::MValueByteArray V8Helpers::V8ToRawBytes(v8::Local<v8::Value> val)
             V8Entity* entity = V8Entity::Get(val);
             if(!entity) return alt::MValueByteArray();
             serializer.WriteUint32(entity->GetHandle().As<alt::IEntity>()->GetID());
+            break;
+        }
+        case RawValueType::VECTOR3:
+        {
+            alt::Vector3f vec;
+            if(!V8::SafeToVector3(val, ctx, vec)) return alt::MValueByteArray();
+            serializer.WriteDouble(vec[0]);
+            serializer.WriteDouble(vec[1]);
+            serializer.WriteDouble(vec[2]);
+            break;
+        }
+        case RawValueType::VECTOR2:
+        {
+            alt::Vector2f vec;
+            if(!V8::SafeToVector2(val, ctx, vec)) return alt::MValueByteArray();
+            serializer.WriteDouble(vec[0]);
+            serializer.WriteDouble(vec[1]);
+            break;
+        }
+        case RawValueType::RGBA:
+        {
+            alt::RGBA rgba;
+            if(!V8::SafeToRGBA(val, ctx, rgba)) return alt::MValueByteArray();
+            serializer.WriteRawBytes(&rgba.r, sizeof(uint8_t));
+            serializer.WriteRawBytes(&rgba.g, sizeof(uint8_t));
+            serializer.WriteRawBytes(&rgba.b, sizeof(uint8_t));
+            serializer.WriteRawBytes(&rgba.a, sizeof(uint8_t));
             break;
         }
     }
@@ -449,6 +482,7 @@ v8::MaybeLocal<v8::Value> V8Helpers::RawBytesToV8(alt::MValueByteArrayConst rawB
     if(!deserializer.ReadUint32((uint32_t*)&type)) return v8::MaybeLocal<v8::Value>();
 
     // Deserialize the value
+    V8ResourceImpl* resource = V8ResourceImpl::Get(ctx);
     v8::MaybeLocal<v8::Value> result;
     switch(type)
     {
@@ -464,6 +498,29 @@ v8::MaybeLocal<v8::Value> V8Helpers::RawBytesToV8(alt::MValueByteArrayConst rawB
             alt::Ref<alt::IEntity> entity = alt::ICore::Instance().GetEntityByID(id);
             if(!entity) return v8::MaybeLocal<v8::Value>();
             result = V8ResourceImpl::Get(ctx)->GetOrCreateEntity(entity.Get(), "Entity")->GetJSVal(isolate);
+            break;
+        }
+        case RawValueType::VECTOR3:
+        {
+            double x, y, z;
+            if(!deserializer.ReadDouble(&x) || !deserializer.ReadDouble(&y) || !deserializer.ReadDouble(&z)) return v8::MaybeLocal<v8::Value>();
+            result = resource->CreateVector3({ x, y, z });
+            break;
+        }
+        case RawValueType::VECTOR2:
+        {
+            double x, y;
+            if(!deserializer.ReadDouble(&x) || !deserializer.ReadDouble(&y)) return v8::MaybeLocal<v8::Value>();
+            result = resource->CreateVector2({ x, y });
+            break;
+        }
+        case RawValueType::RGBA:
+        {
+            uint8_t r, g, b, a;
+            if(!deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&r) || !deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&g) ||
+               !deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&b) || !deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&a))
+                return v8::MaybeLocal<v8::Value>();
+            result = resource->CreateRGBA({ r, g, b, a });
             break;
         }
     }
