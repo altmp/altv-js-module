@@ -468,7 +468,7 @@ v8::MaybeLocal<v8::Value> V8Helpers::RawBytesToV8(alt::MValueByteArrayConst rawB
         if(bytes[i] != magicBytes[i]) return v8::MaybeLocal<v8::Value>();
     }
 
-    // Remove the magic bytes + type from the byte array
+    // Remove the magic bytes from the byte array
     bytes.erase(bytes.begin(), bytes.begin() + sizeof(magicBytes));
 
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
