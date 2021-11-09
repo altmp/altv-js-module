@@ -355,7 +355,7 @@ void V8Helpers::SetAccessor(v8::Local<v8::Template> tpl, v8::Isolate* isolate, c
 // Magic bytes to identify raw JS value buffers
 static uint8_t magicBytes[] = { 'J', 'S', 'V', 'a', 'l' };
 
-enum class RawValueType : uint32_t
+enum class RawValueType : uint8_t
 {
     GENERIC,
     ENTITY,
@@ -388,7 +388,7 @@ alt::MValueByteArray V8Helpers::V8ToRawBytes(v8::Local<v8::Value> val)
 
     v8::ValueSerializer serializer(isolate);
     serializer.WriteHeader();
-    serializer.WriteUint32((uint32_t)type);
+    serializer.WriteRawBytes(&type, sizeof(uint8_t));
 
     switch(type)
     {
@@ -434,17 +434,16 @@ alt::MValueByteArray V8Helpers::V8ToRawBytes(v8::Local<v8::Value> val)
         }
     }
 
-    V8::Serialization::Value serialized = V8::Serialization::Serialize(ctx, val, false);
-    if(!serialized.Valid()) return alt::MValueByteArray();
+    std::pair<uint8_t*, size_t> serialized = serializer.Release();
 
     // Write the serialized value to the buffer
-    bytes.assign(serialized.data, serialized.data + serialized.size);
+    bytes.assign(serialized.first, serialized.first + serialized.second);
 
     // Reserve size for the magic bytes
     bytes.reserve(bytes.size() + sizeof(magicBytes));
 
     // Write the magic bytes to the front of the buffer
-    for(size_t i = 0; i < sizeof(magicBytes); ++i) bytes.insert(bytes.begin(), magicBytes[i]);
+    for(size_t i = 0; i < sizeof(magicBytes); ++i) bytes.insert(bytes.begin() + i, magicBytes[i]);
 
     // Copy the data, because it gets freed by the std::vector when this scope ends,
     // and the MValue byte array does not copy the data
@@ -478,8 +477,9 @@ v8::MaybeLocal<v8::Value> V8Helpers::RawBytesToV8(alt::MValueByteArrayConst rawB
     v8::ValueDeserializer deserializer(isolate, bytes.data(), bytes.size());
     bool headerValid;
     if(!deserializer.ReadHeader(ctx).To(&headerValid) || !headerValid) return v8::MaybeLocal<v8::Value>();
-    RawValueType type;
-    if(!deserializer.ReadUint32((uint32_t*)&type)) return v8::MaybeLocal<v8::Value>();
+    RawValueType* typePtr;
+    if(!deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&typePtr)) return v8::MaybeLocal<v8::Value>();
+    RawValueType type = *typePtr;
 
     // Deserialize the value
     V8ResourceImpl* resource = V8ResourceImpl::Get(ctx);
