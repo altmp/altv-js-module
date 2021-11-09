@@ -65,7 +65,6 @@ static const char bootstrap_code[] = R"(
 })();
 )";
 
-extern V8Module sharedModule;
 bool CNodeResourceImpl::Start()
 {
     v8::Locker locker(isolate);
@@ -98,17 +97,6 @@ bool CNodeResourceImpl::Start()
     node::SetIsolateUpForNode(isolate, is);
 
     node::LoadEnvironment(env, bootstrap_code);
-
-    auto exports = sharedModule.GetExports(isolate, _context);
-
-    // Overwrite global console object
-    auto console = _context->Global()->Get(_context, V8_NEW_STRING("console")).ToLocalChecked().As<v8::Object>();
-    if(!console.IsEmpty())
-    {
-        console->Set(_context, V8_NEW_STRING("log"), exports->Get(_context, V8_NEW_STRING("log")).ToLocalChecked());
-        console->Set(_context, V8_NEW_STRING("warn"), exports->Get(_context, V8_NEW_STRING("logWarning")).ToLocalChecked());
-        console->Set(_context, V8_NEW_STRING("error"), exports->Get(_context, V8_NEW_STRING("logError")).ToLocalChecked());
-    }
 
     asyncResource.Reset(isolate, v8::Object::New(isolate));
     asyncContext = node::EmitAsyncInit(isolate, asyncResource.Get(isolate), "CNodeResourceImpl");
