@@ -355,12 +355,53 @@ void V8Helpers::SetAccessor(v8::Local<v8::Template> tpl, v8::Isolate* isolate, c
 // Magic bytes to identify raw JS value buffers
 static uint8_t magicBytes[] = { 'J', 'S', 'V', 'a', 'l' };
 
+enum class RawValueType : uint32_t
+{
+    GENERIC,
+    ENTITY
+};
+
+extern V8Class v8Entity;
+static inline RawValueType GetValueType(v8::Local<v8::Context> ctx, v8::Local<v8::Value> val)
+{
+    // All values that are not objects are considered generic
+    bool result;
+    if(val->InstanceOf(ctx, v8Entity.JSValue(ctx->GetIsolate(), ctx)).To(&result) && result) return RawValueType::ENTITY;
+    else
+        return RawValueType::GENERIC;
+}
+
 // Converts a JS value to a MValue byte array
 alt::MValueByteArray V8Helpers::V8ToRawBytes(v8::Local<v8::Value> val)
 {
+    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+    v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
     std::vector<uint8_t> bytes;
 
-    V8::Serialization::Value serialized = V8::Serialization::Serialize(v8::Isolate::GetCurrent()->GetEnteredOrMicrotaskContext(), val, false);
+    RawValueType type = GetValueType(ctx, val);
+
+    v8::ValueSerializer serializer(isolate);
+    serializer.WriteHeader();
+    serializer.WriteUint32((uint32_t)type);
+
+    switch(type)
+    {
+        case RawValueType::GENERIC:
+        {
+            bool result;
+            if(!serializer.WriteValue(ctx, val).To(&result) || !result) return alt::MValueByteArray();
+            break;
+        }
+        case RawValueType::ENTITY:
+        {
+            V8Entity* entity = V8Entity::Get(val);
+            if(!entity) return alt::MValueByteArray();
+            serializer.WriteUint32(entity->GetHandle().As<alt::IEntity>()->GetID());
+            break;
+        }
+    }
+
+    V8::Serialization::Value serialized = V8::Serialization::Serialize(ctx, val, false);
     if(!serialized.Valid()) return alt::MValueByteArray();
 
     // Write the serialized value to the buffer
@@ -398,9 +439,36 @@ v8::MaybeLocal<v8::Value> V8Helpers::RawBytesToV8(alt::MValueByteArrayConst rawB
     // Remove the magic bytes + type from the byte array
     bytes.erase(bytes.begin(), bytes.begin() + sizeof(magicBytes));
 
+    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+    v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
+
+    v8::ValueDeserializer deserializer(isolate, bytes.data(), bytes.size());
+    bool headerValid;
+    if(!deserializer.ReadHeader(ctx).To(&headerValid) || !headerValid) return v8::MaybeLocal<v8::Value>();
+    RawValueType type;
+    if(!deserializer.ReadUint32((uint32_t*)&type)) return v8::MaybeLocal<v8::Value>();
+
     // Deserialize the value
-    V8::Serialization::Value value{ bytes.data(), bytes.size(), false };
-    return V8::Serialization::Deserialize(v8::Isolate::GetCurrent()->GetEnteredOrMicrotaskContext(), value);
+    v8::MaybeLocal<v8::Value> result;
+    switch(type)
+    {
+        case RawValueType::GENERIC:
+        {
+            result = deserializer.ReadValue(ctx);
+            break;
+        }
+        case RawValueType::ENTITY:
+        {
+            uint32_t id;
+            if(!deserializer.ReadUint32(&id)) return v8::MaybeLocal<v8::Value>();
+            alt::Ref<alt::IEntity> entity = alt::ICore::Instance().GetEntityByID(id);
+            if(!entity) return v8::MaybeLocal<v8::Value>();
+            result = V8ResourceImpl::Get(ctx)->GetOrCreateEntity(entity.Get(), "Entity")->GetJSVal(isolate);
+            break;
+        }
+    }
+
+    return result;
 }
 
 void V8::DefineOwnProperty(v8::Isolate* isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Object> val, const char* name, v8::Local<v8::Value> value, v8::PropertyAttribute attributes)
