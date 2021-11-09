@@ -352,27 +352,35 @@ void V8Helpers::SetAccessor(v8::Local<v8::Template> tpl, v8::Isolate* isolate, c
     tpl->SetNativeDataProperty(v8::String::NewFromUtf8(isolate, name, v8::NewStringType::kInternalized).ToLocalChecked(), getter, setter);
 }
 
+// Magic bytes to identify raw JS value buffers
+static uint8_t magicBytes[] = { 'J', 'S', 'V', 'a', 'l' };
+
+// Converts a JS value to a MValue byte array
 alt::MValueByteArray V8Helpers::V8ToRawBytes(v8::Local<v8::Value> val)
 {
-    V8::Serialization::Value serialized = V8::Serialization::Serialize(v8::Isolate::GetCurrent()->GetEnteredOrMicrotaskContext(), val);
+    std::vector<uint8_t> bytes;
+
+    V8::Serialization::Value serialized = V8::Serialization::Serialize(v8::Isolate::GetCurrent()->GetEnteredOrMicrotaskContext(), val, false);
     if(!serialized.Valid()) return alt::MValueByteArray();
 
-    std::vector<uint8_t> bytes(serialized.data, serialized.data + serialized.size);
-    bytes.reserve(bytes.size() + 5);
-    bytes.insert(bytes.begin(), 'J');
-    bytes.insert(bytes.begin(), 'S');
-    bytes.insert(bytes.begin(), 'V');
-    bytes.insert(bytes.begin(), 'a');
-    bytes.insert(bytes.begin(), 'l');
+    // Write the serialized value to the buffer
+    bytes.assign(serialized.data, serialized.data + serialized.size);
 
-    // We now need to copy the data because the MValue byte array does not do a copy
-    // And the data would be freed when the serialized value is out of scope
+    // Reserve size for the magic bytes
+    bytes.reserve(bytes.size() + sizeof(magicBytes));
+
+    // Write the magic bytes to the front of the buffer
+    for(size_t i = 0; i < sizeof(magicBytes); ++i) bytes.insert(bytes.begin(), magicBytes[i]);
+
+    // Copy the data, because it gets freed by the std::vector when this scope ends,
+    // and the MValue byte array does not copy the data
     uint8_t* data = new uint8_t[bytes.size()];
     std::memcpy(data, bytes.data(), bytes.size());
 
     return alt::ICore::Instance().CreateMValueByteArray(data, bytes.size());
 }
 
+// Converts a MValue byte array to a JS value
 v8::MaybeLocal<v8::Value> V8Helpers::RawBytesToV8(alt::MValueByteArrayConst rawBytes)
 {
     // We copy the data here, because the std::vector frees the data when it goes out of scope
@@ -380,14 +388,19 @@ v8::MaybeLocal<v8::Value> V8Helpers::RawBytesToV8(alt::MValueByteArrayConst rawB
     std::memcpy(data, rawBytes->GetData(), rawBytes->GetSize());
     std::vector<uint8_t> bytes(data, data + rawBytes->GetSize());
 
-    if(bytes.size() <= 5 || bytes[0] != 'J' && bytes[1] != 'S' && bytes[2] != 'V' && bytes[3] != 'a' && bytes[4] != 'l') return v8::MaybeLocal<v8::Value>();
-    else
-        bytes.erase(bytes.begin(), bytes.begin() + 5);
+    // Check for magic bytes
+    if(bytes.size() < sizeof(magicBytes)) return v8::MaybeLocal<v8::Value>();
+    for(size_t i = 0; i < sizeof(magicBytes); ++i)
+    {
+        if(bytes[i] != magicBytes[i]) return v8::MaybeLocal<v8::Value>();
+    }
 
-    // Make sure to set ownPtr of the serialization value to false here, because the data would be freed twice otherwise
+    // Remove the magic bytes + type from the byte array
+    bytes.erase(bytes.begin(), bytes.begin() + sizeof(magicBytes));
+
+    // Deserialize the value
     V8::Serialization::Value value{ bytes.data(), bytes.size(), false };
-    v8::MaybeLocal<v8::Value> serialized = V8::Serialization::Deserialize(v8::Isolate::GetCurrent()->GetEnteredOrMicrotaskContext(), value);
-    return serialized;
+    return V8::Serialization::Deserialize(v8::Isolate::GetCurrent()->GetEnteredOrMicrotaskContext(), value);
 }
 
 void V8::DefineOwnProperty(v8::Isolate* isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Object> val, const char* name, v8::Local<v8::Value> value, v8::PropertyAttribute attributes)
