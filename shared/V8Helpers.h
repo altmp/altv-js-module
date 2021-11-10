@@ -71,6 +71,9 @@ namespace V8Helpers
 
     void SetAccessor(v8::Local<v8::Template> tpl, v8::Isolate* isolate, const char* name, v8::AccessorGetterCallback getter, v8::AccessorSetterCallback setter = nullptr);
 
+    alt::MValueByteArray V8ToRawBytes(v8::Local<v8::Value> val);
+    v8::MaybeLocal<v8::Value> RawBytesToV8(alt::MValueByteArrayConst bytes);
+
 };  // namespace V8Helpers
 
 class V8ResourceImpl;
@@ -355,30 +358,30 @@ namespace V8
         {
             uint8_t* data;
             size_t size;
+            bool ownPtr;  // If true, the data pointer is owned by this object and must be freed when this object is destroyed
 
             bool Valid() const
             {
                 return data != nullptr && size > 0;
             }
 
-            Value() : data(nullptr), size(0) {}
-            Value(uint8_t* data, size_t size) : data(data), size(size) {}
+            Value() : data(nullptr), size(0), ownPtr(false) {}
+            Value(uint8_t* data, size_t size, bool ownPtr = true) : data(data), size(size), ownPtr(ownPtr) {}
             ~Value()
             {
-                // Make sure we free the data here, because V8 transfered ownership of the data to us
-                free(data);
+                if(ownPtr) free(data);
             }
         };
 
         // Serializes a JS value to a binary format
         // Make sure the context is entered before calling this function
-        inline Value Serialize(v8::Local<v8::Context> context, v8::Local<v8::Value> value)
+        inline Value Serialize(v8::Local<v8::Context> context, v8::Local<v8::Value> value, bool ownPtr = true)
         {
             v8::ValueSerializer serializer(context->GetIsolate());
             serializer.WriteHeader();
             if(serializer.WriteValue(context, value).IsNothing()) return Value{};
             std::pair<uint8_t*, size_t> data = serializer.Release();
-            return Value{ data.first, data.second };
+            return Value{ data.first, data.second, ownPtr };
         }
 
         // Deserializes a JS value from a binary format
