@@ -402,24 +402,30 @@ alt::MValueByteArray V8Helpers::V8ToRawBytes(v8::Local<v8::Value> val)
         {
             V8Entity* entity = V8Entity::Get(val);
             if(!entity) return alt::MValueByteArray();
-            serializer.WriteUint32(entity->GetHandle().As<alt::IEntity>()->GetID());
+            uint16_t id = entity->GetHandle().As<alt::IEntity>()->GetID();
+            serializer.WriteRawBytes(&id, sizeof(id));
             break;
         }
         case RawValueType::VECTOR3:
         {
             alt::Vector3f vec;
             if(!V8::SafeToVector3(val, ctx, vec)) return alt::MValueByteArray();
-            serializer.WriteDouble(vec[0]);
-            serializer.WriteDouble(vec[1]);
-            serializer.WriteDouble(vec[2]);
+            float x = vec[0];
+            float y = vec[1];
+            float z = vec[2];
+            serializer.WriteRawBytes(&x, sizeof(float));
+            serializer.WriteRawBytes(&y, sizeof(float));
+            serializer.WriteRawBytes(&z, sizeof(float));
             break;
         }
         case RawValueType::VECTOR2:
         {
             alt::Vector2f vec;
             if(!V8::SafeToVector2(val, ctx, vec)) return alt::MValueByteArray();
-            serializer.WriteDouble(vec[0]);
-            serializer.WriteDouble(vec[1]);
+            float x = vec[0];
+            float y = vec[1];
+            serializer.WriteRawBytes(&x, sizeof(float));
+            serializer.WriteRawBytes(&y, sizeof(float));
             break;
         }
         case RawValueType::RGBA:
@@ -464,9 +470,7 @@ v8::MaybeLocal<v8::Value> V8Helpers::RawBytesToV8(alt::MValueByteArrayConst rawB
     // Check for magic bytes
     if(bytes.size() < sizeof(magicBytes)) return v8::MaybeLocal<v8::Value>();
     for(size_t i = 0; i < sizeof(magicBytes); ++i)
-    {
         if(bytes[i] != magicBytes[i]) return v8::MaybeLocal<v8::Value>();
-    }
 
     // Remove the magic bytes from the byte array
     bytes.erase(bytes.begin(), bytes.begin() + sizeof(magicBytes));
@@ -493,37 +497,42 @@ v8::MaybeLocal<v8::Value> V8Helpers::RawBytesToV8(alt::MValueByteArrayConst rawB
         }
         case RawValueType::ENTITY:
         {
-            uint32_t id;
-            if(!deserializer.ReadUint32(&id)) return v8::MaybeLocal<v8::Value>();
-            alt::Ref<alt::IEntity> entity = alt::ICore::Instance().GetEntityByID(id);
+            uint16_t* id;
+            if(!deserializer.ReadRawBytes(sizeof(uint16_t), (const void**)&id)) return v8::MaybeLocal<v8::Value>();
+            alt::Ref<alt::IEntity> entity = alt::ICore::Instance().GetEntityByID(*id);
             if(!entity) return v8::MaybeLocal<v8::Value>();
             result = V8ResourceImpl::Get(ctx)->GetOrCreateEntity(entity.Get(), "Entity")->GetJSVal(isolate);
             break;
         }
         case RawValueType::VECTOR3:
         {
-            double x, y, z;
-            if(!deserializer.ReadDouble(&x) || !deserializer.ReadDouble(&y) || !deserializer.ReadDouble(&z)) return v8::MaybeLocal<v8::Value>();
-            result = resource->CreateVector3({ x, y, z });
+            float* x;
+            float* y;
+            float* z;
+            if(!deserializer.ReadRawBytes(sizeof(float), (const void**)&x) || !deserializer.ReadRawBytes(sizeof(float), (const void**)&y) ||
+               !deserializer.ReadRawBytes(sizeof(float), (const void**)&z))
+                return v8::MaybeLocal<v8::Value>();
+            result = resource->CreateVector3({ *x, *y, *z });
             break;
         }
         case RawValueType::VECTOR2:
         {
-            double x, y;
-            if(!deserializer.ReadDouble(&x) || !deserializer.ReadDouble(&y)) return v8::MaybeLocal<v8::Value>();
-            result = resource->CreateVector2({ x, y });
+            float* x;
+            float* y;
+            if(!deserializer.ReadRawBytes(sizeof(float), (const void**)&x) || !deserializer.ReadRawBytes(sizeof(float), (const void**)&y)) return v8::MaybeLocal<v8::Value>();
+            result = resource->CreateVector2({ *x, *y });
             break;
         }
         case RawValueType::RGBA:
         {
-            uint8_t* rPtr;
-            uint8_t* gPtr;
-            uint8_t* bPtr;
-            uint8_t* aPtr;
-            if(!deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&rPtr) || !deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&gPtr) ||
-               !deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&bPtr) || !deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&aPtr))
+            uint8_t* r;
+            uint8_t* g;
+            uint8_t* b;
+            uint8_t* a;
+            if(!deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&r) || !deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&g) ||
+               !deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&b) || !deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&a))
                 return v8::MaybeLocal<v8::Value>();
-            result = resource->CreateRGBA({ *rPtr, *gPtr, *bPtr, *aPtr });
+            result = resource->CreateRGBA({ *r, *g, *b, *a });
             break;
         }
     }
