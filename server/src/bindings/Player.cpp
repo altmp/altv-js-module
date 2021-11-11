@@ -412,7 +412,7 @@ static void SetHeadOverlay(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_UINT(2, index);
     V8_ARG_TO_NUMBER(3, opacity);
 
-    player->SetHeadOverlay(overlayID, index, opacity);
+    V8_RETURN(player->SetHeadOverlay(overlayID, index, opacity));
 }
 
 static void RemoveHeadOverlay(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -423,7 +423,7 @@ static void RemoveHeadOverlay(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_UINT(1, overlayID);
 
-    player->RemoveHeadOverlay(overlayID);
+    V8_RETURN(player->RemoveHeadOverlay(overlayID));
 }
 
 static void SetHeadOverlayColor(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -437,7 +437,7 @@ static void SetHeadOverlayColor(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_UINT(3, colorIndex);
     V8_ARG_TO_UINT(4, secondColorIndex);
 
-    player->SetHeadOverlayColor(overlayID, colorType, colorIndex, secondColorIndex);
+    V8_RETURN(player->SetHeadOverlayColor(overlayID, colorType, colorIndex, secondColorIndex));
 }
 
 static void GetHeadOverlay(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -469,7 +469,7 @@ static void SetFaceFeature(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_UINT(1, index);
     V8_ARG_TO_NUMBER(2, scale);
 
-    player->SetFaceFeature(index, scale);
+    V8_RETURN(player->SetFaceFeature(index, scale));
 }
 
 static void GetFaceFeatureScale(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -491,7 +491,7 @@ static void RemoveFaceFeature(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_UINT(1, index);
 
-    player->RemoveFaceFeature(index);
+    V8_RETURN(player->RemoveFaceFeature(index));
 }
 
 static void SetHeadBlendPaletteColor(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -505,7 +505,7 @@ static void SetHeadBlendPaletteColor(const v8::FunctionCallbackInfo<v8::Value>& 
     V8_ARG_TO_UINT(3, green);
     V8_ARG_TO_UINT(4, blue);
 
-    player->SetHeadBlendPaletteColor(id, red, green, blue);
+    V8_RETURN(player->SetHeadBlendPaletteColor(id, red, green, blue));
 }
 
 static void GetHeadBlendPaletteColor(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -567,7 +567,7 @@ static void SetEyeColor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_INT(1, eyeColor);
 
-    player->SetEyeColor(eyeColor);
+    V8_RETURN(player->SetEyeColor(eyeColor));
 }
 
 static void GetEyeColor(const v8::FunctionCallbackInfo<v8::Value>& info)
