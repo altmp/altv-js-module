@@ -361,7 +361,8 @@ enum class RawValueType : uint8_t
     ENTITY,
     VECTOR3,
     VECTOR2,
-    RGBA
+    RGBA,
+    INVALID
 };
 
 extern V8Class v8Entity;
@@ -373,6 +374,7 @@ static inline RawValueType GetValueType(v8::Local<v8::Context> ctx, v8::Local<v8
     if(resource->IsVector3(val)) return RawValueType::VECTOR3;
     if(resource->IsVector2(val)) return RawValueType::VECTOR2;
     if(resource->IsRGBA(val)) return RawValueType::RGBA;
+    if(val->IsSharedArrayBuffer() || val->IsFunction()) return RawValueType::INVALID;
     else
         return RawValueType::GENERIC;
 }
@@ -385,6 +387,7 @@ alt::MValueByteArray V8Helpers::V8ToRawBytes(v8::Local<v8::Value> val)
     std::vector<uint8_t> bytes;
 
     RawValueType type = GetValueType(ctx, val);
+    if(type == RawValueType::INVALID) return alt::MValueByteArray();
 
     v8::ValueSerializer serializer(isolate);
     serializer.WriteHeader();
