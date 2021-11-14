@@ -87,6 +87,27 @@ static void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
     alt::ICore::Instance().TriggerLocalEvent(name, args);
 }
 
+static void EmitRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+
+    V8_CHECK_ARGS_LEN_MIN(1);
+    V8_ARG_TO_STRING(1, name);
+
+    alt::MValueArgs args;
+
+    for(int i = 1; i < info.Length(); ++i)
+    {
+        // Local events can send / receive functions, so we
+        // need to explicitly check for them here
+        if(info[i]->IsFunction()) args.Push(V8Helpers::V8ToMValue(info[i]));
+        else
+            args.Push(V8Helpers::V8ToRawBytes(info[i]));
+    }
+
+    alt::ICore::Instance().TriggerLocalEvent(name, args);
+}
+
 static void HasMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -350,6 +371,7 @@ extern V8Module sharedModule("alt-shared",
                                  V8Helpers::RegisterFunc(exports, "once", &Once);
                                  V8Helpers::RegisterFunc(exports, "off", &Off);
                                  V8Helpers::RegisterFunc(exports, "emit", &Emit);
+                                 V8Helpers::RegisterFunc(exports, "emitRaw", &EmitRaw);
 
                                  V8Helpers::RegisterFunc(exports, "getEventListeners", &GetEventListeners);
                                  V8Helpers::RegisterFunc(exports, "getRemoteEventListeners", &GetRemoteEventListeners);
