@@ -14,14 +14,14 @@ using namespace alt;
 
 static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	V8_GET_ISOLATE_CONTEXT();
+    V8_GET_ISOLATE_CONTEXT();
 
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
 
-	std::ostringstream ss;
-	ss << "Vehicle{ id: " << std::to_string(vehicle->GetID()) << ", model: " << std::to_string((uint64_t)vehicle->GetModel()) << " }";
+    std::ostringstream ss;
+    ss << "Vehicle{ id: " << std::to_string(vehicle->GetID()) << ", model: " << std::to_string((uint64_t)vehicle->GetModel()) << " }";
 
-	V8_RETURN_STRING(ss.str().c_str());
+    V8_RETURN_STRING(ss.str().c_str());
 }
 
 static void HandlingGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -97,8 +97,19 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_ARGS_LEN(1);
+
     V8_ARG_TO_INT(1, id);
-    V8_RETURN_BASE_OBJECT(alt::ICore::Instance().GetEntityByID(id).As<alt::IVehicle>());
+
+    alt::Ref<alt::IEntity> entity = alt::ICore::Instance().GetEntityByID(id);
+
+    if(entity && entity->GetType() == alt::IEntity::Type::VEHICLE)
+    {
+        V8_RETURN_BASE_OBJECT(entity);
+    }
+    else
+    {
+        V8_RETURN_NULL();
+    }
 }
 
 static void IndicatorLightsGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -109,7 +120,7 @@ static void IndicatorLightsGetter(v8::Local<v8::String>, const v8::PropertyCallb
     V8_RETURN_INT(vehicle->GetLightsIndicator());
 }
 
-static void IndicatorLightsSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void> &info)
+static void IndicatorLightsSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
@@ -140,6 +151,7 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, [](v8::Local<v8::FunctionTemplate>
     V8::SetAccessor(isolate, tpl, "handling", &HandlingGetter);
     V8::SetMethod(isolate, tpl, "toggleExtra", ToggleExtra);
     V8::SetAccessor<IVehicle, uint8_t, &IVehicle::GetLightsIndicator, &IVehicle::SetLightsIndicator>(isolate, tpl, "indicatorLights");
+    V8::SetAccessor<IVehicle, Vector3f, &IVehicle::GetVelocity>(isolate, tpl, "velocity");
 
     /*GETTERS BELOW ARE UNIMPLEMENTED
     V8::SetAccessor(isolate, tpl, "isDestroyed", &IsDestroyedGetter);
