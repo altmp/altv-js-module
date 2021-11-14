@@ -8,15 +8,27 @@ on:
       - "server/**"
 
 jobs:
-  test-windows:
-    name: Test changes on Windows
+  test-server-windows:
+    name: Test server changes on Windows
     runs-on: windows-2019
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
           submodules: recursive
-          lfs: true
+
+      - name: Create LFS file list
+        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+
+      - name: Restore LFS cache
+        uses: actions/cache@v2
+        id: lfs-cache
+        with:
+          path: .git/lfs
+          key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}-v1
+
+      - name: Git LFS Pull
+        run: git lfs pull
 
       - name: Build
         shell: cmd
@@ -27,15 +39,27 @@ jobs:
           cmake -G"Visual Studio 16" -A x64 ..
           cmake --build . --config Release
 
-  test-linux:
-    name: Test changes on Linux
+  test-server-linux:
+    name: Test server changes on Linux
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
           submodules: recursive
-          lfs: true
+
+      - name: Create LFS file list
+        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+
+      - name: Restore LFS cache
+        uses: actions/cache@v2
+        id: lfs-cache
+        with:
+          path: .git/lfs
+          key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}-v1
+
+      - name: Git LFS Pull
+        run: git lfs pull
 
       - name: Build
         run: |

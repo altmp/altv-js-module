@@ -1,7 +1,7 @@
 @echo off
 
 :: Build the project
-cmake . -BBUILD -DDYNAMIC_BUILD=1
+cmake . -A x64 -BBUILD -DDYNAMIC_BUILD=1
 cmake --build BUILD --config Release
 
 :: Copy built binary to dist folder
