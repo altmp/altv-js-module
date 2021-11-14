@@ -110,8 +110,8 @@ void GetSharedArrayBuffer(const v8::FunctionCallbackInfo<v8::Value>& info)
 }
 
 extern V8Module altModule;
-extern V8Class v8File;
-extern V8Module altWorker("alt-worker", nullptr, { v8File }, [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
+extern V8Class v8File, v8RGBA, v8Vector2, v8Vector3;
+extern V8Module altWorker("alt-worker", nullptr, { v8File, v8RGBA, v8Vector2, v8Vector3 }, [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
     V8Helpers::RegisterFunc(exports, "emit", &Emit);
     V8Helpers::RegisterFunc(exports, "on", &On);
     V8Helpers::RegisterFunc(exports, "once", &Once);
