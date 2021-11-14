@@ -199,6 +199,15 @@ static void RemoveIPL(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void GetLicenseHash(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
+    // Deprecation added: 14/11/2021 (version 7.0)
+    V8_DEPRECATE("alt.getLicenseHash()", "alt.licenseHash");
+    V8_GET_ISOLATE_CONTEXT();
+
+    V8_RETURN_STRING(ICore::Instance().GetLicenseHash().CStr());
+}
+
+static void LicenseHashGetter(v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
     V8_GET_ISOLATE_CONTEXT();
 
     V8_RETURN_STRING(ICore::Instance().GetLicenseHash().CStr());
@@ -920,6 +929,7 @@ extern V8Module altModule("alt",
                               V8Helpers::RegisterFunc(exports, "setCamFrozen", &SetCamFrozen);
 
                               V8Helpers::RegisterFunc(exports, "getLicenseHash", &GetLicenseHash);
+                              V8Helpers::RegisterProperty(exports, "licenseHash", &LicenseHashGetter);
 
                               // Gxt texts functions
                               V8Helpers::RegisterFunc(exports, "addGxtText", &AddGxtText);
