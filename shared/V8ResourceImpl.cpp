@@ -98,14 +98,9 @@ void V8ResourceImpl::BindEntity(v8::Local<v8::Object> val, alt::Ref<alt::IBaseOb
 
 v8::Local<v8::Value> V8ResourceImpl::GetBaseObjectOrNull(alt::IBaseObject* handle)
 {
-    if(handle == nullptr)
-    {
-        return v8::Null(isolate);
-    }
+    if(handle == nullptr) return v8::Null(isolate);
     else
-    {
         return GetOrCreateEntity(handle)->GetJSVal(isolate);
-    }
 }
 
 v8::Local<v8::Value> V8ResourceImpl::CreateVector3(alt::Vector3f vec)
@@ -159,7 +154,7 @@ bool V8ResourceImpl::IsBaseObject(v8::Local<v8::Value> val)
 
 void V8ResourceImpl::OnCreateBaseObject(alt::Ref<alt::IBaseObject> handle)
 {
-    Log::Debug << "OnCreateBaseObject " << handle.Get() << " " << (entities.find(handle.Get()) != entities.end()) << Log::Endl;
+    // Log::Debug << "OnCreateBaseObject " << handle.Get() << " " << (entities.find(handle.Get()) != entities.end()) << Log::Endl;
 
     /*if (entities.find(handle.Get()) == entities.end())
     {
@@ -273,19 +268,9 @@ std::vector<V8::EventCallback*> V8ResourceImpl::GetGenericHandlers(bool local)
 {
     std::vector<V8::EventCallback*> handlers;
     if(local)
-    {
-        for(auto& it : localGenericHandlers)
-        {
-            handlers.push_back(&it);
-        }
-    }
+        for(auto& it : localGenericHandlers) handlers.push_back(&it);
     else
-    {
-        for(auto& it : remoteGenericHandlers)
-        {
-            handlers.push_back(&it);
-        }
-    }
+        for(auto& it : remoteGenericHandlers) handlers.push_back(&it);
     return handlers;
 }
 
@@ -293,9 +278,8 @@ void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vecto
 {
     for(auto handler : handlers)
     {
-        int64_t time = GetTime();
-
         if(handler->removed) continue;
+        int64_t time = GetTime();
 
         V8Helpers::TryCatch([&] {
             v8::MaybeLocal<v8::Value> retn = handler->fn.Get(isolate)->Call(GetContext(), v8::Undefined(isolate), args.size(), args.data());
@@ -310,14 +294,10 @@ void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vecto
         if(GetTime() - time > 5)
         {
             if(handler->location.GetLineNumber() != 0)
-            {
                 Log::Warning << "Event handler at " << resource->GetName() << ":" << handler->location.GetFileName() << ":" << handler->location.GetLineNumber() << " was too long "
                              << (GetTime() - time) << "ms" << Log::Endl;
-            }
             else
-            {
                 Log::Warning << "Event handler at " << resource->GetName() << ":" << handler->location.GetFileName() << " was too long " << (GetTime() - time) << "ms" << Log::Endl;
-            }
         }
 
         if(handler->once) handler->removed = true;
@@ -337,11 +317,7 @@ alt::MValue V8ResourceImpl::FunctionImpl::Call(alt::MValueArgs args) const
 
 #ifdef ALT_SERVER_API
     CNodeResourceImpl* nodeRes = static_cast<CNodeResourceImpl*>(resource);
-    if(!nodeRes->IsEnvStarted())
-    {
-        V8Helpers::Throw(isolate, "Tried to call exported function of invalid resource");
-        return alt::ICore::Instance().CreateMValueNone();
-    }
+    V8_CHECK_RETN(nodeRes->IsEnvStarted(), "Tried to call exported function of invalid resource", alt::ICore::Instance().CreateMValueNone());
     node::CallbackScope callbackScope(isolate, nodeRes->GetAsyncResource(), nodeRes->GetAsyncContext());
 #endif  // ALT_SERVER_API
 
