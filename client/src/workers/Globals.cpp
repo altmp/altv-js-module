@@ -112,6 +112,13 @@ void GetSharedArrayBuffer(const v8::FunctionCallbackInfo<v8::Value>& info)
 extern V8Module altModule;
 extern V8Class v8File, v8RGBA, v8Vector2, v8Vector3;
 extern V8Module altWorker("alt-worker", nullptr, { v8File, v8RGBA, v8Vector2, v8Vector3 }, [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
+    auto alt = altModule.GetExports(ctx->GetIsolate(), ctx);
+    auto InheritFromAlt = [&](const char* name) {
+        auto original = alt->Get(ctx, V8::JSValue(name));
+        if(original.IsEmpty()) return;
+        exports->Set(ctx, V8::JSValue(name), original.ToLocalChecked());
+    };
+
     V8Helpers::RegisterFunc(exports, "emit", &Emit);
     V8Helpers::RegisterFunc(exports, "on", &On);
     V8Helpers::RegisterFunc(exports, "once", &Once);
@@ -123,8 +130,18 @@ extern V8Module altWorker("alt-worker", nullptr, { v8File, v8RGBA, v8Vector2, v8
     V8Helpers::RegisterFunc(exports, "clearTimeout", &ClearTimer);
     V8Helpers::RegisterFunc(exports, "getSharedArrayBuffer", &::GetSharedArrayBuffer);
 
-    auto alt = altModule.GetExports(ctx->GetIsolate(), ctx);
-    exports->Set(ctx, V8::JSValue("log"), alt->Get(ctx, V8::JSValue("log")).ToLocalChecked());
-    exports->Set(ctx, V8::JSValue("logWarning"), alt->Get(ctx, V8::JSValue("logWarning")).ToLocalChecked());
-    exports->Set(ctx, V8::JSValue("logError"), alt->Get(ctx, V8::JSValue("logError")).ToLocalChecked());
+    // *** All inherited functions from the alt module
+    // Logging
+    InheritFromAlt("log");
+    InheritFromAlt("logWarning");
+    InheritFromAlt("logError");
+
+    // General functions
+    InheritFromAlt("hash");
+
+    // Properties
+    InheritFromAlt("version");
+    InheritFromAlt("branch");
+    InheritFromAlt("sdkVersion");
+    InheritFromAlt("debug");
 });
