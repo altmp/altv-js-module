@@ -128,6 +128,7 @@ extern V8Module altWorker("alt-worker", nullptr, { v8File, v8RGBA, v8Vector2, v8
     V8Helpers::RegisterFunc(exports, "clearNextTick", &ClearTimer);
     V8Helpers::RegisterFunc(exports, "clearInterval", &ClearTimer);
     V8Helpers::RegisterFunc(exports, "clearTimeout", &ClearTimer);
+    V8Helpers::RegisterFunc(exports, "clearTimer", &ClearTimer);
     V8Helpers::RegisterFunc(exports, "getSharedArrayBuffer", &::GetSharedArrayBuffer);
 
     // *** All inherited functions from the alt module
