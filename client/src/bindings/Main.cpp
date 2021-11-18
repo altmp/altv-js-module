@@ -872,20 +872,6 @@ static void GetPing(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN(alt::ICore::Instance().GetPing());
 }
 
-static void FpsGetter(v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    // Deprecation added: 18/11/2021 (version 7.0)
-    V8_DEPRECATE("alt.fps", "alt.getFps()");
-    V8_RETURN(alt::ICore::Instance().GetFps());
-}
-
-static void PingGetter(v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    // Deprecation added: 18/11/2021 (version 7.0)
-    V8_DEPRECATE("alt.ping", "alt.getPing()");
-    V8_RETURN(alt::ICore::Instance().GetPing());
-}
-
 static void TotalPacketsSentGetter(v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -1008,9 +994,6 @@ extern V8Module altModule("alt",
                               V8Helpers::RegisterFunc(exports, "clearPedProp", &ClearPedProps);
 
                               V8Helpers::RegisterFunc(exports, "setWatermarkPosition", &SetWatermarkPosition);
-
-                              V8Helpers::RegisterProperty(exports, "fps", &FpsGetter);
-                              V8Helpers::RegisterProperty(exports, "ping", &PingGetter);
 
                               V8Helpers::RegisterFunc(exports, "getFps", &GetFps);
                               V8Helpers::RegisterFunc(exports, "getPing", &GetPing);
