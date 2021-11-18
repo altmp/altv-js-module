@@ -58,8 +58,6 @@ namespace V8Helpers
     };
 
     void RegisterFunc(v8::Local<v8::Object> exports, const std::string& _name, v8::FunctionCallback cb, void* data = nullptr);
-    void
-      RegisterProperty(v8::Local<v8::Object> exports, const std::string& _name, v8::AccessorNameGetterCallback getter, v8::AccessorNameSetterCallback setter = nullptr, void* data = nullptr);
 
     void FunctionCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
 
