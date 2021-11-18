@@ -85,6 +85,8 @@ void V8Helpers::RegisterFunc(v8::Local<v8::Object> exports, const std::string& _
     exports->Set(ctx, name, fn);
 }
 
+// todo: Remove this, as it doesn't work
+// DEPRECATED
 void V8Helpers::RegisterProperty(v8::Local<v8::Object> exports, const std::string& _name, v8::AccessorNameGetterCallback getter, v8::AccessorNameSetterCallback setter, void* data)
 {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
