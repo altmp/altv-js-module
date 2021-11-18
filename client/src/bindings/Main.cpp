@@ -863,13 +863,13 @@ static void GetPing(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN(alt::ICore::Instance().GetPing());
 }
 
-static void TotalPacketsSentGetter(v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value>& info)
+static void GetTotalPacketsSent(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_RETURN_UINT64(alt::ICore::Instance().GetTotalPacketsSent());
 }
 
-static void TotalPacketsLostGetter(v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value>& info)
+static void GetTotalPacketsLost(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_RETURN_UINT64(alt::ICore::Instance().GetTotalPacketsLost());
@@ -988,6 +988,6 @@ extern V8Module altModule("alt",
                               V8Helpers::RegisterFunc(exports, "getFps", &GetFps);
                               V8Helpers::RegisterFunc(exports, "getPing", &GetPing);
 
-                              // V8Helpers::RegisterProperty(exports, "totalPacketsSent", &TotalPacketsSentGetter);
-                              // V8Helpers::RegisterProperty(exports, "totalPacketsLost", &TotalPacketsLostGetter);
+                              V8Helpers::RegisterFunc(exports, "getTotalPacketsSent", &GetTotalPacketsSent);
+                              V8Helpers::RegisterFunc(exports, "getTotalPacketsLost", &GetTotalPacketsLost);
                           });
