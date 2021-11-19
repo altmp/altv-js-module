@@ -101,7 +101,7 @@ bool CV8ResourceImpl::Start()
 
     v8::Local<v8::String> sourceCode = V8::JSValue(src);
 
-    v8::ScriptOrigin scriptOrigin(isolate, V8_NEW_STRING(path.c_str()), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
+    v8::ScriptOrigin scriptOrigin(isolate, V8::JSValue(path.c_str()), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
 
     bool result = V8Helpers::TryCatch([&]() {
         v8::ScriptCompiler::Source source{ sourceCode, scriptOrigin };
@@ -115,19 +115,19 @@ bool CV8ResourceImpl::Start()
 
         auto exports = altModule.GetExports(isolate, ctx);
         // Overwrite global console object
-        auto console = ctx->Global()->Get(ctx, V8_NEW_STRING("console")).ToLocalChecked().As<v8::Object>();
+        auto console = ctx->Global()->Get(ctx, V8::JSValue("console")).ToLocalChecked().As<v8::Object>();
         if(!console.IsEmpty())
         {
-            console->Set(ctx, V8_NEW_STRING("log"), exports->Get(ctx, V8_NEW_STRING("log")).ToLocalChecked());
-            console->Set(ctx, V8_NEW_STRING("warn"), exports->Get(ctx, V8_NEW_STRING("logWarning")).ToLocalChecked());
-            console->Set(ctx, V8_NEW_STRING("error"), exports->Get(ctx, V8_NEW_STRING("logError")).ToLocalChecked());
+            console->Set(ctx, V8::JSValue("log"), exports->Get(ctx, V8::JSValue("log")).ToLocalChecked());
+            console->Set(ctx, V8::JSValue("warn"), exports->Get(ctx, V8::JSValue("logWarning")).ToLocalChecked());
+            console->Set(ctx, V8::JSValue("error"), exports->Get(ctx, V8::JSValue("logError")).ToLocalChecked());
         }
 
         // Add global timer funcs
-        ctx->Global()->Set(ctx, V8_NEW_STRING("setInterval"), exports->Get(ctx, V8_NEW_STRING("setInterval")).ToLocalChecked());
-        ctx->Global()->Set(ctx, V8_NEW_STRING("setTimeout"), exports->Get(ctx, V8_NEW_STRING("setTimeout")).ToLocalChecked());
-        ctx->Global()->Set(ctx, V8_NEW_STRING("clearInterval"), exports->Get(ctx, V8_NEW_STRING("clearInterval")).ToLocalChecked());
-        ctx->Global()->Set(ctx, V8_NEW_STRING("clearTimeout"), exports->Get(ctx, V8_NEW_STRING("clearTimeout")).ToLocalChecked());
+        ctx->Global()->Set(ctx, V8::JSValue("setInterval"), exports->Get(ctx, V8::JSValue("setInterval")).ToLocalChecked());
+        ctx->Global()->Set(ctx, V8::JSValue("setTimeout"), exports->Get(ctx, V8::JSValue("setTimeout")).ToLocalChecked());
+        ctx->Global()->Set(ctx, V8::JSValue("clearInterval"), exports->Get(ctx, V8::JSValue("clearInterval")).ToLocalChecked());
+        ctx->Global()->Set(ctx, V8::JSValue("clearTimeout"), exports->Get(ctx, V8::JSValue("clearTimeout")).ToLocalChecked());
 
         ctx->Global()->Set(ctx, V8::JSValue("__internal_get_exports"), v8::Function::New(ctx, &StaticRequire).ToLocalChecked());
 
@@ -259,7 +259,7 @@ bool CV8ResourceImpl::OnEvent(const alt::CEvent* e)
             if(callbacks.size() != 0)
             {
                 auto evArgs = handler->GetArgs(this, e);
-                evArgs.insert(evArgs.begin(), V8_NEW_STRING(eventName));
+                evArgs.insert(evArgs.begin(), V8::JSValue(eventName));
 
                 InvokeEventHandlers(e, callbacks, evArgs);
             }
