@@ -276,7 +276,7 @@ void CWorker::SetupGlobals(v8::Local<v8::Object> global)
     V8Module::Add(isolate, { altWorker });
 
     auto alt = altWorker.GetExports(isolate, context.Get(isolate));
-    auto console = global->Get(context.Get(isolate), V8_NEW_STRING("console")).ToLocalChecked().As<v8::Object>();
+    auto console = global->Get(context.Get(isolate), V8::JSValue("console")).ToLocalChecked().As<v8::Object>();
     if(!console.IsEmpty())
     {
         console->Set(context.Get(isolate), V8::JSValue("log"), alt->Get(context.Get(isolate), V8::JSValue("log")).ToLocalChecked());

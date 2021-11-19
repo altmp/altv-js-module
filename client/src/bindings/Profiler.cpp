@@ -39,7 +39,7 @@ static void StartProfiling(const v8::FunctionCallbackInfo<v8::Value>& info)
     if(info.Length() == 1)
     {
         V8_ARG_TO_STRING(1, profileName);
-        name = V8_NEW_STRING(profileName.CStr());
+        name = V8::JSValue(profileName.CStr());
     }
     else
         name = v8::String::Empty(isolate);
@@ -65,7 +65,7 @@ static void StopProfiling(const v8::FunctionCallbackInfo<v8::Value>& info)
     if(info.Length() == 1)
     {
         V8_ARG_TO_STRING(1, profileName);
-        name = V8_NEW_STRING(profileName.CStr());
+        name = V8::JSValue(profileName.CStr());
     }
     else
         name = v8::String::Empty(isolate);
@@ -92,7 +92,7 @@ static void StopProfiling(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_NEW_OBJECT(root);
     GetProfileNodeData(isolate, result->GetTopDownRoot(), root);
-    resultObj->Set(ctx, V8_NEW_STRING("root"), root);
+    resultObj->Set(ctx, V8::JSValue("root"), root);
 
     // Clear the nodemap to not cause a memory leak
     nodeMap.clear();
@@ -153,39 +153,39 @@ static void GetProfileNodeData(v8::Isolate* isolate, const v8::CpuProfileNode* n
     auto ctx = isolate->GetEnteredOrMicrotaskContext();
 
     // Node info
-    result->Set(ctx, V8_NEW_STRING("id"), V8::JSValue(node->GetNodeId()));
+    result->Set(ctx, V8::JSValue("id"), V8::JSValue(node->GetNodeId()));
 
     v8::Local<v8::String> functionName;
     const char* name = node->GetFunctionNameStr();
     if(name == NULL || strlen(name) == 0) functionName = V8::JSValue("(anonymous function)");
     else
-        functionName = V8_NEW_STRING(name);
-    result->Set(ctx, V8_NEW_STRING("function"), functionName);
+        functionName = V8::JSValue(name);
+    result->Set(ctx, V8::JSValue("function"), functionName);
 
     v8::Local<v8::String> sourceName;
     const char* source = node->GetScriptResourceNameStr();
     if(source == NULL || strlen(source) == 0) sourceName = V8::JSValue("(unknown)");
     else
-        sourceName = V8_NEW_STRING(source);
-    result->Set(ctx, V8_NEW_STRING("source"), sourceName);
+        sourceName = V8::JSValue(source);
+    result->Set(ctx, V8::JSValue("source"), sourceName);
 
-    result->Set(ctx, V8_NEW_STRING("sourceType"), V8::JSValue(GetSourceTypeName(node->GetSourceType())));
-    result->Set(ctx, V8_NEW_STRING("line"), V8::JSValue(node->GetLineNumber()));
+    result->Set(ctx, V8::JSValue("sourceType"), V8::JSValue(GetSourceTypeName(node->GetSourceType())));
+    result->Set(ctx, V8::JSValue("line"), V8::JSValue(node->GetLineNumber()));
 
     v8::Local<v8::Value> bailoutReason;
     const char* reason = node->GetBailoutReason();
     if(reason == NULL || strlen(reason) == 0) bailoutReason = v8::Null(isolate);
     else
-        bailoutReason = V8_NEW_STRING(reason);
-    result->Set(ctx, V8_NEW_STRING("bailoutReason"), bailoutReason);
+        bailoutReason = V8::JSValue(reason);
+    result->Set(ctx, V8::JSValue("bailoutReason"), bailoutReason);
 
-    result->Set(ctx, V8_NEW_STRING("hitCount"), V8::JSValue(node->GetHitCount()));
+    result->Set(ctx, V8::JSValue("hitCount"), V8::JSValue(node->GetHitCount()));
 
     int64_t timestamp;
     if(nodeMap.count(node->GetNodeId()) == 0) timestamp = -1;
     else
         timestamp = nodeMap.at(node->GetNodeId());
-    result->Set(ctx, V8_NEW_STRING("timestamp"), V8::JSValue(timestamp));
+    result->Set(ctx, V8::JSValue("timestamp"), V8::JSValue(timestamp));
 
     // Children
     {
@@ -204,7 +204,7 @@ static void GetProfileNodeData(v8::Isolate* isolate, const v8::CpuProfileNode* n
         else
             children = v8::Null(isolate);
 
-        result->Set(ctx, V8_NEW_STRING("children"), children);
+        result->Set(ctx, V8::JSValue("children"), children);
     }
 
     // Line ticks
@@ -219,13 +219,13 @@ static void GetProfileNodeData(v8::Isolate* isolate, const v8::CpuProfileNode* n
             {
                 auto tick = ticks[i];
                 V8_NEW_OBJECT(tickObj);
-                tickObj->Set(ctx, V8_NEW_STRING("line"), V8::JSValue(tick.line));
-                tickObj->Set(ctx, V8_NEW_STRING("hitCount"), V8::JSValue(tick.hit_count));
+                tickObj->Set(ctx, V8::JSValue("line"), V8::JSValue(tick.line));
+                tickObj->Set(ctx, V8::JSValue("hitCount"), V8::JSValue(tick.hit_count));
                 val.As<v8::Array>()->Set(ctx, i, tickObj);
             }
         }
         else
             val = v8::Null(isolate);
-        result->Set(ctx, V8_NEW_STRING("lineTicks"), val);
+        result->Set(ctx, V8::JSValue("lineTicks"), val);
     }
 }
