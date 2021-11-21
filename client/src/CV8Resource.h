@@ -143,13 +143,14 @@ public:
     }
 private:
     using WebViewEvents = std::unordered_multimap<std::string, V8::EventCallback>;
+    using WebViewsEventsQueue = std::unordered_map<alt::Ref<alt::IWebView>, std::vector<std::pair<alt::String, alt::MValueArgs>>>;
 
     std::unordered_map<alt::Ref<alt::IWebView>, WebViewEvents> webViewHandlers;
     std::unordered_map<alt::Ref<alt::IWebSocketClient>, WebViewEvents> webSocketClientHandlers;
     std::unordered_map<alt::Ref<alt::IAudio>, WebViewEvents> audioHandlers;
 
-    std::unordered_map<alt::Ref<alt::IWebView>, std::vector<std::pair<alt::String, alt::MValueArgs>>> webViewsEventsQueue;
-    std::unordered_map<alt::Ref<alt::IWebView>, std::vector<std::pair<alt::String, alt::MValueArgs>>>& GetWebviewsEventQueue()
+    WebViewsEventsQueue webViewsEventsQueue;
+    WebViewsEventsQueue& GetWebviewsEventQueue()
     {
         return webViewsEventsQueue;
     }
