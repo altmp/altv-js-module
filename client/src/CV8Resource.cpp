@@ -418,7 +418,7 @@ void CV8ResourceImpl::HandleWebViewEventQueue(const alt::Ref<alt::IWebView> view
     auto& eventQueue = eventQueuesMap[view];
     if (eventQueue.empty()) return;
 
-    for (auto& [evName, mvArgs]: eventQueue)
+    for (auto& [evName, mvArgs] : eventQueue)
     {
         view->Trigger(evName, mvArgs);
     }
