@@ -289,11 +289,14 @@ bool CV8ResourceImpl::OnEvent(const alt::CEvent* e)
         {
             CV8ScriptRuntime::Instance().resourcesLoaded = false;
         }
-        else if(e->GetType() == alt::CEvent::Type::WEB_VIEW_EVENT)
+    }
+
+    {
+        if(e->GetType() == alt::CEvent::Type::WEB_VIEW_EVENT)
         {
             auto ev = static_cast<const alt::CWebViewEvent*>(e);
             if (ev->GetName() == "load")
-                this->HandleWebViewEventQueue(ev->GetTarget());
+                HandleWebViewEventQueue(ev->GetTarget());
         }
     }
 
