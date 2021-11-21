@@ -414,13 +414,15 @@ void CV8ResourceImpl::RemoveWorker(CWorker* worker)
 
 void CV8ResourceImpl::HandleWebViewEventQueue(const alt::Ref<alt::IWebView> view)
 {
-    auto& eventQueue = this->GetWebviewEventQueue(view);
+    auto& eventQueuesMap = this->GetWebviewsEventQueue();
+    auto& eventQueue = eventQueuesMap[view];
     if (eventQueue.empty()) return;
 
-    while (!eventQueue.empty())
+    for (auto& [evName, mvArgs]: eventQueue)
     {
-        auto& [evName, mvArgs] = eventQueue.front();
         view->Trigger(evName, mvArgs);
-        eventQueue.pop();
     }
+
+    eventQueue.clear();
+    eventQueuesMap.erase(view);
 }

@@ -137,10 +137,9 @@ public:
         return workers.size();
     }
 
-    void HandleWebViewEventQueue(const alt::Ref<alt::IWebView> view);
-    std::queue<std::pair<alt::String, alt::MValueArgs>>& GetWebviewEventQueue(const alt::Ref<alt::IWebView>& view)
+    void AddWebViewEventToQueue(const alt::Ref<alt::IWebView> view, const alt::String& evName, const alt::MValueArgs& mvArgs)
     {
-        return webViewsEventsQueue[view];
+        webViewsEventsQueue[view].push_back(std::pair(evName, mvArgs));
     }
 private:
     using WebViewEvents = std::unordered_multimap<std::string, V8::EventCallback>;
@@ -149,7 +148,12 @@ private:
     std::unordered_map<alt::Ref<alt::IWebSocketClient>, WebViewEvents> webSocketClientHandlers;
     std::unordered_map<alt::Ref<alt::IAudio>, WebViewEvents> audioHandlers;
 
-    std::unordered_map<alt::Ref<alt::IWebView>, std::queue<std::pair<alt::String, alt::MValueArgs>>> webViewsEventsQueue;
+    std::unordered_map<alt::Ref<alt::IWebView>, std::vector<std::pair<alt::String, alt::MValueArgs>>> webViewsEventsQueue;
+    std::unordered_map<alt::Ref<alt::IWebView>, std::vector<std::pair<alt::String, alt::MValueArgs>>>& GetWebviewsEventQueue()
+    {
+        return webViewsEventsQueue;
+    }
+    void HandleWebViewEventQueue(const alt::Ref<alt::IWebView> view);
 
     std::unordered_set<alt::Ref<alt::IBaseObject>> ownedObjects;
 
