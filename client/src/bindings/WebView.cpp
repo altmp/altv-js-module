@@ -75,7 +75,7 @@ static void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
     for(int i = 1; i < info.Length(); ++i) mvArgs.Push(V8Helpers::V8ToMValue(info[i], false));
 
     if (!view->IsReady())
-        static_cast<CV8ResourceImpl*>(resource)->GetWebviewEventQueue(view).push(std::pair(evName, mvArgs));
+        static_cast<CV8ResourceImpl*>(resource)->AddWebViewEventToQueue(view, evName, mvArgs);
     else
         view->Trigger(evName, mvArgs);
 }
