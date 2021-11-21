@@ -137,7 +137,7 @@ public:
         return workers.size();
     }
 
-    void HandleWebViewsEventQueue();
+    void HandleWebViewEventQueue(const alt::Ref<alt::IWebView> view);
     std::queue<std::pair<alt::String, alt::MValueArgs>>& GetWebviewEventQueue(const alt::Ref<alt::IWebView>& view)
     {
         return webViewsEventsQueue[view];

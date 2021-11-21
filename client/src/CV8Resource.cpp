@@ -291,8 +291,9 @@ bool CV8ResourceImpl::OnEvent(const alt::CEvent* e)
         }
         else if(e->GetType() == alt::CEvent::Type::WEB_VIEW_EVENT)
         {
-            if (static_cast<const alt::CWebViewEvent*>(e)->GetName() == "load")
-                this->HandleWebViewsEventQueue();
+            auto ev = static_cast<const alt::CWebViewEvent*>(e);
+            if (ev->GetName() == "load")
+                this->HandleWebViewEventQueue(ev->GetTarget());
         }
     }
 
@@ -408,17 +409,15 @@ void CV8ResourceImpl::RemoveWorker(CWorker* worker)
     workers.erase(worker);
 }
 
-void CV8ResourceImpl::HandleWebViewsEventQueue()
+void CV8ResourceImpl::HandleWebViewEventQueue(const alt::Ref<alt::IWebView> view)
 {
-    for (auto& [view, eventQueue]: webViewsEventsQueue)
-    {
-        if (eventQueue.empty()) continue;
+    auto& eventQueue = this->GetWebviewEventQueue(view);
+    if (eventQueue.empty()) return;
 
-        while (!eventQueue.empty())
-        {
-            auto& [evName, mvArgs] = eventQueue.front();
-            view->Trigger(evName, mvArgs);
-            eventQueue.pop();
-        }
+    while (!eventQueue.empty())
+    {
+        auto& [evName, mvArgs] = eventQueue.front();
+        view->Trigger(evName, mvArgs);
+        eventQueue.pop();
     }
 } 
