@@ -420,4 +420,4 @@ void CV8ResourceImpl::HandleWebViewEventQueue(const alt::Ref<alt::IWebView> view
         view->Trigger(evName, mvArgs);
         eventQueue.pop();
     }
-} 
+}
