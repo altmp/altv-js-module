@@ -6,13 +6,10 @@
 static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-
-    auto blip = info.This();
-    V8_OBJECT_GET_STRING(blip, "name", name);
-    V8_OBJECT_GET_STRING(blip, "category", category);
+    V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
 
     std::ostringstream ss;
-    ss << "Blip{ name: " << name.CStr() << ", category: " << category.CStr() << " }";
+    ss << "Blip{ name: " << blip->GetName().CStr() << ", category: " << blip->GetCategory() << " }";
 
     V8_RETURN_STRING(ss.str().c_str());
 }

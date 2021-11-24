@@ -58,8 +58,6 @@ namespace V8Helpers
     };
 
     void RegisterFunc(v8::Local<v8::Object> exports, const std::string& _name, v8::FunctionCallback cb, void* data = nullptr);
-    void
-      RegisterProperty(v8::Local<v8::Object> exports, const std::string& _name, v8::AccessorNameGetterCallback getter, v8::AccessorNameSetterCallback setter = nullptr, void* data = nullptr);
 
     void FunctionCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
 
@@ -525,8 +523,6 @@ namespace V8
 
 #define V8_OBJECT_SET_STRING(v8Val, prop, val) \
     if(!val.IsEmpty()) (v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::String::NewFromUtf8(isolate, val.CStr()).ToLocalChecked());
-
-#define V8_NEW_STRING(val) v8::String::NewFromUtf8(isolate, val).ToLocalChecked()
 
 #define V8_NEW_OBJECT(val) v8::Local<v8::Object> val = v8::Object::New(isolate);
 
