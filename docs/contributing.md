@@ -112,7 +112,7 @@ After a reasonable amount of times deprecated functions are removed, usually aft
 
 An example for a deprecation can be found here:
 ```cpp
-// Deprecation added: 09/17/2021 (version 5.3)
+// Deprecation added: 16/11/2021 (version 5.3)
 V8_DEPRECATE("alt.oldFunction", "alt.newFunction");
 ```
 

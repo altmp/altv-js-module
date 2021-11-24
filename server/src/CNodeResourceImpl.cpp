@@ -190,7 +190,7 @@ bool CNodeResourceImpl::OnEvent(const alt::CEvent* e)
             if(callbacks.size() != 0)
             {
                 auto evArgs = handler->GetArgs(this, e);
-                evArgs.insert(evArgs.begin(), V8_NEW_STRING(eventName));
+                evArgs.insert(evArgs.begin(), V8::JSValue(eventName));
 
                 node::CallbackScope callbackScope(isolate, asyncResource.Get(isolate), asyncContext);
                 InvokeEventHandlers(e, callbacks, evArgs);

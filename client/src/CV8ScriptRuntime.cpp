@@ -103,21 +103,25 @@ CV8ScriptRuntime::CV8ScriptRuntime()
               auto mmodule = ResolveModule(ctx, specifier, importAssertions, referrerModule);
               if(mmodule.IsEmpty())
               {
-                  resolver->Reject(ctx, v8::Exception::ReferenceError(V8_NEW_STRING("Could not resolve module")));
+                  resolver->Reject(ctx, v8::Exception::ReferenceError(V8::JSValue("Could not resolve module")));
                   return;
               }
 
               auto module = mmodule.ToLocalChecked();
               V8Helpers::TryCatch([&] {
-                  if(module->GetStatus() == v8::Module::Status::kUninstantiated && !module->InstantiateModule(ctx, ResolveModule).ToChecked())
+                  if(module->GetStatus() == v8::Module::Status::kUninstantiated)
                   {
-                      resolver->Reject(ctx, v8::Exception::ReferenceError(V8_NEW_STRING("Error instantiating module")));
-                      return false;
+                      auto result = module->InstantiateModule(ctx, ResolveModule);
+                      if(result.IsNothing() || !result.FromJust())
+                      {
+                          resolver->Reject(ctx, v8::Exception::ReferenceError(V8::JSValue("Error instantiating module")));
+                          return false;
+                      }
                   }
 
                   if((module->GetStatus() != v8::Module::Status::kEvaluated && module->GetStatus() != v8::Module::Status::kErrored) && module->Evaluate(ctx).IsEmpty())
                   {
-                      resolver->Reject(ctx, v8::Exception::ReferenceError(V8_NEW_STRING("Error evaluating module")));
+                      resolver->Reject(ctx, v8::Exception::ReferenceError(V8::JSValue("Error evaluating module")));
                       return false;
                   }
 
