@@ -362,9 +362,29 @@ namespace V8
             {
                 return data != nullptr && size > 0;
             }
+            void Reset()
+            {
+                data = nullptr;
+                size = 0;
+                ownPtr = false;
+            }
 
             Value() : data(nullptr), size(0), ownPtr(false) {}
             Value(uint8_t* data, size_t size, bool ownPtr = true) : data(data), size(size), ownPtr(ownPtr) {}
+            Value(Value&& otherValue)
+            {
+                data = otherValue.data;
+                size = otherValue.size;
+                ownPtr = otherValue.ownPtr;
+                otherValue.Reset();
+            }
+            Value(const Value& otherValue)
+            {
+                data = otherValue.data;
+                size = otherValue.size;
+                ownPtr = otherValue.ownPtr;
+                const_cast<Value&>(otherValue).Reset();
+            }
             ~Value()
             {
                 if(ownPtr) free(data);
