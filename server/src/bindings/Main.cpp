@@ -310,6 +310,20 @@ static void HashServerPassword(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_UINT64(alt::ICore::Instance().HashServerPassword(password));
 }
 
+static void GetServerIp(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    V8_RETURN_ALT_STRING(alt::ICore::Instance().GetServerIp());
+}
+
+static void GetServerPort(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    V8_RETURN(alt::ICore::Instance().GetServerPort());
+}
+
 extern V8Class v8Player, v8Vehicle, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Checkpoint, v8VoiceChannel, v8Colshape, v8ColshapeCylinder, v8ColshapeSphere, v8ColshapeCircle,
   v8ColshapeCuboid, v8ColshapeRectangle;
 
@@ -359,6 +373,9 @@ extern V8Module v8Alt("alt",
                           V8Helpers::RegisterFunc(exports, "setPassword", &SetPassword);
 
                           V8Helpers::RegisterFunc(exports, "hashServerPassword", &HashServerPassword);
+
+                          V8Helpers::RegisterFunc(exports, "getServerIp", &GetServerIp);
+                          V8Helpers::RegisterFunc(exports, "getServerPort", &GetServerPort);
 
                           V8_OBJECT_SET_STRING(exports, "rootDir", alt::ICore::Instance().GetRootDirectory());
                           V8_OBJECT_SET_INT(exports, "defaultDimension", alt::DEFAULT_DIMENSION);
