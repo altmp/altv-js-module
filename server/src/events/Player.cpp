@@ -24,7 +24,7 @@ V8::LocalEventHandler playerConnect(EventType::PLAYER_CONNECT, "playerConnect", 
 
 V8::LocalEventHandler beforePlayerConnect(EventType::PLAYER_BEFORE_CONNECT, "beforePlayerConnect", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
     auto ev = static_cast<const alt::CPlayerBeforeConnectEvent*>(e);
-    alt::ConnectionInfo info = ev->GetConnectionInfo();
+    alt::ConnectionInfo& info = ev->GetConnectionInfo();
     v8::Isolate* isolate = resource->GetIsolate();
     v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
     V8_NEW_OBJECT(infoObj);
