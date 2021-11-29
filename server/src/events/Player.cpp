@@ -24,9 +24,22 @@ V8::LocalEventHandler playerConnect(EventType::PLAYER_CONNECT, "playerConnect", 
 
 V8::LocalEventHandler beforePlayerConnect(EventType::PLAYER_BEFORE_CONNECT, "beforePlayerConnect", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
     auto ev = static_cast<const alt::CPlayerBeforeConnectEvent*>(e);
-    args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
-    args.push_back(V8::JSValue(ev->GetPasswordHash()));
-    args.push_back(V8::JSValue(ev->GetCdnUrl()));
+    const alt::ConnectionInfo& info = ev->GetConnectionInfo();
+    v8::Isolate* isolate = resource->GetIsolate();
+    v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
+    V8_NEW_OBJECT(infoObj);
+    V8_OBJECT_SET_STRING(infoObj, "name", info.name);
+    V8_OBJECT_SET_STRING(infoObj, "socialID", alt::StringView(std::to_string(info.socialId)));
+    V8_OBJECT_SET_STRING(infoObj, "hwidHash", alt::StringView(std::to_string(info.hwidHash)));
+    V8_OBJECT_SET_STRING(infoObj, "hwidExHash", alt::StringView(std::to_string(info.hwidExHash)));
+    V8_OBJECT_SET_STRING(infoObj, "authToken", info.authToken);
+    V8_OBJECT_SET_BOOLEAN(infoObj, "isDebug", info.isDebug);
+    V8_OBJECT_SET_STRING(infoObj, "branch", info.branch);
+    V8_OBJECT_SET_UINT(infoObj, "build", info.build);
+    V8_OBJECT_SET_STRING(infoObj, "cdnUrl", info.cdnUrl);
+    V8_OBJECT_SET_STRING(infoObj, "passwordHash", alt::StringView(std::to_string(info.passwordHash)));
+    args.push_back(infoObj);
+    args.push_back(V8::JSValue(ev->GetReason()));
 });
 
 V8::LocalEventHandler playerDisconnect(EventType::PLAYER_DISCONNECT, "playerDisconnect", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
