@@ -316,6 +316,12 @@ static inline void RunEventQueue(CWorker::EventQueue& queue, CWorker::EventHandl
     auto context = isolate->GetEnteredOrMicrotaskContext();
     std::scoped_lock lock(queueMutex);
 
+    // Clear removed event handlers
+    for(auto it = eventHandlers.begin(); it != eventHandlers.end(); it++)
+    {
+        if(it->second.removed) eventHandlers.erase(it);
+    }
+
     while(!queue.empty())
     {
         // Get the event at the front of the queue
@@ -336,11 +342,16 @@ static inline void RunEventQueue(CWorker::EventQueue& queue, CWorker::EventHandl
         }
 
         // Call all handlers with the arguments
+        std::vector<V8::EventCallback*> callbacks;
         auto handlers = eventHandlers.equal_range(event.first);
         for(auto it = handlers.first; it != handlers.second; it++)
         {
-            it->second.fn.Get(isolate)->Call(context, v8::Undefined(isolate), args.size(), args.data());
-            if(it->second.once) eventHandlers.erase(it);
+            callbacks.push_back(&it->second);
+        }
+        for(auto callback : callbacks)
+        {
+            callback->fn.Get(isolate)->Call(context, v8::Undefined(isolate), args.size(), args.data());
+            if(callback->once) callback->removed = true;
         }
 
         // Pop the event from the queue
