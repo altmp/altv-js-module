@@ -317,9 +317,11 @@ static inline void RunEventQueue(CWorker::EventQueue& queue, CWorker::EventHandl
     std::scoped_lock lock(queueMutex);
 
     // Clear removed event handlers
-    for(auto it = eventHandlers.begin(); it != eventHandlers.end(); it++)
+    for(auto it = eventHandlers.begin(); it != eventHandlers.end();)
     {
-        if(it->second.removed) eventHandlers.erase(it);
+        if(it->second.removed) it = eventHandlers.erase(it);
+        else
+            ++it;
     }
 
     while(!queue.empty())
