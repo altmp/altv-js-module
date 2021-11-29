@@ -875,6 +875,20 @@ static void GetTotalPacketsLost(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_UINT64(alt::ICore::Instance().GetTotalPacketsLost());
 }
 
+static void GetServerIp(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    V8_RETURN_ALT_STRING(alt::ICore::Instance().GetServerIp());
+}
+
+static void GetServerPort(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    V8_RETURN(alt::ICore::Instance().GetServerPort());
+}
+
 extern V8Module sharedModule;
 extern V8Class v8Player, v8Player, v8Vehicle, v8WebView, v8HandlingData, v8LocalStorage, v8MemoryBuffer, v8MapZoomData, v8Discord, v8Voice, v8WebSocketClient, v8Checkpoint, v8HttpClient,
   v8Audio, v8LocalPlayer, v8Profiler, v8Worker;
@@ -987,6 +1001,9 @@ extern V8Module altModule("alt",
 
                               V8Helpers::RegisterFunc(exports, "getFps", &GetFps);
                               V8Helpers::RegisterFunc(exports, "getPing", &GetPing);
+
+                              V8Helpers::RegisterFunc(exports, "getServerIp", &GetServerIp);
+                              V8Helpers::RegisterFunc(exports, "getServerPort", &GetServerPort);
 
                               V8Helpers::RegisterFunc(exports, "getTotalPacketsSent", &GetTotalPacketsSent);
                               V8Helpers::RegisterFunc(exports, "getTotalPacketsLost", &GetTotalPacketsLost);
