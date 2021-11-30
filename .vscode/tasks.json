@@ -25,6 +25,23 @@
         "kind": "build",
         "isDefault": true
       },
+    },
+    {
+        "label": "Update C++ SDK",
+        "type": "shell",
+        "command": "cd shared/deps/cpp-sdk && git pull origin master",
+        "group": {
+            "kind": "build",
+            "isDefault": true
+        },
+        "presentation": {
+            "echo": true,
+            "reveal": "silent",
+            "focus": false,
+            "panel": "shared",
+            "showReuseMessage": false,
+            "clear": false
+        }
     }
   ]
 }
