@@ -541,8 +541,12 @@ namespace V8
 
 #define V8_OBJECT_GET_STRING(v8Val, prop, val) V8_TO_STRING((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)
 
+// todo: replace with V8_OBJECT_SET_STD_STRING
 #define V8_OBJECT_SET_STRING(v8Val, prop, val) \
     if(!val.IsEmpty()) (v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::String::NewFromUtf8(isolate, val.CStr()).ToLocalChecked());
+
+#define V8_OBJECT_SET_STD_STRING(v8Val, prop, val) \
+    if(!val.empty()) (v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::String::NewFromUtf8(isolate, val.c_str()).ToLocalChecked());
 
 #define V8_NEW_OBJECT(val) v8::Local<v8::Object> val = v8::Object::New(isolate);
 
