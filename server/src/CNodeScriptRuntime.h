@@ -8,34 +8,43 @@
 
 class CNodeScriptRuntime : public alt::IScriptRuntime
 {
-	v8::Isolate* isolate;
-	std::unique_ptr<node::MultiIsolatePlatform> platform;
-	std::unordered_set<CNodeResourceImpl*> resources;
+    v8::Isolate* isolate;
+    std::unique_ptr<node::MultiIsolatePlatform> platform;
+    std::unordered_set<CNodeResourceImpl*> resources;
 
 public:
-	CNodeScriptRuntime();
-	~CNodeScriptRuntime();
+    CNodeScriptRuntime();
+    ~CNodeScriptRuntime();
 
-	v8::Isolate* GetIsolate() { return isolate; }
+    v8::Isolate* GetIsolate()
+    {
+        return isolate;
+    }
 
-	alt::IResource::Impl* CreateImpl(alt::IResource* resource) override;
+    alt::IResource::Impl* CreateImpl(alt::IResource* resource) override;
 
-	void DestroyImpl(alt::IResource::Impl* impl) override
-	{
-		resources.insert(static_cast<CNodeResourceImpl*>(impl));
-		delete static_cast<CNodeResourceImpl*>(impl);
-	}
+    void DestroyImpl(alt::IResource::Impl* impl) override
+    {
+        resources.insert(static_cast<CNodeResourceImpl*>(impl));
+        delete static_cast<CNodeResourceImpl*>(impl);
+    }
 
-	void OnTick() override;
-	void OnDispose() override;
+    void OnTick() override;
+    void OnDispose() override;
 
-	node::MultiIsolatePlatform* GetPlatform() const { return platform.get(); }
+    node::MultiIsolatePlatform* GetPlatform() const
+    {
+        return platform.get();
+    }
 
-	std::unordered_set<CNodeResourceImpl*> GetResources() { return resources; }
+    std::unordered_set<CNodeResourceImpl*> GetResources()
+    {
+        return resources;
+    }
 
-	static CNodeScriptRuntime& Instance()
-	{
-		static CNodeScriptRuntime _Instance;
-		return _Instance;
-	}
+    static CNodeScriptRuntime& Instance()
+    {
+        static CNodeScriptRuntime _Instance;
+        return _Instance;
+    }
 };

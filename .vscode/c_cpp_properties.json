@@ -18,7 +18,7 @@
             "configurationProvider": "ms-vscode.cmake-tools",
             "includePath": [
                 "client/src",
-                "client/BUILD/_deps/altv-js-deps-src/include",
+                "client/deps/v8/include",
                 "server/src",
                 "server/deps",
                 "server/deps/nodejs/include",

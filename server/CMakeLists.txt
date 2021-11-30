@@ -126,6 +126,10 @@ add_library(
   ${PROJECT_SHARED_FILES}
 )
 
+if(MSVC AND WIN32)
+    set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /DEBUG")
+endif()
+
 if (WIN32)
   target_link_libraries(${PROJECT_NAME} libnode.lib dbghelp.lib winmm.lib shlwapi.lib)
 endif (WIN32)

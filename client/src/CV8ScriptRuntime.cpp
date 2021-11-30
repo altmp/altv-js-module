@@ -7,202 +7,360 @@
 
 CV8ScriptRuntime::CV8ScriptRuntime()
 {
-	platform = v8::platform::NewDefaultPlatform();
-	v8::V8::InitializePlatform(platform.get());
-	v8::V8::Initialize();
+    v8::V8::SetFlagsFromString("--harmony-import-assertions");
+    platform = v8::platform::NewDefaultPlatform();
+    v8::V8::InitializePlatform(platform.get());
+    v8::V8::InitializeICU((alt::ICore::Instance().GetClientPath() + "/libs/icudtl.dat").CStr());
+    v8::V8::Initialize();
 
-	create_params.array_buffer_allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
+    create_params.array_buffer_allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
+    create_params.allow_atomics_wait = false;
 
-	isolate = v8::Isolate::New(create_params);
-	isolate->SetFatalErrorHandler([](const char *location, const char *message) {
-		Log::Error << "[V8] " << location << ": " << message << Log::Endl;
-	});
+    isolate = v8::Isolate::New(create_params);
+    isolate->SetFatalErrorHandler([](const char* location, const char* message) { Log::Error << "[V8] " << location << ": " << message << Log::Endl; });
 
-	isolate->SetOOMErrorHandler([](const char* location, bool isHeap) {
-		if(!isHeap) return;
-		Log::Error << "[V8] " << location << ": Heap out of memory. Forward this to the server developers." << Log::Endl;
-		Log::Error << "[V8] The current heap limit can be shown with the 'heap' console command. Consider increasing your system RAM." << Log::Endl;
-	});
+    isolate->SetOOMErrorHandler([](const char* location, bool isHeap) {
+        if(!isHeap) return;
+        Log::Error << "[V8] " << location << ": Heap out of memory. Forward this to the server developers." << Log::Endl;
+        Log::Error << "[V8] The current heap limit can be shown with the 'heap' console command. Consider increasing your system RAM." << Log::Endl;
+    });
 
-	isolate->AddNearHeapLimitCallback([](void*, size_t current, size_t initial) {
-		Log::Warning << "[V8] The remaining V8 heap space is approaching critical levels. Forward this to the server developers." << Log::Endl;
-		Log::Warning << "[V8] Initial heap limit: " << CV8ScriptRuntime::FormatBytes(initial) << " | Current heap limit: " << CV8ScriptRuntime::FormatBytes(current) << Log::Endl;
+    isolate->AddNearHeapLimitCallback(
+      [](void*, size_t current, size_t initial) {
+          Log::Warning << "[V8] The remaining V8 heap space is approaching critical levels. Forward this to the server developers." << Log::Endl;
+          Log::Warning << "[V8] Initial heap limit: " << CV8ScriptRuntime::FormatBytes(initial) << " | Current heap limit: " << CV8ScriptRuntime::FormatBytes(current) << Log::Endl;
 
-		// Increase the heap limit by 100MB if the heap limit has not exceeded 4GB
-		uint64_t currentLimitMb = (current / 1024) / 1024;
-		if(currentLimitMb < 4096) return current + (100 * 1024 * 1024);
-		else return current;
-	}, nullptr);
+          // Increase the heap limit by 100MB if the heap limit has not exceeded 4GB
+          uint64_t currentLimitMb = (current / 1024) / 1024;
+          if(currentLimitMb < 4096) return current + (100 * 1024 * 1024);
+          else
+              return current;
+      },
+      nullptr);
 
-	isolate->SetPromiseRejectCallback([](v8::PromiseRejectMessage message) {
-		v8::Isolate *isolate = v8::Isolate::GetCurrent();
-		v8::Local<v8::Value> value = message.GetValue();
-		v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
+    isolate->SetPromiseRejectCallback([](v8::PromiseRejectMessage message) {
+        v8::Isolate* isolate = v8::Isolate::GetCurrent();
+        v8::Local<v8::Value> value = message.GetValue();
+        v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
 
-		CV8ResourceImpl *resource = static_cast<CV8ResourceImpl *>(V8ResourceImpl::Get(ctx));
-		if (resource)
-		{
-			if (message.GetEvent() == v8::PromiseRejectEvent::kPromiseRejectWithNoHandler)
-			{
-				resource->OnPromiseRejectedWithNoHandler(message);
-			}
-			else if (message.GetEvent() == v8::PromiseRejectEvent::kPromiseHandlerAddedAfterReject)
-			{
-				resource->OnPromiseHandlerAdded(message);
-			}
-			else if (message.GetEvent() == v8::PromiseRejectEvent::kPromiseRejectAfterResolved)
-			{
-				Log::Warning << "[V8] Promise rejected after being resolved in resource "
-							 << resource->GetResource()->GetName() << " ("
-							 << *v8::String::Utf8Value(isolate, value->ToString(ctx).ToLocalChecked())
-							 << ")" << Log::Endl;
-			}
-			else if (message.GetEvent() == v8::PromiseRejectEvent::kPromiseResolveAfterResolved)
-			{
-				Log::Warning << "[V8] Promise resolved after being resolved in resource "
-							 << resource->GetResource()->GetName() << " ("
-							 << *v8::String::Utf8Value(isolate, value->ToString(ctx).ToLocalChecked())
-							 << ")" << Log::Endl;
-			}
-		}
-		else
-		{
-			Log::Error << "You're not supposed to ever see this" << Log::Endl;
-		}
-	});
+        CV8ResourceImpl* resource = static_cast<CV8ResourceImpl*>(V8ResourceImpl::Get(ctx));
+        if(resource)
+        {
+            if(message.GetEvent() == v8::PromiseRejectEvent::kPromiseRejectWithNoHandler)
+            {
+                resource->OnPromiseRejectedWithNoHandler(message);
+            }
+            else if(message.GetEvent() == v8::PromiseRejectEvent::kPromiseHandlerAddedAfterReject)
+            {
+                resource->OnPromiseHandlerAdded(message);
+            }
+            else if(message.GetEvent() == v8::PromiseRejectEvent::kPromiseRejectAfterResolved)
+            {
+                Log::Warning << "[V8] Promise rejected after being resolved in resource " << resource->GetResource()->GetName() << " ("
+                             << *v8::String::Utf8Value(isolate, value->ToString(ctx).ToLocalChecked()) << ")" << Log::Endl;
+            }
+            else if(message.GetEvent() == v8::PromiseRejectEvent::kPromiseResolveAfterResolved)
+            {
+                Log::Warning << "[V8] Promise resolved after being resolved in resource " << resource->GetResource()->GetName() << " ("
+                             << *v8::String::Utf8Value(isolate, value->ToString(ctx).ToLocalChecked()) << ")" << Log::Endl;
+            }
+        }
+        else
+        {
+            Log::Error << "You're not supposed to ever see this" << Log::Endl;
+        }
+    });
 
-	isolate->SetHostImportModuleDynamicallyCallback([](v8::Local<v8::Context> context, v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray>) {
-		v8::Isolate* isolate = context->GetIsolate();
+    isolate->SetHostImportModuleDynamicallyCallback(
+      [](v8::Local<v8::Context> context, v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray> importAssertions) {
+          v8::Isolate* isolate = context->GetIsolate();
 
-		auto referrerVal = referrer->GetResourceName();
-		if(referrerVal->IsUndefined())
-		{
-			return v8::MaybeLocal<v8::Promise>();
-		}
+          auto referrerVal = referrer->GetResourceName();
+          if(referrerVal->IsUndefined()) return v8::MaybeLocal<v8::Promise>();
 
-		std::string referrerUrl = *v8::String::Utf8Value(isolate, referrer->GetResourceName());
-		auto resource = static_cast<CV8ResourceImpl*>(V8ResourceImpl::Get(context));
+          std::string referrerUrl = *v8::String::Utf8Value(isolate, referrer->GetResourceName());
+          auto resource = static_cast<CV8ResourceImpl*>(V8ResourceImpl::Get(context));
 
-		auto resolver = v8::Promise::Resolver::New(context).ToLocalChecked();
+          auto resolver = v8::Promise::Resolver::New(context).ToLocalChecked();
 
-		V8::CPersistent<v8::Promise::Resolver> presolver(isolate, resolver);
-		V8::CPersistent<v8::String> pspecifier(isolate, specifier);
-		V8::CPersistent<v8::Module> preferrerModule(isolate, resource->GetModuleFromPath(referrerUrl));
+          V8::CPersistent<v8::Promise::Resolver> presolver(isolate, resolver);
+          V8::CPersistent<v8::String> pspecifier(isolate, specifier);
+          V8::CPersistent<v8::Module> preferrerModule(isolate, resource->GetModuleFromPath(referrerUrl));
+          V8::CPersistent<v8::FixedArray> pimportAssertions(isolate, importAssertions);
 
-		// careful what we take in by value in the lambda
-		// it is possible pass v8::Local but should not be done
-		// make a V8::CPersistent out of it and pass that
-		auto domodule = [isolate, presolver, pspecifier, preferrerModule]{
-			auto referrerModule = preferrerModule.Get(isolate);
-			auto resolver = presolver.Get(isolate);
-			auto specifier = pspecifier.Get(isolate);
+          // careful what we take in by value in the lambda
+          // it is possible pass v8::Local but should not be done
+          // make a V8::CPersistent out of it and pass that
+          auto domodule = [isolate, presolver, pspecifier, preferrerModule, pimportAssertions] {
+              auto referrerModule = preferrerModule.Get(isolate);
+              auto resolver = presolver.Get(isolate);
+              auto specifier = pspecifier.Get(isolate);
+              auto importAssertions = pimportAssertions.Get(isolate);
 
-			auto ctx = resolver->GetCreationContext().ToLocalChecked();
-			v8::Context::Scope ctxs(ctx);
+              auto ctx = resolver->GetCreationContext().ToLocalChecked();
+              v8::Context::Scope ctxs(ctx);
 
-			auto mmodule = ResolveModule(ctx, specifier, v8::Local<v8::FixedArray>(), referrerModule);
-			if(mmodule.IsEmpty())
-			{
-				resolver->Reject(ctx, v8::Exception::ReferenceError(V8_NEW_STRING("Could not resolve module")));
-				return;
-			}
+              auto mmodule = ResolveModule(ctx, specifier, importAssertions, referrerModule);
+              if(mmodule.IsEmpty())
+              {
+                  resolver->Reject(ctx, v8::Exception::ReferenceError(V8::JSValue("Could not resolve module")));
+                  return;
+              }
 
-			auto module = mmodule.ToLocalChecked();
-			V8Helpers::TryCatch([&]{
-				if(module->GetStatus() == v8::Module::Status::kUninstantiated && !module->InstantiateModule(ctx, ResolveModule).ToChecked())
-				{
-					resolver->Reject(ctx, v8::Exception::ReferenceError(V8_NEW_STRING("Error instantiating module")));
-					return false;
-				}
+              auto module = mmodule.ToLocalChecked();
+              V8Helpers::TryCatch([&] {
+                  if(module->GetStatus() == v8::Module::Status::kUninstantiated)
+                  {
+                      auto result = module->InstantiateModule(ctx, ResolveModule);
+                      if(result.IsNothing() || !result.FromJust())
+                      {
+                          resolver->Reject(ctx, v8::Exception::ReferenceError(V8::JSValue("Error instantiating module")));
+                          return false;
+                      }
+                  }
 
-				if(module->GetStatus() != v8::Module::Status::kEvaluated && module->Evaluate(ctx).IsEmpty())
-				{
-					resolver->Reject(ctx, v8::Exception::ReferenceError(V8_NEW_STRING("Error evaluating module")));
-					return false;
-				}
+                  if((module->GetStatus() != v8::Module::Status::kEvaluated && module->GetStatus() != v8::Module::Status::kErrored) && module->Evaluate(ctx).IsEmpty())
+                  {
+                      resolver->Reject(ctx, v8::Exception::ReferenceError(V8::JSValue("Error evaluating module")));
+                      return false;
+                  }
 
-				resolver->Resolve(ctx, module->GetModuleNamespace());
-				return true;
-			});
-		};
+                  resolver->Resolve(ctx, module->GetModuleNamespace());
+                  return true;
+              });
+          };
 
-		if(Instance().resourcesLoaded && resource->GetResource()->IsStarted())
-		{
-			// instantly resolve the module
-			domodule();
-		} else {
-			// put it in the queue to resolve after all resource are loaded
-			resource->dynamicImports.emplace_back(domodule);
-		}
+          if(Instance().resourcesLoaded && resource->GetResource()->IsStarted())
+          {
+              // instantly resolve the module
+              domodule();
+          }
+          else
+          {
+              // put it in the queue to resolve after all resource are loaded
+              resource->dynamicImports.emplace_back(domodule);
+          }
 
-		return v8::MaybeLocal<v8::Promise>(resolver->GetPromise());
-	});
+          return v8::MaybeLocal<v8::Promise>(resolver->GetPromise());
+      });
 
-	isolate->SetMicrotasksPolicy(v8::MicrotasksPolicy::kExplicit);
+    isolate->SetHostInitializeImportMetaObjectCallback([](v8::Local<v8::Context> context, v8::Local<v8::Module>, v8::Local<v8::Object> meta) {
+        meta->CreateDataProperty(context, V8::JSValue("url"), V8::JSValue(V8::GetCurrentSourceOrigin(context->GetIsolate())));
+    });
 
-	/*{
-		v8::Locker locker(isolate);
-		v8::Isolate::Scope isolate_scope(isolate);
-		v8::HandleScope handle_scope(isolate);
+    isolate->SetMicrotasksPolicy(v8::MicrotasksPolicy::kExplicit);
 
-		inspectorClient.reset(new alt::CV8InspectorClient);
-		inspectorChannel.reset(new alt::CV8InspectorChannel);
+    isolate->SetCaptureStackTraceForUncaughtExceptions(true, 1);
 
-		inspector = v8_inspector::V8Inspector::create(isolate, inspectorClient.get());
+    /*{
+            v8::Locker locker(isolate);
+            v8::Isolate::Scope isolate_scope(isolate);
+            v8::HandleScope handle_scope(isolate);
 
-		v8_inspector::StringView inspectorView{ (uint8_t*)inspectorViewStr, strlen(inspectorViewStr) };
-		inspectorSession = inspector->connect(1, inspectorChannel.get(), inspectorView);
-	}*/
+            inspectorClient.reset(new alt::CV8InspectorClient);
+            inspectorChannel.reset(new alt::CV8InspectorChannel);
 
-	profiler = v8::CpuProfiler::New(isolate);
-	profiler->SetUsePreciseSampling(true);
-	profiler->SetSamplingInterval(profilerSamplingInterval);
-	v8::CpuProfiler::UseDetailedSourcePositionsForProfiling(isolate);
+            inspector = v8_inspector::V8Inspector::create(isolate, inspectorClient.get());
 
-	{
-		v8::Locker locker(isolate);
-		v8::Isolate::Scope isolate_scope(isolate);
-		v8::HandleScope handle_scope(isolate);
+            v8_inspector::StringView inspectorView{ (uint8_t*)inspectorViewStr, strlen(inspectorViewStr) };
+            inspectorSession = inspector->connect(1, inspectorChannel.get(), inspectorView);
+    }*/
 
-		V8Class::LoadAll(isolate);
+    profiler = v8::CpuProfiler::New(isolate);
+    profiler->SetUsePreciseSampling(true);
+    profiler->SetSamplingInterval(profilerSamplingInterval);
+    v8::CpuProfiler::UseDetailedSourcePositionsForProfiling(isolate);
 
-		extern V8Module altModule, nativesModule, sharedModule;
-		V8Module::Add({altModule, nativesModule, sharedModule});
-	}
+    // IsWorker data slot
+    isolate->SetData(v8::Isolate::GetNumberOfDataSlots() - 1, new bool(false));
 
-	RegisterEvents();
+    {
+        v8::Locker locker(isolate);
+        v8::Isolate::Scope isolate_scope(isolate);
+        v8::HandleScope handle_scope(isolate);
+
+        V8Class::LoadAll(isolate);
+
+        extern V8Module altModule, nativesModule, sharedModule;
+        V8Module::Add(isolate, { altModule, nativesModule, sharedModule });
+    }
+
+    RegisterEvents();
 }
 
-void CV8ScriptRuntime::OnEntityStreamIn(alt::Ref<alt::IEntity> entity) 
+static std::string Base64Decode(const std::string& in)
 {
-	switch(entity->GetType())
-	{
-		case alt::IEntity::Type::PLAYER:
-		{
-			streamedInPlayers.insert({ entity->GetID(), entity.As<alt::IPlayer>() });
-			break;
-		}
-		case alt::IEntity::Type::VEHICLE:
-		{
-			streamedInVehicles.insert({ entity->GetID(), entity.As<alt::IVehicle>() });
-			break;
-		}
-	}
+    std::string out;
+    std::vector<int> T(256, -1);
+    for(int i = 0; i < 64; i++) T["ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[i]] = i;
+
+    int val = 0, valb = -8;
+    for(unsigned char c : in)
+    {
+        if(T[c] == -1) break;
+        val = (val << 6) + T[c];
+        valb += 6;
+        if(valb >= 0)
+        {
+            out.push_back(char((val >> valb) & 0xFF));
+            valb -= 8;
+        }
+    }
+    return out;
+}
+v8::MaybeLocal<v8::Module>
+  CV8ScriptRuntime::ResolveModule(v8::Local<v8::Context> ctx, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray> importAssertions, v8::Local<v8::Module> referrer)
+{
+    auto isolate = ctx->GetIsolate();
+    V8ResourceImpl* resource = V8ResourceImpl::Get(ctx);
+    if(!resource)
+    {
+        V8Helpers::Throw(isolate, "Invalid resource");
+        return v8::MaybeLocal<v8::Module>{};
+    }
+
+    std::string _specifier = *v8::String::Utf8Value{ isolate, specifier };
+    if(_specifier == resource->GetResource()->GetName().ToString())
+    {
+        V8Helpers::Throw(isolate, "Cannot import the resource itself (self-importing)");
+        return v8::MaybeLocal<v8::Module>{};
+    }
+
+    if(importAssertions->Length() > 0)
+    {
+        // todo: maybe check all import assertions?
+        std::string assertionKey = *v8::String::Utf8Value(isolate, importAssertions->Get(ctx, 0).As<v8::Value>().As<v8::String>());
+        if(assertionKey != "type")
+        {
+            V8Helpers::Throw(isolate, "Invalid import assertion format");
+            return v8::MaybeLocal<v8::Module>();
+        }
+
+        v8::Local<v8::Data> assertionValue = importAssertions->Get(ctx, 1);
+        v8::Local<v8::Value> typeValue;
+        std::string typeValueStr;
+        if(assertionValue->IsValue() && assertionValue.As<v8::Value>()->IsString()) typeValueStr = *v8::String::Utf8Value(isolate, assertionValue.As<v8::Value>().As<v8::String>());
+        if(typeValueStr.empty())
+        {
+            V8Helpers::Throw(isolate, "Invalid import assertion format");
+            return v8::MaybeLocal<v8::Module>();
+        }
+
+        v8::Local<v8::Module> module;
+        bool result = V8Helpers::TryCatch([&] {
+            v8::MaybeLocal<v8::Module> maybeModule;
+            std::string specifierStr = *v8::String::Utf8Value(isolate, specifier);
+
+            // Check assertion type
+            if(typeValueStr == "base64")
+            {
+                // Handle as base64 source string
+                std::string sourceStr = Base64Decode(specifierStr);
+                maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(sourceStr, V8::SourceLocation::GetCurrent(isolate));
+            }
+            else if(typeValueStr == "source")
+            {
+                // Handle as module source code
+                maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(specifierStr, V8::SourceLocation::GetCurrent(isolate));
+            }
+            else if(typeValueStr == "json")
+            {
+                // Handle as JSON file
+
+                // Read the JSON file
+                auto path =
+                  alt::ICore::Instance().Resolve(static_cast<CV8ResourceImpl*>(resource)->GetResource(), specifierStr, static_cast<CV8ResourceImpl*>(resource)->GetModulePath(referrer));
+                if(!path.pkg || !path.pkg->FileExists(path.fileName))
+                {
+                    V8Helpers::Throw(isolate, "Invalid JSON file path");
+                    return false;
+                }
+                alt::IPackage::File* file = path.pkg->OpenFile(path.fileName);
+                std::string src(path.pkg->GetFileSize(file), '\0');
+                path.pkg->ReadFile(file, src.data(), src.size());
+                path.pkg->CloseFile(file);
+
+                // Parse the JSON first to check if its valid
+                // todo: do we really need this?
+                v8::MaybeLocal<v8::Value> result = v8::JSON::Parse(ctx, V8::JSValue(src));
+                if(result.IsEmpty())
+                {
+                    V8Helpers::Throw(isolate, "Invalid JSON syntax");
+                    return false;
+                }
+
+                // Create a fake module that just wraps the JSON file to an object as the default export
+                std::stringstream codeStream;
+                codeStream << "export default " << src << ";";
+                maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(codeStream.str(), V8::SourceLocation::GetCurrent(isolate));
+            }
+            else
+            {
+                V8Helpers::Throw(isolate, "Invalid import assertion type");
+                return false;
+            }
+
+            // Run the module
+            if(maybeModule.IsEmpty())
+            {
+                V8Helpers::Throw(isolate, "Failed to resolve module");
+                return false;
+            }
+            module = maybeModule.ToLocalChecked();
+            v8::Maybe<bool> result = module->InstantiateModule(ctx, CV8ScriptRuntime::ResolveModule);
+            if(result.IsNothing() || result.ToChecked() == false)
+            {
+                V8Helpers::Throw(isolate, "Failed to instantiate module");
+                return false;
+            }
+
+            auto returnValue = module->Evaluate(ctx);
+            if(returnValue.IsEmpty())
+            {
+                V8Helpers::Throw(isolate, "Failed to evaluate module");
+                return false;
+            }
+
+            return true;
+        });
+        if(!result) return v8::MaybeLocal<v8::Module>();
+        else
+            return v8::MaybeLocal<v8::Module>(module);
+    }
+
+    return static_cast<CV8ResourceImpl*>(resource)->ResolveModule(_specifier, referrer, resource->GetResource());
 }
 
-void CV8ScriptRuntime::OnEntityStreamOut(alt::Ref<alt::IEntity> entity) 
+void CV8ScriptRuntime::OnEntityStreamIn(alt::Ref<alt::IEntity> entity)
 {
-	switch(entity->GetType())
-	{
-		case alt::IEntity::Type::PLAYER:
-		{
-			streamedInPlayers.erase(entity->GetID());
-			break;
-		}
-		case alt::IEntity::Type::VEHICLE:
-		{
-			streamedInVehicles.erase(entity->GetID());
-			break;
-		}
-	}
+    switch(entity->GetType())
+    {
+        case alt::IEntity::Type::PLAYER:
+        {
+            streamedInPlayers.insert({ entity->GetID(), entity.As<alt::IPlayer>() });
+            break;
+        }
+        case alt::IEntity::Type::VEHICLE:
+        {
+            streamedInVehicles.insert({ entity->GetID(), entity.As<alt::IVehicle>() });
+            break;
+        }
+    }
+}
+
+void CV8ScriptRuntime::OnEntityStreamOut(alt::Ref<alt::IEntity> entity)
+{
+    switch(entity->GetType())
+    {
+        case alt::IEntity::Type::PLAYER:
+        {
+            streamedInPlayers.erase(entity->GetID());
+            break;
+        }
+        case alt::IEntity::Type::VEHICLE:
+        {
+            streamedInVehicles.erase(entity->GetID());
+            break;
+        }
+    }
 }
