@@ -105,6 +105,31 @@ namespace V8
         int line = 0;
     };
 
+    class StackTrace
+    {
+        struct Frame
+        {
+            std::string file;
+            std::string function;
+            int line;
+        };
+        std::vector<Frame> frames;
+        CPersistent<v8::Context> context;
+
+    public:
+        StackTrace(std::vector<Frame>&& frames, v8::Local<v8::Context> ctx);
+
+        const std::vector<Frame>& GetFrames() const
+        {
+            return frames;
+        }
+
+        void Print(uint32_t offset = 0);
+
+        static StackTrace GetCurrent(v8::Isolate* isolate);
+        static void Print(v8::Isolate* isolate);
+    };
+
     struct EventCallback
     {
         v8::UniquePersistent<v8::Function> fn;
