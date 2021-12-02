@@ -607,26 +607,33 @@ v8::Local<v8::Value> V8::New(v8::Isolate* isolate, v8::Local<v8::Context> ctx, v
     return obj;
 }
 
+inline static std::string GetStackFrameScriptName(v8::Local<v8::StackFrame> frame)
+{
+    v8::Local<v8::Value> name = frame->GetScriptName();
+    if(!name.IsEmpty()) return *v8::String::Utf8Value(v8::Isolate::GetCurrent(), name);
+    else if(frame->IsEval())
+        return "[eval]";
+    else if(frame->IsWasm())
+        return "[wasm]";
+    else if(!frame->IsUserJavaScript())
+        return "[internal]";
+    else
+        return "[unknown]";
+}
+
 V8::SourceLocation V8::SourceLocation::GetCurrent(v8::Isolate* isolate)
 {
-    v8::Local<v8::StackTrace> stackTrace = v8::StackTrace::CurrentStackTrace(isolate, 1);
+    v8::Local<v8::StackTrace> stackTrace = v8::StackTrace::CurrentStackTrace(isolate, 5);
     auto ctx = isolate->GetEnteredOrMicrotaskContext();
-    if(stackTrace->GetFrameCount() > 0)
+
+    for(int i = 0; i < stackTrace->GetFrameCount(); i++)
     {
-        v8::Local<v8::StackFrame> frame = stackTrace->GetFrame(isolate, 0);
+        v8::Local<v8::StackFrame> frame = stackTrace->GetFrame(isolate, i);
+        if(frame->GetScriptName().IsEmpty() && !frame->IsEval() && !frame->IsWasm() && frame->IsUserJavaScript()) continue;
 
-        v8::Local<v8::Value> name = frame->GetScriptName();
-        if(!name.IsEmpty())
-        {
-            std::string fileName = *v8::String::Utf8Value(isolate, frame->GetScriptName());
-            int line = frame->GetLineNumber();
-
-            return SourceLocation{ std::move(fileName), line, ctx };
-        }
-        else if(frame->IsEval())
-        {
-            return SourceLocation{ "[eval]", 0, ctx };
-        }
+        std::string name = GetStackFrameScriptName(frame);
+        int line = frame->GetLineNumber();
+        return SourceLocation{ std::move(name), line, ctx };
     }
 
     return SourceLocation{ "[unknown]", 0, ctx };
@@ -650,6 +657,45 @@ std::string V8::SourceLocation::ToString()
     }
     stream << fileName << ":" << line << "]";
     return stream.str();
+}
+
+V8::StackTrace V8::StackTrace::GetCurrent(v8::Isolate* isolate)
+{
+    v8::Local<v8::StackTrace> stackTrace = v8::StackTrace::CurrentStackTrace(isolate, 5);
+    auto ctx = isolate->GetEnteredOrMicrotaskContext();
+    std::vector<Frame> frames;
+    for(int i = 0; i < stackTrace->GetFrameCount(); i++)
+    {
+        v8::Local<v8::StackFrame> frame = stackTrace->GetFrame(isolate, i);
+        Frame frameData;
+        frameData.file = GetStackFrameScriptName(frame);
+        frameData.line = frame->GetLineNumber();
+        frameData.function = *v8::String::Utf8Value(isolate, frame->GetFunctionName());
+
+        frames.push_back(std::move(frameData));
+    }
+
+    return StackTrace{ std::move(frames), ctx };
+}
+
+V8::StackTrace::StackTrace(std::vector<Frame>&& frames, v8::Local<v8::Context> ctx) : frames(frames), context(ctx->GetIsolate(), ctx) {}
+
+void V8::StackTrace::Print(uint32_t offset)
+{
+    auto& frames = GetFrames();
+    size_t size = frames.size();
+
+    for(size_t i = offset; i < size; i++)
+    {
+        const Frame& frame = frames[i];
+        Log::Warning << "  " << frame.function << " (" << frame.file << ":" << frame.line << ")" << Log::Endl;
+    }
+}
+
+void V8::StackTrace::Print(v8::Isolate* isolate)
+{
+    V8::StackTrace trace = V8::StackTrace::GetCurrent(isolate);
+    trace.Print();
 }
 
 v8::Local<v8::String> V8::Vector3_XKey(v8::Isolate* isolate)
