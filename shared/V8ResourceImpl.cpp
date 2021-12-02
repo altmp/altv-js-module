@@ -285,8 +285,13 @@ void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vecto
             v8::MaybeLocal<v8::Value> retn = handler->fn.Get(isolate)->Call(GetContext(), v8::Undefined(isolate), args.size(), args.data());
 
             if(retn.IsEmpty()) return false;
+            if(!ev) return false;
 
-            if(ev && retn.ToLocalChecked()->IsFalse()) ev->Cancel();
+            v8::Local<v8::Value> returnValue = retn.ToLocalChecked();
+            if(returnValue->IsFalse()) ev->Cancel();
+            // todo: add this once a generic Cancel() with string as arg has been added to the sdk
+            // else if(returnValue->IsString())
+            //    ev->Cancel(*v8::String::Utf8Value(isolate, returnValue));
 
             return true;
         });
