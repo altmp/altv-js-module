@@ -30,6 +30,8 @@ class CV8ScriptRuntime : public alt::IScriptRuntime
     std::unordered_map<uint16_t, alt::Ref<alt::IPlayer>> streamedInPlayers;
     std::unordered_map<uint16_t, alt::Ref<alt::IVehicle>> streamedInVehicles;
 
+    uint32_t activeWorkers = 0;
+
 public:
     CV8ScriptRuntime();
 
@@ -61,6 +63,19 @@ public:
     {
         profilerSamplingInterval = interval;
         profiler->SetSamplingInterval(interval);
+    }
+
+    uint32_t GetActiveWorkerCount() const
+    {
+        return activeWorkers;
+    }
+    void AddActiveWorker()
+    {
+        activeWorkers++;
+    }
+    void RemoveActiveWorker()
+    {
+        activeWorkers--;
     }
 
     v8::Platform* GetPlatform()
