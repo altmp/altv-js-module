@@ -70,10 +70,7 @@ public:
     ~CWorker() = default;
 
     void Start();
-    void Destroy()
-    {
-        shouldTerminate = true;
-    }
+    void Destroy();
 
     void Pause()
     {
