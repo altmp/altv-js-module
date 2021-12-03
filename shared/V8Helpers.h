@@ -566,6 +566,10 @@ namespace V8
 
 #define V8_OBJECT_GET_STRING(v8Val, prop, val) V8_TO_STRING((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)
 
+#define V8_OBJECT_SET_BIGINT(v8Val, prop, val) (v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::BigInt::New(isolate, val));
+
+#define V8_OBJECT_SET_BIGUINT(v8Val, prop, val) (v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::BigInt::NewFromUnsigned(isolate, val));
+
 // todo: replace with V8_OBJECT_SET_STD_STRING
 #define V8_OBJECT_SET_STRING(v8Val, prop, val) \
     if(!val.IsEmpty()) (v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::String::NewFromUtf8(isolate, val.CStr()).ToLocalChecked());
