@@ -138,7 +138,6 @@ static void IsPausedGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo
 static void Pause(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_CHECK_ARGS_LEN(2);
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, worker, CWorker);
     V8_CHECK(worker, "Worker is invalid");
 
@@ -150,7 +149,6 @@ static void Pause(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void Resume(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_CHECK_ARGS_LEN(2);
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, worker, CWorker);
     V8_CHECK(worker, "Worker is invalid");
 
