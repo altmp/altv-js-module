@@ -7,7 +7,7 @@
 
 CV8ScriptRuntime::CV8ScriptRuntime()
 {
-    v8::V8::SetFlagsFromString("--harmony-import-assertions");
+    v8::V8::SetFlagsFromString("--harmony-import-assertions --short-builtin-calls");
     platform = v8::platform::NewDefaultPlatform();
     v8::V8::InitializePlatform(platform.get());
     v8::V8::InitializeICU((alt::ICore::Instance().GetClientPath() + "/libs/icudtl.dat").CStr());
