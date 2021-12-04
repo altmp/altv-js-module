@@ -670,7 +670,8 @@ V8::StackTrace V8::StackTrace::GetCurrent(v8::Isolate* isolate)
         Frame frameData;
         frameData.file = GetStackFrameScriptName(frame);
         frameData.line = frame->GetLineNumber();
-        frameData.function = *v8::String::Utf8Value(isolate, frame->GetFunctionName());
+        if(frame->GetFunctionName().IsEmpty()) frameData.function = "[anonymous]";
+        else frameData.function = *v8::String::Utf8Value(isolate, frame->GetFunctionName());
 
         frames.push_back(std::move(frameData));
     }
