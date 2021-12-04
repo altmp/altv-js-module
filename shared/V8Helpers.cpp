@@ -671,7 +671,8 @@ V8::StackTrace V8::StackTrace::GetCurrent(v8::Isolate* isolate)
         frameData.file = GetStackFrameScriptName(frame);
         frameData.line = frame->GetLineNumber();
         if(frame->GetFunctionName().IsEmpty()) frameData.function = "[anonymous]";
-        else frameData.function = *v8::String::Utf8Value(isolate, frame->GetFunctionName());
+        else
+            frameData.function = *v8::String::Utf8Value(isolate, frame->GetFunctionName());
 
         frames.push_back(std::move(frameData));
     }
@@ -689,7 +690,7 @@ void V8::StackTrace::Print(uint32_t offset)
     for(size_t i = offset; i < size; i++)
     {
         const Frame& frame = frames[i];
-        Log::Warning << "  " << frame.function << " (" << frame.file << ":" << frame.line << ")" << Log::Endl;
+        Log::Error << "  at " << frame.function << " (" << frame.file << ":" << frame.line << ")" << Log::Endl;
     }
 }
 
