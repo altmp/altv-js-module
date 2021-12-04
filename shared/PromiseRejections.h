@@ -14,8 +14,9 @@ namespace V8
         V8::CPersistent<v8::Promise> promise;
         V8::CPersistent<v8::Value> value;
         V8::SourceLocation location;
+        V8::StackTrace stackTrace;
 
-        PromiseRejection(v8::Isolate* isolate, v8::Local<v8::Promise> promise, v8::Local<v8::Value> value, V8::SourceLocation&& location);
+        PromiseRejection(v8::Isolate* isolate, v8::Local<v8::Promise> promise, v8::Local<v8::Value> value, V8::SourceLocation&& location, V8::StackTrace&& stackTrace);
     };
 
     class PromiseRejections
