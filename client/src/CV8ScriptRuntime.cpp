@@ -148,6 +148,23 @@ CV8ScriptRuntime::CV8ScriptRuntime()
         meta->CreateDataProperty(context, V8::JSValue("url"), V8::JSValue(V8::GetCurrentSourceOrigin(context->GetIsolate())));
     });
 
+    isolate->AddMessageListener([](v8::Local<v8::Message> message, v8::Local<v8::Value> error) {
+        v8::Isolate* isolate = v8::Isolate::GetCurrent();
+
+        switch(message->ErrorLevel())
+        {
+            case v8::Isolate::kMessageError:
+            {
+                std::string errorMsg = *v8::String::Utf8Value(isolate, message->Get());
+                if(errorMsg.empty()) errorMsg = *v8::String::Utf8Value(isolate, error);
+                if(errorMsg.empty()) errorMsg = "<unknown>";
+                Log::Error << "[V8] Error: " << errorMsg << Log::Endl;
+                break;
+            }
+            default: break;
+        }
+    });
+
     isolate->SetMicrotasksPolicy(v8::MicrotasksPolicy::kExplicit);
 
     isolate->SetCaptureStackTraceForUncaughtExceptions(true, 5);
