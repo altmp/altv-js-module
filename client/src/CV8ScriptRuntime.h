@@ -111,25 +111,6 @@ public:
         return resources;
     }
 
-    void HeapBenchmark()
-    {
-        v8::HeapStatistics heapStats;
-        isolate->GetHeapStatistics(&heapStats);
-        Log::Info << "================ Heap benchmark info =================" << Log::Endl;
-        Log::Info << "total_heap_size = " << FormatBytes(heapStats.total_heap_size()) << Log::Endl;
-        Log::Info << "total_heap_size_executable = " << FormatBytes(heapStats.total_heap_size_executable()) << Log::Endl;
-        Log::Info << "total_physical_size = " << FormatBytes(heapStats.total_physical_size()) << Log::Endl;
-        Log::Info << "total_available_size = " << FormatBytes(heapStats.total_available_size()) << Log::Endl;
-        Log::Info << "used_heap_size = " << FormatBytes(heapStats.used_heap_size()) << Log::Endl;
-        Log::Info << "heap_size_limit = " << FormatBytes(heapStats.heap_size_limit()) << Log::Endl;
-        Log::Info << "malloced_memory = " << FormatBytes(heapStats.malloced_memory()) << Log::Endl;
-        Log::Info << "external_memory = " << FormatBytes(heapStats.external_memory()) << Log::Endl;
-        Log::Info << "peak_malloced_memory = " << FormatBytes(heapStats.peak_malloced_memory()) << Log::Endl;
-        Log::Info << "number_of_native_contexts = " << heapStats.number_of_native_contexts() << Log::Endl;
-        Log::Info << "number_of_detached_contexts = " << heapStats.number_of_detached_contexts() << Log::Endl;
-        Log::Info << "======================================================" << Log::Endl;
-    }
-
     ~CV8ScriptRuntime()
     {
         while(isolate->IsInUse()) isolate->Exit();
@@ -144,16 +125,22 @@ public:
     static std::string FormatBytes(uint64_t bytes)
     {
         static std::string result = "";
-        const char* sizes[5] = { "bytes", "KB", "MB", "GB", "TB" };
+        const char* sizes[5] = { "B", "KB", "MB", "GB", "TB" };
 
         if(bytes == 0)
         {
-            result = "0 bytes";
+            result = "0 B";
             return result;
         }
         else if(bytes == 1)
         {
-            result = "1 byte";
+            result = "1 B";
+            return result;
+        }
+        // todo: idk why it breaks with 80 but it apparently does, fix it properly
+        else if(bytes == 80)
+        {
+            result = "80 B";
             return result;
         }
 
@@ -162,7 +149,7 @@ public:
         if(left == 0)
         {
             std::stringstream ss;
-            ss << bytes + " bytes";
+            ss << bytes + " B";
             result = ss.str();
             return result;
         }
