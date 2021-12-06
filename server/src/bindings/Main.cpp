@@ -285,21 +285,6 @@ static void GetResourcePath(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_STRING(resource->GetPath().CStr());
 }
 
-static void GetResourceExports(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-    V8_CHECK_ARGS_LEN(1);
-
-    V8_ARG_TO_STRING(1, name);
-
-    alt::IResource* _resource = alt::ICore::Instance().GetResource(name);
-    if(_resource)
-    {
-        v8::Local<v8::Value> exports = V8Helpers::MValueToV8(_resource->GetExports());
-        V8_RETURN(exports);
-    }
-}
-
 static void HashServerPassword(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -337,7 +322,6 @@ extern V8Module v8Alt("alt",
 
                           V8Helpers::RegisterFunc(exports, "getResourceMain", &GetResourceMain);
                           V8Helpers::RegisterFunc(exports, "getResourcePath", &GetResourcePath);
-                          V8Helpers::RegisterFunc(exports, "getResourceExports", &GetResourceExports);
 
                           V8Helpers::RegisterFunc(exports, "startResource", &StartResource);
                           V8Helpers::RegisterFunc(exports, "stopResource", &StopResource);
