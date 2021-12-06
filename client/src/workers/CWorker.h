@@ -75,10 +75,12 @@ public:
     void Pause()
     {
         isPaused = true;
+        isolate->SetIdle(true);
     }
     void Resume()
     {
         isPaused = false;
+        isolate->SetIdle(false);
     }
 
     void EmitToWorker(const std::string& eventName, std::vector<V8::Serialization::Value>& args);
