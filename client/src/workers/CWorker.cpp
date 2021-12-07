@@ -14,6 +14,13 @@ void CWorker::Start()
 {
     thread = std::thread(std::bind(&CWorker::Thread, this));
     thread.detach();
+    CV8ScriptRuntime::Instance().AddActiveWorker();
+}
+
+void CWorker::Destroy()
+{
+    shouldTerminate = true;
+    if(isolate && !isPaused) CV8ScriptRuntime::Instance().RemoveActiveWorker();
 }
 
 void CWorker::EmitToWorker(const std::string& eventName, std::vector<V8::Serialization::Value>& args)

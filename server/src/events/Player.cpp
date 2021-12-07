@@ -37,7 +37,7 @@ V8::LocalEventHandler beforePlayerConnect(EventType::PLAYER_BEFORE_CONNECT, "bef
     V8_OBJECT_SET_STD_STRING(infoObj, "branch", info.branch);
     V8_OBJECT_SET_UINT(infoObj, "build", info.build);
     V8_OBJECT_SET_STD_STRING(infoObj, "cdnUrl", info.cdnUrl);
-    V8_OBJECT_SET_STD_STRING(infoObj, "passwordHash", std::to_string(info.passwordHash));
+    V8_OBJECT_SET_BIGUINT(infoObj, "passwordHash", info.passwordHash);
     args.push_back(infoObj);
     args.push_back(V8::JSValue(ev->GetReason()));
 });

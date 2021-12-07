@@ -23,10 +23,7 @@ public:
         if(curTime - lastRun >= interval)
         {
             auto result = CWorker::TryCatch([&] { v8::MaybeLocal<v8::Value> result = callback.Get(isolate)->CallAsFunction(context.Get(isolate), v8::Undefined(isolate), 0, nullptr); });
-            if(!result.empty())
-            {
-                worker->EmitError(result);
-            }
+            if(!result.empty()) worker->EmitError(result);
 
             lastRun = curTime;
 

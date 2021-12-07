@@ -105,6 +105,31 @@ namespace V8
         int line = 0;
     };
 
+    class StackTrace
+    {
+        struct Frame
+        {
+            std::string file;
+            std::string function;
+            int line;
+        };
+        std::vector<Frame> frames;
+        CPersistent<v8::Context> context;
+
+    public:
+        StackTrace(std::vector<Frame>&& frames, v8::Local<v8::Context> ctx);
+
+        const std::vector<Frame>& GetFrames() const
+        {
+            return frames;
+        }
+
+        void Print(uint32_t offset = 0);
+
+        static StackTrace GetCurrent(v8::Isolate* isolate);
+        static void Print(v8::Isolate* isolate);
+    };
+
     struct EventCallback
     {
         v8::UniquePersistent<v8::Function> fn;
@@ -540,6 +565,10 @@ namespace V8
 #define V8_OBJECT_SET_BOOLEAN(v8Val, prop, val) (v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::Boolean::New(isolate, val));
 
 #define V8_OBJECT_GET_STRING(v8Val, prop, val) V8_TO_STRING((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)
+
+#define V8_OBJECT_SET_BIGINT(v8Val, prop, val) (v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::BigInt::New(isolate, val));
+
+#define V8_OBJECT_SET_BIGUINT(v8Val, prop, val) (v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::BigInt::NewFromUnsigned(isolate, val));
 
 // todo: replace with V8_OBJECT_SET_STD_STRING
 #define V8_OBJECT_SET_STRING(v8Val, prop, val) \

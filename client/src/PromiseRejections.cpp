@@ -8,7 +8,7 @@ void V8::PromiseRejections::RejectedWithNoHandler(V8ResourceImpl* resource, v8::
 {
     v8::Isolate* isolate = resource->GetIsolate();
 
-    queue.push_back(std::make_unique<PromiseRejection>(isolate, data.GetPromise(), data.GetValue(), V8::SourceLocation::GetCurrent(isolate)));
+    queue.push_back(std::make_unique<PromiseRejection>(isolate, data.GetPromise(), data.GetValue(), V8::SourceLocation::GetCurrent(isolate), V8::StackTrace::GetCurrent(isolate)));
 }
 
 void V8::PromiseRejections::HandlerAdded(V8ResourceImpl* resource, v8::PromiseRejectMessage& data)
@@ -38,6 +38,7 @@ void V8::PromiseRejections::ProcessQueue(V8ResourceImpl* resource)
         {
             Log::Error << "[V8] Unhandled promise rejection at " << resource->GetResource()->GetName() << ":" << fileName << " (" << rejectionMsg << ")" << Log::Endl;
         }
+        rejection->stackTrace.Print(1);
 
         resource->DispatchErrorEvent(rejectionMsg, fileName, rejection->location.GetLineNumber());
     }
@@ -45,7 +46,7 @@ void V8::PromiseRejections::ProcessQueue(V8ResourceImpl* resource)
     queue.clear();
 }
 
-V8::PromiseRejection::PromiseRejection(v8::Isolate* isolate, v8::Local<v8::Promise> _promise, v8::Local<v8::Value> _value, V8::SourceLocation&& _location)
-    : promise(isolate, _promise), value(isolate, _value), location(std::move(_location))
+V8::PromiseRejection::PromiseRejection(v8::Isolate* isolate, v8::Local<v8::Promise> _promise, v8::Local<v8::Value> _value, V8::SourceLocation&& _location, V8::StackTrace&& _stackTrace)
+    : promise(isolate, _promise), value(isolate, _value), location(std::move(_location)), stackTrace(std::move(_stackTrace))
 {
 }

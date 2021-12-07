@@ -5,6 +5,7 @@
 
 #include "V8ResourceImpl.h"
 #include "IImportHandler.h"
+#include "PromiseRejections.h"
 
 #include <queue>
 
@@ -132,15 +133,12 @@ public:
 
     void AddWorker(CWorker* worker);
     void RemoveWorker(CWorker* worker);
-    size_t GetWorkerCount()
-    {
-        return workers.size();
-    }
 
     void AddWebViewEventToQueue(const alt::Ref<alt::IWebView> view, const alt::String& evName, const alt::MValueArgs& mvArgs)
     {
         webViewsEventsQueue[view].push_back(std::pair(evName, mvArgs));
     }
+
 private:
     using WebViewEvents = std::unordered_multimap<std::string, V8::EventCallback>;
     using WebViewsEventsQueue = std::unordered_map<alt::Ref<alt::IWebView>, std::vector<std::pair<alt::String, alt::MValueArgs>>>;
@@ -166,4 +164,6 @@ private:
 
     std::list<std::function<void()>> dynamicImports;
     friend class CV8ScriptRuntime;
+
+    V8::PromiseRejections promiseRejections;
 };
