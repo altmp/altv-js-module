@@ -86,8 +86,6 @@ void V8ResourceImpl::OnTick()
     {
         if(it->removed) remoteGenericHandlers.erase(it);
     }
-
-    promiseRejections.ProcessQueue(this);
 }
 
 void V8ResourceImpl::BindEntity(v8::Local<v8::Object> val, alt::Ref<alt::IBaseObject> handle)
