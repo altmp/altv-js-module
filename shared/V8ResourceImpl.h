@@ -9,7 +9,6 @@
 
 #include "V8Entity.h"
 #include "V8Timer.h"
-#include "PromiseRejections.h"
 
 class V8ResourceImpl : public alt::IResource::Impl
 {
@@ -260,8 +259,6 @@ protected:
 
     bool vehiclePoolDirty = true;
     v8::UniquePersistent<v8::Array> vehicles;
-
-    V8::PromiseRejections promiseRejections;
 
     V8::CPersistent<v8::Function> vector3Class;
     V8::CPersistent<v8::Function> vector2Class;

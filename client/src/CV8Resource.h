@@ -5,6 +5,7 @@
 
 #include "V8ResourceImpl.h"
 #include "IImportHandler.h"
+#include "PromiseRejections.h"
 
 #include <queue>
 
@@ -163,4 +164,6 @@ private:
 
     std::list<std::function<void()>> dynamicImports;
     friend class CV8ScriptRuntime;
+
+    V8::PromiseRejections promiseRejections;
 };

@@ -391,6 +391,8 @@ void CV8ResourceImpl::OnTick()
     {
         worker->HandleMainEventQueue();
     }
+
+    promiseRejections.ProcessQueue(this);
 }
 
 void CV8ResourceImpl::OnPromiseRejectedWithNoHandler(v8::PromiseRejectMessage& data)
