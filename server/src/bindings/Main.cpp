@@ -135,7 +135,12 @@ static void EmitClientRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     MValueArgs mvArgs;
 
-    for(int i = 2; i < info.Length(); ++i) mvArgs.Push(V8Helpers::V8ToRawBytes(info[i]));
+    for(int i = 2; i < info.Length(); ++i)
+    {
+        alt::MValueByteArray result = V8Helpers::V8ToRawBytes(info[i]);
+        V8_CHECK(!result.IsEmpty(), "Failed to serialize value");
+        mvArgs.Push(result);
+    }
 
     if(info[0]->IsNull())
     {
@@ -182,7 +187,12 @@ static void EmitAllClientsRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     MValueArgs args;
 
-    for(int i = 1; i < info.Length(); ++i) args.Push(V8Helpers::V8ToRawBytes(info[i]));
+    for(int i = 1; i < info.Length(); ++i)
+    {
+        alt::MValueByteArray result = V8Helpers::V8ToRawBytes(info[i]);
+        V8_CHECK(!result.IsEmpty(), "Failed to serialize value");
+        args.Push(result);
+    }
 
     ICore::Instance().TriggerClientEventForAll(eventName, args);
 }

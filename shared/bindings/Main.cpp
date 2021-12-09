@@ -102,7 +102,11 @@ static void EmitRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
         // need to explicitly check for them here
         if(info[i]->IsFunction()) args.Push(V8Helpers::V8ToMValue(info[i]));
         else
-            args.Push(V8Helpers::V8ToRawBytes(info[i]));
+        {
+            alt::MValueByteArray result = V8Helpers::V8ToRawBytes(info[i]);
+            V8_CHECK(!result.IsEmpty(), "Failed to serialize value");
+            args.Push(result);
+        }
     }
 
     alt::ICore::Instance().TriggerLocalEvent(name, args);
