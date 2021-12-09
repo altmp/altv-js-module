@@ -10,6 +10,8 @@
 #include "cpp-sdk/types/MValue.h"
 #include "V8Entity.h"
 
+#include "Serialization.h"
+
 namespace V8Helpers
 {
     inline void Throw(v8::Isolate* isolate, const std::string& msg)
@@ -68,9 +70,6 @@ namespace V8Helpers
     void MValueArgsToV8(alt::MValueArgs args, std::vector<v8::Local<v8::Value>>& v8Args);
 
     void SetAccessor(v8::Local<v8::Template> tpl, v8::Isolate* isolate, const char* name, v8::AccessorGetterCallback getter, v8::AccessorSetterCallback setter = nullptr);
-
-    alt::MValueByteArray V8ToRawBytes(v8::Local<v8::Value> val);
-    v8::MaybeLocal<v8::Value> RawBytesToV8(alt::MValueByteArrayConst bytes);
 
 };  // namespace V8Helpers
 
