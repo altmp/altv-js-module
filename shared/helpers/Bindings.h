@@ -5,28 +5,6 @@
 
 namespace V8Helpers
 {
-    class Binding
-    {
-    public:
-        using Callback = std::function<void(v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports)>;
-
-        Binding(Callback&& fn)
-        {
-            All().push_back(std::move(fn));
-        }
-
-        static std::vector<Callback>& All()
-        {
-            static std::vector<Callback> _All;
-            return _All;
-        }
-
-        static void RegisterAll(v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports)
-        {
-            for(auto& binding : All()) binding(ctx, exports);
-        }
-    };
-
     void RegisterFunc(v8::Local<v8::Object> exports, const std::string& _name, v8::FunctionCallback cb, void* data = nullptr);
 
     void FunctionCallback(const v8::FunctionCallbackInfo<v8::Value>& info);
