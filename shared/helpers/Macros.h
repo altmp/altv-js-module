@@ -279,4 +279,4 @@
     V8_LOCAL_EVENT_HANDLER name;               \
     name.Reference();
 
-#define V8_DEPRECATE(oldName, newName) Log::Warning << oldName << " is deprecated and will be removed in future versions. Consider using " << newName << Log::Endl;
+#define V8_DEPRECATE(oldName, newName) Log::Warning << oldName << " is deprecated and will be removed in future versions. Consider using " << newName << " instead" << Log::Endl;
