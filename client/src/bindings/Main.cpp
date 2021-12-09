@@ -92,7 +92,12 @@ static void EmitServerRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     alt::MValueArgs args;
 
-    for(int i = 1; i < info.Length(); ++i) args.Push(V8Helpers::V8ToRawBytes(info[i]));
+    for(int i = 1; i < info.Length(); ++i)
+    {
+        alt::MValueByteArray result = V8Helpers::V8ToRawBytes(info[i]);
+        V8_CHECK(!result.IsEmpty(), "Failed to serialize value");
+        args.Push(result);
+    }
 
     alt::ICore::Instance().TriggerServerEvent(eventName.ToString(), args);
 }
