@@ -195,8 +195,6 @@ v8::MaybeLocal<v8::Value> V8Helpers::RawBytesToV8(alt::MValueByteArrayConst rawB
 
 void V8Helpers::SerializerDelegate::ThrowDataCloneError(v8::Local<v8::String> message)
 {
-    Log::Warning << __FUNCTION__ << " "
-                 << "" << Log::Endl;
     if(message.IsEmpty()) return;
     std::string messageStr = *v8::String::Utf8Value(v8::Isolate::GetCurrent(), message);
     if(messageStr.empty()) return;
