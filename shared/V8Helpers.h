@@ -10,8 +10,8 @@
 #include "cpp-sdk/types/MValue.h"
 #include "V8Entity.h"
 
-#include "Serialization.h"
-#include "Convert.h"
+#include "helpers/Serialization.h"
+#include "helpers/Convert.h"
 
 namespace V8Helpers
 {
