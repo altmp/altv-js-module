@@ -1,5 +1,6 @@
 #include "Serialization.h"
 #include "V8ResourceImpl.h"
+#include "Bindings.h"
 
 alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
 {
