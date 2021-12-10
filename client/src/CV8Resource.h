@@ -134,9 +134,19 @@ public:
     void AddWorker(CWorker* worker);
     void RemoveWorker(CWorker* worker);
 
-    void AddWebViewEventToQueue(const alt::Ref<alt::IWebView> view, const alt::String& evName, const alt::MValueArgs& mvArgs)
+    void InitWebViewEventQueue(const alt::Ref<alt::IWebView> view)
     {
-        webViewsEventsQueue[view].push_back(std::pair(evName, mvArgs));
+        webViewsEventsQueue[view] = {};
+    }
+    bool TryAddWebViewEventToQueue(const alt::Ref<alt::IWebView> view, const alt::String& evName, const alt::MValueArgs& mvArgs)
+    {
+        auto eventQueue = webViewsEventsQueue.find(view);
+        if (eventQueue != webViewsEventsQueue.end())
+        {
+            eventQueue->second.emplace_back(evName, mvArgs);
+            return true;
+        }
+        return false;
     }
 
 private:
@@ -148,10 +158,6 @@ private:
     std::unordered_map<alt::Ref<alt::IAudio>, WebViewEvents> audioHandlers;
 
     WebViewsEventsQueue webViewsEventsQueue;
-    WebViewsEventsQueue& GetWebviewsEventQueue()
-    {
-        return webViewsEventsQueue;
-    }
     void HandleWebViewEventQueue(const alt::Ref<alt::IWebView> view);
 
     std::unordered_set<alt::Ref<alt::IBaseObject>> ownedObjects;
