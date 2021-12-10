@@ -17,7 +17,10 @@ namespace V8Helpers
     public:
         void ThrowDataCloneError(v8::Local<v8::String> message) override;
     };
+}  // namespace V8Helpers
 
+namespace V8
+{
     namespace Serialization
     {
         // A serialized JavaScript value
@@ -83,4 +86,4 @@ namespace V8Helpers
             return result;
         }
     }  // namespace Serialization
-}  // namespace V8Helpers
+}  // namespace V8
