@@ -1,6 +1,7 @@
 cmake_minimum_required (VERSION 3.19)
 include(cmake/GitUtils.cmake)
 include(FetchContent)
+include(cmake/DepsDownload.cmake)
 
 project(altv-client-js)
 
@@ -10,55 +11,7 @@ set(ALTV_JS_DEPS_DIR ${PROJECT_SOURCE_DIR}/deps)
 # v8
 message("alt:V JS - Fetching v8 deps, can take a while")
 
-set(__deps_release_lib "${ALTV_JS_DEPS_DIR}/v8/lib/Release/v8_monolith.lib")
-set(__deps_debug_lib "${ALTV_JS_DEPS_DIR}/v8/lib/Debug/v8_monolith.lib")
-set(__deps_headers "${ALTV_JS_DEPS_DIR}/v8/include/headers.zip")
-set(__deps_update_file "${ALTV_JS_DEPS_DIR}/v8/update.json")
-
-# Set this to false, when using a custom v8 build for testing
-set(__deps_check_enabled true)
-
-if(__deps_check_enabled)
-  file(DOWNLOAD "https://cdn.altv.mp/deps/v8/dev/update.json" ${__deps_update_file})
-  file(READ ${__deps_update_file} __deps_update_json)
-  string(JSON __deps_hashes GET ${__deps_update_json} hashList)
-  file(REMOVE ${__deps_update_file})
-
-  if(EXISTS ${__deps_release_lib})
-      file(SHA1 ${__deps_release_lib} __deps_release_checksum)
-  else()
-      set(__deps_release_checksum 0)
-  endif()
-  string(JSON __deps_release_checksum_cdn GET ${__deps_hashes} v8_monolith.lib)
-  if(NOT ${__deps_release_checksum} STREQUAL ${__deps_release_checksum_cdn})
-      message("Downloading release binary...")
-      file(DOWNLOAD "https://cdn.altv.mp/deps/v8/dev/v8_monolith.lib" ${__deps_release_lib})
-  endif()
-
-  if(EXISTS ${__deps_debug_lib})
-      file(SHA1 ${__deps_debug_lib} __deps_debug_checksum)
-  else()
-      set(__deps_debug_checksum 0)
-  endif()
-  string(JSON __deps_debug_checksum_cdn GET ${__deps_hashes} v8_monolithd.lib)
-  if(NOT ${__deps_debug_checksum} STREQUAL ${__deps_debug_checksum_cdn})
-      message("Downloading debug binary...")
-      file(DOWNLOAD "https://cdn.altv.mp/deps/v8/dev/v8_monolithd.lib" ${__deps_debug_lib})
-  endif()
-
-  if(EXISTS ${__deps_headers})
-      file(SHA1 ${__deps_headers} __deps_headers_checksum)
-  else()
-      set(__deps_headers_checksum 0)
-  endif()
-  string(JSON __deps_headers_checksum_cdn GET ${__deps_hashes} headers.zip)
-  if(NOT ${__deps_headers_checksum} STREQUAL ${__deps_headers_checksum_cdn})
-      message("Downloading headers...")
-      file(DOWNLOAD "https://cdn.altv.mp/deps/v8/dev/headers.zip" ${__deps_headers})
-      message("Extracting headers...")
-      file(ARCHIVE_EXTRACT INPUT ${__deps_headers} DESTINATION "${ALTV_JS_DEPS_DIR}")
-  endif()
-endif()
+DownloadDeps(${ALTV_JS_DEPS_DIR})
 
 # cpp-sdk
 if(NOT ALTV_JS_CPP_SDK)

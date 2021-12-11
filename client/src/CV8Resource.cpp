@@ -142,6 +142,8 @@ bool CV8ResourceImpl::Start()
         alt::MValue _exports = V8Helpers::V8ToMValue(curModule->GetModuleNamespace());
         resource->SetExports(_exports.As<alt::IMValueDict>());
 
+        if(curModule->IsGraphAsync()) Log::Warning << "[V8] Top level await is an experimental feature, use it at your own risk" << Log::Endl;
+
         Log::Info << "[V8] Started script " << path << Log::Endl;
         return true;
     });
@@ -295,8 +297,7 @@ bool CV8ResourceImpl::OnEvent(const alt::CEvent* e)
         if(e->GetType() == alt::CEvent::Type::WEB_VIEW_EVENT)
         {
             auto ev = static_cast<const alt::CWebViewEvent*>(e);
-            if (ev->GetName() == "load")
-                HandleWebViewEventQueue(ev->GetTarget());
+            if(ev->GetName() == "load") HandleWebViewEventQueue(ev->GetTarget());
         }
     }
 
@@ -390,6 +391,8 @@ void CV8ResourceImpl::OnTick()
     {
         worker->HandleMainEventQueue();
     }
+
+    promiseRejections.ProcessQueue(this);
 }
 
 void CV8ResourceImpl::OnPromiseRejectedWithNoHandler(v8::PromiseRejectMessage& data)
@@ -415,12 +418,12 @@ void CV8ResourceImpl::RemoveWorker(CWorker* worker)
 void CV8ResourceImpl::HandleWebViewEventQueue(const alt::Ref<alt::IWebView> view)
 {
     auto& eventQueuesMap = this->GetWebviewsEventQueue();
-    if (!eventQueuesMap.count(view)) return;
+    if(!eventQueuesMap.count(view)) return;
 
     auto& eventQueue = eventQueuesMap.at(view);
-    if (eventQueue.empty()) return;
+    if(eventQueue.empty()) return;
 
-    for (auto& [evName, mvArgs] : eventQueue)
+    for(auto& [evName, mvArgs] : eventQueue)
     {
         view->Trigger(evName, mvArgs);
     }
