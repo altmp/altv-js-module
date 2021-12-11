@@ -4,10 +4,11 @@
 #include "V8Entity.h"
 #include "V8ResourceImpl.h"
 #include "../CV8Resource.h"
+#include "../CV8ScriptRuntime.h"
 
 #include "../workers/CWorker.h"
 
-static constexpr int MAX_WORKERS_PER_RESOURCE = 10;
+static constexpr uint32_t MAX_WORKERS = 10;
 
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
@@ -16,8 +17,6 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(1);
 
     V8_ARG_TO_STRING(1, path);
-
-    V8_CHECK(static_cast<CV8ResourceImpl*>(resource)->GetWorkerCount() < MAX_WORKERS_PER_RESOURCE, "Maximum amount of workers per resource reached");
 
     alt::String origin = V8::GetCurrentSourceOrigin(isolate);
     auto worker = new CWorker(path, origin, static_cast<CV8ResourceImpl*>(resource));
@@ -60,6 +59,7 @@ static void Start(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK(worker, "Worker is invalid");
 
     V8_CHECK(!worker->IsReady(), "Worker is already started");
+    V8_CHECK(CV8ScriptRuntime::Instance().GetActiveWorkerCount() < MAX_WORKERS, "Maximum amount of running workers reached");
     worker->Start();
 }
 
@@ -138,23 +138,24 @@ static void IsPausedGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo
 static void Pause(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_CHECK_ARGS_LEN(2);
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, worker, CWorker);
     V8_CHECK(worker, "Worker is invalid");
 
     V8_CHECK(!worker->IsPaused(), "The worker is already paused");
     worker->Pause();
+    CV8ScriptRuntime::Instance().RemoveActiveWorker();
 }
 
 static void Resume(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_CHECK_ARGS_LEN(2);
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, worker, CWorker);
     V8_CHECK(worker, "Worker is invalid");
 
     V8_CHECK(worker->IsPaused(), "The worker is not paused");
+    V8_CHECK(CV8ScriptRuntime::Instance().GetActiveWorkerCount() < MAX_WORKERS, "Maximum amount of running workers reached");
     worker->Resume();
+    CV8ScriptRuntime::Instance().AddActiveWorker();
 }
 
 static void AddSharedArrayBuffer(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -180,11 +181,18 @@ static void RemoveSharedArrayBuffer(const v8::FunctionCallbackInfo<v8::Value>& i
     V8_CHECK(result, "Invalid shared array buffer index");
 }
 
+static void ActiveWorkersGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE();
+    V8_RETURN(CV8ScriptRuntime::Instance().GetActiveWorkerCount());
+}
+
 extern V8Class v8Worker("Worker", &Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
     tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
-    tpl->Set(V8::JSValue("maxWorkers"), V8::JSValue(MAX_WORKERS_PER_RESOURCE), v8::PropertyAttribute::ReadOnly);
+    tpl->Set(V8::JSValue("maxWorkers"), V8::JSValue(MAX_WORKERS), v8::PropertyAttribute::ReadOnly);
+    V8::SetStaticAccessor(isolate, tpl, "activeWorkers", &ActiveWorkersGetter);
 
     V8::SetStaticMethod(isolate, tpl, "addSharedArrayBuffer", AddSharedArrayBuffer);
     V8::SetStaticMethod(isolate, tpl, "removeSharedArrayBuffer", RemoveSharedArrayBuffer);

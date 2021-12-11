@@ -28,14 +28,9 @@ void WorkerPromiseRejections::ProcessQueue(CWorker* worker)
         std::ostringstream errStream;
         std::string rejectionMsg = *v8::String::Utf8Value(isolate, rejection->value.Get(isolate)->ToString(ctx).ToLocalChecked());
         auto fileName = rejection->location.GetFileName();
-        if(rejection->location.GetLineNumber() != 0)
-        {
-            errStream << "Unhandled promise rejection at " << fileName << ":" << rejection->location.GetLineNumber() << " (" << rejectionMsg << ")";
-        }
+        if(rejection->location.GetLineNumber() != 0) errStream << "Unhandled promise rejection at " << fileName << ":" << rejection->location.GetLineNumber() << " (" << rejectionMsg << ")";
         else
-        {
             errStream << "Unhandled promise rejection at " << fileName << " (" << rejectionMsg << ")";
-        }
 
         worker->EmitError(errStream.str());
     }
