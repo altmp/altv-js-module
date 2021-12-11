@@ -274,8 +274,7 @@ alt::MValueByteArray V8Helpers::V8ToRawBytes(v8::Local<v8::Value> val)
     RawValueType type = GetValueType(ctx, val);
     if(type == RawValueType::INVALID) return alt::MValueByteArray();
 
-    std::unique_ptr<SerializerDelegate> delegate = std::make_unique<SerializerDelegate>();
-    v8::ValueSerializer serializer(isolate, delegate.get());
+    v8::ValueSerializer serializer(isolate);
     serializer.WriteHeader();
     serializer.WriteRawBytes(&type, sizeof(uint8_t));
 
@@ -427,12 +426,4 @@ v8::MaybeLocal<v8::Value> V8Helpers::RawBytesToV8(alt::MValueByteArrayConst rawB
     }
 
     return result;
-}
-
-void V8Helpers::SerializerDelegate::ThrowDataCloneError(v8::Local<v8::String> message)
-{
-    if(message.IsEmpty()) return;
-    std::string messageStr = *v8::String::Utf8Value(v8::Isolate::GetCurrent(), message);
-    if(messageStr.empty()) return;
-    Log::Error << "[V8] Serialization error: " << messageStr << Log::Endl;
 }
