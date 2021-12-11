@@ -3,6 +3,8 @@
 #include "v8.h"
 #include "cpp-sdk/ICore.h"
 
+#include "V8Entity.h"
+
 namespace V8
 {
     bool SafeToBoolean(v8::Local<v8::Value> val, v8::Isolate* isolate, bool& out);
