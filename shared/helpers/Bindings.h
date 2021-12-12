@@ -11,10 +11,6 @@ namespace V8Helpers
 
     void SetAccessor(v8::Local<v8::Template> tpl, v8::Isolate* isolate, const char* name, v8::AccessorGetterCallback getter, v8::AccessorSetterCallback setter = nullptr);
 
-}  // namespace V8Helpers
-
-namespace V8
-{
     void DefineOwnProperty(v8::Isolate* isolate,
                            v8::Local<v8::Context> ctx,
                            v8::Local<v8::Object> val,
@@ -38,4 +34,4 @@ namespace V8
     void SetStaticMethod(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> tpl, const char* name, v8::FunctionCallback callback);
 
     void SetFunction(v8::Isolate* isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Object> target, const char* name, v8::FunctionCallback cb, void* userData = nullptr);
-}  // namespace V8
+}  // namespace V8Helpers

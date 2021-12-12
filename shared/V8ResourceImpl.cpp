@@ -103,23 +103,23 @@ v8::Local<v8::Value> V8ResourceImpl::GetBaseObjectOrNull(alt::IBaseObject* handl
 
 v8::Local<v8::Value> V8ResourceImpl::CreateVector3(alt::Vector3f vec)
 {
-    std::vector<v8::Local<v8::Value>> args{ V8::JSValue(vec[0]), V8::JSValue(vec[1]), V8::JSValue(vec[2]) };
+    std::vector<v8::Local<v8::Value>> args{ V8Helpers::JSValue(vec[0]), V8Helpers::JSValue(vec[1]), V8Helpers::JSValue(vec[2]) };
 
     return v8Vector3.CreateInstance(isolate, GetContext(), args);
 }
 
 v8::Local<v8::Value> V8ResourceImpl::CreateVector2(alt::Vector2f vec)
 {
-    std::vector<v8::Local<v8::Value>> args{ V8::JSValue(vec[0]), V8::JSValue(vec[1]) };
+    std::vector<v8::Local<v8::Value>> args{ V8Helpers::JSValue(vec[0]), V8Helpers::JSValue(vec[1]) };
 
     return v8Vector2.CreateInstance(isolate, GetContext(), args);
 }
 
 v8::Local<v8::Value> V8ResourceImpl::CreateRGBA(alt::RGBA rgba)
 {
-    std::vector<v8::Local<v8::Value>> args{ V8::JSValue(rgba.r), V8::JSValue(rgba.g), V8::JSValue(rgba.b), V8::JSValue(rgba.a) };
+    std::vector<v8::Local<v8::Value>> args{ V8Helpers::JSValue(rgba.r), V8Helpers::JSValue(rgba.g), V8Helpers::JSValue(rgba.b), V8Helpers::JSValue(rgba.a) };
 
-    return V8::New(isolate, GetContext(), rgbaClass.Get(isolate), args);
+    return V8Helpers::New(isolate, GetContext(), rgbaClass.Get(isolate), args);
 }
 
 bool V8ResourceImpl::IsVector3(v8::Local<v8::Value> val)
@@ -242,9 +242,9 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllVehicles()
     return vehicles.Get(isolate);
 }
 
-std::vector<V8::EventCallback*> V8ResourceImpl::GetLocalHandlers(const std::string& name)
+std::vector<V8Helpers::EventCallback*> V8ResourceImpl::GetLocalHandlers(const std::string& name)
 {
-    std::vector<V8::EventCallback*> handlers;
+    std::vector<V8Helpers::EventCallback*> handlers;
     auto range = localHandlers.equal_range(name);
 
     for(auto it = range.first; it != range.second; ++it) handlers.push_back(&it->second);
@@ -252,9 +252,9 @@ std::vector<V8::EventCallback*> V8ResourceImpl::GetLocalHandlers(const std::stri
     return handlers;
 }
 
-std::vector<V8::EventCallback*> V8ResourceImpl::GetRemoteHandlers(const std::string& name)
+std::vector<V8Helpers::EventCallback*> V8ResourceImpl::GetRemoteHandlers(const std::string& name)
 {
-    std::vector<V8::EventCallback*> handlers;
+    std::vector<V8Helpers::EventCallback*> handlers;
     auto range = remoteHandlers.equal_range(name);
 
     for(auto it = range.first; it != range.second; ++it) handlers.push_back(&it->second);
@@ -262,9 +262,9 @@ std::vector<V8::EventCallback*> V8ResourceImpl::GetRemoteHandlers(const std::str
     return handlers;
 }
 
-std::vector<V8::EventCallback*> V8ResourceImpl::GetGenericHandlers(bool local)
+std::vector<V8Helpers::EventCallback*> V8ResourceImpl::GetGenericHandlers(bool local)
 {
-    std::vector<V8::EventCallback*> handlers;
+    std::vector<V8Helpers::EventCallback*> handlers;
     if(local)
         for(auto& it : localGenericHandlers) handlers.push_back(&it);
     else
@@ -272,7 +272,7 @@ std::vector<V8::EventCallback*> V8ResourceImpl::GetGenericHandlers(bool local)
     return handlers;
 }
 
-void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vector<V8::EventCallback*>& handlers, std::vector<v8::Local<v8::Value>>& args)
+void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vector<V8Helpers::EventCallback*>& handlers, std::vector<v8::Local<v8::Value>>& args)
 {
     for(auto handler : handlers)
     {

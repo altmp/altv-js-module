@@ -15,6 +15,8 @@
 #include "helpers/Macros.h"
 #include "helpers/Bindings.h"
 
+class V8ResourceImpl;
+
 namespace V8Helpers
 {
     inline void Throw(v8::Isolate* isolate, const std::string& msg)
@@ -40,12 +42,6 @@ namespace V8Helpers
         }
     };
 
-};  // namespace V8Helpers
-
-class V8ResourceImpl;
-
-namespace V8
-{
     template<typename T>
     using CPersistent = v8::Persistent<T, v8::CopyablePersistentTraits<T>>;
 
@@ -119,7 +115,7 @@ namespace V8
         // Temp issue fix for https://stackoverflow.com/questions/9459980/c-global-variable-not-initialized-when-linked-through-static-libraries-but-ok
         void Reference();
 
-        std::vector<V8::EventCallback*> GetCallbacks(V8ResourceImpl* impl, const alt::CEvent* e);
+        std::vector<V8Helpers::EventCallback*> GetCallbacks(V8ResourceImpl* impl, const alt::CEvent* e);
         std::vector<v8::Local<v8::Value>> GetArgs(V8ResourceImpl* impl, const alt::CEvent* e);
 
         static EventHandler* Get(const alt::CEvent* e);
@@ -185,4 +181,4 @@ namespace V8
         return *v8::String::Utf8Value(isolate, stackTrace->GetFrame(isolate, 0)->GetScriptName());
     }
 
-}  // namespace V8
+}  // namespace V8Helpers

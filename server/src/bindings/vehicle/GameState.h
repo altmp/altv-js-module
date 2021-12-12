@@ -1,6 +1,6 @@
 #pragma once
 
-namespace V8::Vehicle
+namespace V8Helpers::Vehicle
 {
     void SetDoorState(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
@@ -66,4 +66,4 @@ namespace V8::Vehicle
 
         V8_RETURN_STRING(vehicle->GetGameStateBase64().CStr());
     }
-}  // namespace V8::Vehicle
+}  // namespace V8Helpers::Vehicle

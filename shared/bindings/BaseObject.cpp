@@ -98,14 +98,14 @@ extern V8Class v8BaseObject("BaseObject", [](v8::Local<v8::FunctionTemplate> tpl
 
     tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
-    V8::SetAccessor<IBaseObject, IBaseObject::Type, &IBaseObject::GetType>(isolate, tpl, "type");
-    V8::SetAccessor(isolate, tpl, "valid", &ValidGetter);
+    V8Helpers::SetAccessor<IBaseObject, IBaseObject::Type, &IBaseObject::GetType>(isolate, tpl, "type");
+    V8Helpers::SetAccessor(isolate, tpl, "valid", &ValidGetter);
 
-    V8::SetMethod(isolate, tpl, "hasMeta", HasMeta);
-    V8::SetMethod(isolate, tpl, "getMeta", GetMeta);
-    V8::SetMethod(isolate, tpl, "setMeta", SetMeta);
-    V8::SetMethod(isolate, tpl, "deleteMeta", DeleteMeta);
-    V8::SetMethod(isolate, tpl, "destroy", Destroy);
+    V8Helpers::SetMethod(isolate, tpl, "hasMeta", HasMeta);
+    V8Helpers::SetMethod(isolate, tpl, "getMeta", GetMeta);
+    V8Helpers::SetMethod(isolate, tpl, "setMeta", SetMeta);
+    V8Helpers::SetMethod(isolate, tpl, "deleteMeta", DeleteMeta);
+    V8Helpers::SetMethod(isolate, tpl, "destroy", Destroy);
 
-    V8::SetAccessor(isolate, tpl, "refCount", RefCountGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "refCount", RefCountGetter);
 });

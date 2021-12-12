@@ -73,12 +73,12 @@ bool CNodeResourceImpl::Start()
 
     v8::Local<v8::ObjectTemplate> global = v8::ObjectTemplate::New(isolate);
 
-    v8::Local<v8::String> resourceName = V8::JSValue(resource->GetName());
+    v8::Local<v8::String> resourceName = V8Helpers::JSValue(resource->GetName());
 
     v8::Local<v8::Context> _context = node::NewContext(isolate, global);
     v8::Context::Scope scope(_context);
 
-    _context->Global()->Set(_context, V8::JSValue("__resourceLoaded"), v8::Function::New(_context, &ResourceLoaded).ToLocalChecked());
+    _context->Global()->Set(_context, V8Helpers::JSValue("__resourceLoaded"), v8::Function::New(_context, &ResourceLoaded).ToLocalChecked());
 
     _context->SetAlignedPointerInEmbedderData(1, resource);
     context.Reset(isolate, _context);
@@ -165,7 +165,7 @@ bool CNodeResourceImpl::OnEvent(const alt::CEvent* e)
     v8::Context::Scope scope(GetContext());
     // env->PushAsyncCallbackScope();
 
-    V8::EventHandler* handler = V8::EventHandler::Get(e);
+    V8Helpers::EventHandler* handler = V8Helpers::EventHandler::Get(e);
     if(!handler) return true;
 
     // Generic event handler
@@ -173,7 +173,7 @@ bool CNodeResourceImpl::OnEvent(const alt::CEvent* e)
         auto evType = e->GetType();
         if(evType == alt::CEvent::Type::CLIENT_SCRIPT_EVENT || evType == alt::CEvent::Type::SERVER_SCRIPT_EVENT)
         {
-            std::vector<V8::EventCallback*> callbacks;
+            std::vector<V8Helpers::EventCallback*> callbacks;
             const char* eventName;
 
             if(evType == alt::CEvent::Type::SERVER_SCRIPT_EVENT)
@@ -190,7 +190,7 @@ bool CNodeResourceImpl::OnEvent(const alt::CEvent* e)
             if(callbacks.size() != 0)
             {
                 auto evArgs = handler->GetArgs(this, e);
-                evArgs.insert(evArgs.begin(), V8::JSValue(eventName));
+                evArgs.insert(evArgs.begin(), V8Helpers::JSValue(eventName));
 
                 node::CallbackScope callbackScope(isolate, asyncResource.Get(isolate), asyncContext);
                 InvokeEventHandlers(e, callbacks, evArgs);
@@ -198,7 +198,7 @@ bool CNodeResourceImpl::OnEvent(const alt::CEvent* e)
         }
     }
 
-    std::vector<V8::EventCallback*> callbacks = handler->GetCallbacks(this, e);
+    std::vector<V8Helpers::EventCallback*> callbacks = handler->GetCallbacks(this, e);
     if(callbacks.size() > 0)
     {
         std::vector<v8::Local<v8::Value>> args = handler->GetArgs(this, e);

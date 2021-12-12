@@ -52,6 +52,6 @@ V8_LOCAL_EVENT_HANDLER taskChange(EventType::TASK_CHANGE, "taskChange", [](V8Res
     auto ev = static_cast<const alt::CTaskChangeEvent*>(e);
     v8::Isolate* isolate = resource->GetIsolate();
 
-    args.push_back(V8::JSValue(ev->GetOldTask()));
-    args.push_back(V8::JSValue(ev->GetNewTask()));
+    args.push_back(V8Helpers::JSValue(ev->GetOldTask()));
+    args.push_back(V8Helpers::JSValue(ev->GetNewTask()));
 });

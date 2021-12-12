@@ -47,7 +47,7 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
         {
             if(!allowFunction)
             {
-                Log::Error << V8::SourceLocation::GetCurrent(isolate).ToString() << " "
+                Log::Error << V8Helpers::SourceLocation::GetCurrent(isolate).ToString() << " "
                            << "Cannot convert function to MValue" << Log::Endl;
                 return core.CreateMValueNone();
             }
@@ -75,7 +75,7 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
 
                 if(!maybeKey.ToLocal(&key)) continue;
                 if(!maybeValue.ToLocal(&value)) continue;
-                alt::String keyString = V8::Stringify(ctx, val);
+                alt::String keyString = V8Helpers::Stringify(ctx, val);
                 if(keyString.IsEmpty()) continue;
                 dict->Set(keyString, V8ToMValue(value, false));
             }
@@ -90,27 +90,27 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
             if(resource->IsVector3(v8Obj))
             {
                 v8::Local<v8::Value> x, y, z;
-                V8_CHECK_RETN(v8Obj->Get(ctx, V8::Vector3_XKey(isolate)).ToLocal(&x), "Failed to convert Vector3 to MValue", core.CreateMValueNil());
-                V8_CHECK_RETN(v8Obj->Get(ctx, V8::Vector3_YKey(isolate)).ToLocal(&y), "Failed to convert Vector3 to MValue", core.CreateMValueNil());
-                V8_CHECK_RETN(v8Obj->Get(ctx, V8::Vector3_ZKey(isolate)).ToLocal(&z), "Failed to convert Vector3 to MValue", core.CreateMValueNil());
+                V8_CHECK_RETN(v8Obj->Get(ctx, V8Helpers::Vector3_XKey(isolate)).ToLocal(&x), "Failed to convert Vector3 to MValue", core.CreateMValueNil());
+                V8_CHECK_RETN(v8Obj->Get(ctx, V8Helpers::Vector3_YKey(isolate)).ToLocal(&y), "Failed to convert Vector3 to MValue", core.CreateMValueNil());
+                V8_CHECK_RETN(v8Obj->Get(ctx, V8Helpers::Vector3_ZKey(isolate)).ToLocal(&z), "Failed to convert Vector3 to MValue", core.CreateMValueNil());
 
                 return core.CreateMValueVector3(alt::Vector3f{ x.As<v8::Number>()->Value(), y.As<v8::Number>()->Value(), z.As<v8::Number>()->Value() });
             }
             else if(resource->IsVector2(v8Obj))
             {
                 v8::Local<v8::Value> x, y;
-                V8_CHECK_RETN(v8Obj->Get(ctx, V8::Vector3_XKey(isolate)).ToLocal(&x), "Failed to convert Vector2 to MValue", core.CreateMValueNil());
-                V8_CHECK_RETN(v8Obj->Get(ctx, V8::Vector3_YKey(isolate)).ToLocal(&y), "Failed to convert Vector2 to MValue", core.CreateMValueNil());
+                V8_CHECK_RETN(v8Obj->Get(ctx, V8Helpers::Vector3_XKey(isolate)).ToLocal(&x), "Failed to convert Vector2 to MValue", core.CreateMValueNil());
+                V8_CHECK_RETN(v8Obj->Get(ctx, V8Helpers::Vector3_YKey(isolate)).ToLocal(&y), "Failed to convert Vector2 to MValue", core.CreateMValueNil());
 
                 return core.CreateMValueVector2(alt::Vector2f{ x.As<v8::Number>()->Value(), y.As<v8::Number>()->Value() });
             }
             else if(resource->IsRGBA(v8Obj))
             {
                 v8::Local<v8::Value> r, g, b, a;
-                V8_CHECK_RETN(v8Obj->Get(ctx, V8::RGBA_RKey(isolate)).ToLocal(&r), "Failed to convert RGBA to MValue", core.CreateMValueNil());
-                V8_CHECK_RETN(v8Obj->Get(ctx, V8::RGBA_GKey(isolate)).ToLocal(&g), "Failed to convert RGBA to MValue", core.CreateMValueNil());
-                V8_CHECK_RETN(v8Obj->Get(ctx, V8::RGBA_BKey(isolate)).ToLocal(&b), "Failed to convert RGBA to MValue", core.CreateMValueNil());
-                V8_CHECK_RETN(v8Obj->Get(ctx, V8::RGBA_AKey(isolate)).ToLocal(&a), "Failed to convert RGBA to MValue", core.CreateMValueNil());
+                V8_CHECK_RETN(v8Obj->Get(ctx, V8Helpers::RGBA_RKey(isolate)).ToLocal(&r), "Failed to convert RGBA to MValue", core.CreateMValueNil());
+                V8_CHECK_RETN(v8Obj->Get(ctx, V8Helpers::RGBA_GKey(isolate)).ToLocal(&g), "Failed to convert RGBA to MValue", core.CreateMValueNil());
+                V8_CHECK_RETN(v8Obj->Get(ctx, V8Helpers::RGBA_BKey(isolate)).ToLocal(&b), "Failed to convert RGBA to MValue", core.CreateMValueNil());
+                V8_CHECK_RETN(v8Obj->Get(ctx, V8Helpers::RGBA_AKey(isolate)).ToLocal(&a), "Failed to convert RGBA to MValue", core.CreateMValueNil());
 
                 return core.CreateMValueRGBA(
                   alt::RGBA{ (uint8_t)r.As<v8::Number>()->Value(), (uint8_t)g.As<v8::Number>()->Value(), (uint8_t)b.As<v8::Number>()->Value(), (uint8_t)a.As<v8::Number>()->Value() });
@@ -157,26 +157,26 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
     switch(val->GetType())
     {
         case alt::IMValue::Type::NONE: return v8::Undefined(isolate);
-        case alt::IMValue::Type::NIL: return V8::JSValue(nullptr);
-        case alt::IMValue::Type::BOOL: return V8::JSValue(val.As<alt::IMValueBool>()->Value());
+        case alt::IMValue::Type::NIL: return V8Helpers::JSValue(nullptr);
+        case alt::IMValue::Type::BOOL: return V8Helpers::JSValue(val.As<alt::IMValueBool>()->Value());
         case alt::IMValue::Type::INT:
         {
             int64_t _val = val.As<alt::IMValueInt>()->Value();
 
-            if(_val >= INT_MIN && _val <= INT_MAX) return V8::JSValue((int32_t)_val);
+            if(_val >= INT_MIN && _val <= INT_MAX) return V8Helpers::JSValue((int32_t)_val);
 
-            return V8::JSValue(_val);
+            return V8Helpers::JSValue(_val);
         }
         case alt::IMValue::Type::UINT:
         {
             uint64_t _val = val.As<alt::IMValueUInt>()->Value();
 
-            if(_val <= UINT_MAX) return V8::JSValue((uint32_t)_val);
+            if(_val <= UINT_MAX) return V8Helpers::JSValue((uint32_t)_val);
 
-            return V8::JSValue(_val);
+            return V8Helpers::JSValue(_val);
         }
-        case alt::IMValue::Type::DOUBLE: return V8::JSValue(val.As<alt::IMValueDouble>()->Value());
-        case alt::IMValue::Type::STRING: return V8::JSValue(val.As<alt::IMValueString>()->Value());
+        case alt::IMValue::Type::DOUBLE: return V8Helpers::JSValue(val.As<alt::IMValueDouble>()->Value());
+        case alt::IMValue::Type::STRING: return V8Helpers::JSValue(val.As<alt::IMValueString>()->Value());
         case alt::IMValue::Type::LIST:
         {
             alt::MValueListConst list = val.As<alt::IMValueList>();
@@ -193,7 +193,7 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
 
             for(auto it = dict->Begin(); it; it = dict->Next())
             {
-                v8Obj->Set(ctx, V8::JSValue(it->GetKey()), MValueToV8(it->GetValue()));
+                v8Obj->Set(ctx, V8Helpers::JSValue(it->GetKey()), MValueToV8(it->GetValue()));
             }
 
             return v8Obj;
@@ -226,7 +226,7 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
             std::memcpy(v8Buffer->GetBackingStore()->Data(), buffer->GetData(), buffer->GetSize());
             return v8Buffer;
         }
-        default: Log::Warning << "V8::MValueToV8 Unknown MValue type " << (int)val->GetType() << Log::Endl;
+        default: Log::Warning << "V8Helpers::MValueToV8 Unknown MValue type " << (int)val->GetType() << Log::Endl;
     }
 
     return v8::Undefined(isolate);
@@ -297,7 +297,7 @@ alt::MValueByteArray V8Helpers::V8ToRawBytes(v8::Local<v8::Value> val)
         case RawValueType::VECTOR3:
         {
             alt::Vector3f vec;
-            if(!V8::SafeToVector3(val, ctx, vec)) return alt::MValueByteArray();
+            if(!V8Helpers::SafeToVector3(val, ctx, vec)) return alt::MValueByteArray();
             float x = vec[0];
             float y = vec[1];
             float z = vec[2];
@@ -309,7 +309,7 @@ alt::MValueByteArray V8Helpers::V8ToRawBytes(v8::Local<v8::Value> val)
         case RawValueType::VECTOR2:
         {
             alt::Vector2f vec;
-            if(!V8::SafeToVector2(val, ctx, vec)) return alt::MValueByteArray();
+            if(!V8Helpers::SafeToVector2(val, ctx, vec)) return alt::MValueByteArray();
             float x = vec[0];
             float y = vec[1];
             serializer.WriteRawBytes(&x, sizeof(float));
@@ -319,7 +319,7 @@ alt::MValueByteArray V8Helpers::V8ToRawBytes(v8::Local<v8::Value> val)
         case RawValueType::RGBA:
         {
             alt::RGBA rgba;
-            if(!V8::SafeToRGBA(val, ctx, rgba)) return alt::MValueByteArray();
+            if(!V8Helpers::SafeToRGBA(val, ctx, rgba)) return alt::MValueByteArray();
             serializer.WriteRawBytes(&rgba.r, sizeof(uint8_t));
             serializer.WriteRawBytes(&rgba.g, sizeof(uint8_t));
             serializer.WriteRawBytes(&rgba.b, sizeof(uint8_t));

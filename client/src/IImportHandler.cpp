@@ -4,9 +4,9 @@
 
 static inline v8::MaybeLocal<v8::Module> CompileESM(v8::Isolate* isolate, const std::string& name, const std::string& src)
 {
-    v8::Local<v8::String> sourceCode = V8::JSValue(src);
+    v8::Local<v8::String> sourceCode = V8Helpers::JSValue(src);
 
-    v8::ScriptOrigin scriptOrigin(isolate, V8::JSValue(name), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
+    v8::ScriptOrigin scriptOrigin(isolate, V8Helpers::JSValue(name), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
 
     v8::ScriptCompiler::Source source{ sourceCode, scriptOrigin };
     return v8::ScriptCompiler::CompileModule(isolate, &source);
@@ -277,7 +277,7 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveModule(const std::string& _nam
             if(maybeModule.IsEmpty())
             {
                 modules.erase(name);
-                isolate->ThrowException(v8::Exception::ReferenceError(V8::JSValue(("Failed to load module: " + name))));
+                isolate->ThrowException(v8::Exception::ReferenceError(V8Helpers::JSValue(("Failed to load module: " + name))));
                 return v8::MaybeLocal<v8::Module>{};
             }
         }
@@ -291,7 +291,7 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveModule(const std::string& _nam
     if(maybeModule.IsEmpty())
     {
         modules.erase(name);
-        isolate->ThrowException(v8::Exception::ReferenceError(V8::JSValue(("No such module: " + name))));
+        isolate->ThrowException(v8::Exception::ReferenceError(V8Helpers::JSValue(("No such module: " + name))));
         return v8::MaybeLocal<v8::Module>{};
     }
 
@@ -306,7 +306,7 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveModule(const std::string& _nam
     return maybeModule;
 }
 
-v8::MaybeLocal<v8::Module> IImportHandler::ResolveCode(const std::string& code, const V8::SourceLocation& location)
+v8::MaybeLocal<v8::Module> IImportHandler::ResolveCode(const std::string& code, const V8Helpers::SourceLocation& location)
 {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
     v8::MaybeLocal<v8::Module> maybeModule;

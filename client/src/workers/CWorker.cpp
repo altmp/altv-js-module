@@ -23,13 +23,13 @@ void CWorker::Destroy()
     if(isolate && !isPaused) CV8ScriptRuntime::Instance().RemoveActiveWorker();
 }
 
-void CWorker::EmitToWorker(const std::string& eventName, std::vector<V8::Serialization::Value>& args)
+void CWorker::EmitToWorker(const std::string& eventName, std::vector<V8Helpers::Serialization::Value>& args)
 {
     std::scoped_lock lock(worker_queueLock);
     worker_queuedEvents.push(std::make_pair(eventName, std::move(args)));
 }
 
-void CWorker::EmitToMain(const std::string& eventName, std::vector<V8::Serialization::Value>& args)
+void CWorker::EmitToMain(const std::string& eventName, std::vector<V8Helpers::Serialization::Value>& args)
 {
     std::scoped_lock lock(main_queueLock);
     main_queuedEvents.push(std::make_pair(eventName, std::move(args)));
@@ -38,13 +38,13 @@ void CWorker::EmitToMain(const std::string& eventName, std::vector<V8::Serializa
 void CWorker::SubscribeToWorker(const std::string& eventName, v8::Local<v8::Function> callback, bool once)
 {
     auto isolate = v8::Isolate::GetCurrent();
-    worker_eventHandlers.insert({ eventName, V8::EventCallback(isolate, callback, V8::SourceLocation::GetCurrent(isolate), once) });
+    worker_eventHandlers.insert({ eventName, V8Helpers::EventCallback(isolate, callback, V8Helpers::SourceLocation::GetCurrent(isolate), once) });
 }
 
 void CWorker::SubscribeToMain(const std::string& eventName, v8::Local<v8::Function> callback, bool once)
 {
     auto isolate = v8::Isolate::GetCurrent();
-    main_eventHandlers.insert({ eventName, V8::EventCallback(isolate, callback, V8::SourceLocation::GetCurrent(isolate), once) });
+    main_eventHandlers.insert({ eventName, V8Helpers::EventCallback(isolate, callback, V8Helpers::SourceLocation::GetCurrent(isolate), once) });
 }
 
 void CWorker::Thread()
@@ -55,7 +55,7 @@ void CWorker::Thread()
     {
         // Isolate is set up, the worker is now ready
         isReady = true;
-        EmitToMain("load", std::vector<V8::Serialization::Value>());
+        EmitToMain("load", std::vector<V8Helpers::Serialization::Value>());
 
         v8::Locker locker(isolate);
         v8::Isolate::Scope isolate_scope(isolate);
@@ -119,7 +119,7 @@ bool CWorker::SetupIsolate()
 
         v8::Local<v8::Value> value = message.GetValue();
         if(value.IsEmpty()) value = v8::Undefined(isolate);
-        auto location = V8::SourceLocation::GetCurrent(isolate);
+        auto location = V8Helpers::SourceLocation::GetCurrent(isolate);
 
         switch(message.GetEvent())
         {
@@ -159,20 +159,20 @@ bool CWorker::SetupIsolate()
 
           CWorker* worker = static_cast<CWorker*>(context->GetAlignedPointerFromEmbedderData(2));
           v8::Local<v8::Module> referrerModule = worker->GetModuleFromPath(*v8::String::Utf8Value(isolate, referrer->GetResourceName()));
-          if(referrerModule.IsEmpty()) resolver->Reject(context, v8::Exception::ReferenceError(V8::JSValue("Could not resolve referrer module")));
+          if(referrerModule.IsEmpty()) resolver->Reject(context, v8::Exception::ReferenceError(V8Helpers::JSValue("Could not resolve referrer module")));
           else
           {
               v8::MaybeLocal<v8::Module> maybeModule = CWorker::Import(context, specifier, assertions, referrerModule);
-              if(maybeModule.IsEmpty()) resolver->Reject(context, v8::Exception::ReferenceError(V8::JSValue("Could not resolve module")));
+              if(maybeModule.IsEmpty()) resolver->Reject(context, v8::Exception::ReferenceError(V8Helpers::JSValue("Could not resolve module")));
               else
               {
                   v8::Local<v8::Module> module = maybeModule.ToLocalChecked();
                   if((module->GetStatus() != v8::Module::Status::kEvaluated && module->GetStatus() != v8::Module::Status::kErrored) &&
                      !module->InstantiateModule(context, Import).ToChecked())
-                      resolver->Reject(context, v8::Exception::ReferenceError(V8::JSValue("Error instantiating module")));
+                      resolver->Reject(context, v8::Exception::ReferenceError(V8Helpers::JSValue("Error instantiating module")));
 
                   if((module->GetStatus() != v8::Module::Status::kEvaluated && module->GetStatus() != v8::Module::Status::kErrored) && module->Evaluate(context).IsEmpty())
-                      resolver->Reject(context, v8::Exception::ReferenceError(V8::JSValue("Error evaluating module")));
+                      resolver->Reject(context, v8::Exception::ReferenceError(V8Helpers::JSValue("Error evaluating module")));
 
                   else
                       resolver->Resolve(context, module->GetModuleNamespace());
@@ -183,7 +183,7 @@ bool CWorker::SetupIsolate()
       });
 
     isolate->SetHostInitializeImportMetaObjectCallback([](v8::Local<v8::Context> context, v8::Local<v8::Module>, v8::Local<v8::Object> meta) {
-        meta->CreateDataProperty(context, V8::JSValue("url"), V8::JSValue(V8::GetCurrentSourceOrigin(context->GetIsolate())));
+        meta->CreateDataProperty(context, V8Helpers::JSValue("url"), V8Helpers::JSValue(V8Helpers::GetCurrentSourceOrigin(context->GetIsolate())));
     });
 
     // Disable creating shared array buffers in Workers
@@ -223,8 +223,8 @@ bool CWorker::SetupIsolate()
     // Compile the code
     auto error = TryCatch([&]() {
         std::string fullPath = (path.prefix + path.fileName).ToString();
-        v8::ScriptOrigin scriptOrigin(isolate, V8::JSValue(fullPath), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
-        v8::ScriptCompiler::Source source(V8::JSValue(src), scriptOrigin);
+        v8::ScriptOrigin scriptOrigin(isolate, V8Helpers::JSValue(fullPath), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
+        v8::ScriptCompiler::Source source(V8Helpers::JSValue(src), scriptOrigin);
         auto maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source);
         if(maybeModule.IsEmpty())
         {
@@ -283,12 +283,12 @@ void CWorker::SetupGlobals(v8::Local<v8::Object> global)
     V8Module::Add(isolate, { altWorker });
 
     auto alt = altWorker.GetExports(isolate, context.Get(isolate));
-    auto console = global->Get(context.Get(isolate), V8::JSValue("console")).ToLocalChecked().As<v8::Object>();
+    auto console = global->Get(context.Get(isolate), V8Helpers::JSValue("console")).ToLocalChecked().As<v8::Object>();
     if(!console.IsEmpty())
     {
-        console->Set(context.Get(isolate), V8::JSValue("log"), alt->Get(context.Get(isolate), V8::JSValue("log")).ToLocalChecked());
-        console->Set(context.Get(isolate), V8::JSValue("warn"), alt->Get(context.Get(isolate), V8::JSValue("logWarning")).ToLocalChecked());
-        console->Set(context.Get(isolate), V8::JSValue("error"), alt->Get(context.Get(isolate), V8::JSValue("logError")).ToLocalChecked());
+        console->Set(context.Get(isolate), V8Helpers::JSValue("log"), alt->Get(context.Get(isolate), V8Helpers::JSValue("log")).ToLocalChecked());
+        console->Set(context.Get(isolate), V8Helpers::JSValue("warn"), alt->Get(context.Get(isolate), V8Helpers::JSValue("logWarning")).ToLocalChecked());
+        console->Set(context.Get(isolate), V8Helpers::JSValue("error"), alt->Get(context.Get(isolate), V8Helpers::JSValue("logError")).ToLocalChecked());
     }
 
     V8Helpers::RegisterFunc(global, "setInterval", &SetInterval);
@@ -296,7 +296,7 @@ void CWorker::SetupGlobals(v8::Local<v8::Object> global)
     V8Helpers::RegisterFunc(global, "clearInterval", &ClearTimer);
     V8Helpers::RegisterFunc(global, "clearTimeout", &ClearTimer);
 
-    global->Set(context.Get(isolate), V8::JSValue("__internal_get_exports"), v8::Function::New(context.Get(isolate), &StaticRequire).ToLocalChecked());
+    global->Set(context.Get(isolate), V8Helpers::JSValue("__internal_get_exports"), v8::Function::New(context.Get(isolate), &StaticRequire).ToLocalChecked());
 }
 
 v8::MaybeLocal<v8::Module> CWorker::Import(v8::Local<v8::Context> context, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray>, v8::Local<v8::Module> referrer)
@@ -311,7 +311,7 @@ v8::MaybeLocal<v8::Module> CWorker::Import(v8::Local<v8::Context> context, v8::L
 void CWorker::EmitError(const std::string& error)
 {
     Log::Error << "[Worker] " << error << Log::Endl;
-    std::vector<V8::Serialization::Value> args = { V8::Serialization::Serialize(context.Get(isolate), V8::JSValue(error)) };
+    std::vector<V8Helpers::Serialization::Value> args = { V8Helpers::Serialization::Serialize(context.Get(isolate), V8Helpers::JSValue(error)) };
     EmitToMain("error", args);
 }
 
@@ -341,7 +341,7 @@ static inline void RunEventQueue(CWorker::EventQueue& queue, CWorker::EventHandl
         args.reserve(event.second.size());
         for(auto& arg : event.second)
         {
-            auto value = V8::Serialization::Deserialize(context, arg);
+            auto value = V8Helpers::Serialization::Deserialize(context, arg);
             if(value.IsEmpty())
             {
                 Log::Error << "Failed to deserialize worker event argument" << Log::Endl;
@@ -351,7 +351,7 @@ static inline void RunEventQueue(CWorker::EventQueue& queue, CWorker::EventHandl
         }
 
         // Call all handlers with the arguments
-        std::vector<V8::EventCallback*> callbacks;
+        std::vector<V8Helpers::EventCallback*> callbacks;
         auto handlers = eventHandlers.equal_range(event.first);
         for(auto it = handlers.first; it != handlers.second; it++)
         {
@@ -377,7 +377,7 @@ void CWorker::HandleWorkerEventQueue()
     RunEventQueue(worker_queuedEvents, worker_eventHandlers, worker_queueLock);
 }
 
-CWorker::TimerId CWorker::CreateTimer(v8::Local<v8::Function> callback, uint32_t interval, bool once, V8::SourceLocation&& location)
+CWorker::TimerId CWorker::CreateTimer(v8::Local<v8::Function> callback, uint32_t interval, bool once, V8Helpers::SourceLocation&& location)
 {
     TimerId id = nextTimerId++;
     timers.insert({ id, new WorkerTimer(this, isolate, context.Get(isolate), GetTime(), callback, interval, once, std::move(location)) });

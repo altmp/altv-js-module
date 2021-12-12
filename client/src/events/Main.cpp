@@ -92,14 +92,14 @@ V8_EVENT_HANDLER keyboardEvent(
       else
       {
           Log::Error << "Unhandled keystate in keyboard event handler: " << (int)ev->GetKeyState() << Log::Endl;
-          return std::vector<V8::EventCallback*>();
+          return std::vector<V8Helpers::EventCallback*>();
       }
   },
   [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
       auto ev = static_cast<const alt::CKeyboardEvent*>(e);
       v8::Isolate* isolate = resource->GetIsolate();
 
-      args.push_back(V8::JSValue(ev->GetKeyCode()));
+      args.push_back(V8Helpers::JSValue(ev->GetKeyCode()));
   });
 
 V8_LOCAL_EVENT_HANDLER connectionComplete(EventType::CONNECTION_COMPLETE, "connectionComplete", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {

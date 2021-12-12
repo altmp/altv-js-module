@@ -1,6 +1,6 @@
 #pragma once
 
-namespace V8::Vehicle
+namespace V8Helpers::Vehicle
 {
     void SetScriptData(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
@@ -20,4 +20,4 @@ namespace V8::Vehicle
 
         V8_RETURN_STRING(vehicle->GetScriptDataBase64().CStr());
     }
-}  // namespace V8::Vehicle
+}  // namespace V8Helpers::Vehicle

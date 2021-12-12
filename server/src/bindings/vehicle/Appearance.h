@@ -1,6 +1,6 @@
 #pragma once
 
-namespace V8::Vehicle
+namespace V8Helpers::Vehicle
 {
     void ModKitGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
     {
@@ -26,10 +26,10 @@ namespace V8::Vehicle
         _this->GetNeonActive(&left, &right, &front, &back);
 
         v8::Local<v8::Object> neonActive = v8::Object::New(isolate);
-        V8::DefineOwnProperty(isolate, ctx, neonActive, "left", V8::JSValue(left));
-        V8::DefineOwnProperty(isolate, ctx, neonActive, "right", V8::JSValue(right));
-        V8::DefineOwnProperty(isolate, ctx, neonActive, "front", V8::JSValue(front));
-        V8::DefineOwnProperty(isolate, ctx, neonActive, "back", V8::JSValue(back));
+        V8Helpers::DefineOwnProperty(isolate, ctx, neonActive, "left", V8Helpers::JSValue(left));
+        V8Helpers::DefineOwnProperty(isolate, ctx, neonActive, "right", V8Helpers::JSValue(right));
+        V8Helpers::DefineOwnProperty(isolate, ctx, neonActive, "front", V8Helpers::JSValue(front));
+        V8Helpers::DefineOwnProperty(isolate, ctx, neonActive, "back", V8Helpers::JSValue(back));
 
         V8_RETURN(neonActive);
     }
@@ -151,4 +151,4 @@ namespace V8::Vehicle
 
         V8_RETURN_STRING(vehicle->GetAppearanceDataBase64().CStr());
     }
-}  // namespace V8::Vehicle
+}  // namespace V8Helpers::Vehicle

@@ -7,16 +7,16 @@
 
 class V8ResourceImpl;
 
-namespace V8
+namespace V8Helpers
 {
     struct PromiseRejection
     {
-        V8::CPersistent<v8::Promise> promise;
-        V8::CPersistent<v8::Value> value;
-        V8::SourceLocation location;
-        V8::StackTrace stackTrace;
+        V8Helpers::CPersistent<v8::Promise> promise;
+        V8Helpers::CPersistent<v8::Value> value;
+        V8Helpers::SourceLocation location;
+        V8Helpers::StackTrace stackTrace;
 
-        PromiseRejection(v8::Isolate* isolate, v8::Local<v8::Promise> promise, v8::Local<v8::Value> value, V8::SourceLocation&& location, V8::StackTrace&& stackTrace);
+        PromiseRejection(v8::Isolate* isolate, v8::Local<v8::Promise> promise, v8::Local<v8::Value> value, V8Helpers::SourceLocation&& location, V8Helpers::StackTrace&& stackTrace);
     };
 
     class PromiseRejections
@@ -29,4 +29,4 @@ namespace V8
     private:
         std::vector<std::unique_ptr<PromiseRejection>> queue;
     };
-}  // namespace V8
+}  // namespace V8Helpers

@@ -5,7 +5,7 @@
 
 #include "V8Entity.h"
 
-namespace V8
+namespace V8Helpers
 {
     bool SafeToBoolean(v8::Local<v8::Value> val, v8::Isolate* isolate, bool& out);
     bool SafeToInteger(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, int64_t& out);
@@ -140,4 +140,4 @@ namespace V8
         return val->Value();
     }
 
-}  // namespace V8
+}  // namespace V8Helpers

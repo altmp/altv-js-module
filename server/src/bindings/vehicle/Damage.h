@@ -1,6 +1,6 @@
 #pragma once
 
-namespace V8::Vehicle
+namespace V8Helpers::Vehicle
 {
     void SetLightDamaged(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
@@ -231,4 +231,4 @@ namespace V8::Vehicle
 
         vehicle->SetWheelFixed(wheelId);
     }
-}  // namespace V8::Vehicle
+}  // namespace V8Helpers::Vehicle

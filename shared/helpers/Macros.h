@@ -73,43 +73,43 @@
 
 #define V8_TO_BOOLEAN(v8Val, val) \
     bool val;                     \
-    V8_CHECK(V8::SafeToBoolean((v8Val), isolate, val), "Failed to convert value to boolean")
+    V8_CHECK(V8Helpers::SafeToBoolean((v8Val), isolate, val), "Failed to convert value to boolean")
 
 #define V8_TO_NUMBER(v8Val, val) \
     double val;                  \
-    V8_CHECK(V8::SafeToNumber((v8Val), ctx, val), "Failed to convert value to number")
+    V8_CHECK(V8Helpers::SafeToNumber((v8Val), ctx, val), "Failed to convert value to number")
 
 #define V8_TO_INTEGER(v8Val, val) \
     int64_t val;                  \
-    V8_CHECK(V8::SafeToInteger((v8Val), ctx, val), "Failed to convert value to integer")
+    V8_CHECK(V8Helpers::SafeToInteger((v8Val), ctx, val), "Failed to convert value to integer")
 
 #define V8_TO_INT32(v8Val, val) \
     int32_t val;                \
-    V8_CHECK(V8::SafeToInt32((v8Val), ctx, val), "Failed to convert value to integer")
+    V8_CHECK(V8Helpers::SafeToInt32((v8Val), ctx, val), "Failed to convert value to integer")
 
 #define V8_TO_STRING(v8Val, val) \
     alt::String val;             \
-    V8_CHECK(V8::SafeToString((v8Val), isolate, ctx, val), "Failed to convert value to string")
+    V8_CHECK(V8Helpers::SafeToString((v8Val), isolate, ctx, val), "Failed to convert value to string")
 
 #define V8_TO_OBJECT(v8Val, val) \
     v8::Local<v8::Object> val;   \
-    V8_CHECK(V8::SafeToObject((v8Val), ctx, val), "Failed to convert value to object")
+    V8_CHECK(V8Helpers::SafeToObject((v8Val), ctx, val), "Failed to convert value to object")
 
 #define V8_TO_VECTOR3(v8Val, val) \
     alt::Vector3f val;            \
-    V8_CHECK(V8::SafeToVector3((v8Val), ctx, val), "Failed to convert value to Vector3")
+    V8_CHECK(V8Helpers::SafeToVector3((v8Val), ctx, val), "Failed to convert value to Vector3")
 
 #define V8_TO_VECTOR2(v8Val, val) \
     alt::Vector2f val;            \
-    V8_CHECK(V8::SafeToVector2((v8Val), ctx, val), "Failed to convert value to Vector2")
+    V8_CHECK(V8Helpers::SafeToVector2((v8Val), ctx, val), "Failed to convert value to Vector2")
 
 #define V8_TO_RGBA(v8Val, val) \
     alt::RGBA val;             \
-    V8_CHECK(V8::SafeToRGBA((v8Val), ctx, val), "Failed to convert value to RGBA")
+    V8_CHECK(V8Helpers::SafeToRGBA((v8Val), ctx, val), "Failed to convert value to RGBA")
 
 #define V8_TO_ENTITY(v8Val, val) \
     alt::Ref<IEntity> val;       \
-    V8_CHECK(V8::SafeToBaseObject<IEntity>(v8Val, isolate, val), "Failed to convert to BaseObject")
+    V8_CHECK(V8Helpers::SafeToBaseObject<IEntity>(v8Val, isolate, val), "Failed to convert to BaseObject")
 
 #define V8_OBJECT_GET_NUMBER(v8Val, prop, val) V8_TO_NUMBER((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)
 
@@ -150,18 +150,18 @@
 // idx starts with 1
 #define V8_ARG_TO_BOOLEAN(idx, val) \
     bool val;                       \
-    V8_CHECK(V8::SafeToBoolean(info[(idx)-1], isolate, val), "Failed to convert argument " #idx " to boolean")
+    V8_CHECK(V8Helpers::SafeToBoolean(info[(idx)-1], isolate, val), "Failed to convert argument " #idx " to boolean")
 
 // idx starts with 1
-#define V8_ARG_TO_BOOLEAN_OPT(idx, val, defaultVal)                                                                 \
-    bool val;                                                                                                       \
-    if(info.Length() >= (idx))                                                                                      \
-    {                                                                                                               \
-        V8_CHECK(V8::SafeToBoolean(info[(idx)-1], isolate, val), "Failed to convert argument " #idx " to boolean"); \
-    }                                                                                                               \
-    else                                                                                                            \
-    {                                                                                                               \
-        val = defaultVal;                                                                                           \
+#define V8_ARG_TO_BOOLEAN_OPT(idx, val, defaultVal)                                                                        \
+    bool val;                                                                                                              \
+    if(info.Length() >= (idx))                                                                                             \
+    {                                                                                                                      \
+        V8_CHECK(V8Helpers::SafeToBoolean(info[(idx)-1], isolate, val), "Failed to convert argument " #idx " to boolean"); \
+    }                                                                                                                      \
+    else                                                                                                                   \
+    {                                                                                                                      \
+        val = defaultVal;                                                                                                  \
     }
 
 // idx starts with 1
@@ -170,81 +170,81 @@
 // idx starts with 1
 #define V8_ARG_TO_INT(idx, val) \
     int64_t val;                \
-    V8_CHECK(V8::SafeToInteger(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to integer")
+    V8_CHECK(V8Helpers::SafeToInteger(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to integer")
 
 // idx starts with 1
 #define V8_ARG_TO_NUMBER(idx, val) \
     double val;                    \
-    V8_CHECK(V8::SafeToNumber(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to number")
+    V8_CHECK(V8Helpers::SafeToNumber(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to number")
 
 // idx starts with 1
 #define V8_ARG_TO_STRING(idx, val) \
     alt::String val;               \
-    V8_CHECK(V8::SafeToString(info[(idx)-1], isolate, ctx, val), "Failed to convert argument " #idx " to string")
+    V8_CHECK(V8Helpers::SafeToString(info[(idx)-1], isolate, ctx, val), "Failed to convert argument " #idx " to string")
 
 // idx starts with 1
 #define V8_ARG_TO_FUNCTION(idx, val) \
     v8::Local<v8::Function> val;     \
-    V8_CHECK(V8::SafeToFunction(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to function")
+    V8_CHECK(V8Helpers::SafeToFunction(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to function")
 
 // idx starts with 1
 #define V8_ARG_TO_OBJECT(idx, val) \
     v8::Local<v8::Object> val;     \
-    V8_CHECK(V8::SafeToObject(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to object")
+    V8_CHECK(V8Helpers::SafeToObject(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to object")
 
 // idx starts with 1
 #define V8_ARG_TO_BASE_OBJECT(idx, val, type, jsClassName) \
     alt::Ref<type> val;                                    \
-    V8_CHECK(V8::SafeToBaseObject<type>(info[(idx)-1], isolate, val), "Argument " #idx " must be a " jsClassName)
+    V8_CHECK(V8Helpers::SafeToBaseObject<type>(info[(idx)-1], isolate, val), "Argument " #idx " must be a " jsClassName)
 
 // idx starts with 1
 #define V8_ARG_TO_ARRAY_BUFFER(idx, val) \
     v8::Local<v8::ArrayBuffer> val;      \
-    V8_CHECK(V8::SafeToArrayBuffer(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to ArrayBuffer")
+    V8_CHECK(V8Helpers::SafeToArrayBuffer(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to ArrayBuffer")
 
 // idx starts with 1
 #define V8_ARG_TO_ARRAY_BUFFER_VIEW(idx, val) \
     v8::Local<v8::ArrayBufferView> val;       \
-    V8_CHECK(V8::SafeToArrayBufferView(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to ArrayBufferView")
+    V8_CHECK(V8Helpers::SafeToArrayBufferView(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to ArrayBufferView")
 
 #define V8_ARG_TO_ARRAY(idx, val) \
     v8::Local<v8::Array> val;     \
-    V8_CHECK(V8::SafeToArray(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to Array")
+    V8_CHECK(V8Helpers::SafeToArray(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to Array")
 
 // idx starts with 1
 #define V8_ARG_TO_UINT64(idx, val) \
     uint64_t val;                  \
-    V8_CHECK(V8::SafeToUInt64(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to uint64")
+    V8_CHECK(V8Helpers::SafeToUInt64(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to uint64")
 
 // idx starts with 1
 #define V8_ARG_TO_INT64(idx, val) \
     int64_t val;                  \
-    V8_CHECK(V8::SafeToInt64(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to int64")
+    V8_CHECK(V8Helpers::SafeToInt64(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to int64")
 
 // idx starts with 1
 #define V8_ARG_TO_UINT(idx, val) \
     uint32_t val;                \
-    V8_CHECK(V8::SafeToUInt32(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to uint32")
+    V8_CHECK(V8Helpers::SafeToUInt32(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to uint32")
 
 // idx starts with 1
 #define V8_ARG_TO_INT32(idx, val) \
     int32_t val;                  \
-    V8_CHECK(V8::SafeToInt32(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to int32")
+    V8_CHECK(V8Helpers::SafeToInt32(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to int32")
 
 // idx starts with 1
 #define V8_ARG_TO_VECTOR3(idx, val) \
     alt::Vector3f val;              \
-    V8_CHECK(V8::SafeToVector3(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to vector3")
+    V8_CHECK(V8Helpers::SafeToVector3(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to vector3")
 
 // idx starts with 1
 #define V8_ARG_TO_VECTOR2(idx, val) \
     alt::Vector2f val;              \
-    V8_CHECK(V8::SafeToVector2(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to vector2")
+    V8_CHECK(V8Helpers::SafeToVector2(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to vector2")
 
 // idx starts with 1
 #define V8_ARG_TO_RGBA(idx, val) \
     alt::RGBA val;               \
-    V8_CHECK(V8::SafeToRGBA(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to rgba")
+    V8_CHECK(V8Helpers::SafeToRGBA(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to rgba")
 
 #define V8_RETURN(val)            info.GetReturnValue().Set(val)
 #define V8_RETURN_NULL()          info.GetReturnValue().SetNull()
@@ -270,8 +270,8 @@
         resource->BindEntity(info.This(), baseObjectRef); \
     }
 
-#define V8_EVENT_HANDLER       extern V8::EventHandler
-#define V8_LOCAL_EVENT_HANDLER extern V8::LocalEventHandler
+#define V8_EVENT_HANDLER       extern V8Helpers::EventHandler
+#define V8_LOCAL_EVENT_HANDLER extern V8Helpers::LocalEventHandler
 #define V8_REFERENCE_EVENT_HANDLER(name) \
     V8_EVENT_HANDLER name;               \
     name.Reference();

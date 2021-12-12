@@ -133,55 +133,55 @@ extern V8Class v8Entity;
 extern V8Class v8Vehicle("Vehicle", v8Entity, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    V8::SetMethod(isolate, tpl, "toString", ToString);
+    V8Helpers::SetMethod(isolate, tpl, "toString", ToString);
 
-    V8::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
-    V8::SetStaticMethod(isolate, tpl, "getByScriptID", StaticGetByScriptID);
+    V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
+    V8Helpers::SetStaticMethod(isolate, tpl, "getByScriptID", StaticGetByScriptID);
 
-    V8::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
-    V8::SetStaticAccessor(isolate, tpl, "streamedIn", &StreamedInGetter);
+    V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
+    V8Helpers::SetStaticAccessor(isolate, tpl, "streamedIn", &StreamedInGetter);
 
     // Common getters
-    V8::SetAccessor<IVehicle, float, &IVehicle::GetWheelSpeed>(isolate, tpl, "speed");
-    V8::SetAccessor<IVehicle, uint16_t, &IVehicle::GetCurrentGear, &IVehicle::SetCurrentGear>(isolate, tpl, "gear");
-    V8::SetAccessor<IVehicle, uint16_t, &IVehicle::GetMaxGear>(isolate, tpl, "maxGear");
-    V8::SetAccessor<IVehicle, float, &IVehicle::GetCurrentRPM>(isolate, tpl, "rpm");
-    V8::SetAccessor<IVehicle, uint8_t, &IVehicle::GetWheelsCount>(isolate, tpl, "wheelsCount");
-    V8::SetAccessor<IVehicle, alt::Vector3f, &IVehicle::GetSpeedVector>(isolate, tpl, "speedVector");
-    V8::SetAccessor(isolate, tpl, "handling", &HandlingGetter);
-    V8::SetMethod(isolate, tpl, "toggleExtra", ToggleExtra);
-    V8::SetAccessor<IVehicle, uint8_t, &IVehicle::GetLightsIndicator, &IVehicle::SetLightsIndicator>(isolate, tpl, "indicatorLights");
-    V8::SetAccessor<IVehicle, Vector3f, &IVehicle::GetVelocity>(isolate, tpl, "velocity");
+    V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetWheelSpeed>(isolate, tpl, "speed");
+    V8Helpers::SetAccessor<IVehicle, uint16_t, &IVehicle::GetCurrentGear, &IVehicle::SetCurrentGear>(isolate, tpl, "gear");
+    V8Helpers::SetAccessor<IVehicle, uint16_t, &IVehicle::GetMaxGear>(isolate, tpl, "maxGear");
+    V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetCurrentRPM>(isolate, tpl, "rpm");
+    V8Helpers::SetAccessor<IVehicle, uint8_t, &IVehicle::GetWheelsCount>(isolate, tpl, "wheelsCount");
+    V8Helpers::SetAccessor<IVehicle, alt::Vector3f, &IVehicle::GetSpeedVector>(isolate, tpl, "speedVector");
+    V8Helpers::SetAccessor(isolate, tpl, "handling", &HandlingGetter);
+    V8Helpers::SetMethod(isolate, tpl, "toggleExtra", ToggleExtra);
+    V8Helpers::SetAccessor<IVehicle, uint8_t, &IVehicle::GetLightsIndicator, &IVehicle::SetLightsIndicator>(isolate, tpl, "indicatorLights");
+    V8Helpers::SetAccessor<IVehicle, Vector3f, &IVehicle::GetVelocity>(isolate, tpl, "velocity");
 
     /*GETTERS BELOW ARE UNIMPLEMENTED
-    V8::SetAccessor(isolate, tpl, "isDestroyed", &IsDestroyedGetter);
-    V8::SetAccessor(isolate, tpl, "driver", &DriverGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "isDestroyed", &IsDestroyedGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "driver", &DriverGetter);
 
     // Appearance getters
-    V8::SetAccessor(isolate, tpl, "modKitsCount", &ModKitsCountGetter);
-    V8::SetAccessor(isolate, tpl, "modKit", &ModKitGetter);
-    V8::SetAccessor(isolate, tpl, "hasCustomPrimaryColor", &IsPrimaryColorRGBGetter);
-    V8::SetAccessor(isolate, tpl, "primaryColor", &PrimaryColorGetter);
-    V8::SetAccessor(isolate, tpl, "customPrimaryColor", &PrimaryColorRGBGetter);
-    //V8::SetAccessor(isolate, tpl, "hasCustomSecondaryColor", &IsSecondaryColorRGBGetter);
-    V8::SetAccessor(isolate, tpl, "secondaryColor", &SecondaryColorGetter);
-    V8::SetAccessor(isolate, tpl, "customSecondaryColor", &SecondaryColorRGBGetter);
-    V8::SetAccessor(isolate, tpl, "pearlColor", &PearlColorGetter);
-    V8::SetAccessor(isolate, tpl, "wheelColor", &WheelColorGetter);
-    V8::SetAccessor(isolate, tpl, "interiorColor", &InteriorColorGetter);
-    V8::SetAccessor(isolate, tpl, "dashboardColor", &DashboardColorGetter);
-    //V8::SetAccessor(isolate, tpl, "hasCustomTireSmokeColor", &IsTireSmokeColorCustomGetter);
-    V8::SetAccessor(isolate, tpl, "tireSmokeColor", &TireSmokeColorGetter);
-    V8::SetAccessor(isolate, tpl, "wheelType", &WheelTypeGetter);
-    V8::SetAccessor(isolate, tpl, "frontWheels", &WheelVariationGetter);
-    V8::SetAccessor(isolate, tpl, "rearWheels", &RearWheelVariationGetter);
-    V8::SetAccessor(isolate, tpl, "customTires", &IsCustomTiresGetter);
-    V8::SetAccessor(isolate, tpl, "darkness", &SpecialDarknessGetter);
-    V8::SetAccessor(isolate, tpl, "numberPlateIndex", &NumberplateIndexGetter);
-    V8::SetAccessor(isolate, tpl, "numberPlateText", &NumberplateTextGetter);
-    V8::SetAccessor(isolate, tpl, "windowTint", &WindowTintGetter);
-    V8::SetAccessor(isolate, tpl, "dirtLevel", &DirtLevelGetter);
-    //V8::SetAccessor(isolate, tpl, "neonActive", &IsNeonActiveGetter);
-    V8::SetAccessor(isolate, tpl, "neon", &NeonGetter);
-    V8::SetAccessor(isolate, tpl, "neonColor", &NeonColorGetter);*/
+    V8Helpers::SetAccessor(isolate, tpl, "modKitsCount", &ModKitsCountGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "modKit", &ModKitGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "hasCustomPrimaryColor", &IsPrimaryColorRGBGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "primaryColor", &PrimaryColorGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "customPrimaryColor", &PrimaryColorRGBGetter);
+    //V8Helpers::SetAccessor(isolate, tpl, "hasCustomSecondaryColor", &IsSecondaryColorRGBGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "secondaryColor", &SecondaryColorGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "customSecondaryColor", &SecondaryColorRGBGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "pearlColor", &PearlColorGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "wheelColor", &WheelColorGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "interiorColor", &InteriorColorGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "dashboardColor", &DashboardColorGetter);
+    //V8Helpers::SetAccessor(isolate, tpl, "hasCustomTireSmokeColor", &IsTireSmokeColorCustomGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "tireSmokeColor", &TireSmokeColorGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "wheelType", &WheelTypeGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "frontWheels", &WheelVariationGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "rearWheels", &RearWheelVariationGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "customTires", &IsCustomTiresGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "darkness", &SpecialDarknessGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "numberPlateIndex", &NumberplateIndexGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "numberPlateText", &NumberplateTextGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "windowTint", &WindowTintGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "dirtLevel", &DirtLevelGetter);
+    //V8Helpers::SetAccessor(isolate, tpl, "neonActive", &IsNeonActiveGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "neon", &NeonGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "neonColor", &NeonColorGetter);*/
 });

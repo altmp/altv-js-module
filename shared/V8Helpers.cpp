@@ -72,17 +72,17 @@ bool V8Helpers::TryCatch(const std::function<bool()>& fn)
     return true;
 }
 
-v8::Local<v8::Value> V8::Get(v8::Local<v8::Context> ctx, v8::Local<v8::Object> obj, const char* name)
+v8::Local<v8::Value> V8Helpers::Get(v8::Local<v8::Context> ctx, v8::Local<v8::Object> obj, const char* name)
 {
     return obj->Get(ctx, v8::String::NewFromUtf8(ctx->GetIsolate(), name, v8::NewStringType::kInternalized).ToLocalChecked()).ToLocalChecked();
 }
 
-v8::Local<v8::Value> V8::Get(v8::Local<v8::Context> ctx, v8::Local<v8::Object> obj, v8::Local<v8::Name> name)
+v8::Local<v8::Value> V8Helpers::Get(v8::Local<v8::Context> ctx, v8::Local<v8::Object> obj, v8::Local<v8::Name> name)
 {
     return obj->Get(ctx, name).ToLocalChecked();
 }
 
-v8::Local<v8::Value> V8::New(v8::Isolate* isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Function> constructor, std::vector<v8::Local<v8::Value>>& args)
+v8::Local<v8::Value> V8Helpers::New(v8::Isolate* isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Function> constructor, std::vector<v8::Local<v8::Value>>& args)
 {
     v8::Local<v8::Value> obj;
 
@@ -112,7 +112,7 @@ inline static std::string GetStackFrameScriptName(v8::Local<v8::StackFrame> fram
         return "[unknown]";
 }
 
-V8::SourceLocation V8::SourceLocation::GetCurrent(v8::Isolate* isolate)
+V8Helpers::SourceLocation V8Helpers::SourceLocation::GetCurrent(v8::Isolate* isolate)
 {
     v8::Local<v8::StackTrace> stackTrace = v8::StackTrace::CurrentStackTrace(isolate, 5);
     auto ctx = isolate->GetEnteredOrMicrotaskContext();
@@ -130,12 +130,12 @@ V8::SourceLocation V8::SourceLocation::GetCurrent(v8::Isolate* isolate)
     return SourceLocation{ "[unknown]", 0, ctx };
 }
 
-V8::SourceLocation::SourceLocation(std::string&& _fileName, int _line, v8::Local<v8::Context> ctx) : fileName(_fileName), line(_line)
+V8Helpers::SourceLocation::SourceLocation(std::string&& _fileName, int _line, v8::Local<v8::Context> ctx) : fileName(_fileName), line(_line)
 {
     context.Reset(ctx->GetIsolate(), ctx);
 }
 
-std::string V8::SourceLocation::ToString()
+std::string V8Helpers::SourceLocation::ToString()
 {
     auto isolate = v8::Isolate::GetCurrent();
 
@@ -150,7 +150,7 @@ std::string V8::SourceLocation::ToString()
     return stream.str();
 }
 
-V8::StackTrace V8::StackTrace::GetCurrent(v8::Isolate* isolate)
+V8Helpers::StackTrace V8Helpers::StackTrace::GetCurrent(v8::Isolate* isolate)
 {
     v8::Local<v8::StackTrace> stackTrace = v8::StackTrace::CurrentStackTrace(isolate, 5);
     auto ctx = isolate->GetEnteredOrMicrotaskContext();
@@ -171,9 +171,9 @@ V8::StackTrace V8::StackTrace::GetCurrent(v8::Isolate* isolate)
     return StackTrace{ std::move(frames), ctx };
 }
 
-V8::StackTrace::StackTrace(std::vector<Frame>&& frames, v8::Local<v8::Context> ctx) : frames(frames), context(ctx->GetIsolate(), ctx) {}
+V8Helpers::StackTrace::StackTrace(std::vector<Frame>&& frames, v8::Local<v8::Context> ctx) : frames(frames), context(ctx->GetIsolate(), ctx) {}
 
-void V8::StackTrace::Print(uint32_t offset)
+void V8Helpers::StackTrace::Print(uint32_t offset)
 {
     auto& frames = GetFrames();
     size_t size = frames.size();
@@ -185,88 +185,88 @@ void V8::StackTrace::Print(uint32_t offset)
     }
 }
 
-void V8::StackTrace::Print(v8::Isolate* isolate)
+void V8Helpers::StackTrace::Print(v8::Isolate* isolate)
 {
-    V8::StackTrace trace = V8::StackTrace::GetCurrent(isolate);
+    V8Helpers::StackTrace trace = V8Helpers::StackTrace::GetCurrent(isolate);
     trace.Print();
 }
 
-v8::Local<v8::String> V8::Vector3_XKey(v8::Isolate* isolate)
+v8::Local<v8::String> V8Helpers::Vector3_XKey(v8::Isolate* isolate)
 {
     static v8::Persistent<v8::String> xKey{ isolate, v8::String::NewFromUtf8(isolate, "x", v8::NewStringType::kInternalized).ToLocalChecked() };
 
     return xKey.Get(isolate);
 }
 
-v8::Local<v8::String> V8::Vector3_YKey(v8::Isolate* isolate)
+v8::Local<v8::String> V8Helpers::Vector3_YKey(v8::Isolate* isolate)
 {
     static v8::Persistent<v8::String> yKey{ isolate, v8::String::NewFromUtf8(isolate, "y", v8::NewStringType::kInternalized).ToLocalChecked() };
 
     return yKey.Get(isolate);
 }
 
-v8::Local<v8::String> V8::Vector3_ZKey(v8::Isolate* isolate)
+v8::Local<v8::String> V8Helpers::Vector3_ZKey(v8::Isolate* isolate)
 {
     static v8::Persistent<v8::String> zKey{ isolate, v8::String::NewFromUtf8(isolate, "z", v8::NewStringType::kInternalized).ToLocalChecked() };
 
     return zKey.Get(isolate);
 }
 
-v8::Local<v8::String> V8::RGBA_RKey(v8::Isolate* isolate)
+v8::Local<v8::String> V8Helpers::RGBA_RKey(v8::Isolate* isolate)
 {
     static v8::Persistent<v8::String> rKey{ isolate, v8::String::NewFromUtf8(isolate, "r", v8::NewStringType::kInternalized).ToLocalChecked() };
 
     return rKey.Get(isolate);
 }
 
-v8::Local<v8::String> V8::RGBA_GKey(v8::Isolate* isolate)
+v8::Local<v8::String> V8Helpers::RGBA_GKey(v8::Isolate* isolate)
 {
     static v8::Persistent<v8::String> gKey{ isolate, v8::String::NewFromUtf8(isolate, "g", v8::NewStringType::kInternalized).ToLocalChecked() };
 
     return gKey.Get(isolate);
 }
 
-v8::Local<v8::String> V8::RGBA_BKey(v8::Isolate* isolate)
+v8::Local<v8::String> V8Helpers::RGBA_BKey(v8::Isolate* isolate)
 {
     static v8::Persistent<v8::String> bKey{ isolate, v8::String::NewFromUtf8(isolate, "b", v8::NewStringType::kInternalized).ToLocalChecked() };
 
     return bKey.Get(isolate);
 }
 
-v8::Local<v8::String> V8::RGBA_AKey(v8::Isolate* isolate)
+v8::Local<v8::String> V8Helpers::RGBA_AKey(v8::Isolate* isolate)
 {
     static v8::Persistent<v8::String> aKey{ isolate, v8::String::NewFromUtf8(isolate, "a", v8::NewStringType::kInternalized).ToLocalChecked() };
 
     return aKey.Get(isolate);
 }
 
-v8::Local<v8::String> V8::Fire_PosKey(v8::Isolate* isolate)
+v8::Local<v8::String> V8Helpers::Fire_PosKey(v8::Isolate* isolate)
 {
     static v8::Persistent<v8::String> aKey{ isolate, v8::String::NewFromUtf8(isolate, "pos", v8::NewStringType::kInternalized).ToLocalChecked() };
 
     return aKey.Get(isolate);
 }
 
-v8::Local<v8::String> V8::Fire_WeaponKey(v8::Isolate* isolate)
+v8::Local<v8::String> V8Helpers::Fire_WeaponKey(v8::Isolate* isolate)
 {
     static v8::Persistent<v8::String> aKey{ isolate, v8::String::NewFromUtf8(isolate, "weapon", v8::NewStringType::kInternalized).ToLocalChecked() };
 
     return aKey.Get(isolate);
 }
 
-std::vector<V8::EventCallback*> V8::EventHandler::GetCallbacks(V8ResourceImpl* impl, const alt::CEvent* e)
+std::vector<V8Helpers::EventCallback*> V8Helpers::EventHandler::GetCallbacks(V8ResourceImpl* impl, const alt::CEvent* e)
 {
     return callbacksGetter(impl, e);
 }
 
-std::vector<v8::Local<v8::Value>> V8::EventHandler::GetArgs(V8ResourceImpl* impl, const alt::CEvent* e)
+std::vector<v8::Local<v8::Value>> V8Helpers::EventHandler::GetArgs(V8ResourceImpl* impl, const alt::CEvent* e)
 {
     std::vector<v8::Local<v8::Value>> args;
     argsGetter(impl, e, args);
     return args;
 }
 
-V8::EventHandler* V8::EventHandler::Get(const alt::CEvent* e)
+V8Helpers::EventHandler* V8Helpers::EventHandler::Get(const alt::CEvent* e)
 {
     auto& _all = all();
     auto it = _all.find(e->GetType());
@@ -274,7 +274,7 @@ V8::EventHandler* V8::EventHandler::Get(const alt::CEvent* e)
     return (it != _all.end()) ? it->second : nullptr;
 }
 
-void V8::EventHandler::Register(alt::CEvent::Type type, EventHandler* handler)
+void V8Helpers::EventHandler::Register(alt::CEvent::Type type, EventHandler* handler)
 {
     auto& _all = all();
     if(_all.count(type) == 0)
@@ -287,24 +287,24 @@ void V8::EventHandler::Register(alt::CEvent::Type type, EventHandler* handler)
     }
 }
 
-V8::EventHandler::CallbacksGetter V8::LocalEventHandler::GetCallbacksGetter(const std::string& name)
+V8Helpers::EventHandler::CallbacksGetter V8Helpers::LocalEventHandler::GetCallbacksGetter(const std::string& name)
 {
     return [name](V8ResourceImpl* resource, const alt::CEvent*) -> std::vector<EventCallback*> { return resource->GetLocalHandlers(name); };
 }
 
-V8::EventHandler::EventHandler(alt::CEvent::Type type, CallbacksGetter&& _handlersGetter, ArgsGetter&& _argsGetter)
+V8Helpers::EventHandler::EventHandler(alt::CEvent::Type type, CallbacksGetter&& _handlersGetter, ArgsGetter&& _argsGetter)
     : callbacksGetter(std::move(_handlersGetter)), argsGetter(std::move(_argsGetter)), type(type)
 {
     Register(type, this);
 }
 
 // Temp issue fix for https://stackoverflow.com/questions/9459980/c-global-variable-not-initialized-when-linked-through-static-libraries-but-ok
-void V8::EventHandler::Reference()
+void V8Helpers::EventHandler::Reference()
 {
     Log::Info << "[V8] Registered handler for " << std::to_string((int)type) << Log::Endl;
 }
 
-std::string V8::Stringify(v8::Local<v8::Context> ctx, v8::Local<v8::Value> val)
+std::string V8Helpers::Stringify(v8::Local<v8::Context> ctx, v8::Local<v8::Value> val)
 {
     v8::Local<v8::String> str;
     if(!val->ToString(ctx).ToLocal(&str)) return std::string();
@@ -320,7 +320,7 @@ std::string V8::Stringify(v8::Local<v8::Context> ctx, v8::Local<v8::Value> val)
     return result;
 }
 
-alt::String V8::GetJSValueTypeName(v8::Local<v8::Value> val)
+alt::String V8Helpers::GetJSValueTypeName(v8::Local<v8::Value> val)
 {
     if(val->IsUndefined()) return "undefined";
     if(val->IsNull()) return "null";
