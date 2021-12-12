@@ -646,6 +646,39 @@ static void GetWeapons(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8:
     V8_RETURN(weaponsArr);
 }
 
+static void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN_MIN(1);
+    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
+
+    V8_ARG_TO_STRING(1, eventName);
+
+    MValueArgs mvArgs;
+    for(int i = 1; i < info.Length(); ++i) mvArgs.Push(V8Helpers::V8ToMValue(info[i], false));
+
+    alt::ICore::Instance().TriggerClientEvent(player, eventName, mvArgs);
+}
+
+static void EmitRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN_MIN(1);
+    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
+
+    V8_ARG_TO_STRING(1, eventName);
+
+    MValueArgs mvArgs;
+    for(int i = 1; i < info.Length(); ++i)
+    {
+        alt::MValueByteArray result = V8Helpers::V8ToRawBytes(info[i]);
+        V8_CHECK(!result.IsEmpty(), "Failed to serialize value");
+        mvArgs.Push(result);
+    }
+
+    alt::ICore::Instance().TriggerClientEvent(player, eventName, mvArgs);
+}
+
 extern V8Class v8Entity;
 extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -654,6 +687,9 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
 
     V8::SetStaticMethod(isolate, tpl, "getByID", &StaticGetByID);
     V8::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
+
+    V8::SetMethod(isolate, tpl, "emit", &Emit);
+    V8::SetMethod(isolate, tpl, "emitRaw", &EmitRaw);
 
     V8::SetAccessor<IPlayer, uint32_t, &IPlayer::GetPing>(isolate, tpl, "ping");
     V8::SetAccessor<IPlayer, StringView, &IPlayer::GetIP>(isolate, tpl, "ip");
