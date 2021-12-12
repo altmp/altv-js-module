@@ -2,7 +2,7 @@
 
 #include "V8Helpers.h"
 #include "V8ResourceImpl.h"
-#include "V8BindHelpers.h"
+#include "helpers/BindHelpers.h"
 
 using namespace alt;
 
