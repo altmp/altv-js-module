@@ -1,6 +1,6 @@
 #include "../CV8Resource.h"
 #include "V8Helpers.h"
-#include "V8BindHelpers.h"
+#include "helpers/BindHelpers.h"
 #include "cpp-sdk/script-objects/IBlip.h"
 
 static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)

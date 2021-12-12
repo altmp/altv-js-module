@@ -2,7 +2,7 @@
 #include "V8Class.h"
 #include "V8Entity.h"
 #include "V8ResourceImpl.h"
-#include "V8BindHelpers.h"
+#include "helpers/BindHelpers.h"
 
 #include "cpp-sdk/objects/ILocalPlayer.h"
 
