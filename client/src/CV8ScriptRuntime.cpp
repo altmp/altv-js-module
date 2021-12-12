@@ -83,14 +83,14 @@ CV8ScriptRuntime::CV8ScriptRuntime()
 
           auto resolver = v8::Promise::Resolver::New(context).ToLocalChecked();
 
-          V8::CPersistent<v8::Promise::Resolver> presolver(isolate, resolver);
-          V8::CPersistent<v8::String> pspecifier(isolate, specifier);
-          V8::CPersistent<v8::Module> preferrerModule(isolate, resource->GetModuleFromPath(referrerUrl));
-          V8::CPersistent<v8::FixedArray> pimportAssertions(isolate, importAssertions);
+          V8Helpers::CPersistent<v8::Promise::Resolver> presolver(isolate, resolver);
+          V8Helpers::CPersistent<v8::String> pspecifier(isolate, specifier);
+          V8Helpers::CPersistent<v8::Module> preferrerModule(isolate, resource->GetModuleFromPath(referrerUrl));
+          V8Helpers::CPersistent<v8::FixedArray> pimportAssertions(isolate, importAssertions);
 
           // careful what we take in by value in the lambda
           // it is possible pass v8::Local but should not be done
-          // make a V8::CPersistent out of it and pass that
+          // make a V8Helpers::CPersistent out of it and pass that
           auto domodule = [isolate, presolver, pspecifier, preferrerModule, pimportAssertions] {
               auto referrerModule = preferrerModule.Get(isolate);
               auto resolver = presolver.Get(isolate);
@@ -103,7 +103,7 @@ CV8ScriptRuntime::CV8ScriptRuntime()
               auto mmodule = ResolveModule(ctx, specifier, importAssertions, referrerModule);
               if(mmodule.IsEmpty())
               {
-                  resolver->Reject(ctx, v8::Exception::ReferenceError(V8::JSValue("Could not resolve module")));
+                  resolver->Reject(ctx, v8::Exception::ReferenceError(V8Helpers::JSValue("Could not resolve module")));
                   return;
               }
 
@@ -114,14 +114,14 @@ CV8ScriptRuntime::CV8ScriptRuntime()
                       auto result = module->InstantiateModule(ctx, ResolveModule);
                       if(result.IsNothing() || !result.FromJust())
                       {
-                          resolver->Reject(ctx, v8::Exception::ReferenceError(V8::JSValue("Error instantiating module")));
+                          resolver->Reject(ctx, v8::Exception::ReferenceError(V8Helpers::JSValue("Error instantiating module")));
                           return false;
                       }
                   }
 
                   if((module->GetStatus() != v8::Module::Status::kEvaluated && module->GetStatus() != v8::Module::Status::kErrored) && module->Evaluate(ctx).IsEmpty())
                   {
-                      resolver->Reject(ctx, v8::Exception::ReferenceError(V8::JSValue("Error evaluating module")));
+                      resolver->Reject(ctx, v8::Exception::ReferenceError(V8Helpers::JSValue("Error evaluating module")));
                       return false;
                   }
 
@@ -145,7 +145,7 @@ CV8ScriptRuntime::CV8ScriptRuntime()
       });
 
     isolate->SetHostInitializeImportMetaObjectCallback([](v8::Local<v8::Context> context, v8::Local<v8::Module>, v8::Local<v8::Object> meta) {
-        meta->CreateDataProperty(context, V8::JSValue("url"), V8::JSValue(V8::GetCurrentSourceOrigin(context->GetIsolate())));
+        meta->CreateDataProperty(context, V8Helpers::JSValue("url"), V8Helpers::JSValue(V8Helpers::GetCurrentSourceOrigin(context->GetIsolate())));
     });
 
     isolate->AddMessageListener([](v8::Local<v8::Message> message, v8::Local<v8::Value> error) {
@@ -273,12 +273,12 @@ v8::MaybeLocal<v8::Module>
             {
                 // Handle as base64 source string
                 std::string sourceStr = Base64Decode(specifierStr);
-                maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(sourceStr, V8::SourceLocation::GetCurrent(isolate));
+                maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(sourceStr, V8Helpers::SourceLocation::GetCurrent(isolate));
             }
             else if(typeValueStr == "source")
             {
                 // Handle as module source code
-                maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(specifierStr, V8::SourceLocation::GetCurrent(isolate));
+                maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(specifierStr, V8Helpers::SourceLocation::GetCurrent(isolate));
             }
             else if(typeValueStr == "json")
             {
@@ -299,7 +299,7 @@ v8::MaybeLocal<v8::Module>
 
                 // Parse the JSON first to check if its valid
                 // todo: do we really need this?
-                v8::MaybeLocal<v8::Value> result = v8::JSON::Parse(ctx, V8::JSValue(src));
+                v8::MaybeLocal<v8::Value> result = v8::JSON::Parse(ctx, V8Helpers::JSValue(src));
                 if(result.IsEmpty())
                 {
                     V8Helpers::Throw(isolate, "Invalid JSON syntax");
@@ -309,7 +309,7 @@ v8::MaybeLocal<v8::Module>
                 // Create a fake module that just wraps the JSON file to an object as the default export
                 std::stringstream codeStream;
                 codeStream << "export default " << src << ";";
-                maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(codeStream.str(), V8::SourceLocation::GetCurrent(isolate));
+                maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(codeStream.str(), V8Helpers::SourceLocation::GetCurrent(isolate));
             }
             else
             {

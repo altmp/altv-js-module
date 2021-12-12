@@ -39,7 +39,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         if(size == 0)
         {
             info.This()->SetAlignedPointerInInternalField(0, nullptr);
-            info.This()->SetInternalField(1, V8::JSValue(0));
+            info.This()->SetInternalField(1, V8Helpers::JSValue(0));
             return;
         }
         V8_CHECK(size <= 1024, "You can't allocate > 1KB");
@@ -47,7 +47,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         uint8_t* allocatedMemory = new uint8_t[size];
         memset(allocatedMemory, 0, size);
         info.This()->SetAlignedPointerInInternalField(0, allocatedMemory);
-        info.This()->SetInternalField(1, V8::JSValue(size));
+        info.This()->SetInternalField(1, V8Helpers::JSValue(size));
     }
 
     /*v8::UniquePersistent<v8::Object> persistent(isolate, info.This());
@@ -172,19 +172,19 @@ extern V8Class v8MemoryBuffer("MemoryBuffer", Constructor, [](v8::Local<v8::Func
 
     tpl->InstanceTemplate()->SetInternalFieldCount(2);
 
-    V8::SetAccessor(isolate, tpl, "size", SizeGetter);
-    V8::SetAccessor(isolate, tpl, "address", AddressGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "size", SizeGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "address", AddressGetter);
 
-    V8::SetMethod(isolate, tpl, "free", FreeBuffer);
-    V8::SetMethod(isolate, tpl, "ubyte", GetDataOfType<uint8_t>);
-    V8::SetMethod(isolate, tpl, "ushort", GetDataOfType<uint16_t>);
-    V8::SetMethod(isolate, tpl, "uint", GetDataOfType<uint32_t>);
-    V8::SetMethod(isolate, tpl, "ulong", GetDataOfType<uint64_t>);
-    V8::SetMethod(isolate, tpl, "byte", GetDataOfType<int8_t>);
-    V8::SetMethod(isolate, tpl, "short", GetDataOfType<int16_t>);
-    V8::SetMethod(isolate, tpl, "int", GetDataOfType<int32_t>);
-    V8::SetMethod(isolate, tpl, "long", GetDataOfType<int64_t>);
-    V8::SetMethod(isolate, tpl, "float", GetDataOfType<float>);
-    V8::SetMethod(isolate, tpl, "double", GetDataOfType<double>);
-    V8::SetMethod(isolate, tpl, "string", GetDataOfType<std::string>);
+    V8Helpers::SetMethod(isolate, tpl, "free", FreeBuffer);
+    V8Helpers::SetMethod(isolate, tpl, "ubyte", GetDataOfType<uint8_t>);
+    V8Helpers::SetMethod(isolate, tpl, "ushort", GetDataOfType<uint16_t>);
+    V8Helpers::SetMethod(isolate, tpl, "uint", GetDataOfType<uint32_t>);
+    V8Helpers::SetMethod(isolate, tpl, "ulong", GetDataOfType<uint64_t>);
+    V8Helpers::SetMethod(isolate, tpl, "byte", GetDataOfType<int8_t>);
+    V8Helpers::SetMethod(isolate, tpl, "short", GetDataOfType<int16_t>);
+    V8Helpers::SetMethod(isolate, tpl, "int", GetDataOfType<int32_t>);
+    V8Helpers::SetMethod(isolate, tpl, "long", GetDataOfType<int64_t>);
+    V8Helpers::SetMethod(isolate, tpl, "float", GetDataOfType<float>);
+    V8Helpers::SetMethod(isolate, tpl, "double", GetDataOfType<double>);
+    V8Helpers::SetMethod(isolate, tpl, "string", GetDataOfType<std::string>);
 });

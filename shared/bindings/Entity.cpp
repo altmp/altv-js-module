@@ -219,46 +219,46 @@ extern V8Class v8WorldObject;
 extern V8Class v8Entity("Entity", v8WorldObject, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    V8::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
-    V8::SetStaticAccessor(isolate, tpl, "all", StaticAllGetter);
+    V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
+    V8Helpers::SetStaticAccessor(isolate, tpl, "all", StaticAllGetter);
 
-    V8::SetAccessor<IEntity, uint16_t, &IEntity::GetID>(isolate, tpl, "id");
-    V8::SetAccessor<IEntity, Ref<IPlayer>, &IEntity::GetNetworkOwner>(isolate, tpl, "netOwner");
+    V8Helpers::SetAccessor<IEntity, uint16_t, &IEntity::GetID>(isolate, tpl, "id");
+    V8Helpers::SetAccessor<IEntity, Ref<IPlayer>, &IEntity::GetNetworkOwner>(isolate, tpl, "netOwner");
 
-    V8::SetMethod(isolate, tpl, "hasSyncedMeta", HasSyncedMeta);
-    V8::SetMethod(isolate, tpl, "getSyncedMeta", GetSyncedMeta);
+    V8Helpers::SetMethod(isolate, tpl, "hasSyncedMeta", HasSyncedMeta);
+    V8Helpers::SetMethod(isolate, tpl, "getSyncedMeta", GetSyncedMeta);
 
-    V8::SetMethod(isolate, tpl, "hasStreamSyncedMeta", HasStreamSyncedMeta);
-    V8::SetMethod(isolate, tpl, "getStreamSyncedMeta", GetStreamSyncedMeta);
+    V8Helpers::SetMethod(isolate, tpl, "hasStreamSyncedMeta", HasStreamSyncedMeta);
+    V8Helpers::SetMethod(isolate, tpl, "getStreamSyncedMeta", GetStreamSyncedMeta);
 
 #ifdef ALT_SERVER_API
-    V8::SetAccessor<IEntity, Rotation, &IEntity::GetRotation, &IEntity::SetRotation>(isolate, tpl, "rot");
-    V8::SetAccessor(isolate, tpl, "model", &ModelGetter, &ModelSetter);
-    V8::SetAccessor<IEntity, bool, &IEntity::GetVisible, &IEntity::SetVisible>(isolate, tpl, "visible");
-    V8::SetAccessor<IEntity, bool, &IEntity::GetStreamed, &IEntity::SetStreamed>(isolate, tpl, "streamed");
+    V8Helpers::SetAccessor<IEntity, Rotation, &IEntity::GetRotation, &IEntity::SetRotation>(isolate, tpl, "rot");
+    V8Helpers::SetAccessor(isolate, tpl, "model", &ModelGetter, &ModelSetter);
+    V8Helpers::SetAccessor<IEntity, bool, &IEntity::GetVisible, &IEntity::SetVisible>(isolate, tpl, "visible");
+    V8Helpers::SetAccessor<IEntity, bool, &IEntity::GetStreamed, &IEntity::SetStreamed>(isolate, tpl, "streamed");
 
-    V8::SetMethod(isolate, tpl, "setSyncedMeta", SetSyncedMeta);
-    V8::SetMethod(isolate, tpl, "deleteSyncedMeta", DeleteSyncedMeta);
+    V8Helpers::SetMethod(isolate, tpl, "setSyncedMeta", SetSyncedMeta);
+    V8Helpers::SetMethod(isolate, tpl, "deleteSyncedMeta", DeleteSyncedMeta);
 
-    V8::SetMethod(isolate, tpl, "setStreamSyncedMeta", SetStreamSyncedMeta);
-    V8::SetMethod(isolate, tpl, "deleteStreamSyncedMeta", DeleteStreamSyncedMeta);
+    V8Helpers::SetMethod(isolate, tpl, "setStreamSyncedMeta", SetStreamSyncedMeta);
+    V8Helpers::SetMethod(isolate, tpl, "deleteStreamSyncedMeta", DeleteStreamSyncedMeta);
 
-    V8::SetMethod(isolate, tpl, "setNetOwner", SetNetOwner);
-    V8::SetMethod(isolate, tpl, "resetNetOwner", ResetNetOwner);
+    V8Helpers::SetMethod(isolate, tpl, "setNetOwner", SetNetOwner);
+    V8Helpers::SetMethod(isolate, tpl, "resetNetOwner", ResetNetOwner);
 
-    V8::SetMethod(isolate, tpl, "attachTo", AttachTo);
-    V8::SetMethod<IEntity, &IEntity::Detach>(isolate, tpl, "detach");
+    V8Helpers::SetMethod(isolate, tpl, "attachTo", AttachTo);
+    V8Helpers::SetMethod<IEntity, &IEntity::Detach>(isolate, tpl, "detach");
 #endif  // ALT_SERVER_API
 
 #ifdef ALT_CLIENT_API
-    V8::SetStaticMethod(isolate, tpl, "getByScriptID", StaticGetByScriptID);
+    V8Helpers::SetStaticMethod(isolate, tpl, "getByScriptID", StaticGetByScriptID);
 
-    V8::SetAccessor<IWorldObject, Position, &IEntity::GetPosition>(isolate, tpl, "pos");
-    V8::SetAccessor<IEntity, Rotation, &IEntity::GetRotation>(isolate, tpl, "rot");
-    V8::SetAccessor<IEntity, uint32_t, &IEntity::GetModel>(isolate, tpl, "model");
-    V8::SetAccessor<IEntity, int32_t, &IEntity::GetScriptGuid>(isolate, tpl, "scriptID");
-    V8::SetAccessor<IEntity, bool, &IEntity::GetVisible>(isolate, tpl, "visible");
+    V8Helpers::SetAccessor<IWorldObject, Position, &IEntity::GetPosition>(isolate, tpl, "pos");
+    V8Helpers::SetAccessor<IEntity, Rotation, &IEntity::GetRotation>(isolate, tpl, "rot");
+    V8Helpers::SetAccessor<IEntity, uint32_t, &IEntity::GetModel>(isolate, tpl, "model");
+    V8Helpers::SetAccessor<IEntity, int32_t, &IEntity::GetScriptGuid>(isolate, tpl, "scriptID");
+    V8Helpers::SetAccessor<IEntity, bool, &IEntity::GetVisible>(isolate, tpl, "visible");
 
-    V8::SetAccessor(isolate, tpl, "isSpawned", &IsSpawnedGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "isSpawned", &IsSpawnedGetter);
 #endif  // ALT_CLIENT_API
 });

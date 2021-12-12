@@ -16,8 +16,8 @@ class WorkerTimer;
 class CWorker : public IImportHandler
 {
 public:
-    using EventHandlerMap = std::unordered_multimap<std::string, V8::EventCallback>;
-    using QueuedEvent = std::pair<std::string, std::vector<V8::Serialization::Value>>;
+    using EventHandlerMap = std::unordered_multimap<std::string, V8Helpers::EventCallback>;
+    using QueuedEvent = std::pair<std::string, std::vector<V8Helpers::Serialization::Value>>;
     using EventQueue = std::queue<QueuedEvent>;
     using TimerId = uint32_t;
     using BufferId = uint32_t;
@@ -42,7 +42,7 @@ private:
     std::mutex worker_queueLock;
 
     v8::Isolate* isolate = nullptr;
-    V8::CPersistent<v8::Context> context;
+    V8Helpers::CPersistent<v8::Context> context;
     std::unique_ptr<v8::MicrotaskQueue> microtaskQueue;
 
     TimerId nextTimerId = 0;
@@ -83,8 +83,8 @@ public:
         isolate->SetIdle(false);
     }
 
-    void EmitToWorker(const std::string& eventName, std::vector<V8::Serialization::Value>& args);
-    void EmitToMain(const std::string& eventName, std::vector<V8::Serialization::Value>& args);
+    void EmitToWorker(const std::string& eventName, std::vector<V8Helpers::Serialization::Value>& args);
+    void EmitToMain(const std::string& eventName, std::vector<V8Helpers::Serialization::Value>& args);
 
     void SubscribeToWorker(const std::string& eventName, v8::Local<v8::Function> callback, bool once = false);
     void SubscribeToMain(const std::string& eventName, v8::Local<v8::Function> callback, bool once = false);
@@ -94,7 +94,7 @@ public:
 
     void EmitError(const std::string& error);
 
-    TimerId CreateTimer(v8::Local<v8::Function> callback, uint32_t interval, bool once, V8::SourceLocation&& location);
+    TimerId CreateTimer(v8::Local<v8::Function> callback, uint32_t interval, bool once, V8Helpers::SourceLocation&& location);
     void RemoveTimer(TimerId id)
     {
         oldTimers.push_back(id);

@@ -22,14 +22,14 @@ static void On(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
         V8_ARG_TO_FUNCTION(1, callback);
 
-        resource->SubscribeGenericLocal(callback, V8::SourceLocation::GetCurrent(isolate));
+        resource->SubscribeGenericLocal(callback, V8Helpers::SourceLocation::GetCurrent(isolate));
     }
     else if(info.Length() == 2)
     {
         V8_ARG_TO_STRING(1, evName);
         V8_ARG_TO_FUNCTION(2, callback);
 
-        resource->SubscribeLocal(evName.ToString(), callback, V8::SourceLocation::GetCurrent(isolate));
+        resource->SubscribeLocal(evName.ToString(), callback, V8Helpers::SourceLocation::GetCurrent(isolate));
     }
 }
 
@@ -42,14 +42,14 @@ static void Once(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
         V8_ARG_TO_FUNCTION(1, callback);
 
-        resource->SubscribeGenericLocal(callback, V8::SourceLocation::GetCurrent(isolate), true);
+        resource->SubscribeGenericLocal(callback, V8Helpers::SourceLocation::GetCurrent(isolate), true);
     }
     else if(info.Length() == 2)
     {
         V8_ARG_TO_STRING(1, evName);
         V8_ARG_TO_FUNCTION(2, callback);
 
-        resource->SubscribeLocal(evName.ToString(), callback, V8::SourceLocation::GetCurrent(isolate), true);
+        resource->SubscribeLocal(evName.ToString(), callback, V8Helpers::SourceLocation::GetCurrent(isolate), true);
     }
 }
 
@@ -185,7 +185,7 @@ static void Log(const v8::FunctionCallbackInfo<v8::Value>& info)
 
         if(i > 0) ss << " ";
 
-        auto str = V8::Stringify(ctx, val);
+        auto str = V8Helpers::Stringify(ctx, val);
         if(str.empty()) continue;
 
         ss << str;
@@ -206,7 +206,7 @@ static void LogWarning(const v8::FunctionCallbackInfo<v8::Value>& info)
 
         if(i > 0) ss << " ";
 
-        auto str = V8::Stringify(ctx, val);
+        auto str = V8Helpers::Stringify(ctx, val);
         if(str.empty()) continue;
 
         ss << str;
@@ -227,7 +227,7 @@ static void LogError(const v8::FunctionCallbackInfo<v8::Value>& info)
 
         if(i > 0) ss << " ";
 
-        auto str = V8::Stringify(ctx, val);
+        auto str = V8Helpers::Stringify(ctx, val);
         if(str.empty()) continue;
 
         ss << str;
@@ -245,7 +245,7 @@ static void SetTimeout(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_FUNCTION(1, callback);
     V8_ARG_TO_INT(2, time);
 
-    V8_RETURN_INT(resource->CreateTimer(ctx, callback, time, true, V8::SourceLocation::GetCurrent(isolate)));
+    V8_RETURN_INT(resource->CreateTimer(ctx, callback, time, true, V8Helpers::SourceLocation::GetCurrent(isolate)));
 }
 
 static void SetInterval(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -257,7 +257,7 @@ static void SetInterval(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_FUNCTION(1, callback);
     V8_ARG_TO_INT(2, time);
 
-    V8_RETURN_INT(resource->CreateTimer(ctx, callback, time, false, V8::SourceLocation::GetCurrent(isolate)));
+    V8_RETURN_INT(resource->CreateTimer(ctx, callback, time, false, V8Helpers::SourceLocation::GetCurrent(isolate)));
 }
 
 static void NextTick(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -268,7 +268,7 @@ static void NextTick(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_FUNCTION(1, callback);
 
-    V8_RETURN_INT(resource->CreateTimer(ctx, callback, 0, true, V8::SourceLocation::GetCurrent(isolate)));
+    V8_RETURN_INT(resource->CreateTimer(ctx, callback, 0, true, V8Helpers::SourceLocation::GetCurrent(isolate)));
 }
 
 static void EveryTick(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -279,7 +279,7 @@ static void EveryTick(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_FUNCTION(1, callback);
 
-    V8_RETURN_INT(resource->CreateTimer(ctx, callback, 0, false, V8::SourceLocation::GetCurrent(isolate)));
+    V8_RETURN_INT(resource->CreateTimer(ctx, callback, 0, false, V8Helpers::SourceLocation::GetCurrent(isolate)));
 }
 
 static void ClearTimer(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -325,7 +325,7 @@ static void GetEventListeners(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_ARGS_LEN(1);
 
-    std::vector<V8::EventCallback*> handlers;
+    std::vector<V8Helpers::EventCallback*> handlers;
 
     if(info[0]->IsNull())
     {
@@ -351,7 +351,7 @@ static void GetRemoteEventListeners(const v8::FunctionCallbackInfo<v8::Value>& i
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_ARGS_LEN(1);
 
-    std::vector<V8::EventCallback*> handlers;
+    std::vector<V8Helpers::EventCallback*> handlers;
 
     if(info[0]->IsNull())
     {

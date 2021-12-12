@@ -13,7 +13,7 @@ public:
                 v8::Local<v8::Function> _callback,
                 uint32_t _interval,
                 bool _once,
-                V8::SourceLocation&& _location)
+                V8Helpers::SourceLocation&& _location)
         : worker(_worker), isolate(_isolate), context(_isolate, _context), lastRun(curTime), callback(_isolate, _callback), interval(_interval), once(_once), location(std::move(_location))
     {
     }
@@ -33,7 +33,7 @@ public:
         return true;
     }
 
-    const V8::SourceLocation& GetLocation() const
+    const V8Helpers::SourceLocation& GetLocation() const
     {
         return location;
     }
@@ -49,10 +49,10 @@ public:
 private:
     CWorker* worker;
     v8::Isolate* isolate;
-    V8::CPersistent<v8::Context> context;
-    V8::CPersistent<v8::Function> callback;
+    V8Helpers::CPersistent<v8::Context> context;
+    V8Helpers::CPersistent<v8::Function> callback;
     int64_t interval;
     int64_t lastRun = 0;
     bool once;
-    V8::SourceLocation location;
+    V8Helpers::SourceLocation location;
 };

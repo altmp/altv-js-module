@@ -19,5 +19,5 @@ public:
     v8::MaybeLocal<v8::Value> Require(const std::string& name);
     v8::MaybeLocal<v8::Module> ResolveFile(const std::string& name, v8::Local<v8::Module> referrer, alt::IResource* resource);
     v8::MaybeLocal<v8::Module> ResolveModule(const std::string& name, v8::Local<v8::Module> referrer, alt::IResource* resource);
-    v8::MaybeLocal<v8::Module> ResolveCode(const std::string& code, const V8::SourceLocation& location);
+    v8::MaybeLocal<v8::Module> ResolveCode(const std::string& code, const V8Helpers::SourceLocation& location);
 };

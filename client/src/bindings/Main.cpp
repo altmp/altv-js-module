@@ -18,14 +18,14 @@ static void OnServer(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
         V8_ARG_TO_FUNCTION(1, callback);
 
-        resource->SubscribeGenericRemote(callback, V8::SourceLocation::GetCurrent(isolate));
+        resource->SubscribeGenericRemote(callback, V8Helpers::SourceLocation::GetCurrent(isolate));
     }
     else if(info.Length() == 2)
     {
         V8_ARG_TO_STRING(1, eventName);
         V8_ARG_TO_FUNCTION(2, callback);
 
-        resource->SubscribeRemote(eventName.ToString(), callback, V8::SourceLocation::GetCurrent(isolate));
+        resource->SubscribeRemote(eventName.ToString(), callback, V8Helpers::SourceLocation::GetCurrent(isolate));
     }
 }
 
@@ -38,14 +38,14 @@ static void OnceServer(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
         V8_ARG_TO_FUNCTION(1, callback);
 
-        resource->SubscribeGenericRemote(callback, V8::SourceLocation::GetCurrent(isolate), true);
+        resource->SubscribeGenericRemote(callback, V8Helpers::SourceLocation::GetCurrent(isolate), true);
     }
     else if(info.Length() == 2)
     {
         V8_ARG_TO_STRING(1, eventName);
         V8_ARG_TO_FUNCTION(2, callback);
 
-        resource->SubscribeRemote(eventName.ToString(), callback, V8::SourceLocation::GetCurrent(isolate), true);
+        resource->SubscribeRemote(eventName.ToString(), callback, V8Helpers::SourceLocation::GetCurrent(isolate), true);
     }
 }
 
@@ -672,7 +672,7 @@ static void TakeScreenshot(const v8::FunctionCallbackInfo<v8::Value>& info)
           auto ctx = resolver->GetCreationContext().ToLocalChecked();
           {
               v8::Context::Scope ctxscope(ctx);
-              resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), V8::JSValue(base64));
+              resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), V8Helpers::JSValue(base64));
           }
 
           promises.remove(*persistent);
@@ -709,7 +709,7 @@ static void TakeScreenshotGameOnly(const v8::FunctionCallbackInfo<v8::Value>& in
           auto ctx = resolver->GetCreationContext().ToLocalChecked();
           {
               v8::Context::Scope ctxscope(ctx);
-              resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), V8::JSValue(base64));
+              resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), V8Helpers::JSValue(base64));
           }
 
           promises.remove(*persistent);
@@ -757,7 +757,7 @@ static void EvalModule(const v8::FunctionCallbackInfo<v8::Value>& info)
     v8::Local<v8::Module> module;
 
     auto result = V8Helpers::TryCatch([&] {
-        auto maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(code.ToString(), V8::SourceLocation::GetCurrent(isolate));
+        auto maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(code.ToString(), V8Helpers::SourceLocation::GetCurrent(isolate));
         if(maybeModule.IsEmpty())
         {
             V8Helpers::Throw(isolate, "Failed to resolve module");

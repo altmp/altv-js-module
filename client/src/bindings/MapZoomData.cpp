@@ -28,7 +28,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_CHECK(data, "zoomData with this id not found");
 
         uint8_t id = alt::ICore::Instance().GetMapDataIDFromAlias(zoomDataAlias);
-        info.This()->SetInternalField(0, V8::JSValue(id));
+        info.This()->SetInternalField(0, V8Helpers::JSValue(id));
     }
 }
 
@@ -178,13 +178,13 @@ extern V8Class v8MapZoomData("MapZoomData", Constructor, [](v8::Local<v8::Functi
 
     tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
-    V8::SetStaticMethod(isolate, tpl, "get", &Get);
-    V8::SetStaticMethod(isolate, tpl, "resetAll", &ResetAll);
+    V8Helpers::SetStaticMethod(isolate, tpl, "get", &Get);
+    V8Helpers::SetStaticMethod(isolate, tpl, "resetAll", &ResetAll);
 
-    V8::SetAccessor(isolate, tpl, "fZoomScale", &fZoomScaleGetter, &fZoomScaleSetter);
-    V8::SetAccessor(isolate, tpl, "fZoomSpeed", &fZoomSpeedGetter, &fZoomSpeedSetter);
-    V8::SetAccessor(isolate, tpl, "fScrollSpeed", &fScrollSpeedGetter, &fScrollSpeedSetter);
-    V8::SetAccessor(isolate, tpl, "vTilesX", &vTilesXGetter, &vTilesXSetter);
-    V8::SetAccessor(isolate, tpl, "vTilesY", &vTilesYGetter, &vTilesYSetter);
-    V8::SetMethod(isolate, tpl, "reset", &Reset);
+    V8Helpers::SetAccessor(isolate, tpl, "fZoomScale", &fZoomScaleGetter, &fZoomScaleSetter);
+    V8Helpers::SetAccessor(isolate, tpl, "fZoomSpeed", &fZoomSpeedGetter, &fZoomSpeedSetter);
+    V8Helpers::SetAccessor(isolate, tpl, "fScrollSpeed", &fScrollSpeedGetter, &fScrollSpeedSetter);
+    V8Helpers::SetAccessor(isolate, tpl, "vTilesX", &vTilesXGetter, &vTilesXSetter);
+    V8Helpers::SetAccessor(isolate, tpl, "vTilesY", &vTilesYGetter, &vTilesYSetter);
+    V8Helpers::SetMethod(isolate, tpl, "reset", &Reset);
 });

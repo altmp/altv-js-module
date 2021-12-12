@@ -18,7 +18,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_STRING(1, path);
 
-    alt::String origin = V8::GetCurrentSourceOrigin(isolate);
+    alt::String origin = V8Helpers::GetCurrentSourceOrigin(isolate);
     auto worker = new CWorker(path, origin, static_cast<CV8ResourceImpl*>(resource));
     info.This()->SetInternalField(0, v8::External::New(isolate, worker));
     static_cast<CV8ResourceImpl*>(resource)->AddWorker(worker);
@@ -85,11 +85,11 @@ static void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_STRING(1, eventName);
 
-    std::vector<V8::Serialization::Value> args;
+    std::vector<V8Helpers::Serialization::Value> args;
     args.reserve(info.Length() - 1);
     for(int i = 1; i < info.Length(); i++)
     {
-        auto arg = V8::Serialization::Serialize(ctx, info[i]);
+        auto arg = V8Helpers::Serialization::Serialize(ctx, info[i]);
         if(!arg.Valid())
         {
             V8Helpers::Throw(isolate, "Invalid argument");
@@ -191,24 +191,24 @@ extern V8Class v8Worker("Worker", &Constructor, [](v8::Local<v8::FunctionTemplat
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
     tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
-    tpl->Set(V8::JSValue("maxWorkers"), V8::JSValue(MAX_WORKERS), v8::PropertyAttribute::ReadOnly);
-    V8::SetStaticAccessor(isolate, tpl, "activeWorkers", &ActiveWorkersGetter);
+    tpl->Set(V8Helpers::JSValue("maxWorkers"), V8Helpers::JSValue(MAX_WORKERS), v8::PropertyAttribute::ReadOnly);
+    V8Helpers::SetStaticAccessor(isolate, tpl, "activeWorkers", &ActiveWorkersGetter);
 
-    V8::SetStaticMethod(isolate, tpl, "addSharedArrayBuffer", AddSharedArrayBuffer);
-    V8::SetStaticMethod(isolate, tpl, "removeSharedArrayBuffer", RemoveSharedArrayBuffer);
+    V8Helpers::SetStaticMethod(isolate, tpl, "addSharedArrayBuffer", AddSharedArrayBuffer);
+    V8Helpers::SetStaticMethod(isolate, tpl, "removeSharedArrayBuffer", RemoveSharedArrayBuffer);
 
-    V8::SetMethod(isolate, tpl, "toString", ToString);
-    V8::SetAccessor(isolate, tpl, "valid", ValidGetter);
-    V8::SetAccessor(isolate, tpl, "filePath", FilePathGetter);
+    V8Helpers::SetMethod(isolate, tpl, "toString", ToString);
+    V8Helpers::SetAccessor(isolate, tpl, "valid", ValidGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "filePath", FilePathGetter);
 
-    V8::SetMethod(isolate, tpl, "start", Start);
-    V8::SetMethod(isolate, tpl, "destroy", Destroy);
+    V8Helpers::SetMethod(isolate, tpl, "start", Start);
+    V8Helpers::SetMethod(isolate, tpl, "destroy", Destroy);
 
-    V8::SetMethod(isolate, tpl, "emit", Emit);
-    V8::SetMethod(isolate, tpl, "on", On);
-    V8::SetMethod(isolate, tpl, "once", Once);
+    V8Helpers::SetMethod(isolate, tpl, "emit", Emit);
+    V8Helpers::SetMethod(isolate, tpl, "on", On);
+    V8Helpers::SetMethod(isolate, tpl, "once", Once);
 
-    V8::SetAccessor(isolate, tpl, "isPaused", IsPausedGetter);
-    V8::SetMethod(isolate, tpl, "pause", Pause);
-    V8::SetMethod(isolate, tpl, "resume", Resume);
+    V8Helpers::SetAccessor(isolate, tpl, "isPaused", IsPausedGetter);
+    V8Helpers::SetMethod(isolate, tpl, "pause", Pause);
+    V8Helpers::SetMethod(isolate, tpl, "resume", Resume);
 });

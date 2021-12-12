@@ -20,7 +20,7 @@
         (_this->*setter)(type(_val));                                                                                                        \
     }
 
-namespace V8
+namespace V8Helpers
 {
     namespace detail
     {
@@ -65,7 +65,7 @@ namespace V8
         V8_CALL_SETTER(alt::Vector3f, V8_GET_ISOLATE_CONTEXT, V8_TO_VECTOR3);
         V8_CALL_SETTER(alt::Vector2f, V8_GET_ISOLATE_CONTEXT, V8_TO_VECTOR2);
         V8_CALL_SETTER(alt::RGBA, V8_GET_ISOLATE_CONTEXT, V8_TO_RGBA);
-        //V8_CALL_SETTER(alt::Ref<alt::IEntity>, V8_GET_ISOLATE_CONTEXT, V8_TO_ENTITY);
+        // V8_CALL_SETTER(alt::Ref<alt::IEntity>, V8_GET_ISOLATE_CONTEXT, V8_TO_ENTITY);
 
         template<class T, class U, U (T::*Getter)() const>
         static void WrapGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -95,18 +95,18 @@ namespace V8
     template<class T, class U, U (T::*Getter)() const>
     inline void SetAccessor(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> tpl, const char* name)
     {
-        V8::SetAccessor(isolate, tpl, name, &V8::detail::WrapGetter<T, U, Getter>, nullptr);
+        V8Helpers::SetAccessor(isolate, tpl, name, &V8Helpers::detail::WrapGetter<T, U, Getter>, nullptr);
     }
 
     template<class T, class U, U (T::*Getter)() const, void (T::*Setter)(U)>
     inline void SetAccessor(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> tpl, const char* name)
     {
-        V8::SetAccessor(isolate, tpl, name, V8::detail::WrapGetter<T, U, Getter>, V8::detail::WrapSetter<T, U, Setter>);
+        V8Helpers::SetAccessor(isolate, tpl, name, V8Helpers::detail::WrapGetter<T, U, Getter>, V8Helpers::detail::WrapSetter<T, U, Setter>);
     }
 
     template<class T, void (T::*Method)()>
     inline void SetMethod(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> tpl, const char* name)
     {
-        V8::SetMethod(isolate, tpl, name, V8::detail::WrapMethod<T, Method>);
+        V8Helpers::SetMethod(isolate, tpl, name, V8Helpers::detail::WrapMethod<T, Method>);
     }
-}  // namespace V8
+}  // namespace V8Helpers

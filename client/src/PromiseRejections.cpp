@@ -4,14 +4,15 @@
 
 #include "PromiseRejections.h"
 
-void V8::PromiseRejections::RejectedWithNoHandler(V8ResourceImpl* resource, v8::PromiseRejectMessage& data)
+void V8Helpers::PromiseRejections::RejectedWithNoHandler(V8ResourceImpl* resource, v8::PromiseRejectMessage& data)
 {
     v8::Isolate* isolate = resource->GetIsolate();
 
-    queue.push_back(std::make_unique<PromiseRejection>(isolate, data.GetPromise(), data.GetValue(), V8::SourceLocation::GetCurrent(isolate), V8::StackTrace::GetCurrent(isolate)));
+    queue.push_back(
+      std::make_unique<PromiseRejection>(isolate, data.GetPromise(), data.GetValue(), V8Helpers::SourceLocation::GetCurrent(isolate), V8Helpers::StackTrace::GetCurrent(isolate)));
 }
 
-void V8::PromiseRejections::HandlerAdded(V8ResourceImpl* resource, v8::PromiseRejectMessage& data)
+void V8Helpers::PromiseRejections::HandlerAdded(V8ResourceImpl* resource, v8::PromiseRejectMessage& data)
 {
     v8::Isolate* isolate = resource->GetIsolate();
 
@@ -20,7 +21,7 @@ void V8::PromiseRejections::HandlerAdded(V8ResourceImpl* resource, v8::PromiseRe
     queue.erase(newEnd, queue.end());
 }
 
-void V8::PromiseRejections::ProcessQueue(V8ResourceImpl* resource)
+void V8Helpers::PromiseRejections::ProcessQueue(V8ResourceImpl* resource)
 {
     v8::Isolate* isolate = resource->GetIsolate();
     v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
@@ -46,7 +47,8 @@ void V8::PromiseRejections::ProcessQueue(V8ResourceImpl* resource)
     queue.clear();
 }
 
-V8::PromiseRejection::PromiseRejection(v8::Isolate* isolate, v8::Local<v8::Promise> _promise, v8::Local<v8::Value> _value, V8::SourceLocation&& _location, V8::StackTrace&& _stackTrace)
+V8Helpers::PromiseRejection::PromiseRejection(
+  v8::Isolate* isolate, v8::Local<v8::Promise> _promise, v8::Local<v8::Value> _value, V8Helpers::SourceLocation&& _location, V8Helpers::StackTrace&& _stackTrace)
     : promise(isolate, _promise), value(isolate, _value), location(std::move(_location)), stackTrace(std::move(_stackTrace))
 {
 }

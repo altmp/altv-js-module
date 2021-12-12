@@ -1,6 +1,6 @@
 #pragma once
 
-namespace V8::Vehicle
+namespace V8Helpers::Vehicle
 {
     // TODO:
     /*void LastAttackerGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -171,4 +171,4 @@ namespace V8::Vehicle
 
         V8_RETURN_STRING(vehicle->GetHealthDataBase64().CStr());
     }
-}  // namespace V8::Vehicle
+}  // namespace V8Helpers::Vehicle

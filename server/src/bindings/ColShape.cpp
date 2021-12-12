@@ -30,11 +30,11 @@ extern V8Class v8WorldObject;
 extern V8Class v8Colshape("Colshape", v8WorldObject, nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    V8::SetAccessor<IColShape, IColShape::ColShapeType, &IColShape::GetColshapeType>(isolate, tpl, "colshapeType");
-    V8::SetAccessor<IColShape, bool, &IColShape::IsPlayersOnly, &IColShape::SetPlayersOnly>(isolate, tpl, "playersOnly");
+    V8Helpers::SetAccessor<IColShape, IColShape::ColShapeType, &IColShape::GetColshapeType>(isolate, tpl, "colshapeType");
+    V8Helpers::SetAccessor<IColShape, bool, &IColShape::IsPlayersOnly, &IColShape::SetPlayersOnly>(isolate, tpl, "playersOnly");
 
-    V8::SetMethod(isolate, tpl, "isEntityIn", IsEntityIn);
-    V8::SetMethod(isolate, tpl, "isPointIn", IsPointIn);
+    V8Helpers::SetMethod(isolate, tpl, "isEntityIn", IsEntityIn);
+    V8Helpers::SetMethod(isolate, tpl, "isPointIn", IsPointIn);
 });
 
 extern V8Class v8ColshapeCylinder(

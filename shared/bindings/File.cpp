@@ -11,7 +11,7 @@ static void StaticExists(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(1, _path);
 
 #ifdef ALT_CLIENT
-    alt::String origin = V8::GetCurrentSourceOrigin(isolate);
+    alt::String origin = V8Helpers::GetCurrentSourceOrigin(isolate);
     auto path = alt::ICore::Instance().Resolve(resource, _path, origin);
     V8_CHECK(path.pkg, "invalid asset pack");
     bool exists = path.pkg->FileExists(path.fileName);
@@ -38,7 +38,7 @@ static void StaticRead(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
 
 #ifdef ALT_CLIENT
-    alt::String origin = V8::GetCurrentSourceOrigin(isolate);
+    alt::String origin = V8Helpers::GetCurrentSourceOrigin(isolate);
     auto path = alt::ICore::Instance().Resolve(resource, name, origin);
     V8_CHECK(path.pkg, "invalid asset pack");
 
@@ -54,11 +54,11 @@ static void StaticRead(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     if(encoding == "utf-8")
     {
-        V8_RETURN(V8::JSValue(data));
+        V8_RETURN(V8Helpers::JSValue(data));
     }
     else if(encoding == "utf-16")
     {
-        V8_RETURN(V8::JSValue((uint16_t*)data.GetData()));
+        V8_RETURN(V8Helpers::JSValue((uint16_t*)data.GetData()));
     }
     else if(encoding == "binary")
     {
@@ -74,6 +74,6 @@ static void StaticRead(const v8::FunctionCallbackInfo<v8::Value>& info)
 extern V8Class v8File("File", [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    V8::SetStaticMethod(isolate, tpl, "exists", StaticExists);
-    V8::SetStaticMethod(isolate, tpl, "read", StaticRead);
+    V8Helpers::SetStaticMethod(isolate, tpl, "exists", StaticExists);
+    V8Helpers::SetStaticMethod(isolate, tpl, "read", StaticRead);
 });

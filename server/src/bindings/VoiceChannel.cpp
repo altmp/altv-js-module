@@ -84,10 +84,10 @@ extern V8Class v8BaseObject;
 extern V8Class v8VoiceChannel("VoiceChannel", v8BaseObject, Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    V8::SetMethod(isolate, tpl, "addPlayer", &AddPlayer);
-    V8::SetMethod(isolate, tpl, "removePlayer", &RemovePlayer);
-    V8::SetMethod(isolate, tpl, "isPlayerInChannel", &IsPlayerInChannel);
-    V8::SetMethod(isolate, tpl, "mutePlayer", &MutePlayer);
-    V8::SetMethod(isolate, tpl, "unmutePlayer", &UnmutePlayer);
-    V8::SetMethod(isolate, tpl, "isPlayerMuted", &IsPlayerMuted);
+    V8Helpers::SetMethod(isolate, tpl, "addPlayer", &AddPlayer);
+    V8Helpers::SetMethod(isolate, tpl, "removePlayer", &RemovePlayer);
+    V8Helpers::SetMethod(isolate, tpl, "isPlayerInChannel", &IsPlayerInChannel);
+    V8Helpers::SetMethod(isolate, tpl, "mutePlayer", &MutePlayer);
+    V8Helpers::SetMethod(isolate, tpl, "unmutePlayer", &UnmutePlayer);
+    V8Helpers::SetMethod(isolate, tpl, "isPlayerMuted", &IsPlayerMuted);
 });
