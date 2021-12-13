@@ -396,7 +396,7 @@ static inline v8::MaybeLocal<v8::Value> ReadRawValue(v8::Local<v8::Context> ctx,
                 v8::MaybeLocal<v8::Value> element = ReadRawValue(ctx, deserializer);
                 if(element.IsEmpty()) return v8::MaybeLocal<v8::Value>();
                 bool result;
-                if(!array->Set(ctx, i, element.ToLocalChecked()).To(&result) && !result) return v8::MaybeLocal<v8::Value>();
+                if(!array->Set(ctx, i, element.ToLocalChecked()).To(&result) || !result) return v8::MaybeLocal<v8::Value>();
             }
             return array;
         }
