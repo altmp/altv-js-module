@@ -21,6 +21,11 @@ class V8FastFunction
     }
     static V8FastFunction* Get(const std::string& name, const std::string& className);
 
+    static inline std::string GetIdentifier(const std::string& name, const std::string& className)
+    {
+        return name + ":" + className;
+    }
+
     V8FastFunction() = default;
 
 public:
@@ -40,7 +45,7 @@ public:
         // Not cached, create a new instance
         V8FastFunction* f = new V8FastFunction(slowFunc);
         f->fastCallback = v8::CFunction::Make(fastFunc);
-        All()[std::make_pair(name, className)] = f;
+        All().insert({ GetIdentifier(name, className), f });
         return f;
     }
 
