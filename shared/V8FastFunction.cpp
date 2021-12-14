@@ -6,7 +6,7 @@ V8FastFunction* V8FastFunction::Get(const std::string& name, const std::string& 
 {
     // There are probably better ways to do a unique identifier for this
     // but this is enough for our usecase
-    auto it = All().find(name + ":" + className);
+    auto it = All().find(GetIdentifier(name, className));
     if(it == All().end()) return nullptr;
     return it->second;
 }
