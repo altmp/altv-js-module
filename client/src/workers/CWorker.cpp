@@ -5,6 +5,7 @@
 #include "../CV8Resource.h"
 #include "V8Module.h"
 #include "WorkerTimer.h"
+#include "V8FastFunction.h"
 
 #include <functional>
 
@@ -270,6 +271,7 @@ void CWorker::DestroyIsolate()
     while(isolate->IsInUse()) isolate->Exit();
     V8Module::Clear(isolate);
     V8Class::UnloadAll(isolate);
+    V8FastFunction::UnloadAll(isolate);
     context.Reset();
     v8::platform::NotifyIsolateShutdown(CV8ScriptRuntime::Instance().GetPlatform(), isolate);
     isolate->Dispose();
