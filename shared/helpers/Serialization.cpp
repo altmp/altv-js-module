@@ -412,7 +412,6 @@ static inline v8::MaybeLocal<v8::Value> ReadRawValue(v8::Local<v8::Context> ctx,
 // Converts a JS value to a MValue byte array
 alt::MValueByteArray V8Helpers::V8ToRawBytes(v8::Local<v8::Value> val)
 {
-    auto start = std::chrono::high_resolution_clock::now();
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
     v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
 
