@@ -4,11 +4,12 @@
 #include "inspector/CV8InspectorChannel.h"
 #include "V8Module.h"
 #include "events/Events.h"
+#include "CPlatform.h"
 
 CV8ScriptRuntime::CV8ScriptRuntime()
 {
     v8::V8::SetFlagsFromString("--harmony-import-assertions --short-builtin-calls");
-    platform = v8::platform::NewDefaultPlatform();
+    platform = std::make_unique<CPlatform>();
     v8::V8::InitializePlatform(platform.get());
     v8::V8::InitializeICU((alt::ICore::Instance().GetClientPath() + "/libs/icudtl.dat").CStr());
     v8::V8::Initialize();
