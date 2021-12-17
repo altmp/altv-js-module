@@ -1,12 +1,18 @@
 #include "cpp-sdk/SDK.h"
 #include "CV8ScriptRuntime.h"
 #include "Log.h"
+#include "CPlatform.h"
 
 #ifdef ALTV_JS_SHARED
     #define ALTV_JS_EXPORT extern "C" __declspec(dllexport)
 #else
     #define ALTV_JS_EXPORT extern "C"
 #endif
+
+static void DumpDebugInfoCommand(alt::Array<alt::StringView>, void* runtime)
+{
+    CZoneBackingAllocator::Instance()->WriteDebugInfoToFile();
+}
 
 static void HeapCommand(alt::Array<alt::StringView>, void* runtime)
 {
@@ -104,6 +110,7 @@ ALTV_JS_EXPORT void CreateScriptRuntime(alt::ICore* core)
     core->RegisterScriptRuntime("js", &runtime);
 
     // Commands
+    core->SubscribeCommand("dumpdebuginfo", &DumpDebugInfoCommand, &runtime);
     core->SubscribeCommand("heap", &HeapCommand, &runtime);
     core->SubscribeCommand("heapspaces", &HeapSpacesCommand, &runtime);
     core->SubscribeCommand("heapobjects", &HeapObjectsCommand, &runtime);

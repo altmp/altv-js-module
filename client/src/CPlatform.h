@@ -60,5 +60,7 @@ public:
     void PushAllocation(void* ptr, size_t size);
     void PushDeallocation(void* ptr);
 
+    void WriteDebugInfoToFile();
+
     static CZoneBackingAllocator* Instance();
 };

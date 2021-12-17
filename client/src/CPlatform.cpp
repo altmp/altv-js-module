@@ -1,5 +1,6 @@
 #include "CPlatform.h"
 #include "Log.h"
+#include "CV8ScriptRuntime.h"
 #include "cpp-sdk/ICore.h"
 
 #include <chrono>
@@ -109,6 +110,40 @@ void CZoneBackingAllocator::PushAllocation(void* ptr, size_t size)
 void CZoneBackingAllocator::PushDeallocation(void* ptr)
 {
     deallocations.push_back({ ptr });
+}
+
+static std::string CurrentDateTime()
+{
+    time_t now = time(0);
+    tm tstruct;
+    char buf[80];
+    tstruct = *localtime(&now);
+    strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
+
+    return buf;
+}
+// todo: write this in a proper format
+void CZoneBackingAllocator::WriteDebugInfoToFile()
+{
+    std::fstream stream((alt::ICore::Instance().GetClientPath() + "/v8_debug_info_" + CurrentDateTime() + ".out").CStr());
+    if(!stream.good())
+    {
+        Log::Error << "[V8] Failed to write debug info to file" << Log::Endl;
+        return;
+    }
+
+    stream << "Allocations: \n";
+    for(auto& allocation : allocations)
+    {
+        stream << std::dec << allocation.size << " | " << std::hex << allocation.ptr << "\n";
+    }
+    stream << "Deallocations: \n";
+    for(auto& deallocation : deallocations)
+    {
+        stream << std::hex << deallocation.ptr << "\n";
+    }
+
+    stream.close();
 }
 
 CZoneBackingAllocator* CZoneBackingAllocator::Instance()
