@@ -11,6 +11,11 @@
 
 static void DumpDebugInfoCommand(alt::Array<alt::StringView>, void* runtime)
 {
+    if(!alt::ICore::Instance().IsDebug())
+    {
+        Log::Error << "This command is only available in debug mode" << Log::Endl;
+        return;
+    }
     CZoneBackingAllocator::Instance()->WriteDebugInfoToFile();
 }
 
