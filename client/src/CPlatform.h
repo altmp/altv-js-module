@@ -37,10 +37,14 @@ class CZoneBackingAllocator : public v8::ZoneBackingAllocator
     {
         size_t size;
         void* ptr;
+
+        Allocation(size_t size, void* ptr) : size(size), ptr(ptr) {}
     };
     struct Deallocation
     {
         void* ptr;
+
+        Deallocation(void* ptr) : ptr(ptr) {}
     };
 
     bool isDebug;
