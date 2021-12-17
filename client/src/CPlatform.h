@@ -30,3 +30,31 @@ public:
     v8::ZoneBackingAllocator* GetZoneBackingAllocator() override;
     void DumpWithoutCrashing() override;
 };
+
+class CZoneBackingAllocator : public v8::ZoneBackingAllocator
+{
+    struct Allocation
+    {
+        size_t size;
+        void* ptr;
+    };
+    struct Deallocation
+    {
+        void* ptr;
+    };
+
+    bool isDebug;
+    std::vector<Allocation> allocations;
+    std::vector<Deallocation> deallocations;
+
+    CZoneBackingAllocator(bool isDebug) : isDebug(isDebug) {}
+
+public:
+    MallocFn GetMallocFn() const;
+    FreeFn GetFreeFn() const;
+
+    void PushAllocation(void* ptr, size_t size);
+    void PushDeallocation(void* ptr);
+
+    static CZoneBackingAllocator* Instance();
+};

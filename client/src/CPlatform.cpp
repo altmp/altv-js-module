@@ -65,11 +65,54 @@ v8::PageAllocator* CPlatform::GetPageAllocator()
 
 v8::ZoneBackingAllocator* CPlatform::GetZoneBackingAllocator()
 {
-    return v8::Platform::GetZoneBackingAllocator();
+    return CZoneBackingAllocator::Instance();
 }
 
 void CPlatform::DumpWithoutCrashing()
 {
     Log::Error << "[V8] V8 crashed, printing current stack trace: " << Log::Endl;
     GetStackTracePrinter()();
+}
+
+void* debugMalloc(size_t size)
+{
+    void* ptr = malloc(size);
+    CZoneBackingAllocator::Instance()->PushAllocation(ptr, size);
+    return ptr;
+}
+
+void debugFree(void* ptr)
+{
+    CZoneBackingAllocator::Instance()->PushDeallocation(ptr);
+    std::free(ptr);
+}
+
+CZoneBackingAllocator::MallocFn CZoneBackingAllocator::GetMallocFn() const
+{
+    if(isDebug) return debugMalloc;
+    else
+        return std::malloc;
+}
+
+CZoneBackingAllocator::FreeFn CZoneBackingAllocator::GetFreeFn() const
+{
+    if(isDebug) return debugFree;
+    else
+        return std::free;
+}
+
+void CZoneBackingAllocator::PushAllocation(void* ptr, size_t size)
+{
+    allocations.push_back({ size, ptr });
+}
+
+void CZoneBackingAllocator::PushDeallocation(void* ptr)
+{
+    deallocations.push_back({ ptr });
+}
+
+CZoneBackingAllocator* CZoneBackingAllocator::Instance()
+{
+    static CZoneBackingAllocator zoneBackingAllocator(alt::ICore::Instance().IsDebug());
+    return &zoneBackingAllocator;
 }
