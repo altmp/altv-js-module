@@ -96,7 +96,7 @@ public:
 
     void UnsubscribeGenericRemote(v8::Local<v8::Function> cb)
     {
-        for(auto& it : localGenericHandlers)
+        for(auto& it : remoteGenericHandlers)
         {
             if(it.fn.Get(isolate)->StrictEquals(cb)) it.removed = true;
         }
