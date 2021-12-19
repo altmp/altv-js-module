@@ -3,6 +3,9 @@
 #include "V8ResourceImpl.h"
 #include "V8Helpers.h"
 #include <climits>
+#ifdef ALT_CLIENT
+    #include "CV8Resource.h"
+#endif
 
 bool V8Helpers::TryCatch(const std::function<bool()>& fn)
 {
@@ -26,9 +29,19 @@ bool V8Helpers::TryCatch(const std::function<bool()>& fn)
 
             if(!origin.ResourceName()->IsUndefined())
             {
-                Log::Error << "[V8] Exception at " << resource->GetName() << ":" << *v8::String::Utf8Value(isolate, origin.ResourceName()) << ":" << line.ToChecked() << Log::Endl;
+                // Only relevant for client
+                bool isBytecodeResource = false;
+#ifdef ALT_CLIENT
+                isBytecodeResource = static_cast<CV8ResourceImpl*>(v8resource)->IsBytecodeResource();
+#endif
+                if(line.IsNothing() || isBytecodeResource)
+                {
+                    Log::Error << "[V8] Exception at " << resource->GetName() << ":" << *v8::String::Utf8Value(isolate, origin.ResourceName()) << Log::Endl;
+                }
+                else
+                    Log::Error << "[V8] Exception at " << resource->GetName() << ":" << *v8::String::Utf8Value(isolate, origin.ResourceName()) << ":" << line.ToChecked() << Log::Endl;
 
-                if(!maybeSourceLine.IsEmpty())
+                if(!maybeSourceLine.IsEmpty() && !isBytecodeResource)
                 {
                     v8::Local<v8::String> sourceLine = maybeSourceLine.ToLocalChecked();
 

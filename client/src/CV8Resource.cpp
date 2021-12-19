@@ -97,7 +97,7 @@ bool CV8ResourceImpl::Start()
     pkg->ReadFile(file, byteBuffer, fileSize);
     pkg->CloseFile(file);
 
-    bool isBytecode = IsBytecodeModule(byteBuffer, fileSize);
+    isBytecodeResource = IsBytecodeModule(byteBuffer, fileSize);
 
     Log::Info << "[V8] Starting script " << path << Log::Endl;
 
@@ -105,7 +105,7 @@ bool CV8ResourceImpl::Start()
 
     bool result = V8Helpers::TryCatch([&]() {
         v8::MaybeLocal<v8::Module> maybeModule;
-        if(!isBytecode)
+        if(!isBytecodeResource)
         {
             alt::String src{ (char*)byteBuffer, fileSize };
             v8::ScriptCompiler::Source source{ V8Helpers::JSValue(src), scriptOrigin };
