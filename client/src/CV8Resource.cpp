@@ -95,10 +95,9 @@ bool CV8ResourceImpl::Start()
     size_t fileSize = pkg->GetFileSize(file);
     uint8_t* byteBuffer = new uint8_t[fileSize];
     pkg->ReadFile(file, byteBuffer, fileSize);
+    pkg->CloseFile(file);
 
     bool isBytecode = IsBytecodeModule(byteBuffer, fileSize);
-
-    pkg->CloseFile(file);
 
     Log::Info << "[V8] Starting script " << path << Log::Endl;
 

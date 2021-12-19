@@ -213,12 +213,21 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveFile(const std::string& name, 
     V8Helpers::TryCatch([&] {
         alt::IPackage::File* file = path.pkg->OpenFile(fileName);
 
-        // todo: add bytecode support
-        std::string src(path.pkg->GetFileSize(file), '\0');
-        path.pkg->ReadFile(file, src.data(), src.size());
+        size_t fileSize = path.pkg->GetFileSize(file);
+        uint8_t* byteBuffer = new uint8_t[fileSize];
+        path.pkg->ReadFile(file, byteBuffer, fileSize);
         path.pkg->CloseFile(file);
 
-        maybeModule = CompileESM(isolate, fullName, src);
+        bool isBytecode = IsBytecodeModule(byteBuffer, fileSize);
+        if(!isBytecode)
+        {
+            alt::String src{ (char*)byteBuffer, fileSize };
+            maybeModule = CompileESM(isolate, fullName, src.ToString());
+        }
+        else
+        {
+            maybeModule = ResolveBytecode(byteBuffer, fileSize);
+        }
 
         if(maybeModule.IsEmpty()) return false;
 
