@@ -79,12 +79,16 @@ void V8ResourceImpl::OnTick()
 
     for(auto it = localGenericHandlers.begin(); it != localGenericHandlers.end(); it++)
     {
-        if(it->removed) localGenericHandlers.erase(it);
+        if(it->removed) it = localGenericHandlers.erase(it);
+        else
+            ++it;
     }
 
     for(auto it = remoteGenericHandlers.begin(); it != remoteGenericHandlers.end(); it++)
     {
-        if(it->removed) remoteGenericHandlers.erase(it);
+        if(it->removed) it = remoteGenericHandlers.erase(it);
+        else
+            ++it;
     }
 }
 
