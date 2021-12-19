@@ -351,16 +351,11 @@ static inline void RunEventQueue(CWorker::EventQueue& queue, CWorker::EventHandl
         }
 
         // Call all handlers with the arguments
-        std::vector<V8Helpers::EventCallback*> callbacks;
         auto handlers = eventHandlers.equal_range(event.first);
         for(auto it = handlers.first; it != handlers.second; it++)
         {
-            callbacks.push_back(&it->second);
-        }
-        for(auto callback : callbacks)
-        {
-            callback->fn.Get(isolate)->Call(context, v8::Undefined(isolate), args.size(), args.data());
-            if(callback->once) callback->removed = true;
+            it->second.fn.Get(isolate)->Call(context, v8::Undefined(isolate), args.size(), args.data());
+            if(it->second.once) it->second.removed = true;
         }
 
         // Pop the event from the queue
