@@ -96,11 +96,7 @@ bool CV8ResourceImpl::Start()
     uint8_t* byteBuffer = new uint8_t[fileSize];
     pkg->ReadFile(file, byteBuffer, fileSize);
 
-    // !!! Keep this in sync with the magic bytes in bytecode module
-    static const char magic[] = { 'A', 'L', 'T', 'B', 'C' };
-    bool isBytecode = false;
-    // Check if file content is bytecode
-    if(memcmp(byteBuffer, magic, sizeof(magic)) == 0) isBytecode = true;
+    bool isBytecode = IsBytecodeModule(byteBuffer, fileSize);
 
     pkg->CloseFile(file);
 
@@ -118,14 +114,7 @@ bool CV8ResourceImpl::Start()
         }
         else
         {
-            v8::ScriptCompiler::CachedData cachedData((byteBuffer + sizeof(magic)), fileSize);
-            v8::ScriptCompiler::Source source{ V8Helpers::JSValue(""), &cachedData };
-            maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source, v8::ScriptCompiler::kConsumeCodeCache);
-            if(cachedData.rejected)
-            {
-                V8Helpers::Throw(isolate, "Invalid bytecode");
-                return false;
-            }
+            maybeModule = ResolveBytecode(byteBuffer, fileSize);
         }
 
         if(maybeModule.IsEmpty()) return false;

@@ -53,6 +53,16 @@ bool IImportHandler::IsValidModule(const std::string& name)
     return false;
 }
 
+// !!! Keep this in sync with the magic bytes in bytecode module
+static constexpr char bytecodeMagic[] = { 'A', 'L', 'T', 'B', 'C' };
+bool IImportHandler::IsBytecodeModule(uint8_t* buffer, size_t size)
+{
+    if(size < sizeof(bytecodeMagic)) return false;
+    if(memcmp(buffer, bytecodeMagic, sizeof(bytecodeMagic)) == 0) return true;
+    else
+        return false;
+}
+
 std::deque<std::string> IImportHandler::GetModuleKeys(const std::string& name)
 {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -203,6 +213,7 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveFile(const std::string& name, 
     V8Helpers::TryCatch([&] {
         alt::IPackage::File* file = path.pkg->OpenFile(fileName);
 
+        // todo: add bytecode support
         std::string src(path.pkg->GetFileSize(file), '\0');
         path.pkg->ReadFile(file, src.data(), src.size());
         path.pkg->CloseFile(file);
@@ -315,4 +326,19 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveCode(const std::string& code, 
     maybeModule = CompileESM(isolate, name.str(), code);
 
     return maybeModule;
+}
+
+v8::MaybeLocal<v8::Module> IImportHandler::ResolveBytecode(uint8_t* buffer, size_t size)
+{
+    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+    v8::ScriptCompiler::CachedData cachedData(buffer + sizeof(bytecodeMagic), size - sizeof(bytecodeMagic));
+    v8::ScriptCompiler::Source source{ V8Helpers::JSValue(""), &cachedData };
+    v8::MaybeLocal<v8::Module> module = v8::ScriptCompiler::CompileModule(isolate, &source, v8::ScriptCompiler::kConsumeCodeCache);
+    if(cachedData.rejected)
+    {
+        V8Helpers::Throw(isolate, "Invalid bytecode");
+        return v8::MaybeLocal<v8::Module>();
+    }
+    else
+        return module;
 }
