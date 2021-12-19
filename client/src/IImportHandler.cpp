@@ -228,6 +228,7 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveFile(const std::string& name, 
         {
             maybeModule = ResolveBytecode(byteBuffer, fileSize);
         }
+        delete byteBuffer;
 
         if(maybeModule.IsEmpty()) return false;
 
