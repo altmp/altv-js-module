@@ -92,20 +92,41 @@ bool CV8ResourceImpl::Start()
     alt::IPackage* pkg = resource->GetPackage();
     alt::IPackage::File* file = pkg->OpenFile(path);
 
-    alt::String src{ pkg->GetFileSize(file) };
+    size_t fileSize = pkg->GetFileSize(file);
+    uint8_t* byteBuffer = new uint8_t[fileSize];
+    pkg->ReadFile(file, byteBuffer, fileSize);
 
-    pkg->ReadFile(file, src.GetData(), src.GetSize());
+    // !!! Keep this in sync with the magic bytes in bytecode module
+    static const char magic[] = { 'A', 'L', 'T', 'B', 'C' };
+    bool isBytecode = false;
+    // Check if file content is bytecode
+    if(memcmp(byteBuffer, magic, sizeof(magic)) == 0) isBytecode = true;
+
     pkg->CloseFile(file);
 
     Log::Info << "[V8] Starting script " << path << Log::Endl;
 
-    v8::Local<v8::String> sourceCode = V8Helpers::JSValue(src);
-
     v8::ScriptOrigin scriptOrigin(isolate, V8Helpers::JSValue(path.c_str()), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
 
     bool result = V8Helpers::TryCatch([&]() {
-        v8::ScriptCompiler::Source source{ sourceCode, scriptOrigin };
-        v8::MaybeLocal<v8::Module> maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source);
+        v8::MaybeLocal<v8::Module> maybeModule;
+        if(!isBytecode)
+        {
+            alt::String src{ (char*)byteBuffer, fileSize };
+            v8::ScriptCompiler::Source source{ V8Helpers::JSValue(src), scriptOrigin };
+            maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source);
+        }
+        else
+        {
+            v8::ScriptCompiler::CachedData cachedData((byteBuffer + sizeof(magic)), fileSize);
+            v8::ScriptCompiler::Source source{ V8Helpers::JSValue(""), &cachedData };
+            maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source, v8::ScriptCompiler::kConsumeCodeCache);
+            if(cachedData.rejected)
+            {
+                V8Helpers::Throw(isolate, "Invalid bytecode");
+                return false;
+            }
+        }
 
         if(maybeModule.IsEmpty()) return false;
 
@@ -147,6 +168,7 @@ bool CV8ResourceImpl::Start()
         Log::Info << "[V8] Started script " << path << Log::Endl;
         return true;
     });
+    delete byteBuffer;
 
     if(!result)
     {
