@@ -269,6 +269,7 @@ bool CWorker::SetupIsolate()
             return;
         }
     });
+    delete byteBuffer;
     if(!error.empty() || failed)
     {
         if(!error.empty()) EmitError(error);
