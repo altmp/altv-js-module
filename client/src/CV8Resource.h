@@ -141,7 +141,7 @@ public:
 
     bool IsBytecodeResource()
     {
-        return isBytecodeResource;
+        return isUsingBytecode;
     }
 
 private:
@@ -171,6 +171,4 @@ private:
     friend class CV8ScriptRuntime;
 
     V8Helpers::PromiseRejections promiseRejections;
-
-    bool isBytecodeResource = false;
 };

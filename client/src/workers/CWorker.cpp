@@ -220,14 +220,14 @@ bool CWorker::SetupIsolate()
     path.pkg->ReadFile(file, byteBuffer, fileSize);
     path.pkg->CloseFile(file);
 
-    bool isBytecodeFile = IsBytecodeModule(byteBuffer, fileSize);
+    isUsingBytecode = resource->IsBytecodeResource();
 
     bool failed = false;
     // Compile the code
     auto error = TryCatch([&]() {
         std::string fullPath = (path.prefix + path.fileName).ToString();
         v8::MaybeLocal<v8::Module> maybeModule;
-        if(!isBytecodeFile)
+        if(!isUsingBytecode)
         {
             alt::String src{ (char*)byteBuffer, fileSize };
             v8::ScriptOrigin scriptOrigin(isolate, V8Helpers::JSValue(fullPath), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
