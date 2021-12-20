@@ -236,7 +236,7 @@ bool CWorker::SetupIsolate()
         }
         else
         {
-            maybeModule = ResolveBytecode(byteBuffer, fileSize);
+            maybeModule = ResolveBytecode(fullPath, byteBuffer, fileSize);
         }
 
         if(maybeModule.IsEmpty())
