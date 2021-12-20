@@ -54,7 +54,7 @@ bool IImportHandler::IsValidModule(const std::string& name)
 }
 
 // !!! Keep this in sync with the magic bytes in bytecode module
-static constexpr char bytecodeMagic[] = { 'A', 'L', 'T', 'B', 'C' };
+static const char bytecodeMagic[] = { 'A', 'L', 'T', 'B', 'C' };
 bool IImportHandler::IsBytecodeModule(uint8_t* buffer, size_t size)
 {
     if(size < sizeof(bytecodeMagic)) return false;
@@ -340,13 +340,16 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveCode(const std::string& code, 
 v8::MaybeLocal<v8::Module> IImportHandler::ResolveBytecode(const std::string& name, uint8_t* buffer, size_t size)
 {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
-    v8::ScriptCompiler::CachedData cachedData(buffer + sizeof(bytecodeMagic), size - sizeof(bytecodeMagic));
+    size_t bytecodeSize = size - sizeof(bytecodeMagic);
+    uint8_t* bytecode = new uint8_t[bytecodeSize];
+    memcpy(bytecode, buffer + sizeof(bytecodeMagic), bytecodeSize);
+    v8::ScriptCompiler::CachedData* cachedData = new v8::ScriptCompiler::CachedData(bytecode, bytecodeSize, v8::ScriptCompiler::CachedData::BufferOwned);
     v8::ScriptOrigin origin(isolate, V8Helpers::JSValue(name), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
-    v8::ScriptCompiler::Source source{ V8Helpers::JSValue(""), origin, &cachedData };
+    v8::ScriptCompiler::Source source{ V8Helpers::JSValue(""), origin, cachedData };
     v8::MaybeLocal<v8::Module> module = v8::ScriptCompiler::CompileModule(isolate, &source, v8::ScriptCompiler::kConsumeCodeCache);
-    if(cachedData.rejected)
+    if(cachedData->rejected)
     {
-        V8Helpers::Throw(isolate, "Invalid bytecode");
+        Log::Error << "[V8] Trying to load invalid bytecode" << Log::Endl;
         return v8::MaybeLocal<v8::Module>();
     }
     else
