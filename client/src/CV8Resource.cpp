@@ -101,19 +101,18 @@ bool CV8ResourceImpl::Start()
 
     Log::Info << "[V8] Starting script " << path << Log::Endl;
 
-    v8::ScriptOrigin scriptOrigin(isolate, V8Helpers::JSValue(path.c_str()), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
-
     bool result = V8Helpers::TryCatch([&]() {
         v8::MaybeLocal<v8::Module> maybeModule;
         if(!isUsingBytecode)
         {
             alt::String src{ (char*)byteBuffer, fileSize };
+            v8::ScriptOrigin scriptOrigin(isolate, V8Helpers::JSValue(path), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
             v8::ScriptCompiler::Source source{ V8Helpers::JSValue(src), scriptOrigin };
             maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source);
         }
         else
         {
-            maybeModule = ResolveBytecode(byteBuffer, fileSize);
+            maybeModule = ResolveBytecode(path, byteBuffer, fileSize);
         }
 
         if(maybeModule.IsEmpty()) return false;

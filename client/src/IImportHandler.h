@@ -23,5 +23,5 @@ public:
     v8::MaybeLocal<v8::Module> ResolveFile(const std::string& name, v8::Local<v8::Module> referrer, alt::IResource* resource);
     v8::MaybeLocal<v8::Module> ResolveModule(const std::string& name, v8::Local<v8::Module> referrer, alt::IResource* resource);
     v8::MaybeLocal<v8::Module> ResolveCode(const std::string& code, const V8Helpers::SourceLocation& location);
-    v8::MaybeLocal<v8::Module> ResolveBytecode(uint8_t* buffer, size_t size);
+    v8::MaybeLocal<v8::Module> ResolveBytecode(const std::string& name, uint8_t* buffer, size_t size);
 };

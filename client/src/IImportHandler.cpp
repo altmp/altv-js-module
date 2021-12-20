@@ -225,7 +225,7 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveFile(const std::string& name, 
         }
         else
         {
-            maybeModule = ResolveBytecode(byteBuffer, fileSize);
+            maybeModule = ResolveBytecode(fullName, byteBuffer, fileSize);
         }
         delete byteBuffer;
 
@@ -337,11 +337,12 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveCode(const std::string& code, 
     return maybeModule;
 }
 
-v8::MaybeLocal<v8::Module> IImportHandler::ResolveBytecode(uint8_t* buffer, size_t size)
+v8::MaybeLocal<v8::Module> IImportHandler::ResolveBytecode(const std::string& name, uint8_t* buffer, size_t size)
 {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
     v8::ScriptCompiler::CachedData cachedData(buffer + sizeof(bytecodeMagic), size - sizeof(bytecodeMagic));
-    v8::ScriptCompiler::Source source{ V8Helpers::JSValue(""), &cachedData };
+    v8::ScriptOrigin origin(isolate, V8Helpers::JSValue(name), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
+    v8::ScriptCompiler::Source source{ V8Helpers::JSValue(""), origin, &cachedData };
     v8::MaybeLocal<v8::Module> module = v8::ScriptCompiler::CompileModule(isolate, &source, v8::ScriptCompiler::kConsumeCodeCache);
     if(cachedData.rejected)
     {
