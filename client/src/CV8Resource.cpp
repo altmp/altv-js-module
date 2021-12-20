@@ -139,6 +139,18 @@ bool CV8ResourceImpl::Start()
 
         if(v.IsEmpty()) return false;
 
+        if(curModule->GetStatus() == v8::Module::Status::kErrored)
+        {
+            v8::Local<v8::Promise> promise = v.ToLocalChecked().As<v8::Promise>();
+            bool hasHandler = promise->HasHandler();
+            if(!hasHandler)
+            {
+                promise->MarkAsHandled();
+                isolate->ThrowException(promise->Result());
+                return false;
+            }
+        }
+
         alt::MValue _exports = V8Helpers::V8ToMValue(curModule->GetModuleNamespace());
         resource->SetExports(_exports.As<alt::IMValueDict>());
 
