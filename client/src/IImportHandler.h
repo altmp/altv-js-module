@@ -10,6 +10,8 @@ protected:
     std::unordered_map<std::string, v8::UniquePersistent<v8::Value>> requires;
     std::unordered_map<std::string, v8::UniquePersistent<v8::Module>> modules;
 
+    bool isUsingBytecode = false;
+
 public:
     bool IsValidModule(const std::string& name);
     bool IsBytecodeModule(uint8_t* buffer, size_t size);
