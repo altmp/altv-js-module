@@ -1,6 +1,5 @@
 #include "IImportHandler.h"
 #include "V8Module.h"
-#include <filesystem>
 
 static inline v8::MaybeLocal<v8::Module> CompileESM(v8::Isolate* isolate, const std::string& name, const std::string& src)
 {
@@ -144,26 +143,13 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveFile(const std::string& name, 
 
     if(!path.pkg) return v8::MaybeLocal<v8::Module>();
 
-    std::string fileName = path.fileName.ToString();
+    auto fileName = path.fileName.ToString();
 
+    if(fileName.size() == 0)
     {
-        std::filesystem::path filePath{ fileName };
-        std::string extension = filePath.extension().string();
-        if(extension.size() == 0) Log::Warning << "[V8] File paths without a file extension are deprecated. Specify the file extension when importing instead. (" << name << ")" << Log::Endl;
-    }
-
-    if(fileName.empty() || fileName.size() == 0)
-    {
-        if(path.pkg->FileExists("index.js"))
-        {
-            fileName = "index.js";
-            Log::Warning << "[V8] Directory file paths are deprecated. Provide the full path to the 'index.js' file instead. (" << name << ")" << Log::Endl;
-        }
+        if(path.pkg->FileExists("index.js")) fileName = "index.js";
         else if(path.pkg->FileExists("index.mjs"))
-        {
             fileName = "index.mjs";
-            Log::Warning << "[V8] Directory file paths are deprecated. Provide the full path to the 'index.js' file instead. (" << name << ")" << Log::Endl;
-        }
         else
             return v8::MaybeLocal<v8::Module>();
     }
@@ -173,23 +159,11 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveFile(const std::string& name, 
         else if(path.pkg->FileExists(fileName + ".mjs"))
             fileName += ".mjs";
         else if(path.pkg->FileExists(fileName + "/index.js"))
-        {
             fileName += "/index.js";
-            Log::Warning << "[V8] Directory file paths are deprecated. Provide the full path to the 'index.js' file instead. (" << name << ")" << Log::Endl;
-        }
         else if(path.pkg->FileExists(fileName + "/index.mjs"))
-        {
             fileName += "/index.mjs";
-            Log::Warning << "[V8] Directory file paths are deprecated. Provide the full path to the 'index.js' file instead. (" << name << ")" << Log::Endl;
-        }
         else if(!path.pkg->FileExists(fileName))
             return v8::MaybeLocal<v8::Module>();
-    }
-
-    {
-        std::filesystem::path filePath{ fileName };
-        std::string extension = filePath.extension().string();
-        if(extension == ".mjs") Log::Warning << "[V8] The .mjs file extension is deprecated, use .js instead. (" << name << ")" << Log::Endl;
     }
 
     std::string fullName = path.prefix.ToString() + fileName;
