@@ -371,7 +371,7 @@ v8::MaybeLocal<v8::Value> V8Helpers::CallFunctionWithTimeout(v8::Local<v8::Funct
     hasFinished = true;
     if(hasTimedOut)
     {
-        V8Helpers::Throw(isolate, "Script execution timed out");
+        Log::Error << "[V8] Script execution timed out" << Log::Endl;
         return v8::MaybeLocal<v8::Value>();
     }
     return result;
