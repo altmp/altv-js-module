@@ -36,14 +36,15 @@ public:
     v8::Local<v8::FunctionTemplate> GetTemplate(v8::Isolate* isolate);
 
     template<typename Func>
-    static V8FastFunction* GetOrCreate(const std::string& name, const std::string& className, v8::FunctionCallback&& slowFunc, Func&& fastFunc)
+    static V8FastFunction* GetOrCreate(const std::string& name, const std::string& className, v8::FunctionCallback slowFunc, Func&& fastFunc)
     {
         // First check if we have this fast function already cached
         V8FastFunction* cached = Get(name, className);
         if(cached != nullptr) return cached;
 
         // Not cached, create a new instance
-        V8FastFunction* f = new V8FastFunction(slowFunc);
+        V8FastFunction* f = new V8FastFunction();
+        f->slowCallback = slowFunc;
         f->fastCallback = v8::CFunction::Make(fastFunc);
         All().insert({ GetIdentifier(name, className), f });
         return f;
