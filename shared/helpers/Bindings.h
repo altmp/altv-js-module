@@ -40,7 +40,7 @@ namespace V8Helpers
     // Only specify the last parameter when creating a class method
     template<typename FastFunc>
     void SetFastFunction(
-      v8::Isolate* isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Object> target, const char* name, v8::FunctionCallback slowCb, FastFunc&& fastCb, const char* className = nullptr)
+      v8::Isolate* isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Object> target, const char* name, v8::FunctionCallback slowCb, FastFunc&& fastCb, const char* className = "")
     {
         V8FastFunction* func = V8FastFunction::GetOrCreate(name, className, slowCb, fastCb);
         target->Set(ctx, V8Helpers::JSValue(name), func->GetTemplate(isolate)->GetFunction(ctx).ToLocalChecked());
