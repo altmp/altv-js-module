@@ -356,7 +356,7 @@ static inline void RunEventQueue(CWorker::EventQueue& queue, CWorker::EventHandl
         auto handlers = eventHandlers.equal_range(event.first);
         for(auto it = handlers.first; it != handlers.second; it++)
         {
-            it->second.fn.Get(isolate)->Call(context, v8::Undefined(isolate), args.size(), args.data());
+            V8Helpers::CallFunctionWithTimeout(it->second.fn.Get(isolate), context, args);
             if(it->second.once) it->second.removed = true;
         }
 
