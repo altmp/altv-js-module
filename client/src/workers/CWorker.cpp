@@ -167,16 +167,15 @@ bool CWorker::SetupIsolate()
               if(maybeModule.IsEmpty()) resolver->Reject(context, v8::Exception::ReferenceError(V8Helpers::JSValue("Could not resolve module")));
               else
               {
-                  v8::Local<v8::Module> module = maybeModule.ToLocalChecked();
-                  if((module->GetStatus() != v8::Module::Status::kEvaluated && module->GetStatus() != v8::Module::Status::kErrored) &&
-                     !module->InstantiateModule(context, Import).ToChecked())
+                  v8::Local<v8::Module> mod = maybeModule.ToLocalChecked();
+                  if((mod->GetStatus() != v8::Module::Status::kEvaluated && mod->GetStatus() != v8::Module::Status::kErrored) && !mod->InstantiateModule(context, Import).ToChecked())
                       resolver->Reject(context, v8::Exception::ReferenceError(V8Helpers::JSValue("Error instantiating module")));
 
-                  if((module->GetStatus() != v8::Module::Status::kEvaluated && module->GetStatus() != v8::Module::Status::kErrored) && module->Evaluate(context).IsEmpty())
+                  if((mod->GetStatus() != v8::Module::Status::kEvaluated && mod->GetStatus() != v8::Module::Status::kErrored) && mod->Evaluate(context).IsEmpty())
                       resolver->Reject(context, v8::Exception::ReferenceError(V8Helpers::JSValue("Error evaluating module")));
 
                   else
-                      resolver->Resolve(context, module->GetModuleNamespace());
+                      resolver->Resolve(context, mod->GetModuleNamespace());
               }
           }
 
@@ -233,12 +232,12 @@ bool CWorker::SetupIsolate()
             failed = true;
             return;
         }
-        auto module = maybeModule.ToLocalChecked();
+        auto mod = maybeModule.ToLocalChecked();
 
-        modules.emplace(fullPath, v8::UniquePersistent<v8::Module>{ isolate, module });
+        modules.emplace(fullPath, v8::UniquePersistent<v8::Module>{ isolate, mod });
 
         // Start the code
-        v8::Maybe<bool> result = module->InstantiateModule(ctx, Import);
+        v8::Maybe<bool> result = mod->InstantiateModule(ctx, Import);
         if(result.IsNothing() || result.ToChecked() == false)
         {
             EmitError("Failed to instantiate worker module");
@@ -248,7 +247,7 @@ bool CWorker::SetupIsolate()
         }
 
         // Evaluate the code
-        auto returnValue = module->Evaluate(ctx);
+        auto returnValue = mod->Evaluate(ctx);
         if(returnValue.IsEmpty())
         {
             EmitError("Failed to evaluate worker module");

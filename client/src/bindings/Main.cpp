@@ -754,7 +754,7 @@ static void EvalModule(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(1);
     V8_ARG_TO_STRING(1, code);
 
-    v8::Local<v8::Module> module;
+    v8::Local<v8::Module> mod;
 
     auto result = V8Helpers::TryCatch([&] {
         auto maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(code.ToString(), V8Helpers::SourceLocation::GetCurrent(isolate));
@@ -764,15 +764,15 @@ static void EvalModule(const v8::FunctionCallbackInfo<v8::Value>& info)
             return false;
         }
 
-        module = maybeModule.ToLocalChecked();
-        v8::Maybe<bool> result = module->InstantiateModule(ctx, CV8ScriptRuntime::ResolveModule);
+        mod = maybeModule.ToLocalChecked();
+        v8::Maybe<bool> result = mod->InstantiateModule(ctx, CV8ScriptRuntime::ResolveModule);
         if(result.IsNothing() || result.ToChecked() == false)
         {
             V8Helpers::Throw(isolate, "Failed to instantiate module");
             return false;
         }
 
-        auto returnValue = module->Evaluate(ctx);
+        auto returnValue = mod->Evaluate(ctx);
         if(returnValue.IsEmpty())
         {
             V8Helpers::Throw(isolate, "Failed to evaluate module");
@@ -783,7 +783,7 @@ static void EvalModule(const v8::FunctionCallbackInfo<v8::Value>& info)
     });
     if(!result) return;
 
-    V8_RETURN(module->GetModuleNamespace());
+    V8_RETURN(mod->GetModuleNamespace());
 }
 
 static void GetHeadshotBase64(const v8::FunctionCallbackInfo<v8::Value>& info)
