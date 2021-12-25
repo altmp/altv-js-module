@@ -5,7 +5,7 @@
 #include "v8.h"
 #include "V8Helpers.h"
 
-class V8ResourceImpl;
+class CV8ResourceImpl;
 
 namespace V8Helpers
 {
@@ -22,9 +22,9 @@ namespace V8Helpers
     class PromiseRejections
     {
     public:
-        void RejectedWithNoHandler(V8ResourceImpl* resource, v8::PromiseRejectMessage& data);
-        void HandlerAdded(V8ResourceImpl* resource, v8::PromiseRejectMessage& data);
-        void ProcessQueue(V8ResourceImpl* resource);
+        void RejectedWithNoHandler(CV8ResourceImpl* resource, v8::PromiseRejectMessage& data);
+        void HandlerAdded(CV8ResourceImpl* resource, v8::PromiseRejectMessage& data);
+        void ProcessQueue(CV8ResourceImpl* resource);
 
     private:
         std::vector<std::unique_ptr<PromiseRejection>> queue;

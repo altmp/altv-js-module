@@ -46,6 +46,7 @@ include_directories(
   ${ALTV_JS_CPP_SDK}
   ${ALTV_JS_DEPS_DIR}/v8/include
   ../shared
+  ${PROJECT_SOURCE_DIR}/src
 )
 
 set(ALTV_JS_LINKS
