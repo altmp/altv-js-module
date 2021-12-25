@@ -23,8 +23,8 @@ public:
     using BufferId = uint32_t;
 
 private:
-    alt::String filePath;
-    alt::String origin;
+    std::string filePath;
+    std::string origin;
     std::thread thread;
     CV8ResourceImpl* resource;
     bool shouldTerminate = false;
@@ -66,7 +66,7 @@ private:
     }
 
 public:
-    CWorker(alt::String& filePath, alt::String& origin, CV8ResourceImpl* resource);
+    CWorker(std::string& filePath, std::string& origin, CV8ResourceImpl* resource);
     ~CWorker() = default;
 
     void Start();
@@ -102,7 +102,7 @@ public:
 
     std::string GetFilePath()
     {
-        return filePath.ToString();
+        return filePath;
     }
     bool IsReady()
     {
