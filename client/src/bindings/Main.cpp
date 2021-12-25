@@ -745,47 +745,6 @@ static void LoadModelAsync(const v8::FunctionCallbackInfo<v8::Value>& info)
     alt::ICore::Instance().LoadModelAsync(hash);
 }
 
-static void EvalModule(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    // Deprecation added: 05/11/2021 (version 7.0)
-    V8_DEPRECATE("alt.evalModule", "the 'source' import type assertion");
-    V8_GET_ISOLATE_CONTEXT_RESOURCE();
-
-    V8_CHECK_ARGS_LEN(1);
-    V8_ARG_TO_STRING(1, code);
-
-    v8::Local<v8::Module> mod;
-
-    auto result = V8Helpers::TryCatch([&] {
-        auto maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(code.ToString(), V8Helpers::SourceLocation::GetCurrent(isolate));
-        if(maybeModule.IsEmpty())
-        {
-            V8Helpers::Throw(isolate, "Failed to resolve module");
-            return false;
-        }
-
-        mod = maybeModule.ToLocalChecked();
-        v8::Maybe<bool> result = mod->InstantiateModule(ctx, CV8ScriptRuntime::ResolveModule);
-        if(result.IsNothing() || result.ToChecked() == false)
-        {
-            V8Helpers::Throw(isolate, "Failed to instantiate module");
-            return false;
-        }
-
-        auto returnValue = mod->Evaluate(ctx);
-        if(returnValue.IsEmpty())
-        {
-            V8Helpers::Throw(isolate, "Failed to evaluate module");
-            return false;
-        }
-
-        return true;
-    });
-    if(!result) return;
-
-    V8_RETURN(mod->GetModuleNamespace());
-}
-
 static void GetHeadshotBase64(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -993,8 +952,6 @@ extern V8Module altModule("alt",
 
                               V8Helpers::RegisterFunc(exports, "loadYtyp", &LoadYtyp);
                               V8Helpers::RegisterFunc(exports, "unloadYtyp", &UnloadYtyp);
-
-                              V8Helpers::RegisterFunc(exports, "evalModule", &EvalModule);
 
                               V8Helpers::RegisterFunc(exports, "getHeadshotBase64", &GetHeadshotBase64);
 
