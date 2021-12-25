@@ -2,10 +2,11 @@
 #include "cpp-sdk/ICore.h"
 #include "V8ResourceImpl.h"
 #include "V8Helpers.h"
-#include <climits>
 #ifdef ALT_CLIENT
     #include "CV8Resource.h"
 #endif
+
+#include <climits>
 #include <thread>
 #include <chrono>
 
