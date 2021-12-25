@@ -1,10 +1,10 @@
 
-#include "V8ResourceImpl.h"
+#include "CV8Resource.h"
 #include "V8Helpers.h"
 
 #include "PromiseRejections.h"
 
-void V8Helpers::PromiseRejections::RejectedWithNoHandler(V8ResourceImpl* resource, v8::PromiseRejectMessage& data)
+void V8Helpers::PromiseRejections::RejectedWithNoHandler(CV8ResourceImpl* resource, v8::PromiseRejectMessage& data)
 {
     v8::Isolate* isolate = resource->GetIsolate();
 
@@ -12,7 +12,7 @@ void V8Helpers::PromiseRejections::RejectedWithNoHandler(V8ResourceImpl* resourc
       std::make_unique<PromiseRejection>(isolate, data.GetPromise(), data.GetValue(), V8Helpers::SourceLocation::GetCurrent(isolate), V8Helpers::StackTrace::GetCurrent(isolate)));
 }
 
-void V8Helpers::PromiseRejections::HandlerAdded(V8ResourceImpl* resource, v8::PromiseRejectMessage& data)
+void V8Helpers::PromiseRejections::HandlerAdded(CV8ResourceImpl* resource, v8::PromiseRejectMessage& data)
 {
     v8::Isolate* isolate = resource->GetIsolate();
 
@@ -21,7 +21,7 @@ void V8Helpers::PromiseRejections::HandlerAdded(V8ResourceImpl* resource, v8::Pr
     queue.erase(newEnd, queue.end());
 }
 
-void V8Helpers::PromiseRejections::ProcessQueue(V8ResourceImpl* resource)
+void V8Helpers::PromiseRejections::ProcessQueue(CV8ResourceImpl* resource)
 {
     v8::Isolate* isolate = resource->GetIsolate();
     v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
@@ -30,7 +30,7 @@ void V8Helpers::PromiseRejections::ProcessQueue(V8ResourceImpl* resource)
     {
         std::string rejectionMsg = *v8::String::Utf8Value(isolate, rejection->value.Get(isolate)->ToString(ctx).ToLocalChecked());
         auto fileName = rejection->location.GetFileName();
-        if(rejection->location.GetLineNumber() != 0)
+        if(rejection->location.GetLineNumber() != 0 && !resource->IsBytecodeResource())
         {
             Log::Error << "[V8] Unhandled promise rejection at " << resource->GetResource()->GetName() << ":" << fileName << ":" << rejection->location.GetLineNumber() << " ("
                        << rejectionMsg << ")" << Log::Endl;

@@ -139,6 +139,11 @@ public:
         webViewsEventsQueue[view].push_back(std::pair(evName, mvArgs));
     }
 
+    bool IsBytecodeResource()
+    {
+        return isUsingBytecode;
+    }
+
 private:
     using WebViewEvents = std::unordered_multimap<std::string, V8Helpers::EventCallback>;
     using WebViewsEventsQueue = std::unordered_map<alt::Ref<alt::IWebView>, std::vector<std::pair<alt::String, alt::MValueArgs>>>;

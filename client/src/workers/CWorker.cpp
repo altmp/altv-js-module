@@ -216,17 +216,30 @@ bool CWorker::SetupIsolate()
         return false;
     }
     auto file = path.pkg->OpenFile(path.fileName);
-    std::string src(path.pkg->GetFileSize(file), '\0');
-    auto size = path.pkg->ReadFile(file, src.data(), src.size());
+    size_t fileSize = path.pkg->GetFileSize(file);
+    uint8_t* byteBuffer = new uint8_t[fileSize];
+    path.pkg->ReadFile(file, byteBuffer, fileSize);
     path.pkg->CloseFile(file);
+
+    isUsingBytecode = resource->IsBytecodeResource();
 
     bool failed = false;
     // Compile the code
     auto error = TryCatch([&]() {
         std::string fullPath = (path.prefix + path.fileName).ToString();
-        v8::ScriptOrigin scriptOrigin(isolate, V8Helpers::JSValue(fullPath), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
-        v8::ScriptCompiler::Source source(V8Helpers::JSValue(src), scriptOrigin);
-        auto maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source);
+        v8::MaybeLocal<v8::Module> maybeModule;
+        if(!isUsingBytecode)
+        {
+            alt::String src{ (char*)byteBuffer, fileSize };
+            v8::ScriptOrigin scriptOrigin(isolate, V8Helpers::JSValue(fullPath), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
+            v8::ScriptCompiler::Source source{ V8Helpers::JSValue(src), scriptOrigin };
+            maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source);
+        }
+        else
+        {
+            maybeModule = ResolveBytecode(fullPath, byteBuffer, fileSize);
+        }
+
         if(maybeModule.IsEmpty())
         {
             EmitError("Failed to compile worker module");
@@ -257,6 +270,7 @@ bool CWorker::SetupIsolate()
             return;
         }
     });
+    delete byteBuffer;
     if(!error.empty() || failed)
     {
         if(!error.empty()) EmitError(error);

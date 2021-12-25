@@ -7,7 +7,8 @@
 
 CV8ScriptRuntime::CV8ScriptRuntime()
 {
-    v8::V8::SetFlagsFromString("--harmony-import-assertions --short-builtin-calls");
+    // !!! Don't change these without adjusting bytecode module !!!
+    v8::V8::SetFlagsFromString("--harmony-import-assertions --short-builtin-calls --no-lazy");
     platform = v8::platform::NewDefaultPlatform();
     v8::V8::InitializePlatform(platform.get());
     v8::V8::InitializeICU((alt::ICore::Instance().GetClientPath() + "/libs/icudtl.dat").CStr());
