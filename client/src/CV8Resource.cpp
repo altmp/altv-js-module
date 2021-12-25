@@ -48,9 +48,9 @@ extern void StaticRequire(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 void CV8ResourceImpl::ProcessDynamicImports()
 {
-    for(auto import : dynamicImports)
+    for(auto importFn : dynamicImports)
     {
-        import();
+        importFn();
     }
     dynamicImports.clear();
 }
