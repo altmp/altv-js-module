@@ -181,4 +181,6 @@ namespace V8Helpers
         return *v8::String::Utf8Value(isolate, stackTrace->GetFrame(isolate, 0)->GetScriptName());
     }
 
+    v8::MaybeLocal<v8::Value> CallFunctionWithTimeout(v8::Local<v8::Function> fn, v8::Local<v8::Context> ctx, std::vector<v8::Local<v8::Value>>& args, uint32_t timeout = 5000);
+
 }  // namespace V8Helpers

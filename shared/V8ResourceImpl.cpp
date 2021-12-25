@@ -284,7 +284,7 @@ void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vecto
         int64_t time = GetTime();
 
         V8Helpers::TryCatch([&] {
-            v8::MaybeLocal<v8::Value> retn = handler->fn.Get(isolate)->Call(GetContext(), v8::Undefined(isolate), args.size(), args.data());
+            v8::MaybeLocal<v8::Value> retn = V8Helpers::CallFunctionWithTimeout(handler->fn.Get(isolate), GetContext(), args);
             if(retn.IsEmpty()) return false;
 
             v8::Local<v8::Value> returnValue = retn.ToLocalChecked();
@@ -331,7 +331,7 @@ alt::MValue V8ResourceImpl::FunctionImpl::Call(alt::MValueArgs args) const
 
     alt::MValue res;
     V8Helpers::TryCatch([&] {
-        v8::MaybeLocal<v8::Value> _res = function.Get(isolate)->CallAsFunction(resource->GetContext(), v8::Undefined(isolate), v8Args.size(), v8Args.data());
+        v8::MaybeLocal<v8::Value> _res = V8Helpers::CallFunctionWithTimeout(function.Get(isolate), resource->GetContext(), v8Args);
 
         if(_res.IsEmpty()) return false;
 

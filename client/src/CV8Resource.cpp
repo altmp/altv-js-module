@@ -48,9 +48,9 @@ extern void StaticRequire(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 void CV8ResourceImpl::ProcessDynamicImports()
 {
-    for(auto import : dynamicImports)
+    for(auto importFn : dynamicImports)
     {
-        import();
+        importFn();
     }
     dynamicImports.clear();
 }
@@ -147,6 +147,18 @@ bool CV8ResourceImpl::Start()
 
         if(v.IsEmpty()) return false;
 
+        if(curModule->GetStatus() == v8::Module::Status::kErrored)
+        {
+            v8::Local<v8::Promise> promise = v.ToLocalChecked().As<v8::Promise>();
+            bool hasHandler = promise->HasHandler();
+            if(!hasHandler)
+            {
+                promise->MarkAsHandled();
+                isolate->ThrowException(promise->Result());
+                return false;
+            }
+        }
+
         alt::MValue _exports = V8Helpers::V8ToMValue(curModule->GetModuleNamespace());
         resource->SetExports(_exports.As<alt::IMValueDict>());
 
@@ -222,10 +234,10 @@ bool CV8ResourceImpl::Stop()
             {
                 res->modules.erase(it);
             }
-            auto found = res->requires.find(name);
-            if(found != res->requires.end())
+            auto found = res->requiresMap.find(name);
+            if(found != res->requiresMap.end())
             {
-                res->requires.erase(found);
+                res->requiresMap.erase(found);
             }
         }
 
