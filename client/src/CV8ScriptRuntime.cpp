@@ -108,11 +108,11 @@ CV8ScriptRuntime::CV8ScriptRuntime()
                   return;
               }
 
-              auto module = mmodule.ToLocalChecked();
+              auto mod = mmodule.ToLocalChecked();
               V8Helpers::TryCatch([&] {
-                  if(module->GetStatus() == v8::Module::Status::kUninstantiated)
+                  if(mod->GetStatus() == v8::Module::Status::kUninstantiated)
                   {
-                      auto result = module->InstantiateModule(ctx, ResolveModule);
+                      auto result = mod->InstantiateModule(ctx, ResolveModule);
                       if(result.IsNothing() || !result.FromJust())
                       {
                           resolver->Reject(ctx, v8::Exception::ReferenceError(V8Helpers::JSValue("Error instantiating module")));
@@ -120,13 +120,13 @@ CV8ScriptRuntime::CV8ScriptRuntime()
                       }
                   }
 
-                  if((module->GetStatus() != v8::Module::Status::kEvaluated && module->GetStatus() != v8::Module::Status::kErrored) && module->Evaluate(ctx).IsEmpty())
+                  if((mod->GetStatus() != v8::Module::Status::kEvaluated && mod->GetStatus() != v8::Module::Status::kErrored) && mod->Evaluate(ctx).IsEmpty())
                   {
                       resolver->Reject(ctx, v8::Exception::ReferenceError(V8Helpers::JSValue("Error evaluating module")));
                       return false;
                   }
 
-                  resolver->Resolve(ctx, module->GetModuleNamespace());
+                  resolver->Resolve(ctx, mod->GetModuleNamespace());
                   return true;
               });
           };
@@ -264,7 +264,7 @@ v8::MaybeLocal<v8::Module>
             return v8::MaybeLocal<v8::Module>();
         }
 
-        v8::Local<v8::Module> module;
+        v8::Local<v8::Module> mod;
         bool result = V8Helpers::TryCatch([&] {
             v8::MaybeLocal<v8::Module> maybeModule;
             std::string specifierStr = *v8::String::Utf8Value(isolate, specifier);
@@ -324,15 +324,15 @@ v8::MaybeLocal<v8::Module>
                 V8Helpers::Throw(isolate, "Failed to resolve module");
                 return false;
             }
-            module = maybeModule.ToLocalChecked();
-            v8::Maybe<bool> result = module->InstantiateModule(ctx, CV8ScriptRuntime::ResolveModule);
+            mod = maybeModule.ToLocalChecked();
+            v8::Maybe<bool> result = mod->InstantiateModule(ctx, CV8ScriptRuntime::ResolveModule);
             if(result.IsNothing() || result.ToChecked() == false)
             {
                 V8Helpers::Throw(isolate, "Failed to instantiate module");
                 return false;
             }
 
-            auto returnValue = module->Evaluate(ctx);
+            auto returnValue = mod->Evaluate(ctx);
             if(returnValue.IsEmpty())
             {
                 V8Helpers::Throw(isolate, "Failed to evaluate module");
@@ -343,7 +343,7 @@ v8::MaybeLocal<v8::Module>
         });
         if(!result) return v8::MaybeLocal<v8::Module>();
         else
-            return v8::MaybeLocal<v8::Module>(module);
+            return v8::MaybeLocal<v8::Module>(mod);
     }
 
     return static_cast<CV8ResourceImpl*>(resource)->ResolveModule(_specifier, referrer, resource->GetResource());

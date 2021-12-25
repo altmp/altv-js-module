@@ -5,6 +5,7 @@
 #include "../CV8Resource.h"
 #include "V8Module.h"
 #include "WorkerTimer.h"
+#include "V8FastFunction.h"
 
 #include <functional>
 
@@ -55,7 +56,8 @@ void CWorker::Thread()
     {
         // Isolate is set up, the worker is now ready
         isReady = true;
-        EmitToMain("load", std::vector<V8Helpers::Serialization::Value>());
+        std::vector<V8Helpers::Serialization::Value> args;
+        EmitToMain("load", args);
 
         v8::Locker locker(isolate);
         v8::Isolate::Scope isolate_scope(isolate);
@@ -166,16 +168,15 @@ bool CWorker::SetupIsolate()
               if(maybeModule.IsEmpty()) resolver->Reject(context, v8::Exception::ReferenceError(V8Helpers::JSValue("Could not resolve module")));
               else
               {
-                  v8::Local<v8::Module> module = maybeModule.ToLocalChecked();
-                  if((module->GetStatus() != v8::Module::Status::kEvaluated && module->GetStatus() != v8::Module::Status::kErrored) &&
-                     !module->InstantiateModule(context, Import).ToChecked())
+                  v8::Local<v8::Module> mod = maybeModule.ToLocalChecked();
+                  if((mod->GetStatus() != v8::Module::Status::kEvaluated && mod->GetStatus() != v8::Module::Status::kErrored) && !mod->InstantiateModule(context, Import).ToChecked())
                       resolver->Reject(context, v8::Exception::ReferenceError(V8Helpers::JSValue("Error instantiating module")));
 
-                  if((module->GetStatus() != v8::Module::Status::kEvaluated && module->GetStatus() != v8::Module::Status::kErrored) && module->Evaluate(context).IsEmpty())
+                  if((mod->GetStatus() != v8::Module::Status::kEvaluated && mod->GetStatus() != v8::Module::Status::kErrored) && mod->Evaluate(context).IsEmpty())
                       resolver->Reject(context, v8::Exception::ReferenceError(V8Helpers::JSValue("Error evaluating module")));
 
                   else
-                      resolver->Resolve(context, module->GetModuleNamespace());
+                      resolver->Resolve(context, mod->GetModuleNamespace());
               }
           }
 
@@ -245,12 +246,12 @@ bool CWorker::SetupIsolate()
             failed = true;
             return;
         }
-        auto module = maybeModule.ToLocalChecked();
+        auto mod = maybeModule.ToLocalChecked();
 
-        modules.emplace(fullPath, v8::UniquePersistent<v8::Module>{ isolate, module });
+        modules.emplace(fullPath, v8::UniquePersistent<v8::Module>{ isolate, mod });
 
         // Start the code
-        v8::Maybe<bool> result = module->InstantiateModule(ctx, Import);
+        v8::Maybe<bool> result = mod->InstantiateModule(ctx, Import);
         if(result.IsNothing() || result.ToChecked() == false)
         {
             EmitError("Failed to instantiate worker module");
@@ -260,7 +261,7 @@ bool CWorker::SetupIsolate()
         }
 
         // Evaluate the code
-        auto returnValue = module->Evaluate(ctx);
+        auto returnValue = mod->Evaluate(ctx);
         if(returnValue.IsEmpty())
         {
             EmitError("Failed to evaluate worker module");
@@ -284,6 +285,7 @@ void CWorker::DestroyIsolate()
     while(isolate->IsInUse()) isolate->Exit();
     V8Module::Clear(isolate);
     V8Class::UnloadAll(isolate);
+    V8FastFunction::UnloadAll(isolate);
     context.Reset();
     v8::platform::NotifyIsolateShutdown(CV8ScriptRuntime::Instance().GetPlatform(), isolate);
     isolate->Dispose();
@@ -368,7 +370,7 @@ static inline void RunEventQueue(CWorker::EventQueue& queue, CWorker::EventHandl
         auto handlers = eventHandlers.equal_range(event.first);
         for(auto it = handlers.first; it != handlers.second; it++)
         {
-            it->second.fn.Get(isolate)->Call(context, v8::Undefined(isolate), args.size(), args.data());
+            V8Helpers::CallFunctionWithTimeout(it->second.fn.Get(isolate), context, args);
             if(it->second.once) it->second.removed = true;
         }
 
