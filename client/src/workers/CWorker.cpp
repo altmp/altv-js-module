@@ -9,7 +9,7 @@
 
 #include <functional>
 
-CWorker::CWorker(alt::String& filePath, alt::String& origin, CV8ResourceImpl* resource) : filePath(filePath), origin(origin), resource(resource) {}
+CWorker::CWorker(std::string& filePath, std::string& origin, CV8ResourceImpl* resource) : filePath(filePath), origin(origin), resource(resource) {}
 
 void CWorker::Start()
 {

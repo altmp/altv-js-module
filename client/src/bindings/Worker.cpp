@@ -18,8 +18,8 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_STRING(1, path);
 
-    alt::String origin = V8Helpers::GetCurrentSourceOrigin(isolate);
-    auto worker = new CWorker(path, origin, static_cast<CV8ResourceImpl*>(resource));
+    std::string origin = V8Helpers::GetCurrentSourceOrigin(isolate);
+    auto worker = new CWorker(path.ToString(), origin, static_cast<CV8ResourceImpl*>(resource));
     info.This()->SetInternalField(0, v8::External::New(isolate, worker));
     static_cast<CV8ResourceImpl*>(resource)->AddWorker(worker);
 }
