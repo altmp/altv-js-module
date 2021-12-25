@@ -56,7 +56,8 @@ void CWorker::Thread()
     {
         // Isolate is set up, the worker is now ready
         isReady = true;
-        EmitToMain("load", std::vector<V8Helpers::Serialization::Value>());
+        std::vector<V8Helpers::Serialization::Value> args;
+        EmitToMain("load", args);
 
         v8::Locker locker(isolate);
         v8::Isolate::Scope isolate_scope(isolate);

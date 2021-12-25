@@ -22,7 +22,10 @@ public:
     {
         if(curTime - lastRun >= interval)
         {
-            auto result = CWorker::TryCatch([&] { V8Helpers::CallFunctionWithTimeout(callback.Get(isolate), context.Get(isolate), std::vector<v8::Local<v8::Value>>()); });
+            auto result = CWorker::TryCatch([&] {
+                std::vector<v8::Local<v8::Value>> args;
+                V8Helpers::CallFunctionWithTimeout(callback.Get(isolate), context.Get(isolate), args);
+            });
             if(!result.empty()) worker->EmitError(result);
 
             lastRun = curTime;
