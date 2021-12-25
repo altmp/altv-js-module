@@ -17,7 +17,8 @@ public:
         if(curTime - lastRun >= interval)
         {
             V8Helpers::TryCatch([&] {
-                v8::MaybeLocal<v8::Value> result = V8Helpers::CallFunctionWithTimeout(callback.Get(isolate), context.Get(isolate), std::vector<v8::Local<v8::Value>>());
+                std::vector<v8::Local<v8::Value>> args;
+                v8::MaybeLocal<v8::Value> result = V8Helpers::CallFunctionWithTimeout(callback.Get(isolate), context.Get(isolate), args);
                 return !result.IsEmpty();
             });
 

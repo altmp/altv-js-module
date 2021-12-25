@@ -225,10 +225,10 @@ bool CV8ResourceImpl::Stop()
             {
                 res->modules.erase(it);
             }
-            auto found = res->requires.find(name);
-            if(found != res->requires.end())
+            auto found = res->requiresMap.find(name);
+            if(found != res->requiresMap.end())
             {
-                res->requires.erase(found);
+                res->requiresMap.erase(found);
             }
         }
 

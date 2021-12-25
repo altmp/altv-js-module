@@ -7,7 +7,7 @@
 class IImportHandler
 {
 protected:
-    std::unordered_map<std::string, v8::UniquePersistent<v8::Value>> requires;
+    std::unordered_map<std::string, v8::UniquePersistent<v8::Value>> requiresMap;
     std::unordered_map<std::string, v8::UniquePersistent<v8::Module>> modules;
 
 public:

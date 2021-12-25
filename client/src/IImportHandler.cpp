@@ -55,8 +55,8 @@ bool IImportHandler::IsValidModule(const std::string& name)
 std::deque<std::string> IImportHandler::GetModuleKeys(const std::string& name)
 {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
-    auto context = isolate->GetEnteredOrMicrotaskContext();
-    auto& v8module = V8Module::All()[isolate].find(name);
+    v8::Local<v8::Context> context = isolate->GetEnteredOrMicrotaskContext();
+    auto v8module = V8Module::All()[isolate].find(name);
     if(v8module != V8Module::All()[isolate].end())
     {
         auto _exports = v8module->second->GetExports(isolate, context);
@@ -111,14 +111,14 @@ v8::Local<v8::Module> IImportHandler::GetModuleFromPath(std::string modulePath)
 v8::MaybeLocal<v8::Value> IImportHandler::Require(const std::string& name)
 {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
-    auto it = requires.find(name);
-    if(it != requires.end()) return it->second.Get(isolate);
+    auto it = requiresMap.find(name);
+    if(it != requiresMap.end()) return it->second.Get(isolate);
 
-    auto& v8module = V8Module::All()[isolate].find(name);
+    auto v8module = V8Module::All()[isolate].find(name);
     if(v8module != V8Module::All()[isolate].end())
     {
         auto _exports = v8module->second->GetExports(isolate, isolate->GetEnteredOrMicrotaskContext());
-        requires.insert({ name, v8::UniquePersistent<v8::Value>{ isolate, _exports } });
+        requiresMap.insert({ name, v8::UniquePersistent<v8::Value>{ isolate, _exports } });
 
         return _exports;
     }
@@ -128,7 +128,7 @@ v8::MaybeLocal<v8::Value> IImportHandler::Require(const std::string& name)
     {
         v8::Local<v8::Value> _exports = V8Helpers::MValueToV8(resource->GetExports());
 
-        requires.insert({ name, v8::UniquePersistent<v8::Value>{ isolate, _exports } });
+        requiresMap.insert({ name, v8::UniquePersistent<v8::Value>{ isolate, _exports } });
 
         return _exports;
     }

@@ -43,7 +43,7 @@ namespace V8Helpers
       v8::Isolate* isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Object> target, const char* name, v8::FunctionCallback slowCb, FastFunc&& fastCb, const char* className = "")
     {
         V8FastFunction* func = V8FastFunction::GetOrCreate(name, className, slowCb, fastCb);
-        target->Set(ctx, V8Helpers::JSValue(name), func->GetTemplate(isolate)->GetFunction(ctx).ToLocalChecked());
+        target->Set(ctx, v8::String::NewFromUtf8(isolate, name), func->GetTemplate(isolate)->GetFunction(ctx).ToLocalChecked());
     }
 #endif
 }  // namespace V8Helpers
