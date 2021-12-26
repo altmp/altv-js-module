@@ -326,6 +326,14 @@ static inline int GetNativeNeededArgCount(alt::INative* native)
     return count;
 }
 
+// * Add natives that have a struct as argument to this list
+// * The key is the native name, and the value is the argument index of the struct (0 based index)
+static std::unordered_map<std::string, uint32_t> structNatives{
+    { "getShopPedComponent", 1 },
+    { "getDlcWeaponData", 1 },
+    { "getDlcWeaponComponentData", 2 },
+    { "getPedHeadBlendData", 1 },
+};
 static void InvokeNative(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     static auto ctx = alt::ICore::Instance().CreateNativesContext();
@@ -355,7 +363,15 @@ static void InvokeNative(const v8::FunctionCallbackInfo<v8::Value>& info)
     pointersCount = 0;
     returnsCount = 1;
 
-    auto resource = V8ResourceImpl::Get(v8Ctx);
+    std::string nativeName = native->GetName().ToString();
+    bool isStructNative = structNatives.count(nativeName) != 0;
+    if(isStructNative)
+    {
+        uint32_t nativeStructIndex = structNatives.at(nativeName);
+        args[nativeStructIndex] = alt::INative::Type::ARG_STRUCT;
+    }
+
+    V8ResourceImpl* resource = V8ResourceImpl::Get(v8Ctx);
     for(uint32_t i = 0; i < argsSize; ++i) PushArg(ctx, native, args[i], isolate, resource, info[i], i);
 
     if(!native->Invoke(ctx))
