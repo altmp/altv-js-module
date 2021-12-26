@@ -410,7 +410,7 @@ void CV8ResourceImpl::OnTick()
 
     for(auto worker : workers)
     {
-        worker->HandleMainEventQueue();
+        worker->GetMainEventHandler().Process();
     }
 
     promiseRejections.ProcessQueue(this);
