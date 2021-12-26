@@ -24,30 +24,6 @@ void CWorker::Destroy()
     if(isolate && !isPaused) CV8ScriptRuntime::Instance().RemoveActiveWorker();
 }
 
-void CWorker::EmitToWorker(const std::string& eventName, std::vector<V8Helpers::Serialization::Value>& args)
-{
-    std::scoped_lock lock(worker_queueLock);
-    worker_queuedEvents.push(std::make_pair(eventName, std::move(args)));
-}
-
-void CWorker::EmitToMain(const std::string& eventName, std::vector<V8Helpers::Serialization::Value>& args)
-{
-    std::scoped_lock lock(main_queueLock);
-    main_queuedEvents.push(std::make_pair(eventName, std::move(args)));
-}
-
-void CWorker::SubscribeToWorker(const std::string& eventName, v8::Local<v8::Function> callback, bool once)
-{
-    auto isolate = v8::Isolate::GetCurrent();
-    worker_eventHandlers.insert({ eventName, V8Helpers::EventCallback(isolate, callback, V8Helpers::SourceLocation::GetCurrent(isolate), once) });
-}
-
-void CWorker::SubscribeToMain(const std::string& eventName, v8::Local<v8::Function> callback, bool once)
-{
-    auto isolate = v8::Isolate::GetCurrent();
-    main_eventHandlers.insert({ eventName, V8Helpers::EventCallback(isolate, callback, V8Helpers::SourceLocation::GetCurrent(isolate), once) });
-}
-
 void CWorker::Thread()
 {
     bool result = SetupIsolate();
@@ -57,7 +33,7 @@ void CWorker::Thread()
         // Isolate is set up, the worker is now ready
         isReady = true;
         std::vector<V8Helpers::Serialization::Value> args;
-        EmitToMain("load", args);
+        GetMainEventHandler().Emit("load", args);
 
         v8::Locker locker(isolate);
         v8::Isolate::Scope isolate_scope(isolate);
@@ -91,7 +67,7 @@ bool CWorker::EventLoop()
 
     auto error = TryCatch([&]() {
         microtaskQueue->PerformCheckpoint(isolate);
-        HandleWorkerEventQueue();
+        GetWorkerEventHandler().Process();
         v8::platform::PumpMessageLoop(CV8ScriptRuntime::Instance().GetPlatform(), isolate);
     });
     if(!error.empty())
@@ -328,64 +304,7 @@ void CWorker::EmitError(const std::string& error)
 {
     Log::Error << "[Worker] " << error << Log::Endl;
     std::vector<V8Helpers::Serialization::Value> args = { V8Helpers::Serialization::Serialize(context.Get(isolate), V8Helpers::JSValue(error)) };
-    EmitToMain("error", args);
-}
-
-static inline void RunEventQueue(CWorker::EventQueue& queue, CWorker::EventHandlerMap& eventHandlers, std::mutex& queueMutex)
-{
-    if(queue.empty()) return;
-
-    v8::Isolate* isolate = v8::Isolate::GetCurrent();
-    auto context = isolate->GetEnteredOrMicrotaskContext();
-    std::scoped_lock lock(queueMutex);
-
-    // Clear removed event handlers
-    for(auto it = eventHandlers.begin(); it != eventHandlers.end();)
-    {
-        if(it->second.removed) it = eventHandlers.erase(it);
-        else
-            ++it;
-    }
-
-    while(!queue.empty())
-    {
-        // Get the event at the front of the queue
-        auto& event = queue.front();
-
-        // Create a vector of the event arguments
-        std::vector<v8::Local<v8::Value>> args;
-        args.reserve(event.second.size());
-        for(auto& arg : event.second)
-        {
-            auto value = V8Helpers::Serialization::Deserialize(context, arg);
-            if(value.IsEmpty())
-            {
-                Log::Error << "Failed to deserialize worker event argument" << Log::Endl;
-                continue;
-            }
-            args.push_back(value.ToLocalChecked());
-        }
-
-        // Call all handlers with the arguments
-        auto handlers = eventHandlers.equal_range(event.first);
-        for(auto it = handlers.first; it != handlers.second; it++)
-        {
-            V8Helpers::CallFunctionWithTimeout(it->second.fn.Get(isolate), context, args);
-            if(it->second.once) it->second.removed = true;
-        }
-
-        // Pop the event from the queue
-        queue.pop();
-    }
-}
-void CWorker::HandleMainEventQueue()
-{
-    RunEventQueue(main_queuedEvents, main_eventHandlers, main_queueLock);
-}
-
-void CWorker::HandleWorkerEventQueue()
-{
-    RunEventQueue(worker_queuedEvents, worker_eventHandlers, worker_queueLock);
+    GetMainEventHandler().Emit("error", args);
 }
 
 CWorker::TimerId CWorker::CreateTimer(v8::Local<v8::Function> callback, uint32_t interval, bool once, V8Helpers::SourceLocation&& location)
