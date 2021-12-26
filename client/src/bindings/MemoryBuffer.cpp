@@ -73,7 +73,7 @@ static void SizeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8:
 {
     V8_GET_ISOLATE_CONTEXT();
 
-    V8_GET_THIS_INTERNAL_FIELD_UINT32(1, size);
+    V8_GET_THIS_INTERNAL_FIELD_UINT32(2, size);
     V8_RETURN_UINT(size);
 }
 
