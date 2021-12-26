@@ -52,9 +52,13 @@ private:
 
     bool EventLoop();
 
-    bool SetupIsolate();
+    bool Setup();
+    void SetupIsolate();
+    void SetupContext();
+    void SetupGlobals();
+    bool SetupScript();
+
     void DestroyIsolate();
-    void SetupGlobals(v8::Local<v8::Object> global);
 
     void EmitError(const std::string& error);
 
