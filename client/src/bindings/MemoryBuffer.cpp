@@ -34,21 +34,51 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     // 		info.This()->SetInternalField(1, v8::Integer::NewFromUnsigned(isolate, UINT32_MAX));
     // 	}
     // 	else
-    {
-        V8_ARG_TO_UINT(1, size);
-        if(size == 0)
-        {
-            info.This()->SetAlignedPointerInInternalField(0, nullptr);
-            info.This()->SetInternalField(1, V8Helpers::JSValue(0));
-            return;
-        }
-        V8_CHECK(size <= 1024, "You can't allocate > 1KB");
 
-        uint8_t* allocatedMemory = new uint8_t[size];
-        memset(allocatedMemory, 0, size);
-        info.This()->SetAlignedPointerInInternalField(0, allocatedMemory);
-        info.This()->SetInternalField(1, V8Helpers::JSValue(size));
+    uint8_t* data = nullptr;
+    size_t size = 0;
+
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, dataSize);
+        if(dataSize != 0)
+        {
+            V8_CHECK(size <= 1024, "You can't allocate > 1KB");
+            uint8_t* allocatedMemory = new uint8_t[dataSize];
+            memset(allocatedMemory, 0, dataSize);
+            data = allocatedMemory;
+            size = dataSize;
+        }
     }
+    else if(info[0]->IsArrayBuffer() || info[0]->IsSharedArrayBuffer() || info[0]->IsArrayBufferView())
+    {
+        if(info[0]->IsArrayBuffer())
+        {
+            auto buffer = info[0].As<v8::ArrayBuffer>();
+            size = buffer->ByteLength();
+            data = new uint8_t[size];
+            memcpy(data, (uint8_t*)buffer->GetBackingStore()->Data(), size);
+        }
+        else if(info[0]->IsSharedArrayBuffer())
+        {
+            auto buffer = info[0].As<v8::SharedArrayBuffer>();
+            size = buffer->ByteLength();
+            data = new uint8_t[size];
+            memcpy(data, (uint8_t*)buffer->GetBackingStore()->Data(), size);
+        }
+        else if(info[0]->IsArrayBufferView())
+        {
+            auto buffer = info[0].As<v8::ArrayBufferView>();
+            size = buffer->ByteLength() - buffer->ByteOffset();
+            data = new uint8_t[size];
+            buffer->CopyContents(data, size);
+        }
+    }
+    else
+        V8_CHECK(false, "Failed to convert argument 1 to number or ArrayBuffer");
+
+    info.This()->SetAlignedPointerInInternalField(0, data);
+    info.This()->SetInternalField(1, V8Helpers::JSValue(size));
 
     /*v8::UniquePersistent<v8::Object> persistent(isolate, info.This());
     persistent.SetWeak(info.This(), weakCallbackForObjectHolder, v8::WeakCallbackType::kInternalFields);*/
