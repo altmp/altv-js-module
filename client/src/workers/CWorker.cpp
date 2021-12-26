@@ -26,7 +26,7 @@ void CWorker::Destroy()
 
 void CWorker::Thread()
 {
-    bool result = SetupIsolate();
+    bool result = Setup();
     if(!result) shouldTerminate = true;
     else
     {
@@ -80,7 +80,22 @@ bool CWorker::EventLoop()
     return true;
 }
 
-bool CWorker::SetupIsolate()
+bool CWorker::Setup()
+{
+    SetupIsolate();
+
+    // Set up locker and scopes
+    v8::Locker locker(isolate);
+    v8::Isolate::Scope isolate_scope(isolate);
+    v8::HandleScope handle_scope(isolate);
+
+    SetupContext();
+    SetupGlobals();
+
+    return SetupScript();
+}
+
+void CWorker::SetupIsolate()
 {
     // Create the isolate
     v8::Isolate::CreateParams params;
@@ -168,22 +183,21 @@ bool CWorker::SetupIsolate()
 
     // IsWorker data slot
     isolate->SetData(v8::Isolate::GetNumberOfDataSlots() - 1, new bool(true));
+}
 
-    // Set up locker and scopes
-    v8::Locker locker(isolate);
-    v8::Isolate::Scope isolate_scope(isolate);
-    v8::HandleScope handle_scope(isolate);
-
-    microtaskQueue = v8::MicrotaskQueue::New(isolate, v8::MicrotasksPolicy::kExplicit);
-
+void CWorker::SetupContext()
+{
     // Create and set up the context
+    microtaskQueue = v8::MicrotaskQueue::New(isolate, v8::MicrotasksPolicy::kExplicit);
     auto ctx = v8::Context::New(isolate, nullptr, v8::MaybeLocal<v8::ObjectTemplate>(), v8::MaybeLocal<v8::Value>(), v8::DeserializeInternalFieldsCallback(), microtaskQueue.get());
     context.Reset(isolate, ctx);
     v8::Context::Scope scope(ctx);
     ctx->SetAlignedPointerInEmbedderData(1, resource->GetResource());
     ctx->SetAlignedPointerInEmbedderData(2, this);
-    SetupGlobals(ctx->Global());
+}
 
+bool CWorker::SetupScript()
+{
     // Load code
     auto path = alt::ICore::Instance().Resolve(resource->GetResource(), filePath, origin);
     if(!path.pkg || !path.pkg->FileExists(path.fileName))
@@ -202,6 +216,7 @@ bool CWorker::SetupIsolate()
     bool failed = false;
     // Compile the code
     auto error = TryCatch([&]() {
+        v8::Local<v8::Context> ctx = context.Get(isolate);
         std::string fullPath = (path.prefix + path.fileName).ToString();
         v8::MaybeLocal<v8::Module> maybeModule;
         if(!isUsingBytecode)
@@ -269,8 +284,10 @@ void CWorker::DestroyIsolate()
 
 extern void StaticRequire(const v8::FunctionCallbackInfo<v8::Value>& info);
 extern V8Module altWorker;
-void CWorker::SetupGlobals(v8::Local<v8::Object> global)
+void CWorker::SetupGlobals()
 {
+    v8::Local<v8::Object> global = context.Get(isolate)->Global();
+
     V8Class::LoadAll(isolate);
     V8Module::Add(isolate, { altWorker });
 
