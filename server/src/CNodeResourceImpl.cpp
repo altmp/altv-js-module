@@ -230,3 +230,8 @@ bool CNodeResourceImpl::GetWriteClientFileRuntime(std::string& runtimeName)
     runtimeName = "jsb";
     return true;
 }
+
+bool CNodeResourceImpl::MakeClient(alt::IResource::CreationInfo* info, alt::Array<alt::String>)
+{
+    if(resource->GetClientType() == "jsb") info->type = "js";
+}
