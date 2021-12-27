@@ -223,3 +223,10 @@ void CNodeResourceImpl::OnTick()
     uv_run(uvLoop, UV_RUN_NOWAIT);
     V8ResourceImpl::OnTick();
 }
+
+bool CNodeResourceImpl::GetWriteClientFileRuntime(std::string& runtimeName)
+{
+    if(resource->GetClientType() != "jsb") return false;
+    runtimeName = "jsb";
+    return true;
+}

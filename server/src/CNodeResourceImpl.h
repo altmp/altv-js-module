@@ -26,6 +26,8 @@ public:
     bool OnEvent(const alt::CEvent* ev) override;
     void OnTick() override;
 
+    bool GetWriteClientFileRuntime(std::string& runtimeName) override;
+
     void Started(v8::Local<v8::Value> exports);
     node::Environment* GetEnv()
     {
