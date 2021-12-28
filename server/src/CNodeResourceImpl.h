@@ -26,7 +26,6 @@ public:
     bool OnEvent(const alt::CEvent* ev) override;
     void OnTick() override;
 
-    bool GetWriteClientFileRuntime(std::string& runtimeName) override;
     bool MakeClient(alt::IResource::CreationInfo* info, alt::Array<alt::String>) override;
 
     void Started(v8::Local<v8::Value> exports);
