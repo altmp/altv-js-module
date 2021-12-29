@@ -372,21 +372,21 @@ alt::String V8Helpers::GetJSValueTypeName(v8::Local<v8::Value> val)
 v8::MaybeLocal<v8::Value> V8Helpers::CallFunctionWithTimeout(v8::Local<v8::Function> fn, v8::Local<v8::Context> ctx, std::vector<v8::Local<v8::Value>>& args, uint32_t timeout)
 {
     v8::Isolate* isolate = ctx->GetIsolate();
-    std::shared_ptr<bool> hasTimedOut{ new bool(false) };
+    /*std::shared_ptr<bool> hasTimedOut{ new bool(false) };
     std::shared_ptr<bool> hasFinished{ new bool(false) };
     std::thread([=]() {
         std::this_thread::sleep_for(std::chrono::milliseconds(timeout));
         if(*hasFinished || isolate->IsExecutionTerminating()) return;
         *hasTimedOut = true;
         isolate->TerminateExecution();
-    }).detach();
+    }).detach();*/
 
     v8::MaybeLocal<v8::Value> result = fn->Call(ctx, v8::Undefined(isolate), args.size(), args.data());
-    *hasFinished = true;
+    /**hasFinished = true;
     if(*hasTimedOut)
     {
         Log::Error << "[V8] Script execution timed out" << Log::Endl;
         return v8::MaybeLocal<v8::Value>();
-    }
+    }*/
     return result;
 }
