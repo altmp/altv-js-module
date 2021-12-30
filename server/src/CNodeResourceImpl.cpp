@@ -227,4 +227,5 @@ void CNodeResourceImpl::OnTick()
 bool CNodeResourceImpl::MakeClient(alt::IResource::CreationInfo* info, alt::Array<alt::String>)
 {
     if(resource->GetClientType() == "jsb") info->type = "js";
+    return true;
 }
