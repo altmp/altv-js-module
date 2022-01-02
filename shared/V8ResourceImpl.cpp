@@ -1,6 +1,7 @@
 
 #include "cpp-sdk/objects/IPlayer.h"
 #include "cpp-sdk/objects/IVehicle.h"
+#include "cpp-sdk/events/CPlayerBeforeConnectEvent.h"
 
 #include "V8ResourceImpl.h"
 
@@ -289,6 +290,8 @@ void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vecto
 
             v8::Local<v8::Value> returnValue = retn.ToLocalChecked();
             if(ev && returnValue->IsFalse()) ev->Cancel();
+            else if(ev && ev->GetType() == alt::CEvent::Type::PLAYER_BEFORE_CONNECT && returnValue->IsString())
+                static_cast<alt::CPlayerBeforeConnectEvent*>(const_cast<alt::CEvent*>(ev))->Cancel(*v8::String::Utf8Value(isolate, returnValue));
             // todo: add this once a generic Cancel() with string as arg has been added to the sdk
             // else if(ev && returnValue->IsString())
             //    ev->Cancel(*v8::String::Utf8Value(isolate, returnValue));
