@@ -80,7 +80,7 @@ static void GetMemoryProfile(const v8::FunctionCallbackInfo<v8::Value>& info)
 
           promises.remove(persistent);
       });
-    isolate->MeasureMemory(std::move(delegate), v8::MeasureMemoryExecution::kEager);
+    isolate->MeasureMemory(std::move(delegate), v8::MeasureMemoryExecution::kDefault);
 
     V8_RETURN(persistent.Get(isolate)->GetPromise());
 }
