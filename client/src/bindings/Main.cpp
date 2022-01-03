@@ -219,6 +219,13 @@ static void SetCamFrozen(const v8::FunctionCallbackInfo<v8::Value>& info)
     ICore::Instance().SetCamFrozen(state);
 }
 
+static void IsCamFrozen(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    V8_RETURN(ICore::Instance().IsCamFrozen());
+}
+
 static void IsInDebug(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -896,6 +903,7 @@ extern V8Module altModule("alt",
                               // V8Helpers::RegisterFunc(exports, "wait", &ScriptWait);
                               // V8Helpers::RegisterFunc(exports, "isInSandbox", &IsInSandbox);
                               V8Helpers::RegisterFunc(exports, "setCamFrozen", &SetCamFrozen);
+                              V8Helpers::RegisterFunc(exports, "isCamFrozen", &IsCamFrozen);
 
                               V8Helpers::RegisterFunc(exports, "getLicenseHash", &GetLicenseHash);
 
