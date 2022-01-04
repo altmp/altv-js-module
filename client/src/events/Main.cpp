@@ -106,3 +106,5 @@ V8_LOCAL_EVENT_HANDLER connectionComplete(EventType::CONNECTION_COMPLETE, "conne
 });
 
 V8_LOCAL_EVENT_HANDLER disconnect(EventType::DISCONNECT_EVENT, "disconnect", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {});
+
+V8_LOCAL_EVENT_HANDLER spawned(EventType::SPAWNED, "spawned", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {});
