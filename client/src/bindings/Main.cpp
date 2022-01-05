@@ -860,6 +860,26 @@ static void GetServerPort(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN(alt::ICore::Instance().GetServerPort());
 }
 
+static void HasLocalMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STRING(1, key);
+
+    V8_RETURN(alt::ICore::Instance().HasLocalMetaData(key));
+}
+
+static void GetLocalMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STRING(1, key);
+
+    V8_RETURN_MVALUE(alt::ICore::Instance().GetLocalMetaData(key));
+}
+
 extern V8Module sharedModule;
 extern V8Class v8Player, v8Player, v8Vehicle, v8WebView, v8HandlingData, v8LocalStorage, v8MemoryBuffer, v8MapZoomData, v8Discord, v8Voice, v8WebSocketClient, v8Checkpoint, v8HttpClient,
   v8Audio, v8LocalPlayer, v8Profiler, v8Worker;
@@ -977,4 +997,7 @@ extern V8Module altModule("alt",
 
                               V8Helpers::RegisterFunc(exports, "getTotalPacketsSent", &GetTotalPacketsSent);
                               V8Helpers::RegisterFunc(exports, "getTotalPacketsLost", &GetTotalPacketsLost);
+
+                              V8Helpers::RegisterFunc(exports, "hasLocalMeta", &HasLocalMeta);
+                              V8Helpers::RegisterFunc(exports, "getLocalMeta", &GetLocalMeta);
                           });
