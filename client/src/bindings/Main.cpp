@@ -896,7 +896,7 @@ static void GetServerPort(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 extern V8Module sharedModule;
 extern V8Class v8Player, v8Player, v8Vehicle, v8WebView, v8HandlingData, v8LocalStorage, v8MemoryBuffer, v8MapZoomData, v8Discord, v8Voice, v8WebSocketClient, v8Checkpoint, v8HttpClient,
-  v8Audio, v8LocalPlayer, v8Profiler, v8Worker;
+  v8Audio, v8LocalPlayer, v8Profiler, v8Worker, v8RmlDocument;
 extern V8Module altModule("alt",
                           &sharedModule,
                           { v8Player,
@@ -914,7 +914,8 @@ extern V8Module altModule("alt",
                             v8Audio,
                             v8LocalPlayer,
                             v8Profiler,
-                            v8Worker },
+                            v8Worker,
+                            v8RmlDocument },
                           [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
                               V8Helpers::RegisterFunc(exports, "onServer", &OnServer);
                               V8Helpers::RegisterFunc(exports, "onceServer", &OnceServer);
