@@ -219,6 +219,13 @@ static void SetCamFrozen(const v8::FunctionCallbackInfo<v8::Value>& info)
     ICore::Instance().SetCamFrozen(state);
 }
 
+static void IsCamFrozen(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    V8_RETURN(ICore::Instance().IsCamFrozen());
+}
+
 static void IsInDebug(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -745,47 +752,6 @@ static void LoadModelAsync(const v8::FunctionCallbackInfo<v8::Value>& info)
     alt::ICore::Instance().LoadModelAsync(hash);
 }
 
-static void EvalModule(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    // Deprecation added: 05/11/2021 (version 7.0)
-    V8_DEPRECATE("alt.evalModule", "the 'source' import type assertion");
-    V8_GET_ISOLATE_CONTEXT_RESOURCE();
-
-    V8_CHECK_ARGS_LEN(1);
-    V8_ARG_TO_STRING(1, code);
-
-    v8::Local<v8::Module> module;
-
-    auto result = V8Helpers::TryCatch([&] {
-        auto maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(code.ToString(), V8Helpers::SourceLocation::GetCurrent(isolate));
-        if(maybeModule.IsEmpty())
-        {
-            V8Helpers::Throw(isolate, "Failed to resolve module");
-            return false;
-        }
-
-        module = maybeModule.ToLocalChecked();
-        v8::Maybe<bool> result = module->InstantiateModule(ctx, CV8ScriptRuntime::ResolveModule);
-        if(result.IsNothing() || result.ToChecked() == false)
-        {
-            V8Helpers::Throw(isolate, "Failed to instantiate module");
-            return false;
-        }
-
-        auto returnValue = module->Evaluate(ctx);
-        if(returnValue.IsEmpty())
-        {
-            V8Helpers::Throw(isolate, "Failed to evaluate module");
-            return false;
-        }
-
-        return true;
-    });
-    if(!result) return;
-
-    V8_RETURN(module->GetModuleNamespace());
-}
-
 static void GetHeadshotBase64(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -894,6 +860,26 @@ static void GetServerPort(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN(alt::ICore::Instance().GetServerPort());
 }
 
+static void HasLocalMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STRING(1, key);
+
+    V8_RETURN(alt::ICore::Instance().HasLocalMetaData(key));
+}
+
+static void GetLocalMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STRING(1, key);
+
+    V8_RETURN_MVALUE(alt::ICore::Instance().GetLocalMetaData(key));
+}
+
 extern V8Module sharedModule;
 extern V8Class v8Player, v8Player, v8Vehicle, v8WebView, v8HandlingData, v8LocalStorage, v8MemoryBuffer, v8MapZoomData, v8Discord, v8Voice, v8WebSocketClient, v8Checkpoint, v8HttpClient,
   v8Audio, v8LocalPlayer, v8Profiler, v8Worker, v8RmlDocument;
@@ -938,6 +924,7 @@ extern V8Module altModule("alt",
                               // V8Helpers::RegisterFunc(exports, "wait", &ScriptWait);
                               // V8Helpers::RegisterFunc(exports, "isInSandbox", &IsInSandbox);
                               V8Helpers::RegisterFunc(exports, "setCamFrozen", &SetCamFrozen);
+                              V8Helpers::RegisterFunc(exports, "isCamFrozen", &IsCamFrozen);
 
                               V8Helpers::RegisterFunc(exports, "getLicenseHash", &GetLicenseHash);
 
@@ -995,8 +982,6 @@ extern V8Module altModule("alt",
                               V8Helpers::RegisterFunc(exports, "loadYtyp", &LoadYtyp);
                               V8Helpers::RegisterFunc(exports, "unloadYtyp", &UnloadYtyp);
 
-                              V8Helpers::RegisterFunc(exports, "evalModule", &EvalModule);
-
                               V8Helpers::RegisterFunc(exports, "getHeadshotBase64", &GetHeadshotBase64);
 
                               V8Helpers::RegisterFunc(exports, "setPedDlcClothes", &SetPedDlcClothes);
@@ -1013,4 +998,7 @@ extern V8Module altModule("alt",
 
                               V8Helpers::RegisterFunc(exports, "getTotalPacketsSent", &GetTotalPacketsSent);
                               V8Helpers::RegisterFunc(exports, "getTotalPacketsLost", &GetTotalPacketsLost);
+
+                              V8Helpers::RegisterFunc(exports, "hasLocalMeta", &HasLocalMeta);
+                              V8Helpers::RegisterFunc(exports, "getLocalMeta", &GetLocalMeta);
                           });

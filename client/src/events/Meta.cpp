@@ -5,6 +5,7 @@
 #include "cpp-sdk/events/CStreamSyncedMetaDataChangeEvent.h"
 #include "cpp-sdk/events/CGlobalSyncedMetaDataChangeEvent.h"
 #include "cpp-sdk/events/CGlobalMetaDataChangeEvent.h"
+#include "cpp-sdk/events/CLocalMetaDataChangeEvent.h"
 
 #include "cpp-sdk/SDK.h"
 
@@ -44,6 +45,15 @@ globalSyncedMetaChange(EventType::GLOBAL_SYNCED_META_CHANGE, "globalSyncedMetaCh
 
 V8_LOCAL_EVENT_HANDLER globalMetaChange(EventType::GLOBAL_META_CHANGE, "globalMetaChange", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
     auto ev = static_cast<const alt::CGlobalMetaDataChangeEvent*>(e);
+    v8::Isolate* isolate = resource->GetIsolate();
+
+    args.push_back(V8Helpers::JSValue(ev->GetKey().CStr()));
+    args.push_back(V8Helpers::MValueToV8(ev->GetVal()));
+    args.push_back(V8Helpers::MValueToV8(ev->GetOldVal()));
+});
+
+V8_LOCAL_EVENT_HANDLER localMetaChange(EventType::LOCAL_SYNCED_META_CHANGE, "localMetaChange", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+    auto ev = static_cast<const alt::CLocalMetaDataChangeEvent*>(e);
     v8::Isolate* isolate = resource->GetIsolate();
 
     args.push_back(V8Helpers::JSValue(ev->GetKey().CStr()));

@@ -11,5 +11,5 @@ V8_LOCAL_EVENT_HANDLER consoleCommand(EventType::CONSOLE_COMMAND_EVENT, "console
     v8::Isolate* isolate = resource->GetIsolate();
 
     args.push_back(V8Helpers::JSValue(ev->GetName()));
-    for(auto& arg : ev->GetArgs()) args.push_back(V8Helpers::JSValue((alt::StringView)arg));
+    for(auto& arg : ev->GetArgs()) args.push_back(V8Helpers::JSValue(arg));
 });

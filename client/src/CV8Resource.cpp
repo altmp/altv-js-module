@@ -48,9 +48,9 @@ extern void StaticRequire(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 void CV8ResourceImpl::ProcessDynamicImports()
 {
-    for(auto import : dynamicImports)
+    for(auto importFn : dynamicImports)
     {
-        import();
+        importFn();
     }
     dynamicImports.clear();
 }
@@ -92,20 +92,28 @@ bool CV8ResourceImpl::Start()
     alt::IPackage* pkg = resource->GetPackage();
     alt::IPackage::File* file = pkg->OpenFile(path);
 
-    alt::String src{ pkg->GetFileSize(file) };
-
-    pkg->ReadFile(file, src.GetData(), src.GetSize());
+    size_t fileSize = pkg->GetFileSize(file);
+    uint8_t* byteBuffer = new uint8_t[fileSize];
+    pkg->ReadFile(file, byteBuffer, fileSize);
     pkg->CloseFile(file);
+
+    isUsingBytecode = IsBytecodeModule(byteBuffer, fileSize);
 
     Log::Info << "[V8] Starting script " << path << Log::Endl;
 
-    v8::Local<v8::String> sourceCode = V8Helpers::JSValue(src);
-
-    v8::ScriptOrigin scriptOrigin(isolate, V8Helpers::JSValue(path.c_str()), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
-
     bool result = V8Helpers::TryCatch([&]() {
-        v8::ScriptCompiler::Source source{ sourceCode, scriptOrigin };
-        v8::MaybeLocal<v8::Module> maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source);
+        v8::MaybeLocal<v8::Module> maybeModule;
+        if(!isUsingBytecode)
+        {
+            alt::String src{ (char*)byteBuffer, fileSize };
+            v8::ScriptOrigin scriptOrigin(isolate, V8Helpers::JSValue(path), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
+            v8::ScriptCompiler::Source source{ V8Helpers::JSValue(src), scriptOrigin };
+            maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source);
+        }
+        else
+        {
+            maybeModule = ResolveBytecode(path, byteBuffer, fileSize);
+        }
 
         if(maybeModule.IsEmpty()) return false;
 
@@ -159,6 +167,7 @@ bool CV8ResourceImpl::Start()
         Log::Info << "[V8] Started script " << path << Log::Endl;
         return true;
     });
+    delete byteBuffer;
 
     if(!result)
     {
@@ -225,10 +234,10 @@ bool CV8ResourceImpl::Stop()
             {
                 res->modules.erase(it);
             }
-            auto found = res->requires.find(name);
-            if(found != res->requires.end())
+            auto found = res->requiresMap.find(name);
+            if(found != res->requiresMap.end())
             {
-                res->requires.erase(found);
+                res->requiresMap.erase(found);
             }
         }
 
@@ -401,7 +410,7 @@ void CV8ResourceImpl::OnTick()
 
     for(auto worker : workers)
     {
-        worker->HandleMainEventQueue();
+        worker->GetMainEventHandler().Process();
     }
 
     promiseRejections.ProcessQueue(this);

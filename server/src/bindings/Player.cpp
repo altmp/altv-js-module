@@ -346,9 +346,16 @@ static void IsEntityInStreamRange(const v8::FunctionCallbackInfo<v8::Value>& inf
     V8_CHECK_ARGS_LEN(1);
     V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-    V8_ARG_TO_BASE_OBJECT(1, entity, IEntity, "Entity");
-
-    V8_RETURN_BOOLEAN(player->IsEntityInStreamingRange(entity));
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, entity);
+        V8_RETURN_BOOLEAN(player->IsEntityInStreamingRange(entity));
+    }
+    else
+    {
+        V8_ARG_TO_BASE_OBJECT(1, entity, IEntity, "Entity");
+        V8_RETURN_BOOLEAN(player->IsEntityInStreamingRange(entity));
+    }
 }
 
 static void SetIntoVehicle(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -679,6 +686,50 @@ static void EmitRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
     alt::ICore::Instance().TriggerClientEvent(player, eventName, mvArgs);
 }
 
+static void HasLocalMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN_MIN(1);
+    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
+
+    V8_ARG_TO_STRING(1, key);
+
+    V8_RETURN(player->HasLocalMetaData(key));
+}
+
+static void SetLocalMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN_MIN(1);
+    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
+
+    V8_ARG_TO_STRING(1, key);
+    V8_ARG_TO_MVALUE(2, value);
+    player->SetLocalMetaData(key, value);
+}
+
+static void GetLocalMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN_MIN(1);
+    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
+
+    V8_ARG_TO_STRING(1, key);
+
+    V8_RETURN_MVALUE(player->GetLocalMetaData(key));
+}
+
+static void DeleteLocalMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN_MIN(1);
+    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
+
+    V8_ARG_TO_STRING(1, key);
+
+    player->DeleteLocalMetaData(key);
+}
+
 extern V8Class v8Entity;
 extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -690,6 +741,11 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
 
     V8Helpers::SetMethod(isolate, tpl, "emit", &Emit);
     V8Helpers::SetMethod(isolate, tpl, "emitRaw", &EmitRaw);
+
+    V8Helpers::SetMethod(isolate, tpl, "hasLocalMeta", &HasLocalMeta);
+    V8Helpers::SetMethod(isolate, tpl, "setLocalMeta", &SetLocalMeta);
+    V8Helpers::SetMethod(isolate, tpl, "getLocalMeta", &GetLocalMeta);
+    V8Helpers::SetMethod(isolate, tpl, "deleteLocalMeta", &DeleteLocalMeta);
 
     V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetPing>(isolate, tpl, "ping");
     V8Helpers::SetAccessor<IPlayer, StringView, &IPlayer::GetIP>(isolate, tpl, "ip");

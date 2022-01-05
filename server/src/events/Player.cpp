@@ -13,6 +13,7 @@
 #include "cpp-sdk/events/CPlayerLeaveVehicleEvent.h"
 #include "cpp-sdk/events/CPlayerChangeVehicleSeatEvent.h"
 #include "cpp-sdk/events/CPlayerWeaponChangeEvent.h"
+#include "cpp-sdk/events/CLocalMetaDataChangeEvent.h"
 
 using alt::CEvent;
 using EventType = CEvent::Type;
@@ -119,3 +120,13 @@ V8Helpers::LocalEventHandler
       args.push_back(V8Helpers::JSValue(ev->GetOldWeapon()));
       args.push_back(V8Helpers::JSValue(ev->GetNewWeapon()));
   });
+
+V8_LOCAL_EVENT_HANDLER localMetaChange(EventType::LOCAL_SYNCED_META_CHANGE, "localMetaChange", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+    auto ev = static_cast<const alt::CLocalMetaDataChangeEvent*>(e);
+    v8::Isolate* isolate = resource->GetIsolate();
+
+    args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
+    args.push_back(V8Helpers::JSValue(ev->GetKey().CStr()));
+    args.push_back(V8Helpers::MValueToV8(ev->GetVal()));
+    args.push_back(V8Helpers::MValueToV8(ev->GetOldVal()));
+});

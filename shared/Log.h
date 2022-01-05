@@ -32,6 +32,13 @@ public:
         buf << val;
         return *this;
     }
+#if __cplusplus >= 202002L
+    Log& Put(const char8_t* val)
+    {
+        buf << (const char*)val;
+        return *this;
+    }
+#endif  // __cplusplus
     Log& Put(LogFn val)
     {
         return val(*this);
