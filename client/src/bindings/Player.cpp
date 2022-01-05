@@ -116,50 +116,53 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
 }
 
 extern V8Class v8Entity;
-extern V8Class v8Player("Player", v8Entity, [](v8::Local<v8::FunctionTemplate> tpl) {
-    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+extern V8Class v8Player("Player",
+                        v8Entity,
+                        [](v8::Local<v8::FunctionTemplate> tpl)
+                        {
+                            v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    V8Helpers::SetMethod(isolate, tpl, "toString", ToString);
+                            V8Helpers::SetMethod(isolate, tpl, "toString", ToString);
 
-    V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
-    V8Helpers::SetStaticMethod(isolate, tpl, "getByScriptID", StaticGetByScriptID);
+                            V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
+                            V8Helpers::SetStaticMethod(isolate, tpl, "getByScriptID", StaticGetByScriptID);
 
-    V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
-    V8Helpers::SetStaticAccessor(isolate, tpl, "streamedIn", &StreamedInGetter);
-    V8Helpers::SetStaticAccessor(isolate, tpl, "local", &LocalGetter);
+                            V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
+                            V8Helpers::SetStaticAccessor(isolate, tpl, "streamedIn", &StreamedInGetter);
+                            V8Helpers::SetStaticAccessor(isolate, tpl, "local", &LocalGetter);
 
-    // Common getters
-    V8Helpers::SetAccessor<IPlayer, StringView, &IPlayer::GetName>(isolate, tpl, "name");
-    V8Helpers::SetAccessor<IPlayer, Ref<IVehicle>, &IPlayer::GetVehicle>(isolate, tpl, "vehicle");
-    V8Helpers::SetAccessor<IPlayer, uint8_t, &IPlayer::GetSeat>(isolate, tpl, "seat");
-    V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsTalking>(isolate, tpl, "isTalking");
-    V8Helpers::SetAccessor<IPlayer, float, &IPlayer::GetMicLevel>(isolate, tpl, "micLevel");
-    V8Helpers::SetAccessor<IPlayer, uint16_t, &IPlayer::GetHealth>(isolate, tpl, "health");
-    V8Helpers::SetAccessor<IPlayer, uint16_t, &IPlayer::GetMaxHealth>(isolate, tpl, "maxHealth");
-    V8Helpers::SetAccessor<IPlayer, uint16_t, &IPlayer::GetArmour>(isolate, tpl, "armour");
-    V8Helpers::SetAccessor<IPlayer, uint16_t, &IPlayer::GetMaxArmour>(isolate, tpl, "maxArmour");
-    V8Helpers::SetAccessor<IPlayer, float, &IPlayer::GetSpatialVolume, &IPlayer::SetSpatialVolume>(isolate, tpl, "spatialVolume");
-    V8Helpers::SetAccessor<IPlayer, float, &IPlayer::GetNonSpatialVolume, &IPlayer::SetNonSpatialVolume>(isolate, tpl, "nonSpatialVolume");
+                            // Common getters
+                            V8Helpers::SetAccessor<IPlayer, StringView, &IPlayer::GetName>(isolate, tpl, "name");
+                            V8Helpers::SetAccessor<IPlayer, Ref<IVehicle>, &IPlayer::GetVehicle>(isolate, tpl, "vehicle");
+                            V8Helpers::SetAccessor<IPlayer, uint8_t, &IPlayer::GetSeat>(isolate, tpl, "seat");
+                            V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsTalking>(isolate, tpl, "isTalking");
+                            V8Helpers::SetAccessor<IPlayer, float, &IPlayer::GetMicLevel>(isolate, tpl, "micLevel");
+                            V8Helpers::SetAccessor<IPlayer, uint16_t, &IPlayer::GetHealth>(isolate, tpl, "health");
+                            V8Helpers::SetAccessor<IPlayer, uint16_t, &IPlayer::GetMaxHealth>(isolate, tpl, "maxHealth");
+                            V8Helpers::SetAccessor<IPlayer, uint16_t, &IPlayer::GetArmour>(isolate, tpl, "armour");
+                            V8Helpers::SetAccessor<IPlayer, uint16_t, &IPlayer::GetMaxArmour>(isolate, tpl, "maxArmour");
+                            V8Helpers::SetAccessor<IPlayer, float, &IPlayer::GetSpatialVolume, &IPlayer::SetSpatialVolume>(isolate, tpl, "spatialVolume");
+                            V8Helpers::SetAccessor<IPlayer, float, &IPlayer::GetNonSpatialVolume, &IPlayer::SetNonSpatialVolume>(isolate, tpl, "nonSpatialVolume");
 
-    // Weapon getters
-    V8Helpers::SetAccessor(isolate, tpl, "currentWeaponComponents", &CurrentWeaponComponentsGetter);
-    // V8Helpers::SetAccessor(isolate, tpl, "currentWeaponTintIndex", &CurrentWeaponTintIndexGetter);
-    V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetCurrentWeapon>(isolate, tpl, "currentWeapon");
-    V8Helpers::SetAccessor<IPlayer, Ref<IEntity>, &IPlayer::GetEntityAimingAt>(isolate, tpl, "entityAimingAt");
-    V8Helpers::SetAccessor<IPlayer, Position, &IPlayer::GetEntityAimOffset>(isolate, tpl, "entityAimOffset");
-    V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsFlashlightActive>(isolate, tpl, "flashlightActive");
-    V8Helpers::SetAccessor<IPlayer, Position, &IPlayer::GetAimPos>(isolate, tpl, "aimPos");
+                            // Weapon getters
+                            V8Helpers::SetAccessor(isolate, tpl, "currentWeaponComponents", &CurrentWeaponComponentsGetter);
+                            // V8Helpers::SetAccessor(isolate, tpl, "currentWeaponTintIndex", &CurrentWeaponTintIndexGetter);
+                            V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetCurrentWeapon>(isolate, tpl, "currentWeapon");
+                            V8Helpers::SetAccessor<IPlayer, Ref<IEntity>, &IPlayer::GetEntityAimingAt>(isolate, tpl, "entityAimingAt");
+                            V8Helpers::SetAccessor<IPlayer, Position, &IPlayer::GetEntityAimOffset>(isolate, tpl, "entityAimOffset");
+                            V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsFlashlightActive>(isolate, tpl, "flashlightActive");
+                            V8Helpers::SetAccessor<IPlayer, Position, &IPlayer::GetAimPos>(isolate, tpl, "aimPos");
 
-    // Gamestate getters
-    // V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsJumping>(isolate, tpl, "isJumping");
-    V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsInRagdoll>(isolate, tpl, "isInRagdoll");
-    V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsAiming>(isolate, tpl, "isAiming");
-    // V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsShooting>(isolate, tpl, "isShooting");
-    // V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsReloading>(isolate, tpl, "isReloading");
-    V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsDead>(isolate, tpl, "isDead");
-    V8Helpers::SetAccessor<IPlayer, float, &IPlayer::GetMoveSpeed>(isolate, tpl, "moveSpeed");
-    V8Helpers::SetAccessor<IPlayer, Rotation, &IPlayer::GetHeadRotation>(isolate, tpl, "headRot");
-    // V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsSuperJumpEnabled>(isolate, tpl, "isSuperJumpEnabled");
-    // V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsCrouching>(isolate, tpl, "isCrouching");
-    // V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsStealthy>(isolate, tpl, "isStealthy");
-});
+                            // Gamestate getters
+                            V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsJumping>(isolate, tpl, "isJumping");
+                            V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsInRagdoll>(isolate, tpl, "isInRagdoll");
+                            V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsAiming>(isolate, tpl, "isAiming");
+                            V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsShooting>(isolate, tpl, "isShooting");
+                            V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsReloading>(isolate, tpl, "isReloading");
+                            V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsDead>(isolate, tpl, "isDead");
+                            V8Helpers::SetAccessor<IPlayer, float, &IPlayer::GetMoveSpeed>(isolate, tpl, "moveSpeed");
+                            V8Helpers::SetAccessor<IPlayer, Rotation, &IPlayer::GetHeadRotation>(isolate, tpl, "headRot");
+                            // V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsSuperJumpEnabled>(isolate, tpl, "isSuperJumpEnabled");
+                            // V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsCrouching>(isolate, tpl, "isCrouching");
+                            // V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsStealthy>(isolate, tpl, "isStealthy");
+                        });

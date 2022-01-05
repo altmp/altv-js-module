@@ -2,7 +2,13 @@
 #include "cpp-sdk/ICore.h"
 #include "V8ResourceImpl.h"
 #include "V8Helpers.h"
+#ifdef ALT_CLIENT
+    #include "CV8Resource.h"
+#endif
+
 #include <climits>
+#include <thread>
+#include <chrono>
 
 bool V8Helpers::TryCatch(const std::function<bool()>& fn)
 {
@@ -26,9 +32,19 @@ bool V8Helpers::TryCatch(const std::function<bool()>& fn)
 
             if(!origin.ResourceName()->IsUndefined())
             {
-                Log::Error << "[V8] Exception at " << resource->GetName() << ":" << *v8::String::Utf8Value(isolate, origin.ResourceName()) << ":" << line.ToChecked() << Log::Endl;
+                // Only relevant for client
+                bool isBytecodeResource = false;
+#ifdef ALT_CLIENT
+                isBytecodeResource = static_cast<CV8ResourceImpl*>(v8resource)->IsBytecodeResource();
+#endif
+                if(line.IsNothing() || isBytecodeResource)
+                {
+                    Log::Error << "[V8] Exception at " << resource->GetName() << ":" << *v8::String::Utf8Value(isolate, origin.ResourceName()) << Log::Endl;
+                }
+                else
+                    Log::Error << "[V8] Exception at " << resource->GetName() << ":" << *v8::String::Utf8Value(isolate, origin.ResourceName()) << ":" << line.ToChecked() << Log::Endl;
 
-                if(!maybeSourceLine.IsEmpty())
+                if(!maybeSourceLine.IsEmpty() && !isBytecodeResource)
                 {
                     v8::Local<v8::String> sourceLine = maybeSourceLine.ToLocalChecked();
 
@@ -351,4 +367,26 @@ alt::String V8Helpers::GetJSValueTypeName(v8::Local<v8::Value> val)
     if(val->IsObject()) return "object";
     else
         return "unknown";
+}
+
+v8::MaybeLocal<v8::Value> V8Helpers::CallFunctionWithTimeout(v8::Local<v8::Function> fn, v8::Local<v8::Context> ctx, std::vector<v8::Local<v8::Value>>& args, uint32_t timeout)
+{
+    v8::Isolate* isolate = ctx->GetIsolate();
+    /*std::shared_ptr<bool> hasTimedOut{ new bool(false) };
+    std::shared_ptr<bool> hasFinished{ new bool(false) };
+    std::thread([=]() {
+        std::this_thread::sleep_for(std::chrono::milliseconds(timeout));
+        if(*hasFinished || isolate->IsExecutionTerminating()) return;
+        *hasTimedOut = true;
+        isolate->TerminateExecution();
+    }).detach();*/
+
+    v8::MaybeLocal<v8::Value> result = fn->Call(ctx, v8::Undefined(isolate), args.size(), args.data());
+    /**hasFinished = true;
+    if(*hasTimedOut)
+    {
+        Log::Error << "[V8] Script execution timed out" << Log::Endl;
+        return v8::MaybeLocal<v8::Value>();
+    }*/
+    return result;
 }

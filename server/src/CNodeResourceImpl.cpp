@@ -223,3 +223,9 @@ void CNodeResourceImpl::OnTick()
     uv_run(uvLoop, UV_RUN_NOWAIT);
     V8ResourceImpl::OnTick();
 }
+
+bool CNodeResourceImpl::MakeClient(alt::IResource::CreationInfo* info, alt::Array<alt::String>)
+{
+    if(resource->GetClientType() == "jsb") info->type = "js";
+    return true;
+}

@@ -23,7 +23,7 @@ void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
         }
         args.push_back(arg);
     }
-    worker->EmitToMain(eventName.ToString(), args);
+    worker->GetMainEventHandler().Emit(eventName.ToString(), args);
 }
 
 void On(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -35,7 +35,19 @@ void On(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(1, eventName);
     V8_ARG_TO_FUNCTION(2, callback);
 
-    worker->SubscribeToWorker(eventName.ToString(), callback);
+    worker->GetWorkerEventHandler().Subscribe(eventName.ToString(), callback);
+}
+
+void Off(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+    auto worker = static_cast<CWorker*>(ctx->GetAlignedPointerFromEmbedderData(2));
+
+    V8_ARG_TO_STRING(1, eventName);
+    V8_ARG_TO_FUNCTION(2, callback);
+
+    worker->GetWorkerEventHandler().Unsubscribe(eventName.ToString(), callback);
 }
 
 void Once(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -47,7 +59,7 @@ void Once(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(1, eventName);
     V8_ARG_TO_FUNCTION(2, callback);
 
-    worker->SubscribeToWorker(eventName.ToString(), callback, true);
+    worker->GetWorkerEventHandler().Subscribe(eventName.ToString(), callback, true);
 }
 
 void NextTick(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -121,6 +133,7 @@ extern V8Module altWorker("alt-worker", nullptr, { v8File, v8RGBA, v8Vector2, v8
 
     V8Helpers::RegisterFunc(exports, "emit", &Emit);
     V8Helpers::RegisterFunc(exports, "on", &On);
+    V8Helpers::RegisterFunc(exports, "off", &Off);
     V8Helpers::RegisterFunc(exports, "once", &Once);
     V8Helpers::RegisterFunc(exports, "nextTick", &NextTick);
     V8Helpers::RegisterFunc(exports, "setInterval", &SetInterval);

@@ -1,6 +1,7 @@
 
 #include "cpp-sdk/objects/IPlayer.h"
 #include "cpp-sdk/objects/IVehicle.h"
+#include "cpp-sdk/events/CPlayerBeforeConnectEvent.h"
 
 #include "V8ResourceImpl.h"
 
@@ -284,11 +285,13 @@ void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vecto
         int64_t time = GetTime();
 
         V8Helpers::TryCatch([&] {
-            v8::MaybeLocal<v8::Value> retn = handler->fn.Get(isolate)->Call(GetContext(), v8::Undefined(isolate), args.size(), args.data());
+            v8::MaybeLocal<v8::Value> retn = V8Helpers::CallFunctionWithTimeout(handler->fn.Get(isolate), GetContext(), args);
             if(retn.IsEmpty()) return false;
 
             v8::Local<v8::Value> returnValue = retn.ToLocalChecked();
             if(ev && returnValue->IsFalse()) ev->Cancel();
+            else if(ev && ev->GetType() == alt::CEvent::Type::PLAYER_BEFORE_CONNECT && returnValue->IsString())
+                static_cast<alt::CPlayerBeforeConnectEvent*>(const_cast<alt::CEvent*>(ev))->Cancel(*v8::String::Utf8Value(isolate, returnValue));
             // todo: add this once a generic Cancel() with string as arg has been added to the sdk
             // else if(ev && returnValue->IsString())
             //    ev->Cancel(*v8::String::Utf8Value(isolate, returnValue));
@@ -331,7 +334,7 @@ alt::MValue V8ResourceImpl::FunctionImpl::Call(alt::MValueArgs args) const
 
     alt::MValue res;
     V8Helpers::TryCatch([&] {
-        v8::MaybeLocal<v8::Value> _res = function.Get(isolate)->CallAsFunction(resource->GetContext(), v8::Undefined(isolate), v8Args.size(), v8Args.data());
+        v8::MaybeLocal<v8::Value> _res = V8Helpers::CallFunctionWithTimeout(function.Get(isolate), resource->GetContext(), v8Args);
 
         if(_res.IsEmpty()) return false;
 

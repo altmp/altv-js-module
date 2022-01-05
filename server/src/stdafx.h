@@ -1,8 +1,8 @@
 #pragma once
 
-#define JS_MODULE_COPYRIGHT u8"Copyright � 2020 altMP team."
+#define JS_MODULE_COPYRIGHT u8"Copyright © 2020 altMP team."
 
-#define NODEJS_COPYRIGHT u8"Copyright � 2020 Node.js Foundation."
+#define NODEJS_COPYRIGHT u8"Copyright © 2020 Node.js Foundation."
 
 #define NODE_WANT_INTERNALS 1
 

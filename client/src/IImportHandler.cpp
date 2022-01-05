@@ -1,6 +1,5 @@
 #include "IImportHandler.h"
 #include "V8Module.h"
-#include <filesystem>
 
 static inline v8::MaybeLocal<v8::Module> CompileESM(v8::Isolate* isolate, const std::string& name, const std::string& src)
 {
@@ -53,11 +52,21 @@ bool IImportHandler::IsValidModule(const std::string& name)
     return false;
 }
 
+// !!! Keep this in sync with the magic bytes in bytecode module
+static const char bytecodeMagic[] = { 'A', 'L', 'T', 'B', 'C' };
+bool IImportHandler::IsBytecodeModule(uint8_t* buffer, size_t size)
+{
+    if(size < sizeof(bytecodeMagic)) return false;
+    if(memcmp(buffer, bytecodeMagic, sizeof(bytecodeMagic)) == 0) return true;
+    else
+        return false;
+}
+
 std::deque<std::string> IImportHandler::GetModuleKeys(const std::string& name)
 {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
-    auto context = isolate->GetEnteredOrMicrotaskContext();
-    auto& v8module = V8Module::All()[isolate].find(name);
+    v8::Local<v8::Context> context = isolate->GetEnteredOrMicrotaskContext();
+    auto v8module = V8Module::All()[isolate].find(name);
     if(v8module != V8Module::All()[isolate].end())
     {
         auto _exports = v8module->second->GetExports(isolate, context);
@@ -112,14 +121,14 @@ v8::Local<v8::Module> IImportHandler::GetModuleFromPath(std::string modulePath)
 v8::MaybeLocal<v8::Value> IImportHandler::Require(const std::string& name)
 {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
-    auto it = requires.find(name);
-    if(it != requires.end()) return it->second.Get(isolate);
+    auto it = requiresMap.find(name);
+    if(it != requiresMap.end()) return it->second.Get(isolate);
 
-    auto& v8module = V8Module::All()[isolate].find(name);
+    auto v8module = V8Module::All()[isolate].find(name);
     if(v8module != V8Module::All()[isolate].end())
     {
         auto _exports = v8module->second->GetExports(isolate, isolate->GetEnteredOrMicrotaskContext());
-        requires.insert({ name, v8::UniquePersistent<v8::Value>{ isolate, _exports } });
+        requiresMap.insert({ name, v8::UniquePersistent<v8::Value>{ isolate, _exports } });
 
         return _exports;
     }
@@ -129,7 +138,7 @@ v8::MaybeLocal<v8::Value> IImportHandler::Require(const std::string& name)
     {
         v8::Local<v8::Value> _exports = V8Helpers::MValueToV8(resource->GetExports());
 
-        requires.insert({ name, v8::UniquePersistent<v8::Value>{ isolate, _exports } });
+        requiresMap.insert({ name, v8::UniquePersistent<v8::Value>{ isolate, _exports } });
 
         return _exports;
     }
@@ -144,26 +153,13 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveFile(const std::string& name, 
 
     if(!path.pkg) return v8::MaybeLocal<v8::Module>();
 
-    std::string fileName = path.fileName.ToString();
+    auto fileName = path.fileName.ToString();
 
+    if(fileName.size() == 0)
     {
-        std::filesystem::path filePath{ fileName };
-        std::string extension = filePath.extension().string();
-        if(extension.size() == 0) Log::Warning << "[V8] File paths without a file extension are deprecated. Specify the file extension when importing instead. (" << name << ")" << Log::Endl;
-    }
-
-    if(fileName.empty() || fileName.size() == 0)
-    {
-        if(path.pkg->FileExists("index.js"))
-        {
-            fileName = "index.js";
-            Log::Warning << "[V8] Directory file paths are deprecated. Provide the full path to the 'index.js' file instead. (" << name << ")" << Log::Endl;
-        }
+        if(path.pkg->FileExists("index.js")) fileName = "index.js";
         else if(path.pkg->FileExists("index.mjs"))
-        {
             fileName = "index.mjs";
-            Log::Warning << "[V8] Directory file paths are deprecated. Provide the full path to the 'index.js' file instead. (" << name << ")" << Log::Endl;
-        }
         else
             return v8::MaybeLocal<v8::Module>();
     }
@@ -173,23 +169,11 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveFile(const std::string& name, 
         else if(path.pkg->FileExists(fileName + ".mjs"))
             fileName += ".mjs";
         else if(path.pkg->FileExists(fileName + "/index.js"))
-        {
             fileName += "/index.js";
-            Log::Warning << "[V8] Directory file paths are deprecated. Provide the full path to the 'index.js' file instead. (" << name << ")" << Log::Endl;
-        }
         else if(path.pkg->FileExists(fileName + "/index.mjs"))
-        {
             fileName += "/index.mjs";
-            Log::Warning << "[V8] Directory file paths are deprecated. Provide the full path to the 'index.js' file instead. (" << name << ")" << Log::Endl;
-        }
         else if(!path.pkg->FileExists(fileName))
             return v8::MaybeLocal<v8::Module>();
-    }
-
-    {
-        std::filesystem::path filePath{ fileName };
-        std::string extension = filePath.extension().string();
-        if(extension == ".mjs") Log::Warning << "[V8] The .mjs file extension is deprecated, use .js instead. (" << name << ")" << Log::Endl;
     }
 
     std::string fullName = path.prefix.ToString() + fileName;
@@ -203,11 +187,21 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveFile(const std::string& name, 
     V8Helpers::TryCatch([&] {
         alt::IPackage::File* file = path.pkg->OpenFile(fileName);
 
-        std::string src(path.pkg->GetFileSize(file), '\0');
-        path.pkg->ReadFile(file, src.data(), src.size());
+        size_t fileSize = path.pkg->GetFileSize(file);
+        uint8_t* byteBuffer = new uint8_t[fileSize];
+        path.pkg->ReadFile(file, byteBuffer, fileSize);
         path.pkg->CloseFile(file);
 
-        maybeModule = CompileESM(isolate, fullName, src);
+        if(!isUsingBytecode)
+        {
+            alt::String src{ (char*)byteBuffer, fileSize };
+            maybeModule = CompileESM(isolate, fullName, src.ToString());
+        }
+        else
+        {
+            maybeModule = ResolveBytecode(fullName, byteBuffer, fileSize);
+        }
+        delete byteBuffer;
 
         if(maybeModule.IsEmpty()) return false;
 
@@ -315,4 +309,23 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveCode(const std::string& code, 
     maybeModule = CompileESM(isolate, name.str(), code);
 
     return maybeModule;
+}
+
+v8::MaybeLocal<v8::Module> IImportHandler::ResolveBytecode(const std::string& name, uint8_t* buffer, size_t size)
+{
+    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+    size_t bytecodeSize = size - sizeof(bytecodeMagic);
+    uint8_t* bytecode = new uint8_t[bytecodeSize];
+    memcpy(bytecode, buffer + sizeof(bytecodeMagic), bytecodeSize);
+    v8::ScriptCompiler::CachedData* cachedData = new v8::ScriptCompiler::CachedData(bytecode, bytecodeSize, v8::ScriptCompiler::CachedData::BufferOwned);
+    v8::ScriptOrigin origin(isolate, V8Helpers::JSValue(name), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
+    v8::ScriptCompiler::Source source{ V8Helpers::JSValue(""), origin, cachedData };
+    v8::MaybeLocal<v8::Module> module = v8::ScriptCompiler::CompileModule(isolate, &source, v8::ScriptCompiler::kConsumeCodeCache);
+    if(cachedData->rejected)
+    {
+        Log::Error << "[V8] Trying to load invalid bytecode" << Log::Endl;
+        return v8::MaybeLocal<v8::Module>();
+    }
+    else
+        return module;
 }
