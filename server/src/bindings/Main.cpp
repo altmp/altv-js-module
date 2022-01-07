@@ -351,7 +351,7 @@ static void GetVehicleModelByHash(const v8::FunctionCallbackInfo<v8::Value>& inf
     infoObj->Set(ctx, V8Helpers::JSValue("interiorColor"), V8Helpers::JSValue(modelInfo.interiorColor));
     infoObj->Set(ctx, V8Helpers::JSValue("dashboardColor"), V8Helpers::JSValue(modelInfo.dashboardColor));
 
-    size_t modkitsSize = (sizeof(modelInfo.modkits) / sizeof(*modelInfo.modkits));
+    size_t modkitsSize = std::size(modelInfo.modkits);
     v8::Local<v8::Array> modkitsArr = v8::Array::New(isolate, modkitsSize);
     for(size_t i = 0; i < modkitsSize; i++)
     {
