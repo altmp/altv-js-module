@@ -372,6 +372,25 @@ static void GetRemoteEventListeners(const v8::FunctionCallbackInfo<v8::Value>& i
     V8_RETURN(array);
 }
 
+static void GetAllResources(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    const std::vector<alt::IResource*> resources = alt::ICore::Instance().GetAllResources();
+    size_t size = resources.size();
+    v8::Local<v8::Array> arr = v8::Array::New(isolate, size);
+    for(size_t i = 0; i < size; i++)
+    {
+        alt::IResource* resource = resources[i];
+        V8_NEW_OBJECT(resourceObj);
+        resourceObj->Set(ctx, V8Helpers::JSValue("name"), V8Helpers::JSValue(resource->GetName()));
+        resourceObj->Set(ctx, V8Helpers::JSValue("type"), V8Helpers::JSValue(resource->GetType()));
+        arr->Set(ctx, i, resourceObj);
+    }
+
+    V8_RETURN(arr);
+}
+
 extern V8Class v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2, v8Vector3, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip;
 
 extern V8Module sharedModule("alt-shared",
@@ -415,6 +434,7 @@ extern V8Module sharedModule("alt-shared",
 
                                  V8Helpers::RegisterFunc(exports, "hasResource", &HasResource);
                                  V8Helpers::RegisterFunc(exports, "getResourceExports", &GetResourceExports);
+                                 V8Helpers::RegisterFunc(exports, "getAllResources", &GetAllResources);
 
                                  V8_OBJECT_SET_STRING(exports, "version", alt::ICore::Instance().GetVersion());
                                  V8_OBJECT_SET_STRING(exports, "branch", alt::ICore::Instance().GetBranch());
