@@ -57,22 +57,6 @@ static void HeapSpacesCommand(const std::vector<std::string>&)
     Log::Info << "======================================================" << Log::Endl;
 }
 
-static void HeapObjectsCommand(const std::vector<std::string>&)
-{
-    v8::Isolate* isolate = CV8ScriptRuntime::Instance().GetIsolate();
-    size_t heapObjectsCount = isolate->NumberOfTrackedHeapObjectTypes();
-    Log::Info << "================ Heap objects info =================" << Log::Endl;
-    for(size_t i = 0; i < heapObjectsCount; i++)
-    {
-        v8::HeapObjectStatistics object;
-        if(!isolate->GetHeapObjectStatisticsAtLastGC(&object, i)) continue;
-        Log::Info << "Heap object #" << i << ": " << object.object_type() << " (" << object.object_sub_type() << ")" << Log::Endl;
-        Log::Info << "  Count: " << object.object_count() << Log::Endl;
-        Log::Info << "  Size: " << CV8ScriptRuntime::FormatBytes(object.object_size()) << Log::Endl;
-    }
-    Log::Info << "======================================================" << Log::Endl;
-}
-
 static void ClientJSCommand(const std::vector<std::string>& args)
 {
     if(args.size() == 0)
@@ -106,7 +90,6 @@ ALTV_JS_EXPORT void CreateScriptRuntime(alt::ICore* core)
     // Commands
     core->SubscribeCommand("heap", &HeapCommand);
     core->SubscribeCommand("heapspaces", &HeapSpacesCommand);
-    core->SubscribeCommand("heapobjects", &HeapObjectsCommand);
     core->SubscribeCommand("timers", &TimersCommand);
     core->SubscribeCommand("js-module", &ClientJSCommand);
 }
