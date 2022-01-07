@@ -880,6 +880,27 @@ static void GetLocalMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_MVALUE(alt::ICore::Instance().GetLocalMetaData(key));
 }
 
+static void CopyToClipboard(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    std::string text;
+    if(info[0]->IsNull())
+    {
+        text = "";
+    }
+    else if(info[0]->IsString())
+    {
+        V8_ARG_TO_STRING(1, textStr);
+        text = textStr.ToString();
+    }
+
+    alt::PermissionState state = alt::ICore::Instance().CopyToClipboard(text);
+    V8_CHECK(state != alt::PermissionState::Denied, "No permissions");
+    V8_CHECK(state != alt::PermissionState::Unspecified, "Permission not specified");
+    V8_CHECK(state != alt::PermissionState::Failed, "Failed to copy to clipboard");
+}
+
 extern V8Module sharedModule;
 extern V8Class v8Player, v8Player, v8Vehicle, v8WebView, v8HandlingData, v8LocalStorage, v8MemoryBuffer, v8MapZoomData, v8Discord, v8Voice, v8WebSocketClient, v8Checkpoint, v8HttpClient,
   v8Audio, v8LocalPlayer, v8Profiler, v8Worker, v8RmlDocument;
@@ -1001,4 +1022,6 @@ extern V8Module altModule("alt",
 
                               V8Helpers::RegisterFunc(exports, "hasLocalMeta", &HasLocalMeta);
                               V8Helpers::RegisterFunc(exports, "getLocalMeta", &GetLocalMeta);
+
+                              V8Helpers::RegisterFunc(exports, "copyToClipboard", &CopyToClipboard);
                           });
