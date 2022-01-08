@@ -117,7 +117,7 @@ static void HasMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
 
     V8_CHECK_ARGS_LEN_MIN(1);
-    V8_ARG_TO_STRING(1, key);
+    V8_ARG_TO_STD_STRING(1, key);
 
     V8_RETURN(alt::ICore::Instance().HasMetaData(key));
 }
@@ -127,7 +127,7 @@ static void GetMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
 
     V8_CHECK_ARGS_LEN_MIN(1);
-    V8_ARG_TO_STRING(1, key);
+    V8_ARG_TO_STD_STRING(1, key);
 
     V8_RETURN_MVALUE(alt::ICore::Instance().GetMetaData(key));
 }
@@ -137,7 +137,7 @@ static void SetMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
 
     V8_CHECK_ARGS_LEN_MIN(2);
-    V8_ARG_TO_STRING(1, key);
+    V8_ARG_TO_STD_STRING(1, key);
     V8_ARG_TO_MVALUE(2, value);
 
     alt::ICore::Instance().SetMetaData(key, value);
@@ -148,7 +148,7 @@ static void DeleteMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
 
     V8_CHECK_ARGS_LEN_MIN(1);
-    V8_ARG_TO_STRING(1, key);
+    V8_ARG_TO_STD_STRING(1, key);
 
     alt::ICore::Instance().DeleteMetaData(key);
 }
@@ -158,7 +158,7 @@ static void HasSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
 
     V8_CHECK_ARGS_LEN_MIN(1);
-    V8_ARG_TO_STRING(1, key);
+    V8_ARG_TO_STD_STRING(1, key);
 
     V8_RETURN(alt::ICore::Instance().HasSyncedMetaData(key));
 }
@@ -168,7 +168,7 @@ static void GetSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
 
     V8_CHECK_ARGS_LEN_MIN(1);
-    V8_ARG_TO_STRING(1, key);
+    V8_ARG_TO_STD_STRING(1, key);
 
     V8_RETURN_MVALUE(alt::ICore::Instance().GetSyncedMetaData(key));
 }

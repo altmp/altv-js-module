@@ -183,6 +183,11 @@
     V8_CHECK(V8Helpers::SafeToString(info[(idx)-1], isolate, ctx, val), "Failed to convert argument " #idx " to string")
 
 // idx starts with 1
+#define V8_ARG_TO_STD_STRING(idx, val) \
+    std::string val;               \
+    V8_CHECK(V8Helpers::SafeToStdString(info[(idx)-1], isolate, ctx, val), "Failed to convert argument " #idx " to string")
+
+// idx starts with 1
 #define V8_ARG_TO_FUNCTION(idx, val) \
     v8::Local<v8::Function> val;     \
     V8_CHECK(V8Helpers::SafeToFunction(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to function")
