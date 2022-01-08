@@ -202,7 +202,7 @@ static void SetSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
     V8_CHECK_ARGS_LEN(2);
 
-    V8_ARG_TO_STRING(1, key);
+    V8_ARG_TO_STD_STRING(1, key);
     V8_ARG_TO_MVALUE(2, value);
 
     alt::ICore::Instance().SetSyncedMetaData(key, value);
@@ -213,7 +213,7 @@ static void DeleteSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
     V8_CHECK_ARGS_LEN(1);
 
-    V8_ARG_TO_STRING(1, key);
+    V8_ARG_TO_STD_STRING(1, key);
 
     alt::ICore::Instance().DeleteSyncedMetaData(key);
 }
@@ -387,7 +387,8 @@ extern V8Module v8Alt("alt",
                         v8ColshapeCircle,
                         v8ColshapeCuboid,
                         v8ColshapeRectangle },
-                      [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
+                      [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports)
+                      {
                           v8::Isolate* isolate = ctx->GetIsolate();
 
                           V8Helpers::RegisterFunc(exports, "getResourceMain", &GetResourceMain);
