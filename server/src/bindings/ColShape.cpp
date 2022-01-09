@@ -144,27 +144,31 @@ extern V8Class v8ColshapeRectangle(
   },
   [](v8::Local<v8::FunctionTemplate> tpl) {});
 
-extern V8Class v8ColshapePolygon("ColshapePolygon", v8Colshape, [](const v8::FunctionCallbackInfo<v8::Value>& info) {
-    V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_CHECK_CONSTRUCTOR();
-    V8_CHECK_ARGS_LEN(3);
+extern V8Class v8ColshapePolygon(
+  "ColshapePolygon",
+  v8Colshape,
+  [](const v8::FunctionCallbackInfo<v8::Value>& info) {
+      V8_GET_ISOLATE_CONTEXT_RESOURCE();
+      V8_CHECK_CONSTRUCTOR();
+      V8_CHECK_ARGS_LEN(3);
 
-    V8_ARG_TO_NUMBER(1, minZ);
-    V8_ARG_TO_NUMBER(2, maxZ);
+      V8_ARG_TO_NUMBER(1, minZ);
+      V8_ARG_TO_NUMBER(2, maxZ);
 
-    V8_CHECK(info[2]->IsArray(), "Argument 3 is not an array");
-    v8::Local<v8::Array> arr = info[2].As<v8::Array>();
-    std::vector<Vector2f> points;
-    uint32_t len = arr->Length();
-    for(uint32_t i = 0; i < len; ++i)
-    {
-        v8::MaybeLocal<v8::Value> maybeVal = arr->Get(ctx, i);
-        if(maybeVal.IsEmpty()) continue;
-        v8::Local<v8::Value> val = maybeVal.ToLocalChecked();
-        V8_CHECK(resource->IsVector2(val), "Invalid item in array, expected Vector2");
-        V8_TO_VECTOR2(val, point);
-        points.push_back(point);
-    }
+      V8_CHECK(info[2]->IsArray(), "Argument 3 is not an array");
+      v8::Local<v8::Array> arr = info[2].As<v8::Array>();
+      std::vector<Vector2f> points;
+      uint32_t len = arr->Length();
+      for(uint32_t i = 0; i < len; ++i)
+      {
+          v8::MaybeLocal<v8::Value> maybeVal = arr->Get(ctx, i);
+          if(maybeVal.IsEmpty()) continue;
+          v8::Local<v8::Value> val = maybeVal.ToLocalChecked();
+          V8_CHECK(resource->IsVector2(val), "Invalid item in array, expected Vector2");
+          V8_TO_VECTOR2(val, point);
+          points.push_back(point);
+      }
 
-    Ref<IColShape> cs = alt::ICore::Instance().CreateColShapePolygon(minZ, maxZ, points);
-})
+      Ref<IColShape> cs = alt::ICore::Instance().CreateColShapePolygon(minZ, maxZ, points);
+  },
+  [](v8::Local<v8::FunctionTemplate> tpl) {});
