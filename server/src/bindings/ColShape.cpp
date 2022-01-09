@@ -170,5 +170,8 @@ extern V8Class v8ColshapePolygon(
       }
 
       Ref<IColShape> cs = alt::ICore::Instance().CreateColShapePolygon(minZ, maxZ, points);
+      V8_CHECK(!cs.IsEmpty(), "Failed to create ColShapePolygon");
+
+      resource->BindEntity(info.This(), cs.Get());
   },
   [](v8::Local<v8::FunctionTemplate> tpl) {});
