@@ -62,8 +62,8 @@ static void Show(const v8::FunctionCallbackInfo<v8::Value>& info)
     document->Show(isModal, focused);
 }
 
-extern V8Class v8BaseObject;
-extern V8Class v8RmlDocument("RmlDocument", v8BaseObject, &DocumentConstructor, [](v8::Local<v8::FunctionTemplate> tpl) {
+extern V8Class v8RmlElement;
+extern V8Class v8RmlDocument("RmlDocument", v8RmlElement, &DocumentConstructor, [](v8::Local<v8::FunctionTemplate> tpl) {
     using namespace alt;
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
