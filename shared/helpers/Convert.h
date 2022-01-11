@@ -20,39 +20,6 @@ namespace V8Helpers
     bool SafeToArrayBuffer(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::ArrayBuffer>& out);
     bool SafeToArrayBufferView(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::ArrayBufferView>& out);
     bool SafeToArray(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::Array>& out);
-    template<typename T>
-    bool SafeToVector(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, std::vector<T>& out)
-    {
-        v8::Local<v8::Array> array;
-        if(!SafeToArray(val, ctx, array)) return false;
-
-        uint32_t length = array->Length();
-        out.reserve(length);
-        for(uint32_t i = 0; i < length; ++i)
-        {
-            v8::Local<v8::Value> item = array->Get(ctx, i);
-            if constexpr(std::is_same_v<T, bool>)
-            {
-                bool value;
-                if(!SafeToBoolean(item, ctx, value)) continue;
-                out.push_back(value);
-            }
-            else if constexpr(std::is_same_v<T, double> || std::is_same_v<T, float>)
-            {
-                double value;
-                if(!SafeToNumber(item, ctx, value)) continue;
-                out.push_back((T)value);
-            }
-            else if constexpr(std::is_same_v<T, std::string>)
-            {
-                std::string value;
-                if(!SafeToStdString(item, ctx, value)) continue;
-                out.push_back(value);
-            }
-        }
-
-        return true;
-    }
 
     bool SafeToUInt64(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, uint64_t& out);
     bool SafeToInt64(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, int64_t& out);
