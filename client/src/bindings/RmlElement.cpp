@@ -12,7 +12,7 @@ static void StyleGetterHandler(v8::Local<v8::Name> property, const v8::PropertyC
     alt::Ref<alt::IRmlDocument> document = static_cast<V8Entity*>(info.Data().As<v8::External>()->Value())->GetHandle().As<alt::IRmlDocument>();
 
     V8_TO_STD_STRING(property, name);
-    V8_RETURN_STD_STRING(document->GetProperty(name));
+    V8_RETURN_STD_STRING(element->GetProperty(name));
 }
 
 static void StyleSetterHandler(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -22,7 +22,7 @@ static void StyleSetterHandler(v8::Local<v8::Name> property, v8::Local<v8::Value
 
     V8_TO_STD_STRING(property, name);
     V8_TO_STD_STRING(value, val);
-    document->SetProperty(name, val);
+    element->SetProperty(name, val);
     V8_RETURN(value);
 }
 
@@ -32,7 +32,7 @@ static void StyleDeleterHandler(v8::Local<v8::Name> property, const v8::Property
     alt::Ref<alt::IRmlDocument> document = static_cast<V8Entity*>(info.Data().As<v8::External>()->Value())->GetHandle().As<alt::IRmlDocument>();
 
     V8_TO_STD_STRING(property, name);
-    V8_RETURN_BOOLEAN(document->RemoveProperty(name));
+    V8_RETURN_BOOLEAN(element->RemoveProperty(name));
 }
 
 // Implementation
@@ -64,110 +64,110 @@ info.This()->Set(ctx, V8Helpers::JSValue("style"), styleProxy);
 static void SetProperty(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(2);
 
     V8_ARG_TO_STD_STRING(1, name);
     V8_ARG_TO_STD_STRING(2, val);
-    V8_RETURN_BOOLEAN(document->SetProperty(name, val));
+    V8_RETURN_BOOLEAN(element->SetProperty(name, val));
 }
 
 static void RemoveProperty(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
     V8_ARG_TO_STD_STRING(1, name);
-    V8_RETURN_BOOLEAN(document->RemoveProperty(name));
+    V8_RETURN_BOOLEAN(element->RemoveProperty(name));
 }
 
 static void HasProperty(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
     V8_ARG_TO_STD_STRING(1, name);
-    V8_RETURN_BOOLEAN(document->HasProperty(name));
+    V8_RETURN_BOOLEAN(element->HasProperty(name));
 }
 
 static void HasLocalProperty(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
     V8_ARG_TO_STD_STRING(1, name);
-    V8_RETURN_BOOLEAN(document->HasLocalProperty(name));
+    V8_RETURN_BOOLEAN(element->HasLocalProperty(name));
 }
 
 static void GetProperty(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
     V8_ARG_TO_STD_STRING(1, name);
-    V8_RETURN_STD_STRING(document->GetProperty(name));
+    V8_RETURN_STD_STRING(element->GetProperty(name));
 }
 
 static void GetLocalProperty(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
     V8_ARG_TO_STD_STRING(1, name);
-    V8_RETURN_STD_STRING(document->GetLocalProperty(name));
+    V8_RETURN_STD_STRING(element->GetLocalProperty(name));
 }
 
 static void GetPropertyAbsoluteValue(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
     V8_ARG_TO_STD_STRING(1, name);
-    V8_RETURN_NUMBER(document->GetPropertyAbsoluteValue(name));
+    V8_RETURN_NUMBER(element->GetPropertyAbsoluteValue(name));
 }
 
 static void AddClass(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
     V8_ARG_TO_STD_STRING(1, name);
-    V8_RETURN_BOOLEAN(document->AddClass(name));
+    V8_RETURN_BOOLEAN(element->AddClass(name));
 }
 
 static void RemoveClass(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
     V8_ARG_TO_STD_STRING(1, name);
-    V8_RETURN_BOOLEAN(document->RemoveClass(name));
+    V8_RETURN_BOOLEAN(element->RemoveClass(name));
 }
 
 static void HasClass(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
     V8_ARG_TO_STD_STRING(1, name);
-    V8_RETURN_BOOLEAN(document->HasClass(name));
+    V8_RETURN_BOOLEAN(element->HasClass(name));
 }
 
 static void GetClassList(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
 
-    const std::vector<std::string> list = document->GetClassList();
+    const std::vector<std::string> list = element->GetClassList();
     size_t size = list.size();
     v8::Local<v8::Array> arr = v8::Array::New(isolate, size);
     for(size_t i = 0; i < size; i++)
@@ -181,39 +181,39 @@ static void GetClassList(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void AddPseudoClass(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
     V8_ARG_TO_STD_STRING(1, name);
-    V8_RETURN_BOOLEAN(document->AddPseudoClass(name));
+    V8_RETURN_BOOLEAN(element->AddPseudoClass(name));
 }
 
 static void RemovePseudoClass(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
     V8_ARG_TO_STD_STRING(1, name);
-    V8_RETURN_BOOLEAN(document->RemovePseudoClass(name));
+    V8_RETURN_BOOLEAN(element->RemovePseudoClass(name));
 }
 
 static void HasPseudoClass(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
     V8_ARG_TO_STD_STRING(1, name);
-    V8_RETURN_BOOLEAN(document->HasPseudoClass(name));
+    V8_RETURN_BOOLEAN(element->HasPseudoClass(name));
 }
 
 static void GetPseudoClassList(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
 
-    const std::vector<std::string> list = document->GetPseudoClassList();
+    const std::vector<std::string> list = element->GetPseudoClassList();
     size_t size = list.size();
     v8::Local<v8::Array> arr = v8::Array::New(isolate, size);
     for(size_t i = 0; i < size; i++)
@@ -227,25 +227,148 @@ static void GetPseudoClassList(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void SetOffset(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN2(2, 3);
 
     V8_ARG_TO_BASE_OBJECT(1, element, alt::IRmlElement, "RmlElement");
     V8_ARG_TO_VECTOR2(2, offset);
     V8_ARG_TO_BOOLEAN_OPT(3, fixed, false);
 
-    document->SetOffset(element, offset, fixed);
+    element->SetOffset(element, offset, fixed);
 }
 
 static void IsPointWithinElement(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
     V8_ARG_TO_VECTOR2(1, point);
 
-    V8_RETURN_BOOLEAN(document->IsPointWithinElement(point));
+    V8_RETURN_BOOLEAN(element->IsPointWithinElement(point));
+}
+
+static void ChildrenGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
+
+    size_t size = element->GetChildCount();
+    v8::Local<v8::Array> arr = v8::Array::New(isolate, size);
+    for(size_t i = 0; i < size; i++)
+    {
+        arr->Set(ctx, i, resource->GetBaseObjectOrNull(element->GetChild(i).Get()));
+    }
+
+    V8_RETURN(arr);
+}
+
+static void GetClosest(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STD_STRING(1, selectors);
+
+    V8_RETURN_BASE_OBJECT(element->GetClosest(selectors));
+}
+
+static void GetElementByID(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STD_STRING(1, id);
+
+    V8_RETURN_BASE_OBJECT(element->GetElementByID(id));
+}
+
+static void GetElementsByTagName(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STD_STRING(1, tag);
+
+    const std::vector<alt::Ref<alt::IRmlElement>> elements = element->GetElementsByTagName(tag);
+    size_t size = elements.size();
+    v8::Local<v8::Array> arr = v8::Array::New(isolate, size);
+    for(size_t i = 0; i < size; i++)
+    {
+        arr->Set(ctx, i, resource->GetBaseObjectOrNull(elements[i].Get()));
+    }
+
+    V8_RETURN(arr);
+}
+
+static void GetElementsByClassName(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STD_STRING(1, className);
+
+    const std::vector<alt::Ref<alt::IRmlElement>> elements = element->GetElementsByClassName(className);
+    size_t size = elements.size();
+    v8::Local<v8::Array> arr = v8::Array::New(isolate, size);
+    for(size_t i = 0; i < size; i++)
+    {
+        arr->Set(ctx, i, resource->GetBaseObjectOrNull(elements[i].Get()));
+    }
+
+    V8_RETURN(arr);
+}
+
+static void QuerySelector(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STD_STRING(1, selector);
+
+    V8_RETURN_BASE_OBJECT(element->QuerySelector(selector));
+}
+
+static void QuerySelectorAll(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STD_STRING(1, selector);
+
+    const std::vector<alt::Ref<alt::IRmlElement>> elements = element->QuerySelectorAll(selector);
+    size_t size = elements.size();
+    v8::Local<v8::Array> arr = v8::Array::New(isolate, size);
+    for(size_t i = 0; i < size; i++)
+    {
+        arr->Set(ctx, i, resource->GetBaseObjectOrNull(elements[i].Get()));
+    }
+
+    V8_RETURN(arr);
+}
+
+static void Focus(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
+
+    V8_RETURN(element->Focus());
+}
+
+static void ScrollIntoView(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
+
+    V8_ARG_TO_BOOLEAN_OPT(1, alignToTop, true);
+
+    element->ScrollIntoView(alignToTop);
 }
 
 extern V8Class v8BaseObject;
@@ -297,6 +420,8 @@ extern V8Class v8RmlElement("RmlElement", v8BaseObject, nullptr, [](v8::Local<v8
 
     V8Helpers::SetAccessor<alt::IRmlElement, Ref<IRmlDocument>, &alt::IRmlElement::GetOwnerDocument>(isolate, tpl, "ownerDocument");
 
+    V8Helpers::SetAccessor(isolate, tpl, "childNodes", &ChildrenGetter);
+
     V8Helpers::SetMethod(isolate, tpl, "addClass", &AddClass);
     V8Helpers::SetMethod(isolate, tpl, "removeClass", &RemoveClass);
     V8Helpers::SetMethod(isolate, tpl, "hasClass", &HasClass);
@@ -319,9 +444,7 @@ extern V8Class v8RmlElement("RmlElement", v8BaseObject, nullptr, [](v8::Local<v8
     V8Helpers::SetMethod(isolate, tpl, "getLocalProperty", &GetLocalProperty);
     V8Helpers::SetMethod(isolate, tpl, "getPropertyAbsoluteValue", &GetPropertyAbsoluteValue);
 
-    /*
-    V8Helpers::SetMethod(isolate, tpl, "getClosest", &GetClosest);
-    V8Helpers::SetMethod(isolate, tpl, "getChild", &GetChild);
+    V8Helpers::SetMethod(isolate, tpl, "closest", &GetClosest);
 
     V8Helpers::SetMethod(isolate, tpl, "getElementByID", &GetElementByID);
     V8Helpers::SetMethod(isolate, tpl, "getElementsByTagName", &GetElementsByTagName);
@@ -329,9 +452,8 @@ extern V8Class v8RmlElement("RmlElement", v8BaseObject, nullptr, [](v8::Local<v8
     V8Helpers::SetMethod(isolate, tpl, "querySelector", &QuerySelector);
     V8Helpers::SetMethod(isolate, tpl, "querySelectorAll", &QuerySelectorAll);
 
-    V8Helpers::SetMethod<alt::IRmlElement, &alt::IRmlElement::Focus>(isolate, tpl, "focus");
+    V8Helpers::SetMethod(isolate, tpl, "focus", &Focus);
     V8Helpers::SetMethod<alt::IRmlElement, &alt::IRmlElement::Blur>(isolate, tpl, "blur");
     V8Helpers::SetMethod<alt::IRmlElement, &alt::IRmlElement::Click>(isolate, tpl, "click");
     V8Helpers::SetMethod(isolate, tpl, "scrollIntoView", &ScrollIntoView);
-    */
 });
