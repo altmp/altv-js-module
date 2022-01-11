@@ -6,12 +6,11 @@
 #include "cpp-sdk/script-objects/IRml.h"
 
 extern V8Class v8BaseObject;
-extern V8Class v8RmlElement("RmlElement", v8BaseObject, nullptr, [](v8::Local<v8::FunctionTemplate> tpl)
-{
+extern V8Class v8RmlElement("RmlElement", v8BaseObject, nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
     using namespace alt;
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    //V8Helpers::SetAccessor(isolate, tpl, "sourceUrl", &SourceUrlGetter);
+    // V8Helpers::SetAccessor(isolate, tpl, "sourceUrl", &SourceUrlGetter);
 
     V8Helpers::SetAccessor<alt::IRmlElement, Vector2f, &alt::IRmlElement::GetRelativeOffset>(isolate, tpl, "relativeOffset");
     V8Helpers::SetAccessor<alt::IRmlElement, Vector2f, &alt::IRmlElement::GetAbsoluteOffset>(isolate, tpl, "absoluteOffset");
@@ -41,7 +40,7 @@ extern V8Class v8RmlElement("RmlElement", v8BaseObject, nullptr, [](v8::Local<v8
     V8Helpers::SetAccessor<alt::IRmlElement, float, &alt::IRmlElement::GetScrollTop, &alt::IRmlElement::SetScrollTop>(isolate, tpl, "scrollTop");
     V8Helpers::SetAccessor<alt::IRmlElement, float, &alt::IRmlElement::GetScrollWidth>(isolate, tpl, "scrollWidth");
     V8Helpers::SetAccessor<alt::IRmlElement, float, &alt::IRmlElement::GetScrollHeight>(isolate, tpl, "scrollHeight");
-    
+
     V8Helpers::SetAccessor<alt::IRmlElement, bool, &alt::IRmlElement::IsVisible>(isolate, tpl, "isVisible");
 
     V8Helpers::SetAccessor<alt::IRmlElement, Ref<IRmlElement>, &alt::IRmlElement::GetParent>(isolate, tpl, "parent");
@@ -54,6 +53,8 @@ extern V8Class v8RmlElement("RmlElement", v8BaseObject, nullptr, [](v8::Local<v8
     V8Helpers::SetAccessor<alt::IRmlElement, bool, &alt::IRmlElement::HasChildren>(isolate, tpl, "hasChildren");
 
     V8Helpers::SetAccessor<alt::IRmlElement, const std::string&, &alt::IRmlElement::GetInnerRML, &alt::IRmlElement::SetInnerRML>(isolate, tpl, "innerRML");
+
+    V8Helpers::SetAccessor<alt::IRmlElement, Ref<IRmlDocument>, &alt::IRmlElement::GetOwnerDocument>(isolate, tpl, "ownerDocument");
     /*
     V8Helpers::SetMethod(isolate, tpl, "addClass", &AddClass);
     V8Helpers::SetMethod(isolate, tpl, "removeClass", &RemoveClass);
