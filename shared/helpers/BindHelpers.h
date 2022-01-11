@@ -20,6 +20,15 @@
         (_this->*setter)(type(_val));                                                                                                        \
     }
 
+#define V8_CALL_SETTER_EXPLICIT(type, req, convert)                                                                                          \
+    template<class T>                                                                                                                        \
+    static inline void CallSetter(const v8::PropertyCallbackInfo<void>& info, v8::Local<v8::Value> value, T* _this, void (T::*setter)(type)) \
+    {                                                                                                                                        \
+        req();                                                                                                                               \
+        convert(value, _val);                                                                                                                \
+        (_this->*setter)((_val));                                                                                                            \
+    }
+
 namespace V8Helpers
 {
     namespace detail
@@ -37,6 +46,9 @@ namespace V8Helpers
         V8_CALL_GETTER(double, V8_GET_ISOLATE, V8_RETURN_NUMBER);
         V8_CALL_GETTER(alt::StringView, V8_GET_ISOLATE, V8_RETURN_ALT_STRING);
         V8_CALL_GETTER(alt::String, V8_GET_ISOLATE, V8_RETURN_ALT_STRING);
+        V8_CALL_GETTER(std::string, V8_GET_ISOLATE, V8_RETURN_STD_STRING);
+        V8_CALL_GETTER(std::string&, V8_GET_ISOLATE, V8_RETURN_STD_STRING);
+        V8_CALL_GETTER(const std::string&, V8_GET_ISOLATE, V8_RETURN_STD_STRING);
         V8_CALL_GETTER(alt::Position, V8_GET_ISOLATE_CONTEXT_RESOURCE, V8_RETURN_VECTOR3);
         V8_CALL_GETTER(alt::Rotation, V8_GET_ISOLATE_CONTEXT_RESOURCE, V8_RETURN_VECTOR3);
         V8_CALL_GETTER(alt::Vector3f, V8_GET_ISOLATE_CONTEXT_RESOURCE, V8_RETURN_VECTOR3);
@@ -60,6 +72,9 @@ namespace V8Helpers
         V8_CALL_SETTER(double, V8_GET_ISOLATE_CONTEXT, V8_TO_NUMBER);
         V8_CALL_SETTER(alt::StringView, V8_GET_ISOLATE_CONTEXT, V8_TO_STRING);
         V8_CALL_SETTER(alt::String, V8_GET_ISOLATE_CONTEXT, V8_TO_STRING);
+        V8_CALL_SETTER(std::string, V8_GET_ISOLATE_CONTEXT, V8_TO_STD_STRING);
+        V8_CALL_SETTER_EXPLICIT(std::string&, V8_GET_ISOLATE_CONTEXT, V8_TO_STD_STRING);
+        V8_CALL_SETTER_EXPLICIT(const std::string&, V8_GET_ISOLATE_CONTEXT, V8_TO_STD_STRING);
         V8_CALL_SETTER(alt::Position, V8_GET_ISOLATE_CONTEXT, V8_TO_VECTOR3);
         V8_CALL_SETTER(alt::Rotation, V8_GET_ISOLATE_CONTEXT, V8_TO_VECTOR3);
         V8_CALL_SETTER(alt::Vector3f, V8_GET_ISOLATE_CONTEXT, V8_TO_VECTOR3);
