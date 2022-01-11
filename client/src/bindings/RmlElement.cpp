@@ -230,11 +230,11 @@ static void SetOffset(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN2(2, 3);
 
-    V8_ARG_TO_BASE_OBJECT(1, element, alt::IRmlElement, "RmlElement");
+    V8_ARG_TO_BASE_OBJECT(1, el, alt::IRmlElement, "RmlElement");
     V8_ARG_TO_VECTOR2(2, offset);
     V8_ARG_TO_BOOLEAN_OPT(3, fixed, false);
 
-    element->SetOffset(element, offset, fixed);
+    element->SetOffset(el, offset, fixed);
 }
 
 static void IsPointWithinElement(const v8::FunctionCallbackInfo<v8::Value>& info)
