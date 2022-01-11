@@ -5,6 +5,133 @@
 #include "../CV8ScriptRuntime.h"
 #include "cpp-sdk/script-objects/IRml.h"
 
+/*
+static void StyleGetterHandler(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    alt::Ref<alt::IRmlDocument> document = static_cast<V8Entity*>(info.Data().As<v8::External>()->Value())->GetHandle().As<alt::IRmlDocument>();
+
+    V8_TO_STD_STRING(property, name);
+    V8_RETURN_STD_STRING(document->GetProperty(name));
+}
+
+static void StyleSetterHandler(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    alt::Ref<alt::IRmlDocument> document = static_cast<V8Entity*>(info.Data().As<v8::External>()->Value())->GetHandle().As<alt::IRmlDocument>();
+
+    V8_TO_STD_STRING(property, name);
+    V8_TO_STD_STRING(value, val);
+    document->SetProperty(name, val);
+    V8_RETURN(value);
+}
+
+static void StyleDeleterHandler(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Boolean>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    alt::Ref<alt::IRmlDocument> document = static_cast<V8Entity*>(info.Data().As<v8::External>()->Value())->GetHandle().As<alt::IRmlDocument>();
+
+    V8_TO_STD_STRING(property, name);
+    V8_RETURN_BOOLEAN(document->RemoveProperty(name));
+}
+
+// Implementation
+static std::unordered_map<v8::Isolate*, V8Helpers::CPersistent<v8::ObjectTemplate>> templates;
+v8::Local<v8::Object> styleProxy;
+{
+    auto it = templates.find(isolate);
+    if(it == templates.end())
+    {
+        v8::Local<v8::ObjectTemplate> tpl = v8::ObjectTemplate::New(isolate);
+        templates.insert({ isolate, V8Helpers::CPersistent<v8::ObjectTemplate>(isolate, tpl) });
+
+        v8::NamedPropertyHandlerConfiguration config;
+        config.getter = &StyleGetterHandler;
+        config.setter = &StyleSetterHandler;
+        config.deleter = &StyleDeleterHandler;
+        config.data = v8::External::New(isolate, info.This()->GetInternalField(0).As<v8::External>()->Value());
+        config.flags = v8::PropertyHandlerFlags::kHasNoSideEffect;
+        tpl->SetHandler(config);
+
+        styleProxy = tpl->NewInstance(ctx).ToLocalChecked();
+    }
+    else
+        styleProxy = it->second.Get(isolate);
+}
+info.This()->Set(ctx, V8Helpers::JSValue("style"), styleProxy);
+*/
+
+static void SetProperty(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_CHECK_ARGS_LEN(2);
+
+    V8_ARG_TO_STD_STRING(1, name);
+    V8_ARG_TO_STD_STRING(2, val);
+    V8_RETURN_BOOLEAN(document->SetProperty(name, val));
+}
+
+static void RemoveProperty(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STD_STRING(1, name);
+    V8_RETURN_BOOLEAN(document->RemoveProperty(name));
+}
+
+static void HasProperty(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STD_STRING(1, name);
+    V8_RETURN_BOOLEAN(document->HasProperty(name));
+}
+
+static void HasLocalProperty(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STD_STRING(1, name);
+    V8_RETURN_BOOLEAN(document->HasLocalProperty(name));
+}
+
+static void GetProperty(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STD_STRING(1, name);
+    V8_RETURN_STD_STRING(document->GetProperty(name));
+}
+
+static void GetLocalProperty(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STD_STRING(1, name);
+    V8_RETURN_STD_STRING(document->GetLocalProperty(name));
+}
+
+static void GetPropertyAbsoluteValue(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STD_STRING(1, name);
+    V8_RETURN_NUMBER(document->GetPropertyAbsoluteValue(name));
+}
+
 extern V8Class v8BaseObject;
 extern V8Class v8RmlElement("RmlElement", v8BaseObject, nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
     using namespace alt;
@@ -69,6 +196,7 @@ extern V8Class v8RmlElement("RmlElement", v8BaseObject, nullptr, [](v8::Local<v8
     V8Helpers::SetMethod(isolate, tpl, "setOffset", &SetOffset);
 
     V8Helpers::SetMethod(isolate, tpl, "isPointWithinElement", &IsPointWithinElement);
+    */
 
     V8Helpers::SetMethod(isolate, tpl, "setProperty", &SetProperty);
     V8Helpers::SetMethod(isolate, tpl, "removeProperty", &RemoveProperty);
@@ -78,6 +206,7 @@ extern V8Class v8RmlElement("RmlElement", v8BaseObject, nullptr, [](v8::Local<v8
     V8Helpers::SetMethod(isolate, tpl, "getLocalProperty", &GetLocalProperty);
     V8Helpers::SetMethod(isolate, tpl, "getPropertyAbsoluteValue", &GetPropertyAbsoluteValue);
 
+    /*
     V8Helpers::SetMethod(isolate, tpl, "getClosest", &GetClosest);
     V8Helpers::SetMethod(isolate, tpl, "getChild", &GetChild);
 
@@ -87,7 +216,7 @@ extern V8Class v8RmlElement("RmlElement", v8BaseObject, nullptr, [](v8::Local<v8
     V8Helpers::SetMethod(isolate, tpl, "querySelector", &QuerySelector);
     V8Helpers::SetMethod(isolate, tpl, "querySelectorAll", &QuerySelectorAll);
 
-    V8Helpers::SetMethod(isolate, tpl, "focus", &Focus);
+    V8Helpers::SetMethod<alt::IRmlElement, &alt::IRmlElement::Focus>(isolate, tpl, "focus");
     V8Helpers::SetMethod<alt::IRmlElement, &alt::IRmlElement::Blur>(isolate, tpl, "blur");
     V8Helpers::SetMethod<alt::IRmlElement, &alt::IRmlElement::Click>(isolate, tpl, "click");
     V8Helpers::SetMethod(isolate, tpl, "scrollIntoView", &ScrollIntoView);
