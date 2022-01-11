@@ -132,12 +132,126 @@ static void GetPropertyAbsoluteValue(const v8::FunctionCallbackInfo<v8::Value>& 
     V8_RETURN_NUMBER(document->GetPropertyAbsoluteValue(name));
 }
 
+static void AddClass(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STD_STRING(1, name);
+    V8_RETURN_BOOLEAN(document->AddClass(name));
+}
+
+static void RemoveClass(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STD_STRING(1, name);
+    V8_RETURN_BOOLEAN(document->RemoveClass(name));
+}
+
+static void HasClass(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STD_STRING(1, name);
+    V8_RETURN_BOOLEAN(document->HasClass(name));
+}
+
+static void GetClassList(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+
+    const std::vector<std::string> list = document->GetClassList();
+    size_t size = list.size();
+    v8::Local<v8::Array> arr = v8::Array::New(isolate, size);
+    for(size_t i = 0; i < size; i++)
+    {
+        arr->Set(ctx, i, V8Helpers::JSValue(list[i]));
+    }
+
+    V8_RETURN(arr);
+}
+
+static void AddPseudoClass(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STD_STRING(1, name);
+    V8_RETURN_BOOLEAN(document->AddPseudoClass(name));
+}
+
+static void RemovePseudoClass(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STD_STRING(1, name);
+    V8_RETURN_BOOLEAN(document->RemovePseudoClass(name));
+}
+
+static void HasPseudoClass(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STD_STRING(1, name);
+    V8_RETURN_BOOLEAN(document->HasPseudoClass(name));
+}
+
+static void GetPseudoClassList(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+
+    const std::vector<std::string> list = document->GetPseudoClassList();
+    size_t size = list.size();
+    v8::Local<v8::Array> arr = v8::Array::New(isolate, size);
+    for(size_t i = 0; i < size; i++)
+    {
+        arr->Set(ctx, i, V8Helpers::JSValue(list[i]));
+    }
+
+    V8_RETURN(arr);
+}
+
+static void SetOffset(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_CHECK_ARGS_LEN2(2, 3);
+
+    V8_ARG_TO_BASE_OBJECT(1, element, alt::IRmlElement, "RmlElement");
+    V8_ARG_TO_VECTOR2(2, offset);
+    V8_ARG_TO_BOOLEAN_OPT(3, fixed, false);
+
+    document->SetOffset(element, offset, fixed);
+}
+
+static void IsPointWithinElement(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_VECTOR2(1, point);
+
+    V8_RETURN_BOOLEAN(document->IsPointWithinElement(point));
+}
+
 extern V8Class v8BaseObject;
 extern V8Class v8RmlElement("RmlElement", v8BaseObject, nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
     using namespace alt;
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
-
-    // V8Helpers::SetAccessor(isolate, tpl, "sourceUrl", &SourceUrlGetter);
 
     V8Helpers::SetAccessor<alt::IRmlElement, Vector2f, &alt::IRmlElement::GetRelativeOffset>(isolate, tpl, "relativeOffset");
     V8Helpers::SetAccessor<alt::IRmlElement, Vector2f, &alt::IRmlElement::GetAbsoluteOffset>(isolate, tpl, "absoluteOffset");
@@ -182,7 +296,7 @@ extern V8Class v8RmlElement("RmlElement", v8BaseObject, nullptr, [](v8::Local<v8
     V8Helpers::SetAccessor<alt::IRmlElement, const std::string&, &alt::IRmlElement::GetInnerRML, &alt::IRmlElement::SetInnerRML>(isolate, tpl, "innerRML");
 
     V8Helpers::SetAccessor<alt::IRmlElement, Ref<IRmlDocument>, &alt::IRmlElement::GetOwnerDocument>(isolate, tpl, "ownerDocument");
-    /*
+
     V8Helpers::SetMethod(isolate, tpl, "addClass", &AddClass);
     V8Helpers::SetMethod(isolate, tpl, "removeClass", &RemoveClass);
     V8Helpers::SetMethod(isolate, tpl, "hasClass", &HasClass);
@@ -196,7 +310,6 @@ extern V8Class v8RmlElement("RmlElement", v8BaseObject, nullptr, [](v8::Local<v8
     V8Helpers::SetMethod(isolate, tpl, "setOffset", &SetOffset);
 
     V8Helpers::SetMethod(isolate, tpl, "isPointWithinElement", &IsPointWithinElement);
-    */
 
     V8Helpers::SetMethod(isolate, tpl, "setProperty", &SetProperty);
     V8Helpers::SetMethod(isolate, tpl, "removeProperty", &RemoveProperty);
