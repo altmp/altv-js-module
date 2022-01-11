@@ -67,7 +67,7 @@ extern V8Class v8RmlDocument("RmlDocument", v8BaseObject, &DocumentConstructor, 
     using namespace alt;
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    V8Helpers::SetAccessor(isolate, tpl, "title", &TitleGetter, &TitleSetter);
+    V8Helpers::SetAccessor<alt::IRmlDocument, const std::string&, &alt::IRmlDocument::GetTitle, &alt::IRmlDocument::SetTitle>(isolate, tpl, "title");
     V8Helpers::SetAccessor(isolate, tpl, "sourceUrl", &SourceUrlGetter);
     V8Helpers::SetAccessor<alt::IRmlDocument, bool, &alt::IRmlDocument::IsVisible>(isolate, tpl, "isVisible");
     V8Helpers::SetAccessor<alt::IRmlDocument, bool, &alt::IRmlDocument::IsModal>(isolate, tpl, "isModal");
