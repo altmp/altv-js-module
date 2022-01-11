@@ -901,6 +901,28 @@ static void CopyToClipboard(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK(state != alt::PermissionState::Failed, "Failed to copy to clipboard");
 }
 
+static void ToggleRmlControls(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_BOOLEAN(1, state);
+    alt::ICore::Instance().ToggleRmlControl(state);
+}
+
+static void LoadRmlFont(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN_MIN_MAX(2, 4);
+
+    V8_ARG_TO_STD_STRING(1, path);
+    V8_ARG_TO_STD_STRING(2, name);
+    V8_ARG_TO_BOOLEAN_OPT(3, italic, false);
+    V8_ARG_TO_BOOLEAN_OPT(4, bold, false);
+
+    alt::ICore::Instance().LoadRmlFontFace(path, name, italic, bold);
+}
+
 extern V8Module sharedModule;
 extern V8Class v8Player, v8Player, v8Vehicle, v8WebView, v8HandlingData, v8LocalStorage, v8MemoryBuffer, v8MapZoomData, v8Discord, v8Voice, v8WebSocketClient, v8Checkpoint, v8HttpClient,
   v8Audio, v8LocalPlayer, v8Profiler, v8Worker, v8RmlDocument, v8RmlElement;
@@ -923,7 +945,7 @@ extern V8Module altModule("alt",
                             v8Profiler,
                             v8Worker,
                             v8RmlDocument,
-                            v8RmlElement},
+                            v8RmlElement },
                           [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
                               V8Helpers::RegisterFunc(exports, "onServer", &OnServer);
                               V8Helpers::RegisterFunc(exports, "onceServer", &OnceServer);
@@ -1025,4 +1047,7 @@ extern V8Module altModule("alt",
                               V8Helpers::RegisterFunc(exports, "getLocalMeta", &GetLocalMeta);
 
                               V8Helpers::RegisterFunc(exports, "copyToClipboard", &CopyToClipboard);
+
+                              V8Helpers::RegisterFunc(exports, "toggleRmlControls", &ToggleRmlControls);
+                              V8Helpers::RegisterFunc(exports, "loadRmlFont", &LoadRmlFont);
                           });
