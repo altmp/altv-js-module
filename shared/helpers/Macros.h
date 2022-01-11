@@ -91,6 +91,10 @@
     alt::String val;             \
     V8_CHECK(V8Helpers::SafeToString((v8Val), isolate, ctx, val), "Failed to convert value to string")
 
+#define V8_TO_STD_STRING(v8Val, val) \
+    std::string val;                 \
+    V8_CHECK(V8Helpers::SafeToStdString((v8Val), isolate, ctx, val), "Failed to convert value to string")
+
 #define V8_TO_OBJECT(v8Val, val) \
     v8::Local<v8::Object> val;   \
     V8_CHECK(V8Helpers::SafeToObject((v8Val), ctx, val), "Failed to convert value to object")
@@ -184,7 +188,7 @@
 
 // idx starts with 1
 #define V8_ARG_TO_STD_STRING(idx, val) \
-    std::string val;               \
+    std::string val;                   \
     V8_CHECK(V8Helpers::SafeToStdString(info[(idx)-1], isolate, ctx, val), "Failed to convert argument " #idx " to string")
 
 // idx starts with 1
@@ -259,6 +263,7 @@
 #define V8_RETURN_NUMBER(val)     V8_RETURN(static_cast<double>(val))
 #define V8_RETURN_STRING(val)     V8_RETURN(v8::String::NewFromUtf8(isolate, (val), v8::NewStringType::kNormal).ToLocalChecked())
 #define V8_RETURN_ALT_STRING(val) V8_RETURN(v8::String::NewFromUtf8(isolate, (val).CStr(), v8::NewStringType::kNormal).ToLocalChecked())
+#define V8_RETURN_STD_STRING(val) V8_RETURN(v8::String::NewFromUtf8(isolate, (val).c_str(), v8::NewStringType::kNormal).ToLocalChecked())
 #define V8_RETURN_MVALUE(val)     V8_RETURN(V8Helpers::MValueToV8(val))
 #define V8_RETURN_UINT64(val)     V8_RETURN(v8::BigInt::NewFromUnsigned(isolate, static_cast<uint64_t>(val)))
 #define V8_RETURN_INT64(val)      V8_RETURN(v8::BigInt::New(isolate, static_cast<int64_t>(val)))
