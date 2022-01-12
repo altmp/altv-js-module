@@ -236,6 +236,45 @@ static void LogError(const v8::FunctionCallbackInfo<v8::Value>& info)
     alt::ICore::Instance().LogError(ss.str());
 }
 
+static std::unordered_map<std::string, std::chrono::high_resolution_clock::time_point> timers;
+
+static void Time(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN2(0, 1);
+
+    std::string name = "";
+    if(info.Length() != 0)
+    {
+        V8_ARG_TO_STD_STRING(1, timerName);
+        name = timerName;
+    }
+
+    V8_CHECK(timers.count(name) == 0, "Timer already exists");
+    timers.insert({ name, std::chrono::high_resolution_clock::now() });
+}
+
+static void TimeEnd(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN2(0, 1);
+
+    std::string name = "";
+    if(info.Length() != 0)
+    {
+        V8_ARG_TO_STD_STRING(1, timerName);
+        name = timerName;
+    }
+
+    auto it = timers.find(name);
+    V8_CHECK(!(it == timers.end()), "Timer not found");
+    std::chrono::high_resolution_clock::time_point& start = it->second;
+    Log::Info << "Timer " << name << ": " << (float)(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count() / 1000.f) << "ms"
+              << Log::Endl;
+
+    timers.erase(name);
+}
+
 static void SetTimeout(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -404,6 +443,8 @@ extern V8Module sharedModule("alt-shared",
                                  V8Helpers::RegisterFunc(exports, "log", &Log);
                                  V8Helpers::RegisterFunc(exports, "logWarning", &LogWarning);
                                  V8Helpers::RegisterFunc(exports, "logError", &LogError);
+                                 V8Helpers::RegisterFunc(exports, "time", &Time);
+                                 V8Helpers::RegisterFunc(exports, "timeEnd", &TimeEnd);
 
                                  V8Helpers::RegisterFunc(exports, "on", &On);
                                  V8Helpers::RegisterFunc(exports, "once", &Once);
