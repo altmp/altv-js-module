@@ -912,7 +912,7 @@ static void ToggleRmlControls(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void LoadRmlFont(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_ARGS_LEN_MIN_MAX(2, 4);
 
     V8_ARG_TO_STD_STRING(1, path);
@@ -920,7 +920,7 @@ static void LoadRmlFont(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_BOOLEAN_OPT(3, italic, false);
     V8_ARG_TO_BOOLEAN_OPT(4, bold, false);
 
-    alt::ICore::Instance().LoadRmlFontFace(path, name, italic, bold);
+    alt::ICore::Instance().LoadRmlFontFace(resource->GetResource(), path, name, italic, bold);
 }
 
 extern V8Module sharedModule;
