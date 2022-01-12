@@ -13,7 +13,8 @@ static void DocumentConstructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_STRING(1, url);
 
-    auto doc = alt::ICore::Instance().CreateDocument(url.ToString(), resource->GetResource());
+    std::string origin = V8Helpers::GetCurrentSourceOrigin(isolate);
+    auto doc = alt::ICore::Instance().CreateDocument(url.ToString(), origin, resource->GetResource());
     V8_BIND_BASE_OBJECT(doc, "Failed to create Rml document");
 }
 

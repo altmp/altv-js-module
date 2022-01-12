@@ -920,7 +920,8 @@ static void LoadRmlFont(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_BOOLEAN_OPT(3, italic, false);
     V8_ARG_TO_BOOLEAN_OPT(4, bold, false);
 
-    alt::ICore::Instance().LoadRmlFontFace(resource->GetResource(), path, name, italic, bold);
+    std::string origin = V8Helpers::GetCurrentSourceOrigin(isolate);
+    alt::ICore::Instance().LoadRmlFontFace(resource->GetResource(), path, origin, name, italic, bold);
 }
 
 extern V8Module sharedModule;
