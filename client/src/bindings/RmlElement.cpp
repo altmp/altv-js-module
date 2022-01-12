@@ -132,6 +132,108 @@ static void GetPropertyAbsoluteValue(const v8::FunctionCallbackInfo<v8::Value>& 
     V8_RETURN_NUMBER(element->GetPropertyAbsoluteValue(name));
 }
 
+static void SetAttribute(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
+    V8_CHECK_ARGS_LEN(2);
+
+    V8_ARG_TO_STD_STRING(1, name);
+    V8_ARG_TO_STD_STRING(2, value);
+    element->SetAttribute(name, value);
+}
+
+static void RemoveAttribute(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STD_STRING(1, name);
+    V8_RETURN_BOOLEAN(element->RemoveAttribute(name));
+}
+
+static void HasAttribute(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STD_STRING(1, name);
+    V8_RETURN_BOOLEAN(element->HasAttribute(name));
+}
+
+static void GetAttribute(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STD_STRING(1, name);
+    V8_RETURN_STRING(element->GetAttribute(name).c_str());
+}
+
+static void GetAttributes(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
+
+    V8_NEW_OBJECT(attributes);
+
+    for(auto attr : element->GetAttributes())
+    {
+        V8_OBJECT_SET_STD_STRING(attributes, attr.first.c_str(), attr.second);
+    }
+
+    V8_RETURN(attributes);
+}
+
+static void AppendChild(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_BASE_OBJECT(1, child, alt::IRmlElement, "IRmlElement");
+
+    element->AppendChild(child);
+}
+
+static void InsertBefore(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
+    V8_CHECK_ARGS_LEN(2);
+
+    V8_ARG_TO_BASE_OBJECT(1, child, alt::IRmlElement, "IRmlElement");
+    V8_ARG_TO_BASE_OBJECT(2, adjacent, alt::IRmlElement, "IRmlElement");
+
+    element->InsertBefore(child, adjacent);
+}
+
+static void ReplaceChild(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
+    V8_CHECK_ARGS_LEN(2);
+
+    V8_ARG_TO_BASE_OBJECT(1, newElem, alt::IRmlElement, "IRmlElement");
+    V8_ARG_TO_BASE_OBJECT(2, oldElem, alt::IRmlElement, "IRmlElement");
+
+    element->ReplaceChild(newElem, oldElem);
+}
+
+static void RemoveChild(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_BASE_OBJECT(1, child, alt::IRmlElement, "IRmlElement");
+
+    element->RemoveChild(child);
+}
+
 static void AddClass(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -422,6 +524,11 @@ extern V8Class v8RmlElement("RmlElement", v8BaseObject, nullptr, [](v8::Local<v8
 
     V8Helpers::SetAccessor(isolate, tpl, "childNodes", &ChildrenGetter);
 
+    V8Helpers::SetMethod(isolate, tpl, "appendChild", &AppendChild);
+    V8Helpers::SetMethod(isolate, tpl, "insertBefore", &InsertBefore);
+    V8Helpers::SetMethod(isolate, tpl, "replaceChild", &ReplaceChild);
+    V8Helpers::SetMethod(isolate, tpl, "removeChild", &RemoveChild);
+
     V8Helpers::SetMethod(isolate, tpl, "addClass", &AddClass);
     V8Helpers::SetMethod(isolate, tpl, "removeClass", &RemoveClass);
     V8Helpers::SetMethod(isolate, tpl, "hasClass", &HasClass);
@@ -443,6 +550,12 @@ extern V8Class v8RmlElement("RmlElement", v8BaseObject, nullptr, [](v8::Local<v8
     V8Helpers::SetMethod(isolate, tpl, "getProperty", &GetProperty);
     V8Helpers::SetMethod(isolate, tpl, "getLocalProperty", &GetLocalProperty);
     V8Helpers::SetMethod(isolate, tpl, "getPropertyAbsoluteValue", &GetPropertyAbsoluteValue);
+
+    V8Helpers::SetMethod(isolate, tpl, "setAttribute", &SetAttribute);
+    V8Helpers::SetMethod(isolate, tpl, "removeAttribute", &RemoveAttribute);
+    V8Helpers::SetMethod(isolate, tpl, "hasAttribute", &HasAttribute);
+    V8Helpers::SetMethod(isolate, tpl, "getAttribute", &GetAttribute);
+    V8Helpers::SetMethod(isolate, tpl, "getAttributes", &GetAttributes);
 
     V8Helpers::SetMethod(isolate, tpl, "closest", &GetClosest);
 
