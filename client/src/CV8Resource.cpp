@@ -129,6 +129,8 @@ bool CV8ResourceImpl::Start()
             console->Set(ctx, V8Helpers::JSValue("log"), exports->Get(ctx, V8Helpers::JSValue("log")).ToLocalChecked());
             console->Set(ctx, V8Helpers::JSValue("warn"), exports->Get(ctx, V8Helpers::JSValue("logWarning")).ToLocalChecked());
             console->Set(ctx, V8Helpers::JSValue("error"), exports->Get(ctx, V8Helpers::JSValue("logError")).ToLocalChecked());
+            console->Set(ctx, V8Helpers::JSValue("time"), exports->Get(ctx, V8Helpers::JSValue("time")).ToLocalChecked());
+            console->Set(ctx, V8Helpers::JSValue("timeEnd"), exports->Get(ctx, V8Helpers::JSValue("timeEnd")).ToLocalChecked());
         }
 
         // Add global timer funcs

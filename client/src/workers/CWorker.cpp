@@ -298,6 +298,8 @@ void CWorker::SetupGlobals()
         console->Set(context.Get(isolate), V8Helpers::JSValue("log"), alt->Get(context.Get(isolate), V8Helpers::JSValue("log")).ToLocalChecked());
         console->Set(context.Get(isolate), V8Helpers::JSValue("warn"), alt->Get(context.Get(isolate), V8Helpers::JSValue("logWarning")).ToLocalChecked());
         console->Set(context.Get(isolate), V8Helpers::JSValue("error"), alt->Get(context.Get(isolate), V8Helpers::JSValue("logError")).ToLocalChecked());
+        console->Set(context.Get(isolate), V8Helpers::JSValue("time"), alt->Get(context.Get(isolate), V8Helpers::JSValue("time")).ToLocalChecked());
+        console->Set(context.Get(isolate), V8Helpers::JSValue("timeEnd"), alt->Get(context.Get(isolate), V8Helpers::JSValue("timeEnd")).ToLocalChecked());
     }
 
     V8Helpers::RegisterFunc(global, "setInterval", &SetInterval);
