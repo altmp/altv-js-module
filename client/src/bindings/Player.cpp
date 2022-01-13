@@ -154,10 +154,10 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetAccessor<IPlayer, Position, &IPlayer::GetAimPos>(isolate, tpl, "aimPos");
 
                             // Gamestate getters
-                            V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsJumping>(isolate, tpl, "isJumping");
+                            // V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsJumping>(isolate, tpl, "isJumping");
                             V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsInRagdoll>(isolate, tpl, "isInRagdoll");
                             V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsAiming>(isolate, tpl, "isAiming");
-                            V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsShooting>(isolate, tpl, "isShooting");
+                            // V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsShooting>(isolate, tpl, "isShooting");
                             V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsReloading>(isolate, tpl, "isReloading");
                             V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsDead>(isolate, tpl, "isDead");
                             V8Helpers::SetAccessor<IPlayer, float, &IPlayer::GetMoveSpeed>(isolate, tpl, "moveSpeed");
