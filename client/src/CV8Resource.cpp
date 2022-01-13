@@ -216,6 +216,11 @@ bool CV8ResourceImpl::Stop()
     }
     workers.clear();
 
+    webViewHandlers.clear();
+    webSocketClientHandlers.clear();
+    audioHandlers.clear();
+    rmlHandlers.clear();
+
     if(!context.IsEmpty())
     {
         auto nscope = resource->PushNativesScope();
