@@ -152,6 +152,7 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, [](v8::Local<v8::FunctionTemplate>
     V8Helpers::SetMethod(isolate, tpl, "toggleExtra", ToggleExtra);
     V8Helpers::SetAccessor<IVehicle, uint8_t, &IVehicle::GetLightsIndicator, &IVehicle::SetLightsIndicator>(isolate, tpl, "indicatorLights");
     V8Helpers::SetAccessor<IVehicle, Vector3f, &IVehicle::GetVelocity>(isolate, tpl, "velocity");
+    V8Helpers::SetAccessor<IVehicle, uint8_t, &IVehicle::GetSeatCount>(isolate, tpl, "seatCount");
 
     /*GETTERS BELOW ARE UNIMPLEMENTED
     V8Helpers::SetAccessor(isolate, tpl, "isDestroyed", &IsDestroyedGetter);
