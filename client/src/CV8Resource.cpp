@@ -223,6 +223,8 @@ bool CV8ResourceImpl::Stop()
 
     webViewsEventsQueue.clear();
 
+    localStorage.Reset();
+
     if(!context.IsEmpty())
     {
         auto nscope = resource->PushNativesScope();
