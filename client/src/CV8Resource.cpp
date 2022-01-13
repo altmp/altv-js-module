@@ -372,6 +372,21 @@ std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetAudioHandlers(alt::Re
     return handlers;
 }
 
+std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetRmlHandlers(alt::Ref<alt::IRmlElement> element, const std::string& name)
+{
+    std::vector<V8Helpers::EventCallback*> handlers;
+    auto it = rmlHandlers.find(element);
+
+    if(it != rmlHandlers.end())
+    {
+        auto range = it->second.equal_range(name);
+
+        for(auto it = range.first; it != range.second; ++it) handlers.push_back(&it->second);
+    }
+
+    return handlers;
+}
+
 void CV8ResourceImpl::OnTick()
 {
     v8::Locker locker(isolate);
@@ -405,6 +420,26 @@ void CV8ResourceImpl::OnTick()
         for(auto it = webSocket.second.begin(); it != webSocket.second.end();)
         {
             if(it->second.removed) it = webSocket.second.erase(it);
+            else
+                ++it;
+        }
+    }
+
+    for(auto& audio : audioHandlers)
+    {
+        for(auto it = audio.second.begin(); it != audio.second.end();)
+        {
+            if(it->second.removed) it = audio.second.erase(it);
+            else
+                ++it;
+        }
+    }
+
+    for(auto& rml : rmlHandlers)
+    {
+        for(auto it = rml.second.begin(); it != rml.second.end();)
+        {
+            if(it->second.removed) it = rml.second.erase(it);
             else
                 ++it;
         }

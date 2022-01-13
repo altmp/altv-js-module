@@ -13,6 +13,7 @@
 #include "cpp-sdk/events/CWebViewEvent.h"
 #include "cpp-sdk/events/CWebSocketClientEvent.h"
 #include "cpp-sdk/events/CAudioEvent.h"
+#include "cpp-sdk/events/CRmlEvent.h"
 
 #include "cpp-sdk/SDK.h"
 
@@ -80,6 +81,17 @@ V8_EVENT_HANDLER audioEvent(
       auto ev = static_cast<const alt::CAudioEvent*>(e);
 
       V8Helpers::MValueArgsToV8(ev->GetArgs(), args);
+  });
+
+V8_EVENT_HANDLER rmlEvent(
+  EventType::RMLUI_EVENT,
+  [](V8ResourceImpl* resource, const CEvent* e) {
+      auto ev = static_cast<const alt::CRmlEvent*>(e);
+      return static_cast<CV8ResourceImpl*>(resource)->GetRmlHandlers(ev->GetElement(), ev->GetName());
+  },
+  [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+      auto ev = static_cast<const alt::CRmlEvent*>(e);
+      args.push_back(V8Helpers::MValueToV8(ev->GetArgs()));
   });
 
 V8_EVENT_HANDLER keyboardEvent(

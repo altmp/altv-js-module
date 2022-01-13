@@ -473,10 +473,57 @@ static void ScrollIntoView(const v8::FunctionCallbackInfo<v8::Value>& info)
     element->ScrollIntoView(alignToTop);
 }
 
+static void On(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(2);
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
+
+    V8_ARG_TO_STD_STRING(1, evName);
+    V8_ARG_TO_FUNCTION(2, fun);
+
+    static_cast<CV8ResourceImpl*>(resource)->SubscribeRml(element, evName, fun, V8Helpers::SourceLocation::GetCurrent(isolate));
+}
+
+static void Off(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(2);
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
+
+    V8_ARG_TO_STD_STRING(1, evName);
+    V8_ARG_TO_FUNCTION(2, fun);
+
+    static_cast<CV8ResourceImpl*>(resource)->UnsubscribeRml(element, evName, fun);
+}
+
+static void GetEventListeners(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(1);
+    V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
+
+    V8_ARG_TO_STD_STRING(1, eventName);
+
+    std::vector<V8Helpers::EventCallback*> handlers = static_cast<CV8ResourceImpl*>(resource)->GetRmlHandlers(element, eventName);
+
+    auto array = v8::Array::New(isolate, handlers.size());
+    for(int i = 0; i < handlers.size(); i++)
+    {
+        array->Set(ctx, i, handlers[i]->fn.Get(isolate));
+    }
+
+    V8_RETURN(array);
+}
+
 extern V8Class v8BaseObject;
 extern V8Class v8RmlElement("RmlElement", v8BaseObject, nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
     using namespace alt;
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
+
+    V8Helpers::SetMethod(isolate, tpl, "on", &On);
+    V8Helpers::SetMethod(isolate, tpl, "off", &Off);
+    V8Helpers::SetMethod(isolate, tpl, "getEventListeners", GetEventListeners);
 
     V8Helpers::SetAccessor<alt::IRmlElement, Vector2f, &alt::IRmlElement::GetRelativeOffset>(isolate, tpl, "relativeOffset");
     V8Helpers::SetAccessor<alt::IRmlElement, Vector2f, &alt::IRmlElement::GetAbsoluteOffset>(isolate, tpl, "absoluteOffset");
