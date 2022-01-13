@@ -103,6 +103,28 @@ public:
 
     std::vector<V8Helpers::EventCallback*> GetAudioHandlers(alt::Ref<alt::IAudio> audio, const std::string& name);
 
+    void SubscribeRml(alt::Ref<alt::IRmlElement> element, const std::string& evName, v8::Local<v8::Function> cb, V8Helpers::SourceLocation&& location)
+    {
+        rmlHandlers[element].insert({ evName, V8Helpers::EventCallback{ isolate, cb, std::move(location) } });
+    }
+
+    void UnsubscribeRml(alt::Ref<alt::IRmlElement> element, const std::string& evName, v8::Local<v8::Function> cb)
+    {
+        auto it = rmlHandlers.find(element);
+        if(it != rmlHandlers.end())
+        {
+            auto& rmlEvents = it->second;
+            auto range = rmlEvents.equal_range(evName);
+
+            for(auto it = range.first; it != range.second; ++it)
+            {
+                if(it->second.fn.Get(isolate)->StrictEquals(cb)) it->second.removed = true;
+            }
+        }
+    }
+
+    std::vector<V8Helpers::EventCallback*> GetRmlHandlers(alt::Ref<alt::IRmlElement> element, const std::string& name);
+
     void AddOwned(alt::Ref<alt::IBaseObject> handle)
     {
         ownedObjects.insert(handle);
@@ -145,12 +167,13 @@ public:
     }
 
 private:
-    using WebViewEvents = std::unordered_multimap<std::string, V8Helpers::EventCallback>;
+    using EventHandlerMap = std::unordered_multimap<std::string, V8Helpers::EventCallback>;
     using WebViewsEventsQueue = std::unordered_map<alt::Ref<alt::IWebView>, std::vector<std::pair<alt::String, alt::MValueArgs>>>;
 
-    std::unordered_map<alt::Ref<alt::IWebView>, WebViewEvents> webViewHandlers;
-    std::unordered_map<alt::Ref<alt::IWebSocketClient>, WebViewEvents> webSocketClientHandlers;
-    std::unordered_map<alt::Ref<alt::IAudio>, WebViewEvents> audioHandlers;
+    std::unordered_map<alt::Ref<alt::IWebView>, EventHandlerMap> webViewHandlers;
+    std::unordered_map<alt::Ref<alt::IWebSocketClient>, EventHandlerMap> webSocketClientHandlers;
+    std::unordered_map<alt::Ref<alt::IAudio>, EventHandlerMap> audioHandlers;
+    std::unordered_map<alt::Ref<alt::IRmlElement>, EventHandlerMap> rmlHandlers;
 
     WebViewsEventsQueue webViewsEventsQueue;
     WebViewsEventsQueue& GetWebviewsEventQueue()
