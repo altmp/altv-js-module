@@ -923,6 +923,18 @@ static void LoadRmlFont(const v8::FunctionCallbackInfo<v8::Value>& info)
     alt::ICore::Instance().LoadRmlFontFace(resource->GetResource(), path, name, italic, bold);
 }
 
+static void WorldToScreen(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(3);
+
+    V8_ARG_TO_NUMBER(1, x);
+    V8_ARG_TO_NUMBER(2, y);
+    V8_ARG_TO_NUMBER(3, z);
+
+    V8_RETURN_VECTOR2(alt::ICore::Instance().WorldToScreen({x, y, z}));
+}
+
 extern V8Module sharedModule;
 extern V8Class v8Player, v8Player, v8Vehicle, v8WebView, v8HandlingData, v8LocalStorage, v8MemoryBuffer, v8MapZoomData, v8Discord, v8Voice, v8WebSocketClient, v8Checkpoint, v8HttpClient,
   v8Audio, v8LocalPlayer, v8Profiler, v8Worker, v8RmlDocument, v8RmlElement;
@@ -1050,4 +1062,6 @@ extern V8Module altModule("alt",
 
                               V8Helpers::RegisterFunc(exports, "toggleRmlControls", &ToggleRmlControls);
                               V8Helpers::RegisterFunc(exports, "loadRmlFont", &LoadRmlFont);
+
+                              V8Helpers::RegisterFunc(exports, "worldToScreen", &WorldToScreen);
                           });
