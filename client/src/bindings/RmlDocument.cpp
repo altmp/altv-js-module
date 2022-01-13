@@ -94,7 +94,6 @@ extern V8Class v8RmlDocument("RmlDocument", v8RmlElement, &DocumentConstructor, 
     V8Helpers::SetAccessor<alt::IRmlDocument, bool, &alt::IRmlDocument::IsModal>(isolate, tpl, "isModal");
 
     V8Helpers::SetAccessor<alt::IRmlDocument, Ref<IRmlElement>, &alt::IRmlDocument::GetBody>(isolate, tpl, "body");
-    V8Helpers::SetAccessor<alt::IRmlDocument, Ref<IRmlElement>, &alt::IRmlDocument::GetHead>(isolate, tpl, "head");
 
     V8Helpers::SetMethod(isolate, tpl, "show", &Show);
     V8Helpers::SetMethod<alt::IRmlDocument, &alt::IRmlDocument::Hide>(isolate, tpl, "hide");
