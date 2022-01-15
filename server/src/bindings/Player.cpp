@@ -794,6 +794,7 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::GetInvincible, &IPlayer::SetInvincible>(isolate, tpl, "invincible");
 
                             V8Helpers::SetMethod(isolate, tpl, "spawn", &Spawn);
+                            V8Helpers::SetMethod<IPlayer, &IPlayer::Despawn>(isolate, tpl, "despawn");
                             V8Helpers::SetMethod(isolate, tpl, "setDateTime", &SetDateTime);
                             V8Helpers::SetMethod(isolate, tpl, "setWeather", &SetWeather);
 
