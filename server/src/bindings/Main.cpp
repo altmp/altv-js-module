@@ -366,7 +366,7 @@ static void GetVehicleModelByHash(const v8::FunctionCallbackInfo<v8::Value>& inf
 }
 
 extern V8Class v8Player, v8Vehicle, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Checkpoint, v8VoiceChannel, v8Colshape, v8ColshapeCylinder, v8ColshapeSphere, v8ColshapeCircle,
-  v8ColshapeCuboid, v8ColshapeRectangle;
+  v8ColshapeCuboid, v8ColshapeRectangle, v8ColshapePolygon;
 
 extern V8Module sharedModule;
 
@@ -386,9 +386,9 @@ extern V8Module v8Alt("alt",
                         v8ColshapeSphere,
                         v8ColshapeCircle,
                         v8ColshapeCuboid,
-                        v8ColshapeRectangle },
-                      [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports)
-                      {
+                        v8ColshapeRectangle,
+                        v8ColshapePolygon },
+                      [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
                           v8::Isolate* isolate = ctx->GetIsolate();
 
                           V8Helpers::RegisterFunc(exports, "getResourceMain", &GetResourceMain);
