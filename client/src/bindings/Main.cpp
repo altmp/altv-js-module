@@ -933,7 +933,7 @@ static void WorldToScreen(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_NUMBER(2, y);
     V8_ARG_TO_NUMBER(3, z);
 
-    V8_RETURN_VECTOR2(alt::ICore::Instance().WorldToScreen({ x, y, z }));
+    V8_RETURN_VECTOR3(alt::ICore::Instance().WorldToScreen({ x, y, z }));
 }
 
 static void ScreenToWorld(const v8::FunctionCallbackInfo<v8::Value>& info)
