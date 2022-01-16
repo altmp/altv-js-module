@@ -933,7 +933,25 @@ static void WorldToScreen(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_NUMBER(2, y);
     V8_ARG_TO_NUMBER(3, z);
 
-    V8_RETURN_VECTOR2(alt::ICore::Instance().WorldToScreen({x, y, z}));
+    V8_RETURN_VECTOR2(alt::ICore::Instance().WorldToScreen({ x, y, z }));
+}
+
+static void ScreenToWorld(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(2);
+
+    V8_ARG_TO_NUMBER(1, x);
+    V8_ARG_TO_NUMBER(2, y);
+
+    V8_RETURN_VECTOR3(alt::ICore::Instance().ScreenToWorld({ x, y }));
+}
+
+static void GetCamPos(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+
+    V8_RETURN_VECTOR3(alt::ICore::Instance().GetCamPos());
 }
 
 extern V8Module sharedModule;
@@ -1065,4 +1083,6 @@ extern V8Module altModule("alt",
                               V8Helpers::RegisterFunc(exports, "loadRmlFont", &LoadRmlFont);
 
                               V8Helpers::RegisterFunc(exports, "worldToScreen", &WorldToScreen);
+                              V8Helpers::RegisterFunc(exports, "screenToWorld", &ScreenToWorld);
+                              V8Helpers::RegisterFunc(exports, "getCamPos", &GetCamPos);
                           });
