@@ -477,8 +477,8 @@ extern V8Module sharedModule("alt-shared",
                                  V8Helpers::RegisterFunc(exports, "getResourceExports", &GetResourceExports);
                                  V8Helpers::RegisterFunc(exports, "getAllResources", &GetAllResources);
 
-                                 V8_OBJECT_SET_STRING(exports, "version", alt::ICore::Instance().GetVersion());
-                                 V8_OBJECT_SET_STRING(exports, "branch", alt::ICore::Instance().GetBranch());
+                                 V8_OBJECT_SET_STD_STRING(exports, "version", alt::ICore::Instance().GetVersion());
+                                 V8_OBJECT_SET_STD_STRING(exports, "branch", alt::ICore::Instance().GetBranch());
                                  V8_OBJECT_SET_INT(exports, "sdkVersion", alt::ICore::Instance().SDK_VERSION);
                                  V8_OBJECT_SET_BOOLEAN(exports, "debug", alt::ICore::Instance().IsDebug());
 

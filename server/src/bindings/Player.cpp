@@ -402,8 +402,8 @@ static void PlayAmbientSpeech(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(3);
     V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-    V8_ARG_TO_STRING(1, speechName);
-    V8_ARG_TO_STRING(2, speechParam);
+    V8_ARG_TO_STD_STRING(1, speechName);
+    V8_ARG_TO_STD_STRING(2, speechParam);
     V8_ARG_TO_UINT(3, speechDictHash);
 
     player->PlayAmbientSpeech(speechName, speechParam, speechDictHash);
@@ -749,7 +749,7 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
 
     V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetPing>(isolate, tpl, "ping");
     V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetIP>(isolate, tpl, "ip");
-    V8Helpers::SetAccessor<IPlayer, StringView, &IPlayer::GetName>(isolate, tpl, "name");
+    V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetName>(isolate, tpl, "name");
     V8Helpers::SetAccessor<IPlayer, Ref<IVehicle>, &IPlayer::GetVehicle>(isolate, tpl, "vehicle");
     V8Helpers::SetAccessor<IPlayer, uint8_t, &IPlayer::GetSeat>(isolate, tpl, "seat");
     V8Helpers::SetAccessor<IPlayer, uint16_t, &IPlayer::GetHealth, &IPlayer::SetHealth>(isolate, tpl, "health");
@@ -781,7 +781,7 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
     V8Helpers::SetAccessor(isolate, tpl, "hwidHash", &HwidHashGetter);
     V8Helpers::SetAccessor(isolate, tpl, "hwidExHash", &HwidExHashGetter);
 
-    V8Helpers::SetAccessor<IPlayer, StringView, &IPlayer::GetAuthToken>(isolate, tpl, "authToken");
+    V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetAuthToken>(isolate, tpl, "authToken");
 
     V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsFlashlightActive>(isolate, tpl, "flashlightActive");
 
