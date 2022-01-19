@@ -11,11 +11,11 @@ void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_STRING(1, eventName);
 
-    std::vector<V8::Serialization::Value> args;
+    std::vector<V8Helpers::Serialization::Value> args;
     args.reserve(info.Length() - 1);
     for(int i = 1; i < info.Length(); i++)
     {
-        auto arg = V8::Serialization::Serialize(ctx, info[i]);
+        auto arg = V8Helpers::Serialization::Serialize(ctx, info[i]);
         if(!arg.Valid())
         {
             V8Helpers::Throw(isolate, "Invalid argument");
@@ -23,7 +23,7 @@ void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
         }
         args.push_back(arg);
     }
-    worker->EmitToMain(eventName.ToString(), args);
+    worker->GetMainEventHandler().Emit(eventName.ToString(), args);
 }
 
 void On(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -35,7 +35,19 @@ void On(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(1, eventName);
     V8_ARG_TO_FUNCTION(2, callback);
 
-    worker->SubscribeToWorker(eventName.ToString(), callback);
+    worker->GetWorkerEventHandler().Subscribe(eventName.ToString(), callback);
+}
+
+void Off(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+    auto worker = static_cast<CWorker*>(ctx->GetAlignedPointerFromEmbedderData(2));
+
+    V8_ARG_TO_STRING(1, eventName);
+    V8_ARG_TO_FUNCTION(2, callback);
+
+    worker->GetWorkerEventHandler().Unsubscribe(eventName.ToString(), callback);
 }
 
 void Once(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -47,7 +59,7 @@ void Once(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(1, eventName);
     V8_ARG_TO_FUNCTION(2, callback);
 
-    worker->SubscribeToWorker(eventName.ToString(), callback, true);
+    worker->GetWorkerEventHandler().Subscribe(eventName.ToString(), callback, true);
 }
 
 void NextTick(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -58,7 +70,7 @@ void NextTick(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_FUNCTION(1, callback);
 
-    V8_RETURN_INT(worker->CreateTimer(callback, 0, true, V8::SourceLocation::GetCurrent(isolate)));
+    V8_RETURN_INT(worker->CreateTimer(callback, 0, true, V8Helpers::SourceLocation::GetCurrent(isolate)));
 }
 
 void SetTimeout(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -70,7 +82,7 @@ void SetTimeout(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_FUNCTION(1, callback);
     V8_ARG_TO_UINT(2, time);
 
-    V8_RETURN_INT(worker->CreateTimer(callback, time, true, V8::SourceLocation::GetCurrent(isolate)));
+    V8_RETURN_INT(worker->CreateTimer(callback, time, true, V8Helpers::SourceLocation::GetCurrent(isolate)));
 }
 
 void SetInterval(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -82,7 +94,7 @@ void SetInterval(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_FUNCTION(1, callback);
     V8_ARG_TO_UINT(2, time);
 
-    V8_RETURN_INT(worker->CreateTimer(callback, time, false, V8::SourceLocation::GetCurrent(isolate)));
+    V8_RETURN_INT(worker->CreateTimer(callback, time, false, V8Helpers::SourceLocation::GetCurrent(isolate)));
 }
 
 void ClearTimer(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -114,13 +126,14 @@ extern V8Class v8File, v8RGBA, v8Vector2, v8Vector3;
 extern V8Module altWorker("alt-worker", nullptr, { v8File, v8RGBA, v8Vector2, v8Vector3 }, [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
     auto alt = altModule.GetExports(ctx->GetIsolate(), ctx);
     auto InheritFromAlt = [&](const char* name) {
-        auto original = alt->Get(ctx, V8::JSValue(name));
+        auto original = alt->Get(ctx, V8Helpers::JSValue(name));
         if(original.IsEmpty()) return;
-        exports->Set(ctx, V8::JSValue(name), original.ToLocalChecked());
+        exports->Set(ctx, V8Helpers::JSValue(name), original.ToLocalChecked());
     };
 
     V8Helpers::RegisterFunc(exports, "emit", &Emit);
     V8Helpers::RegisterFunc(exports, "on", &On);
+    V8Helpers::RegisterFunc(exports, "off", &Off);
     V8Helpers::RegisterFunc(exports, "once", &Once);
     V8Helpers::RegisterFunc(exports, "nextTick", &NextTick);
     V8Helpers::RegisterFunc(exports, "setInterval", &SetInterval);

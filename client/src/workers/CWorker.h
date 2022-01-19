@@ -2,6 +2,7 @@
 #include "v8.h"
 #include "V8Helpers.h"
 #include "WorkerPromiseRejections.h"
+#include "CEventHandler.h"
 #include "../IImportHandler.h"
 
 #include <string>
@@ -16,33 +17,28 @@ class WorkerTimer;
 class CWorker : public IImportHandler
 {
 public:
-    using EventHandlerMap = std::unordered_multimap<std::string, V8::EventCallback>;
-    using QueuedEvent = std::pair<std::string, std::vector<V8::Serialization::Value>>;
-    using EventQueue = std::queue<QueuedEvent>;
     using TimerId = uint32_t;
     using BufferId = uint32_t;
 
+    friend class WorkerPromiseRejections;
+    friend class WorkerTimer;
+
 private:
-    alt::String filePath;
-    alt::String origin;
+    std::string filePath;
+    std::string origin;
     std::thread thread;
     CV8ResourceImpl* resource;
     bool shouldTerminate = false;
     bool isReady = false;
     bool isPaused = false;
 
+    CEventHandler mainEvents;
+    CEventHandler workerEvents;
+
     WorkerPromiseRejections promiseRejections;
 
-    EventHandlerMap main_eventHandlers;
-    EventHandlerMap worker_eventHandlers;
-
-    EventQueue main_queuedEvents;
-    EventQueue worker_queuedEvents;
-    std::mutex main_queueLock;
-    std::mutex worker_queueLock;
-
     v8::Isolate* isolate = nullptr;
-    V8::CPersistent<v8::Context> context;
+    V8Helpers::CPersistent<v8::Context> context;
     std::unique_ptr<v8::MicrotaskQueue> microtaskQueue;
 
     TimerId nextTimerId = 0;
@@ -56,9 +52,15 @@ private:
 
     bool EventLoop();
 
-    bool SetupIsolate();
+    bool Setup();
+    void SetupIsolate();
+    void SetupContext();
+    void SetupGlobals();
+    bool SetupScript();
+
     void DestroyIsolate();
-    void SetupGlobals(v8::Local<v8::Object> global);
+
+    void EmitError(const std::string& error);
 
     static inline int64_t GetTime()
     {
@@ -66,7 +68,7 @@ private:
     }
 
 public:
-    CWorker(alt::String& filePath, alt::String& origin, CV8ResourceImpl* resource);
+    CWorker(std::string& filePath, std::string& origin, CV8ResourceImpl* resource);
     ~CWorker() = default;
 
     void Start();
@@ -83,18 +85,7 @@ public:
         isolate->SetIdle(false);
     }
 
-    void EmitToWorker(const std::string& eventName, std::vector<V8::Serialization::Value>& args);
-    void EmitToMain(const std::string& eventName, std::vector<V8::Serialization::Value>& args);
-
-    void SubscribeToWorker(const std::string& eventName, v8::Local<v8::Function> callback, bool once = false);
-    void SubscribeToMain(const std::string& eventName, v8::Local<v8::Function> callback, bool once = false);
-
-    void HandleMainEventQueue();
-    void HandleWorkerEventQueue();
-
-    void EmitError(const std::string& error);
-
-    TimerId CreateTimer(v8::Local<v8::Function> callback, uint32_t interval, bool once, V8::SourceLocation&& location);
+    TimerId CreateTimer(v8::Local<v8::Function> callback, uint32_t interval, bool once, V8Helpers::SourceLocation&& location);
     void RemoveTimer(TimerId id)
     {
         oldTimers.push_back(id);
@@ -102,7 +93,7 @@ public:
 
     std::string GetFilePath()
     {
-        return filePath.ToString();
+        return filePath;
     }
     bool IsReady()
     {
@@ -119,6 +110,15 @@ public:
     CV8ResourceImpl* GetResource()
     {
         return resource;
+    }
+
+    CEventHandler& GetMainEventHandler()
+    {
+        return mainEvents;
+    }
+    CEventHandler& GetWorkerEventHandler()
+    {
+        return workerEvents;
     }
 
     void OnPromiseRejectedWithNoHandler(v8::PromiseRejectMessage& data)

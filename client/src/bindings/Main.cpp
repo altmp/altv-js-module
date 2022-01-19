@@ -18,14 +18,14 @@ static void OnServer(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
         V8_ARG_TO_FUNCTION(1, callback);
 
-        resource->SubscribeGenericRemote(callback, V8::SourceLocation::GetCurrent(isolate));
+        resource->SubscribeGenericRemote(callback, V8Helpers::SourceLocation::GetCurrent(isolate));
     }
     else if(info.Length() == 2)
     {
         V8_ARG_TO_STRING(1, eventName);
         V8_ARG_TO_FUNCTION(2, callback);
 
-        resource->SubscribeRemote(eventName.ToString(), callback, V8::SourceLocation::GetCurrent(isolate));
+        resource->SubscribeRemote(eventName.ToString(), callback, V8Helpers::SourceLocation::GetCurrent(isolate));
     }
 }
 
@@ -38,14 +38,14 @@ static void OnceServer(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
         V8_ARG_TO_FUNCTION(1, callback);
 
-        resource->SubscribeGenericRemote(callback, V8::SourceLocation::GetCurrent(isolate), true);
+        resource->SubscribeGenericRemote(callback, V8Helpers::SourceLocation::GetCurrent(isolate), true);
     }
     else if(info.Length() == 2)
     {
         V8_ARG_TO_STRING(1, eventName);
         V8_ARG_TO_FUNCTION(2, callback);
 
-        resource->SubscribeRemote(eventName.ToString(), callback, V8::SourceLocation::GetCurrent(isolate), true);
+        resource->SubscribeRemote(eventName.ToString(), callback, V8Helpers::SourceLocation::GetCurrent(isolate), true);
     }
 }
 
@@ -217,6 +217,13 @@ static void SetCamFrozen(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_BOOLEAN(1, state);
 
     ICore::Instance().SetCamFrozen(state);
+}
+
+static void IsCamFrozen(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    V8_RETURN(ICore::Instance().IsCamFrozen());
 }
 
 static void IsInDebug(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -672,7 +679,7 @@ static void TakeScreenshot(const v8::FunctionCallbackInfo<v8::Value>& info)
           auto ctx = resolver->GetCreationContext().ToLocalChecked();
           {
               v8::Context::Scope ctxscope(ctx);
-              resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), V8::JSValue(base64));
+              resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), V8Helpers::JSValue(base64));
           }
 
           promises.remove(*persistent);
@@ -709,7 +716,7 @@ static void TakeScreenshotGameOnly(const v8::FunctionCallbackInfo<v8::Value>& in
           auto ctx = resolver->GetCreationContext().ToLocalChecked();
           {
               v8::Context::Scope ctxscope(ctx);
-              resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), V8::JSValue(base64));
+              resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), V8Helpers::JSValue(base64));
           }
 
           promises.remove(*persistent);
@@ -743,47 +750,6 @@ static void LoadModelAsync(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_UINT(1, hash);
 
     alt::ICore::Instance().LoadModelAsync(hash);
-}
-
-static void EvalModule(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    // Deprecation added: 05/11/2021 (version 7.0)
-    V8_DEPRECATE("alt.evalModule", "the 'source' import type assertion");
-    V8_GET_ISOLATE_CONTEXT_RESOURCE();
-
-    V8_CHECK_ARGS_LEN(1);
-    V8_ARG_TO_STRING(1, code);
-
-    v8::Local<v8::Module> module;
-
-    auto result = V8Helpers::TryCatch([&] {
-        auto maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(code.ToString(), V8::SourceLocation::GetCurrent(isolate));
-        if(maybeModule.IsEmpty())
-        {
-            V8Helpers::Throw(isolate, "Failed to resolve module");
-            return false;
-        }
-
-        module = maybeModule.ToLocalChecked();
-        v8::Maybe<bool> result = module->InstantiateModule(ctx, CV8ScriptRuntime::ResolveModule);
-        if(result.IsNothing() || result.ToChecked() == false)
-        {
-            V8Helpers::Throw(isolate, "Failed to instantiate module");
-            return false;
-        }
-
-        auto returnValue = module->Evaluate(ctx);
-        if(returnValue.IsEmpty())
-        {
-            V8Helpers::Throw(isolate, "Failed to evaluate module");
-            return false;
-        }
-
-        return true;
-    });
-    if(!result) return;
-
-    V8_RETURN(module->GetModuleNamespace());
 }
 
 static void GetHeadshotBase64(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -894,9 +860,103 @@ static void GetServerPort(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN(alt::ICore::Instance().GetServerPort());
 }
 
+static void HasLocalMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STD_STRING(1, key);
+
+    V8_RETURN(alt::ICore::Instance().HasLocalMetaData(key));
+}
+
+static void GetLocalMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STD_STRING(1, key);
+
+    V8_RETURN_MVALUE(alt::ICore::Instance().GetLocalMetaData(key));
+}
+
+static void CopyToClipboard(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    std::string text;
+    if(info[0]->IsNull())
+    {
+        text = "";
+    }
+    else if(info[0]->IsString())
+    {
+        V8_ARG_TO_STRING(1, textStr);
+        text = textStr.ToString();
+    }
+
+    alt::PermissionState state = alt::ICore::Instance().CopyToClipboard(text);
+    V8_CHECK(state != alt::PermissionState::Denied, "No permissions");
+    V8_CHECK(state != alt::PermissionState::Unspecified, "Permission not specified");
+    V8_CHECK(state != alt::PermissionState::Failed, "Failed to copy to clipboard");
+}
+
+static void ToggleRmlControls(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_BOOLEAN(1, state);
+    alt::ICore::Instance().ToggleRmlControl(state);
+}
+
+static void LoadRmlFont(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN_MIN_MAX(2, 4);
+
+    V8_ARG_TO_STD_STRING(1, path);
+    V8_ARG_TO_STD_STRING(2, name);
+    V8_ARG_TO_BOOLEAN_OPT(3, italic, false);
+    V8_ARG_TO_BOOLEAN_OPT(4, bold, false);
+
+    std::string origin = V8Helpers::GetCurrentSourceOrigin(isolate);
+    alt::ICore::Instance().LoadRmlFontFace(resource->GetResource(), path, origin, name, italic, bold);
+}
+
+static void WorldToScreen(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(3);
+
+    V8_ARG_TO_NUMBER(1, x);
+    V8_ARG_TO_NUMBER(2, y);
+    V8_ARG_TO_NUMBER(3, z);
+
+    V8_RETURN_VECTOR3(alt::ICore::Instance().WorldToScreen({ x, y, z }));
+}
+
+static void ScreenToWorld(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(2);
+
+    V8_ARG_TO_NUMBER(1, x);
+    V8_ARG_TO_NUMBER(2, y);
+
+    V8_RETURN_VECTOR3(alt::ICore::Instance().ScreenToWorld({ x, y }));
+}
+
+static void GetCamPos(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+
+    V8_RETURN_VECTOR3(alt::ICore::Instance().GetCamPos());
+}
+
 extern V8Module sharedModule;
 extern V8Class v8Player, v8Player, v8Vehicle, v8WebView, v8HandlingData, v8LocalStorage, v8MemoryBuffer, v8MapZoomData, v8Discord, v8Voice, v8WebSocketClient, v8Checkpoint, v8HttpClient,
-  v8Audio, v8LocalPlayer, v8Profiler, v8Worker;
+  v8Audio, v8LocalPlayer, v8Profiler, v8Worker, v8RmlDocument, v8RmlElement;
 extern V8Module altModule("alt",
                           &sharedModule,
                           { v8Player,
@@ -914,7 +974,9 @@ extern V8Module altModule("alt",
                             v8Audio,
                             v8LocalPlayer,
                             v8Profiler,
-                            v8Worker },
+                            v8Worker,
+                            v8RmlDocument,
+                            v8RmlElement },
                           [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
                               V8Helpers::RegisterFunc(exports, "onServer", &OnServer);
                               V8Helpers::RegisterFunc(exports, "onceServer", &OnceServer);
@@ -937,6 +999,7 @@ extern V8Module altModule("alt",
                               // V8Helpers::RegisterFunc(exports, "wait", &ScriptWait);
                               // V8Helpers::RegisterFunc(exports, "isInSandbox", &IsInSandbox);
                               V8Helpers::RegisterFunc(exports, "setCamFrozen", &SetCamFrozen);
+                              V8Helpers::RegisterFunc(exports, "isCamFrozen", &IsCamFrozen);
 
                               V8Helpers::RegisterFunc(exports, "getLicenseHash", &GetLicenseHash);
 
@@ -994,8 +1057,6 @@ extern V8Module altModule("alt",
                               V8Helpers::RegisterFunc(exports, "loadYtyp", &LoadYtyp);
                               V8Helpers::RegisterFunc(exports, "unloadYtyp", &UnloadYtyp);
 
-                              V8Helpers::RegisterFunc(exports, "evalModule", &EvalModule);
-
                               V8Helpers::RegisterFunc(exports, "getHeadshotBase64", &GetHeadshotBase64);
 
                               V8Helpers::RegisterFunc(exports, "setPedDlcClothes", &SetPedDlcClothes);
@@ -1012,4 +1073,16 @@ extern V8Module altModule("alt",
 
                               V8Helpers::RegisterFunc(exports, "getTotalPacketsSent", &GetTotalPacketsSent);
                               V8Helpers::RegisterFunc(exports, "getTotalPacketsLost", &GetTotalPacketsLost);
+
+                              V8Helpers::RegisterFunc(exports, "hasLocalMeta", &HasLocalMeta);
+                              V8Helpers::RegisterFunc(exports, "getLocalMeta", &GetLocalMeta);
+
+                              V8Helpers::RegisterFunc(exports, "copyToClipboard", &CopyToClipboard);
+
+                              V8Helpers::RegisterFunc(exports, "toggleRmlControls", &ToggleRmlControls);
+                              V8Helpers::RegisterFunc(exports, "loadRmlFont", &LoadRmlFont);
+
+                              V8Helpers::RegisterFunc(exports, "worldToScreen", &WorldToScreen);
+                              V8Helpers::RegisterFunc(exports, "screenToWorld", &ScreenToWorld);
+                              V8Helpers::RegisterFunc(exports, "getCamPos", &GetCamPos);
                           });

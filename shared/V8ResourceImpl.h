@@ -46,24 +46,24 @@ public:
         return context.Get(isolate);
     }
 
-    void SubscribeLocal(const std::string& ev, v8::Local<v8::Function> cb, V8::SourceLocation&& location, bool once = false)
+    void SubscribeLocal(const std::string& ev, v8::Local<v8::Function> cb, V8Helpers::SourceLocation&& location, bool once = false)
     {
-        localHandlers.insert({ ev, V8::EventCallback{ isolate, cb, std::move(location), once } });
+        localHandlers.insert({ ev, V8Helpers::EventCallback{ isolate, cb, std::move(location), once } });
     }
 
-    void SubscribeRemote(const std::string& ev, v8::Local<v8::Function> cb, V8::SourceLocation&& location, bool once = false)
+    void SubscribeRemote(const std::string& ev, v8::Local<v8::Function> cb, V8Helpers::SourceLocation&& location, bool once = false)
     {
-        remoteHandlers.insert({ ev, V8::EventCallback{ isolate, cb, std::move(location), once } });
+        remoteHandlers.insert({ ev, V8Helpers::EventCallback{ isolate, cb, std::move(location), once } });
     }
 
-    void SubscribeGenericLocal(v8::Local<v8::Function> cb, V8::SourceLocation&& location, bool once = false)
+    void SubscribeGenericLocal(v8::Local<v8::Function> cb, V8Helpers::SourceLocation&& location, bool once = false)
     {
-        localGenericHandlers.push_back(V8::EventCallback{ isolate, cb, std::move(location), once });
+        localGenericHandlers.push_back(V8Helpers::EventCallback{ isolate, cb, std::move(location), once });
     }
 
-    void SubscribeGenericRemote(v8::Local<v8::Function> cb, V8::SourceLocation&& location, bool once = false)
+    void SubscribeGenericRemote(v8::Local<v8::Function> cb, V8Helpers::SourceLocation&& location, bool once = false)
     {
-        remoteGenericHandlers.push_back(V8::EventCallback{ isolate, cb, std::move(location), once });
+        remoteGenericHandlers.push_back(V8Helpers::EventCallback{ isolate, cb, std::move(location), once });
     }
 
     void UnsubscribeLocal(const std::string& ev, v8::Local<v8::Function> cb)
@@ -96,7 +96,7 @@ public:
 
     void UnsubscribeGenericRemote(v8::Local<v8::Function> cb)
     {
-        for(auto& it : localGenericHandlers)
+        for(auto& it : remoteGenericHandlers)
         {
             if(it.fn.Get(isolate)->StrictEquals(cb)) it.removed = true;
         }
@@ -105,7 +105,7 @@ public:
     void DispatchStartEvent(bool error)
     {
         std::vector<v8::Local<v8::Value>> args;
-        args.push_back(V8::JSValue(error));
+        args.push_back(V8Helpers::JSValue(error));
 
         InvokeEventHandlers(nullptr, GetLocalHandlers("resourceStart"), args);
     }
@@ -118,7 +118,7 @@ public:
 
     void DispatchErrorEvent(const std::string& errorMsg, const std::string& file, int32_t line)
     {
-        std::vector<v8::Local<v8::Value>> args = { v8::Exception::Error(V8::JSValue(errorMsg)), V8::JSValue(file), V8::JSValue(line) };
+        std::vector<v8::Local<v8::Value>> args = { v8::Exception::Error(V8Helpers::JSValue(errorMsg)), V8Helpers::JSValue(file), V8Helpers::JSValue(line) };
         InvokeEventHandlers(nullptr, GetLocalHandlers("resourceError"), args);
     }
 
@@ -179,7 +179,7 @@ public:
         return alt::ICore::Instance().CreateMValueFunction(impl);
     }
 
-    uint32_t CreateTimer(v8::Local<v8::Context> context, v8::Local<v8::Function> callback, uint32_t interval, bool once, V8::SourceLocation&& location)
+    uint32_t CreateTimer(v8::Local<v8::Context> context, v8::Local<v8::Function> callback, uint32_t interval, bool once, V8Helpers::SourceLocation&& location)
     {
         uint32_t id = nextTimerId++;
         // Log::Debug << "Create timer " << id << Log::Endl;
@@ -216,9 +216,9 @@ public:
     v8::Local<v8::Array> GetAllVehicles();
     v8::Local<v8::Array> GetAllBlips();
 
-    std::vector<V8::EventCallback*> GetLocalHandlers(const std::string& name);
-    std::vector<V8::EventCallback*> GetRemoteHandlers(const std::string& name);
-    std::vector<V8::EventCallback*> GetGenericHandlers(bool local);
+    std::vector<V8Helpers::EventCallback*> GetLocalHandlers(const std::string& name);
+    std::vector<V8Helpers::EventCallback*> GetRemoteHandlers(const std::string& name);
+    std::vector<V8Helpers::EventCallback*> GetGenericHandlers(bool local);
 
     using NextTickCallback = std::function<void()>;
     void RunOnNextTick(NextTickCallback&& callback)
@@ -241,15 +241,15 @@ protected:
     v8::Isolate* isolate;
     alt::IResource* resource;
 
-    V8::CPersistent<v8::Context> context;
+    V8Helpers::CPersistent<v8::Context> context;
 
     std::unordered_map<alt::IBaseObject*, V8Entity*> entities;
     std::unordered_map<uint32_t, V8Timer*> timers;
 
-    std::unordered_multimap<std::string, V8::EventCallback> localHandlers;
-    std::unordered_multimap<std::string, V8::EventCallback> remoteHandlers;
-    std::vector<V8::EventCallback> localGenericHandlers;
-    std::vector<V8::EventCallback> remoteGenericHandlers;
+    std::unordered_multimap<std::string, V8Helpers::EventCallback> localHandlers;
+    std::unordered_multimap<std::string, V8Helpers::EventCallback> remoteHandlers;
+    std::vector<V8Helpers::EventCallback> localGenericHandlers;
+    std::vector<V8Helpers::EventCallback> remoteGenericHandlers;
 
     uint32_t nextTimerId = 0;
     std::vector<uint32_t> oldTimers;
@@ -260,10 +260,10 @@ protected:
     bool vehiclePoolDirty = true;
     v8::UniquePersistent<v8::Array> vehicles;
 
-    V8::CPersistent<v8::Function> vector3Class;
-    V8::CPersistent<v8::Function> vector2Class;
-    V8::CPersistent<v8::Function> rgbaClass;
-    V8::CPersistent<v8::Function> baseObjectClass;
+    V8Helpers::CPersistent<v8::Function> vector3Class;
+    V8Helpers::CPersistent<v8::Function> vector2Class;
+    V8Helpers::CPersistent<v8::Function> rgbaClass;
+    V8Helpers::CPersistent<v8::Function> baseObjectClass;
 
     std::vector<NextTickCallback> nextTickCallbacks;
 
@@ -273,5 +273,5 @@ protected:
         return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
     }
 
-    void InvokeEventHandlers(const alt::CEvent* ev, const std::vector<V8::EventCallback*>& handlers, std::vector<v8::Local<v8::Value>>& args);
+    void InvokeEventHandlers(const alt::CEvent* ev, const std::vector<V8Helpers::EventCallback*>& handlers, std::vector<v8::Local<v8::Value>>& args);
 };

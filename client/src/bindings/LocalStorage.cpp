@@ -54,10 +54,10 @@ static void StaticSave(const v8::FunctionCallbackInfo<v8::Value>& info)
 extern V8Class v8LocalStorage("LocalStorage", nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    V8::SetStaticMethod(isolate, tpl, "get", &StaticGet);
-    V8::SetStaticMethod(isolate, tpl, "set", &StaticSet);
-    V8::SetStaticMethod(isolate, tpl, "delete", &StaticDelete);
-    V8::SetStaticMethod(isolate, tpl, "deleteAll", &StaticClear);
-    V8::SetStaticMethod(isolate, tpl, "clear", &StaticClear);
-    V8::SetStaticMethod(isolate, tpl, "save", &StaticSave);
+    V8Helpers::SetStaticMethod(isolate, tpl, "get", &StaticGet);
+    V8Helpers::SetStaticMethod(isolate, tpl, "set", &StaticSet);
+    V8Helpers::SetStaticMethod(isolate, tpl, "delete", &StaticDelete);
+    V8Helpers::SetStaticMethod(isolate, tpl, "deleteAll", &StaticClear);
+    V8Helpers::SetStaticMethod(isolate, tpl, "clear", &StaticClear);
+    V8Helpers::SetStaticMethod(isolate, tpl, "save", &StaticSave);
 });

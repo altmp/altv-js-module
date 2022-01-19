@@ -71,6 +71,29 @@ static void IsPlayerMuted(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_BOOLEAN(channel->IsPlayerMuted(player));
 }
 
+static void GetPlayers(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(channel, IVoiceChannel);
+
+    auto players = channel->GetPlayers();
+    size_t size = players.size();
+    v8::Local<v8::Array> playersArr = v8::Array::New(isolate, size);
+    for(size_t i = 0; i < size; ++i)
+    {
+        playersArr->Set(ctx, i, resource->GetOrCreateEntity(players[i].Get(), "Player")->GetJSVal(isolate));
+    }
+    V8_RETURN(playersArr);
+}
+
+static void GetPlayerCount(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(channel, IVoiceChannel);
+
+    V8_RETURN((uint32_t)channel->GetPlayerCount());
+}
+
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -84,10 +107,13 @@ extern V8Class v8BaseObject;
 extern V8Class v8VoiceChannel("VoiceChannel", v8BaseObject, Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    V8::SetMethod(isolate, tpl, "addPlayer", &AddPlayer);
-    V8::SetMethod(isolate, tpl, "removePlayer", &RemovePlayer);
-    V8::SetMethod(isolate, tpl, "isPlayerInChannel", &IsPlayerInChannel);
-    V8::SetMethod(isolate, tpl, "mutePlayer", &MutePlayer);
-    V8::SetMethod(isolate, tpl, "unmutePlayer", &UnmutePlayer);
-    V8::SetMethod(isolate, tpl, "isPlayerMuted", &IsPlayerMuted);
+    V8Helpers::SetMethod(isolate, tpl, "addPlayer", &AddPlayer);
+    V8Helpers::SetMethod(isolate, tpl, "removePlayer", &RemovePlayer);
+    V8Helpers::SetMethod(isolate, tpl, "isPlayerInChannel", &IsPlayerInChannel);
+    V8Helpers::SetMethod(isolate, tpl, "mutePlayer", &MutePlayer);
+    V8Helpers::SetMethod(isolate, tpl, "unmutePlayer", &UnmutePlayer);
+    V8Helpers::SetMethod(isolate, tpl, "isPlayerMuted", &IsPlayerMuted);
+
+    V8Helpers::SetAccessor(isolate, tpl, "players", &GetPlayers);
+    V8Helpers::SetAccessor(isolate, tpl, "playerCount", &GetPlayerCount);
 });

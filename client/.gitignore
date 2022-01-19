@@ -12,3 +12,4 @@ tools/extra.bat
 # v8 Deps
 deps/v8/include/
 deps/v8/lib/
+deps/v8/update.json

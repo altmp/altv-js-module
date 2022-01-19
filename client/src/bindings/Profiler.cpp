@@ -1,7 +1,9 @@
 #include "V8Helpers.h"
 #include "V8Class.h"
 #include "../CV8ScriptRuntime.h"
+#include "../CV8Resource.h"
 #include "v8-profiler.h"
+
 #include <chrono>
 #include <vector>
 #include <unordered_map>
@@ -22,6 +24,67 @@ static void GetHeapStatistics(v8::Local<v8::String>, const v8::PropertyCallbackI
     V8_RETURN(stats);
 }
 
+// A simple wrapper that just executes the callback with the result
+class MeasureMemoryDelegate : public v8::MeasureMemoryDelegate
+{
+public:
+    using Callback = std::function<void(const std::vector<std::pair<v8::Local<v8::Context>, size_t>>&, size_t)>;
+
+    MeasureMemoryDelegate(Callback&& _callback) : callback(_callback){};
+
+    bool ShouldMeasure(v8::Local<v8::Context> context) override
+    {
+        return true;
+    }
+
+    void MeasurementComplete(const std::vector<std::pair<v8::Local<v8::Context>, size_t>>& context_sizes_in_bytes, size_t unattributed_size_in_bytes)
+    {
+        callback(context_sizes_in_bytes, unattributed_size_in_bytes);
+    }
+
+private:
+    Callback callback;
+};
+
+static void GetMemoryProfile(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    static std::list<V8Helpers::CPersistent<v8::Promise::Resolver>> promises;
+    auto& persistent = promises.emplace_back(V8Helpers::CPersistent<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
+
+    std::unique_ptr<MeasureMemoryDelegate> delegate =
+      std::make_unique<MeasureMemoryDelegate>([isolate, persistent](const std::vector<std::pair<v8::Local<v8::Context>, size_t>>& result, size_t externalBytes) {
+          v8::Locker locker(isolate);
+          v8::Isolate::Scope isolateScope(isolate);
+          v8::HandleScope handleScope(isolate);
+
+          v8::Local<v8::Promise::Resolver> resolver = v8::Local<v8::Promise::Resolver>::New(isolate, persistent);
+          v8::Local<v8::Context> ctx = resolver->GetCreationContext().ToLocalChecked();
+          v8::Context::Scope ctxScope(ctx);
+
+          V8_NEW_OBJECT(resultObj);
+          v8::Local<v8::Array> results = v8::Array::New(isolate, result.size());
+          for(size_t i = 0; i < result.size(); i++)
+          {
+              const std::pair<v8::Local<v8::Context>, size_t>& pair = result[i];
+              V8_NEW_OBJECT(obj);
+              V8_OBJECT_SET_STRING(obj, "resource", V8ResourceImpl::Get(pair.first)->GetResource()->GetName());
+              V8_OBJECT_SET_UINT(obj, "size", pair.second);
+              results->Set(ctx, i, obj);
+          }
+          resultObj->Set(ctx, V8Helpers::JSValue("results"), results);
+          resultObj->Set(ctx, V8Helpers::JSValue("externalBytes"), V8Helpers::JSValue((uint32_t)externalBytes));
+
+          resolver->Resolve(ctx, resultObj);
+
+          promises.remove(persistent);
+      });
+    isolate->MeasureMemory(std::move(delegate), v8::MeasureMemoryExecution::kDefault);
+
+    V8_RETURN(persistent.Get(isolate)->GetPromise());
+}
+
 // Key = Node ID, Value = Timestamp
 // We store a map of the timestamps here, so we can quickly
 // access it when setting it while serializing the profiler node
@@ -39,7 +102,7 @@ static void StartProfiling(const v8::FunctionCallbackInfo<v8::Value>& info)
     if(info.Length() == 1)
     {
         V8_ARG_TO_STRING(1, profileName);
-        name = V8::JSValue(profileName.CStr());
+        name = V8Helpers::JSValue(profileName.CStr());
     }
     else
         name = v8::String::Empty(isolate);
@@ -65,7 +128,7 @@ static void StopProfiling(const v8::FunctionCallbackInfo<v8::Value>& info)
     if(info.Length() == 1)
     {
         V8_ARG_TO_STRING(1, profileName);
-        name = V8::JSValue(profileName.CStr());
+        name = V8Helpers::JSValue(profileName.CStr());
     }
     else
         name = v8::String::Empty(isolate);
@@ -92,7 +155,7 @@ static void StopProfiling(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_NEW_OBJECT(root);
     GetProfileNodeData(isolate, result->GetTopDownRoot(), root);
-    resultObj->Set(ctx, V8::JSValue("root"), root);
+    resultObj->Set(ctx, V8Helpers::JSValue("root"), root);
 
     // Clear the nodemap to not cause a memory leak
     nodeMap.clear();
@@ -126,12 +189,14 @@ static void ProfilesRunningGetter(v8::Local<v8::String>, const v8::PropertyCallb
 extern V8Class v8Profiler("Profiler", [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    V8::SetStaticAccessor(isolate, tpl, "heapStats", GetHeapStatistics);
-    V8::SetStaticAccessor(isolate, tpl, "samplingInterval", SamplingIntervalGetter, SamplingIntervalSetter);
-    V8::SetStaticAccessor(isolate, tpl, "profilesRunning", ProfilesRunningGetter);
+    V8Helpers::SetStaticAccessor(isolate, tpl, "heapStats", GetHeapStatistics);
+    V8Helpers::SetStaticAccessor(isolate, tpl, "samplingInterval", SamplingIntervalGetter, SamplingIntervalSetter);
+    V8Helpers::SetStaticAccessor(isolate, tpl, "profilesRunning", ProfilesRunningGetter);
 
-    V8::SetStaticMethod(isolate, tpl, "startProfiling", StartProfiling);
-    V8::SetStaticMethod(isolate, tpl, "stopProfiling", StopProfiling);
+    V8Helpers::SetStaticMethod(isolate, tpl, "startProfiling", StartProfiling);
+    V8Helpers::SetStaticMethod(isolate, tpl, "stopProfiling", StopProfiling);
+
+    V8Helpers::SetStaticMethod(isolate, tpl, "getMemoryProfile", GetMemoryProfile);
 });
 
 // *** CPU Profile Serialization
@@ -153,39 +218,39 @@ static void GetProfileNodeData(v8::Isolate* isolate, const v8::CpuProfileNode* n
     auto ctx = isolate->GetEnteredOrMicrotaskContext();
 
     // Node info
-    result->Set(ctx, V8::JSValue("id"), V8::JSValue(node->GetNodeId()));
+    result->Set(ctx, V8Helpers::JSValue("id"), V8Helpers::JSValue(node->GetNodeId()));
 
     v8::Local<v8::String> functionName;
     const char* name = node->GetFunctionNameStr();
-    if(name == NULL || strlen(name) == 0) functionName = V8::JSValue("(anonymous function)");
+    if(name == NULL || strlen(name) == 0) functionName = V8Helpers::JSValue("(anonymous function)");
     else
-        functionName = V8::JSValue(name);
-    result->Set(ctx, V8::JSValue("function"), functionName);
+        functionName = V8Helpers::JSValue(name);
+    result->Set(ctx, V8Helpers::JSValue("function"), functionName);
 
     v8::Local<v8::String> sourceName;
     const char* source = node->GetScriptResourceNameStr();
-    if(source == NULL || strlen(source) == 0) sourceName = V8::JSValue("(unknown)");
+    if(source == NULL || strlen(source) == 0) sourceName = V8Helpers::JSValue("(unknown)");
     else
-        sourceName = V8::JSValue(source);
-    result->Set(ctx, V8::JSValue("source"), sourceName);
+        sourceName = V8Helpers::JSValue(source);
+    result->Set(ctx, V8Helpers::JSValue("source"), sourceName);
 
-    result->Set(ctx, V8::JSValue("sourceType"), V8::JSValue(GetSourceTypeName(node->GetSourceType())));
-    result->Set(ctx, V8::JSValue("line"), V8::JSValue(node->GetLineNumber()));
+    result->Set(ctx, V8Helpers::JSValue("sourceType"), V8Helpers::JSValue(GetSourceTypeName(node->GetSourceType())));
+    result->Set(ctx, V8Helpers::JSValue("line"), V8Helpers::JSValue(node->GetLineNumber()));
 
     v8::Local<v8::Value> bailoutReason;
     const char* reason = node->GetBailoutReason();
     if(reason == NULL || strlen(reason) == 0) bailoutReason = v8::Null(isolate);
     else
-        bailoutReason = V8::JSValue(reason);
-    result->Set(ctx, V8::JSValue("bailoutReason"), bailoutReason);
+        bailoutReason = V8Helpers::JSValue(reason);
+    result->Set(ctx, V8Helpers::JSValue("bailoutReason"), bailoutReason);
 
-    result->Set(ctx, V8::JSValue("hitCount"), V8::JSValue(node->GetHitCount()));
+    result->Set(ctx, V8Helpers::JSValue("hitCount"), V8Helpers::JSValue(node->GetHitCount()));
 
     int64_t timestamp;
     if(nodeMap.count(node->GetNodeId()) == 0) timestamp = -1;
     else
         timestamp = nodeMap.at(node->GetNodeId());
-    result->Set(ctx, V8::JSValue("timestamp"), V8::JSValue(timestamp));
+    result->Set(ctx, V8Helpers::JSValue("timestamp"), V8Helpers::JSValue(timestamp));
 
     // Children
     {
@@ -204,7 +269,7 @@ static void GetProfileNodeData(v8::Isolate* isolate, const v8::CpuProfileNode* n
         else
             children = v8::Null(isolate);
 
-        result->Set(ctx, V8::JSValue("children"), children);
+        result->Set(ctx, V8Helpers::JSValue("children"), children);
     }
 
     // Line ticks
@@ -219,13 +284,13 @@ static void GetProfileNodeData(v8::Isolate* isolate, const v8::CpuProfileNode* n
             {
                 auto tick = ticks[i];
                 V8_NEW_OBJECT(tickObj);
-                tickObj->Set(ctx, V8::JSValue("line"), V8::JSValue(tick.line));
-                tickObj->Set(ctx, V8::JSValue("hitCount"), V8::JSValue(tick.hit_count));
+                tickObj->Set(ctx, V8Helpers::JSValue("line"), V8Helpers::JSValue(tick.line));
+                tickObj->Set(ctx, V8Helpers::JSValue("hitCount"), V8Helpers::JSValue(tick.hit_count));
                 val.As<v8::Array>()->Set(ctx, i, tickObj);
             }
         }
         else
             val = v8::Null(isolate);
-        result->Set(ctx, V8::JSValue("lineTicks"), val);
+        result->Set(ctx, V8Helpers::JSValue("lineTicks"), val);
     }
 }

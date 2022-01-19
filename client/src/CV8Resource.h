@@ -37,9 +37,9 @@ public:
     void OnPromiseRejectedWithNoHandler(v8::PromiseRejectMessage& data);
     void OnPromiseHandlerAdded(v8::PromiseRejectMessage& data);
 
-    void SubscribeWebView(alt::Ref<alt::IWebView> view, const std::string& evName, v8::Local<v8::Function> cb, V8::SourceLocation&& location, bool once = false)
+    void SubscribeWebView(alt::Ref<alt::IWebView> view, const std::string& evName, v8::Local<v8::Function> cb, V8Helpers::SourceLocation&& location, bool once = false)
     {
-        webViewHandlers[view].insert({ evName, V8::EventCallback{ isolate, cb, std::move(location), once } });
+        webViewHandlers[view].insert({ evName, V8Helpers::EventCallback{ isolate, cb, std::move(location), once } });
     }
 
     void UnsubscribeWebView(alt::Ref<alt::IWebView> view, const std::string& evName, v8::Local<v8::Function> cb)
@@ -57,11 +57,11 @@ public:
         }
     }
 
-    std::vector<V8::EventCallback*> GetWebViewHandlers(alt::Ref<alt::IWebView> view, const std::string& name);
+    std::vector<V8Helpers::EventCallback*> GetWebViewHandlers(alt::Ref<alt::IWebView> view, const std::string& name);
 
-    void SubscribeWebSocketClient(alt::Ref<alt::IWebSocketClient> webSocket, const std::string& evName, v8::Local<v8::Function> cb, V8::SourceLocation&& location)
+    void SubscribeWebSocketClient(alt::Ref<alt::IWebSocketClient> webSocket, const std::string& evName, v8::Local<v8::Function> cb, V8Helpers::SourceLocation&& location)
     {
-        webSocketClientHandlers[webSocket].insert({ evName, V8::EventCallback{ isolate, cb, std::move(location) } });
+        webSocketClientHandlers[webSocket].insert({ evName, V8Helpers::EventCallback{ isolate, cb, std::move(location) } });
     }
 
     void UnsubscribeWebSocketClient(alt::Ref<alt::IWebSocketClient> webSocket, const std::string& evName, v8::Local<v8::Function> cb)
@@ -79,11 +79,11 @@ public:
         }
     }
 
-    std::vector<V8::EventCallback*> GetWebSocketClientHandlers(alt::Ref<alt::IWebSocketClient> webSocket, const std::string& name);
+    std::vector<V8Helpers::EventCallback*> GetWebSocketClientHandlers(alt::Ref<alt::IWebSocketClient> webSocket, const std::string& name);
 
-    void SubscribeAudio(alt::Ref<alt::IAudio> audio, const std::string& evName, v8::Local<v8::Function> cb, V8::SourceLocation&& location)
+    void SubscribeAudio(alt::Ref<alt::IAudio> audio, const std::string& evName, v8::Local<v8::Function> cb, V8Helpers::SourceLocation&& location)
     {
-        audioHandlers[audio].insert({ evName, V8::EventCallback{ isolate, cb, std::move(location) } });
+        audioHandlers[audio].insert({ evName, V8Helpers::EventCallback{ isolate, cb, std::move(location) } });
     }
 
     void UnsubscribeAudio(alt::Ref<alt::IAudio> audio, const std::string& evName, v8::Local<v8::Function> cb)
@@ -101,7 +101,29 @@ public:
         }
     }
 
-    std::vector<V8::EventCallback*> GetAudioHandlers(alt::Ref<alt::IAudio> audio, const std::string& name);
+    std::vector<V8Helpers::EventCallback*> GetAudioHandlers(alt::Ref<alt::IAudio> audio, const std::string& name);
+
+    void SubscribeRml(alt::Ref<alt::IRmlElement> element, const std::string& evName, v8::Local<v8::Function> cb, V8Helpers::SourceLocation&& location)
+    {
+        rmlHandlers[element].insert({ evName, V8Helpers::EventCallback{ isolate, cb, std::move(location) } });
+    }
+
+    void UnsubscribeRml(alt::Ref<alt::IRmlElement> element, const std::string& evName, v8::Local<v8::Function> cb)
+    {
+        auto it = rmlHandlers.find(element);
+        if(it != rmlHandlers.end())
+        {
+            auto& rmlEvents = it->second;
+            auto range = rmlEvents.equal_range(evName);
+
+            for(auto it = range.first; it != range.second; ++it)
+            {
+                if(it->second.fn.Get(isolate)->StrictEquals(cb)) it->second.removed = true;
+            }
+        }
+    }
+
+    std::vector<V8Helpers::EventCallback*> GetRmlHandlers(alt::Ref<alt::IRmlElement> element, const std::string& name);
 
     void AddOwned(alt::Ref<alt::IBaseObject> handle)
     {
@@ -139,13 +161,19 @@ public:
         webViewsEventsQueue[view].push_back(std::pair(evName, mvArgs));
     }
 
+    bool IsBytecodeResource()
+    {
+        return isUsingBytecode;
+    }
+
 private:
-    using WebViewEvents = std::unordered_multimap<std::string, V8::EventCallback>;
+    using EventHandlerMap = std::unordered_multimap<std::string, V8Helpers::EventCallback>;
     using WebViewsEventsQueue = std::unordered_map<alt::Ref<alt::IWebView>, std::vector<std::pair<alt::String, alt::MValueArgs>>>;
 
-    std::unordered_map<alt::Ref<alt::IWebView>, WebViewEvents> webViewHandlers;
-    std::unordered_map<alt::Ref<alt::IWebSocketClient>, WebViewEvents> webSocketClientHandlers;
-    std::unordered_map<alt::Ref<alt::IAudio>, WebViewEvents> audioHandlers;
+    std::unordered_map<alt::Ref<alt::IWebView>, EventHandlerMap> webViewHandlers;
+    std::unordered_map<alt::Ref<alt::IWebSocketClient>, EventHandlerMap> webSocketClientHandlers;
+    std::unordered_map<alt::Ref<alt::IAudio>, EventHandlerMap> audioHandlers;
+    std::unordered_map<alt::Ref<alt::IRmlElement>, EventHandlerMap> rmlHandlers;
 
     WebViewsEventsQueue webViewsEventsQueue;
     WebViewsEventsQueue& GetWebviewsEventQueue()
@@ -165,5 +193,5 @@ private:
     std::list<std::function<void()>> dynamicImports;
     friend class CV8ScriptRuntime;
 
-    V8::PromiseRejections promiseRejections;
+    V8Helpers::PromiseRejections promiseRejections;
 };

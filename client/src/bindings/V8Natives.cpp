@@ -82,12 +82,12 @@ static const char* GetNativeTypeName(alt::INative::Type type)
 
 inline void ShowNativeArgParseErrorMsg(v8::Isolate* isolate, v8::Local<v8::Value> val, alt::INative* native, alt::INative::Type argType, uint32_t idx)
 {
-    V8::SourceLocation source = V8::SourceLocation::GetCurrent(isolate);
+    V8Helpers::SourceLocation source = V8Helpers::SourceLocation::GetCurrent(isolate);
     V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredOrMicrotaskContext());
 
     std::stringstream errorMsg;
     errorMsg << "Native argument at index " << idx << " "
-             << "(" << V8::GetJSValueTypeName(val) << ")"
+             << "(" << V8Helpers::GetJSValueTypeName(val) << ")"
              << " could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")";
 
     Log::Error << source.ToString() << " " << errorMsg.str() << Log::Endl;
@@ -98,7 +98,7 @@ inline void ShowNativeArgParseErrorMsg(v8::Isolate* isolate, v8::Local<v8::Value
 
 inline void ShowNativeArgMismatchErrorMsg(v8::Isolate* isolate, alt::INative* native, int expected, int received)
 {
-    V8::SourceLocation source = V8::SourceLocation::GetCurrent(isolate);
+    V8Helpers::SourceLocation source = V8Helpers::SourceLocation::GetCurrent(isolate);
     auto ctx = isolate->GetEnteredOrMicrotaskContext();
     V8ResourceImpl* resource = V8ResourceImpl::Get(ctx);
 
@@ -266,10 +266,10 @@ static void PushPointerReturn(alt::INative::Type argType, v8::Local<v8::Array> r
 
     switch(argType)
     {
-        case alt::INative::Type::ARG_BOOL_PTR: retns->Set(ctx, returnsCount++, V8::JSValue(*reinterpret_cast<int32_t*>(&pointers[pointersCount++]))); break;
-        case alt::INative::Type::ARG_INT32_PTR: retns->Set(ctx, returnsCount++, V8::JSValue(*reinterpret_cast<int32_t*>(&pointers[pointersCount++]))); break;
-        case alt::INative::Type::ARG_UINT32_PTR: retns->Set(ctx, returnsCount++, V8::JSValue(*reinterpret_cast<uint32_t*>(&pointers[pointersCount++]))); break;
-        case alt::INative::Type::ARG_FLOAT_PTR: retns->Set(ctx, returnsCount++, V8::JSValue(*reinterpret_cast<float*>(&pointers[pointersCount++]))); break;
+        case alt::INative::Type::ARG_BOOL_PTR: retns->Set(ctx, returnsCount++, V8Helpers::JSValue(*reinterpret_cast<int32_t*>(&pointers[pointersCount++]))); break;
+        case alt::INative::Type::ARG_INT32_PTR: retns->Set(ctx, returnsCount++, V8Helpers::JSValue(*reinterpret_cast<int32_t*>(&pointers[pointersCount++]))); break;
+        case alt::INative::Type::ARG_UINT32_PTR: retns->Set(ctx, returnsCount++, V8Helpers::JSValue(*reinterpret_cast<uint32_t*>(&pointers[pointersCount++]))); break;
+        case alt::INative::Type::ARG_FLOAT_PTR: retns->Set(ctx, returnsCount++, V8Helpers::JSValue(*reinterpret_cast<float*>(&pointers[pointersCount++]))); break;
         case alt::INative::Type::ARG_VECTOR3_PTR:
         {
             alt::INative::Vector3* val = reinterpret_cast<alt::INative::Vector3*>(&pointers[pointersCount]);
@@ -293,10 +293,10 @@ static v8::Local<v8::Value> GetReturn(alt::Ref<alt::INative::Context> scrCtx, al
 
     switch(retnType)
     {
-        case alt::INative::Type::ARG_BOOL: return V8::JSValue(scrCtx->ResultBool());
-        case alt::INative::Type::ARG_INT32: return V8::JSValue(scrCtx->ResultInt());
-        case alt::INative::Type::ARG_UINT32: return V8::JSValue(scrCtx->ResultUint());
-        case alt::INative::Type::ARG_FLOAT: return V8::JSValue(scrCtx->ResultFloat());
+        case alt::INative::Type::ARG_BOOL: return V8Helpers::JSValue(scrCtx->ResultBool());
+        case alt::INative::Type::ARG_INT32: return V8Helpers::JSValue(scrCtx->ResultInt());
+        case alt::INative::Type::ARG_UINT32: return V8Helpers::JSValue(scrCtx->ResultUint());
+        case alt::INative::Type::ARG_FLOAT: return V8Helpers::JSValue(scrCtx->ResultFloat());
         case alt::INative::Type::ARG_VECTOR3:
         {
             alt::INative::Vector3 val = scrCtx->ResultVector3();
@@ -305,8 +305,8 @@ static v8::Local<v8::Value> GetReturn(alt::Ref<alt::INative::Context> scrCtx, al
             return vector;
         }
         case alt::INative::Type::ARG_STRING:
-            if(!scrCtx->ResultString()) return V8::JSValue(nullptr);
-            return V8::JSValue(scrCtx->ResultString());
+            if(!scrCtx->ResultString()) return V8Helpers::JSValue(nullptr);
+            return V8Helpers::JSValue(scrCtx->ResultString());
         case alt::INative::Type::ARG_VOID: return v8::Undefined(isolate);
         default: Log::Error << "Unknown native return type " << (int)retnType << " (" << native->GetName() << ")" << Log::Endl; return v8::Undefined(isolate);
     }
@@ -388,7 +388,7 @@ static void RegisterNatives(v8::Local<v8::Context> ctx, v8::Local<v8::Object> ex
 
     for(auto native : alt::ICore::Instance().GetAllNatives())
     {
-        V8::SetFunction(isolate, ctx, exports, native->GetName().CStr(), InvokeNative, native);
+        V8Helpers::SetFunction(isolate, ctx, exports, native->GetName().CStr(), InvokeNative, native);
     }
 }
 

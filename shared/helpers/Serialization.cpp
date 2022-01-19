@@ -47,7 +47,7 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
         {
             if(!allowFunction)
             {
-                Log::Error << V8::SourceLocation::GetCurrent(isolate).ToString() << " "
+                Log::Error << V8Helpers::SourceLocation::GetCurrent(isolate).ToString() << " "
                            << "Cannot convert function to MValue" << Log::Endl;
                 return core.CreateMValueNone();
             }
@@ -75,7 +75,7 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
 
                 if(!maybeKey.ToLocal(&key)) continue;
                 if(!maybeValue.ToLocal(&value)) continue;
-                alt::String keyString = V8::Stringify(ctx, val);
+                alt::String keyString = V8Helpers::Stringify(ctx, val);
                 if(keyString.IsEmpty()) continue;
                 dict->Set(keyString, V8ToMValue(value, false));
             }
@@ -90,27 +90,27 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
             if(resource->IsVector3(v8Obj))
             {
                 v8::Local<v8::Value> x, y, z;
-                V8_CHECK_RETN(v8Obj->Get(ctx, V8::Vector3_XKey(isolate)).ToLocal(&x), "Failed to convert Vector3 to MValue", core.CreateMValueNil());
-                V8_CHECK_RETN(v8Obj->Get(ctx, V8::Vector3_YKey(isolate)).ToLocal(&y), "Failed to convert Vector3 to MValue", core.CreateMValueNil());
-                V8_CHECK_RETN(v8Obj->Get(ctx, V8::Vector3_ZKey(isolate)).ToLocal(&z), "Failed to convert Vector3 to MValue", core.CreateMValueNil());
+                V8_CHECK_RETN(v8Obj->Get(ctx, V8Helpers::Vector3_XKey(isolate)).ToLocal(&x), "Failed to convert Vector3 to MValue", core.CreateMValueNil());
+                V8_CHECK_RETN(v8Obj->Get(ctx, V8Helpers::Vector3_YKey(isolate)).ToLocal(&y), "Failed to convert Vector3 to MValue", core.CreateMValueNil());
+                V8_CHECK_RETN(v8Obj->Get(ctx, V8Helpers::Vector3_ZKey(isolate)).ToLocal(&z), "Failed to convert Vector3 to MValue", core.CreateMValueNil());
 
                 return core.CreateMValueVector3(alt::Vector3f{ x.As<v8::Number>()->Value(), y.As<v8::Number>()->Value(), z.As<v8::Number>()->Value() });
             }
             else if(resource->IsVector2(v8Obj))
             {
                 v8::Local<v8::Value> x, y;
-                V8_CHECK_RETN(v8Obj->Get(ctx, V8::Vector3_XKey(isolate)).ToLocal(&x), "Failed to convert Vector2 to MValue", core.CreateMValueNil());
-                V8_CHECK_RETN(v8Obj->Get(ctx, V8::Vector3_YKey(isolate)).ToLocal(&y), "Failed to convert Vector2 to MValue", core.CreateMValueNil());
+                V8_CHECK_RETN(v8Obj->Get(ctx, V8Helpers::Vector3_XKey(isolate)).ToLocal(&x), "Failed to convert Vector2 to MValue", core.CreateMValueNil());
+                V8_CHECK_RETN(v8Obj->Get(ctx, V8Helpers::Vector3_YKey(isolate)).ToLocal(&y), "Failed to convert Vector2 to MValue", core.CreateMValueNil());
 
                 return core.CreateMValueVector2(alt::Vector2f{ x.As<v8::Number>()->Value(), y.As<v8::Number>()->Value() });
             }
             else if(resource->IsRGBA(v8Obj))
             {
                 v8::Local<v8::Value> r, g, b, a;
-                V8_CHECK_RETN(v8Obj->Get(ctx, V8::RGBA_RKey(isolate)).ToLocal(&r), "Failed to convert RGBA to MValue", core.CreateMValueNil());
-                V8_CHECK_RETN(v8Obj->Get(ctx, V8::RGBA_GKey(isolate)).ToLocal(&g), "Failed to convert RGBA to MValue", core.CreateMValueNil());
-                V8_CHECK_RETN(v8Obj->Get(ctx, V8::RGBA_BKey(isolate)).ToLocal(&b), "Failed to convert RGBA to MValue", core.CreateMValueNil());
-                V8_CHECK_RETN(v8Obj->Get(ctx, V8::RGBA_AKey(isolate)).ToLocal(&a), "Failed to convert RGBA to MValue", core.CreateMValueNil());
+                V8_CHECK_RETN(v8Obj->Get(ctx, V8Helpers::RGBA_RKey(isolate)).ToLocal(&r), "Failed to convert RGBA to MValue", core.CreateMValueNil());
+                V8_CHECK_RETN(v8Obj->Get(ctx, V8Helpers::RGBA_GKey(isolate)).ToLocal(&g), "Failed to convert RGBA to MValue", core.CreateMValueNil());
+                V8_CHECK_RETN(v8Obj->Get(ctx, V8Helpers::RGBA_BKey(isolate)).ToLocal(&b), "Failed to convert RGBA to MValue", core.CreateMValueNil());
+                V8_CHECK_RETN(v8Obj->Get(ctx, V8Helpers::RGBA_AKey(isolate)).ToLocal(&a), "Failed to convert RGBA to MValue", core.CreateMValueNil());
 
                 return core.CreateMValueRGBA(
                   alt::RGBA{ (uint8_t)r.As<v8::Number>()->Value(), (uint8_t)g.As<v8::Number>()->Value(), (uint8_t)b.As<v8::Number>()->Value(), (uint8_t)a.As<v8::Number>()->Value() });
@@ -157,26 +157,26 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
     switch(val->GetType())
     {
         case alt::IMValue::Type::NONE: return v8::Undefined(isolate);
-        case alt::IMValue::Type::NIL: return V8::JSValue(nullptr);
-        case alt::IMValue::Type::BOOL: return V8::JSValue(val.As<alt::IMValueBool>()->Value());
+        case alt::IMValue::Type::NIL: return V8Helpers::JSValue(nullptr);
+        case alt::IMValue::Type::BOOL: return V8Helpers::JSValue(val.As<alt::IMValueBool>()->Value());
         case alt::IMValue::Type::INT:
         {
             int64_t _val = val.As<alt::IMValueInt>()->Value();
 
-            if(_val >= INT_MIN && _val <= INT_MAX) return V8::JSValue((int32_t)_val);
+            if(_val >= INT_MIN && _val <= INT_MAX) return V8Helpers::JSValue((int32_t)_val);
 
-            return V8::JSValue(_val);
+            return V8Helpers::JSValue(_val);
         }
         case alt::IMValue::Type::UINT:
         {
             uint64_t _val = val.As<alt::IMValueUInt>()->Value();
 
-            if(_val <= UINT_MAX) return V8::JSValue((uint32_t)_val);
+            if(_val <= UINT_MAX) return V8Helpers::JSValue((uint32_t)_val);
 
-            return V8::JSValue(_val);
+            return V8Helpers::JSValue(_val);
         }
-        case alt::IMValue::Type::DOUBLE: return V8::JSValue(val.As<alt::IMValueDouble>()->Value());
-        case alt::IMValue::Type::STRING: return V8::JSValue(val.As<alt::IMValueString>()->Value());
+        case alt::IMValue::Type::DOUBLE: return V8Helpers::JSValue(val.As<alt::IMValueDouble>()->Value());
+        case alt::IMValue::Type::STRING: return V8Helpers::JSValue(val.As<alt::IMValueString>()->Value());
         case alt::IMValue::Type::LIST:
         {
             alt::MValueListConst list = val.As<alt::IMValueList>();
@@ -193,7 +193,7 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
 
             for(auto it = dict->Begin(); it; it = dict->Next())
             {
-                v8Obj->Set(ctx, V8::JSValue(it->GetKey()), MValueToV8(it->GetValue()));
+                v8Obj->Set(ctx, V8Helpers::JSValue(it->GetKey()), MValueToV8(it->GetValue()));
             }
 
             return v8Obj;
@@ -226,7 +226,7 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
             std::memcpy(v8Buffer->GetBackingStore()->Data(), buffer->GetData(), buffer->GetSize());
             return v8Buffer;
         }
-        default: Log::Warning << "V8::MValueToV8 Unknown MValue type " << (int)val->GetType() << Log::Endl;
+        default: Log::Warning << "V8Helpers::MValueToV8 Unknown MValue type " << (int)val->GetType() << Log::Endl;
     }
 
     return v8::Undefined(isolate);
@@ -247,6 +247,7 @@ enum class RawValueType : uint8_t
     VECTOR3,
     VECTOR2,
     RGBA,
+    ARRAY,
     INVALID
 };
 
@@ -255,41 +256,31 @@ static inline RawValueType GetValueType(v8::Local<v8::Context> ctx, v8::Local<v8
 {
     V8ResourceImpl* resource = V8ResourceImpl::Get(ctx);
     bool result;
+    if(val->IsSharedArrayBuffer() || val->IsFunction() || val->IsProxy() || val->IsPromise()) return RawValueType::INVALID;
     if(val->InstanceOf(ctx, v8Entity.JSValue(ctx->GetIsolate(), ctx)).To(&result) && result) return RawValueType::ENTITY;
     if(resource->IsVector3(val)) return RawValueType::VECTOR3;
     if(resource->IsVector2(val)) return RawValueType::VECTOR2;
     if(resource->IsRGBA(val)) return RawValueType::RGBA;
-    if(val->IsSharedArrayBuffer() || val->IsFunction()) return RawValueType::INVALID;
+    if(val->IsArray()) return RawValueType::ARRAY;
     else
         return RawValueType::GENERIC;
 }
 
-// Converts a JS value to a MValue byte array
-alt::MValueByteArray V8Helpers::V8ToRawBytes(v8::Local<v8::Value> val)
+static inline bool WriteRawValue(v8::Local<v8::Context> ctx, v8::ValueSerializer& serializer, RawValueType type, v8::Local<v8::Value> val)
 {
-    v8::Isolate* isolate = v8::Isolate::GetCurrent();
-    v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
-    std::vector<uint8_t> bytes;
-
-    RawValueType type = GetValueType(ctx, val);
-    if(type == RawValueType::INVALID) return alt::MValueByteArray();
-
-    v8::ValueSerializer serializer(isolate);
-    serializer.WriteHeader();
     serializer.WriteRawBytes(&type, sizeof(uint8_t));
-
     switch(type)
     {
         case RawValueType::GENERIC:
         {
             bool result;
-            if(!serializer.WriteValue(ctx, val).To(&result) || !result) return alt::MValueByteArray();
+            if(!serializer.WriteValue(ctx, val).To(&result) || !result) return false;
             break;
         }
         case RawValueType::ENTITY:
         {
             V8Entity* entity = V8Entity::Get(val);
-            if(!entity) return alt::MValueByteArray();
+            if(!entity) return false;
             uint16_t id = entity->GetHandle().As<alt::IEntity>()->GetID();
             serializer.WriteRawBytes(&id, sizeof(id));
             break;
@@ -297,7 +288,7 @@ alt::MValueByteArray V8Helpers::V8ToRawBytes(v8::Local<v8::Value> val)
         case RawValueType::VECTOR3:
         {
             alt::Vector3f vec;
-            if(!V8::SafeToVector3(val, ctx, vec)) return alt::MValueByteArray();
+            if(!V8Helpers::SafeToVector3(val, ctx, vec)) return false;
             float x = vec[0];
             float y = vec[1];
             float z = vec[2];
@@ -309,7 +300,7 @@ alt::MValueByteArray V8Helpers::V8ToRawBytes(v8::Local<v8::Value> val)
         case RawValueType::VECTOR2:
         {
             alt::Vector2f vec;
-            if(!V8::SafeToVector2(val, ctx, vec)) return alt::MValueByteArray();
+            if(!V8Helpers::SafeToVector2(val, ctx, vec)) return false;
             float x = vec[0];
             float y = vec[1];
             serializer.WriteRawBytes(&x, sizeof(float));
@@ -319,69 +310,44 @@ alt::MValueByteArray V8Helpers::V8ToRawBytes(v8::Local<v8::Value> val)
         case RawValueType::RGBA:
         {
             alt::RGBA rgba;
-            if(!V8::SafeToRGBA(val, ctx, rgba)) return alt::MValueByteArray();
+            if(!V8Helpers::SafeToRGBA(val, ctx, rgba)) return false;
             serializer.WriteRawBytes(&rgba.r, sizeof(uint8_t));
             serializer.WriteRawBytes(&rgba.g, sizeof(uint8_t));
             serializer.WriteRawBytes(&rgba.b, sizeof(uint8_t));
             serializer.WriteRawBytes(&rgba.a, sizeof(uint8_t));
             break;
         }
+        case RawValueType::ARRAY:
+        {
+            v8::Local<v8::Array> array = val.As<v8::Array>();
+            uint32_t length = array->Length();
+            serializer.WriteRawBytes(&length, sizeof(uint32_t));
+            for(uint32_t i = 0; i < length; ++i)
+            {
+                v8::Local<v8::Value> element;
+                if(!array->Get(ctx, i).ToLocal(&element)) return false;
+                if(!WriteRawValue(ctx, serializer, GetValueType(ctx, element), element)) return false;
+            }
+            break;
+        }
     }
-
-    std::pair<uint8_t*, size_t> serialized = serializer.Release();
-
-    // Write the serialized value to the buffer
-    bytes.assign(serialized.first, serialized.first + serialized.second);
-
-    // Reserve size for the magic bytes
-    bytes.reserve(bytes.size() + sizeof(magicBytes));
-
-    // Write the magic bytes to the front of the buffer
-    for(size_t i = 0; i < sizeof(magicBytes); ++i) bytes.insert(bytes.begin() + i, magicBytes[i]);
-
-    // Copy the data, because it gets freed by the std::vector when this scope ends,
-    // and the MValue byte array does not copy the data
-    uint8_t* data = new uint8_t[bytes.size()];
-    std::memcpy(data, bytes.data(), bytes.size());
-
-    return alt::ICore::Instance().CreateMValueByteArray(data, bytes.size());
+    return true;
 }
 
-// Converts a MValue byte array to a JS value
-v8::MaybeLocal<v8::Value> V8Helpers::RawBytesToV8(alt::MValueByteArrayConst rawBytes)
+static inline v8::MaybeLocal<v8::Value> ReadRawValue(v8::Local<v8::Context> ctx, v8::ValueDeserializer& deserializer)
 {
-    // We copy the data here, because the std::vector frees the data when it goes out of scope
-    uint8_t* data = new uint8_t[rawBytes->GetSize()];
-    std::memcpy(data, rawBytes->GetData(), rawBytes->GetSize());
-    std::vector<uint8_t> bytes(data, data + rawBytes->GetSize());
+    v8::Isolate* isolate = ctx->GetIsolate();
+    V8ResourceImpl* resource = V8ResourceImpl::Get(ctx);
 
-    // Check for magic bytes
-    if(bytes.size() < sizeof(magicBytes)) return v8::MaybeLocal<v8::Value>();
-    for(size_t i = 0; i < sizeof(magicBytes); ++i)
-        if(bytes[i] != magicBytes[i]) return v8::MaybeLocal<v8::Value>();
-
-    // Remove the magic bytes from the byte array
-    bytes.erase(bytes.begin(), bytes.begin() + sizeof(magicBytes));
-
-    v8::Isolate* isolate = v8::Isolate::GetCurrent();
-    v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
-
-    v8::ValueDeserializer deserializer(isolate, bytes.data(), bytes.size());
-    bool headerValid;
-    if(!deserializer.ReadHeader(ctx).To(&headerValid) || !headerValid) return v8::MaybeLocal<v8::Value>();
     RawValueType* typePtr;
     if(!deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&typePtr)) return v8::MaybeLocal<v8::Value>();
     RawValueType type = *typePtr;
 
-    // Deserialize the value
-    V8ResourceImpl* resource = V8ResourceImpl::Get(ctx);
-    v8::MaybeLocal<v8::Value> result;
     switch(type)
     {
         case RawValueType::GENERIC:
         {
-            result = deserializer.ReadValue(ctx);
-            break;
+            return deserializer.ReadValue(ctx);
         }
         case RawValueType::ENTITY:
         {
@@ -389,8 +355,7 @@ v8::MaybeLocal<v8::Value> V8Helpers::RawBytesToV8(alt::MValueByteArrayConst rawB
             if(!deserializer.ReadRawBytes(sizeof(uint16_t), (const void**)&id)) return v8::MaybeLocal<v8::Value>();
             alt::Ref<alt::IEntity> entity = alt::ICore::Instance().GetEntityByID(*id);
             if(!entity) return v8::MaybeLocal<v8::Value>();
-            result = V8ResourceImpl::Get(ctx)->GetOrCreateEntity(entity.Get(), "Entity")->GetJSVal(isolate);
-            break;
+            return V8ResourceImpl::Get(ctx)->GetOrCreateEntity(entity.Get(), "Entity")->GetJSVal(isolate);
         }
         case RawValueType::VECTOR3:
         {
@@ -400,16 +365,14 @@ v8::MaybeLocal<v8::Value> V8Helpers::RawBytesToV8(alt::MValueByteArrayConst rawB
             if(!deserializer.ReadRawBytes(sizeof(float), (const void**)&x) || !deserializer.ReadRawBytes(sizeof(float), (const void**)&y) ||
                !deserializer.ReadRawBytes(sizeof(float), (const void**)&z))
                 return v8::MaybeLocal<v8::Value>();
-            result = resource->CreateVector3({ *x, *y, *z });
-            break;
+            return resource->CreateVector3({ *x, *y, *z });
         }
         case RawValueType::VECTOR2:
         {
             float* x;
             float* y;
             if(!deserializer.ReadRawBytes(sizeof(float), (const void**)&x) || !deserializer.ReadRawBytes(sizeof(float), (const void**)&y)) return v8::MaybeLocal<v8::Value>();
-            result = resource->CreateVector2({ *x, *y });
-            break;
+            return resource->CreateVector2({ *x, *y });
         }
         case RawValueType::RGBA:
         {
@@ -420,10 +383,77 @@ v8::MaybeLocal<v8::Value> V8Helpers::RawBytesToV8(alt::MValueByteArrayConst rawB
             if(!deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&r) || !deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&g) ||
                !deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&b) || !deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&a))
                 return v8::MaybeLocal<v8::Value>();
-            result = resource->CreateRGBA({ *r, *g, *b, *a });
+            return resource->CreateRGBA({ *r, *g, *b, *a });
+        }
+        case RawValueType::ARRAY:
+        {
+            uint32_t* lengthPtr;
+            if(!deserializer.ReadRawBytes(sizeof(uint32_t), (const void**)&lengthPtr)) return v8::MaybeLocal<v8::Value>();
+            uint32_t length = *lengthPtr;
+            v8::Local<v8::Array> array = v8::Array::New(isolate, length);
+            for(uint32_t i = 0; i < length; ++i)
+            {
+                v8::MaybeLocal<v8::Value> element = ReadRawValue(ctx, deserializer);
+                if(element.IsEmpty()) return v8::MaybeLocal<v8::Value>();
+                bool result;
+                if(!array->Set(ctx, i, element.ToLocalChecked()).To(&result) || !result) return v8::MaybeLocal<v8::Value>();
+            }
+            return array;
+        }
+        default:
+        {
+            Log::Error << "Reading unknown raw value type: " << (int)type << Log::Endl;
             break;
         }
     }
+    return v8::MaybeLocal<v8::Value>();
+}
+
+// Converts a JS value to a MValue byte array
+alt::MValueByteArray V8Helpers::V8ToRawBytes(v8::Local<v8::Value> val)
+{
+    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+    v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
+
+    RawValueType type = GetValueType(ctx, val);
+    if(type == RawValueType::INVALID) return alt::MValueByteArray();
+
+    v8::ValueSerializer serializer(isolate);
+    serializer.WriteHeader();
+
+    // Write the magic bytes to the buffer
+    serializer.WriteRawBytes(magicBytes, sizeof(magicBytes));
+
+    // Write the serialized value to the buffer
+    bool result = WriteRawValue(ctx, serializer, type, val);
+    if(!result) return alt::MValueByteArray();
+
+    std::pair<uint8_t*, size_t> serialized = serializer.Release();
+    return alt::ICore::Instance().CreateMValueByteArray(serialized.first, serialized.second);
+}
+
+// Converts a MValue byte array to a JS value
+v8::MaybeLocal<v8::Value> V8Helpers::RawBytesToV8(alt::MValueByteArrayConst rawBytes)
+{
+    const uint8_t* data = rawBytes->GetData();
+    size_t size = rawBytes->GetSize();
+    if(size < sizeof(magicBytes)) return v8::MaybeLocal<v8::Value>();
+
+    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+    v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
+
+    v8::ValueDeserializer deserializer(isolate, data, size);
+
+    bool headerValid;
+    if(!deserializer.ReadHeader(ctx).To(&headerValid) || !headerValid) return v8::MaybeLocal<v8::Value>();
+
+    // Check for magic bytes
+    uint8_t* magicBytesPtr;
+    if(!deserializer.ReadRawBytes(sizeof(magicBytes), (const void**)&magicBytesPtr)) return v8::MaybeLocal<v8::Value>();
+    if(memcmp(magicBytesPtr, magicBytes, sizeof(magicBytes)) != 0) return v8::MaybeLocal<v8::Value>();
+
+    // Deserialize the value
+    v8::MaybeLocal<v8::Value> result = ReadRawValue(ctx, deserializer);
 
     return result;
 }

@@ -1,5 +1,5 @@
 #include "V8Helpers.h"
-#include "V8BindHelpers.h"
+#include "helpers/BindHelpers.h"
 #include "V8Class.h"
 #include "V8Entity.h"
 #include "V8ResourceImpl.h"
@@ -36,7 +36,7 @@ static void On(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
 
-    static_cast<CV8ResourceImpl*>(resource)->SubscribeWebSocketClient(webSocket, evName.ToString(), fun, V8::SourceLocation::GetCurrent(isolate));
+    static_cast<CV8ResourceImpl*>(resource)->SubscribeWebSocketClient(webSocket, evName.ToString(), fun, V8Helpers::SourceLocation::GetCurrent(isolate));
 }
 
 static void Off(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -104,7 +104,7 @@ static void GetSubProtocols(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     auto protocols = webSocket->GetSubProtocols();
 
-    v8::Local<v8::Array> protocolsArray = V8::JSValue(protocols);
+    v8::Local<v8::Array> protocolsArray = V8Helpers::JSValue(protocols);
 
     V8_RETURN(protocolsArray);
 }
@@ -148,7 +148,7 @@ static void GetEventListeners(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_STRING(1, eventName);
 
-    std::vector<V8::EventCallback*> handlers = static_cast<CV8ResourceImpl*>(resource)->GetWebSocketClientHandlers(webSocket, eventName.ToString());
+    std::vector<V8Helpers::EventCallback*> handlers = static_cast<CV8ResourceImpl*>(resource)->GetWebSocketClientHandlers(webSocket, eventName.ToString());
 
     auto array = v8::Array::New(isolate, handlers.size());
     for(int i = 0; i < handlers.size(); i++)
@@ -163,23 +163,23 @@ extern V8Class v8BaseObject;
 extern V8Class v8WebSocketClient("WebSocketClient", v8BaseObject, &Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    V8::SetMethod(isolate, tpl, "on", &On);
-    V8::SetMethod(isolate, tpl, "off", &Off);
-    V8::SetMethod(isolate, tpl, "getEventListeners", GetEventListeners);
+    V8Helpers::SetMethod(isolate, tpl, "on", &On);
+    V8Helpers::SetMethod(isolate, tpl, "off", &Off);
+    V8Helpers::SetMethod(isolate, tpl, "getEventListeners", GetEventListeners);
 
-    V8::SetMethod<IWebSocketClient, &IWebSocketClient::Start>(isolate, tpl, "start");
-    V8::SetMethod<IWebSocketClient, &IWebSocketClient::Stop>(isolate, tpl, "stop");
-    V8::SetMethod(isolate, tpl, "send", &Send);
+    V8Helpers::SetMethod<IWebSocketClient, &IWebSocketClient::Start>(isolate, tpl, "start");
+    V8Helpers::SetMethod<IWebSocketClient, &IWebSocketClient::Stop>(isolate, tpl, "stop");
+    V8Helpers::SetMethod(isolate, tpl, "send", &Send);
 
-    V8::SetMethod(isolate, tpl, "addSubProtocol", &AddSubProtocol);
-    V8::SetMethod(isolate, tpl, "getSubProtocols", &GetSubProtocols);
+    V8Helpers::SetMethod(isolate, tpl, "addSubProtocol", &AddSubProtocol);
+    V8Helpers::SetMethod(isolate, tpl, "getSubProtocols", &GetSubProtocols);
 
-    V8::SetMethod(isolate, tpl, "setExtraHeader", &SetExtraHeader);
-    V8::SetMethod(isolate, tpl, "getExtraHeaders", &GetExtraHeaders);
+    V8Helpers::SetMethod(isolate, tpl, "setExtraHeader", &SetExtraHeader);
+    V8Helpers::SetMethod(isolate, tpl, "getExtraHeaders", &GetExtraHeaders);
 
-    V8::SetAccessor<IWebSocketClient, bool, &IWebSocketClient::IsAutoReconnectEnabled, &IWebSocketClient::SetAutoReconnectEnabled>(isolate, tpl, "autoReconnect");
-    V8::SetAccessor<IWebSocketClient, bool, &IWebSocketClient::IsPerMessageDeflateEnabled, &IWebSocketClient::SetPerMessageDeflateEnabled>(isolate, tpl, "perMessageDeflate");
-    V8::SetAccessor<IWebSocketClient, uint16_t, &IWebSocketClient::GetPingInterval, &IWebSocketClient::SetPingInterval>(isolate, tpl, "pingInterval");
-    V8::SetAccessor<IWebSocketClient, StringView, &IWebSocketClient::GetUrl, &IWebSocketClient::SetUrl>(isolate, tpl, "url");
-    V8::SetAccessor<IWebSocketClient, uint8_t, &IWebSocketClient::GetReadyState>(isolate, tpl, "readyState");
+    V8Helpers::SetAccessor<IWebSocketClient, bool, &IWebSocketClient::IsAutoReconnectEnabled, &IWebSocketClient::SetAutoReconnectEnabled>(isolate, tpl, "autoReconnect");
+    V8Helpers::SetAccessor<IWebSocketClient, bool, &IWebSocketClient::IsPerMessageDeflateEnabled, &IWebSocketClient::SetPerMessageDeflateEnabled>(isolate, tpl, "perMessageDeflate");
+    V8Helpers::SetAccessor<IWebSocketClient, uint16_t, &IWebSocketClient::GetPingInterval, &IWebSocketClient::SetPingInterval>(isolate, tpl, "pingInterval");
+    V8Helpers::SetAccessor<IWebSocketClient, StringView, &IWebSocketClient::GetUrl, &IWebSocketClient::SetUrl>(isolate, tpl, "url");
+    V8Helpers::SetAccessor<IWebSocketClient, uint8_t, &IWebSocketClient::GetReadyState>(isolate, tpl, "readyState");
 });

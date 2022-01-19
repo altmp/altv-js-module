@@ -1,5 +1,5 @@
 #include "V8Helpers.h"
-#include "V8BindHelpers.h"
+#include "helpers/BindHelpers.h"
 #include "V8ResourceImpl.h"
 #include "V8Class.h"
 #include "../CV8ScriptRuntime.h"
@@ -49,7 +49,7 @@ static void On(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
 
-    static_cast<CV8ResourceImpl*>(resource)->SubscribeAudio(audio, evName.ToString(), fun, V8::SourceLocation::GetCurrent(isolate));
+    static_cast<CV8ResourceImpl*>(resource)->SubscribeAudio(audio, evName.ToString(), fun, V8Helpers::SourceLocation::GetCurrent(isolate));
 }
 
 static void Off(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -73,7 +73,7 @@ static void GetEventListeners(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_STRING(1, eventName);
 
-    std::vector<V8::EventCallback*> handlers = static_cast<CV8ResourceImpl*>(resource)->GetAudioHandlers(audio, eventName.ToString());
+    std::vector<V8Helpers::EventCallback*> handlers = static_cast<CV8ResourceImpl*>(resource)->GetAudioHandlers(audio, eventName.ToString());
 
     auto array = v8::Array::New(isolate, handlers.size());
     for(int i = 0; i < handlers.size(); i++)
@@ -185,25 +185,25 @@ extern V8Class v8Audio("Audio", v8BaseObject, &Constructor, [](v8::Local<v8::Fun
     using namespace alt;
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    V8::SetMethod(isolate, tpl, "on", &On);
-    V8::SetMethod(isolate, tpl, "off", &Off);
-    V8::SetMethod(isolate, tpl, "getEventListeners", GetEventListeners);
+    V8Helpers::SetMethod(isolate, tpl, "on", &On);
+    V8Helpers::SetMethod(isolate, tpl, "off", &Off);
+    V8Helpers::SetMethod(isolate, tpl, "getEventListeners", GetEventListeners);
 
-    V8::SetAccessor<IAudio, StringView, &IAudio::GetSource, &IAudio::SetSource>(isolate, tpl, "source");
-    V8::SetAccessor<IAudio, bool, &IAudio::IsLoop, &IAudio::SetLoop>(isolate, tpl, "looped");
-    V8::SetAccessor<IAudio, float, &IAudio::GetVolume, &IAudio::SetVolume>(isolate, tpl, "volume");
-    V8::SetAccessor(isolate, tpl, "category", &CategoryGetter, &CategorySetter);
-    V8::SetAccessor<IAudio, bool, &IAudio::IsFrontendPlay>(isolate, tpl, "frontendPlay");
-    V8::SetAccessor<IAudio, double, &IAudio::GetCurrentTime>(isolate, tpl, "currentTime");
-    V8::SetAccessor<IAudio, double, &IAudio::GetMaxTime>(isolate, tpl, "maxTime");
-    V8::SetAccessor<IAudio, bool, &IAudio::IsPlaying>(isolate, tpl, "playing");
+    V8Helpers::SetAccessor<IAudio, StringView, &IAudio::GetSource, &IAudio::SetSource>(isolate, tpl, "source");
+    V8Helpers::SetAccessor<IAudio, bool, &IAudio::IsLoop, &IAudio::SetLoop>(isolate, tpl, "looped");
+    V8Helpers::SetAccessor<IAudio, float, &IAudio::GetVolume, &IAudio::SetVolume>(isolate, tpl, "volume");
+    V8Helpers::SetAccessor(isolate, tpl, "category", &CategoryGetter, &CategorySetter);
+    V8Helpers::SetAccessor<IAudio, bool, &IAudio::IsFrontendPlay>(isolate, tpl, "frontendPlay");
+    V8Helpers::SetAccessor<IAudio, double, &IAudio::GetCurrentTime>(isolate, tpl, "currentTime");
+    V8Helpers::SetAccessor<IAudio, double, &IAudio::GetMaxTime>(isolate, tpl, "maxTime");
+    V8Helpers::SetAccessor<IAudio, bool, &IAudio::IsPlaying>(isolate, tpl, "playing");
 
-    V8::SetMethod(isolate, tpl, "addOutput", &AddOutput);
-    V8::SetMethod(isolate, tpl, "removeOutput", &RemoveOutput);
-    V8::SetMethod(isolate, tpl, "getOutputs", &GetOutputs);
+    V8Helpers::SetMethod(isolate, tpl, "addOutput", &AddOutput);
+    V8Helpers::SetMethod(isolate, tpl, "removeOutput", &RemoveOutput);
+    V8Helpers::SetMethod(isolate, tpl, "getOutputs", &GetOutputs);
 
-    V8::SetMethod<IAudio, &IAudio::Play>(isolate, tpl, "play");
-    V8::SetMethod<IAudio, &IAudio::Pause>(isolate, tpl, "pause");
-    V8::SetMethod<IAudio, &IAudio::Reset>(isolate, tpl, "reset");
-    V8::SetMethod(isolate, tpl, "seek", &Seek);
+    V8Helpers::SetMethod<IAudio, &IAudio::Play>(isolate, tpl, "play");
+    V8Helpers::SetMethod<IAudio, &IAudio::Pause>(isolate, tpl, "pause");
+    V8Helpers::SetMethod<IAudio, &IAudio::Reset>(isolate, tpl, "reset");
+    V8Helpers::SetMethod(isolate, tpl, "seek", &Seek);
 });
