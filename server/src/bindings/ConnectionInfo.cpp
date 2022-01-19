@@ -8,7 +8,7 @@
 static void NameGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    alt::ConnectionInfo* con = static_cast<alt::ConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
+    alt::IConnectionInfo* con = static_cast<alt::IConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
     V8_CHECK(con, "Invalid connection info");
     V8_RETURN_STD_STRING(con->GetName());
 }
@@ -16,7 +16,7 @@ static void NameGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8:
 static void SocialIDGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    alt::ConnectionInfo* con = static_cast<alt::ConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
+    alt::IConnectionInfo* con = static_cast<alt::IConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
     V8_CHECK(con, "Invalid connection info");
     V8_RETURN_STD_STRING(std::to_string(con->GetSocialId()));
 }
@@ -24,7 +24,7 @@ static void SocialIDGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo
 static void HwidHashGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    alt::ConnectionInfo* con = static_cast<alt::ConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
+    alt::IConnectionInfo* con = static_cast<alt::IConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
     V8_CHECK(con, "Invalid connection info");
     V8_RETURN_STD_STRING(std::to_string(con->GetHwIdHash()));
 }
@@ -32,7 +32,7 @@ static void HwidHashGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo
 static void HwidExHashGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    alt::ConnectionInfo* con = static_cast<alt::ConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
+    alt::IConnectionInfo* con = static_cast<alt::IConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
     V8_CHECK(con, "Invalid connection info");
     V8_RETURN_STD_STRING(std::to_string(con->GetHwIdExHash()));
 }
@@ -40,7 +40,7 @@ static void HwidExHashGetter(v8::Local<v8::String>, const v8::PropertyCallbackIn
 static void AuthTokenGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    alt::ConnectionInfo* con = static_cast<alt::ConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
+    alt::IConnectionInfo* con = static_cast<alt::IConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
     V8_CHECK(con, "Invalid connection info");
     V8_RETURN_STD_STRING(con->GetAuthToken());
 }
@@ -48,7 +48,7 @@ static void AuthTokenGetter(v8::Local<v8::String>, const v8::PropertyCallbackInf
 static void IsDebugGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    alt::ConnectionInfo* con = static_cast<alt::ConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
+    alt::IConnectionInfo* con = static_cast<alt::IConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
     V8_CHECK(con, "Invalid connection info");
     V8_RETURN_BOOLEAN(con->GetIsDebug());
 }
@@ -56,7 +56,7 @@ static void IsDebugGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<
 static void BranchGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    alt::ConnectionInfo* con = static_cast<alt::ConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
+    alt::IConnectionInfo* con = static_cast<alt::IConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
     V8_CHECK(con, "Invalid connection info");
     V8_RETURN_STD_STRING(con->GetBranch());
 }
@@ -64,7 +64,7 @@ static void BranchGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v
 static void BuildGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    alt::ConnectionInfo* con = static_cast<alt::ConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
+    alt::IConnectionInfo* con = static_cast<alt::IConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
     V8_CHECK(con, "Invalid connection info");
     V8_RETURN_UINT(con->GetBuild());
 }
@@ -72,7 +72,7 @@ static void BuildGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8
 static void CdnUrlGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    alt::ConnectionInfo* con = static_cast<alt::ConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
+    alt::IConnectionInfo* con = static_cast<alt::IConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
     V8_CHECK(con, "Invalid connection info");
     V8_RETURN_STD_STRING(con->GetCdnUrl());
 }
@@ -80,7 +80,7 @@ static void CdnUrlGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v
 static void PasswordHashGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    alt::ConnectionInfo* con = static_cast<alt::ConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
+    alt::IConnectionInfo* con = static_cast<alt::IConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
     V8_CHECK(con, "Invalid connection info");
     V8_RETURN_UINT64(con->GetPasswordHash());
 }
@@ -88,30 +88,38 @@ static void PasswordHashGetter(v8::Local<v8::String>, const v8::PropertyCallback
 static void IpGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    alt::ConnectionInfo* con = static_cast<alt::ConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
+    alt::IConnectionInfo* con = static_cast<alt::IConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
     V8_CHECK(con, "Invalid connection info");
     V8_RETURN_STD_STRING(con->GetIp());
+}
+
+static void DiscordUserIDGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    alt::IConnectionInfo* con = static_cast<alt::IConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
+    V8_CHECK(con, "Invalid connection info");
+    V8_RETURN_STD_STRING(con->GetDiscordUserID());
 }
 
 static void Accept(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    alt::ConnectionInfo* con = static_cast<alt::ConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
+    alt::IConnectionInfo* con = static_cast<alt::IConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
     V8_CHECK(con, "Invalid connection info");
 
-    alt::ICore::Instance().AcceptConnectionFromQueue(con);
+    con->Accept();
 }
 
 static void Decline(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    alt::ConnectionInfo* con = static_cast<alt::ConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
+    alt::IConnectionInfo* con = static_cast<alt::IConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
     V8_CHECK(con, "Invalid connection info");
     V8_CHECK_ARGS_LEN(1);
 
     V8_ARG_TO_STD_STRING(1, reason);
 
-    alt::ICore::Instance().DeclineConnectionFromQueue(con, reason);
+    con->Decline(reason);
 }
 
 extern V8Class v8ConnectionInfo("ConnectionInfo", [](v8::Local<v8::FunctionTemplate> tpl) {
@@ -133,4 +141,5 @@ extern V8Class v8ConnectionInfo("ConnectionInfo", [](v8::Local<v8::FunctionTempl
     V8Helpers::SetAccessor(isolate, tpl, "cdnUrl", &CdnUrlGetter);
     V8Helpers::SetAccessor(isolate, tpl, "passwordHash", &PasswordHashGetter);
     V8Helpers::SetAccessor(isolate, tpl, "ip", &IpGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "discordUserID", &DiscordUserIDGetter);
 });
