@@ -28,7 +28,7 @@ V8Helpers::LocalEventHandler
       auto ev = static_cast<const alt::CPlayerBeforeConnectEvent*>(e);
       v8::Isolate* isolate = resource->GetIsolate();
       v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
-      alt::Ref<alt::ConnectionInfo> info = ev->GetConnectionInfo();
+      alt::Ref<alt::IConnectionInfo> info = ev->GetConnectionInfo();
 
       V8_NEW_OBJECT(infoObj);
       V8_OBJECT_SET_STD_STRING(infoObj, "name", info->GetName());
@@ -134,7 +134,7 @@ V8_LOCAL_EVENT_HANDLER localMetaChange(EventType::LOCAL_SYNCED_META_CHANGE, "loc
 });
 
 // todo: this random map here is shit code, but works for now
-static std::unordered_map<alt::Ref<alt::ConnectionInfo>, V8Helpers::CPersistent<v8::Object>> connectionInfoMap;
+static std::unordered_map<alt::Ref<alt::IConnectionInfo>, V8Helpers::CPersistent<v8::Object>> connectionInfoMap;
 
 extern V8Class v8ConnectionInfo;
 V8_LOCAL_EVENT_HANDLER connectionQueueAdd(EventType::CONNECTION_QUEUE_ADD, "connectionQueueAdd", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
@@ -142,7 +142,7 @@ V8_LOCAL_EVENT_HANDLER connectionQueueAdd(EventType::CONNECTION_QUEUE_ADD, "conn
     v8::Isolate* isolate = resource->GetIsolate();
     v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
 
-    alt::Ref<alt::ConnectionInfo> info = ev->GetConnectionInfo();
+    alt::Ref<alt::IConnectionInfo> info = ev->GetConnectionInfo();
     v8::Local<v8::Object> infoObj = v8ConnectionInfo.CreateInstance(ctx);
     infoObj->SetInternalField(0, v8::External::New(isolate, info.Get()));
 
@@ -157,7 +157,7 @@ connectionQueueRemove(EventType::CONNECTION_QUEUE_REMOVE, "connectionQueueRemove
     v8::Isolate* isolate = resource->GetIsolate();
     v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
 
-    alt::Ref<alt::ConnectionInfo> info = ev->GetConnectionInfo();
+    alt::Ref<alt::IConnectionInfo> info = ev->GetConnectionInfo();
     v8::Local<v8::Object> infoObj = connectionInfoMap.at(info).Get(isolate);
     infoObj->SetInternalField(0, v8::External::New(isolate, nullptr));
     connectionInfoMap.erase(info);
