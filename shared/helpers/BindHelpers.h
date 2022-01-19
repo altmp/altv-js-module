@@ -121,6 +121,12 @@ namespace V8Helpers
         V8Helpers::SetAccessor(isolate, tpl, name, V8Helpers::detail::WrapGetter<T, U, Getter>, V8Helpers::detail::WrapSetter<T, U, Setter>);
     }
 
+    template<class T, class U, U (T::*Getter)() const, class OtherU, void (T::*Setter)(OtherU)>
+    inline void SetAccessor(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> tpl, const char* name)
+    {
+        V8Helpers::SetAccessor(isolate, tpl, name, V8Helpers::detail::WrapGetter<T, U, Getter>, V8Helpers::detail::WrapSetter<T, OtherU, Setter>);
+    }
+
     template<class T, void (T::*Method)()>
     inline void SetMethod(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> tpl, const char* name)
     {
