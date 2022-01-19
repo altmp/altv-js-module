@@ -10,7 +10,7 @@ static void NameGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8:
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     alt::ConnectionInfo* con = static_cast<alt::ConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
     V8_CHECK(con, "Invalid connection info");
-    V8_RETURN_STD_STRING(con->name);
+    V8_RETURN_STD_STRING(con->GetName());
 }
 
 static void SocialIDGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -18,7 +18,7 @@ static void SocialIDGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     alt::ConnectionInfo* con = static_cast<alt::ConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
     V8_CHECK(con, "Invalid connection info");
-    V8_RETURN_STD_STRING(std::to_string(con->socialId));
+    V8_RETURN_STD_STRING(std::to_string(con->GetSocialId()));
 }
 
 static void HwidHashGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -26,7 +26,7 @@ static void HwidHashGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     alt::ConnectionInfo* con = static_cast<alt::ConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
     V8_CHECK(con, "Invalid connection info");
-    V8_RETURN_STD_STRING(std::to_string(con->hwidHash));
+    V8_RETURN_STD_STRING(std::to_string(con->GetHwIdHash()));
 }
 
 static void HwidExHashGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -34,7 +34,7 @@ static void HwidExHashGetter(v8::Local<v8::String>, const v8::PropertyCallbackIn
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     alt::ConnectionInfo* con = static_cast<alt::ConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
     V8_CHECK(con, "Invalid connection info");
-    V8_RETURN_STD_STRING(std::to_string(con->hwidExHash));
+    V8_RETURN_STD_STRING(std::to_string(con->GetHwIdExHash()));
 }
 
 static void AuthTokenGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -42,7 +42,7 @@ static void AuthTokenGetter(v8::Local<v8::String>, const v8::PropertyCallbackInf
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     alt::ConnectionInfo* con = static_cast<alt::ConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
     V8_CHECK(con, "Invalid connection info");
-    V8_RETURN_STD_STRING(con->authToken);
+    V8_RETURN_STD_STRING(con->GetAuthToken());
 }
 
 static void IsDebugGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -50,7 +50,7 @@ static void IsDebugGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     alt::ConnectionInfo* con = static_cast<alt::ConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
     V8_CHECK(con, "Invalid connection info");
-    V8_RETURN_BOOLEAN(con->isDebug);
+    V8_RETURN_BOOLEAN(con->GetIsDebug());
 }
 
 static void BranchGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -58,7 +58,7 @@ static void BranchGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     alt::ConnectionInfo* con = static_cast<alt::ConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
     V8_CHECK(con, "Invalid connection info");
-    V8_RETURN_STD_STRING(con->branch);
+    V8_RETURN_STD_STRING(con->GetBranch());
 }
 
 static void BuildGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -66,7 +66,7 @@ static void BuildGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     alt::ConnectionInfo* con = static_cast<alt::ConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
     V8_CHECK(con, "Invalid connection info");
-    V8_RETURN_UINT(con->build);
+    V8_RETURN_UINT(con->GetBuild());
 }
 
 static void CdnUrlGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -74,7 +74,7 @@ static void CdnUrlGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     alt::ConnectionInfo* con = static_cast<alt::ConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
     V8_CHECK(con, "Invalid connection info");
-    V8_RETURN_STD_STRING(con->cdnUrl);
+    V8_RETURN_STD_STRING(con->GetCdnUrl());
 }
 
 static void PasswordHashGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -82,7 +82,7 @@ static void PasswordHashGetter(v8::Local<v8::String>, const v8::PropertyCallback
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     alt::ConnectionInfo* con = static_cast<alt::ConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
     V8_CHECK(con, "Invalid connection info");
-    V8_RETURN_UINT64(con->passwordHash);
+    V8_RETURN_UINT64(con->GetPasswordHash());
 }
 
 static void Accept(const v8::FunctionCallbackInfo<v8::Value>& info)
