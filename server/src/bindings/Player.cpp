@@ -748,7 +748,7 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
     V8Helpers::SetMethod(isolate, tpl, "deleteLocalMeta", &DeleteLocalMeta);
 
     V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetPing>(isolate, tpl, "ping");
-    V8Helpers::SetAccessor<IPlayer, StringView, &IPlayer::GetIP>(isolate, tpl, "ip");
+    V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetIP>(isolate, tpl, "ip");
     V8Helpers::SetAccessor<IPlayer, StringView, &IPlayer::GetName>(isolate, tpl, "name");
     V8Helpers::SetAccessor<IPlayer, Ref<IVehicle>, &IPlayer::GetVehicle>(isolate, tpl, "vehicle");
     V8Helpers::SetAccessor<IPlayer, uint8_t, &IPlayer::GetSeat>(isolate, tpl, "seat");
