@@ -90,6 +90,7 @@ bool CWorker::Setup()
     v8::HandleScope handle_scope(isolate);
 
     SetupContext();
+    v8::Context::Scope scope(context.Get(isolate));
     SetupGlobals();
 
     return SetupScript();
