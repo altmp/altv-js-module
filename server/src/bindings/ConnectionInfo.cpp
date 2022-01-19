@@ -85,6 +85,14 @@ static void PasswordHashGetter(v8::Local<v8::String>, const v8::PropertyCallback
     V8_RETURN_UINT64(con->GetPasswordHash());
 }
 
+static void IpGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    alt::ConnectionInfo* con = static_cast<alt::ConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
+    V8_CHECK(con, "Invalid connection info");
+    V8_RETURN_STD_STRING(con->GetIp());
+}
+
 static void Accept(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -124,4 +132,5 @@ extern V8Class v8ConnectionInfo("ConnectionInfo", [](v8::Local<v8::FunctionTempl
     V8Helpers::SetAccessor(isolate, tpl, "build", &BuildGetter);
     V8Helpers::SetAccessor(isolate, tpl, "cdnUrl", &CdnUrlGetter);
     V8Helpers::SetAccessor(isolate, tpl, "passwordHash", &PasswordHashGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "ip", &IpGetter);
 });

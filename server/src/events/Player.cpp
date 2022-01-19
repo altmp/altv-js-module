@@ -41,6 +41,7 @@ V8Helpers::LocalEventHandler
       V8_OBJECT_SET_UINT(infoObj, "build", info->GetBuild());
       V8_OBJECT_SET_STD_STRING(infoObj, "cdnUrl", info->GetCdnUrl());
       V8_OBJECT_SET_BIGUINT(infoObj, "passwordHash", info->GetPasswordHash());
+      V8_OBJECT_SET_STD_STRING(infoObj, "ip", info->GetIp());
       args.push_back(infoObj);
       args.push_back(V8Helpers::JSValue(ev->GetReason()));
   });
