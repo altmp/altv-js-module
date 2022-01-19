@@ -13,6 +13,7 @@
 #include "cpp-sdk/events/CWebViewEvent.h"
 #include "cpp-sdk/events/CWebSocketClientEvent.h"
 #include "cpp-sdk/events/CAudioEvent.h"
+#include "cpp-sdk/events/CRmlEvent.h"
 
 #include "cpp-sdk/SDK.h"
 
@@ -82,6 +83,17 @@ V8_EVENT_HANDLER audioEvent(
       V8Helpers::MValueArgsToV8(ev->GetArgs(), args);
   });
 
+V8_EVENT_HANDLER rmlEvent(
+  EventType::RMLUI_EVENT,
+  [](V8ResourceImpl* resource, const CEvent* e) {
+      auto ev = static_cast<const alt::CRmlEvent*>(e);
+      return static_cast<CV8ResourceImpl*>(resource)->GetRmlHandlers(ev->GetElement(), ev->GetName());
+  },
+  [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+      auto ev = static_cast<const alt::CRmlEvent*>(e);
+      args.push_back(V8Helpers::MValueToV8(ev->GetArgs()));
+  });
+
 V8_EVENT_HANDLER keyboardEvent(
   EventType::KEYBOARD_EVENT,
   [](V8ResourceImpl* resource, const CEvent* e) {
@@ -92,17 +104,19 @@ V8_EVENT_HANDLER keyboardEvent(
       else
       {
           Log::Error << "Unhandled keystate in keyboard event handler: " << (int)ev->GetKeyState() << Log::Endl;
-          return std::vector<V8::EventCallback*>();
+          return std::vector<V8Helpers::EventCallback*>();
       }
   },
   [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
       auto ev = static_cast<const alt::CKeyboardEvent*>(e);
       v8::Isolate* isolate = resource->GetIsolate();
 
-      args.push_back(V8::JSValue(ev->GetKeyCode()));
+      args.push_back(V8Helpers::JSValue(ev->GetKeyCode()));
   });
 
 V8_LOCAL_EVENT_HANDLER connectionComplete(EventType::CONNECTION_COMPLETE, "connectionComplete", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
 });
 
 V8_LOCAL_EVENT_HANDLER disconnect(EventType::DISCONNECT_EVENT, "disconnect", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {});
+
+V8_LOCAL_EVENT_HANDLER spawned(EventType::SPAWNED, "spawned", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {});

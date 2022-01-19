@@ -11,10 +11,7 @@ namespace V8Helpers
 
     alt::MValueByteArray V8ToRawBytes(v8::Local<v8::Value> val);
     v8::MaybeLocal<v8::Value> RawBytesToV8(alt::MValueByteArrayConst bytes);
-}  // namespace V8Helpers
 
-namespace V8
-{
     namespace Serialization
     {
         // A serialized JavaScript value
@@ -80,4 +77,4 @@ namespace V8
             return result;
         }
     }  // namespace Serialization
-}  // namespace V8
+}  // namespace V8Helpers

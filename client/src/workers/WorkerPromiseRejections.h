@@ -6,11 +6,11 @@ class CWorker;
 
 struct WorkerPromiseRejection
 {
-    V8::CPersistent<v8::Promise> promise;
-    V8::CPersistent<v8::Value> value;
-    V8::SourceLocation location;
+    V8Helpers::CPersistent<v8::Promise> promise;
+    V8Helpers::CPersistent<v8::Value> value;
+    V8Helpers::SourceLocation location;
 
-    WorkerPromiseRejection(v8::Isolate* isolate, v8::Local<v8::Promise> promise, v8::Local<v8::Value> value, V8::SourceLocation&& location);
+    WorkerPromiseRejection(v8::Isolate* isolate, v8::Local<v8::Promise> promise, v8::Local<v8::Value> value, V8Helpers::SourceLocation&& location);
 };
 
 class WorkerPromiseRejections

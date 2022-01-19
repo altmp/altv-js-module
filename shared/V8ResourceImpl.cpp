@@ -1,6 +1,7 @@
 
 #include "cpp-sdk/objects/IPlayer.h"
 #include "cpp-sdk/objects/IVehicle.h"
+#include "cpp-sdk/events/CPlayerBeforeConnectEvent.h"
 
 #include "V8ResourceImpl.h"
 
@@ -79,12 +80,16 @@ void V8ResourceImpl::OnTick()
 
     for(auto it = localGenericHandlers.begin(); it != localGenericHandlers.end(); it++)
     {
-        if(it->removed) localGenericHandlers.erase(it);
+        if(it->removed) it = localGenericHandlers.erase(it);
+        else
+            ++it;
     }
 
     for(auto it = remoteGenericHandlers.begin(); it != remoteGenericHandlers.end(); it++)
     {
-        if(it->removed) remoteGenericHandlers.erase(it);
+        if(it->removed) it = remoteGenericHandlers.erase(it);
+        else
+            ++it;
     }
 }
 
@@ -103,23 +108,23 @@ v8::Local<v8::Value> V8ResourceImpl::GetBaseObjectOrNull(alt::IBaseObject* handl
 
 v8::Local<v8::Value> V8ResourceImpl::CreateVector3(alt::Vector3f vec)
 {
-    std::vector<v8::Local<v8::Value>> args{ V8::JSValue(vec[0]), V8::JSValue(vec[1]), V8::JSValue(vec[2]) };
+    std::vector<v8::Local<v8::Value>> args{ V8Helpers::JSValue(vec[0]), V8Helpers::JSValue(vec[1]), V8Helpers::JSValue(vec[2]) };
 
     return v8Vector3.CreateInstance(isolate, GetContext(), args);
 }
 
 v8::Local<v8::Value> V8ResourceImpl::CreateVector2(alt::Vector2f vec)
 {
-    std::vector<v8::Local<v8::Value>> args{ V8::JSValue(vec[0]), V8::JSValue(vec[1]) };
+    std::vector<v8::Local<v8::Value>> args{ V8Helpers::JSValue(vec[0]), V8Helpers::JSValue(vec[1]) };
 
     return v8Vector2.CreateInstance(isolate, GetContext(), args);
 }
 
 v8::Local<v8::Value> V8ResourceImpl::CreateRGBA(alt::RGBA rgba)
 {
-    std::vector<v8::Local<v8::Value>> args{ V8::JSValue(rgba.r), V8::JSValue(rgba.g), V8::JSValue(rgba.b), V8::JSValue(rgba.a) };
+    std::vector<v8::Local<v8::Value>> args{ V8Helpers::JSValue(rgba.r), V8Helpers::JSValue(rgba.g), V8Helpers::JSValue(rgba.b), V8Helpers::JSValue(rgba.a) };
 
-    return V8::New(isolate, GetContext(), rgbaClass.Get(isolate), args);
+    return V8Helpers::New(isolate, GetContext(), rgbaClass.Get(isolate), args);
 }
 
 bool V8ResourceImpl::IsVector3(v8::Local<v8::Value> val)
@@ -242,9 +247,9 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllVehicles()
     return vehicles.Get(isolate);
 }
 
-std::vector<V8::EventCallback*> V8ResourceImpl::GetLocalHandlers(const std::string& name)
+std::vector<V8Helpers::EventCallback*> V8ResourceImpl::GetLocalHandlers(const std::string& name)
 {
-    std::vector<V8::EventCallback*> handlers;
+    std::vector<V8Helpers::EventCallback*> handlers;
     auto range = localHandlers.equal_range(name);
 
     for(auto it = range.first; it != range.second; ++it) handlers.push_back(&it->second);
@@ -252,9 +257,9 @@ std::vector<V8::EventCallback*> V8ResourceImpl::GetLocalHandlers(const std::stri
     return handlers;
 }
 
-std::vector<V8::EventCallback*> V8ResourceImpl::GetRemoteHandlers(const std::string& name)
+std::vector<V8Helpers::EventCallback*> V8ResourceImpl::GetRemoteHandlers(const std::string& name)
 {
-    std::vector<V8::EventCallback*> handlers;
+    std::vector<V8Helpers::EventCallback*> handlers;
     auto range = remoteHandlers.equal_range(name);
 
     for(auto it = range.first; it != range.second; ++it) handlers.push_back(&it->second);
@@ -262,9 +267,9 @@ std::vector<V8::EventCallback*> V8ResourceImpl::GetRemoteHandlers(const std::str
     return handlers;
 }
 
-std::vector<V8::EventCallback*> V8ResourceImpl::GetGenericHandlers(bool local)
+std::vector<V8Helpers::EventCallback*> V8ResourceImpl::GetGenericHandlers(bool local)
 {
-    std::vector<V8::EventCallback*> handlers;
+    std::vector<V8Helpers::EventCallback*> handlers;
     if(local)
         for(auto& it : localGenericHandlers) handlers.push_back(&it);
     else
@@ -272,7 +277,7 @@ std::vector<V8::EventCallback*> V8ResourceImpl::GetGenericHandlers(bool local)
     return handlers;
 }
 
-void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vector<V8::EventCallback*>& handlers, std::vector<v8::Local<v8::Value>>& args)
+void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vector<V8Helpers::EventCallback*>& handlers, std::vector<v8::Local<v8::Value>>& args)
 {
     for(auto handler : handlers)
     {
@@ -280,11 +285,13 @@ void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vecto
         int64_t time = GetTime();
 
         V8Helpers::TryCatch([&] {
-            v8::MaybeLocal<v8::Value> retn = handler->fn.Get(isolate)->Call(GetContext(), v8::Undefined(isolate), args.size(), args.data());
+            v8::MaybeLocal<v8::Value> retn = V8Helpers::CallFunctionWithTimeout(handler->fn.Get(isolate), GetContext(), args);
             if(retn.IsEmpty()) return false;
 
             v8::Local<v8::Value> returnValue = retn.ToLocalChecked();
             if(ev && returnValue->IsFalse()) ev->Cancel();
+            else if(ev && ev->GetType() == alt::CEvent::Type::PLAYER_BEFORE_CONNECT && returnValue->IsString())
+                static_cast<alt::CPlayerBeforeConnectEvent*>(const_cast<alt::CEvent*>(ev))->Cancel(*v8::String::Utf8Value(isolate, returnValue));
             // todo: add this once a generic Cancel() with string as arg has been added to the sdk
             // else if(ev && returnValue->IsString())
             //    ev->Cancel(*v8::String::Utf8Value(isolate, returnValue));
@@ -327,7 +334,7 @@ alt::MValue V8ResourceImpl::FunctionImpl::Call(alt::MValueArgs args) const
 
     alt::MValue res;
     V8Helpers::TryCatch([&] {
-        v8::MaybeLocal<v8::Value> _res = function.Get(isolate)->CallAsFunction(resource->GetContext(), v8::Undefined(isolate), v8Args.size(), v8Args.data());
+        v8::MaybeLocal<v8::Value> _res = V8Helpers::CallFunctionWithTimeout(function.Get(isolate), resource->GetContext(), v8Args);
 
         if(_res.IsEmpty()) return false;
 
