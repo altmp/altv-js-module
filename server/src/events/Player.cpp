@@ -26,20 +26,21 @@ V8Helpers::LocalEventHandler playerConnect(EventType::PLAYER_CONNECT, "playerCon
 V8Helpers::LocalEventHandler
   beforePlayerConnect(EventType::PLAYER_BEFORE_CONNECT, "beforePlayerConnect", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
       auto ev = static_cast<const alt::CPlayerBeforeConnectEvent*>(e);
-      const alt::ConnectionInfo& info = ev->GetConnectionInfo();
       v8::Isolate* isolate = resource->GetIsolate();
       v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
+      alt::Ref<alt::ConnectionInfo> info = ev->GetConnectionInfo();
+
       V8_NEW_OBJECT(infoObj);
-      V8_OBJECT_SET_STD_STRING(infoObj, "name", info.name);
-      V8_OBJECT_SET_STD_STRING(infoObj, "socialID", std::to_string(info.socialId));
-      V8_OBJECT_SET_STD_STRING(infoObj, "hwidHash", std::to_string(info.hwidHash));
-      V8_OBJECT_SET_STD_STRING(infoObj, "hwidExHash", std::to_string(info.hwidExHash));
-      V8_OBJECT_SET_STD_STRING(infoObj, "authToken", info.authToken);
-      V8_OBJECT_SET_BOOLEAN(infoObj, "isDebug", info.isDebug);
-      V8_OBJECT_SET_STD_STRING(infoObj, "branch", info.branch);
-      V8_OBJECT_SET_UINT(infoObj, "build", info.build);
-      V8_OBJECT_SET_STD_STRING(infoObj, "cdnUrl", info.cdnUrl);
-      V8_OBJECT_SET_BIGUINT(infoObj, "passwordHash", info.passwordHash);
+      V8_OBJECT_SET_STD_STRING(infoObj, "name", info->GetName());
+      V8_OBJECT_SET_STD_STRING(infoObj, "socialID", std::to_string(info->GetSocialId()));
+      V8_OBJECT_SET_STD_STRING(infoObj, "hwidHash", std::to_string(info->GetHwIdHash()));
+      V8_OBJECT_SET_STD_STRING(infoObj, "hwidExHash", std::to_string(info->GetHwIdExHash()));
+      V8_OBJECT_SET_STD_STRING(infoObj, "authToken", info->GetAuthToken());
+      V8_OBJECT_SET_BOOLEAN(infoObj, "isDebug", info->GetIsDebug());
+      V8_OBJECT_SET_STD_STRING(infoObj, "branch", info->GetBranch());
+      V8_OBJECT_SET_UINT(infoObj, "build", info->GetBuild());
+      V8_OBJECT_SET_STD_STRING(infoObj, "cdnUrl", info->GetCdnUrl());
+      V8_OBJECT_SET_BIGUINT(infoObj, "passwordHash", info->GetPasswordHash());
       args.push_back(infoObj);
       args.push_back(V8Helpers::JSValue(ev->GetReason()));
   });
@@ -131,17 +132,22 @@ V8_LOCAL_EVENT_HANDLER localMetaChange(EventType::LOCAL_SYNCED_META_CHANGE, "loc
     args.push_back(V8Helpers::MValueToV8(ev->GetOldVal()));
 });
 
+// todo: this random map here is shit code, but works for now
+static std::unordered_map<alt::Ref<alt::ConnectionInfo>, V8Helpers::CPersistent<v8::Object>> connectionInfoMap;
+
 extern V8Class v8ConnectionInfo;
 V8_LOCAL_EVENT_HANDLER connectionQueueAdd(EventType::CONNECTION_QUEUE_ADD, "connectionQueueAdd", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
     auto ev = static_cast<const alt::CConnectionQueueAddEvent*>(e);
     v8::Isolate* isolate = resource->GetIsolate();
     v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
 
-    alt::ConnectionInfo* info = ev->GetConnectionInfo();
-    v8::Local<v8::Object> result = v8ConnectionInfo.CreateInstance(ctx);
-    result->SetInternalField(0, v8::External::New(isolate, info));
+    alt::Ref<alt::ConnectionInfo> info = ev->GetConnectionInfo();
+    v8::Local<v8::Object> infoObj = v8ConnectionInfo.CreateInstance(ctx);
+    infoObj->SetInternalField(0, v8::External::New(isolate, info.Get()));
 
-    args.push_back(result);
+    connectionInfoMap.insert({ info, V8Helpers::CPersistent<v8::Object>{ isolate, infoObj } });
+
+    args.push_back(infoObj);
 });
 
 V8_LOCAL_EVENT_HANDLER
@@ -150,9 +156,10 @@ connectionQueueRemove(EventType::CONNECTION_QUEUE_REMOVE, "connectionQueueRemove
     v8::Isolate* isolate = resource->GetIsolate();
     v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
 
-    alt::ConnectionInfo* info = ev->GetConnectionInfo();
-    v8::Local<v8::Object> result = v8ConnectionInfo.CreateInstance(ctx);
-    result->SetInternalField(0, v8::External::New(isolate, info));
+    alt::Ref<alt::ConnectionInfo> info = ev->GetConnectionInfo();
+    v8::Local<v8::Object> infoObj = connectionInfoMap.at(info).Get(isolate);
+    infoObj->SetInternalField(0, v8::External::New(isolate, nullptr));
+    connectionInfoMap.erase(info);
 
-    args.push_back(result);
+    args.push_back(infoObj);
 });
