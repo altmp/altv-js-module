@@ -159,8 +159,11 @@ connectionQueueRemove(EventType::CONNECTION_QUEUE_REMOVE, "connectionQueueRemove
 
     alt::Ref<alt::IConnectionInfo> info = ev->GetConnectionInfo();
     v8::Local<v8::Object> infoObj = connectionInfoMap.at(info).Get(isolate);
-    infoObj->SetInternalField(0, v8::External::New(isolate, nullptr));
-    connectionInfoMap.erase(info);
+    resource->RunOnNextTick([=] {
+        v8::Local<v8::Object> obj = connectionInfoMap.at(info).Get(isolate);
+        obj->SetInternalField(0, v8::External::New(isolate, nullptr));
+        connectionInfoMap.erase(info);
+    });
 
     args.push_back(infoObj);
 });
