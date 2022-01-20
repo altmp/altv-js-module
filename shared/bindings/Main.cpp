@@ -327,6 +327,7 @@ static void ClearTimer(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_CHECK_ARGS_LEN(1);
 
+    V8_CHECK(!info[0]->IsNullOrUndefined(), "Invalid timer id");
     V8_ARG_TO_INT(1, timer);
 
     resource->RemoveTimer(timer);
