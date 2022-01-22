@@ -169,8 +169,6 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
         case alt::IMValue::Type::INT:
         {
             int64_t _val = val.As<alt::IMValueInt>()->Value();
-            Log::Warning << __FUNCTION__ << " "
-                         << "Int val: " << _val << Log::Endl;
 
             if(_val >= INT_MIN && _val <= INT_MAX) return V8Helpers::JSValue((int32_t)_val);
 
@@ -179,8 +177,6 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
         case alt::IMValue::Type::UINT:
         {
             uint64_t _val = val.As<alt::IMValueUInt>()->Value();
-            Log::Warning << __FUNCTION__ << " "
-                         << "UInt val: " << _val << Log::Endl;
 
             if(_val <= UINT_MAX) return V8Helpers::JSValue((uint32_t)_val);
 
