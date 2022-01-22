@@ -193,6 +193,11 @@ public:
         oldTimers.push_back(id);
     }
 
+    bool DoesTimerExist(uint32_t id)
+    {
+        return timers.count(id) != 0;
+    }
+
     void TimerBenchmark()
     {
         size_t totalCount = 0, everyTickCount = 0, intervalCount = 0, timeoutCount = 0;
