@@ -21,7 +21,14 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
 
     if(val->IsUint32()) return core.CreateMValueUInt(val->Uint32Value(ctx).ToChecked());
 
-    if(val->IsBigInt()) return core.CreateMValueInt(val.As<v8::BigInt>()->Int64Value());
+    if(val->IsBigInt())
+    {
+        bool isPositive;
+        uint64_t unsignedVal = val.As<v8::BigInt>()->Uint64Value(&isPositive);
+        if(isPositive) return core.CreateMValueUInt(unsignedVal);
+        else
+            return core.CreateMValueInt(val.As<v8::BigInt>()->Int64Value());
+    }
 
     if(val->IsNumber()) return core.CreateMValueDouble(val->NumberValue(ctx).ToChecked());
 
