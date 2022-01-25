@@ -181,3 +181,60 @@ bool V8Helpers::SafeToArray(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx
 
     return false;
 }
+
+v8::Local<v8::Value> V8Helpers::ConfigNodeToV8(alt::config::Node& node, v8::Local<v8::Value> parent)
+{
+    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+    v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
+
+    v8::Local<v8::Value> out;
+    if(parent.IsEmpty()) out = v8::Object::New(isolate);
+    else
+        out = parent;
+
+    switch(node.GetType())
+    {
+        case alt::config::Node::Type::SCALAR:
+        {
+            try
+            {
+                bool result = node.ToBool();
+                out = V8Helpers::JSValue(result);
+            }
+            catch(alt::config::Error&)
+            {
+                // Not a bool, return as normal string
+                out = V8Helpers::JSValue(node.ToString());
+            }
+            break;
+        }
+        case alt::config::Node::Type::LIST:
+        {
+            alt::config::Node::List list = node.ToList();
+            v8::Local<v8::Array> arr = v8::Array::New(isolate, list.size());
+            for(size_t i = 0; i < list.size(); i++)
+            {
+                v8::Local<v8::Value> val = ConfigNodeToV8(list[i], val);
+                if(val.IsEmpty()) continue;
+                arr->Set(ctx, i, val);
+            }
+            out = arr;
+            break;
+        }
+        case alt::config::Node::Type::DICT:
+        {
+            alt::config::Node::Dict dict = node.ToDict();
+            v8::Local<v8::Object> obj = v8::Object::New(isolate);
+            for(auto& pair : dict)
+            {
+                v8::Local<v8::Value> val = ConfigNodeToV8(pair.second, val);
+                if(val.IsEmpty()) continue;
+                obj->Set(ctx, V8Helpers::JSValue(pair.first), val);
+            }
+            out = obj;
+            break;
+        }
+        default: return v8::Local<v8::Value>();
+    }
+    return out;
+}

@@ -141,4 +141,6 @@ namespace V8Helpers
         return val->Value();
     }
 
+    v8::Local<v8::Value> ConfigNodeToV8(alt::config::Node& node, v8::Local<v8::Value> parent = v8::Local<v8::Value>());
+
 }  // namespace V8Helpers
