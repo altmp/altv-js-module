@@ -365,6 +365,15 @@ static void GetVehicleModelByHash(const v8::FunctionCallbackInfo<v8::Value>& inf
     V8_RETURN(infoObj);
 }
 
+static void GetServerConfig(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    v8::Local<v8::Value> val = V8Helpers::ConfigNodeToV8(alt::ICore::Instance().GetServerConfig());
+    V8_CHECK(!val.IsEmpty(), "Failed to convert server config to V8 value");
+    V8_RETURN(val);
+}
+
 extern V8Class v8Player, v8Vehicle, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Checkpoint, v8VoiceChannel, v8Colshape, v8ColshapeCylinder, v8ColshapeSphere, v8ColshapeCircle,
   v8ColshapeCuboid, v8ColshapeRectangle, v8ColshapePolygon;
 
@@ -418,6 +427,8 @@ extern V8Module v8Alt("alt",
                           V8Helpers::RegisterFunc(exports, "stopServer", &StopServer);
 
                           V8Helpers::RegisterFunc(exports, "getVehicleModelInfoByHash", &GetVehicleModelByHash);
+
+                          V8Helpers::RegisterFunc(exports, "getServerConfig", &GetServerConfig);
 
                           V8_OBJECT_SET_STRING(exports, "rootDir", alt::ICore::Instance().GetRootDirectory());
                           V8_OBJECT_SET_INT(exports, "defaultDimension", alt::DEFAULT_DIMENSION);
