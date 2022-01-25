@@ -433,11 +433,11 @@ static void GetAllResources(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN(arr);
 }
 
-extern V8Class v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2, v8Vector3, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip;
+extern V8Class v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2, v8Vector3, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Resource;
 
 extern V8Module sharedModule("alt-shared",
                              nullptr,
-                             { v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2, v8Vector3, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip },
+                             { v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2, v8Vector3, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Resource },
                              [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
                                  v8::Isolate* isolate = ctx->GetIsolate();
 
