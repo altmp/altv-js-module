@@ -203,8 +203,16 @@ v8::Local<v8::Value> V8Helpers::ConfigNodeToV8(alt::config::Node& node, v8::Loca
             }
             catch(alt::config::Error&)
             {
-                // Not a bool, return as normal string
-                out = V8Helpers::JSValue(node.ToString());
+                // Not a bool, check if its a number
+                try
+                {
+                    double result = node.ToNumber();
+                    out = V8Helpers::JSValue(result);
+                }
+                catch(alt::config::Error&)
+                {
+                    out = V8Helpers::JSValue(node.ToString());
+                }
             }
             break;
         }
