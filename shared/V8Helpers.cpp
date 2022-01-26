@@ -30,33 +30,20 @@ bool V8Helpers::TryCatch(const std::function<bool()>& fn)
             v8::Maybe<int32_t> line = message->GetLineNumber(context);
             v8::ScriptOrigin origin = message->GetScriptOrigin();
 
+            // Only relevant for client
+            bool isBytecodeResource = false;
+#ifdef ALT_CLIENT
+            isBytecodeResource = static_cast<CV8ResourceImpl*>(v8resource)->IsBytecodeResource();
+#endif
+
             if(!origin.ResourceName()->IsUndefined())
             {
-                // Only relevant for client
-                bool isBytecodeResource = false;
-#ifdef ALT_CLIENT
-                isBytecodeResource = static_cast<CV8ResourceImpl*>(v8resource)->IsBytecodeResource();
-#endif
                 if(line.IsNothing() || isBytecodeResource)
                 {
                     Log::Error << "[V8] Exception at " << resource->GetName() << ":" << *v8::String::Utf8Value(isolate, origin.ResourceName()) << Log::Endl;
                 }
                 else
                     Log::Error << "[V8] Exception at " << resource->GetName() << ":" << *v8::String::Utf8Value(isolate, origin.ResourceName()) << ":" << line.ToChecked() << Log::Endl;
-
-                if(!maybeSourceLine.IsEmpty() && !isBytecodeResource)
-                {
-                    v8::Local<v8::String> sourceLine = maybeSourceLine.ToLocalChecked();
-
-                    if(sourceLine->Length() <= 80)
-                    {
-                        Log::Error << "  " << *v8::String::Utf8Value(isolate, sourceLine) << Log::Endl;
-                    }
-                    else
-                    {
-                        Log::Error << "  " << std::string{ *v8::String::Utf8Value(isolate, sourceLine), 80 } << "..." << Log::Endl;
-                    }
-                }
 
                 v8resource->DispatchErrorEvent(
                   *v8::String::Utf8Value(isolate, message->Get()), *v8::String::Utf8Value(isolate, origin.ResourceName()), line.IsNothing() ? -1 : line.ToChecked());
@@ -66,11 +53,30 @@ bool V8Helpers::TryCatch(const std::function<bool()>& fn)
                 Log::Error << "[V8] Exception at " << resource->GetName() << Log::Endl;
             }
 
+            if(!maybeSourceLine.IsEmpty() && !isBytecodeResource)
+            {
+                v8::Local<v8::String> sourceLine = maybeSourceLine.ToLocalChecked();
+
+                if(sourceLine->Length() <= 80)
+                {
+                    Log::Error << "  " << *v8::String::Utf8Value(isolate, sourceLine) << Log::Endl;
+                }
+                else
+                {
+                    Log::Error << "  " << std::string{ *v8::String::Utf8Value(isolate, sourceLine), 80 } << "..." << Log::Endl;
+                }
+            }
+
             v8::MaybeLocal<v8::Value> stackTrace = tryCatch.StackTrace(context);
             if(!stackTrace.IsEmpty() && stackTrace.ToLocalChecked()->IsString())
             {
                 v8::String::Utf8Value stackTraceStr(isolate, stackTrace.ToLocalChecked().As<v8::String>());
                 Log::Error << "  " << *stackTraceStr << Log::Endl;
+            }
+
+            if(!exception.IsEmpty())
+            {
+                Log::Error << *v8::String::Utf8Value(isolate, exception) << Log::Endl;
             }
         }
         else if(!exception.IsEmpty())
