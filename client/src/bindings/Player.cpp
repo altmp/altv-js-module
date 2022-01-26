@@ -24,28 +24,6 @@ static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_STRING(ss.str().c_str());
 }
 
-static void HasLocalMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-    V8_CHECK_ARGS_LEN_MIN(1);
-    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
-
-    V8_ARG_TO_STD_STRING(1, key);
-
-    V8_RETURN(player->HasLocalMetaData(key));
-}
-
-static void GetLocalMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-    V8_CHECK_ARGS_LEN_MIN(1);
-    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
-
-    V8_ARG_TO_STD_STRING(1, key);
-
-    V8_RETURN_MVALUE(player->GetLocalMetaData(key));
-}
-
 static void CurrentWeaponComponentsGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -149,9 +127,6 @@ extern V8Class v8Player("Player", v8Entity, [](v8::Local<v8::FunctionTemplate> t
     V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
     V8Helpers::SetStaticAccessor(isolate, tpl, "streamedIn", &StreamedInGetter);
     V8Helpers::SetStaticAccessor(isolate, tpl, "local", &LocalGetter);
-
-    V8Helpers::SetMethod(isolate, tpl, "hasLocalMeta", &HasLocalMeta);
-    V8Helpers::SetMethod(isolate, tpl, "getLocalMeta", &GetLocalMeta);
 
     // Common getters
     V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetName>(isolate, tpl, "name");
