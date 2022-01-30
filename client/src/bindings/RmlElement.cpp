@@ -581,7 +581,7 @@ extern V8Class v8RmlElement("RmlElement", v8BaseObject, nullptr, [](v8::Local<v8
 
     V8Helpers::SetMethod(isolate, tpl, "isPointWithinElement", &IsPointWithinElement);
 
-    tpl->PrototypeTemplate()->SetLazyDataProperty(V8Helpers::JSValue("style"), &StyleGetter);
+    V8Helpers::SetLazyAccessor(isolate, tpl, "style", &StyleGetter);
     V8Helpers::SetMethod(isolate, tpl, "setProperty", &SetProperty);
     V8Helpers::SetMethod(isolate, tpl, "removeProperty", &RemoveProperty);
     V8Helpers::SetMethod(isolate, tpl, "hasProperty", &HasProperty);
