@@ -120,3 +120,11 @@ V8_LOCAL_EVENT_HANDLER connectionComplete(EventType::CONNECTION_COMPLETE, "conne
 V8_LOCAL_EVENT_HANDLER disconnect(EventType::DISCONNECT_EVENT, "disconnect", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {});
 
 V8_LOCAL_EVENT_HANDLER spawned(EventType::SPAWNED, "spawned", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {});
+
+V8_LOCAL_EVENT_HANDLER netOwnerChange(EventType::NETOWNER_CHANGE, "netOwnerChange", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+    auto ev = static_cast<const alt::CNetOwnerChangeEvent*>(e);
+
+    args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
+    args.push_back(resource->GetBaseObjectOrNull(ev->GetNewOwner()));
+    args.push_back(resource->GetBaseObjectOrNull(ev->GetOldOwner()));
+});
