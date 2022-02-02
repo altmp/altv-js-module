@@ -307,10 +307,8 @@ v8::MaybeLocal<v8::Module>
                     return false;
                 }
 
-                // Create a fake module that just wraps the JSON file to an object as the default export
-                std::stringstream codeStream;
-                codeStream << "export default " << src << ";";
-                maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(codeStream.str(), V8Helpers::SourceLocation::GetCurrent(isolate));
+                maybeModule = static_cast<CV8ResourceImpl*>(resource)->CreateSyntheticModule((path.prefix + path.fileName).ToString(), result.ToLocalChecked());
+                return true;
             }
             else
             {
