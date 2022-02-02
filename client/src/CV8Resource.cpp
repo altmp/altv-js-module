@@ -225,6 +225,8 @@ bool CV8ResourceImpl::Stop()
 
     localStorage.Reset();
 
+    syntheticModuleExports.clear();
+
     if(!context.IsEmpty())
     {
         auto nscope = resource->PushNativesScope();
@@ -480,6 +482,36 @@ void CV8ResourceImpl::AddWorker(CWorker* worker)
 void CV8ResourceImpl::RemoveWorker(CWorker* worker)
 {
     workers.erase(worker);
+}
+
+// *** Oh god is this horrible, but V8 is holding me hostage by not allowing
+// *** the embedder to use a lambda function, because we are apparently still
+// *** living in 2012 so we have to do this HORRIBLE way of geting the actual
+// *** export for synthetic modules, instead of just using a lambda
+// TODO: pray that v8 some day switches to using lambdas
+v8::MaybeLocal<v8::Value> EvaluateSyntheticModule(v8::Local<v8::Context> context, v8::Local<v8::Module> syntheticModule)
+{
+    CV8ResourceImpl* resource = static_cast<CV8ResourceImpl*>(V8ResourceImpl::Get(context));
+    v8::MaybeLocal<v8::Value> maybeModuleExport = resource->GetSyntheticModuleExport(syntheticModule);
+    v8::Local<v8::Value> moduleExport;
+    if(!maybeModuleExport.ToLocal(&moduleExport)) return v8::MaybeLocal<v8::Value>();
+    syntheticModule->SetSyntheticModuleExport(v8::Isolate::GetCurrent(), V8Helpers::JSValue("default"), moduleExport);
+    v8::Local<v8::Promise::Resolver> resolver = v8::Promise::Resolver::New(context).ToLocalChecked();
+    resolver->Resolve(context, v8::Undefined(context->GetIsolate()));
+    return resolver->GetPromise();
+}
+v8::Local<v8::Module> CV8ResourceImpl::CreateSyntheticModule(const std::string& name, v8::Local<v8::Value> exportValue)
+{
+    std::vector<v8::Local<v8::String>> exports = { V8Helpers::JSValue("default") };
+    v8::Local<v8::Module> syntheticModule = v8::Module::CreateSyntheticModule(isolate, V8Helpers::JSValue(name), exports, &EvaluateSyntheticModule);
+    syntheticModuleExports.insert({ syntheticModule->GetIdentityHash(), V8Helpers::CPersistent<v8::Value>(isolate, exportValue) });
+}
+v8::MaybeLocal<v8::Value> CV8ResourceImpl::GetSyntheticModuleExport(v8::Local<v8::Module> syntheticModule)
+{
+    if(!syntheticModule->IsSyntheticModule()) return v8::MaybeLocal<v8::Value>();
+    auto result = syntheticModuleExports.find(syntheticModule->GetIdentityHash());
+    if(result != syntheticModuleExports.end()) return result->second.Get(isolate);
+    return v8::MaybeLocal<v8::Value>();
 }
 
 void CV8ResourceImpl::HandleWebViewEventQueue(const alt::Ref<alt::IWebView> view)
