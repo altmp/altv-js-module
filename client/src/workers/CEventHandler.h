@@ -25,4 +25,6 @@ public:
     void Unsubscribe(const std::string& eventName, v8::Local<v8::Function> callback);
 
     void Process();
+
+    void Reset();
 };
