@@ -73,3 +73,9 @@ void CEventHandler::Process()
         queue.pop();
     }
 }
+
+void CEventHandler::Reset()
+{
+    while(!queue.empty()) queue.pop();
+    handlers.clear();
+}

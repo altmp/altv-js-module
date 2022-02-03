@@ -279,6 +279,8 @@ void CWorker::DestroyIsolate()
     V8Class::UnloadAll(isolate);
     V8FastFunction::UnloadAll(isolate);
     context.Reset();
+    GetMainEventHandler().Reset();
+    GetWorkerEventHandler().Reset();
     v8::platform::NotifyIsolateShutdown(CV8ScriptRuntime::Instance().GetPlatform(), isolate);
     isolate->Dispose();
 }
