@@ -332,7 +332,7 @@ static void ClearTimer(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     if(!resource->DoesTimerExist(timer))
     {
-        Log::Warning << "Timer with that id does not exist" << Log::Endl;
+        Log::Warning << V8Helpers::SourceLocation::GetCurrent(isolate).ToString() << " Timer with that id does not exist" << Log::Endl;
         return;
     }
 
