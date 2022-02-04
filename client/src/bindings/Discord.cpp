@@ -28,5 +28,5 @@ static void CurrentUserGetter(v8::Local<v8::String>, const v8::PropertyCallbackI
 extern V8Class v8Discord("Discord", [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    V8::SetStaticAccessor(isolate, tpl, "currentUser", &CurrentUserGetter);
+    V8Helpers::SetStaticAccessor(isolate, tpl, "currentUser", &CurrentUserGetter);
 });

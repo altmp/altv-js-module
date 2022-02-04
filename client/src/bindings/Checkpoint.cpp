@@ -1,6 +1,6 @@
 #include "../CV8Resource.h"
 #include "V8Helpers.h"
-#include "V8BindHelpers.h"
+#include "helpers/BindHelpers.h"
 #include "cpp-sdk/script-objects/ICheckpoint.h"
 
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -85,12 +85,12 @@ extern V8Class v8Checkpoint("Checkpoint", v8WorldObject, Constructor, [](v8::Loc
     using namespace alt;
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    V8::SetAccessor<ICheckpoint, uint8_t, &ICheckpoint::GetCheckpointType, &ICheckpoint::SetCheckpointType>(isolate, tpl, "checkpointType");
-    V8::SetAccessor<ICheckpoint, float, &ICheckpoint::GetRadius, &ICheckpoint::SetRadius>(isolate, tpl, "radius");
-    V8::SetAccessor<ICheckpoint, float, &ICheckpoint::GetHeight, &ICheckpoint::SetHeight>(isolate, tpl, "height");
-    V8::SetAccessor<ICheckpoint, RGBA, &ICheckpoint::GetColor, &ICheckpoint::SetColor>(isolate, tpl, "color");
-    V8::SetAccessor<ICheckpoint, Position, &ICheckpoint::GetNextPosition, &ICheckpoint::SetNextPosition>(isolate, tpl, "nextPos");
+    V8Helpers::SetAccessor<ICheckpoint, uint8_t, &ICheckpoint::GetCheckpointType, &ICheckpoint::SetCheckpointType>(isolate, tpl, "checkpointType");
+    V8Helpers::SetAccessor<ICheckpoint, float, &ICheckpoint::GetRadius, &ICheckpoint::SetRadius>(isolate, tpl, "radius");
+    V8Helpers::SetAccessor<ICheckpoint, float, &ICheckpoint::GetHeight, &ICheckpoint::SetHeight>(isolate, tpl, "height");
+    V8Helpers::SetAccessor<ICheckpoint, RGBA, &ICheckpoint::GetColor, &ICheckpoint::SetColor>(isolate, tpl, "color");
+    V8Helpers::SetAccessor<ICheckpoint, Position, &ICheckpoint::GetNextPosition, &ICheckpoint::SetNextPosition>(isolate, tpl, "nextPos");
 
-    V8::SetMethod(isolate, tpl, "isEntityIn", &IsEntityIn);
-    V8::SetMethod(isolate, tpl, "isPointIn", &IsPointIn);
+    V8Helpers::SetMethod(isolate, tpl, "isEntityIn", &IsEntityIn);
+    V8Helpers::SetMethod(isolate, tpl, "isPointIn", &IsPointIn);
 });

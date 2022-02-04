@@ -35,7 +35,7 @@ static void StaticGetVoiceActivationKey(v8::Local<v8::String>, const v8::Propert
 extern V8Class v8Voice("Voice", [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    V8::SetStaticAccessor(isolate, tpl, "muteInput", StaticGetInputMuted, StaticSetInputMuted);
-    V8::SetStaticAccessor(isolate, tpl, "activityInputEnabled", StaticGetVoiceActivityInputEnabled);
-    V8::SetStaticAccessor(isolate, tpl, "activationKey", StaticGetVoiceActivationKey);
+    V8Helpers::SetStaticAccessor(isolate, tpl, "muteInput", StaticGetInputMuted, StaticSetInputMuted);
+    V8Helpers::SetStaticAccessor(isolate, tpl, "activityInputEnabled", StaticGetVoiceActivityInputEnabled);
+    V8Helpers::SetStaticAccessor(isolate, tpl, "activationKey", StaticGetVoiceActivationKey);
 });

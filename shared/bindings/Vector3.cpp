@@ -13,9 +13,9 @@ static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     v8::Local<v8::Object> _this = info.This();
 
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_XKey(isolate)), x);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_YKey(isolate)), y);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_ZKey(isolate)), z);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_XKey(isolate)), x);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_YKey(isolate)), y);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_ZKey(isolate)), z);
 
     std::ostringstream ss;
     ss << std::fixed << std::setprecision(4) << "Vector3{ x: " << x << ", y: " << y << ", z: " << z << " }";
@@ -29,14 +29,14 @@ static void ToArray(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     v8::Local<v8::Object> _this = info.This();
 
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_XKey(isolate)), x);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_YKey(isolate)), y);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_ZKey(isolate)), z);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_XKey(isolate)), x);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_YKey(isolate)), y);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_ZKey(isolate)), z);
 
     v8::Local<v8::Array> arr = v8::Array::New(isolate, 3);
-    arr->Set(ctx, 0, V8::JSValue(x));
-    arr->Set(ctx, 1, V8::JSValue(y));
-    arr->Set(ctx, 2, V8::JSValue(z));
+    arr->Set(ctx, 0, V8Helpers::JSValue(x));
+    arr->Set(ctx, 1, V8Helpers::JSValue(y));
+    arr->Set(ctx, 2, V8Helpers::JSValue(z));
 
     V8_RETURN(arr);
 }
@@ -47,9 +47,9 @@ static void Length(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Val
 
     v8::Local<v8::Object> _this = info.This();
 
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_XKey(isolate)), x);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_YKey(isolate)), y);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_ZKey(isolate)), z);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_XKey(isolate)), x);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_YKey(isolate)), y);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_ZKey(isolate)), z);
 
     double length = sqrt(x * x + y * y + z * z);
 
@@ -64,9 +64,9 @@ static void Add(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     v8::Local<v8::Object> _this = info.This();
 
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_XKey(isolate)), x);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_YKey(isolate)), y);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_ZKey(isolate)), z);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_XKey(isolate)), x);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_YKey(isolate)), y);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_ZKey(isolate)), z);
 
     if(info.Length() == 3)
     {
@@ -98,9 +98,9 @@ static void Add(const v8::FunctionCallbackInfo<v8::Value>& info)
         {
             v8::Local<v8::Object> obj = arg.As<v8::Object>();
 
-            V8_TO_NUMBER(obj->Get(ctx, V8::Vector3_XKey(isolate)).ToLocalChecked(), x2);
-            V8_TO_NUMBER(obj->Get(ctx, V8::Vector3_YKey(isolate)).ToLocalChecked(), y2);
-            V8_TO_NUMBER(obj->Get(ctx, V8::Vector3_ZKey(isolate)).ToLocalChecked(), z2);
+            V8_TO_NUMBER(obj->Get(ctx, V8Helpers::Vector3_XKey(isolate)).ToLocalChecked(), x2);
+            V8_TO_NUMBER(obj->Get(ctx, V8Helpers::Vector3_YKey(isolate)).ToLocalChecked(), y2);
+            V8_TO_NUMBER(obj->Get(ctx, V8Helpers::Vector3_ZKey(isolate)).ToLocalChecked(), z2);
 
             V8_RETURN(resource->CreateVector3({ x + x2, y + y2, z + z2 }));
         }
@@ -119,9 +119,9 @@ static void Sub(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     v8::Local<v8::Object> _this = info.This();
 
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_XKey(isolate)), x);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_YKey(isolate)), y);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_ZKey(isolate)), z);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_XKey(isolate)), x);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_YKey(isolate)), y);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_ZKey(isolate)), z);
 
     if(info.Length() == 3)
     {
@@ -153,9 +153,9 @@ static void Sub(const v8::FunctionCallbackInfo<v8::Value>& info)
         {
             v8::Local<v8::Object> obj = arg.As<v8::Object>();
 
-            V8_TO_NUMBER(obj->Get(ctx, V8::Vector3_XKey(isolate)).ToLocalChecked(), x2);
-            V8_TO_NUMBER(obj->Get(ctx, V8::Vector3_YKey(isolate)).ToLocalChecked(), y2);
-            V8_TO_NUMBER(obj->Get(ctx, V8::Vector3_ZKey(isolate)).ToLocalChecked(), z2);
+            V8_TO_NUMBER(obj->Get(ctx, V8Helpers::Vector3_XKey(isolate)).ToLocalChecked(), x2);
+            V8_TO_NUMBER(obj->Get(ctx, V8Helpers::Vector3_YKey(isolate)).ToLocalChecked(), y2);
+            V8_TO_NUMBER(obj->Get(ctx, V8Helpers::Vector3_ZKey(isolate)).ToLocalChecked(), z2);
 
             V8_RETURN(resource->CreateVector3({ x - x2, y - y2, z - z2 }));
         }
@@ -174,9 +174,9 @@ static void Divide(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     v8::Local<v8::Object> _this = info.This();
 
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_XKey(isolate)), x);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_YKey(isolate)), y);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_ZKey(isolate)), z);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_XKey(isolate)), x);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_YKey(isolate)), y);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_ZKey(isolate)), z);
 
     if(info.Length() == 3)
     {
@@ -211,9 +211,9 @@ static void Divide(const v8::FunctionCallbackInfo<v8::Value>& info)
         {
             v8::Local<v8::Object> obj = arg.As<v8::Object>();
 
-            V8_TO_NUMBER(obj->Get(ctx, V8::Vector3_XKey(isolate)).ToLocalChecked(), x2);
-            V8_TO_NUMBER(obj->Get(ctx, V8::Vector3_YKey(isolate)).ToLocalChecked(), y2);
-            V8_TO_NUMBER(obj->Get(ctx, V8::Vector3_ZKey(isolate)).ToLocalChecked(), z2);
+            V8_TO_NUMBER(obj->Get(ctx, V8Helpers::Vector3_XKey(isolate)).ToLocalChecked(), x2);
+            V8_TO_NUMBER(obj->Get(ctx, V8Helpers::Vector3_YKey(isolate)).ToLocalChecked(), y2);
+            V8_TO_NUMBER(obj->Get(ctx, V8Helpers::Vector3_ZKey(isolate)).ToLocalChecked(), z2);
             V8_CHECK(x2 != 0 && y2 != 0 && z2 != 0, "Division by zero");
             V8_RETURN(resource->CreateVector3({ x / x2, y / y2, z / z2 }));
         }
@@ -232,9 +232,9 @@ static void Multiply(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     v8::Local<v8::Object> _this = info.This();
 
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_XKey(isolate)), x);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_YKey(isolate)), y);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_ZKey(isolate)), z);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_XKey(isolate)), x);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_YKey(isolate)), y);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_ZKey(isolate)), z);
 
     if(info.Length() == 3)
     {
@@ -266,9 +266,9 @@ static void Multiply(const v8::FunctionCallbackInfo<v8::Value>& info)
         {
             v8::Local<v8::Object> obj = arg.As<v8::Object>();
 
-            V8_TO_NUMBER(obj->Get(ctx, V8::Vector3_XKey(isolate)).ToLocalChecked(), x2);
-            V8_TO_NUMBER(obj->Get(ctx, V8::Vector3_YKey(isolate)).ToLocalChecked(), y2);
-            V8_TO_NUMBER(obj->Get(ctx, V8::Vector3_ZKey(isolate)).ToLocalChecked(), z2);
+            V8_TO_NUMBER(obj->Get(ctx, V8Helpers::Vector3_XKey(isolate)).ToLocalChecked(), x2);
+            V8_TO_NUMBER(obj->Get(ctx, V8Helpers::Vector3_YKey(isolate)).ToLocalChecked(), y2);
+            V8_TO_NUMBER(obj->Get(ctx, V8Helpers::Vector3_ZKey(isolate)).ToLocalChecked(), z2);
 
             V8_RETURN(resource->CreateVector3({ x * x2, y * y2, z * z2 }));
         }
@@ -287,9 +287,9 @@ static void Dot(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     v8::Local<v8::Object> _this = info.This();
 
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_XKey(isolate)), x);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_YKey(isolate)), y);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_ZKey(isolate)), z);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_XKey(isolate)), x);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_YKey(isolate)), y);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_ZKey(isolate)), z);
 
     if(info.Length() == 3)
     {
@@ -323,9 +323,9 @@ static void Dot(const v8::FunctionCallbackInfo<v8::Value>& info)
         {
             v8::Local<v8::Object> obj = arg.As<v8::Object>();
 
-            V8_TO_NUMBER(obj->Get(ctx, V8::Vector3_XKey(isolate)).ToLocalChecked(), x2);
-            V8_TO_NUMBER(obj->Get(ctx, V8::Vector3_YKey(isolate)).ToLocalChecked(), y2);
-            V8_TO_NUMBER(obj->Get(ctx, V8::Vector3_ZKey(isolate)).ToLocalChecked(), z2);
+            V8_TO_NUMBER(obj->Get(ctx, V8Helpers::Vector3_XKey(isolate)).ToLocalChecked(), x2);
+            V8_TO_NUMBER(obj->Get(ctx, V8Helpers::Vector3_YKey(isolate)).ToLocalChecked(), y2);
+            V8_TO_NUMBER(obj->Get(ctx, V8Helpers::Vector3_ZKey(isolate)).ToLocalChecked(), z2);
 
             V8_RETURN_NUMBER(x * x2 + y * y2 + z * z2);
         }
@@ -344,9 +344,9 @@ static void Cross(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     v8::Local<v8::Object> _this = info.This();
 
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_XKey(isolate)), x);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_YKey(isolate)), y);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_ZKey(isolate)), z);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_XKey(isolate)), x);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_YKey(isolate)), y);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_ZKey(isolate)), z);
 
     if(info.Length() == 3)
     {
@@ -380,9 +380,9 @@ static void Cross(const v8::FunctionCallbackInfo<v8::Value>& info)
         {
             v8::Local<v8::Object> obj = arg.As<v8::Object>();
 
-            V8_TO_NUMBER(obj->Get(ctx, V8::Vector3_XKey(isolate)).ToLocalChecked(), x2);
-            V8_TO_NUMBER(obj->Get(ctx, V8::Vector3_YKey(isolate)).ToLocalChecked(), y2);
-            V8_TO_NUMBER(obj->Get(ctx, V8::Vector3_ZKey(isolate)).ToLocalChecked(), z2);
+            V8_TO_NUMBER(obj->Get(ctx, V8Helpers::Vector3_XKey(isolate)).ToLocalChecked(), x2);
+            V8_TO_NUMBER(obj->Get(ctx, V8Helpers::Vector3_YKey(isolate)).ToLocalChecked(), y2);
+            V8_TO_NUMBER(obj->Get(ctx, V8Helpers::Vector3_ZKey(isolate)).ToLocalChecked(), z2);
 
             V8_RETURN(resource->CreateVector3({ (y * z2) - (z * y2), (z * x2) - (x * z2), (x * y2) - (y * x2) }));
         }
@@ -399,9 +399,9 @@ static void Negative(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     v8::Local<v8::Object> _this = info.This();
 
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_XKey(isolate)), x);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_YKey(isolate)), y);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_ZKey(isolate)), z);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_XKey(isolate)), x);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_YKey(isolate)), y);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_ZKey(isolate)), z);
 
     V8_RETURN(resource->CreateVector3({ -x, -y, -z }));
 }
@@ -412,9 +412,9 @@ static void Normalize(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     v8::Local<v8::Object> _this = info.This();
 
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_XKey(isolate)), x);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_YKey(isolate)), y);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_ZKey(isolate)), z);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_XKey(isolate)), x);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_YKey(isolate)), y);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_ZKey(isolate)), z);
 
     double length = sqrt(x * x + y * y + z * z);
 
@@ -428,15 +428,15 @@ static void DistanceTo(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     v8::Local<v8::Object> _this = info.This();
 
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_XKey(isolate)), x);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_YKey(isolate)), y);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_ZKey(isolate)), z);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_XKey(isolate)), x);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_YKey(isolate)), y);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_ZKey(isolate)), z);
 
     V8_ARG_TO_OBJECT(1, vec);
 
-    V8_TO_NUMBER(vec->Get(ctx, V8::Vector3_XKey(isolate)).ToLocalChecked(), x2);
-    V8_TO_NUMBER(vec->Get(ctx, V8::Vector3_YKey(isolate)).ToLocalChecked(), y2);
-    V8_TO_NUMBER(vec->Get(ctx, V8::Vector3_ZKey(isolate)).ToLocalChecked(), z2);
+    V8_TO_NUMBER(vec->Get(ctx, V8Helpers::Vector3_XKey(isolate)).ToLocalChecked(), x2);
+    V8_TO_NUMBER(vec->Get(ctx, V8Helpers::Vector3_YKey(isolate)).ToLocalChecked(), y2);
+    V8_TO_NUMBER(vec->Get(ctx, V8Helpers::Vector3_ZKey(isolate)).ToLocalChecked(), z2);
 
     double xFinal = x - x2;
     double yFinal = y - y2;
@@ -453,15 +453,15 @@ static void AngleTo(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     v8::Local<v8::Object> _this = info.This();
 
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_XKey(isolate)), x);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_YKey(isolate)), y);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_ZKey(isolate)), z);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_XKey(isolate)), x);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_YKey(isolate)), y);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_ZKey(isolate)), z);
 
     V8_ARG_TO_OBJECT(1, vec);
 
-    V8_TO_NUMBER(vec->Get(ctx, V8::Vector3_XKey(isolate)).ToLocalChecked(), x2);
-    V8_TO_NUMBER(vec->Get(ctx, V8::Vector3_YKey(isolate)).ToLocalChecked(), y2);
-    V8_TO_NUMBER(vec->Get(ctx, V8::Vector3_ZKey(isolate)).ToLocalChecked(), z2);
+    V8_TO_NUMBER(vec->Get(ctx, V8Helpers::Vector3_XKey(isolate)).ToLocalChecked(), x2);
+    V8_TO_NUMBER(vec->Get(ctx, V8Helpers::Vector3_YKey(isolate)).ToLocalChecked(), y2);
+    V8_TO_NUMBER(vec->Get(ctx, V8Helpers::Vector3_ZKey(isolate)).ToLocalChecked(), z2);
 
     double xy = x * x2 + y * y2;
     double posALength = sqrt(std::pow(x, 2) + std::pow(y, 2));
@@ -487,15 +487,15 @@ static void AngleToDegrees(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     v8::Local<v8::Object> _this = info.This();
 
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_XKey(isolate)), x);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_YKey(isolate)), y);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_ZKey(isolate)), z);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_XKey(isolate)), x);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_YKey(isolate)), y);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_ZKey(isolate)), z);
 
     V8_ARG_TO_OBJECT(1, vec);
 
-    V8_TO_NUMBER(vec->Get(ctx, V8::Vector3_XKey(isolate)).ToLocalChecked(), x2);
-    V8_TO_NUMBER(vec->Get(ctx, V8::Vector3_YKey(isolate)).ToLocalChecked(), y2);
-    V8_TO_NUMBER(vec->Get(ctx, V8::Vector3_ZKey(isolate)).ToLocalChecked(), z2);
+    V8_TO_NUMBER(vec->Get(ctx, V8Helpers::Vector3_XKey(isolate)).ToLocalChecked(), x2);
+    V8_TO_NUMBER(vec->Get(ctx, V8Helpers::Vector3_YKey(isolate)).ToLocalChecked(), y2);
+    V8_TO_NUMBER(vec->Get(ctx, V8Helpers::Vector3_ZKey(isolate)).ToLocalChecked(), z2);
 
     double xy = x * x2 + y * y2;
     double posALength = sqrt(std::pow(x, 2) + std::pow(y, 2));
@@ -520,9 +520,9 @@ static void ToDegrees(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     v8::Local<v8::Object> _this = info.This();
 
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_XKey(isolate)), x);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_YKey(isolate)), y);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_ZKey(isolate)), z);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_XKey(isolate)), x);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_YKey(isolate)), y);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_ZKey(isolate)), z);
 
     double x2 = (x * 180) / PI;
     double y2 = (y * 180) / PI;
@@ -537,9 +537,9 @@ static void ToRadians(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     v8::Local<v8::Object> _this = info.This();
 
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_XKey(isolate)), x);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_YKey(isolate)), y);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_ZKey(isolate)), z);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_XKey(isolate)), x);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_YKey(isolate)), y);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_ZKey(isolate)), z);
 
     double x2 = (x * PI) / 180;
     double y2 = (y * PI) / 180;
@@ -556,16 +556,16 @@ static void IsInRange(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     v8::Local<v8::Object> _this = info.This();
 
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_XKey(isolate)), x);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_YKey(isolate)), y);
-    V8_TO_NUMBER(V8::Get(ctx, _this, V8::Vector3_ZKey(isolate)), z);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_XKey(isolate)), x);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_YKey(isolate)), y);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Vector3_ZKey(isolate)), z);
 
     V8_ARG_TO_OBJECT(1, vec);
     V8_ARG_TO_NUMBER(2, range);
 
-    V8_TO_NUMBER(vec->Get(ctx, V8::Vector3_XKey(isolate)).ToLocalChecked(), x2);
-    V8_TO_NUMBER(vec->Get(ctx, V8::Vector3_YKey(isolate)).ToLocalChecked(), y2);
-    V8_TO_NUMBER(vec->Get(ctx, V8::Vector3_ZKey(isolate)).ToLocalChecked(), z2);
+    V8_TO_NUMBER(vec->Get(ctx, V8Helpers::Vector3_XKey(isolate)).ToLocalChecked(), x2);
+    V8_TO_NUMBER(vec->Get(ctx, V8Helpers::Vector3_YKey(isolate)).ToLocalChecked(), y2);
+    V8_TO_NUMBER(vec->Get(ctx, V8Helpers::Vector3_ZKey(isolate)).ToLocalChecked(), z2);
 
     double dx = abs(x - x2);
     double dy = abs(y - y2);
@@ -731,9 +731,9 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         {
             v8::Local<v8::Object> obj = val.As<v8::Object>();
 
-            x = obj->Get(ctx, V8::Vector3_XKey(isolate)).ToLocalChecked();
-            y = obj->Get(ctx, V8::Vector3_YKey(isolate)).ToLocalChecked();
-            z = obj->Get(ctx, V8::Vector3_ZKey(isolate)).ToLocalChecked();
+            x = obj->Get(ctx, V8Helpers::Vector3_XKey(isolate)).ToLocalChecked();
+            y = obj->Get(ctx, V8Helpers::Vector3_YKey(isolate)).ToLocalChecked();
+            z = obj->Get(ctx, V8Helpers::Vector3_ZKey(isolate)).ToLocalChecked();
 
             V8_CHECK(x->IsNumber(), "x must be a number");
             V8_CHECK(y->IsNumber(), "y must be a number");
@@ -752,41 +752,41 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         }
     }
 
-    V8::DefineOwnProperty(isolate, ctx, _this, V8::Vector3_XKey(isolate), x, v8::PropertyAttribute::ReadOnly);
-    V8::DefineOwnProperty(isolate, ctx, _this, V8::Vector3_YKey(isolate), y, v8::PropertyAttribute::ReadOnly);
-    V8::DefineOwnProperty(isolate, ctx, _this, V8::Vector3_ZKey(isolate), z, v8::PropertyAttribute::ReadOnly);
+    V8Helpers::DefineOwnProperty(isolate, ctx, _this, V8Helpers::Vector3_XKey(isolate), x, v8::PropertyAttribute::ReadOnly);
+    V8Helpers::DefineOwnProperty(isolate, ctx, _this, V8Helpers::Vector3_YKey(isolate), y, v8::PropertyAttribute::ReadOnly);
+    V8Helpers::DefineOwnProperty(isolate, ctx, _this, V8Helpers::Vector3_ZKey(isolate), z, v8::PropertyAttribute::ReadOnly);
 }
 
 extern V8Class v8Vector3("Vector3", Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    V8::SetStaticAccessor(isolate, tpl, "zero", StaticZero);
-    V8::SetStaticAccessor(isolate, tpl, "one", StaticOne);
-    V8::SetStaticAccessor(isolate, tpl, "back", StaticBack);
-    V8::SetStaticAccessor(isolate, tpl, "down", StaticDown);
-    V8::SetStaticAccessor(isolate, tpl, "forward", StaticForward);
-    V8::SetStaticAccessor(isolate, tpl, "left", StaticLeft);
-    V8::SetStaticAccessor(isolate, tpl, "right", StaticRight);
-    V8::SetStaticAccessor(isolate, tpl, "up", StaticUp);
-    V8::SetStaticAccessor(isolate, tpl, "negativeInfinity", StaticNegativeInfinity);
-    V8::SetStaticAccessor(isolate, tpl, "positiveInfinity", StaticPositiveInfinity);
+    V8Helpers::SetStaticAccessor(isolate, tpl, "zero", StaticZero);
+    V8Helpers::SetStaticAccessor(isolate, tpl, "one", StaticOne);
+    V8Helpers::SetStaticAccessor(isolate, tpl, "back", StaticBack);
+    V8Helpers::SetStaticAccessor(isolate, tpl, "down", StaticDown);
+    V8Helpers::SetStaticAccessor(isolate, tpl, "forward", StaticForward);
+    V8Helpers::SetStaticAccessor(isolate, tpl, "left", StaticLeft);
+    V8Helpers::SetStaticAccessor(isolate, tpl, "right", StaticRight);
+    V8Helpers::SetStaticAccessor(isolate, tpl, "up", StaticUp);
+    V8Helpers::SetStaticAccessor(isolate, tpl, "negativeInfinity", StaticNegativeInfinity);
+    V8Helpers::SetStaticAccessor(isolate, tpl, "positiveInfinity", StaticPositiveInfinity);
 
-    V8::SetAccessor(isolate, tpl, "length", Length);
-    V8::SetMethod(isolate, tpl, "toString", ToString);
-    V8::SetMethod(isolate, tpl, "toArray", ToArray);
-    V8::SetMethod(isolate, tpl, "add", Add);
-    V8::SetMethod(isolate, tpl, "sub", Sub);
-    V8::SetMethod(isolate, tpl, "div", Divide);
-    V8::SetMethod(isolate, tpl, "mul", Multiply);
-    V8::SetMethod(isolate, tpl, "dot", Dot);
-    V8::SetMethod(isolate, tpl, "cross", Cross);
-    V8::SetMethod(isolate, tpl, "negative", Negative);
-    V8::SetMethod(isolate, tpl, "normalize", Normalize);
-    V8::SetMethod(isolate, tpl, "distanceTo", DistanceTo);
-    V8::SetMethod(isolate, tpl, "angleTo", AngleTo);
-    V8::SetMethod(isolate, tpl, "angleToDegrees", AngleToDegrees);
-    V8::SetMethod(isolate, tpl, "toRadians", ToRadians);
-    V8::SetMethod(isolate, tpl, "toDegrees", ToDegrees);
-    V8::SetMethod(isolate, tpl, "isInRange", IsInRange);
-    V8::SetMethod(isolate, tpl, "lerp", Lerp);
+    V8Helpers::SetAccessor(isolate, tpl, "length", Length);
+    V8Helpers::SetMethod(isolate, tpl, "toString", ToString);
+    V8Helpers::SetMethod(isolate, tpl, "toArray", ToArray);
+    V8Helpers::SetMethod(isolate, tpl, "add", Add);
+    V8Helpers::SetMethod(isolate, tpl, "sub", Sub);
+    V8Helpers::SetMethod(isolate, tpl, "div", Divide);
+    V8Helpers::SetMethod(isolate, tpl, "mul", Multiply);
+    V8Helpers::SetMethod(isolate, tpl, "dot", Dot);
+    V8Helpers::SetMethod(isolate, tpl, "cross", Cross);
+    V8Helpers::SetMethod(isolate, tpl, "negative", Negative);
+    V8Helpers::SetMethod(isolate, tpl, "normalize", Normalize);
+    V8Helpers::SetMethod(isolate, tpl, "distanceTo", DistanceTo);
+    V8Helpers::SetMethod(isolate, tpl, "angleTo", AngleTo);
+    V8Helpers::SetMethod(isolate, tpl, "angleToDegrees", AngleToDegrees);
+    V8Helpers::SetMethod(isolate, tpl, "toRadians", ToRadians);
+    V8Helpers::SetMethod(isolate, tpl, "toDegrees", ToDegrees);
+    V8Helpers::SetMethod(isolate, tpl, "isInRange", IsInRange);
+    V8Helpers::SetMethod(isolate, tpl, "lerp", Lerp);
 });

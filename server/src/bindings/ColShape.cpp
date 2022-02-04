@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
 #include "V8Helpers.h"
-#include "V8BindHelpers.h"
+#include "helpers/BindHelpers.h"
 #include "V8ResourceImpl.h"
 
 using namespace alt;
@@ -30,11 +30,11 @@ extern V8Class v8WorldObject;
 extern V8Class v8Colshape("Colshape", v8WorldObject, nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    V8::SetAccessor<IColShape, IColShape::ColShapeType, &IColShape::GetColshapeType>(isolate, tpl, "colshapeType");
-    V8::SetAccessor<IColShape, bool, &IColShape::IsPlayersOnly, &IColShape::SetPlayersOnly>(isolate, tpl, "playersOnly");
+    V8Helpers::SetAccessor<IColShape, IColShape::ColShapeType, &IColShape::GetColshapeType>(isolate, tpl, "colshapeType");
+    V8Helpers::SetAccessor<IColShape, bool, &IColShape::IsPlayersOnly, &IColShape::SetPlayersOnly>(isolate, tpl, "playersOnly");
 
-    V8::SetMethod(isolate, tpl, "isEntityIn", IsEntityIn);
-    V8::SetMethod(isolate, tpl, "isPointIn", IsPointIn);
+    V8Helpers::SetMethod(isolate, tpl, "isEntityIn", IsEntityIn);
+    V8Helpers::SetMethod(isolate, tpl, "isPointIn", IsPointIn);
 });
 
 extern V8Class v8ColshapeCylinder(
@@ -139,6 +139,38 @@ extern V8Class v8ColshapeRectangle(
 
       Ref<IColShape> cs = alt::ICore::Instance().CreateColShapeRectangle(x1, y1, x2, y2, 0);
       V8_CHECK(!cs.IsEmpty(), "Failed to create ColshapeRectangle");
+
+      resource->BindEntity(info.This(), cs.Get());
+  },
+  [](v8::Local<v8::FunctionTemplate> tpl) {});
+
+extern V8Class v8ColshapePolygon(
+  "ColshapePolygon",
+  v8Colshape,
+  [](const v8::FunctionCallbackInfo<v8::Value>& info) {
+      V8_GET_ISOLATE_CONTEXT_RESOURCE();
+      V8_CHECK_CONSTRUCTOR();
+      V8_CHECK_ARGS_LEN(3);
+
+      V8_ARG_TO_NUMBER(1, minZ);
+      V8_ARG_TO_NUMBER(2, maxZ);
+
+      V8_CHECK(info[2]->IsArray(), "Argument 3 is not an array");
+      v8::Local<v8::Array> arr = info[2].As<v8::Array>();
+      std::vector<Vector2f> points;
+      uint32_t len = arr->Length();
+      for(uint32_t i = 0; i < len; ++i)
+      {
+          v8::MaybeLocal<v8::Value> maybeVal = arr->Get(ctx, i);
+          if(maybeVal.IsEmpty()) continue;
+          v8::Local<v8::Value> val = maybeVal.ToLocalChecked();
+          V8_CHECK(resource->IsVector2(val), "Invalid item in array, expected Vector2");
+          V8_TO_VECTOR2(val, point);
+          points.push_back(point);
+      }
+
+      Ref<IColShape> cs = alt::ICore::Instance().CreateColShapePolygon(minZ, maxZ, points);
+      V8_CHECK(!cs.IsEmpty(), "Failed to create ColShapePolygon");
 
       resource->BindEntity(info.This(), cs.Get());
   },

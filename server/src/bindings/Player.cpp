@@ -2,7 +2,7 @@
 
 #include "V8Helpers.h"
 #include "V8ResourceImpl.h"
-#include "V8BindHelpers.h"
+#include "helpers/BindHelpers.h"
 
 using namespace alt;
 
@@ -12,7 +12,7 @@ static void CurrentWeaponComponentsGetter(v8::Local<v8::String> name, const v8::
     V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 
     alt::Array<uint32_t> comps = _this->GetCurrentWeaponComponents();
-    v8::Local<v8::Array> componentsArray = V8::JSValue(comps);
+    v8::Local<v8::Array> componentsArray = V8Helpers::JSValue(comps);
 
     V8_RETURN(componentsArray);
 }
@@ -155,7 +155,7 @@ static void Kick(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     if(info.Length() == 1)
     {
-        V8_ARG_TO_STRING(1, reason);
+        V8_ARG_TO_STD_STRING(1, reason);
         _this->Kick(reason);
     }
     else
@@ -346,9 +346,16 @@ static void IsEntityInStreamRange(const v8::FunctionCallbackInfo<v8::Value>& inf
     V8_CHECK_ARGS_LEN(1);
     V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-    V8_ARG_TO_BASE_OBJECT(1, entity, IEntity, "Entity");
-
-    V8_RETURN_BOOLEAN(player->IsEntityInStreamingRange(entity));
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, entity);
+        V8_RETURN_BOOLEAN(player->IsEntityInStreamingRange(entity));
+    }
+    else
+    {
+        V8_ARG_TO_BASE_OBJECT(1, entity, IEntity, "Entity");
+        V8_RETURN_BOOLEAN(player->IsEntityInStreamingRange(entity));
+    }
 }
 
 static void SetIntoVehicle(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -395,8 +402,8 @@ static void PlayAmbientSpeech(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(3);
     V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-    V8_ARG_TO_STRING(1, speechName);
-    V8_ARG_TO_STRING(2, speechParam);
+    V8_ARG_TO_STD_STRING(1, speechName);
+    V8_ARG_TO_STD_STRING(2, speechParam);
     V8_ARG_TO_UINT(3, speechDictHash);
 
     player->PlayAmbientSpeech(speechName, speechParam, speechDictHash);
@@ -636,14 +643,91 @@ static void GetWeapons(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8:
         size_t idx = 0;
         for(auto it : components)
         {
-            componentsArr->Set(ctx, idx++, V8::JSValue(it));
+            componentsArr->Set(ctx, idx++, V8Helpers::JSValue(it));
         }
-        weaponObj->Set(ctx, V8::JSValue("components"), componentsArr);
+        weaponObj->Set(ctx, V8Helpers::JSValue("components"), componentsArr);
 
         weaponsArr->Set(ctx, i, weaponObj);
     }
 
     V8_RETURN(weaponsArr);
+}
+
+static void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN_MIN(1);
+    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
+
+    V8_ARG_TO_STRING(1, eventName);
+
+    MValueArgs mvArgs;
+    for(int i = 1; i < info.Length(); ++i) mvArgs.Push(V8Helpers::V8ToMValue(info[i], false));
+
+    alt::ICore::Instance().TriggerClientEvent(player, eventName, mvArgs);
+}
+
+static void EmitRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN_MIN(1);
+    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
+
+    V8_ARG_TO_STRING(1, eventName);
+
+    MValueArgs mvArgs;
+    for(int i = 1; i < info.Length(); ++i)
+    {
+        alt::MValueByteArray result = V8Helpers::V8ToRawBytes(info[i]);
+        V8_CHECK(!result.IsEmpty(), "Failed to serialize value");
+        mvArgs.Push(result);
+    }
+
+    alt::ICore::Instance().TriggerClientEvent(player, eventName, mvArgs);
+}
+
+static void HasLocalMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN_MIN(1);
+    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
+
+    V8_ARG_TO_STD_STRING(1, key);
+
+    V8_RETURN(player->HasLocalMetaData(key));
+}
+
+static void SetLocalMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN_MIN(1);
+    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
+
+    V8_ARG_TO_STD_STRING(1, key);
+    V8_ARG_TO_MVALUE(2, value);
+    player->SetLocalMetaData(key, value);
+}
+
+static void GetLocalMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN_MIN(1);
+    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
+
+    V8_ARG_TO_STD_STRING(1, key);
+
+    V8_RETURN_MVALUE(player->GetLocalMetaData(key));
+}
+
+static void DeleteLocalMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN_MIN(1);
+    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
+
+    V8_ARG_TO_STD_STRING(1, key);
+
+    player->DeleteLocalMetaData(key);
 }
 
 extern V8Class v8Entity;
@@ -652,100 +736,109 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
 
     v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
 
-    V8::SetStaticMethod(isolate, tpl, "getByID", &StaticGetByID);
-    V8::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
+    V8Helpers::SetStaticMethod(isolate, tpl, "getByID", &StaticGetByID);
+    V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
 
-    V8::SetAccessor<IPlayer, uint32_t, &IPlayer::GetPing>(isolate, tpl, "ping");
-    V8::SetAccessor<IPlayer, StringView, &IPlayer::GetIP>(isolate, tpl, "ip");
-    V8::SetAccessor<IPlayer, StringView, &IPlayer::GetName>(isolate, tpl, "name");
-    V8::SetAccessor<IPlayer, Ref<IVehicle>, &IPlayer::GetVehicle>(isolate, tpl, "vehicle");
-    V8::SetAccessor<IPlayer, uint8_t, &IPlayer::GetSeat>(isolate, tpl, "seat");
-    V8::SetAccessor<IPlayer, uint16_t, &IPlayer::GetHealth, &IPlayer::SetHealth>(isolate, tpl, "health");
-    V8::SetAccessor<IPlayer, uint16_t, &IPlayer::GetMaxHealth, &IPlayer::SetMaxHealth>(isolate, tpl, "maxHealth");
-    V8::SetAccessor<IPlayer, uint16_t, &IPlayer::GetArmour, &IPlayer::SetArmour>(isolate, tpl, "armour");
-    V8::SetAccessor<IPlayer, uint16_t, &IPlayer::GetMaxArmour, &IPlayer::SetMaxArmour>(isolate, tpl, "maxArmour");
-    V8::SetAccessor(isolate, tpl, "weapons", &GetWeapons);
-    V8::SetAccessor<IPlayer, bool, &IPlayer::IsDead>(isolate, tpl, "isDead");
-    V8::SetAccessor<IPlayer, bool, &IPlayer::IsInRagdoll>(isolate, tpl, "isInRagdoll");
-    V8::SetAccessor<IPlayer, bool, &IPlayer::IsAiming>(isolate, tpl, "isAiming");
-    // V8::SetAccessor<IPlayer, bool, &IPlayer::IsJumping>(isolate, tpl, "isJumping");
-    // V8::SetAccessor<IPlayer, bool, &IPlayer::IsShooting>(isolate, tpl, "isShooting");
-    V8::SetAccessor<IPlayer, bool, &IPlayer::IsReloading>(isolate, tpl, "isReloading");
-    V8::SetAccessor<IPlayer, Position, &IPlayer::GetAimPos>(isolate, tpl, "aimPos");
-    V8::SetAccessor<IPlayer, Rotation, &IPlayer::GetHeadRotation>(isolate, tpl, "headRot");
+    V8Helpers::SetMethod(isolate, tpl, "emit", &Emit);
+    V8Helpers::SetMethod(isolate, tpl, "emitRaw", &EmitRaw);
 
-    V8::SetAccessor<IPlayer, bool, &IPlayer::IsSuperJumpEnabled>(isolate, tpl, "isSuperJumpEnabled");
-    V8::SetAccessor<IPlayer, bool, &IPlayer::IsCrouching>(isolate, tpl, "isCrouching");
-    V8::SetAccessor<IPlayer, bool, &IPlayer::IsStealthy>(isolate, tpl, "isStealthy");
+    V8Helpers::SetMethod(isolate, tpl, "hasLocalMeta", &HasLocalMeta);
+    V8Helpers::SetMethod(isolate, tpl, "setLocalMeta", &SetLocalMeta);
+    V8Helpers::SetMethod(isolate, tpl, "getLocalMeta", &GetLocalMeta);
+    V8Helpers::SetMethod(isolate, tpl, "deleteLocalMeta", &DeleteLocalMeta);
 
-    V8::SetAccessor<IPlayer, Ref<IEntity>, &IPlayer::GetEntityAimingAt>(isolate, tpl, "entityAimingAt");
-    V8::SetAccessor<IPlayer, Position, &IPlayer::GetEntityAimOffset>(isolate, tpl, "entityAimOffset");
+    V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetPing>(isolate, tpl, "ping");
+    V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetIP>(isolate, tpl, "ip");
+    V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetName>(isolate, tpl, "name");
+    V8Helpers::SetAccessor<IPlayer, Ref<IVehicle>, &IPlayer::GetVehicle>(isolate, tpl, "vehicle");
+    V8Helpers::SetAccessor<IPlayer, uint8_t, &IPlayer::GetSeat>(isolate, tpl, "seat");
+    V8Helpers::SetAccessor<IPlayer, uint16_t, &IPlayer::GetHealth, &IPlayer::SetHealth>(isolate, tpl, "health");
+    V8Helpers::SetAccessor<IPlayer, uint16_t, &IPlayer::GetMaxHealth, &IPlayer::SetMaxHealth>(isolate, tpl, "maxHealth");
+    V8Helpers::SetAccessor<IPlayer, uint16_t, &IPlayer::GetArmour, &IPlayer::SetArmour>(isolate, tpl, "armour");
+    V8Helpers::SetAccessor<IPlayer, uint16_t, &IPlayer::GetMaxArmour, &IPlayer::SetMaxArmour>(isolate, tpl, "maxArmour");
+    V8Helpers::SetAccessor(isolate, tpl, "weapons", &GetWeapons);
+    V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsDead>(isolate, tpl, "isDead");
+    V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsInRagdoll>(isolate, tpl, "isInRagdoll");
+    V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsAiming>(isolate, tpl, "isAiming");
+    // V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsJumping>(isolate, tpl, "isJumping");
+    // V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsShooting>(isolate, tpl, "isShooting");
+    V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsReloading>(isolate, tpl, "isReloading");
+    V8Helpers::SetAccessor<IPlayer, Position, &IPlayer::GetAimPos>(isolate, tpl, "aimPos");
+    V8Helpers::SetAccessor<IPlayer, Rotation, &IPlayer::GetHeadRotation>(isolate, tpl, "headRot");
 
-    V8::SetAccessor<IPlayer, uint32_t, &IPlayer::GetCurrentWeapon, &IPlayer::SetCurrentWeapon>(isolate, tpl, "currentWeapon");
-    V8::SetAccessor(isolate, tpl, "currentWeaponComponents", &CurrentWeaponComponentsGetter);
-    V8::SetAccessor<IPlayer, uint8_t, &IPlayer::GetCurrentWeaponTintIndex>(isolate, tpl, "currentWeaponTintIndex");
+    V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsSuperJumpEnabled>(isolate, tpl, "isSuperJumpEnabled");
+    V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsCrouching>(isolate, tpl, "isCrouching");
+    V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsStealthy>(isolate, tpl, "isStealthy");
 
-    V8::SetAccessor(isolate, tpl, "socialID", &SocialIDGetter);
-    V8::SetAccessor(isolate, tpl, "hwidHash", &HwidHashGetter);
-    V8::SetAccessor(isolate, tpl, "hwidExHash", &HwidExHashGetter);
+    V8Helpers::SetAccessor<IPlayer, Ref<IEntity>, &IPlayer::GetEntityAimingAt>(isolate, tpl, "entityAimingAt");
+    V8Helpers::SetAccessor<IPlayer, Position, &IPlayer::GetEntityAimOffset>(isolate, tpl, "entityAimOffset");
 
-    V8::SetAccessor<IPlayer, StringView, &IPlayer::GetAuthToken>(isolate, tpl, "authToken");
+    V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetCurrentWeapon, &IPlayer::SetCurrentWeapon>(isolate, tpl, "currentWeapon");
+    V8Helpers::SetAccessor(isolate, tpl, "currentWeaponComponents", &CurrentWeaponComponentsGetter);
+    V8Helpers::SetAccessor<IPlayer, uint8_t, &IPlayer::GetCurrentWeaponTintIndex>(isolate, tpl, "currentWeaponTintIndex");
 
-    V8::SetAccessor<IPlayer, bool, &IPlayer::IsFlashlightActive>(isolate, tpl, "flashlightActive");
+    V8Helpers::SetAccessor(isolate, tpl, "socialID", &SocialIDGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "hwidHash", &HwidHashGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "hwidExHash", &HwidExHashGetter);
 
-    V8::SetAccessor<IPlayer, float, &IPlayer::GetMoveSpeed>(isolate, tpl, "moveSpeed");
+    V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetAuthToken>(isolate, tpl, "authToken");
 
-    V8::SetAccessor<IPlayer, bool, &IPlayer::GetInvincible, &IPlayer::SetInvincible>(isolate, tpl, "invincible");
+    V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsFlashlightActive>(isolate, tpl, "flashlightActive");
 
-    V8::SetMethod(isolate, tpl, "spawn", &Spawn);
-    V8::SetMethod(isolate, tpl, "setDateTime", &SetDateTime);
-    V8::SetMethod(isolate, tpl, "setWeather", &SetWeather);
+    V8Helpers::SetAccessor<IPlayer, float, &IPlayer::GetMoveSpeed>(isolate, tpl, "moveSpeed");
 
-    V8::SetMethod<IPlayer, &IPlayer::ClearBloodDamage>(isolate, tpl, "clearBloodDamage");
-    V8::SetMethod(isolate, tpl, "giveWeapon", &GiveWeapon);
-    V8::SetMethod(isolate, tpl, "removeWeapon", &RemoveWeapon);
-    V8::SetMethod<IPlayer, &IPlayer::RemoveAllWeapons>(isolate, tpl, "removeAllWeapons");
+    V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::GetInvincible, &IPlayer::SetInvincible>(isolate, tpl, "invincible");
 
-    V8::SetMethod(isolate, tpl, "addWeaponComponent", &AddWeaponComponent);
-    V8::SetMethod(isolate, tpl, "removeWeaponComponent", &RemoveWeaponComponent);
+    V8Helpers::SetMethod(isolate, tpl, "spawn", &Spawn);
+    V8Helpers::SetMethod<IPlayer, &IPlayer::Despawn>(isolate, tpl, "despawn");
+    V8Helpers::SetMethod(isolate, tpl, "setDateTime", &SetDateTime);
+    V8Helpers::SetMethod(isolate, tpl, "setWeather", &SetWeather);
 
-    V8::SetMethod(isolate, tpl, "setWeaponTintIndex", &SetWeaponTintIndex);
+    V8Helpers::SetMethod<IPlayer, &IPlayer::ClearBloodDamage>(isolate, tpl, "clearBloodDamage");
+    V8Helpers::SetMethod(isolate, tpl, "giveWeapon", &GiveWeapon);
+    V8Helpers::SetMethod(isolate, tpl, "removeWeapon", &RemoveWeapon);
+    V8Helpers::SetMethod<IPlayer, &IPlayer::RemoveAllWeapons>(isolate, tpl, "removeAllWeapons");
 
-    V8::SetMethod(isolate, tpl, "kick", &Kick);
+    V8Helpers::SetMethod(isolate, tpl, "addWeaponComponent", &AddWeaponComponent);
+    V8Helpers::SetMethod(isolate, tpl, "removeWeaponComponent", &RemoveWeaponComponent);
 
-    V8::SetMethod(isolate, tpl, "isEntityInStreamRange", &IsEntityInStreamRange);
+    V8Helpers::SetMethod(isolate, tpl, "setWeaponTintIndex", &SetWeaponTintIndex);
 
-    V8::SetMethod(isolate, tpl, "setClothes", &SetClothes);
-    V8::SetMethod(isolate, tpl, "setDlcClothes", &SetDlcClothes);
-    V8::SetMethod(isolate, tpl, "getClothes", &GetClothes);
-    V8::SetMethod(isolate, tpl, "getDlcClothes", &GetDlcClothes);
+    V8Helpers::SetMethod(isolate, tpl, "kick", &Kick);
 
-    V8::SetMethod(isolate, tpl, "setProp", &SetProps);
-    V8::SetMethod(isolate, tpl, "setDlcProp", &SetDlcProps);
-    V8::SetMethod(isolate, tpl, "getProp", &GetProps);
-    V8::SetMethod(isolate, tpl, "getDlcProp", &GetDlcProps);
-    V8::SetMethod(isolate, tpl, "clearProp", &ClearProps);
+    V8Helpers::SetMethod(isolate, tpl, "isEntityInStreamRange", &IsEntityInStreamRange);
 
-    V8::SetMethod(isolate, tpl, "setIntoVehicle", &SetIntoVehicle);
+    V8Helpers::SetMethod(isolate, tpl, "setClothes", &SetClothes);
+    V8Helpers::SetMethod(isolate, tpl, "setDlcClothes", &SetDlcClothes);
+    V8Helpers::SetMethod(isolate, tpl, "getClothes", &GetClothes);
+    V8Helpers::SetMethod(isolate, tpl, "getDlcClothes", &GetDlcClothes);
 
-    V8::SetMethod(isolate, tpl, "playAmbientSpeech", &PlayAmbientSpeech);
+    V8Helpers::SetMethod(isolate, tpl, "setProp", &SetProps);
+    V8Helpers::SetMethod(isolate, tpl, "setDlcProp", &SetDlcProps);
+    V8Helpers::SetMethod(isolate, tpl, "getProp", &GetProps);
+    V8Helpers::SetMethod(isolate, tpl, "getDlcProp", &GetDlcProps);
+    V8Helpers::SetMethod(isolate, tpl, "clearProp", &ClearProps);
+
+    V8Helpers::SetMethod(isolate, tpl, "setIntoVehicle", &SetIntoVehicle);
+
+    V8Helpers::SetMethod(isolate, tpl, "playAmbientSpeech", &PlayAmbientSpeech);
 
     // Appearance getter & setter
-    V8::SetMethod(isolate, tpl, "setHeadOverlay", &SetHeadOverlay);
-    V8::SetMethod(isolate, tpl, "removeHeadOverlay", &RemoveHeadOverlay);
-    V8::SetMethod(isolate, tpl, "setHeadOverlayColor", &SetHeadOverlayColor);
-    V8::SetMethod(isolate, tpl, "getHeadOverlay", &GetHeadOverlay);
-    V8::SetMethod(isolate, tpl, "setFaceFeature", &SetFaceFeature);
-    V8::SetMethod(isolate, tpl, "getFaceFeatureScale", &GetFaceFeatureScale);
-    V8::SetMethod(isolate, tpl, "removeFaceFeature", &RemoveFaceFeature);
-    V8::SetMethod(isolate, tpl, "setHeadBlendPaletteColor", &SetHeadBlendPaletteColor);
-    V8::SetMethod(isolate, tpl, "getHeadBlendPaletteColor", &GetHeadBlendPaletteColor);
-    V8::SetMethod(isolate, tpl, "setHeadBlendData", &SetHeadBlendData);
-    V8::SetMethod(isolate, tpl, "getHeadBlendData", &GetHeadBlendData);
-    V8::SetMethod(isolate, tpl, "setEyeColor", &SetEyeColor);
-    V8::SetMethod(isolate, tpl, "getEyeColor", &GetEyeColor);
-    V8::SetMethod(isolate, tpl, "setHairColor", &SetHairColor);
-    V8::SetMethod(isolate, tpl, "getHairColor", &GetHairColor);
-    V8::SetMethod(isolate, tpl, "setHairHighlightColor", &SetHairHighlightColor);
-    V8::SetMethod(isolate, tpl, "getHairHighlightColor", &GetHairHighlightColor);
+    V8Helpers::SetMethod(isolate, tpl, "setHeadOverlay", &SetHeadOverlay);
+    V8Helpers::SetMethod(isolate, tpl, "removeHeadOverlay", &RemoveHeadOverlay);
+    V8Helpers::SetMethod(isolate, tpl, "setHeadOverlayColor", &SetHeadOverlayColor);
+    V8Helpers::SetMethod(isolate, tpl, "getHeadOverlay", &GetHeadOverlay);
+    V8Helpers::SetMethod(isolate, tpl, "setFaceFeature", &SetFaceFeature);
+    V8Helpers::SetMethod(isolate, tpl, "getFaceFeatureScale", &GetFaceFeatureScale);
+    V8Helpers::SetMethod(isolate, tpl, "removeFaceFeature", &RemoveFaceFeature);
+    V8Helpers::SetMethod(isolate, tpl, "setHeadBlendPaletteColor", &SetHeadBlendPaletteColor);
+    V8Helpers::SetMethod(isolate, tpl, "getHeadBlendPaletteColor", &GetHeadBlendPaletteColor);
+    V8Helpers::SetMethod(isolate, tpl, "setHeadBlendData", &SetHeadBlendData);
+    V8Helpers::SetMethod(isolate, tpl, "getHeadBlendData", &GetHeadBlendData);
+    V8Helpers::SetMethod(isolate, tpl, "setEyeColor", &SetEyeColor);
+    V8Helpers::SetMethod(isolate, tpl, "getEyeColor", &GetEyeColor);
+    V8Helpers::SetMethod(isolate, tpl, "setHairColor", &SetHairColor);
+    V8Helpers::SetMethod(isolate, tpl, "getHairColor", &GetHairColor);
+    V8Helpers::SetMethod(isolate, tpl, "setHairHighlightColor", &SetHairHighlightColor);
+    V8Helpers::SetMethod(isolate, tpl, "getHairHighlightColor", &GetHairHighlightColor);
 });

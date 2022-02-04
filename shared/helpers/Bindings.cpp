@@ -7,7 +7,7 @@ void V8Helpers::RegisterFunc(v8::Local<v8::Object> exports, const std::string& _
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
     v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
 
-    v8::Local<v8::String> name = V8::JSValue(_name);
+    v8::Local<v8::String> name = V8Helpers::JSValue(_name);
 
     v8::Local<v8::Function> fn = v8::Function::New(ctx, cb, v8::External::New(isolate, data)).ToLocalChecked();
     fn->SetName(name);
@@ -39,18 +39,18 @@ void V8Helpers::SetAccessor(v8::Local<v8::Template> tpl, v8::Isolate* isolate, c
     tpl->SetNativeDataProperty(v8::String::NewFromUtf8(isolate, name, v8::NewStringType::kInternalized).ToLocalChecked(), getter, setter);
 }
 
-void V8::DefineOwnProperty(v8::Isolate* isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Object> val, const char* name, v8::Local<v8::Value> value, v8::PropertyAttribute attributes)
+void V8Helpers::DefineOwnProperty(v8::Isolate* isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Object> val, const char* name, v8::Local<v8::Value> value, v8::PropertyAttribute attributes)
 {
     val->DefineOwnProperty(ctx, v8::String::NewFromUtf8(isolate, name, v8::NewStringType::kInternalized).ToLocalChecked(), value, attributes);
 }
 
-void V8::DefineOwnProperty(
+void V8Helpers::DefineOwnProperty(
   v8::Isolate* isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Object> val, v8::Local<v8::String> name, v8::Local<v8::Value> value, v8::PropertyAttribute attributes)
 {
     val->DefineOwnProperty(ctx, name, value, attributes);
 }
 
-void V8::SetAccessor(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> tpl, const char* name, v8::AccessorGetterCallback getter, v8::AccessorSetterCallback setter)
+void V8Helpers::SetAccessor(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> tpl, const char* name, v8::AccessorGetterCallback getter, v8::AccessorSetterCallback setter)
 {
     tpl->PrototypeTemplate()->SetAccessor(v8::String::NewFromUtf8(isolate, name, v8::NewStringType::kInternalized).ToLocalChecked(),
                                           getter,
@@ -60,22 +60,22 @@ void V8::SetAccessor(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> tpl, 
                                           setter != nullptr ? v8::PropertyAttribute::None : v8::PropertyAttribute::ReadOnly);
 }
 
-void V8::SetMethod(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> tpl, const char* name, v8::FunctionCallback callback)
+void V8Helpers::SetMethod(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> tpl, const char* name, v8::FunctionCallback callback)
 {
     tpl->PrototypeTemplate()->Set(isolate, name, v8::FunctionTemplate::New(isolate, callback));
 }
 
-void V8::SetStaticAccessor(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> tpl, const char* name, v8::AccessorGetterCallback getter, v8::AccessorSetterCallback setter)
+void V8Helpers::SetStaticAccessor(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> tpl, const char* name, v8::AccessorGetterCallback getter, v8::AccessorSetterCallback setter)
 {
     tpl->SetNativeDataProperty(v8::String::NewFromUtf8(isolate, name, v8::NewStringType::kInternalized).ToLocalChecked(), getter, setter);
 }
 
-void V8::SetStaticMethod(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> tpl, const char* name, v8::FunctionCallback callback)
+void V8Helpers::SetStaticMethod(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> tpl, const char* name, v8::FunctionCallback callback)
 {
     tpl->Set(isolate, name, v8::FunctionTemplate::New(isolate, callback));
 }
 
-void V8::SetFunction(v8::Isolate* isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Object> target, const char* name, v8::FunctionCallback cb, void* userData)
+void V8Helpers::SetFunction(v8::Isolate* isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Object> target, const char* name, v8::FunctionCallback cb, void* userData)
 {
     v8::Local<v8::String> _name = v8::String::NewFromUtf8(isolate, name, v8::NewStringType::kInternalized).ToLocalChecked();
 

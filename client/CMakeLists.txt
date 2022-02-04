@@ -46,6 +46,7 @@ include_directories(
   ${ALTV_JS_CPP_SDK}
   ${ALTV_JS_DEPS_DIR}/v8/include
   ../shared
+  ${PROJECT_SOURCE_DIR}/src
 )
 
 set(ALTV_JS_LINKS
@@ -79,6 +80,10 @@ set(ALTV_JS_DEFS
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD /Zi /bigobj")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd /bigobj")
 set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /DEBUG:FULL /OPT:REF /OPT:ICF")
+
+if(WIN32 AND MSVC)
+    add_definitions(/MP)
+endif()
 
 if(DYNAMIC_BUILD)
   ## SHARED

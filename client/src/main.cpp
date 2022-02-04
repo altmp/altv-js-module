@@ -8,9 +8,9 @@
     #define ALTV_JS_EXPORT extern "C"
 #endif
 
-static void HeapCommand(alt::Array<alt::StringView>, void* runtime)
+static void HeapCommand(const std::vector<std::string>&)
 {
-    v8::Isolate* isolate = static_cast<CV8ScriptRuntime*>(runtime)->GetIsolate();
+    v8::Isolate* isolate = CV8ScriptRuntime::Instance().GetIsolate();
     v8::HeapStatistics heapStats;
     isolate->GetHeapStatistics(&heapStats);
     Log::Info << "================ Heap benchmark info =================" << Log::Endl;
@@ -28,9 +28,9 @@ static void HeapCommand(alt::Array<alt::StringView>, void* runtime)
     Log::Info << "======================================================" << Log::Endl;
 }
 
-static void TimersCommand(alt::Array<alt::StringView>, void* runtime)
+static void TimersCommand(const std::vector<std::string>&)
 {
-    auto resources = static_cast<CV8ScriptRuntime*>(runtime)->GetResources();
+    auto resources = CV8ScriptRuntime::Instance().GetResources();
     Log::Info << "================ Timer info =================" << Log::Endl;
     for(auto resource : resources)
     {
@@ -39,9 +39,9 @@ static void TimersCommand(alt::Array<alt::StringView>, void* runtime)
     Log::Info << "======================================================" << Log::Endl;
 }
 
-static void HeapSpacesCommand(alt::Array<alt::StringView>, void* runtime)
+static void HeapSpacesCommand(const std::vector<std::string>&)
 {
-    v8::Isolate* isolate = static_cast<CV8ScriptRuntime*>(runtime)->GetIsolate();
+    v8::Isolate* isolate = CV8ScriptRuntime::Instance().GetIsolate();
     size_t heapSpacesCount = isolate->NumberOfHeapSpaces();
     Log::Info << "================ Heap spaces info =================" << Log::Endl;
     for(size_t i = 0; i < heapSpacesCount; i++)
@@ -57,25 +57,14 @@ static void HeapSpacesCommand(alt::Array<alt::StringView>, void* runtime)
     Log::Info << "======================================================" << Log::Endl;
 }
 
-static void HeapObjectsCommand(alt::Array<alt::StringView>, void* runtime)
+static void ClientJSCommand(const std::vector<std::string>& args)
 {
-    v8::Isolate* isolate = static_cast<CV8ScriptRuntime*>(runtime)->GetIsolate();
-    size_t heapObjectsCount = isolate->NumberOfTrackedHeapObjectTypes();
-    Log::Info << "================ Heap objects info =================" << Log::Endl;
-    for(size_t i = 0; i < heapObjectsCount; i++)
+    if(args.size() == 0)
     {
-        v8::HeapObjectStatistics object;
-        if(!isolate->GetHeapObjectStatisticsAtLastGC(&object, i)) continue;
-        Log::Info << "Heap object #" << i << ": " << object.object_type() << " (" << object.object_sub_type() << ")" << Log::Endl;
-        Log::Info << "  Count: " << object.object_count() << Log::Endl;
-        Log::Info << "  Size: " << CV8ScriptRuntime::FormatBytes(object.object_size()) << Log::Endl;
+        Log::Colored << "~y~Usage: ~w~js-module [options]" << Log::Endl;
+        Log::Colored << "  Use: ~ly~\"js-module --help\" ~w~for more info" << Log::Endl;
     }
-    Log::Info << "======================================================" << Log::Endl;
-}
-
-static void ClientJSCommand(alt::Array<alt::StringView> args, void*)
-{
-    if(args.GetSize() > 0 && args[0] == "--version")
+    else if(args[0] == "--version")
     {
         Log::Colored << "~ly~cpp-sdk: v" << alt::ICore::SDK_VERSION << Log::Endl;
         Log::Colored << "~ly~" << u8"Copyright © 2020 altMP team." << Log::Endl;
@@ -83,17 +72,12 @@ static void ClientJSCommand(alt::Array<alt::StringView> args, void*)
         Log::Colored << "~ly~v8: v" << V8_MAJOR_VERSION << "." << V8_MINOR_VERSION << Log::Endl;
         Log::Colored << "~ly~" << u8"Copyright © 2014 The V8 project authors." << Log::Endl;
     }
-    else if(args.GetSize() > 0 && args[0] == "--help")
+    else if(args[0] == "--help")
     {
         Log::Colored << "~y~Usage: ~w~js-module [options]" << Log::Endl;
         Log::Colored << "~y~Options:" << Log::Endl;
         Log::Colored << "  ~ly~--help    ~w~- this message." << Log::Endl;
         Log::Colored << "  ~ly~--version ~w~- version info." << Log::Endl;
-    }
-    else
-    {
-        Log::Colored << "~y~Usage: ~w~js-module [options]" << Log::Endl;
-        Log::Colored << "  Use: ~ly~\"js-module --help\" ~w~for more info" << Log::Endl;
     }
 }
 
@@ -104,10 +88,9 @@ ALTV_JS_EXPORT void CreateScriptRuntime(alt::ICore* core)
     core->RegisterScriptRuntime("js", &runtime);
 
     // Commands
-    core->SubscribeCommand("heap", &HeapCommand, &runtime);
-    core->SubscribeCommand("heapspaces", &HeapSpacesCommand, &runtime);
-    core->SubscribeCommand("heapobjects", &HeapObjectsCommand, &runtime);
-    core->SubscribeCommand("timers", &TimersCommand, &runtime);
+    core->SubscribeCommand("heap", &HeapCommand);
+    core->SubscribeCommand("heapspaces", &HeapSpacesCommand);
+    core->SubscribeCommand("timers", &TimersCommand);
     core->SubscribeCommand("js-module", &ClientJSCommand);
 }
 
