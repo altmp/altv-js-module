@@ -77,12 +77,10 @@ public:
     void Pause()
     {
         isPaused = true;
-        isolate->SetIdle(true);
     }
     void Resume()
     {
         isPaused = false;
-        isolate->SetIdle(false);
     }
 
     TimerId CreateTimer(v8::Local<v8::Function> callback, uint32_t interval, bool once, V8Helpers::SourceLocation&& location);
