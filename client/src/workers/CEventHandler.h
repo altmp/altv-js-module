@@ -2,6 +2,7 @@
 
 #include <queue>
 #include <string>
+#include <mutex>
 
 #include "V8Helpers.h"
 
