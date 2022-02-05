@@ -46,7 +46,6 @@ void CEventHandler::Process()
         // Get the event at the front of the queue
         queueLock.lock();
         QueueItem& event = queue.front();
-        queueLock.unlock();
 
         // Create a vector of the event arguments
         std::vector<v8::Local<v8::Value>> args;
@@ -61,9 +60,10 @@ void CEventHandler::Process()
             }
             args.push_back(value.ToLocalChecked());
         }
+        auto evHandlers = handlers.equal_range(event.first);
+        queueLock.unlock();
 
         // Call all handlers with the arguments
-        auto evHandlers = handlers.equal_range(event.first);
         for(auto it = evHandlers.first; it != evHandlers.second; it++)
         {
             V8Helpers::CallFunctionWithTimeout(it->second.fn.Get(isolate), context, args);
