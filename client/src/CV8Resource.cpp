@@ -505,6 +505,7 @@ v8::Local<v8::Module> CV8ResourceImpl::CreateSyntheticModule(const std::string& 
     std::vector<v8::Local<v8::String>> exports = { V8Helpers::JSValue("default") };
     v8::Local<v8::Module> syntheticModule = v8::Module::CreateSyntheticModule(isolate, V8Helpers::JSValue(name), exports, &EvaluateSyntheticModule);
     syntheticModuleExports.insert({ syntheticModule->GetIdentityHash(), V8Helpers::CPersistent<v8::Value>(isolate, exportValue) });
+    return syntheticModule;
 }
 v8::MaybeLocal<v8::Value> CV8ResourceImpl::GetSyntheticModuleExport(v8::Local<v8::Module> syntheticModule)
 {
