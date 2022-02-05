@@ -40,12 +40,13 @@ void CEventHandler::Process()
 
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
     auto context = isolate->GetEnteredOrMicrotaskContext();
-    std::scoped_lock lock(queueLock);
 
     while(!queue.empty())
     {
         // Get the event at the front of the queue
+        queueLock.lock();
         QueueItem& event = queue.front();
+        queueLock.unlock();
 
         // Create a vector of the event arguments
         std::vector<v8::Local<v8::Value>> args;
@@ -70,7 +71,9 @@ void CEventHandler::Process()
         }
 
         // Pop the event from the queue
+        queueLock.lock();
         queue.pop();
+        queueLock.unlock();
     }
 }
 
