@@ -665,26 +665,23 @@ static void TakeScreenshot(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     auto& persistent = promises.emplace_back(v8::UniquePersistent<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
 
-    api.TakeScreenshot(
-      [](alt::StringView base64, const void* userData) {
-          // TODO: NOT PERFORMANCE EFFICIENT TO LOCK HERE, RESOLVE IN NEXT TICK INSTEAD
+    api.TakeScreenshot([&persistent](alt::StringView base64) {
+        // TODO: NOT PERFORMANCE EFFICIENT TO LOCK HERE, RESOLVE IN NEXT TICK INSTEAD
 
-          v8::Isolate* isolate = CV8ScriptRuntime::Instance().GetIsolate();
-          v8::Locker locker(isolate);
-          v8::Isolate::Scope isolateScope(isolate);
-          v8::HandleScope handleScope(isolate);
+        v8::Isolate* isolate = CV8ScriptRuntime::Instance().GetIsolate();
+        v8::Locker locker(isolate);
+        v8::Isolate::Scope isolateScope(isolate);
+        v8::HandleScope handleScope(isolate);
 
-          auto persistent = (v8::UniquePersistent<v8::Promise::Resolver>*)userData;
-          auto resolver = persistent->Get(isolate);
-          auto ctx = resolver->GetCreationContext().ToLocalChecked();
-          {
-              v8::Context::Scope ctxscope(ctx);
-              resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), V8Helpers::JSValue(base64));
-          }
+        auto resolver = persistent.Get(isolate);
+        auto ctx = resolver->GetCreationContext().ToLocalChecked();
+        {
+            v8::Context::Scope ctxscope(ctx);
+            resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), V8Helpers::JSValue(base64));
+        }
 
-          promises.remove(*persistent);
-      },
-      &persistent);
+        promises.remove(persistent);
+    });
 
     V8_RETURN(persistent.Get(isolate)->GetPromise());
 }
@@ -702,26 +699,23 @@ static void TakeScreenshotGameOnly(const v8::FunctionCallbackInfo<v8::Value>& in
 
     auto& persistent = promises.emplace_back(v8::UniquePersistent<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
 
-    api.TakeScreenshotGameOnly(
-      [](alt::StringView base64, const void* userData) {
-          // TODO: NOT PERFORMANCE EFFICIENT TO LOCK HERE, RESOLVE IN NEXT TICK INSTEAD
+    api.TakeScreenshotGameOnly([&persistent](alt::StringView base64) {
+        // TODO: NOT PERFORMANCE EFFICIENT TO LOCK HERE, RESOLVE IN NEXT TICK INSTEAD
 
-          v8::Isolate* isolate = CV8ScriptRuntime::Instance().GetIsolate();
-          v8::Locker locker(isolate);
-          v8::Isolate::Scope isolateScope(isolate);
-          v8::HandleScope handleScope(isolate);
+        v8::Isolate* isolate = CV8ScriptRuntime::Instance().GetIsolate();
+        v8::Locker locker(isolate);
+        v8::Isolate::Scope isolateScope(isolate);
+        v8::HandleScope handleScope(isolate);
 
-          auto persistent = (v8::UniquePersistent<v8::Promise::Resolver>*)userData;
-          auto resolver = persistent->Get(isolate);
-          auto ctx = resolver->GetCreationContext().ToLocalChecked();
-          {
-              v8::Context::Scope ctxscope(ctx);
-              resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), V8Helpers::JSValue(base64));
-          }
+        auto resolver = persistent.Get(isolate);
+        auto ctx = resolver->GetCreationContext().ToLocalChecked();
+        {
+            v8::Context::Scope ctxscope(ctx);
+            resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), V8Helpers::JSValue(base64));
+        }
 
-          promises.remove(*persistent);
-      },
-      &persistent);
+        promises.remove(persistent);
+    });
 
     V8_RETURN(persistent.Get(isolate)->GetPromise());
 }
