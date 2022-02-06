@@ -655,33 +655,19 @@ static void IsInStreamerMode(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void TakeScreenshot(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     static std::list<v8::UniquePersistent<v8::Promise::Resolver>> promises;
-
-    V8_GET_ISOLATE_CONTEXT();
-
-    auto& api = alt::ICore::Instance();
-    auto state = api.GetPermissionState(alt::Permission::ScreenCapture);
-    V8_CHECK(state != alt::PermissionState::Denied, "No permissions");
-    V8_CHECK(state != alt::PermissionState::Unspecified, "Permissions not specified");
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
     auto& persistent = promises.emplace_back(v8::UniquePersistent<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
 
-    api.TakeScreenshot([&persistent](alt::StringView base64) {
-        // TODO: NOT PERFORMANCE EFFICIENT TO LOCK HERE, RESOLVE IN NEXT TICK INSTEAD
-
-        v8::Isolate* isolate = CV8ScriptRuntime::Instance().GetIsolate();
-        v8::Locker locker(isolate);
-        v8::Isolate::Scope isolateScope(isolate);
-        v8::HandleScope handleScope(isolate);
-
-        auto resolver = persistent.Get(isolate);
-        auto ctx = resolver->GetCreationContext().ToLocalChecked();
-        {
-            v8::Context::Scope ctxscope(ctx);
-            resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), V8Helpers::JSValue(base64));
-        }
-
-        promises.remove(persistent);
+    alt::PermissionState state = alt::ICore::Instance().TakeScreenshot([&persistent, resource](alt::StringView base64) {
+        resource->RunOnNextTick([&persistent, resource, base64Str = base64.ToString()]() {
+            if(!resource->GetResource()->IsStarted()) return;
+            persistent.Get(resource->GetIsolate())->Resolve(resource->GetContext(), V8Helpers::JSValue(base64Str));
+            promises.remove(persistent);
+        });
     });
+    V8_CHECK(state != alt::PermissionState::Denied, "No permissions");
+    V8_CHECK(state != alt::PermissionState::Unspecified, "Permissions not specified");
 
     V8_RETURN(persistent.Get(isolate)->GetPromise());
 }
@@ -689,33 +675,19 @@ static void TakeScreenshot(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void TakeScreenshotGameOnly(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     static std::list<v8::UniquePersistent<v8::Promise::Resolver>> promises;
-
-    V8_GET_ISOLATE_CONTEXT();
-
-    auto& api = alt::ICore::Instance();
-    auto state = api.GetPermissionState(alt::Permission::ScreenCapture);
-    V8_CHECK(state != alt::PermissionState::Denied, "No permissions");
-    V8_CHECK(state != alt::PermissionState::Unspecified, "Permissions not specified");
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
     auto& persistent = promises.emplace_back(v8::UniquePersistent<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
 
-    api.TakeScreenshotGameOnly([&persistent](alt::StringView base64) {
-        // TODO: NOT PERFORMANCE EFFICIENT TO LOCK HERE, RESOLVE IN NEXT TICK INSTEAD
-
-        v8::Isolate* isolate = CV8ScriptRuntime::Instance().GetIsolate();
-        v8::Locker locker(isolate);
-        v8::Isolate::Scope isolateScope(isolate);
-        v8::HandleScope handleScope(isolate);
-
-        auto resolver = persistent.Get(isolate);
-        auto ctx = resolver->GetCreationContext().ToLocalChecked();
-        {
-            v8::Context::Scope ctxscope(ctx);
-            resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), V8Helpers::JSValue(base64));
-        }
-
-        promises.remove(persistent);
+    alt::PermissionState state = alt::ICore::Instance().TakeScreenshotGameOnly([&persistent, resource](alt::StringView base64) {
+        resource->RunOnNextTick([&persistent, resource, base64Str = base64.ToString()]() {
+            if(!resource->GetResource()->IsStarted()) return;
+            persistent.Get(resource->GetIsolate())->Resolve(resource->GetContext(), V8Helpers::JSValue(base64Str));
+            promises.remove(persistent);
+        });
     });
+    V8_CHECK(state != alt::PermissionState::Denied, "No permissions");
+    V8_CHECK(state != alt::PermissionState::Unspecified, "Permissions not specified");
 
     V8_RETURN(persistent.Get(isolate)->GetPromise());
 }
