@@ -369,7 +369,8 @@ static void GetServerConfig(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
 
-    v8::Local<v8::Value> val = V8Helpers::ConfigNodeToV8(alt::ICore::Instance().GetServerConfig());
+    auto config = alt::ICore::Instance().GetServerConfig();
+    v8::Local<v8::Value> val = V8Helpers::ConfigNodeToV8(config);
     V8_CHECK(!val.IsEmpty(), "Failed to convert server config to V8 value");
     V8_RETURN(val);
 }
