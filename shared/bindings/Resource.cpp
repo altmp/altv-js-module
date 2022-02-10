@@ -108,7 +108,8 @@ static void ConfigGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, resource, alt::IResource);
 
-    v8::Local<v8::Value> val = V8Helpers::ConfigNodeToV8(resource->GetConfig());
+    auto config = resource->GetConfig();
+    v8::Local<v8::Value> val = V8Helpers::ConfigNodeToV8(config);
     V8_CHECK(!val.IsEmpty(), "Failed to convert config to V8 value");
     V8_RETURN(val);
 }
