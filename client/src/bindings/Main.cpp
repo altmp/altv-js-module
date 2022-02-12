@@ -920,6 +920,36 @@ static void GetCamPos(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_VECTOR3(alt::ICore::Instance().GetCamPos());
 }
 
+static void SetMinimapComponentPosition(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN2(5, 7);
+
+    V8_ARG_TO_STD_STRING(1, name);
+    V8_ARG_TO_STD_STRING(2, alignX);
+    V8_ARG_TO_STD_STRING(3, alignY);
+    alt::Vector2f pos;
+    alt::Vector2f size;
+    if(info.Length() == 5)
+    {
+        V8_ARG_TO_VECTOR2(4, posVec);
+        V8_ARG_TO_VECTOR2(5, sizeVec);
+        pos = posVec;
+        size = sizeVec;
+    }
+    else
+    {
+        V8_ARG_TO_NUMBER(4, posX);
+        V8_ARG_TO_NUMBER(5, posY);
+        V8_ARG_TO_NUMBER(6, sizeX);
+        V8_ARG_TO_NUMBER(7, sizeY);
+        pos = { posX, posY };
+        size = { sizeX, sizeY };
+    }
+
+    alt::ICore::Instance().SetMinimapComponentPosition(name, alignX[0], alignY[0], pos, size);
+}
+
 extern V8Module sharedModule;
 extern V8Class v8Player, v8Player, v8Vehicle, v8WebView, v8HandlingData, v8LocalStorage, v8MemoryBuffer, v8MapZoomData, v8Discord, v8Voice, v8WebSocketClient, v8Checkpoint, v8HttpClient,
   v8Audio, v8LocalPlayer, v8Profiler, v8Worker, v8RmlDocument, v8RmlElement;
@@ -1051,4 +1081,6 @@ extern V8Module altModule("alt",
                               V8Helpers::RegisterFunc(exports, "worldToScreen", &WorldToScreen);
                               V8Helpers::RegisterFunc(exports, "screenToWorld", &ScreenToWorld);
                               V8Helpers::RegisterFunc(exports, "getCamPos", &GetCamPos);
+
+                              V8Helpers::RegisterFunc(exports, "setMinimapComponentPosition", &SetMinimapComponentPosition);
                           });
