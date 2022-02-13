@@ -950,6 +950,15 @@ static void SetMinimapComponentPosition(const v8::FunctionCallbackInfo<v8::Value
     alt::ICore::Instance().SetMinimapComponentPosition(name, alignX[0], alignY[0], pos, size);
 }
 
+static void SetMinimapIsRectangle(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_BOOLEAN(1, isRectangle);
+    alt::ICore::Instance().SetMinimapIsRectangle(isRectangle);
+}
+
 extern V8Module sharedModule;
 extern V8Class v8Player, v8Player, v8Vehicle, v8WebView, v8HandlingData, v8LocalStorage, v8MemoryBuffer, v8MapZoomData, v8Discord, v8Voice, v8WebSocketClient, v8Checkpoint, v8HttpClient,
   v8Audio, v8LocalPlayer, v8Profiler, v8Worker, v8RmlDocument, v8RmlElement;
@@ -1083,4 +1092,5 @@ extern V8Module altModule("alt",
                               V8Helpers::RegisterFunc(exports, "getCamPos", &GetCamPos);
 
                               V8Helpers::RegisterFunc(exports, "setMinimapComponentPosition", &SetMinimapComponentPosition);
+                              V8Helpers::RegisterFunc(exports, "setMinimapIsRectangle", &SetMinimapIsRectangle);
                           });
