@@ -178,7 +178,11 @@ namespace V8Helpers
     {
         auto stackTrace = v8::StackTrace::CurrentStackTrace(isolate, 1);
         if(stackTrace->GetFrameCount() == 0) return "";
-        return *v8::String::Utf8Value(isolate, stackTrace->GetFrame(isolate, 0)->GetScriptName());
+        v8::Local<v8::String> scriptName = stackTrace->GetFrame(isolate, 0)->GetScriptName();
+        if(scriptName.IsEmpty()) return "";
+        v8::String::Utf8Value strValue(isolate, scriptName);
+        if(strValue.length() == 0) return "";
+        return *strValue;
     }
 
     v8::MaybeLocal<v8::Value> CallFunctionWithTimeout(v8::Local<v8::Function> fn, v8::Local<v8::Context> ctx, std::vector<v8::Local<v8::Value>>& args, uint32_t timeout = 5000);
