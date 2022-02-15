@@ -107,13 +107,13 @@ public:
         std::vector<v8::Local<v8::Value>> args;
         args.push_back(V8Helpers::JSValue(error));
 
-        InvokeEventHandlers(nullptr, GetLocalHandlers("resourceStart"), args);
+        InvokeEventHandlers(nullptr, GetLocalHandlers("resourceStart"), args, true);
     }
 
     void DispatchStopEvent()
     {
         std::vector<v8::Local<v8::Value>> args;
-        InvokeEventHandlers(nullptr, GetLocalHandlers("resourceStop"), args);
+        InvokeEventHandlers(nullptr, GetLocalHandlers("resourceStop"), args, true);
     }
 
     void DispatchErrorEvent(const std::string& errorMsg, const std::string& file, int32_t line)
@@ -278,5 +278,5 @@ protected:
         return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
     }
 
-    void InvokeEventHandlers(const alt::CEvent* ev, const std::vector<V8Helpers::EventCallback*>& handlers, std::vector<v8::Local<v8::Value>>& args);
+    void InvokeEventHandlers(const alt::CEvent* ev, const std::vector<V8Helpers::EventCallback*>& handlers, std::vector<v8::Local<v8::Value>>& args, bool waitForPromiseResolve = false);
 };
