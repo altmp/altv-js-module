@@ -166,3 +166,5 @@ V8Helpers::LocalEventHandler
       args.push_back(V8Helpers::MValueToV8(ev->GetVal()));
       args.push_back(V8Helpers::MValueToV8(ev->GetOldVal()));
   });
+
+V8Helpers::LocalEventHandler serverStarted(EventType::SERVER_STARTED, "serverStarted", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {});
