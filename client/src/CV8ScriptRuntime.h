@@ -32,15 +32,25 @@ class CV8ScriptRuntime : public alt::IScriptRuntime
 
     uint32_t activeWorkers = 0;
 
+    static CV8ScriptRuntime*& _instance()
+    {
+        static CV8ScriptRuntime* instance = nullptr;
+        return instance;
+    }
+
 public:
     CV8ScriptRuntime();
 
     void OnDispose() override;
 
+    static void SetInstance(CV8ScriptRuntime* runtime)
+    {
+        _instance() = runtime;
+    }
+
     static CV8ScriptRuntime& Instance()
     {
-        static CV8ScriptRuntime instance;
-        return instance;
+        return *_instance();
     }
 
     v8::Isolate* GetIsolate() const

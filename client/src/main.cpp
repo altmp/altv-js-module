@@ -81,17 +81,19 @@ static void ClientJSCommand(const std::vector<std::string>& args)
     }
 }
 
-ALTV_JS_EXPORT void CreateScriptRuntime(alt::ICore* core)
+ALTV_JS_EXPORT alt::IScriptRuntime* CreateScriptRuntime(alt::ICore* core)
 {
     alt::ICore::SetInstance(core);
-    auto& runtime = CV8ScriptRuntime::Instance();
-    core->RegisterScriptRuntime("js", &runtime);
 
     // Commands
     core->SubscribeCommand("heap", &HeapCommand);
     core->SubscribeCommand("heapspaces", &HeapSpacesCommand);
     core->SubscribeCommand("timers", &TimersCommand);
     core->SubscribeCommand("js-module", &ClientJSCommand);
+
+    CV8ScriptRuntime* runtime = new CV8ScriptRuntime;
+    CV8ScriptRuntime::SetInstance(runtime);
+    return runtime;
 }
 
 ALTV_JS_EXPORT const char* GetType()
