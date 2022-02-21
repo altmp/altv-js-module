@@ -206,6 +206,15 @@ CV8ScriptRuntime::CV8ScriptRuntime()
     RegisterEvents();
 }
 
+void CV8ScriptRuntime::OnDispose()
+{
+    while(isolate->IsInUse()) isolate->Exit();
+    isolate->Dispose();
+    v8::V8::Dispose();
+    v8::V8::ShutdownPlatform();
+    delete create_params.array_buffer_allocator;
+}
+
 static std::string Base64Decode(const std::string& in)
 {
     std::string out;

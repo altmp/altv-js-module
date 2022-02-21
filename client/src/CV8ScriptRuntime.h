@@ -35,6 +35,8 @@ class CV8ScriptRuntime : public alt::IScriptRuntime
 public:
     CV8ScriptRuntime();
 
+    void OnDispose() override;
+
     static CV8ScriptRuntime& Instance()
     {
         static CV8ScriptRuntime instance;
@@ -109,15 +111,6 @@ public:
     std::unordered_set<CV8ResourceImpl*> GetResources()
     {
         return resources;
-    }
-
-    ~CV8ScriptRuntime()
-    {
-        while(isolate->IsInUse()) isolate->Exit();
-        isolate->Dispose();
-        v8::V8::Dispose();
-        v8::V8::ShutdownPlatform();
-        delete create_params.array_buffer_allocator;
     }
 
     static v8::MaybeLocal<v8::Module> ResolveModule(v8::Local<v8::Context> ctx, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray> importAssertions, v8::Local<v8::Module> referrer);
