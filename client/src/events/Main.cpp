@@ -15,6 +15,7 @@
 #include "cpp-sdk/events/CAudioEvent.h"
 #include "cpp-sdk/events/CRmlEvent.h"
 #include "cpp-sdk/events/CWindowFocusChangeEvent.h"
+#include "cpp-sdk/events/CWindowResolutionChangeEvent.h"
 
 #include "cpp-sdk/SDK.h"
 
@@ -135,4 +136,13 @@ V8_LOCAL_EVENT_HANDLER windowFocusChange(EventType::WINDOW_FOCUS_CHANGE, "window
     v8::Isolate* isolate = resource->GetIsolate();
 
     args.push_back(V8Helpers::JSValue(ev->GetState()));
+});
+
+V8_LOCAL_EVENT_HANDLER
+windowResolutionChange(EventType::WINDOW_RESOLUTION_CHANGE, "windowResolutionChange", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+    auto ev = static_cast<const alt::CWindowResolutionChangeEvent*>(e);
+    v8::Isolate* isolate = resource->GetIsolate();
+
+    args.push_back(resource->CreateVector2(ev->GetOldResolution()));
+    args.push_back(resource->CreateVector2(ev->GetNewResolution()));
 });
