@@ -153,10 +153,12 @@ static void ShowCursor(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void GetCursorPos(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN2(0, 1);
 
-    alt::Vector2i cursorPos = alt::ICore::Instance().GetCursorPosition();
+    V8_ARG_TO_BOOLEAN_OPT(1, normalized, false);
 
-    V8_RETURN(resource->CreateVector2(cursorPos));
+    alt::Vector2f cursorPos = alt::ICore::Instance().GetCursorPosition(normalized);
+    V8_RETURN_VECTOR2(cursorPos);
 }
 
 static void SetCursorPos(const v8::FunctionCallbackInfo<v8::Value>& info)
