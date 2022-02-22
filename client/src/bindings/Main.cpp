@@ -167,8 +167,8 @@ static void SetCursorPos(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN2(1, 2);
 
     V8_ARG_TO_OBJECT(1, pos);
-    V8_OBJECT_GET_INT(pos, "x", x);
-    V8_OBJECT_GET_INT(pos, "y", y);
+    V8_OBJECT_GET_NUMBER(pos, "x", x);
+    V8_OBJECT_GET_NUMBER(pos, "y", y);
     V8_ARG_TO_BOOLEAN_OPT(2, normalized, false);
 
     ICore::Instance().SetCursorPosition({ x, y }, normalized);
