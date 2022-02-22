@@ -920,6 +920,13 @@ static void GetCamPos(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_VECTOR3(alt::ICore::Instance().GetCamPos());
 }
 
+static void GetScreenResolution(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+
+    V8_RETURN_VECTOR2(alt::ICore::Instance().GetScreenResolution());
+}
+
 static void SetMinimapComponentPosition(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -1090,6 +1097,7 @@ extern V8Module altModule("alt",
                               V8Helpers::RegisterFunc(exports, "worldToScreen", &WorldToScreen);
                               V8Helpers::RegisterFunc(exports, "screenToWorld", &ScreenToWorld);
                               V8Helpers::RegisterFunc(exports, "getCamPos", &GetCamPos);
+                              V8Helpers::RegisterFunc(exports, "getScreenResolution", &GetScreenResolution);
 
                               V8Helpers::RegisterFunc(exports, "setMinimapComponentPosition", &SetMinimapComponentPosition);
                               V8Helpers::RegisterFunc(exports, "setMinimapIsRectangle", &SetMinimapIsRectangle);
