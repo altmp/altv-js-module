@@ -42,5 +42,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 extern V8Class v8RGBA("RGBA", &Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
+    tpl->InstanceTemplate()->SetInternalFieldCount(99);  // !! Needs to be set so V8 knows its a custom class !!
+
     V8Helpers::SetMethod(isolate, tpl, "toString", ToString);
 });

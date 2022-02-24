@@ -137,7 +137,13 @@ static void EmitClientRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     for(int i = 2; i < info.Length(); ++i)
     {
+        v8::TryCatch tryCatch(isolate);
         alt::MValueByteArray result = V8Helpers::V8ToRawBytes(info[i]);
+        if(tryCatch.HasCaught())
+        {
+            tryCatch.ReThrow();
+            return;
+        }
         V8_CHECK(!result.IsEmpty(), "Failed to serialize value");
         mvArgs.Push(result);
     }
@@ -189,7 +195,13 @@ static void EmitAllClientsRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     for(int i = 1; i < info.Length(); ++i)
     {
+        v8::TryCatch tryCatch(isolate);
         alt::MValueByteArray result = V8Helpers::V8ToRawBytes(info[i]);
+        if(tryCatch.HasCaught())
+        {
+            tryCatch.ReThrow();
+            return;
+        }
         V8_CHECK(!result.IsEmpty(), "Failed to serialize value");
         args.Push(result);
     }
