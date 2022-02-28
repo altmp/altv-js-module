@@ -3,9 +3,11 @@ on:
   push:
     paths:
       - "client/**"
+      - "shared/**"
   pull_request:
     paths:
       - "client/**"
+      - "shared/**"
 
 env:
   BUILD_TYPE: Release
