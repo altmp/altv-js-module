@@ -142,6 +142,9 @@
 #define V8_OBJECT_SET_STD_STRING(v8Val, prop, val) \
     if(!val.empty()) (v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::String::NewFromUtf8(isolate, val.c_str()).ToLocalChecked());
 
+#define V8_OBJECT_SET_RAW_STRING(v8Val, prop, val) \
+    (v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::String::NewFromUtf8(isolate, val).ToLocalChecked());
+
 #define V8_NEW_OBJECT(val) v8::Local<v8::Object> val = v8::Object::New(isolate);
 
 #define V8_NEW_ARGS(val) std::vector<v8::Local<v8::Value>> val;

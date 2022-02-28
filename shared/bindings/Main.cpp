@@ -1,3 +1,4 @@
+#include "cpp-sdk/version/version.h"
 
 #include "../V8Helpers.h"
 #include "../V8ResourceImpl.h"
@@ -486,7 +487,7 @@ extern V8Module sharedModule("alt-shared",
 
                                  V8_OBJECT_SET_STD_STRING(exports, "version", alt::ICore::Instance().GetVersion());
                                  V8_OBJECT_SET_STD_STRING(exports, "branch", alt::ICore::Instance().GetBranch());
-                                 V8_OBJECT_SET_INT(exports, "sdkVersion", alt::ICore::Instance().SDK_VERSION);
+                                 V8_OBJECT_SET_RAW_STRING(exports, "sdkVersion", ALT_SDK_VERSION);
                                  V8_OBJECT_SET_BOOLEAN(exports, "debug", alt::ICore::Instance().IsDebug());
 
                                  V8_OBJECT_SET_STRING(exports, "resourceName", V8ResourceImpl::GetResource(ctx)->GetName());

@@ -1,4 +1,6 @@
-﻿#include "stdafx.h"
+#include "stdafx.h"
+
+#include "cpp-sdk/version/version.h"
 
 #include "V8Module.h"
 #include "CNodeScriptRuntime.h"
@@ -59,8 +61,8 @@ static void CommandHandler(const std::vector<std::string>& args)
     }
     else if(args[0] == "--version")
     {
-        Log::Colored << "~ly~cpp-sdk: v" << alt::ICore::SDK_VERSION << Log::Endl;
-        Log::Colored << "~ly~" << u8"Copyright © 2020 altMP team." << Log::Endl;
+        Log::Colored << "~ly~cpp-sdk: #" << ALT_SDK_VERSION << Log::Endl;
+        Log::Colored << "~ly~" << u8"Copyright © 2022 altMP team." << Log::Endl;
 
         Log::Colored << "~ly~js-module: " << JS_MODULE_VERSION << Log::Endl;
         Log::Colored << "~ly~" JS_MODULE_COPYRIGHT << Log::Endl;
@@ -102,7 +104,7 @@ EXPORT bool altMain(alt::ICore* _core)
     return true;
 }
 
-EXPORT uint32_t GetSDKVersion()
+EXPORT const char* GetSDKHash()
 {
-    return alt::ICore::SDK_VERSION;
+    return ALT_SDK_VERSION;
 }
