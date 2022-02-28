@@ -1,5 +1,7 @@
 cmake_minimum_required (VERSION 2.8)
 
+include(../shared/deps/cpp-sdk/CMakeLists.txt)
+
 project(js-module)
 
 set(PROJECT_NAME js-module)
@@ -131,6 +133,8 @@ add_library(
   ${PROJECT_SOURCE_FILES}
   ${PROJECT_SHARED_FILES}
 )
+
+add_dependencies(${PROJECT_NAME} alt-sdk)
 
 if(MSVC AND WIN32)
     set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /DEBUG")
