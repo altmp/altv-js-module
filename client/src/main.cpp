@@ -1,4 +1,5 @@
 #include "cpp-sdk/SDK.h"
+#include "cpp-sdk/version/version.h"
 #include "CV8ScriptRuntime.h"
 #include "Log.h"
 
@@ -66,7 +67,7 @@ static void ClientJSCommand(const std::vector<std::string>& args)
     }
     else if(args[0] == "--version")
     {
-        Log::Colored << "~ly~cpp-sdk: v" << alt::ICore::SDK_VERSION << Log::Endl;
+        Log::Colored << "~ly~cpp-sdk: #" << ALT_SDK_VERSION << Log::Endl;
         Log::Colored << "~ly~" << u8"Copyright © 2020 altMP team." << Log::Endl;
 
         Log::Colored << "~ly~v8: v" << V8_MAJOR_VERSION << "." << V8_MINOR_VERSION << Log::Endl;

@@ -3,6 +3,8 @@ include(cmake/GitUtils.cmake)
 include(FetchContent)
 include(cmake/DepsDownload.cmake)
 
+include(../shared/deps/cpp-sdk/CMakeLists.txt)
+
 project(altv-client-js)
 
 set(ALTV_JS_DEPS_DIR ${PROJECT_SOURCE_DIR}/deps)
@@ -102,6 +104,8 @@ if(DYNAMIC_BUILD)
   target_link_libraries(${PROJECT_NAME} PRIVATE
     ${ALTV_JS_LINKS}
   )
+
+  add_dependencies(${PROJECT_NAME} alt-sdk)
 else()
   ## STATIC
   add_library(
@@ -118,6 +122,8 @@ else()
   target_link_libraries(${PROJECT_NAME}-static PRIVATE
     ${ALTV_JS_LINKS}
   )
+
+  add_dependencies(${PROJECT_NAME}-static alt-sdk)
 endif()
 
 if(ALTV_JS_DEINIT_CPPSDK)
