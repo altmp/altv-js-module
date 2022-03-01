@@ -21,8 +21,6 @@ else()
 endif()
 # Fetch deps
 
-include(${ALTV_JS_CPP_SDK}/cpp-sdk/CMakeLists.txt)
-
 file(GLOB_RECURSE PROJECT_SOURCE_FILES "src/*.h" "src/*.hpp" "src/*.cpp" "src/*.c")
 file(GLOB_RECURSE PROJECT_SHARED_FILES "../shared/*.h" "../shared/*.cpp")
 
@@ -88,6 +86,8 @@ if(WIN32 AND MSVC)
 endif()
 
 if(DYNAMIC_BUILD)
+  include(${ALTV_JS_CPP_SDK}/cpp-sdk/CMakeLists.txt)
+
   ## SHARED
   add_library(
     ${PROJECT_NAME} SHARED
