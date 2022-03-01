@@ -323,7 +323,8 @@ V8Helpers::EventHandler::EventHandler(alt::CEvent::Type type, CallbacksGetter&& 
 // Temp issue fix for https://stackoverflow.com/questions/9459980/c-global-variable-not-initialized-when-linked-through-static-libraries-but-ok
 void V8Helpers::EventHandler::Reference()
 {
-    Log::Info << "[V8] Registered handler for " << std::to_string((int)type) << Log::Endl;
+    // Log::Info << "[V8] Registered handler for " << std::to_string((int)type) << Log::Endl;
+    (void)type;
 }
 
 std::string V8Helpers::Stringify(v8::Local<v8::Context> ctx, v8::Local<v8::Value> val)
