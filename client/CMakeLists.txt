@@ -3,8 +3,6 @@ include(cmake/GitUtils.cmake)
 include(FetchContent)
 include(cmake/DepsDownload.cmake)
 
-include(../shared/deps/cpp-sdk/CMakeLists.txt)
-
 project(altv-client-js)
 
 set(ALTV_JS_DEPS_DIR ${PROJECT_SOURCE_DIR}/deps)
@@ -22,6 +20,8 @@ else()
   set(ALTV_JS_DEINIT_CPPSDK 1)
 endif()
 # Fetch deps
+
+include(${ALTV_JS_CPP_SDK}/cpp-sdk/CMakeLists.txt)
 
 file(GLOB_RECURSE PROJECT_SOURCE_FILES "src/*.h" "src/*.hpp" "src/*.cpp" "src/*.c")
 file(GLOB_RECURSE PROJECT_SHARED_FILES "../shared/*.h" "../shared/*.cpp")
