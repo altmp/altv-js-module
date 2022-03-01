@@ -102,7 +102,7 @@ ALTV_JS_EXPORT const char* GetType()
     return "js";
 }
 
-ALTV_JS_EXPORT uint32_t GetSDKVersion()
+ALTV_JS_EXPORT const char* GetSDKHash()
 {
-    return alt::ICore::SDK_VERSION;
+    return ALT_SDK_VERSION;
 }
