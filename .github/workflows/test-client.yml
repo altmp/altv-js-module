@@ -46,7 +46,7 @@ jobs:
       shell: bash
       run: |
         cd client
-        cmake . -BBUILD
+        cmake . -BBUILD -DDYNAMIC_BUILD=1
 
     - name: Build
       shell: bash
