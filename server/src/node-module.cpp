@@ -90,16 +90,16 @@ static void TimersCommand(const std::vector<std::string>&)
     Log::Info << "======================================================" << Log::Endl;
 }
 
-EXPORT bool altMain(alt::ICore* _core)
+EXPORT bool altMain(alt::ICore* core)
 {
-    alt::ICore::SetInstance(_core);
+    alt::ICore::SetInstance(core);
 
-    auto& apiCore = alt::ICore::Instance();
     auto& runtime = CNodeScriptRuntime::Instance();
+    if(!runtime.Init()) return false;
 
-    apiCore.RegisterScriptRuntime("js", &runtime);
-    apiCore.SubscribeCommand("js-module", &CommandHandler);
-    apiCore.SubscribeCommand("timers", &TimersCommand);
+    core->RegisterScriptRuntime("js", &runtime);
+    core->SubscribeCommand("js-module", &CommandHandler);
+    core->SubscribeCommand("timers", &TimersCommand);
 
     return true;
 }

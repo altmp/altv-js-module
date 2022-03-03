@@ -2,15 +2,20 @@
 
 #include "CNodeScriptRuntime.h"
 
-CNodeScriptRuntime::CNodeScriptRuntime()
+bool CNodeScriptRuntime::Init()
 {
-    int eac;
-    const char** eav;
-
-    const char* argv[] = { "alt-server", "--experimental-modules", "--es-module-specifier-resolution=node", "--trace-warnings" };
-    int argc = sizeof(argv) / sizeof(const char*);
-
-    node::Init(&argc, argv, &eac, &eav);
+    std::vector<std::string> argv = GetNodeArgs();
+    std::vector<std::string> execArgv;
+    std::vector<std::string> errors;
+    node::InitializeNodeWithArgs(&argv, &execArgv, &errors);
+    if(errors.size() > 0)
+    {
+        for(std::string& error : errors)
+        {
+            Log::Error << "Error while initializing node: " << error << Log::Endl;
+        }
+        return false;
+    }
 
     auto* tracing_agent = node::CreateAgent();
     // auto* tracing_controller = tracing_agent->GetTracingController();
@@ -39,9 +44,9 @@ CNodeScriptRuntime::CNodeScriptRuntime()
 
         V8Class::LoadAll(isolate);
     }
-}
 
-CNodeScriptRuntime::~CNodeScriptRuntime() {}
+    return true;
+}
 
 alt::IResource::Impl* CNodeScriptRuntime::CreateImpl(alt::IResource* resource)
 {
@@ -83,4 +88,28 @@ void CNodeScriptRuntime::OnDispose()
 #endif
 
     // node::FreePlatform(platform.release());
+}
+
+std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
+{
+    std::vector<std::string> args = { "alt-server", "--experimental-modules", "--es-module-specifier-resolution=node", "--trace-warnings" };
+
+    alt::config::Node moduleConfig = alt::ICore::Instance().GetServerConfig()["js-module"];
+    if(!moduleConfig.IsDict()) return args;
+
+    alt::config::Node inspector = moduleConfig["inspector"];
+    if(!inspector.IsNone())
+    {
+        std::string inspectorHost = "127.0.0.1";
+        alt::config::Node host = inspector["host"];
+        if(host.IsScalar()) inspectorHost = host.ToString();
+
+        std::string inspectorPort = "9229";
+        alt::config::Node port = inspector["port"];
+        if(port.IsScalar()) inspectorPort = port.ToString();
+
+        args.push_back("--inspect=" + inspectorHost + ":" + inspectorPort);
+    }
+
+    return args;
 }
