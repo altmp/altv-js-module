@@ -7,7 +7,8 @@ CNodeScriptRuntime::CNodeScriptRuntime()
     int eac;
     const char** eav;
 
-    const char* argv[] = { "alt-server", "--experimental-modules", "--es-module-specifier-resolution=node", "--trace-warnings" };
+    bool debug = alt::ICore::Instance().GetServerConfig()["node-debug"].ToBool();
+    const char* argv[] = { "alt-server", "--experimental-modules",  "--es-module-specifier-resolution=node", "--trace-warnings", debug ? "--inspect" : ""};
     int argc = sizeof(argv) / sizeof(const char*);
 
     node::Init(&argc, argv, &eac, &eav);
