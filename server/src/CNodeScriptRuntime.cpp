@@ -133,5 +133,19 @@ std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
         args.push_back("--experimental-loader=" + customLoader.ToString());
     }
 
+    // https://nodejs.org/api/cli.html#--heap-prof
+    alt::config::Node enableHeapProfiler = moduleConfig["heap-profiler"];
+    if(!enableHeapProfiler.IsNone())
+    {
+        try
+        {
+            if(enableHeapProfiler.ToBool()) args.push_back("--heap-prof");
+        }
+        catch(alt::config::Error&)
+        {
+            Log::Error << "Invalid value for 'heap-profiler' config option" << Log::Endl;
+        }
+    }
+
     return args;
 }
