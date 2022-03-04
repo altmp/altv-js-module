@@ -124,5 +124,11 @@ std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
         }
     }
 
+    alt::config::Node customLoader = moduleConfig["custom-loader"];
+    if(customLoader.IsScalar())
+    {
+        args.push_back("--experimental-loader=" + customLoader.ToString());
+    }
+
     return args;
 }
