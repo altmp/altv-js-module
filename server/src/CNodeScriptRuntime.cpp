@@ -97,6 +97,7 @@ std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
     alt::config::Node moduleConfig = alt::ICore::Instance().GetServerConfig()["js-module"];
     if(!moduleConfig.IsDict()) return args;
 
+    // https://nodejs.org/api/cli.html#--inspecthostport
     alt::config::Node inspector = moduleConfig["inspector"];
     if(!inspector.IsNone())
     {
@@ -111,6 +112,7 @@ std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
         args.push_back("--inspect=" + inspectorHost + ":" + inspectorPort);
     }
 
+    // https://nodejs.org/api/cli.html#--enable-source-maps
     alt::config::Node enableSourceMaps = moduleConfig["source-maps"];
     if(!enableSourceMaps.IsNone())
     {
@@ -124,6 +126,7 @@ std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
         }
     }
 
+    // https://nodejs.org/api/cli.html#--experimental-loadermodule
     alt::config::Node customLoader = moduleConfig["custom-loader"];
     if(customLoader.IsScalar())
     {
