@@ -111,5 +111,18 @@ std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
         args.push_back("--inspect=" + inspectorHost + ":" + inspectorPort);
     }
 
+    alt::config::Node enableSourceMaps = moduleConfig["source-maps"];
+    if(!enableSourceMaps.IsNone())
+    {
+        try
+        {
+            if(enableSourceMaps.ToBool()) args.push_back("--enable-source-maps");
+        }
+        catch(alt::config::Error&)
+        {
+            Log::Error << "Invalid value for 'source-maps' config option" << Log::Endl;
+        }
+    }
+
     return args;
 }
