@@ -99,7 +99,7 @@ static void AttachedToGetter(v8::Local<v8::String>, const v8::PropertyCallbackIn
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
-    V8_RETURN_BASE_OBJECT(blip);
+    V8_RETURN_BASE_OBJECT(blip->AttachedTo());
 }
 
 static void AttachedToSetter(v8::Local<v8::String>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
