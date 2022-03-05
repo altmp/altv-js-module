@@ -1,9 +1,11 @@
 #include "stdafx.h"
 
 #include "CNodeScriptRuntime.h"
+#include "CProfiler.h"
 
 bool CNodeScriptRuntime::Init()
 {
+    ProcessConfigOptions();
     std::vector<std::string> argv = GetNodeArgs();
     std::vector<std::string> execArgv;
     std::vector<std::string> errors;
@@ -88,6 +90,8 @@ void CNodeScriptRuntime::OnDispose()
 #endif
 
     // node::FreePlatform(platform.release());
+
+    if(CProfiler::Instance().IsEnabled()) CProfiler::Instance().Dump();
 }
 
 std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
@@ -148,4 +152,24 @@ std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
     }
 
     return args;
+}
+
+void CNodeScriptRuntime::ProcessConfigOptions()
+{
+    alt::config::Node moduleConfig = alt::ICore::Instance().GetServerConfig()["js-module"];
+    if(!moduleConfig.IsDict()) return;
+
+    alt::config::Node profiler = moduleConfig["profiler"];
+    if(!profiler.IsNone())
+    {
+        try
+        {
+            bool result = profiler.ToBool();
+            CProfiler::Instance().SetIsEnabled(result);
+        }
+        catch(alt::config::Error&)
+        {
+            Log::Error << "Invalid value for 'profiler' config option" << Log::Endl;
+        }
+    }
 }
