@@ -33,6 +33,7 @@ public:
     void OnDispose() override;
 
     std::vector<std::string> GetNodeArgs();
+    void ProcessConfigOptions();
 
     node::MultiIsolatePlatform* GetPlatform() const
     {
