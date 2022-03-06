@@ -197,12 +197,12 @@ static void SetClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     if(info.Length() == 3)
     {
-        player->SetClothes(component, drawable, texture, 2);
+        V8_RETURN(player->SetClothes(component, drawable, texture, 2));
     }
     else if(info.Length() == 4)
     {
         V8_ARG_TO_INT(4, palette);
-        player->SetClothes(component, drawable, texture, palette);
+        V8_RETURN(player->SetClothes(component, drawable, texture, palette));
     }
 }
 
@@ -221,12 +221,12 @@ static void SetDlcClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     if(info.Length() == 4)
     {
-        player->SetDlcClothes(component, drawable, texture, 2, dlc);
+        V8_RETURN(player->SetDlcClothes(component, drawable, texture, 2, dlc));
     }
     else if(info.Length() == 5)
     {
         V8_ARG_TO_INT(5, palette);
-        player->SetDlcClothes(component, drawable, texture, palette, dlc);
+        V8_RETURN(player->SetDlcClothes(component, drawable, texture, palette, dlc));
     }
 }
 
@@ -277,7 +277,7 @@ static void SetProps(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_UINT(2, drawable);
     V8_ARG_TO_UINT(3, texture);
 
-    player->SetProps(component, drawable, texture);
+    V8_RETURN(player->SetProps(component, drawable, texture));
 }
 
 static void SetDlcProps(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -291,7 +291,7 @@ static void SetDlcProps(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_UINT(3, drawable);
     V8_ARG_TO_UINT(4, texture);
 
-    player->SetDlcProps(component, drawable, texture, dlc);
+    V8_RETURN(player->SetDlcProps(component, drawable, texture, dlc));
 }
 
 static void ClearProps(const v8::FunctionCallbackInfo<v8::Value>& info)
