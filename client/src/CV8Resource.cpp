@@ -48,7 +48,8 @@ extern void StaticRequire(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 void CV8ResourceImpl::ProcessDynamicImports()
 {
-    for(auto importFn : dynamicImports)
+    if(dynamicImports.empty()) return;
+    for(auto& importFn : dynamicImports)
     {
         importFn();
     }
@@ -315,15 +316,13 @@ bool CV8ResourceImpl::OnEvent(const alt::CEvent* e)
         if(e->GetType() == alt::CEvent::Type::CONNECTION_COMPLETE)
         {
             CV8ScriptRuntime& runtime = CV8ScriptRuntime::Instance();
-            if(!runtime.resourcesLoaded)
-            {
-                runtime.resourcesLoaded = true;
-                ProcessDynamicImports();
-            }
+            ProcessDynamicImports();
+            runtime.resourcesLoaded = true;
         }
         else if(e->GetType() == alt::CEvent::Type::DISCONNECT_EVENT)
         {
-            CV8ScriptRuntime::Instance().resourcesLoaded = false;
+            CV8ScriptRuntime& runtime = CV8ScriptRuntime::Instance();
+            runtime.resourcesLoaded = false;
         }
     }
 
