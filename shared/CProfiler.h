@@ -6,6 +6,7 @@
 #include <ctime>
 #include <sstream>
 #include <fstream>
+#include <iomanip>
 
 #include "Log.h"
 
