@@ -47,7 +47,14 @@ public:
         if(!enabled) return;
 
         int64_t t = std::time(nullptr);
-        tm time = *std::localtime(&t);
+        std::tm time;
+#if defined(__unix__)
+        localtime_r(&t, &time);
+#elif defined(_MSC_VER)
+        localtime_s(&time, &t);
+#else
+        time = *std::localtime(&t);
+#endif
         std::ostringstream stream;
         stream << std::put_time(&time, "%d-%m-%Y %H-%M-%S");
         std::string fileName = stream.str() + ".samples";
@@ -60,7 +67,19 @@ public:
             return;
         }
 
-        // todo: write all samples to file
+        for(auto it = samples.begin(), end = samples.end(); it != end; it = samples.equal_range(it->first).second)
+        {
+            file << it->first << ' ';
+            auto items = samples.equal_range(it->first);
+            auto lastItem = std::prev(items.second);
+            for(auto i = items.first; i != items.second; ++i)
+            {
+                file << i->second.count();
+                if(i != lastItem) file << ',';
+            }
+
+            file << '\n';
+        }
 
         file.close();
         Log::Colored << "[Profiler] Dumped samples to ~lc~" << fileName << Log::Endl;
