@@ -7,8 +7,7 @@ import * as fs from "fs";
 // node profiler.js path/to/input path/to/output
 const fileName = process.argv[2];
 let outName = process.argv[3];
-if (!outName)
-    outName = fileName.replace(".samples", "") + ".json";
+if (!outName) outName = fileName.replace(".samples", "") + ".json";
 
 if (!fileName.endsWith(".samples") || !fs.existsSync(fileName)) {
     console.error("Invalid path specified");
@@ -21,12 +20,10 @@ const results = [];
 
 const lines = file.split("\n");
 for (const line of lines) {
-    if (line.length === 0)
-        continue;
+    if (line.length === 0) continue;
     const [name, samplesStr] = line.split(" ");
 
-    const samples =
-        samplesStr.split(",").map(x => parseInt(x)).sort((a, b) => a - b);
+    const samples = samplesStr.split(",").map(x => parseInt(x)).sort((a, b) => a - b);
 
     const sampleAmount = samples.length;
     const min = samples[0];
