@@ -257,13 +257,13 @@ enum class RawValueType : uint8_t
     INVALID
 };
 
-extern V8Class v8Entity;
+extern V8Class v8BaseObject;
 static inline RawValueType GetValueType(v8::Local<v8::Context> ctx, v8::Local<v8::Value> val)
 {
     V8ResourceImpl* resource = V8ResourceImpl::Get(ctx);
     bool result;
     if(val->IsSharedArrayBuffer() || val->IsPromise() || val->IsProxy()) return RawValueType::INVALID;
-    if(val->InstanceOf(ctx, v8Entity.JSValue(ctx->GetIsolate(), ctx)).To(&result) && result)
+    if(val->InstanceOf(ctx, v8BaseObject.JSValue(ctx->GetIsolate(), ctx)).To(&result) && result)
     {
         alt::Ref<alt::IBaseObject> ent = V8Entity::Get(val)->GetHandle();
         switch(ent->GetType())
