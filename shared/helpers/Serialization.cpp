@@ -263,7 +263,23 @@ static inline RawValueType GetValueType(v8::Local<v8::Context> ctx, v8::Local<v8
     V8ResourceImpl* resource = V8ResourceImpl::Get(ctx);
     bool result;
     if(val->IsSharedArrayBuffer() || val->IsPromise() || val->IsProxy()) return RawValueType::INVALID;
-    if(val->InstanceOf(ctx, v8Entity.JSValue(ctx->GetIsolate(), ctx)).To(&result) && result) return RawValueType::ENTITY;
+    if(val->InstanceOf(ctx, v8Entity.JSValue(ctx->GetIsolate(), ctx)).To(&result) && result)
+    {
+        alt::Ref<alt::IBaseObject> ent = V8Entity::Get(val)->GetHandle();
+        switch(ent->GetType())
+        {
+            case alt::IBaseObject::Type::PLAYER:
+            case alt::IBaseObject::Type::VEHICLE:
+            case alt::IBaseObject::Type::LOCAL_PLAYER:
+            {
+                return RawValueType::ENTITY;
+            }
+            default:
+            {
+                return RawValueType::INVALID;
+            }
+        }
+    }
     if(resource->IsVector3(val)) return RawValueType::VECTOR3;
     if(resource->IsVector2(val)) return RawValueType::VECTOR2;
     if(resource->IsRGBA(val)) return RawValueType::RGBA;
