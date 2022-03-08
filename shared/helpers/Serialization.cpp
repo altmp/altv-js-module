@@ -249,12 +249,12 @@ static uint8_t magicBytes[] = { 'J', 'S', 'V', 'a', 'l' };
 
 enum class RawValueType : uint8_t
 {
+    INVALID,
     GENERIC,
     ENTITY,
     VECTOR3,
     VECTOR2,
-    RGBA,
-    INVALID
+    RGBA
 };
 
 extern V8Class v8BaseObject;
