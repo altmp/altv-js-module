@@ -4,6 +4,7 @@
 #include "inspector/CV8InspectorChannel.h"
 #include "V8Module.h"
 #include "events/Events.h"
+#include "CProfiler.h"
 
 CV8ScriptRuntime::CV8ScriptRuntime()
 {
@@ -204,6 +205,28 @@ CV8ScriptRuntime::CV8ScriptRuntime()
     }
 
     RegisterEvents();
+
+    ProcessConfigOptions();
+}
+
+void CV8ScriptRuntime::ProcessConfigOptions()
+{
+    alt::config::Node moduleConfig = alt::ICore::Instance().GetClientConfig()["js-module"];
+    if(!moduleConfig.IsDict()) return;
+
+    alt::config::Node profiler = moduleConfig["profiler"];
+    if(!profiler.IsNone())
+    {
+        try
+        {
+            bool result = profiler.ToBool();
+            CProfiler::Instance().SetIsEnabled(result);
+        }
+        catch(alt::config::Error&)
+        {
+            Log::Error << "Invalid value for 'profiler' config option" << Log::Endl;
+        }
+    }
 }
 
 void CV8ScriptRuntime::OnDispose()
@@ -213,6 +236,8 @@ void CV8ScriptRuntime::OnDispose()
     v8::V8::Dispose();
     v8::V8::ShutdownPlatform();
     delete create_params.array_buffer_allocator;
+
+    if(CProfiler::Instance().IsEnabled()) CProfiler::Instance().Dump(alt::ICore::Instance().GetClientPath().ToString());
 
     CV8ScriptRuntime::SetInstance(nullptr);
     delete this;
