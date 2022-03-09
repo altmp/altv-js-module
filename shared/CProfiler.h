@@ -7,6 +7,7 @@
 #include <sstream>
 #include <fstream>
 #include <iomanip>
+#include <filesystem>
 
 #include "Log.h"
 
@@ -42,7 +43,7 @@ class CProfiler
     }
 
 public:
-    void Dump()
+    void Dump(const std::string& path)
     {
         if(!enabled) return;
 
@@ -57,9 +58,9 @@ public:
 #endif
         std::ostringstream stream;
         stream << std::put_time(&time, "%d-%m-%Y %H-%M-%S");
-        std::string fileName = stream.str() + ".samples";
+        std::filesystem::path filePath = path / std::filesystem::path(stream.str() + ".samples");
 
-        std::ofstream file(fileName);
+        std::ofstream file(filePath.string());
         if(!file.good())
         {
             Log::Error << "[Profiler] Failed to dump samples" << Log::Endl;
@@ -82,7 +83,7 @@ public:
         }
 
         file.close();
-        Log::Colored << "[Profiler] Dumped samples to ~lc~" << fileName << Log::Endl;
+        Log::Colored << "[Profiler] Dumped samples to ~lc~" << filePath.string() << Log::Endl;
     }
 
     bool IsEnabled() const
