@@ -91,7 +91,7 @@ void CNodeScriptRuntime::OnDispose()
 
     // node::FreePlatform(platform.release());
 
-    if(CProfiler::Instance().IsEnabled()) CProfiler::Instance().Dump();
+    if(CProfiler::Instance().IsEnabled()) CProfiler::Instance().Dump("./");
 }
 
 std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
