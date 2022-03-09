@@ -41,6 +41,8 @@ class CV8ScriptRuntime : public alt::IScriptRuntime
 public:
     CV8ScriptRuntime();
 
+    void ProcessConfigOptions();
+
     void OnDispose() override;
 
     static void SetInstance(CV8ScriptRuntime* runtime)
