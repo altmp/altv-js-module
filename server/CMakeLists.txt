@@ -60,6 +60,7 @@ include_directories(
   deps/nodejs/include
   deps/nodejs/deps/v8/include
   deps/nodejs/deps/uv/include
+  deps/nodejs/deps/openssl/openssl/include
   ../shared
   ../shared/deps
 )

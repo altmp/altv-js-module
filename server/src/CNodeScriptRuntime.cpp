@@ -19,10 +19,7 @@ bool CNodeScriptRuntime::Init()
         return false;
     }
 
-    auto* tracing_agent = node::CreateAgent();
-    // auto* tracing_controller = tracing_agent->GetTracingController();
-    node::tracing::TraceEventHelper::SetAgent(tracing_agent);
-    platform.reset(node::CreatePlatform(4, node::tracing::TraceEventHelper::GetTracingController()));
+    platform.reset(node::CreatePlatform(4, (v8::TracingController*)nullptr));
 
     v8::V8::InitializePlatform(platform.get());
     v8::V8::Initialize();

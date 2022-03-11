@@ -27,30 +27,58 @@ static const char bootstrap_code[] = R"(
   const alt = process._linkedBinding('alt');
   const path = require('path');
   const asyncESM = require('internal/process/esm_loader');
-  const { pathToFileURL } = require('internal/url');
+  const url = require('internal/url');
+  const { pathToFileURL } = url;
+  const { translators } = require('internal/modules/esm/translators');
+
   let _exports = null;
+  const loader = asyncESM.esmLoader;
 
   try {
-    const loader = asyncESM.ESMLoader;
+    // Supress the annoying warning from NodeJS
+    const __emitWarning = process.emitWarning;
+    process.emitWarning = () => {};
+    const { ModuleWrap } = require('internal/test/binding').internalBinding('module_wrap');
+    process.emitWarning = __emitWarning;
 
-    loader.hook({
-      resolve(specifier, parentURL, defaultResolve) {
-        if (alt.hasResource(specifier)) {
-          return {
-            url: 'alt:' + specifier
-          };
+    // Set our custom translator for the 'alt' protocol that loads alt:V resources
+    translators.set('alt', async function(url) {
+      const name = url.slice(4); // Remove 'alt:' scheme
+      const exports = process._linkedBinding('alt').getResourceExports(name);
+      return new ModuleWrap(url, undefined, Object.keys(exports), function() {
+        for (const exportName in exports) {
+          // We might trigger a getter -> dont fail.
+          let value;
+          try {
+            value = exports[exportName];
+          } catch {}
+          this.setExport(exportName, value);
         }
-
-        return defaultResolve(specifier, parentURL);
-      },
-      getFormat(url, context, defaultGetFormat) {
-        return defaultGetFormat(url, context)
-      }
+      });
     });
+
+    loader.addCustomLoaders({
+        resolve(specifier, context, defaultResolve) {
+            if (alt.hasResource(specifier)) return {
+                url: 'alt:' + specifier
+            };
+            return defaultResolve(specifier, context, defaultResolve);
+        },
+        load(url, context, defaultLoad) {
+            if(url.startsWith('alt:')) {
+                const name = url.slice(4); // Remove 'alt:' scheme
+                return {
+                    format: 'alt',
+                    source: null,
+                }
+            }
+            return defaultLoad(url, context, defaultLoad);
+        },
+    });
+
+    // Get the path to the main file for this resource, and load it
     const _path = path.resolve(alt.getResourcePath(alt.resourceName), alt.getResourceMain(alt.resourceName));
-
-    _exports = await loader.import(pathToFileURL(_path).pathname);
-
+    _exports = await loader.import("file://" + _path, "", {});
     if ('start' in _exports) {
       const start = _exports.start;
       if (typeof start === 'function') {
@@ -85,7 +113,7 @@ bool CNodeResourceImpl::Start()
 
     V8ResourceImpl::Start();
 
-    node::EnvironmentFlags::Flags flags = (node::EnvironmentFlags::Flags)(node::EnvironmentFlags::kOwnsProcessState & node::EnvironmentFlags::kNoInitializeInspector);
+    node::EnvironmentFlags::Flags flags = (node::EnvironmentFlags::Flags)(node::EnvironmentFlags::kOwnsProcessState & node::EnvironmentFlags::kNoCreateInspector);
 
     uvLoop = uv_loop_new();
 

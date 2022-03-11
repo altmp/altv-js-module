@@ -16,6 +16,8 @@
 namespace node {
 
 #define SECURITY_REVERSIONS(XX)                                            \
+  XX(CVE_2021_44531, "CVE-2021-44531", "Cert Verif Bypass via URI SAN")    \
+  XX(CVE_2021_44532, "CVE-2021-44532", "Cert Verif Bypass via Str Inject") \
 //  XX(CVE_2016_PEND, "CVE-2016-PEND", "Vulnerability Title")
 
 enum reversion {
@@ -28,6 +30,12 @@ namespace per_process {
 extern unsigned int reverted_cve;
 }
 
+#ifdef _MSC_VER
+#pragma warning(push)
+// MSVC C4065: switch statement contains 'default' but no 'case' labels
+#pragma warning(disable : 4065)
+#endif
+
 inline const char* RevertMessage(const reversion cve) {
 #define V(code, label, msg) case SECURITY_REVERT_##code: return label ": " msg;
   switch (cve) {
@@ -37,6 +45,10 @@ inline const char* RevertMessage(const reversion cve) {
   }
 #undef V
 }
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 inline void Revert(const reversion cve) {
   per_process::reverted_cve |= 1 << cve;
