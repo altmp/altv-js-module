@@ -140,6 +140,48 @@ std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
         }
     }
 
+    // https://nodejs.org/api/cli.html#--experimental-fetch
+    alt::config::Node enableGlobalFetch = moduleConfig["global-fetch"];
+    if(!enableGlobalFetch.IsNone())
+    {
+        try
+        {
+            if(enableGlobalFetch.ToBool()) args.push_back("--experimental-fetch");
+        }
+        catch(alt::config::Error&)
+        {
+            Log::Error << "Invalid value for 'global-fetch' config option" << Log::Endl;
+        }
+    }
+
+    // https://nodejs.org/api/cli.html#--experimental-global-webcrypto
+    alt::config::Node enableGlobalWebcrypto = moduleConfig["global-webcrypto"];
+    if(!enableGlobalWebcrypto.IsNone())
+    {
+        try
+        {
+            if(enableGlobalWebcrypto.ToBool()) args.push_back("--experimental-global-webcrypto");
+        }
+        catch(alt::config::Error&)
+        {
+            Log::Error << "Invalid value for 'global-webcrypto' config option" << Log::Endl;
+        }
+    }
+
+    // https://nodejs.org/api/cli.html#--experimental-network-imports
+    alt::config::Node enableNetworkImports = moduleConfig["network-imports"];
+    if(!enableNetworkImports.IsNone())
+    {
+        try
+        {
+            if(enableNetworkImports.ToBool()) args.push_back("--experimental-network-imports");
+        }
+        catch(alt::config::Error&)
+        {
+            Log::Error << "Invalid value for 'network-imports' config option" << Log::Endl;
+        }
+    }
+
     return args;
 }
 
