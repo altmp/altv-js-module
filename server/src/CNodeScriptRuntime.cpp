@@ -78,7 +78,6 @@ void CNodeScriptRuntime::OnDispose()
     v8::V8::ShutdownPlatform();
 #else
     platform->DrainTasks(isolate);
-    platform->CancelPendingDelayedTasks(isolate);
     platform->UnregisterIsolate(isolate);
 
     isolate->Dispose();
