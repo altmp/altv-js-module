@@ -126,13 +126,6 @@ std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
         }
     }
 
-    // https://nodejs.org/api/cli.html#--experimental-loadermodule
-    alt::config::Node customLoader = moduleConfig["custom-loader"];
-    if(customLoader.IsScalar())
-    {
-        args.push_back("--experimental-loader=" + customLoader.ToString());
-    }
-
     // https://nodejs.org/api/cli.html#--heap-prof
     alt::config::Node enableHeapProfiler = moduleConfig["heap-profiler"];
     if(!enableHeapProfiler.IsNone())
