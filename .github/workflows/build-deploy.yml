@@ -101,7 +101,7 @@ jobs:
           cd ..
           mkdir -p dist/modules/js-module
           cp ./build-linux/libjs-module.so dist/modules/js-module
-          cp ./deps/nodejs/lib/libnode.so.83 dist/modules/js-module
+          cp ./deps/nodejs/lib/libnode.so.102 dist/modules/js-module
         env:
           VERSION: ${{ steps.version.outputs.VERSION }}
 
