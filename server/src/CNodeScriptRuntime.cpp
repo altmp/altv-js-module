@@ -19,10 +19,7 @@ bool CNodeScriptRuntime::Init()
         return false;
     }
 
-    auto* tracing_agent = node::CreateAgent();
-    // auto* tracing_controller = tracing_agent->GetTracingController();
-    node::tracing::TraceEventHelper::SetAgent(tracing_agent);
-    platform.reset(node::CreatePlatform(4, node::tracing::TraceEventHelper::GetTracingController()));
+    platform.reset(node::CreatePlatform(4, (v8::TracingController*)nullptr));
 
     v8::V8::InitializePlatform(platform.get());
     v8::V8::Initialize();
@@ -81,7 +78,6 @@ void CNodeScriptRuntime::OnDispose()
     v8::V8::ShutdownPlatform();
 #else
     platform->DrainTasks(isolate);
-    platform->CancelPendingDelayedTasks(isolate);
     platform->UnregisterIsolate(isolate);
 
     isolate->Dispose();
@@ -130,13 +126,6 @@ std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
         }
     }
 
-    // https://nodejs.org/api/cli.html#--experimental-loadermodule
-    alt::config::Node customLoader = moduleConfig["custom-loader"];
-    if(customLoader.IsScalar())
-    {
-        args.push_back("--experimental-loader=" + customLoader.ToString());
-    }
-
     // https://nodejs.org/api/cli.html#--heap-prof
     alt::config::Node enableHeapProfiler = moduleConfig["heap-profiler"];
     if(!enableHeapProfiler.IsNone())
@@ -148,6 +137,48 @@ std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
         catch(alt::config::Error&)
         {
             Log::Error << "Invalid value for 'heap-profiler' config option" << Log::Endl;
+        }
+    }
+
+    // https://nodejs.org/api/cli.html#--experimental-fetch
+    alt::config::Node enableGlobalFetch = moduleConfig["global-fetch"];
+    if(!enableGlobalFetch.IsNone())
+    {
+        try
+        {
+            if(enableGlobalFetch.ToBool()) args.push_back("--experimental-fetch");
+        }
+        catch(alt::config::Error&)
+        {
+            Log::Error << "Invalid value for 'global-fetch' config option" << Log::Endl;
+        }
+    }
+
+    // https://nodejs.org/api/cli.html#--experimental-global-webcrypto
+    alt::config::Node enableGlobalWebcrypto = moduleConfig["global-webcrypto"];
+    if(!enableGlobalWebcrypto.IsNone())
+    {
+        try
+        {
+            if(enableGlobalWebcrypto.ToBool()) args.push_back("--experimental-global-webcrypto");
+        }
+        catch(alt::config::Error&)
+        {
+            Log::Error << "Invalid value for 'global-webcrypto' config option" << Log::Endl;
+        }
+    }
+
+    // https://nodejs.org/api/cli.html#--experimental-network-imports
+    alt::config::Node enableNetworkImports = moduleConfig["network-imports"];
+    if(!enableNetworkImports.IsNone())
+    {
+        try
+        {
+            if(enableNetworkImports.ToBool()) args.push_back("--experimental-network-imports");
+        }
+        catch(alt::config::Error&)
+        {
+            Log::Error << "Invalid value for 'network-imports' config option" << Log::Endl;
         }
     }
 

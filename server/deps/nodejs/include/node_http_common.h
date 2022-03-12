@@ -270,7 +270,7 @@ class NgHeaders {
   MaybeStackBuffer<char, 3000> buf_;
 };
 
-// The ng libraries (nghttp2 and nghttp3) each use nearly identical
+// The ng libraries use nearly identical
 // reference counted structures for retaining header name and value
 // information in memory until the application is done with it.
 // The NgRcBufPointer is an intelligent pointer capable of working
@@ -460,6 +460,7 @@ struct NgHeaderBase : public MemoryRetainer {
   virtual std::string name() const = 0;
   virtual std::string value() const = 0;
   virtual size_t length() const = 0;
+  virtual uint8_t flags() const = 0;
   virtual std::string ToString() const;
 };
 
@@ -505,6 +506,7 @@ class NgHeader final : public NgHeaderBase<typename T::allocator_t> {
   inline std::string name() const override;
   inline std::string value() const override;
   inline size_t length() const override;
+  inline uint8_t flags() const override;
 
   void MemoryInfo(MemoryTracker* tracker) const override;
 
