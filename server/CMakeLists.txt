@@ -55,11 +55,21 @@ endmacro()
 GroupSources(${PROJECT_SOURCE_DIR}/src "Source Files")
 GroupSources("../shared" "Shared Files")
 
+function(make_includable input_file output_file)
+    file(READ ${input_file} content)
+    set(delim "for_c++_include")
+    set(content "R\"${delim}(\n${content})${delim}\"")
+    file(WRITE ${output_file} "${content}")
+endfunction(make_includable)
+
+make_includable("src/bootstrap.js" "src/bootstrap.js.gen")
+
 include_directories(
   src
   deps/nodejs/include
   deps/nodejs/deps/v8/include
   deps/nodejs/deps/uv/include
+  deps/nodejs/deps/openssl/openssl/include
   ../shared
   ../shared/deps
 )
@@ -145,5 +155,5 @@ if (WIN32)
 endif (WIN32)
 
 if (UNIX)
-  target_link_libraries(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/deps/nodejs/lib/libnode.so.83)
+  target_link_libraries(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/deps/nodejs/lib/libnode.so.102)
 endif (UNIX)

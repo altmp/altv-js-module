@@ -20,50 +20,9 @@ static void ResourceLoaded(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
 }
 
-static const char bootstrap_code[] = R"(
-'use strict';
-
-(async () => {
-  const alt = process._linkedBinding('alt');
-  const path = require('path');
-  const asyncESM = require('internal/process/esm_loader');
-  const { pathToFileURL } = require('internal/url');
-  let _exports = null;
-
-  try {
-    const loader = asyncESM.ESMLoader;
-
-    loader.hook({
-      resolve(specifier, parentURL, defaultResolve) {
-        if (alt.hasResource(specifier)) {
-          return {
-            url: 'alt:' + specifier
-          };
-        }
-
-        return defaultResolve(specifier, parentURL);
-      },
-      getFormat(url, context, defaultGetFormat) {
-        return defaultGetFormat(url, context)
-      }
-    });
-    const _path = path.resolve(alt.getResourcePath(alt.resourceName), alt.getResourceMain(alt.resourceName));
-
-    _exports = await loader.import(pathToFileURL(_path).pathname);
-
-    if ('start' in _exports) {
-      const start = _exports.start;
-      if (typeof start === 'function') {
-        await start();
-      }
-    }
-  } catch (e) {
-    console.error(e);
-  }
-
-  __resourceLoaded(alt.resourceName, _exports);
-})();
-)";
+static const char bootstrap_code[] =
+#include "bootstrap.js.gen"
+  ;
 
 bool CNodeResourceImpl::Start()
 {
@@ -85,7 +44,7 @@ bool CNodeResourceImpl::Start()
 
     V8ResourceImpl::Start();
 
-    node::EnvironmentFlags::Flags flags = (node::EnvironmentFlags::Flags)(node::EnvironmentFlags::kOwnsProcessState & node::EnvironmentFlags::kNoInitializeInspector);
+    node::EnvironmentFlags::Flags flags = (node::EnvironmentFlags::Flags)(node::EnvironmentFlags::kOwnsProcessState & node::EnvironmentFlags::kNoCreateInspector);
 
     uvLoop = uv_loop_new();
 
