@@ -2,11 +2,10 @@
 (async () => {
   const alt = process._linkedBinding('alt');
   const path = require('path');
-  const asyncESM = require('internal/process/esm_loader');
+  const { loader } = require('internal/process/esm_loader');
   const { translators } = require('internal/modules/esm/translators');
 
   let _exports = null;
-  const loader = asyncESM.esmLoader;
 
   try {
     // Supress the annoying warning from NodeJS
@@ -21,7 +20,6 @@
       const exports = process._linkedBinding('alt').getResourceExports(name);
       return new ModuleWrap(url, undefined, Object.keys(exports), function() {
         for (const exportName in exports) {
-          // We might trigger a getter -> dont fail.
           let value;
           try {
             value = exports[exportName];
@@ -40,7 +38,6 @@
         },
         load(url, context, defaultLoad) {
             if(url.startsWith('alt:')) {
-                const name = url.slice(4); // Remove 'alt:' scheme
                 return {
                     format: 'alt',
                     source: null,
