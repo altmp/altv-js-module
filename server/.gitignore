@@ -299,3 +299,5 @@ __pycache__/
 dist/*
 
 src/bootstrap.js.gen
+
+deps/nodejs/lib/
