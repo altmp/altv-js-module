@@ -1,10 +1,16 @@
 cmake_minimum_required (VERSION 2.8)
 
 include(../shared/deps/cpp-sdk/CMakeLists.txt)
+include(cmake/DepsDownload.cmake)
 
 project(js-module)
 
 set(PROJECT_NAME js-module)
+
+# Fetch deps
+# NodeJS
+message("alt:V JS - Fetching NodeJS deps, can take a while")
+DownloadDeps(${PROJECT_SOURCE_DIR}/deps)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
