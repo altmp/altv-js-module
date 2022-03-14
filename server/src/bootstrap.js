@@ -2,7 +2,7 @@
 (async () => {
   const alt = process._linkedBinding('alt');
   const path = require('path');
-  const { loader } = require('internal/process/esm_loader');
+  const { esmLoader: loader } = require('internal/process/esm_loader');
   const { translators } = require('internal/modules/esm/translators');
 
   let _exports = null;
