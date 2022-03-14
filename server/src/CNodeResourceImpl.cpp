@@ -89,9 +89,7 @@ bool CNodeResourceImpl::Stop()
     node::EmitExit(env);
     node::RunAtExit(env);
 
-    // TODO: async stop function
-
-    // node::Stop(env);
+    node::Stop(env);
 
     node::FreeEnvironment(env);
     node::FreeIsolateData(nodeData);
