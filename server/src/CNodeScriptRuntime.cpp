@@ -19,7 +19,7 @@ bool CNodeScriptRuntime::Init()
         return false;
     }
 
-    platform.reset(node::CreatePlatform(4, (v8::TracingController*)nullptr));
+    platform = node::MultiIsolatePlatform::Create(4, (v8::TracingController*)nullptr);
 
     v8::V8::InitializePlatform(platform.get());
     v8::V8::Initialize();
