@@ -85,9 +85,8 @@ bool CNodeResourceImpl::Stop()
         asyncResource.Reset();
     }
 
-    node::EmitBeforeExit(env);
-    node::EmitExit(env);
-    node::RunAtExit(env);
+    node::EmitProcessBeforeExit(env);
+    node::EmitProcessExit(env);
 
     node::Stop(env);
 
