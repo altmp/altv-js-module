@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.9)
 
 include(../shared/deps/cpp-sdk/CMakeLists.txt)
 include(cmake/DepsDownload.cmake)
