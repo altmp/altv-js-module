@@ -438,6 +438,16 @@ static void GetAllResources(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN(arr);
 }
 
+static void StringToSHA256(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STD_STRING(1, str);
+
+    V8_RETURN_STD_STRING(alt::ICore::Instance().StringToSHA256(str));
+}
+
 extern V8Class v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2, v8Vector3, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Resource;
 
 extern V8Module sharedModule("alt-shared",
@@ -484,6 +494,8 @@ extern V8Module sharedModule("alt-shared",
                                  V8Helpers::RegisterFunc(exports, "hasResource", &HasResource);
                                  V8Helpers::RegisterFunc(exports, "getResourceExports", &GetResourceExports);
                                  V8Helpers::RegisterFunc(exports, "getAllResources", &GetAllResources);
+
+                                 V8Helpers::RegisterFunc(exports, "stringToSHA256", &StringToSHA256);
 
                                  V8_OBJECT_SET_STD_STRING(exports, "version", alt::ICore::Instance().GetVersion());
                                  V8_OBJECT_SET_STD_STRING(exports, "branch", alt::ICore::Instance().GetBranch());
