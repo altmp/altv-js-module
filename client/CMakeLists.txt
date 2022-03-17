@@ -10,8 +10,7 @@ set(ALTV_JS_DEPS_DIR ${PROJECT_SOURCE_DIR}/deps)
 # Fetch deps
 # v8
 message("alt:V JS - Fetching v8 deps, can take a while")
-
-DownloadDeps(${ALTV_JS_DEPS_DIR})
+DownloadDeps()
 
 # cpp-sdk
 if(NOT ALTV_JS_CPP_SDK)
