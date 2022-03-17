@@ -10,7 +10,7 @@ set(PROJECT_NAME js-module)
 # Fetch deps
 # NodeJS
 message("alt:V JS - Fetching NodeJS deps, can take a while")
-DownloadDeps(${PROJECT_SOURCE_DIR}/deps)
+DownloadDeps()
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
