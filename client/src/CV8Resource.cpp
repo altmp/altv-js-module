@@ -98,11 +98,11 @@ bool CV8ResourceImpl::Start()
     alt::IPackage::File* file = pkg->OpenFile(path);
 
     size_t fileSize = pkg->GetFileSize(file);
-    uint8_t* byteBuffer = new uint8_t[fileSize];
-    pkg->ReadFile(file, byteBuffer, fileSize);
+    std::vector<uint8_t> byteBuffer(fileSize);
+    pkg->ReadFile(file, byteBuffer.data(), fileSize);
     pkg->CloseFile(file);
 
-    isUsingBytecode = IsBytecodeModule(byteBuffer, fileSize);
+    isUsingBytecode = IsBytecodeModule(byteBuffer.data(), fileSize);
 
     Log::Info << "[V8] Starting script " << path << Log::Endl;
 
@@ -165,7 +165,6 @@ bool CV8ResourceImpl::Start()
         Log::Info << "[V8] Started script " << path << Log::Endl;
         return true;
     });
-    delete byteBuffer;
 
     DispatchStartEvent(!result);
 
