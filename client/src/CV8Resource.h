@@ -190,7 +190,7 @@ private:
     {
         return webViewsEventsQueue;
     }
-    void HandleWebViewEventQueue(const alt::Ref<alt::IWebView> view);
+    void HandleWebViewEventQueue(alt::Ref<alt::IWebView> view);
 
     std::unordered_set<alt::Ref<alt::IBaseObject>> ownedObjects;
 

@@ -503,9 +503,9 @@ v8::MaybeLocal<v8::Value> CV8ResourceImpl::GetSyntheticModuleExport(v8::Local<v8
     return v8::MaybeLocal<v8::Value>();
 }
 
-void CV8ResourceImpl::HandleWebViewEventQueue(const alt::Ref<alt::IWebView> view)
+void CV8ResourceImpl::HandleWebViewEventQueue(alt::Ref<alt::IWebView> view)
 {
-    auto& eventQueuesMap = this->GetWebviewsEventQueue();
+    auto& eventQueuesMap = GetWebviewsEventQueue();
     if(!eventQueuesMap.count(view)) return;
 
     auto& eventQueue = eventQueuesMap.at(view);
