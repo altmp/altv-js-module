@@ -132,7 +132,7 @@ CV8ScriptRuntime::CV8ScriptRuntime()
               });
           };
 
-          if(Instance().resourcesLoaded && resource->GetResource()->IsStarted())
+          if(Instance().resourcesLoaded && resource->GetResource()->IsStarted() || resource->IsPreloading())
           {
               // instantly resolve the module
               domodule();

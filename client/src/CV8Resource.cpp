@@ -56,6 +56,10 @@ void CV8ResourceImpl::ProcessDynamicImports()
     dynamicImports.clear();
 }
 
+static std::string bootstrap_code =
+#include "bootstrap.js.gen"
+  ;
+
 extern V8Module altModule;
 bool CV8ResourceImpl::Start()
 {
@@ -104,23 +108,13 @@ bool CV8ResourceImpl::Start()
 
     bool result = V8Helpers::TryCatch([&]() {
         v8::MaybeLocal<v8::Module> maybeModule;
-        if(!isUsingBytecode)
-        {
-            alt::String src{ (char*)byteBuffer, fileSize };
-            v8::ScriptOrigin scriptOrigin(isolate, V8Helpers::JSValue(path), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
-            v8::ScriptCompiler::Source source{ V8Helpers::JSValue(src), scriptOrigin };
-            maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source);
-        }
-        else
-        {
-            maybeModule = ResolveBytecode(path, byteBuffer, fileSize);
-        }
+        v8::ScriptOrigin scriptOrigin(isolate, V8Helpers::JSValue("<bootstrapper>"), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
+        v8::ScriptCompiler::Source source{ V8Helpers::JSValue(bootstrap_code), scriptOrigin };
+        maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source);
 
         if(maybeModule.IsEmpty()) return false;
 
         v8::Local<v8::Module> curModule = maybeModule.ToLocalChecked();
-
-        modules.emplace(path, v8::UniquePersistent<v8::Module>{ isolate, curModule });
 
         auto exports = altModule.GetExports(isolate, ctx);
         // Overwrite global console object
@@ -141,12 +135,15 @@ bool CV8ResourceImpl::Start()
         ctx->Global()->Set(ctx, V8Helpers::JSValue("clearTimeout"), exports->Get(ctx, V8Helpers::JSValue("clearTimeout")).ToLocalChecked());
 
         ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_get_exports"), v8::Function::New(ctx, &StaticRequire).ToLocalChecked());
+        ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_main_path"), V8Helpers::JSValue(path));
 
         bool res = curModule->InstantiateModule(ctx, CV8ScriptRuntime::ResolveModule).IsJust();
 
         if(!res) return false;
 
         v8::MaybeLocal<v8::Value> v = curModule->Evaluate(ctx);
+
+        isPreloading = false;
 
         if(v.IsEmpty()) return false;
 
@@ -165,17 +162,10 @@ bool CV8ResourceImpl::Start()
         alt::MValue _exports = V8Helpers::V8ToMValue(curModule->GetModuleNamespace());
         resource->SetExports(_exports.As<alt::IMValueDict>());
 
-        if(curModule->IsGraphAsync()) Log::Warning << "[V8] Top level await is an experimental feature, use it at your own risk" << Log::Endl;
-
         Log::Info << "[V8] Started script " << path << Log::Endl;
         return true;
     });
     delete byteBuffer;
-
-    if(!result)
-    {
-        modules.erase(path);
-    }
 
     DispatchStartEvent(!result);
 
