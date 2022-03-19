@@ -2,6 +2,7 @@ cmake_minimum_required (VERSION 3.19)
 include(cmake/GitUtils.cmake)
 include(FetchContent)
 include(cmake/DepsDownload.cmake)
+include(../shared/cmake/GenerateBindings.cmake)
 
 project(altv-client-js)
 
@@ -41,14 +42,8 @@ endmacro()
 GroupSources(${PROJECT_SOURCE_DIR}/src "Source Files")
 GroupSources("../shared" "Shared Files")
 
-function(make_includable input_file output_file)
-    file(READ ${input_file} content)
-    set(delim "for_c++_include")
-    set(content "R\"${delim}(\n${content})${delim}\"")
-    file(WRITE ${output_file} "${content}")
-endfunction(make_includable)
-
 make_includable("src/bootstrap.js" "src/bootstrap.js.gen")
+GenerateBindings()
 
 include_directories(
   ${ALTV_JS_CPP_SDK}

@@ -298,6 +298,4 @@ __pycache__/
 .vscode
 dist/*
 
-src/bootstrap.js.gen
-
 deps/nodejs/lib/
