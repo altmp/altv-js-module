@@ -13,3 +13,7 @@ tools/extra.bat
 deps/v8/include/
 deps/v8/lib/
 deps/v8/update.json
+
+# Generated
+
+src/bootstrap.js.gen

@@ -41,6 +41,15 @@ endmacro()
 GroupSources(${PROJECT_SOURCE_DIR}/src "Source Files")
 GroupSources("../shared" "Shared Files")
 
+function(make_includable input_file output_file)
+    file(READ ${input_file} content)
+    set(delim "for_c++_include")
+    set(content "R\"${delim}(\n${content})${delim}\"")
+    file(WRITE ${output_file} "${content}")
+endfunction(make_includable)
+
+make_includable("src/bootstrap.js" "src/bootstrap.js.gen")
+
 include_directories(
   ${ALTV_JS_CPP_SDK}
   ${ALTV_JS_DEPS_DIR}/v8/include
