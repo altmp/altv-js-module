@@ -5,6 +5,8 @@
 #include "V8Module.h"
 #include "V8Helpers.h"
 
+#include "JSBindings.h"
+
 static void ResourceLoaded(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -38,6 +40,7 @@ bool CNodeResourceImpl::Start()
     v8::Context::Scope scope(_context);
 
     _context->Global()->Set(_context, V8Helpers::JSValue("__resourceLoaded"), v8::Function::New(_context, &ResourceLoaded).ToLocalChecked());
+    _context->Global()->Set(_context, V8Helpers::JSValue("__internal_bindings_code"), V8Helpers::JSValue(JSBindings::GetBindingsCode()));
 
     _context->SetAlignedPointerInEmbedderData(1, resource);
     context.Reset(isolate, _context);
