@@ -192,14 +192,16 @@ alt.Vector3.prototype.distanceTo = function(vector) {
 
 alt.Vector3.prototype.angleTo = function(vector) {
     if(vector === undefined) throw new Error("1 argument expected");
-    // todo: add
-    return 0;
+
+    const posALength = Math.hypot(this.x, this.y);
+    const posBLength = Math.hypot(vector.x, vector.y);
+    if (posALength === 0 || posBLength === 0) throw new Error("Division by zero");
+
+    return Math.acos((this.x * vector.x + this.y * vector.y) / (posALength * posBLength));
 }
 
 alt.Vector3.prototype.angleToDegrees = function(vector) {
-    if(vector === undefined) throw new Error("1 argument expected");
-    // todo: add
-    return 0;
+    return this.angleTo(vector) * (180 / Math.PI);
 }
 
 alt.Vector3.prototype.toDegrees = function() {
