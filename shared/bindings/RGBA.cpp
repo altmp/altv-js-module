@@ -3,21 +3,6 @@
 #include "../V8Helpers.h"
 #include "../V8ResourceImpl.h"
 
-static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-
-    V8_TO_NUMBER(info.This()->Get(ctx, V8Helpers::RGBA_RKey(isolate)).ToLocalChecked(), r);
-    V8_TO_NUMBER(info.This()->Get(ctx, V8Helpers::RGBA_GKey(isolate)).ToLocalChecked(), g);
-    V8_TO_NUMBER(info.This()->Get(ctx, V8Helpers::RGBA_BKey(isolate)).ToLocalChecked(), b);
-    V8_TO_NUMBER(info.This()->Get(ctx, V8Helpers::RGBA_AKey(isolate)).ToLocalChecked(), a);
-
-    std::ostringstream ss;
-    ss << "RGBA{ r: " << r << ", g: " << g << ", b: " << b << ", a: " << a << " }";
-
-    V8_RETURN_STRING(ss.str().c_str());
-}
-
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -43,6 +28,4 @@ extern V8Class v8RGBA("RGBA", &Constructor, [](v8::Local<v8::FunctionTemplate> t
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
     tpl->InstanceTemplate()->SetInternalFieldCount(99);  // !! Needs to be set so V8 knows its a custom class !!
-
-    V8Helpers::SetMethod(isolate, tpl, "toString", ToString);
 });
