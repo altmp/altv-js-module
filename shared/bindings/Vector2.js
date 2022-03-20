@@ -1,7 +1,6 @@
 // clang-format off
 // Vector2 JS bindings
 
-
 // Static properties
 alt.Vector2.zero = new alt.Vector2(0, 0);
 alt.Vector2.one = new alt.Vector2(1, 1);
