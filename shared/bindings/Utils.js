@@ -1,6 +1,6 @@
 /// <reference path="../../bindings.d.ts"/>
 // clang-format off
-// Main JS bindings
+// Utils JS bindings
 
 // Client only
 if(alt.isClient) {
