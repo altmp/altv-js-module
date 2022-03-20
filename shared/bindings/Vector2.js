@@ -1,3 +1,4 @@
+/// <reference path="../../bindings.d.ts"/>
 // clang-format off
 // Vector2 JS bindings
 
