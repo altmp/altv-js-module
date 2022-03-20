@@ -1,2 +1,4 @@
 # Generated
 *.gen
+
+node_modules/
