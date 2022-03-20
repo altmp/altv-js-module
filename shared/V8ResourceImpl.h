@@ -231,6 +231,8 @@ public:
         nextTickCallbacks.push_back(callback);
     }
 
+    v8::Local<v8::Object> GetOrCreateResourceObject(alt::IResource* resource);
+
     static V8ResourceImpl* Get(v8::Local<v8::Context> ctx)
     {
         alt::IResource* resource = GetResource(ctx);
@@ -269,6 +271,8 @@ protected:
     V8Helpers::CPersistent<v8::Function> vector2Class;
     V8Helpers::CPersistent<v8::Function> rgbaClass;
     V8Helpers::CPersistent<v8::Function> baseObjectClass;
+
+    std::unordered_map<alt::IResource*, V8Helpers::CPersistent<v8::Object>> resourceObjects;
 
     std::vector<NextTickCallback> nextTickCallbacks;
 
