@@ -5,11 +5,11 @@
 alt.Vector3.zero = new alt.Vector3(0, 0, 0);
 alt.Vector3.one = new alt.Vector3(1, 1, 1);
 alt.Vector3.back = new alt.Vector3(0, -1, 0);
+alt.Vector3.up = new alt.Vector3(0, 0, 1);
 alt.Vector3.down = new alt.Vector3(0, 0, -1);
 alt.Vector3.forward = new alt.Vector3(0, 1, 0);
 alt.Vector3.left = new alt.Vector3(-1, 0, 0);
 alt.Vector3.right = new alt.Vector3(1, 0, 0);
-alt.Vector3.up = new alt.Vector3(0, 0, 1);
 alt.Vector3.negativeInfinity = new alt.Vector3(-Infinity, -Infinity, -Infinity);
 alt.Vector3.positiveInfinity = new alt.Vector3(Infinity, Infinity, Infinity);
 
