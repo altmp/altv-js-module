@@ -116,38 +116,29 @@ static void ConfigGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v
 #endif
 
 // *** Static
-
-// Helper
-static inline v8::Local<v8::Object> CreateResource(v8::Local<v8::Context> ctx, alt::IResource* resource)
-{
-    v8::Local<v8::Object> obj = v8Resource.CreateInstance(ctx);
-    obj->SetInternalField(0, v8::External::New(ctx->GetIsolate(), resource));
-    return obj;
-}
-
 static void GetByName(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_ARGS_LEN(1);
 
     V8_ARG_TO_STD_STRING(1, name);
-    alt::IResource* resource = alt::ICore::Instance().GetResource(name);
+    alt::IResource* res = alt::ICore::Instance().GetResource(name);
     if(resource == nullptr) V8_RETURN_NULL();
     else
-        V8_RETURN(CreateResource(ctx, resource));
+        V8_RETURN(resource->GetOrCreateResourceObject(res));
 }
 
 static void AllGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
     const std::vector<alt::IResource*> resources = alt::ICore::Instance().GetAllResources();
     size_t size = resources.size();
     v8::Local<v8::Array> arr = v8::Array::New(isolate, size);
     for(size_t i = 0; i < size; i++)
     {
-        alt::IResource* resource = resources[i];
-        arr->Set(ctx, i, CreateResource(ctx, resource));
+        alt::IResource* res = resources[i];
+        arr->Set(ctx, i, resource->GetOrCreateResourceObject(res));
     }
 
     V8_RETURN(arr);
@@ -155,10 +146,9 @@ static void AllGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::
 
 static void CurrentGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-    alt::IResource* resource = V8ResourceImpl::GetResource(ctx);
-    V8_RETURN(CreateResource(ctx, resource));
+    V8_RETURN(resource->GetOrCreateResourceObject(resource->GetResource()));
 }
 
 extern V8Class v8Resource("Resource", [](v8::Local<v8::FunctionTemplate> tpl) {

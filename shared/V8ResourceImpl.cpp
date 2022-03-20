@@ -282,6 +282,18 @@ std::vector<V8Helpers::EventCallback*> V8ResourceImpl::GetGenericHandlers(bool l
     return handlers;
 }
 
+extern V8Class v8Resource;
+v8::Local<v8::Object> V8ResourceImpl::GetOrCreateResourceObject(alt::IResource* resource)
+{
+    // If already created return instance
+    if(resourceObjects.count(resource) != 0) return resourceObjects.at(resource).Get(isolate);
+    // Create instance
+    v8::Local<v8::Object> obj = v8Resource.CreateInstance(GetContext());
+    obj->SetInternalField(0, v8::External::New(isolate, resource));
+    resourceObjects.insert({ resource, V8Helpers::CPersistent<v8::Object>(isolate, obj) });
+    return obj;
+}
+
 void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vector<V8Helpers::EventCallback*>& handlers, std::vector<v8::Local<v8::Value>>& args, bool waitForPromiseResolve)
 {
     for(auto handler : handlers)
