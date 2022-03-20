@@ -23,9 +23,9 @@ alt.RGBA.prototype.toARGB = function() {
 }
 
 alt.RGBA.prototype.toInt = function() {
-    let int = r << 24;
-    int |= g << 16;
-    int |= b << 8;
-    int |= a;
+    let int = this.r << 24;
+    int |= this.g << 16;
+    int |= this.b << 8;
+    int |= this.a;
     return int;
 }
