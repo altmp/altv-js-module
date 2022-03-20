@@ -2,8 +2,8 @@
 #include <string>
 #include <vector>
 
-static std::string mainBindings =
-#include "bindings/Main.js.gen"
+static std::string utilsBindings =
+#include "bindings/Utils.js.gen"
   ;
 
 static std::string vector3Bindings =
@@ -22,7 +22,7 @@ namespace JSBindings
 {
     const std::string& GetBindingsCode()
     {
-        static std::vector<std::string> bindings = { mainBindings, vector3Bindings, vector2Bindings, rgbaBindings };
+        static std::vector<std::string> bindings = { utilsBindings, vector3Bindings, vector2Bindings, rgbaBindings };
         static std::string code;
 
         // Append all bindings to one big bindings module once
