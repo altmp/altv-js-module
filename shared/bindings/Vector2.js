@@ -25,7 +25,7 @@ alt.Vector2.prototype.toString = function() {
 }
 
 alt.Vector2.prototype.toArray = function() {
-    return [this.x, this.y, this.z];
+    return [this.x, this.y];
 }
 
 alt.Vector2.prototype.add = function(...args) {
