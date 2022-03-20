@@ -184,11 +184,15 @@ alt.Vector3.prototype.normalize = function() {
 }
 
 alt.Vector3.prototype.distanceTo = function(vector) {
+    return Math.sqrt(this.distanceToSquared(vector));
+}
+
+alt.Vector3.prototype.distanceToSquared = function(vector) {
     if(vector === undefined) throw new Error("1 argument expected");
     const x = this.x - parseInt(vector.x);
     const y = this.y - parseInt(vector.y);
     const z = this.z - parseInt(vector.z);
-    return Math.sqrt(x * x, y * y, z * z);
+    return x * x + y * y + z * z;
 }
 
 alt.Vector3.prototype.angleTo = function(vector) {
