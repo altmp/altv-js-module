@@ -496,82 +496,6 @@ static void Lerp(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_VECTOR2(lerpedVector);
 }
 
-static void StaticZero(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_RESOURCE();
-    static auto zero = v8::Eternal<v8::Object>(isolate, resource->CreateVector2({ 0, 0 }).As<v8::Object>());
-
-    V8_RETURN(zero.Get(isolate));
-}
-
-static void StaticOne(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_RESOURCE();
-    static auto one = v8::Eternal<v8::Object>(isolate, resource->CreateVector2({ 1, 1 }).As<v8::Object>());
-
-    V8_RETURN(one.Get(isolate));
-}
-
-static void StaticUp(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_RESOURCE();
-    static auto up = v8::Eternal<v8::Object>(isolate, resource->CreateVector2({ 0, 1 }).As<v8::Object>());
-
-    V8_RETURN(up.Get(isolate));
-}
-
-static void StaticDown(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_RESOURCE();
-    static auto down = v8::Eternal<v8::Object>(isolate, resource->CreateVector2({ 0, -1 }).As<v8::Object>());
-
-    V8_RETURN(down.Get(isolate));
-}
-
-static void StaticLeft(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_RESOURCE();
-    static auto left = v8::Eternal<v8::Object>(isolate, resource->CreateVector2({ -1, 0 }).As<v8::Object>());
-
-    V8_RETURN(left.Get(isolate));
-}
-
-static void StaticRight(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_RESOURCE();
-    static auto right = v8::Eternal<v8::Object>(isolate, resource->CreateVector2({ 1, 0 }).As<v8::Object>());
-
-    V8_RETURN(right.Get(isolate));
-}
-
-static void StaticNegativeInfinity(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_RESOURCE();
-
-    float infinity = -std::numeric_limits<float>::infinity();
-    static auto negativeInfinity = v8::Eternal<v8::Object>(isolate, resource->CreateVector2({ infinity, infinity }).As<v8::Object>());
-
-    V8_RETURN(negativeInfinity.Get(isolate));
-}
-
-static void StaticPositiveInfinity(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_RESOURCE();
-
-    float infinity = std::numeric_limits<float>::infinity();
-    static auto positiveInfinity = v8::Eternal<v8::Object>(isolate, resource->CreateVector2({ infinity, infinity }).As<v8::Object>());
-
-    V8_RETURN(positiveInfinity.Get(isolate));
-}
-
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -636,30 +560,4 @@ extern V8Class v8Vector2("Vector2", Constructor, [](v8::Local<v8::FunctionTempla
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
     tpl->InstanceTemplate()->SetInternalFieldCount(99);  // !! Needs to be set so V8 knows its a custom class !!
-
-    V8Helpers::SetStaticAccessor(isolate, tpl, "zero", StaticZero);
-    V8Helpers::SetStaticAccessor(isolate, tpl, "one", StaticOne);
-    V8Helpers::SetStaticAccessor(isolate, tpl, "up", StaticUp);
-    V8Helpers::SetStaticAccessor(isolate, tpl, "down", StaticDown);
-    V8Helpers::SetStaticAccessor(isolate, tpl, "left", StaticLeft);
-    V8Helpers::SetStaticAccessor(isolate, tpl, "right", StaticRight);
-    V8Helpers::SetStaticAccessor(isolate, tpl, "negativeInfinity", StaticNegativeInfinity);
-    V8Helpers::SetStaticAccessor(isolate, tpl, "positiveInfinity", StaticPositiveInfinity);
-
-    V8Helpers::SetAccessor(isolate, tpl, "length", Length);
-    V8Helpers::SetMethod(isolate, tpl, "toString", ToString);
-    V8Helpers::SetMethod(isolate, tpl, "toArray", ToArray);
-    V8Helpers::SetMethod(isolate, tpl, "add", Add);
-    V8Helpers::SetMethod(isolate, tpl, "sub", Sub);
-    V8Helpers::SetMethod(isolate, tpl, "div", Divide);
-    V8Helpers::SetMethod(isolate, tpl, "mul", Multiply);
-    V8Helpers::SetMethod(isolate, tpl, "negative", Negative);
-    V8Helpers::SetMethod(isolate, tpl, "normalize", Normalize);
-    V8Helpers::SetMethod(isolate, tpl, "distanceTo", DistanceTo);
-    V8Helpers::SetMethod(isolate, tpl, "angleTo", AngleTo);
-    V8Helpers::SetMethod(isolate, tpl, "angleToDegrees", AngleToDegrees);
-    V8Helpers::SetMethod(isolate, tpl, "toRadians", ToRadians);
-    V8Helpers::SetMethod(isolate, tpl, "toDegrees", ToDegrees);
-    V8Helpers::SetMethod(isolate, tpl, "isInRange", IsInRange);
-    V8Helpers::SetMethod(isolate, tpl, "lerp", Lerp);
 });
