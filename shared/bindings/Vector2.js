@@ -126,10 +126,14 @@ alt.Vector2.prototype.normalize = function() {
 }
 
 alt.Vector2.prototype.distanceTo = function(vector) {
+    return Math.sqrt(this.distanceToSquared(vector));
+}
+
+alt.Vector2.prototype.distanceToSquared = function(vector) {
     if(vector === undefined) throw new Error("1 argument expected");
     const x = this.x - parseInt(vector.x);
     const y = this.y - parseInt(vector.y);
-    return Math.sqrt(x * x, y * y);
+    return x * x + y * y;
 }
 
 alt.Vector2.prototype.angleTo = function(vector) {
