@@ -47,6 +47,9 @@
         },
     });
 
+    // Load the global bindings code
+    new Function("alt", __internal_bindings_code)(alt);
+
     // Get the path to the main file for this resource, and load it
     const _path = path.resolve(alt.getResourcePath(alt.resourceName), alt.getResourceMain(alt.resourceName));
     _exports = await loader.import("file://" + _path, "", {});

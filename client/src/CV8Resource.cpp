@@ -27,6 +27,8 @@
 
 #include "workers/CWorker.h"
 
+#include "JSBindings.h"
+
 extern void StaticRequire(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     v8::Isolate* isolate = info.GetIsolate();
@@ -135,7 +137,7 @@ bool CV8ResourceImpl::Start()
         ctx->Global()->Set(ctx, V8Helpers::JSValue("clearTimeout"), exports->Get(ctx, V8Helpers::JSValue("clearTimeout")).ToLocalChecked());
 
         ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_get_exports"), v8::Function::New(ctx, &StaticRequire).ToLocalChecked());
-        ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_main_path"), V8Helpers::JSValue(path));
+        ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_bindings_code"), V8Helpers::JSValue(JSBindings::GetBindingsCode()));
 
         bool res = curModule->InstantiateModule(ctx, CV8ScriptRuntime::ResolveModule).IsJust();
 
