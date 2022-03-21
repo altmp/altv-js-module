@@ -5,6 +5,7 @@
 // Client only
 if(alt.isClient) {
     alt.Utils.requestModel = async function(model, timeout = 1000) {
+        if (typeof model !== "string" && typeof model !== "number") throw new Error("Expected a string or number as first argument");
         if (typeof timeout !== "number") throw new Error("Expected a number as second argument");
 
         if (typeof model === "string") model = alt.hash(model);
@@ -19,8 +20,10 @@ if(alt.isClient) {
         }
     }
 
-    alt.Utils.requestAnimDict = async function(animDict) {
+    alt.Utils.requestAnimDict = async function(animDict, timeout = 1000) {
         if (typeof animDict !== "string") throw new Error("Expected a string as first argument");
+        if (typeof timeout !== "number") throw new Error("Expected a number as second argument");
+
         if (!native.doesAnimDictExist(animDict)) throw new Error("Anim dict not valid");
 
         const checkUntil = Date.now() + timeout;
@@ -32,8 +35,9 @@ if(alt.isClient) {
         }
     }
 
-    alt.Utils.requestAnimSet = async function(animSet) {
+    alt.Utils.requestAnimSet = async function(animSet, timeout = 1000) {
         if (typeof animSet !== "string") throw new Error("Expected a string as first argument");
+        if (typeof timeout !== "number") throw new Error("Expected a number as second argument");
 
         const checkUntil = Date.now() + timeout;
         native.requestAnimSet(animSet);
@@ -44,8 +48,9 @@ if(alt.isClient) {
         }
     }
 
-    alt.Utils.requestClipSet = async function(clipSet) {
+    alt.Utils.requestClipSet = async function(clipSet, timeout = 1000) {
         if (typeof clipSet !== "string") throw new Error("Expected a string as first argument");
+        if (typeof timeout !== "number") throw new Error("Expected a number as second argument");
 
         const checkUntil = Date.now() + timeout;
         native.requestClipSet(clipSet);
@@ -56,9 +61,10 @@ if(alt.isClient) {
         }
     }
 
-    alt.Utils.requestCutscene = async function(cutsceneName, flags) {
+    alt.Utils.requestCutscene = async function(cutsceneName, flags, timeout = 1000) {
         if (typeof cutsceneName !== "string") throw new Error("Expected a string as first argument");
         if (typeof flags !== "number") throw new Error("Expected a number as second argument");
+        if (typeof timeout !== "number") throw new Error("Expected a number as third argument");
 
         const checkUntil = Date.now() + timeout;
         native.requestCutscene(cutsceneName, flags);
@@ -76,22 +82,23 @@ else {
 
 // Shared
 alt.Utils.wait = function(timeout) {
-    if (typeof timeout !== "number") throw new Error("Expected a number as second argument");
+    if (typeof timeout !== "number") throw new Error("Expected a number as first argument");
 
     return new Promise(resolve => {
         alt.setTimeout(resolve, timeout);
     });
 }
 
-alt.Utils.timeoutPromise = async function(promise, timeout) {
-    if (!(promise instanceof Promise)) throw new Error("Expected a promise as first argument");
+alt.Utils.timeoutPromise = async function(promise, timeout = 1000) {
+    if (!(promise instanceof Promise) && !(promise instanceof (async () => {}).constructor))
+        throw new Error("Expected a promise or an async function as first argument");
     if (typeof timeout !== "number") throw new Error("Expected a number as second argument");
 
-    let timeout;
+    let timeoutRef;
     return Promise.race([
         promise,
         new Promise((_res, rej) => {
-            timeout = alt.setTimeout(() => rej('Operation timed out'), ms);
+            timeoutRef = alt.setTimeout(() => rej('Operation timed out'), timeout);
         }),
-    ]).finally(() => alt.clearTimeout(timeout));
+    ]).finally(() => alt.clearTimeout(timeoutRef));
 }
