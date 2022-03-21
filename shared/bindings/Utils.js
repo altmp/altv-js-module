@@ -88,17 +88,3 @@ alt.Utils.wait = function(timeout) {
         alt.setTimeout(resolve, timeout);
     });
 }
-
-alt.Utils.timeoutPromise = async function(promise, timeout = 1000) {
-    if (!(promise instanceof Promise) && !(promise instanceof (async () => {}).constructor))
-        throw new Error("Expected a promise or an async function as first argument");
-    if (typeof timeout !== "number") throw new Error("Expected a number as second argument");
-
-    let timeoutRef;
-    return Promise.race([
-        promise,
-        new Promise((_res, rej) => {
-            timeoutRef = alt.setTimeout(() => rej('Operation timed out'), timeout);
-        }),
-    ]).finally(() => alt.clearTimeout(timeoutRef));
-}
