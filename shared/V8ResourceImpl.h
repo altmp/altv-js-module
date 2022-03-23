@@ -30,6 +30,7 @@ public:
     ~V8ResourceImpl();
 
     bool Start() override;
+    bool Stop() override;
 
     void OnTick() override;
 

@@ -195,13 +195,6 @@ bool CV8ResourceImpl::Stop()
 
     // runtime->GetInspector()->contextDestroyed(context.Get(isolate));
 
-    for(auto pair : timers)
-    {
-        delete pair.second;
-    }
-    timers.clear();
-    oldTimers.clear();
-
     for(auto worker : workers)
     {
         worker->Destroy();
@@ -218,6 +211,8 @@ bool CV8ResourceImpl::Stop()
     localStorage.Reset();
 
     syntheticModuleExports.clear();
+
+    V8ResourceImpl::Stop();
 
     if(!context.IsEmpty())
     {

@@ -91,6 +91,8 @@ bool CNodeResourceImpl::Stop()
     node::EmitProcessBeforeExit(env);
     node::EmitProcessExit(env);
 
+    V8ResourceImpl::Stop();
+
     node::Stop(env);
 
     node::FreeEnvironment(env);
