@@ -38,6 +38,20 @@ bool V8ResourceImpl::Start()
     return true;
 }
 
+bool V8ResourceImpl::Stop()
+{
+    for(auto pair : timers)
+    {
+        delete pair.second;
+    }
+    timers.clear();
+    oldTimers.clear();
+    resourceObjects.clear();
+    nextTickCallbacks.clear();
+
+    return true;
+}
+
 void V8ResourceImpl::OnTick()
 {
     for(auto& nextTickCb : nextTickCallbacks) nextTickCb();
