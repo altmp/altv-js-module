@@ -162,7 +162,7 @@ namespace V8Helpers
     v8::Local<v8::String> Fire_WeaponKey(v8::Isolate* isolate);
 
     std::string Stringify(v8::Local<v8::Context> ctx, v8::Local<v8::Value> val);
-    alt::String GetJSValueTypeName(v8::Local<v8::Value> val);
+    std::string GetJSValueTypeName(v8::Local<v8::Value> val);
 
     inline std::string GetStackTrace(const std::string errorMsg)
     {

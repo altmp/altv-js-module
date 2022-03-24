@@ -11,7 +11,7 @@ static void StaticExists(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(1, _path);
 
 #ifdef ALT_CLIENT
-    alt::String origin = V8Helpers::GetCurrentSourceOrigin(isolate);
+    std::string origin = V8Helpers::GetCurrentSourceOrigin(isolate);
     auto path = alt::ICore::Instance().Resolve(resource, _path, origin);
     V8_CHECK(path.pkg, "invalid asset pack");
     bool exists = path.pkg->FileExists(path.fileName);
@@ -22,6 +22,7 @@ static void StaticExists(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_BOOLEAN(exists);
 }
 
+// todo: refactor this
 static void StaticRead(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_IRESOURCE();
@@ -29,11 +30,11 @@ static void StaticRead(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN_MIN(1);
     V8_ARG_TO_STRING(1, name);
 
-    alt::String encoding = "utf-8";
+    std::string encoding = "utf-8";
 
     if(info.Length() >= 2)
     {
-        V8_ARG_TO_STRING(2, _encoding);
+        V8_ARG_TO_STD_STRING(2, _encoding);
         encoding = _encoding;
     }
 

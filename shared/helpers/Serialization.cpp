@@ -82,8 +82,8 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
 
                 if(!maybeKey.ToLocal(&key)) continue;
                 if(!maybeValue.ToLocal(&value)) continue;
-                alt::String keyString = V8Helpers::Stringify(ctx, val);
-                if(keyString.IsEmpty()) continue;
+                std::string keyString = V8Helpers::Stringify(ctx, val);
+                if(keyString.empty()) continue;
                 dict->Set(keyString, V8ToMValue(value, false));
             }
             return dict;

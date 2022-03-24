@@ -343,7 +343,7 @@ std::string V8Helpers::Stringify(v8::Local<v8::Context> ctx, v8::Local<v8::Value
     return result;
 }
 
-alt::String V8Helpers::GetJSValueTypeName(v8::Local<v8::Value> val)
+std::string V8Helpers::GetJSValueTypeName(v8::Local<v8::Value> val)
 {
     if(val->IsUndefined()) return "undefined";
     if(val->IsNull()) return "null";

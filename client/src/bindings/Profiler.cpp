@@ -148,7 +148,7 @@ static void StopProfiling(const v8::FunctionCallbackInfo<v8::Value>& info)
     // Set top level info about the profile
     V8_NEW_OBJECT(resultObj);
     V8_OBJECT_SET_INT(resultObj, "id", std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count());
-    V8_OBJECT_SET_STRING(resultObj, "type", alt::String("cpu"));
+    V8_OBJECT_SET_RAW_STRING(resultObj, "type", "cpu");
     V8_OBJECT_SET_INT(resultObj, "start", result->GetStartTime() / 1000);
     V8_OBJECT_SET_INT(resultObj, "end", result->GetEndTime() / 1000);
     V8_OBJECT_SET_INT(resultObj, "samples", result->GetSamplesCount());
