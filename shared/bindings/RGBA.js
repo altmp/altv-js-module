@@ -30,3 +30,7 @@ alt.RGBA.prototype.toInt = function() {
     int |= this.a;
     return int;
 }
+
+alt.RGBA.prototype.toArray = function() {
+    return [this.r, this.g, this.b, this.a];
+}
