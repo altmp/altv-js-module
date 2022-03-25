@@ -5,6 +5,8 @@
   const { esmLoader: loader } = require('internal/process/esm_loader');
   const { translators } = require('internal/modules/esm/translators');
 
+  const resource = alt.Resource.current;
+
   let _exports = null;
 
   try {
@@ -17,7 +19,7 @@
     // Set our custom translator for the 'alt' protocol that loads alt:V resources
     translators.set('alt', async function(url) {
       const name = url.slice(4); // Remove 'alt:' scheme
-      const exports = process._linkedBinding('alt').getResourceExports(name);
+      const exports = alt.getResourceExports(name);
       return new ModuleWrap(url, undefined, Object.keys(exports), function() {
         for (const exportName in exports) {
           let value;
@@ -51,8 +53,8 @@
     new Function("alt", __internal_bindings_code)(alt);
 
     // Get the path to the main file for this resource, and load it
-    const _path = path.resolve(alt.getResourcePath(alt.resourceName), alt.getResourceMain(alt.resourceName));
-    _exports = await loader.import("file://" + _path, "", {});
+    const _path = path.resolve(resource.path, resource.main);
+    _exports = await loader.import(`file://${_path}`, "", {});
     if ('start' in _exports) {
       const start = _exports.start;
       if (typeof start === 'function') {
@@ -63,5 +65,5 @@
     console.error(e);
   }
 
-  __resourceLoaded(alt.resourceName, _exports);
+  __resourceLoaded(resource.name, _exports);
 })();
