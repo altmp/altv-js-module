@@ -270,7 +270,7 @@ static void TimeEnd(const v8::FunctionCallbackInfo<v8::Value>& info)
     auto it = timers.find(name);
     V8_CHECK(!(it == timers.end()), "Timer not found");
     std::chrono::high_resolution_clock::time_point& start = it->second;
-    Log::Info << "Timer " << name << ": " << (float)(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count() / 1000.f) << "ms"
+    Log::Colored << "Timer " << name << ": " << (float)(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count() / 1000.f) << "ms"
               << Log::Endl;
 
     timers.erase(name);
