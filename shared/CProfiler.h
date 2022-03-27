@@ -17,6 +17,7 @@ class CProfiler
     using TimePoint = std::chrono::high_resolution_clock::time_point;
 
     bool enabled = false;
+    bool logsEnabled = true;
     std::unordered_multimap<std::string, Duration> samples;
     std::unordered_map<std::string, TimePoint> runningSamples;
 
@@ -34,12 +35,10 @@ class CProfiler
         samples.insert({ name, duration });
         runningSamples.erase(it);
 
-        if(!skipLog)
-        {
-            float ms = duration.count() / 1000000.f;
-            std::string color = ms > 50 ? "~lr~" : ms > 20 ? "~ly~" : "~lg~";
-            Log::Colored << "[Profiler] ~lc~" << name << "~w~ took: " << color << ms << "ms" << Log::Endl;
-        }
+        if(skipLog || !logsEnabled) return;
+        float ms = duration.count() / 1000000.f;
+        std::string color = ms > 50 ? "~lr~" : ms > 20 ? "~ly~" : "~lg~";
+        Log::Colored << "[Profiler] ~lc~" << name << "~w~ took: " << color << ms << "ms" << Log::Endl;
     }
 
 public:
@@ -93,6 +92,14 @@ public:
     void SetIsEnabled(bool state)
     {
         enabled = state;
+    }
+    bool AreLogsEnabled() const
+    {
+        return logsEnabled;
+    }
+    void SetLogsEnabled(bool state)
+    {
+        logsEnabled = state;
     }
 
     static CProfiler& Instance()

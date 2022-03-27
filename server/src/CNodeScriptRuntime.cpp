@@ -191,16 +191,17 @@ void CNodeScriptRuntime::ProcessConfigOptions()
     if(!moduleConfig.IsDict()) return;
 
     alt::config::Node profiler = moduleConfig["profiler"];
-    if(!profiler.IsNone())
+    if(profiler.IsDict())
     {
+        CProfiler::Instance().SetIsEnabled(true);
         try
         {
-            bool result = profiler.ToBool();
-            CProfiler::Instance().SetIsEnabled(result);
+            bool result = profiler["logs"].ToBool();
+            CProfiler::Instance().SetLogsEnabled(result);
         }
         catch(alt::config::Error&)
         {
-            Log::Error << "Invalid value for 'profiler' config option" << Log::Endl;
+            Log::Error << "Invalid value for 'logs' profiler config option" << Log::Endl;
         }
     }
 }
