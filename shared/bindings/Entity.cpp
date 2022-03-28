@@ -251,6 +251,9 @@ extern V8Class v8Entity("Entity",
 
                             V8Helpers::SetMethod(isolate, tpl, "attachTo", AttachTo);
                             V8Helpers::SetMethod<IEntity, &IEntity::Detach>(isolate, tpl, "detach");
+
+                            V8Helpers::SetAccessor<IEntity, bool, &IEntity::IsFrozen, &IEntity::SetFrozen>(isolate, tpl, "frozen");
+                            V8Helpers::SetAccessor<IEntity, bool, &IEntity::HasCollision, &IEntity::SetCollision>(isolate, tpl, "collision");
 #endif  // ALT_SERVER_API
 
 #ifdef ALT_CLIENT_API
