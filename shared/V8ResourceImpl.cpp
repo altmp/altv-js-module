@@ -355,7 +355,6 @@ void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vecto
                     else if(state == v8::Promise::PromiseState::kRejected)
                     {
                         // todo: we should probably do something with the rejection here
-                        promise->MarkAsHandled();
                         break;
                     }
                 }
