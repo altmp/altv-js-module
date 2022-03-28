@@ -37,16 +37,16 @@ alt.Vector3.prototype.add = function(...args) {
 
     if(args.length === 3) [x, y, z] = args;
     else {
-        if(typeof args[0] === "number" || typeof args[0] === "string") x = parseInt(args[0]), y = parseInt(args[0]), z = parseInt(args[0]);
+        if(typeof args[0] === "number" || typeof args[0] === "string") x = parseFloat(args[0]), y = parseFloat(args[0]), z = parseFloat(args[0]);
         else if(Array.isArray(args[0])) {
-            if(typeof args[0][0] === "number" || typeof args[0][0] === "string") x = parseInt(args[0][0]);
-            if(typeof args[0][1] === "number" || typeof args[0][1] === "string") y = parseInt(args[0][1]);
-            if(typeof args[0][2] === "number" || typeof args[0][2] === "string") z = parseInt(args[0][2]);
+            if(typeof args[0][0] === "number" || typeof args[0][0] === "string") x = parseFloat(args[0][0]);
+            if(typeof args[0][1] === "number" || typeof args[0][1] === "string") y = parseFloat(args[0][1]);
+            if(typeof args[0][2] === "number" || typeof args[0][2] === "string") z = parseFloat(args[0][2]);
         }
         else if(typeof args[0] === "object") {
-            if(args[0].x !== undefined) x = parseInt(args[0].x);
-            if(args[0].y !== undefined) y = parseInt(args[0].y);
-            if(args[0].z !== undefined) z = parseInt(args[0].z);
+            if(args[0].x !== undefined) x = parseFloat(args[0].x);
+            if(args[0].y !== undefined) y = parseFloat(args[0].y);
+            if(args[0].z !== undefined) z = parseFloat(args[0].z);
         }
         else throw new Error("Argument must be a number, an array of 3 numbers or IVector3");
     }
@@ -61,16 +61,16 @@ alt.Vector3.prototype.sub = function(...args) {
 
     if(args.length === 3) [x, y, z] = args;
     else {
-        if(typeof args[0] === "number" || typeof args[0] === "string") x = parseInt(args[0]), y = parseInt(args[0]), z = parseInt(args[0]);
+        if(typeof args[0] === "number" || typeof args[0] === "string") x = parseFloat(args[0]), y = parseFloat(args[0]), z = parseFloat(args[0]);
         else if(Array.isArray(args[0])) {
-            if(typeof args[0][0] === "number" || typeof args[0][0] === "string") x = parseInt(args[0][0]);
-            if(typeof args[0][1] === "number" || typeof args[0][1] === "string") y = parseInt(args[0][1]);
-            if(typeof args[0][2] === "number" || typeof args[0][2] === "string") z = parseInt(args[0][2]);
+            if(typeof args[0][0] === "number" || typeof args[0][0] === "string") x = parseFloat(args[0][0]);
+            if(typeof args[0][1] === "number" || typeof args[0][1] === "string") y = parseFloat(args[0][1]);
+            if(typeof args[0][2] === "number" || typeof args[0][2] === "string") z = parseFloat(args[0][2]);
         }
         else if(typeof args[0] === "object") {
-            if(args[0].x !== undefined) x = parseInt(args[0].x);
-            if(args[0].y !== undefined) y = parseInt(args[0].y);
-            if(args[0].z !== undefined) z = parseInt(args[0].z);
+            if(args[0].x !== undefined) x = parseFloat(args[0].x);
+            if(args[0].y !== undefined) y = parseFloat(args[0].y);
+            if(args[0].z !== undefined) z = parseFloat(args[0].z);
         }
         else throw new Error("Argument must be a number, an array of 3 numbers or IVector3");
     }
@@ -85,16 +85,16 @@ alt.Vector3.prototype.div = function(...args) {
 
     if(args.length === 3) [x, y, z] = args;
     else {
-        if(typeof args[0] === "number" || typeof args[0] === "string") x = parseInt(args[0]), y = parseInt(args[0]), z = parseInt(args[0]);
+        if(typeof args[0] === "number" || typeof args[0] === "string") x = parseFloat(args[0]), y = parseFloat(args[0]), z = parseFloat(args[0]);
         else if(Array.isArray(args[0])) {
-            if(typeof args[0][0] === "number" || typeof args[0][0] === "string") x = parseInt(args[0][0]);
-            if(typeof args[0][1] === "number" || typeof args[0][1] === "string") y = parseInt(args[0][1]);
-            if(typeof args[0][2] === "number" || typeof args[0][2] === "string") z = parseInt(args[0][2]);
+            if(typeof args[0][0] === "number" || typeof args[0][0] === "string") x = parseFloat(args[0][0]);
+            if(typeof args[0][1] === "number" || typeof args[0][1] === "string") y = parseFloat(args[0][1]);
+            if(typeof args[0][2] === "number" || typeof args[0][2] === "string") z = parseFloat(args[0][2]);
         }
         else if(typeof args[0] === "object") {
-            if(args[0].x !== undefined) x = parseInt(args[0].x);
-            if(args[0].y !== undefined) y = parseInt(args[0].y);
-            if(args[0].z !== undefined) z = parseInt(args[0].z);
+            if(args[0].x !== undefined) x = parseFloat(args[0].x);
+            if(args[0].y !== undefined) y = parseFloat(args[0].y);
+            if(args[0].z !== undefined) z = parseFloat(args[0].z);
         }
         else throw new Error("Argument must be a number, an array of 3 numbers or IVector3");
     }
@@ -109,16 +109,16 @@ alt.Vector3.prototype.mul = function(...args) {
 
     if(args.length === 3) [x, y, z] = args;
     else {
-        if(typeof args[0] === "number" || typeof args[0] === "string") x = parseInt(args[0]), y = parseInt(args[0]), z = parseInt(args[0]);
+        if(typeof args[0] === "number" || typeof args[0] === "string") x = parseFloat(args[0]), y = parseFloat(args[0]), z = parseFloat(args[0]);
         else if(Array.isArray(args[0])) {
-            if(typeof args[0][0] === "number" || typeof args[0][0] === "string") x = parseInt(args[0][0]);
-            if(typeof args[0][1] === "number" || typeof args[0][1] === "string") y = parseInt(args[0][1]);
-            if(typeof args[0][2] === "number" || typeof args[0][2] === "string") z = parseInt(args[0][2]);
+            if(typeof args[0][0] === "number" || typeof args[0][0] === "string") x = parseFloat(args[0][0]);
+            if(typeof args[0][1] === "number" || typeof args[0][1] === "string") y = parseFloat(args[0][1]);
+            if(typeof args[0][2] === "number" || typeof args[0][2] === "string") z = parseFloat(args[0][2]);
         }
         else if(typeof args[0] === "object") {
-            if(args[0].x !== undefined) x = parseInt(args[0].x);
-            if(args[0].y !== undefined) y = parseInt(args[0].y);
-            if(args[0].z !== undefined) z = parseInt(args[0].z);
+            if(args[0].x !== undefined) x = parseFloat(args[0].x);
+            if(args[0].y !== undefined) y = parseFloat(args[0].y);
+            if(args[0].z !== undefined) z = parseFloat(args[0].z);
         }
         else throw new Error("Argument must be a number, an array of 3 numbers or IVector3");
     }
@@ -133,16 +133,16 @@ alt.Vector3.prototype.dot = function(...args) {
 
     if(args.length === 3) [x, y, z] = args;
     else {
-        if(typeof args[0] === "number" || typeof args[0] === "string") x = parseInt(args[0]), y = parseInt(args[0]), z = parseInt(args[0]);
+        if(typeof args[0] === "number" || typeof args[0] === "string") x = parseFloat(args[0]), y = parseFloat(args[0]), z = parseFloat(args[0]);
         else if(Array.isArray(args[0])) {
-            if(typeof args[0][0] === "number" || typeof args[0][0] === "string") x = parseInt(args[0][0]);
-            if(typeof args[0][1] === "number" || typeof args[0][1] === "string") y = parseInt(args[0][1]);
-            if(typeof args[0][2] === "number" || typeof args[0][2] === "string") z = parseInt(args[0][2]);
+            if(typeof args[0][0] === "number" || typeof args[0][0] === "string") x = parseFloat(args[0][0]);
+            if(typeof args[0][1] === "number" || typeof args[0][1] === "string") y = parseFloat(args[0][1]);
+            if(typeof args[0][2] === "number" || typeof args[0][2] === "string") z = parseFloat(args[0][2]);
         }
         else if(typeof args[0] === "object") {
-            if(args[0].x !== undefined) x = parseInt(args[0].x);
-            if(args[0].y !== undefined) y = parseInt(args[0].y);
-            if(args[0].z !== undefined) z = parseInt(args[0].z);
+            if(args[0].x !== undefined) x = parseFloat(args[0].x);
+            if(args[0].y !== undefined) y = parseFloat(args[0].y);
+            if(args[0].z !== undefined) z = parseFloat(args[0].z);
         }
         else throw new Error("Argument must be a number, an array of 3 numbers or IVector3");
     }
@@ -157,16 +157,16 @@ alt.Vector3.prototype.cross = function(...args) {
 
     if(args.length === 3) [x, y, z] = args;
     else {
-        if(typeof args[0] === "number" || typeof args[0] === "string") x = parseInt(args[0]), y = parseInt(args[0]), z = parseInt(args[0]);
+        if(typeof args[0] === "number" || typeof args[0] === "string") x = parseFloat(args[0]), y = parseFloat(args[0]), z = parseFloat(args[0]);
         else if(Array.isArray(args[0])) {
-            if(typeof args[0][0] === "number" || typeof args[0][0] === "string") x = parseInt(args[0][0]);
-            if(typeof args[0][1] === "number" || typeof args[0][1] === "string") y = parseInt(args[0][1]);
-            if(typeof args[0][2] === "number" || typeof args[0][2] === "string") z = parseInt(args[0][2]);
+            if(typeof args[0][0] === "number" || typeof args[0][0] === "string") x = parseFloat(args[0][0]);
+            if(typeof args[0][1] === "number" || typeof args[0][1] === "string") y = parseFloat(args[0][1]);
+            if(typeof args[0][2] === "number" || typeof args[0][2] === "string") z = parseFloat(args[0][2]);
         }
         else if(typeof args[0] === "object") {
-            if(args[0].x !== undefined) x = parseInt(args[0].x);
-            if(args[0].y !== undefined) y = parseInt(args[0].y);
-            if(args[0].z !== undefined) z = parseInt(args[0].z);
+            if(args[0].x !== undefined) x = parseFloat(args[0].x);
+            if(args[0].y !== undefined) y = parseFloat(args[0].y);
+            if(args[0].z !== undefined) z = parseFloat(args[0].z);
         }
         else throw new Error("Argument must be a number, an array of 3 numbers or IVector3");
     }
@@ -189,9 +189,9 @@ alt.Vector3.prototype.distanceTo = function(vector) {
 
 alt.Vector3.prototype.distanceToSquared = function(vector) {
     if(vector === undefined) throw new Error("1 argument expected");
-    const x = this.x - parseInt(vector.x);
-    const y = this.y - parseInt(vector.y);
-    const z = this.z - parseInt(vector.z);
+    const x = this.x - parseFloat(vector.x);
+    const y = this.y - parseFloat(vector.y);
+    const z = this.z - parseFloat(vector.z);
     return x * x + y * y + z * z;
 }
 
@@ -219,9 +219,9 @@ alt.Vector3.prototype.toRadians = function() {
 
 alt.Vector3.prototype.isInRange = function(vector, range) {
     if(vector === undefined || range === undefined) throw new Error("2 arguments expected");
-    const x = Math.abs(this.x - parseInt(vector.x));
-    const y = Math.abs(this.y - parseInt(vector.y));
-    const z = Math.abs(this.z - parseInt(vector.z));
+    const x = Math.abs(this.x - parseFloat(vector.x));
+    const y = Math.abs(this.y - parseFloat(vector.y));
+    const z = Math.abs(this.z - parseFloat(vector.z));
 
     return x <= range && y <= range && z <= range  // Fast check
         && x * x + y * y + z * z <= range * range; // Slow check
