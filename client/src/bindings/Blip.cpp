@@ -137,6 +137,7 @@ extern V8Class v8Blip("Blip", v8WorldObject, Constructor, [](v8::Local<v8::Funct
     V8Helpers::SetAccessor<IBlip, bool, &IBlip::GetShrinked, &IBlip::SetShrinked>(isolate, tpl, "shrinked");
 
     V8Helpers::SetAccessor<IBlip, uint32_t, &IBlip::GetScriptID>(isolate, tpl, "scriptID");
+    V8Helpers::SetAccessor<IBlip, bool, &IBlip::IsRemote>(isolate, tpl, "isRemote");
 
     V8Helpers::SetMethod(isolate, tpl, "fade", &Fade);
 });
