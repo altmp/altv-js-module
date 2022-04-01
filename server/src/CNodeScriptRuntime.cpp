@@ -72,20 +72,13 @@ void CNodeScriptRuntime::OnDispose()
                     uv_run(uv_default_loop(), UV_RUN_DEFAULT);
                     platform->DrainTasks(isolate);
             } while (uv_loop_alive(uv_default_loop()));
-    }*/
-#ifdef WIN32
+    }
+    platform->UnregisterIsolate(isolate);
+    isolate->Dispose();
+    node::FreePlatform(platform.release());
     v8::V8::Dispose();
     v8::V8::ShutdownPlatform();
-#else
-    platform->DrainTasks(isolate);
-    platform->UnregisterIsolate(isolate);
-
-    isolate->Dispose();
-    v8::V8::Dispose();
-    platform.release();
-#endif
-
-    // node::FreePlatform(platform.release());
+    */
 
     if(CProfiler::Instance().IsEnabled()) CProfiler::Instance().Dump("./");
 }
