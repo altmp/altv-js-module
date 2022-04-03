@@ -902,24 +902,44 @@ static void LoadRmlFont(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void WorldToScreen(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_CHECK_ARGS_LEN(3);
+    V8_CHECK_ARGS_LEN2(1, 3);
 
-    V8_ARG_TO_NUMBER(1, x);
-    V8_ARG_TO_NUMBER(2, y);
-    V8_ARG_TO_NUMBER(3, z);
+    alt::Vector3f vec;
+    if(info.Length() == 3) 
+    {
+        V8_ARG_TO_NUMBER(1, x);
+        V8_ARG_TO_NUMBER(2, y);
+        V8_ARG_TO_NUMBER(3, z);
+        vec = { x, y, z };
+    }
+    else
+    {
+        V8_ARG_TO_VECTOR3(1, val);
+        vec = val;
+    }
 
-    V8_RETURN_VECTOR3(alt::ICore::Instance().WorldToScreen({ x, y, z }));
+    V8_RETURN_VECTOR3(alt::ICore::Instance().WorldToScreen(vec));
 }
 
 static void ScreenToWorld(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_CHECK_ARGS_LEN(2);
+    V8_CHECK_ARGS_LEN2(1, 2);
 
-    V8_ARG_TO_NUMBER(1, x);
-    V8_ARG_TO_NUMBER(2, y);
+    alt::Vector2f vec;
+    if(info.Length() == 2)
+    {
+        V8_ARG_TO_NUMBER(1, x);
+        V8_ARG_TO_NUMBER(2, y);
+        vec = { x, y };
+    }
+    else
+    {
+        V8_ARG_TO_VECTOR2(1, val);
+        vec = val;
+    }
 
-    V8_RETURN_VECTOR3(alt::ICore::Instance().ScreenToWorld({ x, y }));
+    V8_RETURN_VECTOR3(alt::ICore::Instance().ScreenToWorld(vec));
 }
 
 static void GetCamPos(const v8::FunctionCallbackInfo<v8::Value>& info)
