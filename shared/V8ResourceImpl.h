@@ -182,8 +182,7 @@ public:
 
     uint32_t CreateTimer(v8::Local<v8::Context> context, v8::Local<v8::Function> callback, uint32_t interval, bool once, V8Helpers::SourceLocation&& location)
     {
-        uint32_t id = nextTimerId++;
-        // Log::Debug << "Create timer " << id << Log::Endl;
+        uint32_t id = ++nextTimerId;
         timers[id] = new V8Timer{ isolate, context, GetTime(), callback, interval, once, std::move(location) };
 
         return id;
