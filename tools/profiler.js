@@ -1,7 +1,8 @@
+// clang-format off
 // This tool is used to convert the results of a JS module profiler .samples
 // file to a .json file.
 
-import * as fs from "fs";
+const fs = require("fs");
 
 // [0]     [1]           [2]           [3]
 // node profiler.js path/to/input path/to/output
