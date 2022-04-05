@@ -556,7 +556,7 @@ extern V8Class v8RmlElement("RmlElement", v8BaseObject, nullptr, [](v8::Local<v8
     V8Helpers::SetAccessor<alt::IRmlElement, int, &alt::IRmlElement::GetChildCount>(isolate, tpl, "childCount");
     V8Helpers::SetAccessor<alt::IRmlElement, bool, &alt::IRmlElement::HasChildren>(isolate, tpl, "hasChildren");
 
-    V8Helpers::SetAccessor<alt::IRmlElement, const std::string&, &alt::IRmlElement::GetInnerRML, &alt::IRmlElement::SetInnerRML>(isolate, tpl, "innerRML");
+    V8Helpers::SetAccessor<alt::IRmlElement, std::string, &alt::IRmlElement::GetInnerRML, const std::string&, &alt::IRmlElement::SetInnerRML>(isolate, tpl, "innerRML");
 
     V8Helpers::SetAccessor<alt::IRmlElement, Ref<IRmlDocument>, &alt::IRmlElement::GetOwnerDocument>(isolate, tpl, "ownerDocument");
 
