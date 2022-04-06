@@ -12,35 +12,35 @@ alt.Utils.wait = function(timeout) {
 }
 
 alt.Utils.waitFor = function(callback, timeout = 2000) {
-if (typeof callback !== "function") throw new Error("Expected a function as first argument");
-if (typeof timeout !== "number") throw new Error("Expected a number as second argument");
+    if (typeof callback !== "function") throw new Error("Expected a function as first argument");
+    if (typeof timeout !== "number") throw new Error("Expected a number as second argument");
 
-const checkUntil = Date.now() + timeout;
+    const checkUntil = Date.now() + timeout;
 
-return new Promise((resolve, reject) => {
-    const interval = alt.setInterval(() => {
-        let result;
-        try {
-            result = callback();
-        } catch (e) {
-            const promiseError = new Error(`Failed to wait for callback, error: ${e.message}`);
+    return new Promise((resolve, reject) => {
+        const interval = alt.setInterval(() => {
+            let result;
+            try {
+                result = callback();
+            } catch (e) {
+                const promiseError = new Error(`Failed to wait for callback, error: ${e.message}`);
 
-            reject(promiseError);
-            alt.logError(promiseError.message);
-            alt.logError(e.stack);
-            alt.clearInterval(interval);
-            return;
-        }
+                reject(promiseError);
+                alt.logError(promiseError.message);
+                alt.logError(e.stack);
+                alt.clearInterval(interval);
+                return;
+            }
 
-        if (result) {
-            alt.clearInterval(interval);
-            resolve();
-        } else if (Date.now() > checkUntil) {
-            alt.clearInterval(interval);
-            reject(new Error(`Failed to wait for callback: ${callback}`));
-        }
-    }, 5);
-});
+            if (result) {
+                alt.clearInterval(interval);
+                resolve();
+            } else if (Date.now() > checkUntil) {
+                alt.clearInterval(interval);
+                reject(new Error(`Failed to wait for callback: ${callback}`));
+            }
+        }, 5);
+    });
 }
 
 // Client only
