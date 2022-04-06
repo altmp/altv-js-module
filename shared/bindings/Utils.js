@@ -85,21 +85,12 @@ if (alt.isClient) {
             native.requestAnimSet(animSet);
             await alt.Utils.waitFor(() => native.hasAnimSetLoaded(animSet), timeout);
         } catch (e) {
-            throw new Error(`Failed to request anim set '${animSet}'`);
+            throw new Error(`Failed to request anim (clip) set '${animSet}'`);
         }
     }
 
-    alt.Utils.requestClipSet = async function(clipSet, timeout = 1000) {
-        if (typeof clipSet !== "string") throw new Error("Expected a string as first argument");
-        if (typeof timeout !== "number") throw new Error("Expected a number as second argument");
-
-        try {
-            native.requestClipSet(clipSet);
-            await alt.Utils.waitFor(() => native.hasClipSetLoaded(clipSet), timeout);
-        } catch (e) {
-            throw new Error(`Failed to request clip set '${clipSet}'`);
-        }
-    }
+    // clip set is synonymous to anim set
+    alt.Utils.requestClipSet = alt.Utils.requestAnimSet;
 
     alt.Utils.requestCutscene = async function(cutsceneName, flags, timeout = 1000) {
         if (typeof cutsceneName !== "string") throw new Error("Expected a string as first argument");
