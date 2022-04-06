@@ -140,12 +140,12 @@ bool CNodeResourceImpl::OnEvent(const alt::CEvent* e)
             if(evType == alt::CEvent::Type::SERVER_SCRIPT_EVENT)
             {
                 callbacks = std::move(GetGenericHandlers(true));
-                eventName = static_cast<const alt::CServerScriptEvent*>(e)->GetName().CStr();
+                eventName = static_cast<const alt::CServerScriptEvent*>(e)->GetName().c_str();
             }
             else if(evType == alt::CEvent::Type::CLIENT_SCRIPT_EVENT)
             {
                 callbacks = std::move(GetGenericHandlers(false));
-                eventName = static_cast<const alt::CClientScriptEvent*>(e)->GetName().CStr();
+                eventName = static_cast<const alt::CClientScriptEvent*>(e)->GetName().c_str();
             }
 
             if(callbacks.size() != 0)
@@ -185,7 +185,7 @@ void CNodeResourceImpl::OnTick()
     V8ResourceImpl::OnTick();
 }
 
-bool CNodeResourceImpl::MakeClient(alt::IResource::CreationInfo* info, alt::Array<alt::String>)
+bool CNodeResourceImpl::MakeClient(alt::IResource::CreationInfo* info, alt::Array<std::string>)
 {
     if(resource->GetClientType() == "jsb") info->type = "js";
     return true;

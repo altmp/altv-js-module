@@ -155,7 +155,7 @@ static void Kick(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     if(info.Length() == 1)
     {
-        V8_ARG_TO_STD_STRING(1, reason);
+        V8_ARG_TO_STRING(1, reason);
         _this->Kick(reason);
     }
     else
@@ -168,21 +168,21 @@ static void SocialIDGetter(v8::Local<v8::String> name, const v8::PropertyCallbac
 {
     V8_GET_ISOLATE();
     V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
-    V8_RETURN_STRING(std::to_string(_this->GetSocialID()).c_str());
+    V8_RETURN_STRING(std::to_string(_this->GetSocialID()));
 }
 
 static void HwidHashGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE();
     V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
-    V8_RETURN_STRING(std::to_string(_this->GetHwidHash()).c_str());
+    V8_RETURN_STRING(std::to_string(_this->GetHwidHash()));
 }
 
 static void HwidExHashGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE();
     V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
-    V8_RETURN_STRING(std::to_string(_this->GetHwidExHash()).c_str());
+    V8_RETURN_STRING(std::to_string(_this->GetHwidExHash()));
 }
 
 static void SetClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -402,8 +402,8 @@ static void PlayAmbientSpeech(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(3);
     V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-    V8_ARG_TO_STD_STRING(1, speechName);
-    V8_ARG_TO_STD_STRING(2, speechParam);
+    V8_ARG_TO_STRING(1, speechName);
+    V8_ARG_TO_STRING(2, speechParam);
     V8_ARG_TO_UINT(3, speechDictHash);
 
     player->PlayAmbientSpeech(speechName, speechParam, speechDictHash);
@@ -692,7 +692,7 @@ static void HasLocalMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN_MIN(1);
     V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
 
-    V8_ARG_TO_STD_STRING(1, key);
+    V8_ARG_TO_STRING(1, key);
 
     V8_RETURN(player->HasLocalMetaData(key));
 }
@@ -703,7 +703,7 @@ static void SetLocalMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN_MIN(1);
     V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
 
-    V8_ARG_TO_STD_STRING(1, key);
+    V8_ARG_TO_STRING(1, key);
     V8_ARG_TO_MVALUE(2, value);
     player->SetLocalMetaData(key, value);
 }
@@ -714,7 +714,7 @@ static void GetLocalMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN_MIN(1);
     V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
 
-    V8_ARG_TO_STD_STRING(1, key);
+    V8_ARG_TO_STRING(1, key);
 
     V8_RETURN_MVALUE(player->GetLocalMetaData(key));
 }
@@ -725,7 +725,7 @@ static void DeleteLocalMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN_MIN(1);
     V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
 
-    V8_ARG_TO_STD_STRING(1, key);
+    V8_ARG_TO_STRING(1, key);
 
     player->DeleteLocalMetaData(key);
 }

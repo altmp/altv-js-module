@@ -30,7 +30,7 @@ static void On(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_ARG_TO_STRING(1, evName);
         V8_ARG_TO_FUNCTION(2, callback);
 
-        resource->SubscribeLocal(evName.ToString(), callback, V8Helpers::SourceLocation::GetCurrent(isolate));
+        resource->SubscribeLocal(evName, callback, V8Helpers::SourceLocation::GetCurrent(isolate));
     }
 }
 
@@ -50,7 +50,7 @@ static void Once(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_ARG_TO_STRING(1, evName);
         V8_ARG_TO_FUNCTION(2, callback);
 
-        resource->SubscribeLocal(evName.ToString(), callback, V8Helpers::SourceLocation::GetCurrent(isolate), true);
+        resource->SubscribeLocal(evName, callback, V8Helpers::SourceLocation::GetCurrent(isolate), true);
     }
 }
 
@@ -70,7 +70,7 @@ static void Off(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_ARG_TO_STRING(1, evName);
         V8_ARG_TO_FUNCTION(2, callback);
 
-        resource->UnsubscribeLocal(evName.ToString(), callback);
+        resource->UnsubscribeLocal(evName, callback);
     }
 }
 
@@ -118,7 +118,7 @@ static void HasMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
 
     V8_CHECK_ARGS_LEN_MIN(1);
-    V8_ARG_TO_STD_STRING(1, key);
+    V8_ARG_TO_STRING(1, key);
 
     V8_RETURN(alt::ICore::Instance().HasMetaData(key));
 }
@@ -128,7 +128,7 @@ static void GetMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
 
     V8_CHECK_ARGS_LEN_MIN(1);
-    V8_ARG_TO_STD_STRING(1, key);
+    V8_ARG_TO_STRING(1, key);
 
     V8_RETURN_MVALUE(alt::ICore::Instance().GetMetaData(key));
 }
@@ -138,7 +138,7 @@ static void SetMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
 
     V8_CHECK_ARGS_LEN_MIN(2);
-    V8_ARG_TO_STD_STRING(1, key);
+    V8_ARG_TO_STRING(1, key);
     V8_ARG_TO_MVALUE(2, value);
 
     alt::ICore::Instance().SetMetaData(key, value);
@@ -149,7 +149,7 @@ static void DeleteMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
 
     V8_CHECK_ARGS_LEN_MIN(1);
-    V8_ARG_TO_STD_STRING(1, key);
+    V8_ARG_TO_STRING(1, key);
 
     alt::ICore::Instance().DeleteMetaData(key);
 }
@@ -159,7 +159,7 @@ static void HasSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
 
     V8_CHECK_ARGS_LEN_MIN(1);
-    V8_ARG_TO_STD_STRING(1, key);
+    V8_ARG_TO_STRING(1, key);
 
     V8_RETURN(alt::ICore::Instance().HasSyncedMetaData(key));
 }
@@ -169,7 +169,7 @@ static void GetSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
 
     V8_CHECK_ARGS_LEN_MIN(1);
-    V8_ARG_TO_STD_STRING(1, key);
+    V8_ARG_TO_STRING(1, key);
 
     V8_RETURN_MVALUE(alt::ICore::Instance().GetSyncedMetaData(key));
 }
@@ -247,7 +247,7 @@ static void Time(const v8::FunctionCallbackInfo<v8::Value>& info)
     std::string name = "";
     if(info.Length() != 0)
     {
-        V8_ARG_TO_STD_STRING(1, timerName);
+        V8_ARG_TO_STRING(1, timerName);
         name = timerName;
     }
 
@@ -263,7 +263,7 @@ static void TimeEnd(const v8::FunctionCallbackInfo<v8::Value>& info)
     std::string name = "";
     if(info.Length() != 0)
     {
-        V8_ARG_TO_STD_STRING(1, timerName);
+        V8_ARG_TO_STRING(1, timerName);
         name = timerName;
     }
 
@@ -381,7 +381,7 @@ static void GetEventListeners(const v8::FunctionCallbackInfo<v8::Value>& info)
     else
     {
         V8_ARG_TO_STRING(1, eventName);
-        handlers = std::move(resource->GetLocalHandlers(eventName.ToString()));
+        handlers = std::move(resource->GetLocalHandlers(eventName));
     }
 
     auto array = v8::Array::New(isolate, handlers.size());
@@ -407,7 +407,7 @@ static void GetRemoteEventListeners(const v8::FunctionCallbackInfo<v8::Value>& i
     else
     {
         V8_ARG_TO_STRING(1, eventName);
-        handlers = std::move(resource->GetRemoteHandlers(eventName.ToString()));
+        handlers = std::move(resource->GetRemoteHandlers(eventName));
     }
 
     auto array = v8::Array::New(isolate, handlers.size());
@@ -443,9 +443,9 @@ static void StringToSHA256(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
     V8_CHECK_ARGS_LEN(1);
 
-    V8_ARG_TO_STD_STRING(1, str);
+    V8_ARG_TO_STRING(1, str);
 
-    V8_RETURN_STD_STRING(alt::ICore::Instance().StringToSHA256(str));
+    V8_RETURN_STRING(alt::ICore::Instance().StringToSHA256(str));
 }
 
 extern V8Class v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2, v8Vector3, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Resource, v8Utils;
@@ -497,8 +497,8 @@ extern V8Module sharedModule("alt-shared",
 
                                  V8Helpers::RegisterFunc(exports, "stringToSHA256", &StringToSHA256);
 
-                                 V8_OBJECT_SET_STD_STRING(exports, "version", alt::ICore::Instance().GetVersion());
-                                 V8_OBJECT_SET_STD_STRING(exports, "branch", alt::ICore::Instance().GetBranch());
+                                 V8_OBJECT_SET_STRING(exports, "version", alt::ICore::Instance().GetVersion());
+                                 V8_OBJECT_SET_STRING(exports, "branch", alt::ICore::Instance().GetBranch());
                                  V8_OBJECT_SET_RAW_STRING(exports, "sdkVersion", ALT_SDK_VERSION);
                                  V8_OBJECT_SET_BOOLEAN(exports, "debug", alt::ICore::Instance().IsDebug());
 

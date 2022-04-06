@@ -19,7 +19,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(1, path);
 
     std::string origin = V8Helpers::GetCurrentSourceOrigin(isolate);
-    auto worker = new CWorker(path.ToString(), origin, static_cast<CV8ResourceImpl*>(resource));
+    auto worker = new CWorker(path, origin, static_cast<CV8ResourceImpl*>(resource));
     info.This()->SetInternalField(0, v8::External::New(isolate, worker));
     static_cast<CV8ResourceImpl*>(resource)->AddWorker(worker);
 }
@@ -32,7 +32,7 @@ static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     std::ostringstream stream;
     stream << "Worker{ file: " << worker->GetFilePath() << " }";
-    V8_RETURN_STRING(stream.str().c_str());
+    V8_RETURN_STRING(stream.str());
 }
 
 static void ValidGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -49,7 +49,7 @@ static void FilePathGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, worker, CWorker);
     V8_CHECK(worker, "Worker is invalid");
 
-    V8_RETURN_STRING(worker->GetFilePath().c_str());
+    V8_RETURN_STRING(worker->GetFilePath());
 }
 
 static void Start(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -95,7 +95,7 @@ static void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
         }
         args.push_back(arg);
     }
-    worker->GetWorkerEventHandler().Emit(eventName.ToString(), args);
+    worker->GetWorkerEventHandler().Emit(eventName, args);
 }
 
 static void On(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -108,7 +108,7 @@ static void On(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(1, eventName);
     V8_ARG_TO_FUNCTION(2, callback);
 
-    worker->GetMainEventHandler().Subscribe(eventName.ToString(), callback);
+    worker->GetMainEventHandler().Subscribe(eventName, callback);
 }
 
 static void Off(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -121,7 +121,7 @@ static void Off(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(1, eventName);
     V8_ARG_TO_FUNCTION(2, callback);
 
-    worker->GetMainEventHandler().Unsubscribe(eventName.ToString(), callback);
+    worker->GetMainEventHandler().Unsubscribe(eventName, callback);
 }
 
 static void Once(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -134,7 +134,7 @@ static void Once(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(1, eventName);
     V8_ARG_TO_FUNCTION(2, callback);
 
-    worker->GetMainEventHandler().Subscribe(eventName.ToString(), callback, true);
+    worker->GetMainEventHandler().Subscribe(eventName, callback, true);
 }
 
 static void IsPausedGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)

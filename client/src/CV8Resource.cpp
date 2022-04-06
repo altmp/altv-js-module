@@ -65,7 +65,7 @@ static std::string bootstrap_code =
 extern V8Module altModule;
 bool CV8ResourceImpl::Start()
 {
-    if(resource->GetMain().IsEmpty()) return false;
+    if(resource->GetMain().empty()) return false;
 
     resource->EnableNatives();
     auto nscope = resource->PushNativesScope();
@@ -91,10 +91,10 @@ bool CV8ResourceImpl::Start()
     /*runtime->GetInspector()->contextCreated({
             ctx,
             1,
-            v8_inspector::StringView{ (uint8_t*)name.CStr(), name.GetSize() }
+            v8_inspector::StringView{ (uint8_t*)namec_str(), name.GetSize() }
     });*/
 
-    std::string path = resource->GetMain().ToString();
+    std::string path = resource->GetMain();
 
     alt::IPackage* pkg = resource->GetPackage();
     alt::IPackage::File* file = pkg->OpenFile(path);
@@ -225,7 +225,7 @@ bool CV8ResourceImpl::Stop()
         v8::Context::Scope scope(ctx);
 
         auto resources = static_cast<CV8ScriptRuntime*>(resource->GetRuntime())->GetResources();
-        auto name = this->resource->GetName().ToString();
+        auto name = this->resource->GetName();
         for(auto res : resources)
         {
             if(res == this) continue;
@@ -271,12 +271,12 @@ bool CV8ResourceImpl::OnEvent(const alt::CEvent* e)
             if(evType == alt::CEvent::Type::CLIENT_SCRIPT_EVENT)
             {
                 callbacks = std::move(GetGenericHandlers(true));
-                eventName = static_cast<const alt::CClientScriptEvent*>(e)->GetName().CStr();
+                eventName = static_cast<const alt::CClientScriptEvent*>(e)->GetName().c_str();
             }
             else if(evType == alt::CEvent::Type::SERVER_SCRIPT_EVENT)
             {
                 callbacks = std::move(GetGenericHandlers(false));
-                eventName = static_cast<const alt::CServerScriptEvent*>(e)->GetName().CStr();
+                eventName = static_cast<const alt::CServerScriptEvent*>(e)->GetName().c_str();
             }
 
             if(callbacks.size() != 0)

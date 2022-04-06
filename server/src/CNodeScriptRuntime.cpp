@@ -96,11 +96,11 @@ std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
     {
         std::string inspectorHost = "127.0.0.1";
         alt::config::Node host = inspector["host"];
-        if(host.IsScalar()) inspectorHost = host.ToString();
+        if(host.IsScalar()) inspectorHost = host;
 
         std::string inspectorPort = "9229";
         alt::config::Node port = inspector["port"];
-        if(port.IsScalar()) inspectorPort = port.ToString();
+        if(port.IsScalar()) inspectorPort = port;
 
         args.push_back("--inspect=" + inspectorHost + ":" + inspectorPort);
     }

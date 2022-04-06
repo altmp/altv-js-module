@@ -388,7 +388,7 @@ static void RegisterNatives(v8::Local<v8::Context> ctx, v8::Local<v8::Object> ex
 
     for(auto native : alt::ICore::Instance().GetAllNatives())
     {
-        V8Helpers::SetFunction(isolate, ctx, exports, native->GetName().CStr(), InvokeNative, native);
+        V8Helpers::SetFunction(isolate, ctx, exports, native->GetName().c_str(), InvokeNative, native);
     }
 }
 
