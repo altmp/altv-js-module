@@ -2,8 +2,49 @@
 // clang-format off
 // Utils JS bindings
 
+// Shared
+alt.Utils.wait = function(timeout) {
+    if (typeof timeout !== "number") throw new Error("Expected a number as first argument");
+
+    return new Promise(resolve => {
+        alt.setTimeout(resolve, timeout);
+    });
+}
+
+alt.Utils.waitFor = function(callback, timeout = 2000) {
+    if (typeof callback !== "function") throw new Error("Expected a function as first argument");
+    if (typeof timeout !== "number") throw new Error("Expected a number as second argument");
+
+    const checkUntil = Date.now() + timeout;
+
+    return new Promise((resolve, reject) => {
+        const interval = alt.setInterval(() => {
+            let result;
+            try {
+                result = callback();
+            } catch (e) {
+                const promiseError = new Error(`Failed to wait for callback, error: ${e.message}`);
+
+                reject(promiseError);
+                alt.logError(promiseError.message);
+                alt.logError(e.stack);
+                alt.clearInterval(interval);
+                return;
+            }
+
+            if (result) {
+                alt.clearInterval(interval);
+                resolve();
+            } else if (Date.now() > checkUntil) {
+                alt.clearInterval(interval);
+                reject(new Error(`Failed to wait for callback: ${callback}`));
+            }
+        }, 5);
+    });
+}
+
 // Client only
-if(alt.isClient) {
+if (alt.isClient) {
     alt.Utils.requestModel = async function(model, timeout = 1000) {
         const _model = model;
         if (typeof model !== "string" && typeof model !== "number") throw new Error("Expected a string or number as first argument");
@@ -82,13 +123,4 @@ if(alt.isClient) {
 // Server only
 else {
 
-}
-
-// Shared
-alt.Utils.wait = function(timeout) {
-    if (typeof timeout !== "number") throw new Error("Expected a number as first argument");
-
-    return new Promise(resolve => {
-        alt.setTimeout(resolve, timeout);
-    });
 }
