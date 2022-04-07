@@ -18,7 +18,7 @@ alt.Utils.waitFor = function(callback, timeout = 2000) {
     const checkUntil = Date.now() + timeout;
 
     return new Promise((resolve, reject) => {
-        const interval = alt.setInterval(() => {
+        const tick = alt.everyTick(() => {
             let result;
             try {
                 result = callback();
@@ -28,18 +28,18 @@ alt.Utils.waitFor = function(callback, timeout = 2000) {
                 reject(promiseError);
                 alt.logError(promiseError.message);
                 alt.logError(e.stack);
-                alt.clearInterval(interval);
+                alt.clearInterval(tick);
                 return;
             }
 
             if (result) {
-                alt.clearInterval(interval);
+                alt.clearInterval(tick);
                 resolve();
             } else if (Date.now() > checkUntil) {
-                alt.clearInterval(interval);
+                alt.clearInterval(tick);
                 reject(new Error(`Failed to wait for callback: ${callback}`));
             }
-        }, 5);
+        });
     });
 }
 
@@ -89,7 +89,7 @@ if (alt.isClient) {
         }
     }
 
-    // clip set is synonymous to anim set
+    // clip set is basically the same as anim set
     alt.Utils.requestClipSet = alt.Utils.requestAnimSet;
 
     alt.Utils.requestCutscene = async function(cutsceneName, flags, timeout = 1000) {
