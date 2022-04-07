@@ -28,15 +28,15 @@ alt.Utils.waitFor = function(callback, timeout = 2000) {
                 reject(promiseError);
                 alt.logError(promiseError.message);
                 alt.logError(e.stack);
-                alt.clearInterval(tick);
+                alt.clearEveryTick(tick);
                 return;
             }
 
             if (result) {
-                alt.clearInterval(tick);
+                alt.clearEveryTick(tick);
                 resolve();
             } else if (Date.now() > checkUntil) {
-                alt.clearInterval(tick);
+                alt.clearEveryTick(tick);
                 reject(new Error(`Failed to wait for callback: ${callback}`));
             }
         });
