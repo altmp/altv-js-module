@@ -49,7 +49,7 @@ static void On(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
 
-    static_cast<CV8ResourceImpl*>(resource)->SubscribeAudio(audio, evName.ToString(), fun, V8Helpers::SourceLocation::GetCurrent(isolate));
+    static_cast<CV8ResourceImpl*>(resource)->SubscribeAudio(audio, evName, fun, V8Helpers::SourceLocation::GetCurrent(isolate));
 }
 
 static void Off(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -62,7 +62,7 @@ static void Off(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
 
-    static_cast<CV8ResourceImpl*>(resource)->UnsubscribeAudio(audio, evName.ToString(), fun);
+    static_cast<CV8ResourceImpl*>(resource)->UnsubscribeAudio(audio, evName, fun);
 }
 
 static void GetEventListeners(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -73,7 +73,7 @@ static void GetEventListeners(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_STRING(1, eventName);
 
-    std::vector<V8Helpers::EventCallback*> handlers = static_cast<CV8ResourceImpl*>(resource)->GetAudioHandlers(audio, eventName.ToString());
+    std::vector<V8Helpers::EventCallback*> handlers = static_cast<CV8ResourceImpl*>(resource)->GetAudioHandlers(audio, eventName);
 
     auto array = v8::Array::New(isolate, handlers.size());
     for(int i = 0; i < handlers.size(); i++)
@@ -189,7 +189,7 @@ extern V8Class v8Audio("Audio", v8BaseObject, &Constructor, [](v8::Local<v8::Fun
     V8Helpers::SetMethod(isolate, tpl, "off", &Off);
     V8Helpers::SetMethod(isolate, tpl, "getEventListeners", GetEventListeners);
 
-    V8Helpers::SetAccessor<IAudio, StringView, &IAudio::GetSource, &IAudio::SetSource>(isolate, tpl, "source");
+    V8Helpers::SetAccessor<IAudio, const std::string&, &IAudio::GetSource, &IAudio::SetSource>(isolate, tpl, "source");
     V8Helpers::SetAccessor<IAudio, bool, &IAudio::IsLoop, &IAudio::SetLoop>(isolate, tpl, "looped");
     V8Helpers::SetAccessor<IAudio, float, &IAudio::GetVolume, &IAudio::SetVolume>(isolate, tpl, "volume");
     V8Helpers::SetAccessor(isolate, tpl, "category", &CategoryGetter, &CategorySetter);

@@ -166,7 +166,7 @@ std::string V8Helpers::SourceLocation::ToString()
     // Check if not inside a worker
     if(!(*static_cast<bool*>(isolate->GetData(v8::Isolate::GetNumberOfDataSlots() - 1))))
     {
-        stream << V8ResourceImpl::Get(context.Get(v8::Isolate::GetCurrent()))->GetResource()->GetName().CStr() << ":";
+        stream << V8ResourceImpl::Get(context.Get(v8::Isolate::GetCurrent()))->GetResource()->GetName() << ":";
     }
     stream << fileName << ":" << line << "]";
     return stream.str();

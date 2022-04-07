@@ -218,7 +218,7 @@ bool CWorker::SetupScript()
     // Compile the code
     auto error = TryCatch([&]() {
         v8::Local<v8::Context> ctx = context.Get(isolate);
-        std::string fullPath = (path.prefix + path.fileName).ToString();
+        std::string fullPath = (path.prefix + path.fileName);
         v8::MaybeLocal<v8::Module> maybeModule;
         if(!isUsingBytecode)
         {

@@ -11,8 +11,8 @@ static void SetProperty(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(2);
 
-    V8_ARG_TO_STD_STRING(1, name);
-    V8_ARG_TO_STD_STRING(2, val);
+    V8_ARG_TO_STRING(1, name);
+    V8_ARG_TO_STRING(2, val);
     V8_RETURN_BOOLEAN(element->SetProperty(name, val));
 }
 
@@ -22,7 +22,7 @@ static void RemoveProperty(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
-    V8_ARG_TO_STD_STRING(1, name);
+    V8_ARG_TO_STRING(1, name);
     V8_RETURN_BOOLEAN(element->RemoveProperty(name));
 }
 
@@ -32,7 +32,7 @@ static void HasProperty(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
-    V8_ARG_TO_STD_STRING(1, name);
+    V8_ARG_TO_STRING(1, name);
     V8_RETURN_BOOLEAN(element->HasProperty(name));
 }
 
@@ -42,7 +42,7 @@ static void HasLocalProperty(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
-    V8_ARG_TO_STD_STRING(1, name);
+    V8_ARG_TO_STRING(1, name);
     V8_RETURN_BOOLEAN(element->HasLocalProperty(name));
 }
 
@@ -52,8 +52,8 @@ static void GetProperty(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
-    V8_ARG_TO_STD_STRING(1, name);
-    V8_RETURN_STD_STRING(element->GetProperty(name));
+    V8_ARG_TO_STRING(1, name);
+    V8_RETURN_STRING(element->GetProperty(name));
 }
 
 static void GetLocalProperty(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -62,8 +62,8 @@ static void GetLocalProperty(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
-    V8_ARG_TO_STD_STRING(1, name);
-    V8_RETURN_STD_STRING(element->GetLocalProperty(name));
+    V8_ARG_TO_STRING(1, name);
+    V8_RETURN_STRING(element->GetLocalProperty(name));
 }
 
 static void GetPropertyAbsoluteValue(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -72,7 +72,7 @@ static void GetPropertyAbsoluteValue(const v8::FunctionCallbackInfo<v8::Value>& 
     V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
-    V8_ARG_TO_STD_STRING(1, name);
+    V8_ARG_TO_STRING(1, name);
     V8_RETURN_NUMBER(element->GetPropertyAbsoluteValue(name));
 }
 
@@ -82,8 +82,8 @@ static void SetAttribute(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(2);
 
-    V8_ARG_TO_STD_STRING(1, name);
-    V8_ARG_TO_STD_STRING(2, value);
+    V8_ARG_TO_STRING(1, name);
+    V8_ARG_TO_STRING(2, value);
     element->SetAttribute(name, value);
 }
 
@@ -93,7 +93,7 @@ static void RemoveAttribute(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
-    V8_ARG_TO_STD_STRING(1, name);
+    V8_ARG_TO_STRING(1, name);
     V8_RETURN_BOOLEAN(element->RemoveAttribute(name));
 }
 
@@ -103,7 +103,7 @@ static void HasAttribute(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
-    V8_ARG_TO_STD_STRING(1, name);
+    V8_ARG_TO_STRING(1, name);
     V8_RETURN_BOOLEAN(element->HasAttribute(name));
 }
 
@@ -113,8 +113,8 @@ static void GetAttribute(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
-    V8_ARG_TO_STD_STRING(1, name);
-    V8_RETURN_STRING(element->GetAttribute(name).c_str());
+    V8_ARG_TO_STRING(1, name);
+    V8_RETURN_STRING(element->GetAttribute(name));
 }
 
 static void GetAttributes(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -126,7 +126,7 @@ static void GetAttributes(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     for(auto attr : element->GetAttributes())
     {
-        V8_OBJECT_SET_STD_STRING(attributes, attr.first.c_str(), attr.second);
+        V8_OBJECT_SET_STRING(attributes, attr.first.c_str(), attr.second);
     }
 
     V8_RETURN(attributes);
@@ -184,7 +184,7 @@ static void AddClass(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
-    V8_ARG_TO_STD_STRING(1, name);
+    V8_ARG_TO_STRING(1, name);
     V8_RETURN_BOOLEAN(element->AddClass(name));
 }
 
@@ -194,7 +194,7 @@ static void RemoveClass(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
-    V8_ARG_TO_STD_STRING(1, name);
+    V8_ARG_TO_STRING(1, name);
     V8_RETURN_BOOLEAN(element->RemoveClass(name));
 }
 
@@ -204,7 +204,7 @@ static void HasClass(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
-    V8_ARG_TO_STD_STRING(1, name);
+    V8_ARG_TO_STRING(1, name);
     V8_RETURN_BOOLEAN(element->HasClass(name));
 }
 
@@ -230,7 +230,7 @@ static void AddPseudoClass(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
-    V8_ARG_TO_STD_STRING(1, name);
+    V8_ARG_TO_STRING(1, name);
     V8_RETURN_BOOLEAN(element->AddPseudoClass(name));
 }
 
@@ -240,7 +240,7 @@ static void RemovePseudoClass(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
-    V8_ARG_TO_STD_STRING(1, name);
+    V8_ARG_TO_STRING(1, name);
     V8_RETURN_BOOLEAN(element->RemovePseudoClass(name));
 }
 
@@ -250,7 +250,7 @@ static void HasPseudoClass(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
-    V8_ARG_TO_STD_STRING(1, name);
+    V8_ARG_TO_STRING(1, name);
     V8_RETURN_BOOLEAN(element->HasPseudoClass(name));
 }
 
@@ -299,8 +299,8 @@ static void StyleGetterHandler(v8::Local<v8::Name> property, const v8::PropertyC
     V8_GET_ISOLATE_CONTEXT();
     alt::Ref<alt::IRmlElement> element = static_cast<V8Entity*>(info.Data().As<v8::External>()->Value())->GetHandle().As<alt::IRmlElement>();
 
-    V8_TO_STD_STRING(property, name);
-    V8_RETURN_STD_STRING(element->GetProperty(name));
+    V8_TO_STRING(property, name);
+    V8_RETURN_STRING(element->GetProperty(name));
 }
 
 static void StyleSetterHandler(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -308,8 +308,8 @@ static void StyleSetterHandler(v8::Local<v8::Name> property, v8::Local<v8::Value
     V8_GET_ISOLATE_CONTEXT();
     alt::Ref<alt::IRmlElement> element = static_cast<V8Entity*>(info.Data().As<v8::External>()->Value())->GetHandle().As<alt::IRmlElement>();
 
-    V8_TO_STD_STRING(property, name);
-    V8_TO_STD_STRING(value, val);
+    V8_TO_STRING(property, name);
+    V8_TO_STRING(value, val);
     element->SetProperty(name, val);
     V8_RETURN(value);
 }
@@ -319,7 +319,7 @@ static void StyleDeleterHandler(v8::Local<v8::Name> property, const v8::Property
     V8_GET_ISOLATE_CONTEXT();
     alt::Ref<alt::IRmlElement> element = static_cast<V8Entity*>(info.Data().As<v8::External>()->Value())->GetHandle().As<alt::IRmlElement>();
 
-    V8_TO_STD_STRING(property, name);
+    V8_TO_STRING(property, name);
     V8_RETURN_BOOLEAN(element->RemoveProperty(name));
 }
 static void StyleGetter(v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -362,7 +362,7 @@ static void GetClosest(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
-    V8_ARG_TO_STD_STRING(1, selectors);
+    V8_ARG_TO_STRING(1, selectors);
 
     V8_RETURN_BASE_OBJECT(element->GetClosest(selectors));
 }
@@ -373,7 +373,7 @@ static void GetElementByID(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
-    V8_ARG_TO_STD_STRING(1, id);
+    V8_ARG_TO_STRING(1, id);
 
     V8_RETURN_BASE_OBJECT(element->GetElementByID(id));
 }
@@ -384,7 +384,7 @@ static void GetElementsByTagName(const v8::FunctionCallbackInfo<v8::Value>& info
     V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
-    V8_ARG_TO_STD_STRING(1, tag);
+    V8_ARG_TO_STRING(1, tag);
 
     const std::vector<alt::Ref<alt::IRmlElement>> elements = element->GetElementsByTagName(tag);
     size_t size = elements.size();
@@ -403,7 +403,7 @@ static void GetElementsByClassName(const v8::FunctionCallbackInfo<v8::Value>& in
     V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
-    V8_ARG_TO_STD_STRING(1, className);
+    V8_ARG_TO_STRING(1, className);
 
     const std::vector<alt::Ref<alt::IRmlElement>> elements = element->GetElementsByClassName(className);
     size_t size = elements.size();
@@ -422,7 +422,7 @@ static void QuerySelector(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
-    V8_ARG_TO_STD_STRING(1, selector);
+    V8_ARG_TO_STRING(1, selector);
 
     V8_RETURN_BASE_OBJECT(element->QuerySelector(selector));
 }
@@ -433,7 +433,7 @@ static void QuerySelectorAll(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
     V8_CHECK_ARGS_LEN(1);
 
-    V8_ARG_TO_STD_STRING(1, selector);
+    V8_ARG_TO_STRING(1, selector);
 
     const std::vector<alt::Ref<alt::IRmlElement>> elements = element->QuerySelectorAll(selector);
     size_t size = elements.size();
@@ -470,7 +470,7 @@ static void On(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(2);
     V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
 
-    V8_ARG_TO_STD_STRING(1, evName);
+    V8_ARG_TO_STRING(1, evName);
     V8_ARG_TO_FUNCTION(2, fun);
 
     static_cast<CV8ResourceImpl*>(resource)->SubscribeRml(element, evName, fun, V8Helpers::SourceLocation::GetCurrent(isolate));
@@ -482,7 +482,7 @@ static void Off(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(2);
     V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
 
-    V8_ARG_TO_STD_STRING(1, evName);
+    V8_ARG_TO_STRING(1, evName);
     V8_ARG_TO_FUNCTION(2, fun);
 
     static_cast<CV8ResourceImpl*>(resource)->UnsubscribeRml(element, evName, fun);
@@ -494,7 +494,7 @@ static void GetEventListeners(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(1);
     V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
 
-    V8_ARG_TO_STD_STRING(1, eventName);
+    V8_ARG_TO_STRING(1, eventName);
 
     std::vector<V8Helpers::EventCallback*> handlers = static_cast<CV8ResourceImpl*>(resource)->GetRmlHandlers(element, eventName);
 

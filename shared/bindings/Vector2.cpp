@@ -18,7 +18,7 @@ static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
     std::ostringstream ss;
     ss << std::fixed << std::setprecision(4) << "Vector2{ x: " << x << ", y: " << y << " }";
 
-    V8_RETURN_STRING(ss.str().c_str());
+    V8_RETURN_STRING(ss.str());
 }
 
 static void ToArray(const v8::FunctionCallbackInfo<v8::Value>& info)

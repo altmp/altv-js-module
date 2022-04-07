@@ -26,7 +26,7 @@ V8_EVENT_HANDLER clientScriptEvent(
   EventType::CLIENT_SCRIPT_EVENT,
   [](V8ResourceImpl* resource, const CEvent* e) {
       auto ev = static_cast<const alt::CClientScriptEvent*>(e);
-      return resource->GetLocalHandlers(ev->GetName().ToString());
+      return resource->GetLocalHandlers(ev->GetName());
   },
   [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
       auto ev = static_cast<const alt::CClientScriptEvent*>(e);
@@ -38,7 +38,7 @@ V8_EVENT_HANDLER serverScriptEvent(
   EventType::SERVER_SCRIPT_EVENT,
   [](V8ResourceImpl* resource, const CEvent* e) {
       auto ev = static_cast<const alt::CServerScriptEvent*>(e);
-      return resource->GetRemoteHandlers(ev->GetName().ToString());
+      return resource->GetRemoteHandlers(ev->GetName());
   },
   [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
       auto ev = static_cast<const alt::CServerScriptEvent*>(e);
@@ -51,7 +51,7 @@ V8_EVENT_HANDLER webviewEvent(
   [](V8ResourceImpl* resource, const CEvent* e) {
       auto ev = static_cast<const alt::CWebViewEvent*>(e);
 
-      return static_cast<CV8ResourceImpl*>(resource)->GetWebViewHandlers(ev->GetTarget(), ev->GetName().ToString());
+      return static_cast<CV8ResourceImpl*>(resource)->GetWebViewHandlers(ev->GetTarget(), ev->GetName());
   },
   [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
       auto ev = static_cast<const alt::CWebViewEvent*>(e);
@@ -64,7 +64,7 @@ V8_EVENT_HANDLER webSocketEvent(
   [](V8ResourceImpl* resource, const CEvent* e) {
       auto ev = static_cast<const alt::CWebSocketClientEvent*>(e);
 
-      return static_cast<CV8ResourceImpl*>(resource)->GetWebSocketClientHandlers(ev->GetTarget(), ev->GetName().ToString());
+      return static_cast<CV8ResourceImpl*>(resource)->GetWebSocketClientHandlers(ev->GetTarget(), ev->GetName());
   },
   [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
       auto ev = static_cast<const alt::CWebSocketClientEvent*>(e);
@@ -77,7 +77,7 @@ V8_EVENT_HANDLER audioEvent(
   [](V8ResourceImpl* resource, const CEvent* e) {
       auto ev = static_cast<const alt::CAudioEvent*>(e);
 
-      return static_cast<CV8ResourceImpl*>(resource)->GetAudioHandlers(ev->GetTarget(), ev->GetName().ToString());
+      return static_cast<CV8ResourceImpl*>(resource)->GetAudioHandlers(ev->GetTarget(), ev->GetName());
   },
   [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
       auto ev = static_cast<const alt::CAudioEvent*>(e);

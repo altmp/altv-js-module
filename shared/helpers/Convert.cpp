@@ -59,15 +59,7 @@ bool V8Helpers::SafeToNumber(v8::Local<v8::Value> val, v8::Local<v8::Context> ct
     return true;
 }
 
-bool V8Helpers::SafeToString(v8::Local<v8::Value> val, v8::Isolate* isolate, v8::Local<v8::Context> ctx, alt::String& out)
-{
-    v8::MaybeLocal maybeVal = val->ToString(ctx);
-    if(maybeVal.IsEmpty()) return false;
-    out = *v8::String::Utf8Value(isolate, maybeVal.ToLocalChecked());
-    return true;
-}
-
-bool V8Helpers::SafeToStdString(v8::Local<v8::Value> val, v8::Isolate* isolate, v8::Local<v8::Context> ctx, std::string& out)
+bool V8Helpers::SafeToString(v8::Local<v8::Value> val, v8::Isolate* isolate, v8::Local<v8::Context> ctx, std::string& out)
 {
     v8::MaybeLocal maybeVal = val->ToString(ctx);
     if(maybeVal.IsEmpty()) return false;

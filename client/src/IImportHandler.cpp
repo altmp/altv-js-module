@@ -89,7 +89,7 @@ std::deque<std::string> IImportHandler::GetModuleKeys(const std::string& name)
         std::deque<std::string> keys;
 
         alt::MValueDict _exports = resource->GetExports();
-        for(auto it = _exports->Begin(); it; it = _exports->Next()) keys.push_back(it->GetKey().ToString());
+        for(auto it = _exports->Begin(); it; it = _exports->Next()) keys.push_back(it->GetKey());
 
         return keys;
     }
@@ -153,7 +153,7 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveFile(const std::string& name, 
 
     if(!path.pkg) return v8::MaybeLocal<v8::Module>();
 
-    auto fileName = path.fileName.ToString();
+    auto fileName = path.fileName;
 
     if(fileName.size() == 0)
     {
@@ -176,7 +176,7 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveFile(const std::string& name, 
             return v8::MaybeLocal<v8::Module>();
     }
 
-    std::string fullName = path.prefix.ToString() + fileName;
+    std::string fullName = path.prefix + fileName;
 
     auto it = modules.find(fullName);
 

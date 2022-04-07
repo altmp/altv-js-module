@@ -34,23 +34,23 @@ static void StaticRead(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     if(info.Length() >= 2)
     {
-        V8_ARG_TO_STD_STRING(2, _encoding);
+        V8_ARG_TO_STRING(2, _encoding);
         encoding = _encoding;
     }
 
 #ifdef ALT_CLIENT
-    alt::String origin = V8Helpers::GetCurrentSourceOrigin(isolate);
+    std::string origin = V8Helpers::GetCurrentSourceOrigin(isolate);
     auto path = alt::ICore::Instance().Resolve(resource, name, origin);
     V8_CHECK(path.pkg, "invalid asset pack");
 
     alt::IPackage::File* file = path.pkg->OpenFile(path.fileName);
     V8_CHECK(file, "file does not exist");
 
-    alt::String data(path.pkg->GetFileSize(file));
-    path.pkg->ReadFile(file, data.GetData(), data.GetSize());
+    std::string data(path.pkg->GetFileSize(file), 0);
+    path.pkg->ReadFile(file, data.data(), data.size());
     path.pkg->CloseFile(file);
 #else
-    alt::String data = alt::ICore::Instance().FileRead(name);
+    std::string data = alt::ICore::Instance().FileRead(name);
 #endif  // ALT_CLIENT
 
     if(encoding == "utf-8")
@@ -59,14 +59,14 @@ static void StaticRead(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
     else if(encoding == "utf-16")
     {
-        V8_RETURN(V8Helpers::JSValue((uint16_t*)data.GetData()));
+        V8_RETURN(V8Helpers::JSValue((uint16_t*)data.data()));
     }
     else if(encoding == "binary")
     {
-        v8::Local<v8::ArrayBuffer> buffer = v8::ArrayBuffer::New(isolate, data.GetSize());
+        v8::Local<v8::ArrayBuffer> buffer = v8::ArrayBuffer::New(isolate, data.size());
         auto contents = buffer->GetBackingStore();
 
-        std::memcpy(contents->Data(), data.GetData(), data.GetSize());
+        std::memcpy(contents->Data(), data.data(), data.size());
 
         V8_RETURN(buffer);
     }

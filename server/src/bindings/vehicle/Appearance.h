@@ -139,7 +139,7 @@ namespace V8Helpers::Vehicle
         V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
         V8_CHECK_ARGS_LEN(1);
 
-        V8_ARG_TO_STD_STRING(1, data);
+        V8_ARG_TO_STRING(1, data);
 
         vehicle->LoadAppearanceDataFromBase64(data);
     }
@@ -149,6 +149,6 @@ namespace V8Helpers::Vehicle
         V8_GET_ISOLATE();
         V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 
-        V8_RETURN_STD_STRING(vehicle->GetAppearanceDataBase64());
+        V8_RETURN_STRING(vehicle->GetAppearanceDataBase64());
     }
 }  // namespace V8Helpers::Vehicle
