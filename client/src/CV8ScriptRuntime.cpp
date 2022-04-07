@@ -12,7 +12,7 @@ CV8ScriptRuntime::CV8ScriptRuntime()
     v8::V8::SetFlagsFromString("--harmony-import-assertions --short-builtin-calls --no-lazy --no-flush-bytecode");
     platform = v8::platform::NewDefaultPlatform();
     v8::V8::InitializePlatform(platform.get());
-    v8::V8::InitializeICU((alt::ICore::Instance().GetClientPath() + "/libs/icudtl.dat").CStr());
+    v8::V8::InitializeICU((alt::ICore::Instance().GetClientPath() + "/libs/icudtl.dat").c_str());
     v8::V8::Initialize();
 
     create_params.array_buffer_allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
@@ -237,7 +237,7 @@ void CV8ScriptRuntime::OnDispose()
     v8::V8::ShutdownPlatform();
     delete create_params.array_buffer_allocator;
 
-    if(CProfiler::Instance().IsEnabled()) CProfiler::Instance().Dump(alt::ICore::Instance().GetClientPath().ToString());
+    if(CProfiler::Instance().IsEnabled()) CProfiler::Instance().Dump(alt::ICore::Instance().GetClientPath());
 
     CV8ScriptRuntime::SetInstance(nullptr);
     delete this;
@@ -275,7 +275,7 @@ v8::MaybeLocal<v8::Module>
     }
 
     std::string _specifier = *v8::String::Utf8Value{ isolate, specifier };
-    if(_specifier == resource->GetResource()->GetName().ToString())
+    if(_specifier == resource->GetResource()->GetName())
     {
         V8Helpers::Throw(isolate, "Cannot import the resource itself (self-importing)");
         return v8::MaybeLocal<v8::Module>{};
@@ -344,7 +344,7 @@ v8::MaybeLocal<v8::Module>
                     return false;
                 }
 
-                maybeModule = static_cast<CV8ResourceImpl*>(resource)->CreateSyntheticModule((path.prefix + path.fileName).ToString(), result.ToLocalChecked());
+                maybeModule = static_cast<CV8ResourceImpl*>(resource)->CreateSyntheticModule((path.prefix + path.fileName), result.ToLocalChecked());
                 return true;
             }
             else

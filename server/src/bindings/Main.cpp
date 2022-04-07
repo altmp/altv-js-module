@@ -21,7 +21,7 @@ static void OnClient(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_ARG_TO_STRING(1, eventName);
         V8_ARG_TO_FUNCTION(2, callback);
 
-        resource->SubscribeRemote(eventName.ToString(), callback, V8Helpers::SourceLocation::GetCurrent(isolate));
+        resource->SubscribeRemote(eventName, callback, V8Helpers::SourceLocation::GetCurrent(isolate));
     }
 }
 
@@ -41,7 +41,7 @@ static void OnceClient(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_ARG_TO_STRING(1, eventName);
         V8_ARG_TO_FUNCTION(2, callback);
 
-        resource->SubscribeRemote(eventName.ToString(), callback, V8Helpers::SourceLocation::GetCurrent(isolate), true);
+        resource->SubscribeRemote(eventName, callback, V8Helpers::SourceLocation::GetCurrent(isolate), true);
     }
 }
 
@@ -61,7 +61,7 @@ static void OffClient(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_ARG_TO_STRING(1, evName);
         V8_ARG_TO_FUNCTION(2, callback);
 
-        resource->UnsubscribeRemote(evName.ToString(), callback);
+        resource->UnsubscribeRemote(evName, callback);
     }
 }
 
@@ -79,7 +79,7 @@ static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
     if(info[0]->IsNull())
     {
         // if first argument is null this event gets send to every player
-        ICore::Instance().TriggerClientEventForAll(eventName.ToString(), mvArgs);
+        ICore::Instance().TriggerClientEventForAll(eventName, mvArgs);
         return;
     }
 
@@ -101,7 +101,7 @@ static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
             targets.Push(v8Player->GetHandle().As<IPlayer>());
         }
 
-        ICore::Instance().TriggerClientEvent(targets, eventName.ToString(), mvArgs);
+        ICore::Instance().TriggerClientEvent(targets, eventName, mvArgs);
     }
     else
     {
@@ -109,7 +109,7 @@ static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8Entity* v8Player = V8Entity::Get(info[0]);
         V8_CHECK(v8Player && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER, "player or null expected");
 
-        ICore::Instance().TriggerClientEvent(v8Player->GetHandle().As<IPlayer>(), eventName.ToString(), mvArgs);
+        ICore::Instance().TriggerClientEvent(v8Player->GetHandle().As<IPlayer>(), eventName, mvArgs);
     }
 }
 
@@ -151,7 +151,7 @@ static void EmitClientRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
     if(info[0]->IsNull())
     {
         // if first argument is null this event gets send to every player
-        ICore::Instance().TriggerClientEventForAll(eventName.ToString(), mvArgs);
+        ICore::Instance().TriggerClientEventForAll(eventName, mvArgs);
         return;
     }
 
@@ -173,7 +173,7 @@ static void EmitClientRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
             targets.Push(v8Player->GetHandle().As<IPlayer>());
         }
 
-        ICore::Instance().TriggerClientEvent(targets, eventName.ToString(), mvArgs);
+        ICore::Instance().TriggerClientEvent(targets, eventName, mvArgs);
     }
     else
     {
@@ -181,7 +181,7 @@ static void EmitClientRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8Entity* v8Player = V8Entity::Get(info[0]);
         V8_CHECK(v8Player && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER, "player or null expected");
 
-        ICore::Instance().TriggerClientEvent(v8Player->GetHandle().As<IPlayer>(), eventName.ToString(), mvArgs);
+        ICore::Instance().TriggerClientEvent(v8Player->GetHandle().As<IPlayer>(), eventName, mvArgs);
     }
 }
 
@@ -214,7 +214,7 @@ static void SetSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
     V8_CHECK_ARGS_LEN(2);
 
-    V8_ARG_TO_STD_STRING(1, key);
+    V8_ARG_TO_STRING(1, key);
     V8_ARG_TO_MVALUE(2, value);
 
     alt::ICore::Instance().SetSyncedMetaData(key, value);
@@ -225,7 +225,7 @@ static void DeleteSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
     V8_CHECK_ARGS_LEN(1);
 
-    V8_ARG_TO_STD_STRING(1, key);
+    V8_ARG_TO_STRING(1, key);
 
     alt::ICore::Instance().DeleteSyncedMetaData(key);
 }
@@ -290,7 +290,7 @@ static void GetResourceMain(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_CHECK(resource, "Resource does not exist");
 
-    V8_RETURN_STRING(resource->GetMain().CStr());
+    V8_RETURN_STRING(resource->GetMain());
 }
 
 static void GetResourcePath(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -304,7 +304,7 @@ static void GetResourcePath(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_CHECK(resource, "Resource does not exist");
 
-    V8_RETURN_STRING(resource->GetPath().CStr());
+    V8_RETURN_STRING(resource->GetPath());
 }
 
 static void HashServerPassword(const v8::FunctionCallbackInfo<v8::Value>& info)

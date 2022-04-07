@@ -102,7 +102,7 @@ static void StartProfiling(const v8::FunctionCallbackInfo<v8::Value>& info)
     if(info.Length() == 1)
     {
         V8_ARG_TO_STRING(1, profileName);
-        name = V8Helpers::JSValue(profileName.CStr());
+        name = V8Helpers::JSValue(profileName);
     }
     else
         name = v8::String::Empty(isolate);
@@ -128,7 +128,7 @@ static void StopProfiling(const v8::FunctionCallbackInfo<v8::Value>& info)
     if(info.Length() == 1)
     {
         V8_ARG_TO_STRING(1, profileName);
-        name = V8Helpers::JSValue(profileName.CStr());
+        name = V8Helpers::JSValue(profileName);
     }
     else
         name = v8::String::Empty(isolate);

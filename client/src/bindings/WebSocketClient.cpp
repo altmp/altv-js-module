@@ -36,7 +36,7 @@ static void On(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
 
-    static_cast<CV8ResourceImpl*>(resource)->SubscribeWebSocketClient(webSocket, evName.ToString(), fun, V8Helpers::SourceLocation::GetCurrent(isolate));
+    static_cast<CV8ResourceImpl*>(resource)->SubscribeWebSocketClient(webSocket, evName, fun, V8Helpers::SourceLocation::GetCurrent(isolate));
 }
 
 static void Off(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -49,7 +49,7 @@ static void Off(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_GET_THIS_BASE_OBJECT(webSocket, alt::IWebSocketClient);
 
-    static_cast<CV8ResourceImpl*>(resource)->UnsubscribeWebSocketClient(webSocket, evName.ToString(), fun);
+    static_cast<CV8ResourceImpl*>(resource)->UnsubscribeWebSocketClient(webSocket, evName, fun);
 }
 
 static void Send(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -69,13 +69,13 @@ static void Send(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
         V8_ARG_TO_ARRAY_BUFFER_VIEW(1, v8ArrayBufferView);
         auto v8Buffer = v8ArrayBufferView->Buffer()->GetBackingStore();
-        ret = webSocket->SendBinary(alt::StringView((char*)v8Buffer->Data(), v8Buffer->ByteLength()));
+        ret = webSocket->SendBinary(std::string((char*)v8Buffer->Data(), v8Buffer->ByteLength()));
     }
     else if(info[0]->IsArrayBuffer())
     {
         V8_ARG_TO_ARRAY_BUFFER(1, v8ArrayBuffer);
         auto v8Buffer = v8ArrayBuffer->GetBackingStore();
-        ret = webSocket->SendBinary(alt::StringView((char*)v8Buffer->Data(), v8Buffer->ByteLength()));
+        ret = webSocket->SendBinary(std::string((char*)v8Buffer->Data(), v8Buffer->ByteLength()));
     }
     else
     {
@@ -133,8 +133,8 @@ static void GetExtraHeaders(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     for(auto it = extraHeaders->Begin(); it; it = extraHeaders->Next())
     {
-        alt::String key = it->GetKey();
-        V8_OBJECT_SET_STRING(headersObject, key.CStr(), extraHeaders->Get(key).As<alt::IMValueString>()->Value());
+        std::string key = it->GetKey();
+        V8_OBJECT_SET_STRING(headersObject, key.c_str(), extraHeaders->Get(key).As<alt::IMValueString>()->Value());
     }
 
     V8_RETURN(headersObject);
@@ -148,7 +148,7 @@ static void GetEventListeners(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_STRING(1, eventName);
 
-    std::vector<V8Helpers::EventCallback*> handlers = static_cast<CV8ResourceImpl*>(resource)->GetWebSocketClientHandlers(webSocket, eventName.ToString());
+    std::vector<V8Helpers::EventCallback*> handlers = static_cast<CV8ResourceImpl*>(resource)->GetWebSocketClientHandlers(webSocket, eventName);
 
     auto array = v8::Array::New(isolate, handlers.size());
     for(int i = 0; i < handlers.size(); i++)
@@ -180,6 +180,6 @@ extern V8Class v8WebSocketClient("WebSocketClient", v8BaseObject, &Constructor, 
     V8Helpers::SetAccessor<IWebSocketClient, bool, &IWebSocketClient::IsAutoReconnectEnabled, &IWebSocketClient::SetAutoReconnectEnabled>(isolate, tpl, "autoReconnect");
     V8Helpers::SetAccessor<IWebSocketClient, bool, &IWebSocketClient::IsPerMessageDeflateEnabled, &IWebSocketClient::SetPerMessageDeflateEnabled>(isolate, tpl, "perMessageDeflate");
     V8Helpers::SetAccessor<IWebSocketClient, uint16_t, &IWebSocketClient::GetPingInterval, &IWebSocketClient::SetPingInterval>(isolate, tpl, "pingInterval");
-    V8Helpers::SetAccessor<IWebSocketClient, StringView, &IWebSocketClient::GetUrl, &IWebSocketClient::SetUrl>(isolate, tpl, "url");
+    V8Helpers::SetAccessor<IWebSocketClient, const std::string&, &IWebSocketClient::GetUrl, &IWebSocketClient::SetUrl>(isolate, tpl, "url");
     V8Helpers::SetAccessor<IWebSocketClient, uint8_t, &IWebSocketClient::GetReadyState>(isolate, tpl, "readyState");
 });

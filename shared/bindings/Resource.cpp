@@ -15,21 +15,21 @@ static void TypeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8:
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, resource, alt::IResource);
-    V8_RETURN_ALT_STRING(resource->GetType());
+    V8_RETURN_STRING(resource->GetType());
 }
 
 static void NameGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, resource, alt::IResource);
-    V8_RETURN_ALT_STRING(resource->GetName());
+    V8_RETURN_STRING(resource->GetName());
 }
 
 static void MainGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, resource, alt::IResource);
-    V8_RETURN_ALT_STRING(resource->GetMain());
+    V8_RETURN_STRING(resource->GetMain());
 }
 
 static void ExportsGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -44,7 +44,7 @@ static void DependenciesGetter(v8::Local<v8::String>, const v8::PropertyCallback
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, resource, alt::IResource);
 
-    const alt::Array<alt::StringView> deps = resource->GetDependencies();
+    const alt::Array<std::string> deps = resource->GetDependencies();
     v8::Local<v8::Array> dependencies = v8::Array::New(isolate, deps.GetSize());
     for(size_t i = 0; i < deps.GetSize(); ++i)
     {
@@ -58,7 +58,7 @@ static void DependantsGetter(v8::Local<v8::String>, const v8::PropertyCallbackIn
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, resource, alt::IResource);
 
-    const alt::Array<alt::StringView> deps = resource->GetDependants();
+    const alt::Array<std::string> deps = resource->GetDependants();
     v8::Local<v8::Array> dependants = v8::Array::New(isolate, deps.GetSize());
     for(size_t i = 0; i < deps.GetSize(); ++i)
     {
@@ -100,7 +100,7 @@ static void PathGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8:
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, resource, alt::IResource);
-    V8_RETURN_ALT_STRING(resource->GetPath());
+    V8_RETURN_STRING(resource->GetPath());
 }
 
 static void ConfigGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -121,7 +121,7 @@ static void GetByName(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_ARGS_LEN(1);
 
-    V8_ARG_TO_STD_STRING(1, name);
+    V8_ARG_TO_STRING(1, name);
     alt::IResource* res = alt::ICore::Instance().GetResource(name);
     if(resource == nullptr) V8_RETURN_NULL();
     else

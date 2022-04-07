@@ -28,7 +28,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     // 		V8_CHECK(CGame::Instance().IsDebug() && IsDevOrInternalBranch(), "must be in debug mode and dev branch to use memory patterns");
     // #endif
     // 		V8_ARG_TO_STRING(0, str);
-    // 		auto mem = CMemory::Pattern(str.ToString()).Search(true);
+    // 		auto mem = CMemory::Pattern(str).Search(true);
     // 		V8_CHECK(mem.IsValid(), "Pattern not found");
     // 		info.This()->SetAlignedPointerInInternalField(0, mem.GetAddress<void*>());
     // 		info.This()->SetInternalField(1, v8::Integer::NewFromUnsigned(isolate, UINT32_MAX));
@@ -162,7 +162,7 @@ static void GetDataOfType(const v8::FunctionCallbackInfo<v8::Value>& info)
         char* newString = new char[strLength + 1];
         memcpy_s(newString, strLength + 1, (void*)((uintptr_t)memory + offset), strLength);
         newString[strLength] = 0;
-        V8_RETURN_STRING(newString);
+        V8_RETURN_RAW_STRING(newString);
         delete newString;
     }
 }

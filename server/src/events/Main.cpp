@@ -19,7 +19,7 @@ V8Helpers::EventHandler clientScriptEvent(
   EventType::CLIENT_SCRIPT_EVENT,
   [](V8ResourceImpl* resource, const CEvent* e) {
       auto ev = static_cast<const alt::CClientScriptEvent*>(e);
-      return resource->GetRemoteHandlers(ev->GetName().ToString());
+      return resource->GetRemoteHandlers(ev->GetName());
   },
   [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
       auto ev = static_cast<const alt::CClientScriptEvent*>(e);
@@ -32,7 +32,7 @@ V8Helpers::EventHandler serverScriptEvent(
   EventType::SERVER_SCRIPT_EVENT,
   [](V8ResourceImpl* resource, const CEvent* e) {
       auto ev = static_cast<const alt::CServerScriptEvent*>(e);
-      return resource->GetLocalHandlers(ev->GetName().ToString());
+      return resource->GetLocalHandlers(ev->GetName());
   },
   [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
       auto ev = static_cast<const alt::CServerScriptEvent*>(e);

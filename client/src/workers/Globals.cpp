@@ -23,7 +23,7 @@ void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
         }
         args.push_back(arg);
     }
-    worker->GetMainEventHandler().Emit(eventName.ToString(), args);
+    worker->GetMainEventHandler().Emit(eventName, args);
 }
 
 void On(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -35,7 +35,7 @@ void On(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(1, eventName);
     V8_ARG_TO_FUNCTION(2, callback);
 
-    worker->GetWorkerEventHandler().Subscribe(eventName.ToString(), callback);
+    worker->GetWorkerEventHandler().Subscribe(eventName, callback);
 }
 
 void Off(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -47,7 +47,7 @@ void Off(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(1, eventName);
     V8_ARG_TO_FUNCTION(2, callback);
 
-    worker->GetWorkerEventHandler().Unsubscribe(eventName.ToString(), callback);
+    worker->GetWorkerEventHandler().Unsubscribe(eventName, callback);
 }
 
 void Once(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -59,7 +59,7 @@ void Once(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(1, eventName);
     V8_ARG_TO_FUNCTION(2, callback);
 
-    worker->GetWorkerEventHandler().Subscribe(eventName.ToString(), callback, true);
+    worker->GetWorkerEventHandler().Subscribe(eventName, callback, true);
 }
 
 void NextTick(const v8::FunctionCallbackInfo<v8::Value>& info)

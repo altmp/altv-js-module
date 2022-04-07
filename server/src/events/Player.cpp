@@ -31,17 +31,17 @@ V8Helpers::LocalEventHandler
       alt::Ref<alt::IConnectionInfo> info = ev->GetConnectionInfo();
 
       V8_NEW_OBJECT(infoObj);
-      V8_OBJECT_SET_STD_STRING(infoObj, "name", info->GetName());
-      V8_OBJECT_SET_STD_STRING(infoObj, "socialID", std::to_string(info->GetSocialId()));
-      V8_OBJECT_SET_STD_STRING(infoObj, "hwidHash", std::to_string(info->GetHwIdHash()));
-      V8_OBJECT_SET_STD_STRING(infoObj, "hwidExHash", std::to_string(info->GetHwIdExHash()));
-      V8_OBJECT_SET_STD_STRING(infoObj, "authToken", info->GetAuthToken());
+      V8_OBJECT_SET_STRING(infoObj, "name", info->GetName());
+      V8_OBJECT_SET_STRING(infoObj, "socialID", std::to_string(info->GetSocialId()));
+      V8_OBJECT_SET_STRING(infoObj, "hwidHash", std::to_string(info->GetHwIdHash()));
+      V8_OBJECT_SET_STRING(infoObj, "hwidExHash", std::to_string(info->GetHwIdExHash()));
+      V8_OBJECT_SET_STRING(infoObj, "authToken", info->GetAuthToken());
       V8_OBJECT_SET_BOOLEAN(infoObj, "isDebug", info->GetIsDebug());
-      V8_OBJECT_SET_STD_STRING(infoObj, "branch", info->GetBranch());
+      V8_OBJECT_SET_STRING(infoObj, "branch", info->GetBranch());
       V8_OBJECT_SET_UINT(infoObj, "build", info->GetBuild());
-      V8_OBJECT_SET_STD_STRING(infoObj, "cdnUrl", info->GetCdnUrl());
+      V8_OBJECT_SET_STRING(infoObj, "cdnUrl", info->GetCdnUrl());
       V8_OBJECT_SET_BIGUINT(infoObj, "passwordHash", info->GetPasswordHash());
-      V8_OBJECT_SET_STD_STRING(infoObj, "ip", info->GetIp());
+      V8_OBJECT_SET_STRING(infoObj, "ip", info->GetIp());
       args.push_back(infoObj);
       args.push_back(V8Helpers::JSValue(ev->GetReason()));
   });
