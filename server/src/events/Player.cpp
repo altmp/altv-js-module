@@ -14,6 +14,7 @@
 #include "cpp-sdk/events/CPlayerChangeVehicleSeatEvent.h"
 #include "cpp-sdk/events/CPlayerWeaponChangeEvent.h"
 #include "cpp-sdk/events/CLocalMetaDataChangeEvent.h"
+#include "cpp-sdk/events/CPlayerRequestControlEvent.h"
 
 using alt::CEvent;
 using EventType = CEvent::Type;
@@ -166,4 +167,11 @@ connectionQueueRemove(EventType::CONNECTION_QUEUE_REMOVE, "connectionQueueRemove
     });
 
     args.push_back(infoObj);
+});
+
+V8_LOCAL_EVENT_HANDLER requestControl(EventType::PLAYER_REQUEST_CONTROL, "playerRequestControl", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+    auto ev = static_cast<const alt::CPlayerRequestControlEvent*>(e);
+
+    args.push_back(resource->GetBaseObjectOrNull(ev->GetPlayer()));
+    args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
 });
