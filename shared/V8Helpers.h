@@ -148,6 +148,12 @@ namespace V8Helpers
 
     v8::Local<v8::Value> New(v8::Isolate* isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Function> constructor, std::vector<v8::Local<v8::Value>>& args);
 
+    v8::Local<v8::Object> CreateCustomObject(v8::Isolate* isolate,
+                                             void* data,
+                                             v8::GenericNamedPropertyGetterCallback getter,
+                                             v8::GenericNamedPropertySetterCallback setter = nullptr,
+                                             v8::GenericNamedPropertyDeleterCallback deleter = nullptr);
+
     // TODO: create c++ classes for v8 classes and move there
     v8::Local<v8::String> Vector3_XKey(v8::Isolate* isolate);
     v8::Local<v8::String> Vector3_YKey(v8::Isolate* isolate);
