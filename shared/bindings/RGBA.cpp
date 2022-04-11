@@ -69,13 +69,17 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
     else if(info.Length() >= 3)
     {
-        V8_ARG_TO_INT32(1, r);
-        V8_ARG_TO_INT32(2, g);
-        V8_ARG_TO_INT32(3, b);
+        V8_ARG_TO_INT32(1, red);
+        V8_ARG_TO_INT32(2, green);
+        V8_ARG_TO_INT32(3, blue);
+        r = red;
+        g = green;
+        b = blue;
     }
     if(info.Length() == 4)
     {
-        V8_ARG_TO_INT32(4, a);
+        V8_ARG_TO_INT32(4, alpha);
+        a = alpha;
     }
 
     V8_CHECK(r >= 0 && r < 256, "Invalid RGBA R value. Allowed is 0 - 255");
