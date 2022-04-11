@@ -244,6 +244,8 @@
     alt::RGBA val;               \
     V8_CHECK(V8Helpers::SafeToRGBA(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to rgba")
 
+#define V8_GET_DATA(type, val) auto val = static_cast<type*>(info.Data().As<v8::External>()->Value());
+
 #define V8_RETURN(val)            info.GetReturnValue().Set(val)
 #define V8_RETURN_NULL()          info.GetReturnValue().SetNull()
 #define V8_RETURN_BOOLEAN(val)    V8_RETURN(val)
