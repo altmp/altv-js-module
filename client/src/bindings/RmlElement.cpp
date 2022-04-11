@@ -297,7 +297,7 @@ static void IsPointWithinElement(const v8::FunctionCallbackInfo<v8::Value>& info
 static void StyleGetterHandler(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    alt::Ref<alt::IRmlElement> element = static_cast<V8Entity*>(info.Data().As<v8::External>()->Value())->GetHandle().As<alt::IRmlElement>();
+    V8_GET_DATA(alt::IRmlElement, element);
 
     V8_TO_STRING(property, name);
     V8_RETURN_STRING(element->GetProperty(name));
@@ -306,7 +306,7 @@ static void StyleGetterHandler(v8::Local<v8::Name> property, const v8::PropertyC
 static void StyleSetterHandler(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    alt::Ref<alt::IRmlElement> element = static_cast<V8Entity*>(info.Data().As<v8::External>()->Value())->GetHandle().As<alt::IRmlElement>();
+    V8_GET_DATA(alt::IRmlElement, element);
 
     V8_TO_STRING(property, name);
     V8_TO_STRING(value, val);
@@ -317,7 +317,7 @@ static void StyleSetterHandler(v8::Local<v8::Name> property, v8::Local<v8::Value
 static void StyleDeleterHandler(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Boolean>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    alt::Ref<alt::IRmlElement> element = static_cast<V8Entity*>(info.Data().As<v8::External>()->Value())->GetHandle().As<alt::IRmlElement>();
+    V8_GET_DATA(alt::IRmlElement, element);
 
     V8_TO_STRING(property, name);
     V8_RETURN_BOOLEAN(element->RemoveProperty(name));
@@ -327,18 +327,7 @@ static void StyleGetter(v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
 
-    v8::Local<v8::ObjectTemplate> objTemplate = v8::ObjectTemplate::New(isolate);
-    v8::NamedPropertyHandlerConfiguration config;
-    config.getter = &StyleGetterHandler;
-    config.setter = &StyleSetterHandler;
-    config.deleter = &StyleDeleterHandler;
-    config.data = v8::External::New(isolate, info.This()->GetInternalField(0).As<v8::External>()->Value());
-    config.flags = v8::PropertyHandlerFlags::kHasNoSideEffect;
-    objTemplate->SetHandler(config);
-
-    v8::Local<v8::Object> styleObj = objTemplate->NewInstance(ctx).ToLocalChecked();
-
-    V8_RETURN(styleObj);
+    V8_RETURN(V8Helpers::CreateCustomObject(isolate, element.Get(), StyleGetterHandler, StyleSetterHandler, StyleDeleterHandler));
 }
 
 static void ChildrenGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
