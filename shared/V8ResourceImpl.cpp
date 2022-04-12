@@ -48,6 +48,7 @@ bool V8ResourceImpl::Stop()
     oldTimers.clear();
     resourceObjects.clear();
     nextTickCallbacks.clear();
+    benchmarkTimers.clear();
 
     return true;
 }

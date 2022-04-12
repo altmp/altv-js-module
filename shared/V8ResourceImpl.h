@@ -233,6 +233,23 @@ public:
 
     v8::Local<v8::Object> GetOrCreateResourceObject(alt::IResource* resource);
 
+    bool HasBenchmarkTimer(const std::string& name)
+    {
+        return benchmarkTimers.count(name) != 0;
+    }
+    void CreateBenchmarkTimer(const std::string& name)
+    {
+        benchmarkTimers.insert({ name, std::chrono::high_resolution_clock::now() });
+    }
+    void RemoveBenchmarkTimer(const std::string& name)
+    {
+        benchmarkTimers.erase(name);
+    }
+    std::chrono::high_resolution_clock::time_point GetBenchmarkTimerStart(const std::string& name)
+    {
+        return benchmarkTimers.at(name);
+    }
+
     static V8ResourceImpl* Get(v8::Local<v8::Context> ctx)
     {
         alt::IResource* resource = GetResource(ctx);
@@ -252,6 +269,8 @@ protected:
 
     std::unordered_map<alt::IBaseObject*, V8Entity*> entities;
     std::unordered_map<uint32_t, V8Timer*> timers;
+    // Key = Name, Value = Start time
+    std::unordered_map<std::string, std::chrono::high_resolution_clock::time_point> benchmarkTimers;
 
     std::unordered_multimap<std::string, V8Helpers::EventCallback> localHandlers;
     std::unordered_multimap<std::string, V8Helpers::EventCallback> remoteHandlers;
