@@ -120,14 +120,21 @@ v8::Local<v8::Value> V8Helpers::New(v8::Isolate* isolate, v8::Local<v8::Context>
     return obj;
 }
 
-v8::Local<v8::Object> V8Helpers::CreateCustomObject(
-  v8::Isolate* isolate, void* data, v8::GenericNamedPropertyGetterCallback getter, v8::GenericNamedPropertySetterCallback setter, v8::GenericNamedPropertyDeleterCallback deleter)
+v8::Local<v8::Object> V8Helpers::CreateCustomObject(v8::Isolate* isolate,
+                                                    void* data,
+                                                    v8::GenericNamedPropertyGetterCallback getter,
+                                                    v8::GenericNamedPropertySetterCallback setter,
+                                                    v8::GenericNamedPropertyDeleterCallback deleter,
+                                                    v8::GenericNamedPropertyEnumeratorCallback enumerator,
+                                                    v8::GenericNamedPropertyQueryCallback query)
 {
     v8::Local<v8::ObjectTemplate> objTemplate = v8::ObjectTemplate::New(isolate);
     v8::NamedPropertyHandlerConfiguration config;
     config.getter = getter;
     config.setter = setter;
     config.deleter = deleter;
+    config.query = query;
+    config.enumerator = enumerator;
     config.data = v8::External::New(isolate, data);
     config.flags = v8::PropertyHandlerFlags::kHasNoSideEffect;
     objTemplate->SetHandler(config);
