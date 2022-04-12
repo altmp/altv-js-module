@@ -103,7 +103,7 @@ namespace V8Helpers
     }
 
     // Converts a JS value to a C++ value
-    inline std::string CppValue(v8::Local<v8::String> val)
+    inline std::string CppValue(v8::Local<v8::Name> val)
     {
         return *v8::String::Utf8Value(v8::Isolate::GetCurrent(), val);
     }
