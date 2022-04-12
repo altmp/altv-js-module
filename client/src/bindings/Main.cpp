@@ -156,6 +156,13 @@ static void ShowCursor(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
 }
 
+static void IsCursorVisible(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_IRESOURCE();
+
+    V8_RETURN_BOOLEAN(resource->CursorVisible());
+}
+
 static void GetCursorPos(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -1028,6 +1035,7 @@ extern V8Module altModule("alt",
                               V8Helpers::RegisterFunc(exports, "toggleGameControls", &ToggleGameControls);
                               V8Helpers::RegisterFunc(exports, "toggleVoiceControls", &ToggleVoiceControls);
                               V8Helpers::RegisterFunc(exports, "showCursor", &ShowCursor);
+                              V8Helpers::RegisterFunc(exports, "isCursorVisible", &IsCursorVisible);
 
                               V8Helpers::RegisterFunc(exports, "getCursorPos", &GetCursorPos);
                               V8Helpers::RegisterFunc(exports, "setCursorPos", &SetCursorPos);
