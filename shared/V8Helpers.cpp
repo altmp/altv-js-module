@@ -140,7 +140,6 @@ v8::Local<v8::Object> V8Helpers::CreateCustomObject(v8::Isolate* isolate,
     objTemplate->SetHandler(config);
 
     v8::Local<v8::Object> obj = objTemplate->NewInstance(isolate->GetEnteredOrMicrotaskContext()).ToLocalChecked();
-    obj->SetIntegrityLevel(isolate->GetEnteredOrMicrotaskContext(), v8::IntegrityLevel::kFrozen);
     return obj;
 }
 
