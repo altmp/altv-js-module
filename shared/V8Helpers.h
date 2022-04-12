@@ -152,7 +152,9 @@ namespace V8Helpers
                                              void* data,
                                              v8::GenericNamedPropertyGetterCallback getter,
                                              v8::GenericNamedPropertySetterCallback setter = nullptr,
-                                             v8::GenericNamedPropertyDeleterCallback deleter = nullptr);
+                                             v8::GenericNamedPropertyDeleterCallback deleter = nullptr,
+                                             v8::GenericNamedPropertyEnumeratorCallback enumerator = nullptr,
+                                             v8::GenericNamedPropertyQueryCallback query = nullptr);
 
     // TODO: create c++ classes for v8 classes and move there
     v8::Local<v8::String> Vector3_XKey(v8::Isolate* isolate);
