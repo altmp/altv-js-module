@@ -20,7 +20,7 @@ static std::string rgbaBindings =
 
 namespace JSBindings
 {
-    const std::string& GetBindingsCode()
+    static const std::string& GetBindingsCode()
     {
         static std::vector<std::string> bindings = { utilsBindings, vector3Bindings, vector2Bindings, rgbaBindings };
         static std::string code;
