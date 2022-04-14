@@ -6,6 +6,7 @@
 #include "V8Module.h"
 #include "WorkerTimer.h"
 #include "V8FastFunction.h"
+#include "JSBindings.h"
 
 #include <functional>
 
@@ -197,40 +198,20 @@ void CWorker::SetupContext()
     ctx->SetAlignedPointerInEmbedderData(2, this);
 }
 
+extern std::string bootstrap_code;
 bool CWorker::SetupScript()
 {
     // Load code
-    auto path = alt::ICore::Instance().Resolve(resource->GetResource(), filePath, origin);
-    if(!path.pkg || !path.pkg->FileExists(path.fileName))
-    {
-        EmitError("Worker file not found");
-        return false;
-    }
-    auto file = path.pkg->OpenFile(path.fileName);
-    size_t fileSize = path.pkg->GetFileSize(file);
-    uint8_t* byteBuffer = new uint8_t[fileSize];
-    path.pkg->ReadFile(file, byteBuffer, fileSize);
-    path.pkg->CloseFile(file);
-
     isUsingBytecode = resource->IsBytecodeResource();
 
     bool failed = false;
     // Compile the code
     auto error = TryCatch([&]() {
         v8::Local<v8::Context> ctx = context.Get(isolate);
-        std::string fullPath = (path.prefix + path.fileName);
         v8::MaybeLocal<v8::Module> maybeModule;
-        if(!isUsingBytecode)
-        {
-            std::string src{ (char*)byteBuffer, fileSize };
-            v8::ScriptOrigin scriptOrigin(isolate, V8Helpers::JSValue(fullPath), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
-            v8::ScriptCompiler::Source source{ V8Helpers::JSValue(src), scriptOrigin };
-            maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source);
-        }
-        else
-        {
-            maybeModule = ResolveBytecode(fullPath, byteBuffer, fileSize);
-        }
+        v8::ScriptOrigin scriptOrigin(isolate, V8Helpers::JSValue("<bootstrapper>"), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
+        v8::ScriptCompiler::Source source{ V8Helpers::JSValue(bootstrap_code), scriptOrigin };
+        maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source);
 
         if(maybeModule.IsEmpty())
         {
@@ -240,15 +221,12 @@ bool CWorker::SetupScript()
         }
         auto mod = maybeModule.ToLocalChecked();
 
-        modules.emplace(fullPath, v8::UniquePersistent<v8::Module>{ isolate, mod });
-
         // Start the code
         v8::Maybe<bool> result = mod->InstantiateModule(ctx, Import);
         if(result.IsNothing() || result.ToChecked() == false)
         {
             EmitError("Failed to instantiate worker module");
             failed = true;
-            modules.erase(fullPath);
             return;
         }
 
@@ -258,11 +236,9 @@ bool CWorker::SetupScript()
         {
             EmitError("Failed to evaluate worker module");
             failed = true;
-            modules.erase(fullPath);
             return;
         }
     });
-    delete byteBuffer;
     if(!error.empty() || failed)
     {
         if(!error.empty()) EmitError(error);
@@ -311,6 +287,8 @@ void CWorker::SetupGlobals()
     V8Helpers::RegisterFunc(global, "clearTimeout", &ClearTimer);
 
     global->Set(context.Get(isolate), V8Helpers::JSValue("__internal_get_exports"), v8::Function::New(context.Get(isolate), &StaticRequire).ToLocalChecked());
+    global->Set(context.Get(isolate), V8Helpers::JSValue("__internal_bindings_code"), V8Helpers::JSValue(JSBindings::GetBindingsCode()));
+    global->Set(context.Get(isolate), V8Helpers::JSValue("__internal_main_path"), V8Helpers::JSValue(filePath));
 }
 
 v8::MaybeLocal<v8::Module> CWorker::Import(v8::Local<v8::Context> context, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray>, v8::Local<v8::Module> referrer)

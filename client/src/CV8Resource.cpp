@@ -58,7 +58,7 @@ void CV8ResourceImpl::ProcessDynamicImports()
     dynamicImports.clear();
 }
 
-static std::string bootstrap_code =
+extern std::string bootstrap_code =
 #include "bootstrap.js.gen"
   ;
 
@@ -138,6 +138,7 @@ bool CV8ResourceImpl::Start()
 
         ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_get_exports"), v8::Function::New(ctx, &StaticRequire).ToLocalChecked());
         ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_bindings_code"), V8Helpers::JSValue(JSBindings::GetBindingsCode()));
+        ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_main_path"), V8Helpers::JSValue(path));
 
         bool res = curModule->InstantiateModule(ctx, CV8ScriptRuntime::ResolveModule).IsJust();
 
