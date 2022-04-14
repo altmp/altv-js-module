@@ -9,7 +9,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_CHECK_ARGS_LEN_MIN_MAX(1, 4);
 
-    int32_t r, g, b, a;
+    int32_t r = 0, g = 0, b = 0, a = 255;
 
     if(info.Length() == 1)
     {
