@@ -128,7 +128,7 @@ v8::MaybeLocal<v8::Value> IImportHandler::Require(const std::string& name)
     if(v8module != V8Module::All()[isolate].end())
     {
         auto _exports = v8module->second->GetExports(isolate, isolate->GetEnteredOrMicrotaskContext());
-        requiresMap.insert({ name, v8::UniquePersistent<v8::Value>{ isolate, _exports } });
+        requiresMap.insert({ name, V8Helpers::CPersistent<v8::Value>{ isolate, _exports } });
 
         return _exports;
     }
@@ -138,7 +138,7 @@ v8::MaybeLocal<v8::Value> IImportHandler::Require(const std::string& name)
     {
         v8::Local<v8::Value> _exports = V8Helpers::MValueToV8(resource->GetExports());
 
-        requiresMap.insert({ name, v8::UniquePersistent<v8::Value>{ isolate, _exports } });
+        requiresMap.insert({ name, V8Helpers::CPersistent<v8::Value>{ isolate, _exports } });
 
         return _exports;
     }
@@ -207,7 +207,7 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveFile(const std::string& name, 
 
         v8::Local<v8::Module> _module = maybeModule.ToLocalChecked();
 
-        modules.emplace(fullName, v8::UniquePersistent<v8::Module>{ isolate, _module });
+        modules.emplace(fullName, V8Helpers::CPersistent<v8::Module>{ isolate, _module });
 
         return true;
     });
@@ -245,7 +245,7 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveModule(const std::string& _nam
                 if(!maybeModule.IsEmpty())
                 {
                     v8::Local<v8::Module> _module = maybeModule.ToLocalChecked();
-                    modules.emplace(name, v8::UniquePersistent<v8::Module>{ isolate, _module });
+                    modules.emplace(name, V8Helpers::CPersistent<v8::Module>{ isolate, _module });
 
                     /*v8::Maybe<bool> res = _module->InstantiateModule(GetContext(), CV8ScriptRuntime::ResolveModule);
                     if (res.IsNothing())
