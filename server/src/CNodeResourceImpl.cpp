@@ -100,6 +100,8 @@ bool CNodeResourceImpl::Stop()
 
     envStarted = false;
 
+    delete uvLoop;
+
     return true;
 }
 

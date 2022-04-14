@@ -196,7 +196,7 @@ private:
 
     std::unordered_set<CWorker*> workers;
 
-    v8::Persistent<v8::Object> localStorage;
+    V8Helpers::CPersistent<v8::Object> localStorage;
 
     std::unique_ptr<v8::MicrotaskQueue> microtaskQueue;
 

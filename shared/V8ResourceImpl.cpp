@@ -17,16 +17,6 @@
 
 using namespace alt;
 
-V8ResourceImpl::~V8ResourceImpl()
-{
-    for(auto& [obj, ent] : entities)
-    {
-        delete ent;
-    }
-
-    entities.clear();
-}
-
 extern V8Class v8Vector3, v8Vector2, v8RGBA, v8BaseObject;
 bool V8ResourceImpl::Start()
 {
@@ -45,10 +35,30 @@ bool V8ResourceImpl::Stop()
         delete pair.second;
     }
     timers.clear();
+    for(auto ent : entities)
+    {
+        delete ent.second;
+    }
+    entities.clear();
     oldTimers.clear();
     resourceObjects.clear();
     nextTickCallbacks.clear();
     benchmarkTimers.clear();
+    resourceObjects.clear();
+
+    localHandlers.clear();
+    remoteHandlers.clear();
+    localGenericHandlers.clear();
+    remoteGenericHandlers.clear();
+
+    players.Reset();
+    vehicles.Reset();
+    vector3Class.Reset();
+    vector2Class.Reset();
+    rgbaClass.Reset();
+    baseObjectClass.Reset();
+
+    context.Reset();
 
     return true;
 }
