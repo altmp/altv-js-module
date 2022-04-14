@@ -107,6 +107,14 @@ namespace V8Helpers
     {
         return *v8::String::Utf8Value(v8::Isolate::GetCurrent(), val);
     }
+    inline std::string CppValue(v8::Local<v8::Symbol> val)
+    {
+        return *v8::String::Utf8Value(v8::Isolate::GetCurrent(), val);
+    }
+    inline std::string CppValue(v8::Local<v8::String> val)
+    {
+        return *v8::String::Utf8Value(v8::Isolate::GetCurrent(), val);
+    }
     inline double CppValue(v8::Local<v8::Number> val)
     {
         return val->Value();
