@@ -5,7 +5,7 @@ import * as native from "natives";
 // Load the global bindings code
 new Function("alt", "native", __internal_bindings_code)(alt, native);
 
-let mainPath = alt.Resource.current.main;
+let mainPath = __internal_main_path;
 if(mainPath[0] !== "/") mainPath = "/" + mainPath;
 try {
     await import(mainPath);
