@@ -49,7 +49,8 @@ bool CNodeResourceImpl::Start()
 
     node::EnvironmentFlags::Flags flags = (node::EnvironmentFlags::Flags)(node::EnvironmentFlags::kOwnsProcessState & node::EnvironmentFlags::kNoCreateInspector);
 
-    uvLoop = uv_loop_new();
+    uvLoop = new uv_loop_t;
+    uv_loop_init(uvLoop);
 
     nodeData = node::CreateIsolateData(isolate, uvLoop, runtime->GetPlatform());
     std::vector<std::string> argv = { "altv-resource" };
@@ -100,6 +101,7 @@ bool CNodeResourceImpl::Stop()
 
     envStarted = false;
 
+    uv_loop_close(uvLoop);
     delete uvLoop;
 
     return true;
