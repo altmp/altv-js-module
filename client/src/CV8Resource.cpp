@@ -181,39 +181,6 @@ bool CV8ResourceImpl::Start()
 
 bool CV8ResourceImpl::Stop()
 {
-    std::vector<alt::Ref<alt::IBaseObject>> objects(ownedObjects.size());
-
-    for(auto handle : ownedObjects) objects.push_back(handle);
-
-    ownedObjects.clear();
-
-    // ?????
-    // for (auto handle : objects)
-    // {
-    // 	CGame::Instance().DestroyBaseObject(handle);
-    // }
-
-    // runtime->GetInspector()->contextDestroyed(context.Get(isolate));
-
-    for(auto worker : workers)
-    {
-        worker->Destroy();
-    }
-    workers.clear();
-
-    webViewHandlers.clear();
-    webSocketClientHandlers.clear();
-    audioHandlers.clear();
-    rmlHandlers.clear();
-
-    webViewsEventsQueue.clear();
-
-    localStorage.Reset();
-
-    syntheticModuleExports.clear();
-
-    V8ResourceImpl::Stop();
-
     if(!context.IsEmpty())
     {
         auto nscope = resource->PushNativesScope();
@@ -243,6 +210,42 @@ bool CV8ResourceImpl::Stop()
 
         DispatchStopEvent();
     }
+
+    std::vector<alt::Ref<alt::IBaseObject>> objects(ownedObjects.size());
+
+    for(auto handle : ownedObjects) objects.push_back(handle);
+
+    ownedObjects.clear();
+
+    // ?????
+    // for (auto handle : objects)
+    // {
+    // 	CGame::Instance().DestroyBaseObject(handle);
+    // }
+
+    // runtime->GetInspector()->contextDestroyed(context.Get(isolate));
+
+    for(auto worker : workers)
+    {
+        worker->Destroy();
+    }
+    workers.clear();
+
+    webViewHandlers.clear();
+    webSocketClientHandlers.clear();
+    audioHandlers.clear();
+    rmlHandlers.clear();
+    webViewsEventsQueue.clear();
+    localStorage.Reset();
+    syntheticModuleExports.clear();
+    promiseRejections.ClearQueue();
+    dynamicImports.clear();
+    modules.clear();
+    requiresMap.clear();
+
+    isPreloading = true;
+
+    V8ResourceImpl::Stop();
 
     return true;
 }

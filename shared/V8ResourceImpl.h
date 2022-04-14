@@ -27,8 +27,6 @@ public:
 
     V8ResourceImpl(v8::Isolate* _isolate, alt::IResource* _resource) : isolate(_isolate), resource(_resource) {}
 
-    ~V8ResourceImpl();
-
     bool Start() override;
     bool Stop() override;
 
@@ -281,10 +279,10 @@ protected:
     std::vector<uint32_t> oldTimers;
 
     bool playerPoolDirty = true;
-    v8::UniquePersistent<v8::Array> players;
+    V8Helpers::CPersistent<v8::Array> players;
 
     bool vehiclePoolDirty = true;
-    v8::UniquePersistent<v8::Array> vehicles;
+    V8Helpers::CPersistent<v8::Array> vehicles;
 
     V8Helpers::CPersistent<v8::Function> vector3Class;
     V8Helpers::CPersistent<v8::Function> vector2Class;
