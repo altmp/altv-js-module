@@ -26,6 +26,8 @@ static void HeapCommand(const std::vector<std::string>&)
     Log::Info << "  External memory: " << CV8ScriptRuntime::FormatBytes(heapStats.external_memory()) << Log::Endl;
     Log::Info << "  Native context count: " << heapStats.number_of_native_contexts() << Log::Endl;
     Log::Info << "  Detached context count: " << heapStats.number_of_detached_contexts() << Log::Endl;
+    Log::Info << "  Total global handle size: " << CV8ScriptRuntime::FormatBytes(heapStats.total_global_handles_size()) << Log::Endl;
+    Log::Info << "  Used global handle size: " << CV8ScriptRuntime::FormatBytes(heapStats.used_global_handles_size()) << Log::Endl;
     Log::Info << "======================================================" << Log::Endl;
 }
 

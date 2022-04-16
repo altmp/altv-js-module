@@ -22,6 +22,8 @@ static void GetHeapStatistics(v8::Local<v8::String>, const v8::PropertyCallbackI
     V8_OBJECT_SET_UINT(stats, "peakMallocedMemory", heapStats.peak_malloced_memory());
     V8_OBJECT_SET_UINT(stats, "nativeContexts", heapStats.number_of_native_contexts());
     V8_OBJECT_SET_UINT(stats, "detachedContexts", heapStats.number_of_detached_contexts());
+    V8_OBJECT_SET_UINT(stats, "totalGlobalHandleSize", heapStats.total_global_handles_size());
+    V8_OBJECT_SET_UINT(stats, "usedGlobalHandleSize", heapStats.used_global_handles_size());
 
     V8_RETURN(stats);
 }
