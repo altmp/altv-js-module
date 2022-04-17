@@ -190,7 +190,7 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
         case alt::IMValue::Type::LIST:
         {
             alt::MValueListConst list = val.As<alt::IMValueList>();
-            v8::Local<v8::Array> v8Arr = v8::Array::New(isolate, list->GetSize());
+            v8::Local<v8::Array> v8Arr = v8::Array::New(isolate, (int)list->GetSize());
 
             for(uint32_t i = 0; i < list->GetSize(); ++i) v8Arr->Set(ctx, i, MValueToV8(list->Get(i)));
 

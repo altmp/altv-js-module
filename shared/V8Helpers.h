@@ -21,7 +21,7 @@ namespace V8Helpers
 {
     inline void Throw(v8::Isolate* isolate, const std::string& msg)
     {
-        isolate->ThrowException(v8::Exception::Error(v8::String::NewFromUtf8(isolate, msg.data(), v8::NewStringType::kNormal, msg.size()).ToLocalChecked()));
+        isolate->ThrowException(v8::Exception::Error(v8::String::NewFromUtf8(isolate, msg.data(), v8::NewStringType::kNormal, (int)msg.size()).ToLocalChecked()));
     }
 
     bool TryCatch(const std::function<bool()>& fn);
