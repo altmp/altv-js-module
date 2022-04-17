@@ -158,6 +158,9 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
 
 v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
 {
+    static constexpr int64_t JS_MAX_SAFE_INTEGER = (2 ^ 53) - 1;
+    static constexpr int64_t JS_MIN_SAFE_INTEGER = JS_MAX_SAFE_INTEGER * -1;
+
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
     v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
 
@@ -170,7 +173,7 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
         {
             int64_t _val = val.As<alt::IMValueInt>()->Value();
 
-            if(_val >= INT_MIN && _val <= INT_MAX) return V8Helpers::JSValue((int32_t)_val);
+            if(_val >= JS_MIN_SAFE_INTEGER && _val <= JS_MAX_SAFE_INTEGER) return V8Helpers::JSValue((double)_val);
 
             return V8Helpers::JSValue(_val);
         }
@@ -178,7 +181,7 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
         {
             uint64_t _val = val.As<alt::IMValueUInt>()->Value();
 
-            if(_val <= UINT_MAX) return V8Helpers::JSValue((uint32_t)_val);
+            if(_val <= JS_MAX_SAFE_INTEGER) return V8Helpers::JSValue((double)_val);
 
             return V8Helpers::JSValue(_val);
         }
