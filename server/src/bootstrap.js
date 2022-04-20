@@ -2,52 +2,12 @@
 (async () => {
   const alt = process._linkedBinding("alt");
   const path = require("path");
-  const { esmLoader: loader } = require("internal/process/esm_loader");
-  const { translators } = require("internal/modules/esm/translators");
 
   const resource = alt.Resource.current;
-
   let _exports = null;
 
   try {
-    // Supress the annoying warning from NodeJS
-    const __emitWarning = process.emitWarning;
-    process.emitWarning = () => {};
-    const { ModuleWrap } = require("internal/test/binding").internalBinding("module_wrap");
-    process.emitWarning = __emitWarning;
-
-    // Set our custom translator for the "alt" protocol that loads alt:V resources
-    translators.set("alt", async function(url) {
-      const name = url.slice(4); // Remove "alt:" scheme
-      const exports = alt.getResourceExports(name);
-      return new ModuleWrap(url, undefined, Object.keys(exports), function() {
-        for (const exportName in exports) {
-          let value;
-          try {
-            value = exports[exportName];
-          } catch {}
-          this.setExport(exportName, value);
-        }
-      });
-    });
-
-    loader.addCustomLoaders({
-        resolve(specifier, context, defaultResolve) {
-            if (alt.hasResource(specifier)) return {
-                url: "alt:" + specifier
-            };
-            return defaultResolve(specifier, context, defaultResolve);
-        },
-        load(url, context, defaultLoad) {
-            if(url.startsWith("alt:")) {
-                return {
-                    format: "alt",
-                    source: null,
-                }
-            }
-            return defaultLoad(url, context, defaultLoad);
-        },
-    });
+    setupImports();
 
     // Load the global bindings code
     new Function("alt", __internal_bindings_code)(alt);
@@ -67,3 +27,53 @@
 
   __resourceLoaded(resource.name, _exports);
 })();
+
+// Sets up our custom way of importing alt:V resources
+function setupImports() {
+  const { translators } = require("internal/modules/esm/translators");
+  const { esmLoader } = require("internal/process/esm_loader");
+  const { ModuleWrap } = internalRequire("internal/test/binding").internalBinding("module_wrap");
+
+  translators.set("alt", async function(url) {
+    const name = url.slice(4); // Remove "alt:" scheme
+    const exports = alt.getResourceExports(name);
+    return new ModuleWrap(url, undefined, Object.keys(exports), function() {
+      for (const exportName in exports) {
+        let value;
+        try {
+          value = exports[exportName];
+        } catch {}
+        this.setExport(exportName, value);
+      }
+    });
+  });
+
+  esmLoader.addCustomLoaders({
+      resolve(specifier, context, defaultResolve) {
+        if (alt.hasResource(specifier)) return {
+            url: `alt:${specifier}`
+        };
+        return defaultResolve(specifier, context, defaultResolve);
+      },
+      load(url, context, defaultLoad) {
+        if(url.startsWith("alt:"))
+            return {
+              format: "alt",
+              source: null,
+            };
+        return defaultLoad(url, context, defaultLoad);
+      },
+  });
+}
+
+// ***** Utils
+
+// Supresses the warning from NodeJS when importing "super-internal" modules,
+// that the embedder isn't supposed to use
+function internalRequire(id) {
+  const __emitWarning = process.emitWarning;
+  process.emitWarning = () => {};
+  const result = require(id);
+  process.emitWarning = __emitWarning;
+  return result;
+}
