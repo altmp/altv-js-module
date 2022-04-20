@@ -1,9 +1,9 @@
 // clang-format off
 (async () => {
-  const alt = process._linkedBinding('alt');
-  const path = require('path');
-  const { esmLoader: loader } = require('internal/process/esm_loader');
-  const { translators } = require('internal/modules/esm/translators');
+  const alt = process._linkedBinding("alt");
+  const path = require("path");
+  const { esmLoader: loader } = require("internal/process/esm_loader");
+  const { translators } = require("internal/modules/esm/translators");
 
   const resource = alt.Resource.current;
 
@@ -13,12 +13,12 @@
     // Supress the annoying warning from NodeJS
     const __emitWarning = process.emitWarning;
     process.emitWarning = () => {};
-    const { ModuleWrap } = require('internal/test/binding').internalBinding('module_wrap');
+    const { ModuleWrap } = require("internal/test/binding").internalBinding("module_wrap");
     process.emitWarning = __emitWarning;
 
-    // Set our custom translator for the 'alt' protocol that loads alt:V resources
-    translators.set('alt', async function(url) {
-      const name = url.slice(4); // Remove 'alt:' scheme
+    // Set our custom translator for the "alt" protocol that loads alt:V resources
+    translators.set("alt", async function(url) {
+      const name = url.slice(4); // Remove "alt:" scheme
       const exports = alt.getResourceExports(name);
       return new ModuleWrap(url, undefined, Object.keys(exports), function() {
         for (const exportName in exports) {
@@ -34,14 +34,14 @@
     loader.addCustomLoaders({
         resolve(specifier, context, defaultResolve) {
             if (alt.hasResource(specifier)) return {
-                url: 'alt:' + specifier
+                url: "alt:" + specifier
             };
             return defaultResolve(specifier, context, defaultResolve);
         },
         load(url, context, defaultLoad) {
-            if(url.startsWith('alt:')) {
+            if(url.startsWith("alt:")) {
                 return {
-                    format: 'alt',
+                    format: "alt",
                     source: null,
                 }
             }
@@ -55,9 +55,9 @@
     // Get the path to the main file for this resource, and load it
     const _path = path.resolve(resource.path, resource.main);
     _exports = await loader.import(`file://${_path}`, "", {});
-    if ('start' in _exports) {
+    if ("start" in _exports) {
       const start = _exports.start;
-      if (typeof start === 'function') {
+      if (typeof start === "function") {
         await start();
       }
     }
