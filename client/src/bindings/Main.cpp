@@ -677,7 +677,11 @@ static void TakeScreenshot(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     alt::PermissionState state = alt::ICore::Instance().TakeScreenshot([&persistent, resource](const std::string& base64) {
         resource->RunOnNextTick([&persistent, resource, base64Str = base64]() {
-            if(!resource->GetResource()->IsStarted()) return;
+            if(!resource->GetResource()->IsStarted())
+            {
+                promises.remove(persistent);
+                return;
+            }
             persistent.Get(resource->GetIsolate())->Resolve(resource->GetContext(), V8Helpers::JSValue(base64Str));
             promises.remove(persistent);
         });
@@ -697,7 +701,11 @@ static void TakeScreenshotGameOnly(const v8::FunctionCallbackInfo<v8::Value>& in
 
     alt::PermissionState state = alt::ICore::Instance().TakeScreenshotGameOnly([&persistent, resource](const std::string& base64) {
         resource->RunOnNextTick([&persistent, resource, base64Str = base64]() {
-            if(!resource->GetResource()->IsStarted()) return;
+            if(!resource->GetResource()->IsStarted())
+            {
+                promises.remove(persistent);
+                return;
+            }
             persistent.Get(resource->GetIsolate())->Resolve(resource->GetContext(), V8Helpers::JSValue(base64Str));
             promises.remove(persistent);
         });
