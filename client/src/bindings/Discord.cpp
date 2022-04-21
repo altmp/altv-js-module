@@ -27,28 +27,31 @@ static void CurrentUserGetter(v8::Local<v8::String>, const v8::PropertyCallbackI
 
 static void RequestOAuth2Token(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-    V8_GET_ISOLATE_CONTEXT();
-
+    static std::list<V8Helpers::CPersistent<v8::Promise::Resolver>> promises;
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_ARGS_LEN(1);
-    V8_CHECK(info[0]->IsString(), "zoomDataId must be a number or string");
-
     V8_ARG_TO_STRING(1, appid);
 
-    V8_RETURN(alt::ICore::Instance().DiscordRequestOAuth2Token(appid));
-}
+    auto& persistent = promises.emplace_back(V8Helpers::CPersistent<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
 
-static void IsOAuth2Finished(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
+    bool result = alt::ICore::Instance().DiscordRequestOAuth2Token(appid, [&persistent, resource](bool result, const std::string& token) {
+        resource->RunOnNextTick([&persistent, resource, result, oauthToken = token] {
+            if(!resource->GetResource()->IsStarted())
+            {
+                promises.remove(persistent);
+                return;
+            }
+            v8::Local<v8::Promise::Resolver> promise = persistent.Get(resource->GetIsolate());
+            if(!result) promise->Reject(resource->GetContext(), V8Helpers::JSValue("Failed to get OAuth2 token"));
+            else
+                promise->Resolve(resource->GetContext(), V8Helpers::JSValue(oauthToken));
+            promises.remove(persistent);
+        });
+    });
 
-    V8_RETURN(alt::ICore::Instance().DiscordIsOAuth2Finished());
-}
+    if(!result) persistent.Get(isolate)->Reject(ctx, V8Helpers::JSValue("Failed to request OAuth2 token"));
 
-static void GetOAuth2Token(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-
-    V8_RETURN_STRING(alt::ICore::Instance().DiscordGetOAuth2Token());
+    V8_RETURN(persistent.Get(isolate));
 }
 
 extern V8Class v8Discord("Discord", [](v8::Local<v8::FunctionTemplate> tpl) {
@@ -57,6 +60,4 @@ extern V8Class v8Discord("Discord", [](v8::Local<v8::FunctionTemplate> tpl) {
     V8Helpers::SetStaticAccessor(isolate, tpl, "currentUser", &CurrentUserGetter);
 
     V8Helpers::SetStaticMethod(isolate, tpl, "requestOAuth2Token", &RequestOAuth2Token);
-    V8Helpers::SetStaticAccessor(isolate, tpl, "hasOAuth2Finished", &IsOAuth2Finished);
-    V8Helpers::SetStaticAccessor(isolate, tpl, "getOAuth2Token", &GetOAuth2Token);
 });
