@@ -24,7 +24,7 @@ alt.Utils.waitFor = function(callback, timeout = 2000) {
                 result = callback();
             } catch (e) {
                 const promiseError = new Error(`Failed to wait for callback, error: ${e.message}`);
-
+                promiseError.stack = e.stack;
                 reject(promiseError);
                 alt.clearEveryTick(tick);
                 return;
