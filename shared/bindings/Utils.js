@@ -26,8 +26,6 @@ alt.Utils.waitFor = function(callback, timeout = 2000) {
                 const promiseError = new Error(`Failed to wait for callback, error: ${e.message}`);
 
                 reject(promiseError);
-                alt.logError(promiseError.message);
-                alt.logError(e.stack);
                 alt.clearEveryTick(tick);
                 return;
             }
@@ -94,7 +92,7 @@ if (alt.isClient) {
 
     alt.Utils.requestCutscene = async function(cutsceneName, flags, timeout = 1000) {
         if (typeof cutsceneName !== "string") throw new Error("Expected a string as first argument");
-        if (typeof flags !== "number" && typeof flags !== "string") 
+        if (typeof flags !== "number" && typeof flags !== "string")
             throw new Error("Expected a number or string as second argument");
         if (typeof timeout !== "number") throw new Error("Expected a number as third argument");
 
