@@ -42,14 +42,14 @@ static void RequestOAuth2Token(const v8::FunctionCallbackInfo<v8::Value>& info)
                 return;
             }
             v8::Local<v8::Promise::Resolver> promise = persistent.Get(resource->GetIsolate());
-            if(!result) promise->Reject(resource->GetContext(), V8Helpers::JSValue("Failed to get OAuth2 token"));
+            if(!result) promise->Reject(resource->GetContext(), v8::Exception::Error(V8Helpers::JSValue("Failed to get OAuth2 token")));
             else
                 promise->Resolve(resource->GetContext(), V8Helpers::JSValue(oauthToken));
             promises.remove(persistent);
         });
     });
 
-    if(!result) persistent.Get(isolate)->Reject(ctx, V8Helpers::JSValue("Failed to request OAuth2 token"));
+    if(!result) persistent.Get(isolate)->Reject(ctx, v8::Exception::Error(V8Helpers::JSValue("Failed to request OAuth2 token")));
 
     V8_RETURN(persistent.Get(isolate));
 }
