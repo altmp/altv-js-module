@@ -394,6 +394,7 @@ std::string V8Helpers::GetJSValueTypeName(v8::Local<v8::Value> val)
     if(val->IsWeakSet()) return "weakset";
     if(val->IsTypedArray()) return "typedarray";
     if(val->IsProxy()) return "proxy";
+    if(val->IsModuleNamespaceObject()) return "modulenamespace";
     if(val->IsObject()) return "object";
     else
         return "unknown";

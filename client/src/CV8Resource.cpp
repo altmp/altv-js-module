@@ -48,6 +48,14 @@ extern void StaticRequire(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8Helpers::Throw(isolate, "No such module " + name);
 }
 
+void StaticSetExports(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_IRESOURCE();
+    V8_CHECK(info.Length() == 1, "1 arg expected");
+    alt::MValueDict exports = V8Helpers::V8ToMValue(info[0]).As<alt::IMValueDict>();
+    resource->SetExports(exports);
+}
+
 void CV8ResourceImpl::ProcessDynamicImports()
 {
     if(dynamicImports.empty()) return;
@@ -137,6 +145,7 @@ bool CV8ResourceImpl::Start()
         ctx->Global()->Set(ctx, V8Helpers::JSValue("clearTimeout"), exports->Get(ctx, V8Helpers::JSValue("clearTimeout")).ToLocalChecked());
 
         ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_get_exports"), v8::Function::New(ctx, &StaticRequire).ToLocalChecked());
+        ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_set_exports"), v8::Function::New(ctx, &StaticSetExports).ToLocalChecked());
         ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_bindings_code"), V8Helpers::JSValue(JSBindings::GetBindingsCode()));
         ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_main_path"), V8Helpers::JSValue(path));
 
@@ -145,10 +154,14 @@ bool CV8ResourceImpl::Start()
         if(!res) return false;
 
         v8::MaybeLocal<v8::Value> v = curModule->Evaluate(ctx);
-
         isPreloading = false;
-
         if(v.IsEmpty()) return false;
+
+        v8::Local<v8::Promise> modulePromise = v.ToLocalChecked().As<v8::Promise>();
+        while(modulePromise->State() == v8::Promise::kPending)
+        {
+            OnTick();
+        }
 
         if(curModule->GetStatus() == v8::Module::Status::kErrored)
         {
@@ -161,9 +174,6 @@ bool CV8ResourceImpl::Start()
                 return false;
             }
         }
-
-        alt::MValue _exports = V8Helpers::V8ToMValue(curModule->GetModuleNamespace());
-        resource->SetExports(_exports.As<alt::IMValueDict>());
 
         Log::Info << "[V8] Started script " << path << Log::Endl;
         return true;
