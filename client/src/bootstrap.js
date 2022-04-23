@@ -8,7 +8,9 @@ new Function("alt", "native", __internal_bindings_code)(alt, native);
 let mainPath = __internal_main_path;
 if(mainPath[0] !== "/") mainPath = "/" + mainPath;
 try {
-    await import(mainPath);
+    // Load the main file
+    const module = await import(mainPath);
+    __internal_set_exports(module);
 }
 catch(e) {
     let location = `${alt.Resource.current.name}:${mainPath}:${e.lineNumber ?? 0}`;
