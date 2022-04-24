@@ -158,8 +158,14 @@ bool CV8ResourceImpl::Start()
         if(v.IsEmpty()) return false;
 
         v8::Local<v8::Promise> modulePromise = v.ToLocalChecked().As<v8::Promise>();
+        int64_t start = GetTime();
         while(modulePromise->State() == v8::Promise::kPending)
         {
+            if(GetTime() > start + 5000)
+            {
+                Log::Error << "[V8] Resource start timed out (broken top-level await statements?)" << Log::Endl;
+                return false;
+            }
             OnTick();
         }
 
