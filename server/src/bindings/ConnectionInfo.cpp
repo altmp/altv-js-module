@@ -122,6 +122,14 @@ static void Decline(const v8::FunctionCallbackInfo<v8::Value>& info)
     con->Decline(reason);
 }
 
+static void IsAcceptedGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    alt::IConnectionInfo* con = static_cast<alt::IConnectionInfo*>(info.This()->GetInternalField(0).As<v8::External>()->Value());
+    V8_CHECK(con, "Invalid connection info");
+    V8_RETURN(con->IsAccepted());
+}
+
 extern V8Class v8ConnectionInfo("ConnectionInfo", [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
@@ -129,6 +137,7 @@ extern V8Class v8ConnectionInfo("ConnectionInfo", [](v8::Local<v8::FunctionTempl
 
     V8Helpers::SetMethod(isolate, tpl, "accept", &Accept);
     V8Helpers::SetMethod(isolate, tpl, "decline", &Decline);
+    V8Helpers::SetAccessor(isolate, tpl, "isAccepted", &IsAcceptedGetter);
 
     V8Helpers::SetAccessor(isolate, tpl, "name", &NameGetter);
     V8Helpers::SetAccessor(isolate, tpl, "socialID", &SocialIDGetter);
