@@ -33,23 +33,21 @@ V8Helpers::LocalEventHandler
       auto ev = static_cast<const alt::CPlayerBeforeConnectEvent*>(e);
       v8::Isolate* isolate = resource->GetIsolate();
       v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
-      alt::Ref<alt::IConnectionInfo> info = ev->GetConnectionInfo();
 
-      V8_NEW_OBJECT(infoObj);
-      V8_OBJECT_SET_STRING(infoObj, "name", info->GetName());
-      V8_OBJECT_SET_STRING(infoObj, "socialID", std::to_string(info->GetSocialId()));
-      V8_OBJECT_SET_STRING(infoObj, "hwidHash", std::to_string(info->GetHwIdHash()));
-      V8_OBJECT_SET_STRING(infoObj, "hwidExHash", std::to_string(info->GetHwIdExHash()));
-      V8_OBJECT_SET_STRING(infoObj, "authToken", info->GetAuthToken());
-      V8_OBJECT_SET_BOOLEAN(infoObj, "isDebug", info->GetIsDebug());
-      V8_OBJECT_SET_STRING(infoObj, "branch", info->GetBranch());
-      V8_OBJECT_SET_UINT(infoObj, "build", info->GetBuild());
-      V8_OBJECT_SET_STRING(infoObj, "cdnUrl", info->GetCdnUrl());
-      V8_OBJECT_SET_BIGUINT(infoObj, "passwordHash", info->GetPasswordHash());
-      V8_OBJECT_SET_STRING(infoObj, "ip", info->GetIp());
-      V8_OBJECT_SET_STRING(infoObj, "discordUserID", info->GetDiscordUserID());
+      alt::Ref<alt::IConnectionInfo> info = ev->GetConnectionInfo();
+      v8::Local<v8::Object> infoObj = v8ConnectionInfo.CreateInstance(ctx);
+      infoObj->SetInternalField(0, v8::External::New(isolate, info.Get()));
+      static_cast<CNodeResourceImpl*>(resource)->AddConnectionInfoObject(info, infoObj);
+
       args.push_back(infoObj);
       args.push_back(V8Helpers::JSValue(ev->GetReason()));
+
+      resource->RunOnNextTick([=] {
+          v8::Local<v8::Object> infoObj = static_cast<CNodeResourceImpl*>(resource)->GetConnectionInfoObject(info);
+          if(infoObj.IsEmpty()) return;
+          infoObj->SetInternalField(0, v8::External::New(isolate, nullptr));
+          static_cast<CNodeResourceImpl*>(resource)->RemoveConnectionInfoObject(info);
+      });
   });
 
 V8Helpers::LocalEventHandler playerDisconnect(EventType::PLAYER_DISCONNECT, "playerDisconnect", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
@@ -147,7 +145,6 @@ V8_LOCAL_EVENT_HANDLER connectionQueueAdd(EventType::CONNECTION_QUEUE_ADD, "conn
     alt::Ref<alt::IConnectionInfo> info = ev->GetConnectionInfo();
     v8::Local<v8::Object> infoObj = v8ConnectionInfo.CreateInstance(ctx);
     infoObj->SetInternalField(0, v8::External::New(isolate, info.Get()));
-
     static_cast<CNodeResourceImpl*>(resource)->AddConnectionInfoObject(info, infoObj);
 
     args.push_back(infoObj);
