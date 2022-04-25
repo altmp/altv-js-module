@@ -63,8 +63,9 @@ set(ALTV_JS_LINKS
 )
 
 set(ALTV_JS_DEFS
-  # Compliation
+  # Compilation
   -DCXX_COMPILER_ID="${CMAKE_CXX_COMPILER_ID}"
+  -DWIN32_LEAN_AND_MEAN
 
   # Platform
   -DUNICODE
