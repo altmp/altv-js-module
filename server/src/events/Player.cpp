@@ -3,6 +3,8 @@
 #include "V8ResourceImpl.h"
 #include "V8Helpers.h"
 
+#include "CNodeResourceImpl.h"
+
 #include "cpp-sdk/events/CPlayerConnectEvent.h"
 #include "cpp-sdk/events/CPlayerBeforeConnectEvent.h"
 #include "cpp-sdk/events/CPlayerDisconnectEvent.h"
@@ -18,6 +20,8 @@
 
 using alt::CEvent;
 using EventType = CEvent::Type;
+
+extern V8Class v8ConnectionInfo;
 
 V8Helpers::LocalEventHandler playerConnect(EventType::PLAYER_CONNECT, "playerConnect", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
     auto ev = static_cast<const alt::CPlayerConnectEvent*>(e);
@@ -135,10 +139,6 @@ V8_LOCAL_EVENT_HANDLER localMetaChange(EventType::LOCAL_SYNCED_META_CHANGE, "loc
     args.push_back(V8Helpers::MValueToV8(ev->GetOldVal()));
 });
 
-// todo: this random map here is shit code, but works for now
-static std::unordered_map<alt::Ref<alt::IConnectionInfo>, V8Helpers::CPersistent<v8::Object>> connectionInfoMap;
-
-extern V8Class v8ConnectionInfo;
 V8_LOCAL_EVENT_HANDLER connectionQueueAdd(EventType::CONNECTION_QUEUE_ADD, "connectionQueueAdd", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
     auto ev = static_cast<const alt::CConnectionQueueAddEvent*>(e);
     v8::Isolate* isolate = resource->GetIsolate();
@@ -148,7 +148,7 @@ V8_LOCAL_EVENT_HANDLER connectionQueueAdd(EventType::CONNECTION_QUEUE_ADD, "conn
     v8::Local<v8::Object> infoObj = v8ConnectionInfo.CreateInstance(ctx);
     infoObj->SetInternalField(0, v8::External::New(isolate, info.Get()));
 
-    connectionInfoMap.insert({ info, V8Helpers::CPersistent<v8::Object>{ isolate, infoObj } });
+    static_cast<CNodeResourceImpl*>(resource)->AddConnectionInfoObject(info, infoObj);
 
     args.push_back(infoObj);
 });
@@ -160,13 +160,15 @@ connectionQueueRemove(EventType::CONNECTION_QUEUE_REMOVE, "connectionQueueRemove
     v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
 
     alt::Ref<alt::IConnectionInfo> info = ev->GetConnectionInfo();
-    v8::Local<v8::Object> infoObj = connectionInfoMap.at(info).Get(isolate);
-    resource->RunOnNextTick([=] {
-        v8::Local<v8::Object> obj = connectionInfoMap.at(info).Get(isolate);
-        obj->SetInternalField(0, v8::External::New(isolate, nullptr));
-        connectionInfoMap.erase(info);
+    resource->RunOnNextTick([resource, isolate, info] {
+        v8::Local<v8::Object> infoObj = static_cast<CNodeResourceImpl*>(resource)->GetConnectionInfoObject(info);
+        if(infoObj.IsEmpty()) return;
+        infoObj->SetInternalField(0, v8::External::New(isolate, nullptr));
+        static_cast<CNodeResourceImpl*>(resource)->RemoveConnectionInfoObject(info);
     });
 
+    v8::Local<v8::Object> infoObj = static_cast<CNodeResourceImpl*>(resource)->GetConnectionInfoObject(info);
+    if(infoObj.IsEmpty()) return;
     args.push_back(infoObj);
 });
 

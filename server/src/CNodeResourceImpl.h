@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cpp-sdk/types/MValue.h"
+#include "cpp-sdk/types/IConnectionInfo.h"
 #include "cpp-sdk/IPackage.h"
 #include "cpp-sdk/IResource.h"
 
@@ -46,6 +47,24 @@ public:
         return envStarted;
     }
 
+    void AddConnectionInfoObject(alt::Ref<alt::IConnectionInfo> info, v8::Local<v8::Object> obj)
+    {
+        connectionInfoMap.insert({ info, V8Helpers::CPersistent<v8::Object>(isolate, obj) });
+    }
+    void RemoveConnectionInfoObject(alt::Ref<alt::IConnectionInfo> info)
+    {
+        connectionInfoMap.erase(info);
+    }
+    v8::Local<v8::Object> GetConnectionInfoObject(alt::Ref<alt::IConnectionInfo> info)
+    {
+        auto it = connectionInfoMap.find(info);
+        if(it != connectionInfoMap.end())
+        {
+            return it->second.Get(isolate);
+        }
+        return v8::Local<v8::Object>();
+    }
+
 private:
     CNodeScriptRuntime* runtime;
 
@@ -57,4 +76,6 @@ private:
     uv_loop_t* uvLoop = nullptr;
     V8Helpers::CPersistent<v8::Object> asyncResource;
     node::async_context asyncContext{};
+
+    std::unordered_map<alt::Ref<alt::IConnectionInfo>, V8Helpers::CPersistent<v8::Object>> connectionInfoMap;
 };
