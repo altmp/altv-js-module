@@ -211,7 +211,4 @@ public:
     {
         return streamedInVehicles;
     }
-
-    // Called when a crash in V8 code occurs
-    static int OnUnhandledException(_EXCEPTION_POINTERS* exceptionPointers);
 };
