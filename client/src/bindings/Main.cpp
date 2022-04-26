@@ -131,8 +131,6 @@ static void ToggleVoiceControls(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(1);
     V8_ARG_TO_BOOLEAN(1, state);
 
-    // TODO: make it resource-bound
-    // jsResource->ToggleVoiceControls(state);
     alt::ICore::Instance().ToggleVoiceControls(state);
 }
 
