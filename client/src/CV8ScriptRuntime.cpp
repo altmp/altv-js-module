@@ -6,8 +6,6 @@
 #include "events/Events.h"
 #include "CProfiler.h"
 
-#include <windows.h>
-
 CV8ScriptRuntime::CV8ScriptRuntime()
 {
     // !!! Don't change these without adjusting bytecode module !!!
@@ -16,7 +14,6 @@ CV8ScriptRuntime::CV8ScriptRuntime()
     v8::V8::InitializePlatform(platform.get());
     v8::V8::InitializeICU((alt::ICore::Instance().GetClientPath() + "/libs/icudtl.dat").c_str());
     v8::V8::Initialize();
-    v8::V8::SetUnhandledExceptionCallback(OnUnhandledException);
 
     create_params.array_buffer_allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
     create_params.allow_atomics_wait = false;
@@ -419,20 +416,4 @@ void CV8ScriptRuntime::OnEntityStreamOut(alt::Ref<alt::IEntity> entity)
             break;
         }
     }
-}
-
-int CV8ScriptRuntime::OnUnhandledException(_EXCEPTION_POINTERS* exceptionPointers)
-{
-    _EXCEPTION_RECORD* record = exceptionPointers->ExceptionRecord;
-    _CONTEXT* context = exceptionPointers->ContextRecord;
-
-    Log::Error << "[V8] A critical error has occured and V8 has crashed" << Log::Endl;
-    Log::Error << "[V8] Exception offset: "
-               << "0x" << std::hex << (uintptr_t)exceptionPointers->ExceptionRecord->ExceptionAddress << std::dec << Log::Endl;
-    Log::Error << "[V8] Exception code: "
-               << "0x" << std::hex << exceptionPointers->ExceptionRecord->ExceptionCode << std::dec << Log::Endl;
-
-    // todo: Actually do something with the exception data
-
-    return 0;
 }
