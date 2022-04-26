@@ -283,7 +283,6 @@ v8::MaybeLocal<v8::Module>
 
     if(importAssertions->Length() > 0)
     {
-        // todo: maybe check all import assertions?
         std::string assertionKey = *v8::String::Utf8Value(isolate, importAssertions->Get(ctx, 0).As<v8::Value>().As<v8::String>());
         if(assertionKey != "type")
         {
@@ -336,7 +335,6 @@ v8::MaybeLocal<v8::Module>
                 path.pkg->CloseFile(file);
 
                 // Parse the JSON first to check if its valid
-                // todo: do we really need this?
                 v8::MaybeLocal<v8::Value> result = v8::JSON::Parse(ctx, V8Helpers::JSValue(src));
                 if(result.IsEmpty())
                 {
