@@ -25,6 +25,12 @@
     V8_GET_ISOLATE_CONTEXT();              \
     V8_GET_IRESOURCE()
 
+#define V8_CHECK_NORETN(a, b)           \
+    if(!(a))                            \
+    {                                   \
+        V8Helpers::Throw(isolate, (b)); \
+    }
+
 #define V8_CHECK_RETN(a, b, c)          \
     if(!(a))                            \
     {                                   \

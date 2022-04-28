@@ -94,10 +94,15 @@ static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
         {
             Ref<IPlayer> player;
             v8::Local<v8::Value> ply;
-            V8_CHECK(arr->Get(ctx, i).ToLocal(&ply), "Invalid player in emitClient players array");
+
+            bool toLocalSuccess = arr->Get(ctx, i).ToLocal(&ply);
+            V8_CHECK_NORETN(toLocalSuccess, "Invalid player in emitClient players array");
+            if(!toLocalSuccess) continue;
             V8Entity* v8Player = V8Entity::Get(ply);
 
-            V8_CHECK(v8Player && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER, "player inside array expected");
+            bool isPlayerType = v8Player && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER;
+            V8_CHECK_NORETN(isPlayerType, "player inside array expected");
+            if(!isPlayerType) continue;
             targets.Push(v8Player->GetHandle().As<IPlayer>());
         }
 
@@ -166,10 +171,15 @@ static void EmitClientRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
         {
             Ref<IPlayer> player;
             v8::Local<v8::Value> ply;
-            V8_CHECK(arr->Get(ctx, i).ToLocal(&ply), "Invalid player in emitClient players array");
+
+            bool toLocalSuccess = arr->Get(ctx, i).ToLocal(&ply);
+            V8_CHECK_NORETN(toLocalSuccess, "Invalid player in emitClient players array");
+            if(!toLocalSuccess) continue;
             V8Entity* v8Player = V8Entity::Get(ply);
 
-            V8_CHECK(v8Player && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER, "player inside array expected");
+            bool isPlayerType = v8Player && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER;
+            V8_CHECK_NORETN(isPlayerType, "player inside array expected");
+            if(!isPlayerType) continue;
             targets.Push(v8Player->GetHandle().As<IPlayer>());
         }
 
