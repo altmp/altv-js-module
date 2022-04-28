@@ -175,9 +175,6 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
         {
             int64_t _val = val.As<alt::IMValueInt>()->Value();
 
-            bool fitsInJSNumber = _val >= JS_MIN_SAFE_INTEGER && _val <= JS_MAX_SAFE_INTEGER;
-            Log::Warning << "INT " << _val << " " << fitsInJSNumber << Log::Endl;
-
             if(_val >= JS_MIN_SAFE_INTEGER && _val <= JS_MAX_SAFE_INTEGER) return V8Helpers::JSValue((double)_val);
 
             return V8Helpers::JSValue(_val);
@@ -185,9 +182,6 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
         case alt::IMValue::Type::UINT:
         {
             uint64_t _val = val.As<alt::IMValueUInt>()->Value();
-
-            bool fitsInJSNumber = _val <= JS_MAX_SAFE_INTEGER;
-            Log::Warning << "UINT " << _val << " " << fitsInJSNumber << Log::Endl;
 
             if(_val <= JS_MAX_SAFE_INTEGER) return V8Helpers::JSValue((double)_val);
 
