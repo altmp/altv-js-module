@@ -329,11 +329,7 @@ static void ClearTimer(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK(!info[0]->IsNullOrUndefined(), "Invalid timer id");
     V8_ARG_TO_INT(1, timer);
 
-    if(!resource->DoesTimerExist(timer))
-    {
-        Log::Warning << V8Helpers::SourceLocation::GetCurrent(isolate).ToString() << " Timer with that id does not exist" << Log::Endl;
-        return;
-    }
+    V8_CHECK(resource->DoesTimerExist(timer), "Timer with that id does not exist");
 
     resource->RemoveTimer(timer);
 }
