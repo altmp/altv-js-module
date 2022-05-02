@@ -1,5 +1,4 @@
 cmake_minimum_required (VERSION 3.19)
-include(cmake/GitUtils.cmake)
 include(FetchContent)
 include(cmake/DepsDownload.cmake)
 include(../shared/cmake/GenerateBindings.cmake)
