@@ -291,6 +291,8 @@ static void RestartResource(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void GetResourceMain(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
+    // Deprecation added: 02/05/2022 (version 9.13)
+    V8_DEPRECATE("alt.getResourceMain", "alt.Resource.name");
     V8_GET_ISOLATE_CONTEXT();
     V8_CHECK_ARGS_LEN(1);
 
@@ -305,6 +307,8 @@ static void GetResourceMain(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void GetResourcePath(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
+    // Deprecation added: 02/05/2022 (version 9.13)
+    V8_DEPRECATE("alt.getResourcePath", "alt.Resource.name");
     V8_GET_ISOLATE_CONTEXT();
     V8_CHECK_ARGS_LEN(1);
 
