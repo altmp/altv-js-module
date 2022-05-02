@@ -35,7 +35,7 @@ const alt = process._linkedBinding("alt");
 function setupImports() {
   translators.set("alt", async function(url) {
     const name = url.slice(4); // Remove "alt:" scheme
-    const exports = alt.getResourceExports(name);
+    const exports = alt.Resource.getByName(name).exports;
     return new ModuleWrap(url, undefined, Object.keys(exports), function() {
       for (const exportName in exports) {
         let value;

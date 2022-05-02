@@ -348,6 +348,8 @@ static void HasResource(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void GetResourceExports(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
+    // Deprecation added: 02/05/2022 (version 9.13)
+    V8_DEPRECATE("alt.getResourceExports", "alt.Resource.exports");
     V8_GET_ISOLATE_CONTEXT();
     V8_CHECK_ARGS_LEN(1);
 
