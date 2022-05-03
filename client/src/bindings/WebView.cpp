@@ -231,7 +231,7 @@ extern V8Class v8WebView("WebView", v8BaseObject, &Constructor, [](v8::Local<v8:
     V8Helpers::SetAccessor<IWebView, bool, &IWebView::IsReady>(isolate, tpl, "isReady");
     V8Helpers::SetAccessor(isolate, tpl, "focused", &FocusedGetter, &FocusedSetter);
     V8Helpers::SetAccessor<IWebView, Vector2i, &IWebView::GetSize, &IWebView::SetSize>(isolate, tpl, "size");
-    V8Helpers::SetAccessor<IWebView, Vector2i, &IWebView::GetPosition, &IWebView::SetPosition>(isolate, tpl, "pos");
+    V8Helpers::SetAccessor<IWebView, Vector2i, &IWebView::GetPosition>(isolate, tpl, "pos");
 
     V8Helpers::SetMethod(isolate, tpl, "on", &On);
     V8Helpers::SetMethod(isolate, tpl, "once", &Once);
