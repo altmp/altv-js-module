@@ -8,7 +8,7 @@ namespace V8Helpers::Vehicle
         V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
         V8_CHECK_ARGS_LEN(1);
 
-        V8_ARG_TO_STD_STRING(1, scriptData);
+        V8_ARG_TO_STRING(1, scriptData);
 
         vehicle->LoadScriptDataFromBase64(scriptData);
     }
@@ -18,6 +18,6 @@ namespace V8Helpers::Vehicle
         V8_GET_ISOLATE();
         V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 
-        V8_RETURN_STD_STRING(vehicle->GetScriptDataBase64());
+        V8_RETURN_STRING(vehicle->GetScriptDataBase64());
     }
 }  // namespace V8Helpers::Vehicle

@@ -14,7 +14,7 @@ static void DocumentConstructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(1, url);
 
     std::string origin = V8Helpers::GetCurrentSourceOrigin(isolate);
-    auto doc = alt::ICore::Instance().CreateDocument(url.ToString(), origin, resource->GetResource());
+    auto doc = alt::ICore::Instance().CreateDocument(url, origin, resource->GetResource());
     V8_BIND_BASE_OBJECT(doc, "Failed to create Rml document");
 }
 
@@ -23,7 +23,7 @@ static void TitleGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
 
-    V8_RETURN_STRING(document->GetTitle().c_str());
+    V8_RETURN_STRING(document->GetTitle());
 }
 
 static void TitleSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
@@ -32,7 +32,7 @@ static void TitleSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v
     V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
 
     V8_TO_STRING(val, title);
-    document->SetTitle(title.ToString());
+    document->SetTitle(title);
 }
 
 static void VisibleSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
@@ -61,7 +61,7 @@ static void CreateElement(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
     V8_CHECK_ARGS_LEN(1);
 
-    V8_ARG_TO_STD_STRING(1, tag);
+    V8_ARG_TO_STRING(1, tag);
 
     alt::Ref<alt::IRmlElement> element = document->CreateElement(tag);
     V8_CHECK(!element.IsEmpty(), "Failed to create element");
@@ -75,7 +75,7 @@ static void CreateTextNode(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(document, alt::IRmlDocument);
     V8_CHECK_ARGS_LEN(1);
 
-    V8_ARG_TO_STD_STRING(1, text);
+    V8_ARG_TO_STRING(1, text);
 
     alt::Ref<alt::IRmlElement> node = document->CreateTextNode(text);
     V8_CHECK(!node.IsEmpty(), "Failed to create text node");

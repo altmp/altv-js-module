@@ -21,7 +21,7 @@ namespace V8Helpers
 {
     inline void Throw(v8::Isolate* isolate, const std::string& msg)
     {
-        isolate->ThrowException(v8::Exception::Error(v8::String::NewFromUtf8(isolate, msg.data(), v8::NewStringType::kNormal, msg.size()).ToLocalChecked()));
+        isolate->ThrowException(v8::Exception::Error(v8::String::NewFromUtf8(isolate, msg.data(), v8::NewStringType::kNormal, (int)msg.size()).ToLocalChecked()));
     }
 
     bool TryCatch(const std::function<bool()>& fn);
@@ -148,6 +148,14 @@ namespace V8Helpers
 
     v8::Local<v8::Value> New(v8::Isolate* isolate, v8::Local<v8::Context> ctx, v8::Local<v8::Function> constructor, std::vector<v8::Local<v8::Value>>& args);
 
+    v8::Local<v8::Object> CreateCustomObject(v8::Isolate* isolate,
+                                             void* data,
+                                             v8::GenericNamedPropertyGetterCallback getter,
+                                             v8::GenericNamedPropertySetterCallback setter = nullptr,
+                                             v8::GenericNamedPropertyDeleterCallback deleter = nullptr,
+                                             v8::GenericNamedPropertyEnumeratorCallback enumerator = nullptr,
+                                             v8::GenericNamedPropertyQueryCallback query = nullptr);
+
     // TODO: create c++ classes for v8 classes and move there
     v8::Local<v8::String> Vector3_XKey(v8::Isolate* isolate);
     v8::Local<v8::String> Vector3_YKey(v8::Isolate* isolate);
@@ -162,7 +170,7 @@ namespace V8Helpers
     v8::Local<v8::String> Fire_WeaponKey(v8::Isolate* isolate);
 
     std::string Stringify(v8::Local<v8::Context> ctx, v8::Local<v8::Value> val);
-    alt::String GetJSValueTypeName(v8::Local<v8::Value> val);
+    std::string GetJSValueTypeName(v8::Local<v8::Value> val);
 
     inline std::string GetStackTrace(const std::string errorMsg)
     {
@@ -178,7 +186,11 @@ namespace V8Helpers
     {
         auto stackTrace = v8::StackTrace::CurrentStackTrace(isolate, 1);
         if(stackTrace->GetFrameCount() == 0) return "";
-        return *v8::String::Utf8Value(isolate, stackTrace->GetFrame(isolate, 0)->GetScriptName());
+        v8::Local<v8::String> scriptName = stackTrace->GetFrame(isolate, 0)->GetScriptName();
+        if(scriptName.IsEmpty()) return "";
+        v8::String::Utf8Value strValue(isolate, scriptName);
+        if(strValue.length() == 0) return "";
+        return *strValue;
     }
 
     v8::MaybeLocal<v8::Value> CallFunctionWithTimeout(v8::Local<v8::Function> fn, v8::Local<v8::Context> ctx, std::vector<v8::Local<v8::Value>>& args, uint32_t timeout = 5000);

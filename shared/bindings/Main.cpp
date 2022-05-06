@@ -1,3 +1,4 @@
+#include "cpp-sdk/version/version.h"
 
 #include "../V8Helpers.h"
 #include "../V8ResourceImpl.h"
@@ -29,7 +30,7 @@ static void On(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_ARG_TO_STRING(1, evName);
         V8_ARG_TO_FUNCTION(2, callback);
 
-        resource->SubscribeLocal(evName.ToString(), callback, V8Helpers::SourceLocation::GetCurrent(isolate));
+        resource->SubscribeLocal(evName, callback, V8Helpers::SourceLocation::GetCurrent(isolate));
     }
 }
 
@@ -49,7 +50,7 @@ static void Once(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_ARG_TO_STRING(1, evName);
         V8_ARG_TO_FUNCTION(2, callback);
 
-        resource->SubscribeLocal(evName.ToString(), callback, V8Helpers::SourceLocation::GetCurrent(isolate), true);
+        resource->SubscribeLocal(evName, callback, V8Helpers::SourceLocation::GetCurrent(isolate), true);
     }
 }
 
@@ -69,7 +70,7 @@ static void Off(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_ARG_TO_STRING(1, evName);
         V8_ARG_TO_FUNCTION(2, callback);
 
-        resource->UnsubscribeLocal(evName.ToString(), callback);
+        resource->UnsubscribeLocal(evName, callback);
     }
 }
 
@@ -117,7 +118,7 @@ static void HasMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
 
     V8_CHECK_ARGS_LEN_MIN(1);
-    V8_ARG_TO_STD_STRING(1, key);
+    V8_ARG_TO_STRING(1, key);
 
     V8_RETURN(alt::ICore::Instance().HasMetaData(key));
 }
@@ -127,7 +128,7 @@ static void GetMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
 
     V8_CHECK_ARGS_LEN_MIN(1);
-    V8_ARG_TO_STD_STRING(1, key);
+    V8_ARG_TO_STRING(1, key);
 
     V8_RETURN_MVALUE(alt::ICore::Instance().GetMetaData(key));
 }
@@ -137,7 +138,7 @@ static void SetMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
 
     V8_CHECK_ARGS_LEN_MIN(2);
-    V8_ARG_TO_STD_STRING(1, key);
+    V8_ARG_TO_STRING(1, key);
     V8_ARG_TO_MVALUE(2, value);
 
     alt::ICore::Instance().SetMetaData(key, value);
@@ -148,7 +149,7 @@ static void DeleteMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
 
     V8_CHECK_ARGS_LEN_MIN(1);
-    V8_ARG_TO_STD_STRING(1, key);
+    V8_ARG_TO_STRING(1, key);
 
     alt::ICore::Instance().DeleteMetaData(key);
 }
@@ -158,7 +159,7 @@ static void HasSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
 
     V8_CHECK_ARGS_LEN_MIN(1);
-    V8_ARG_TO_STD_STRING(1, key);
+    V8_ARG_TO_STRING(1, key);
 
     V8_RETURN(alt::ICore::Instance().HasSyncedMetaData(key));
 }
@@ -168,7 +169,7 @@ static void GetSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
 
     V8_CHECK_ARGS_LEN_MIN(1);
-    V8_ARG_TO_STD_STRING(1, key);
+    V8_ARG_TO_STRING(1, key);
 
     V8_RETURN_MVALUE(alt::ICore::Instance().GetSyncedMetaData(key));
 }
@@ -236,43 +237,41 @@ static void LogError(const v8::FunctionCallbackInfo<v8::Value>& info)
     alt::ICore::Instance().LogError(ss.str());
 }
 
-static std::unordered_map<std::string, std::chrono::high_resolution_clock::time_point> timers;
-
 static void Time(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_ARGS_LEN2(0, 1);
 
     std::string name = "";
     if(info.Length() != 0)
     {
-        V8_ARG_TO_STD_STRING(1, timerName);
+        V8_ARG_TO_STRING(1, timerName);
         name = timerName;
     }
 
-    V8_CHECK(timers.count(name) == 0, "Timer already exists");
-    timers.insert({ name, std::chrono::high_resolution_clock::now() });
+    V8_CHECK(!resource->HasBenchmarkTimer(name), "Benchmark timer already exists");
+    resource->CreateBenchmarkTimer(name);
 }
 
 static void TimeEnd(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_ARGS_LEN2(0, 1);
 
     std::string name = "";
     if(info.Length() != 0)
     {
-        V8_ARG_TO_STD_STRING(1, timerName);
+        V8_ARG_TO_STRING(1, timerName);
         name = timerName;
     }
 
-    auto it = timers.find(name);
-    V8_CHECK(!(it == timers.end()), "Timer not found");
-    std::chrono::high_resolution_clock::time_point& start = it->second;
+    V8_CHECK(resource->HasBenchmarkTimer(name), "Benchmark timer not found");
+
+    std::chrono::high_resolution_clock::time_point start = resource->GetBenchmarkTimerStart(name);
     Log::Info << "Timer " << name << ": " << (float)(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count() / 1000.f) << "ms"
               << Log::Endl;
 
-    timers.erase(name);
+    resource->RemoveBenchmarkTimer(name);
 }
 
 static void SetTimeout(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -330,11 +329,7 @@ static void ClearTimer(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK(!info[0]->IsNullOrUndefined(), "Invalid timer id");
     V8_ARG_TO_INT(1, timer);
 
-    if(!resource->DoesTimerExist(timer))
-    {
-        Log::Warning << V8Helpers::SourceLocation::GetCurrent(isolate).ToString() << " Timer with that id does not exist" << Log::Endl;
-        return;
-    }
+    V8_CHECK(resource->DoesTimerExist(timer), "Timer with that id does not exist");
 
     resource->RemoveTimer(timer);
 }
@@ -353,6 +348,8 @@ static void HasResource(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void GetResourceExports(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
+    // Deprecation added: 02/05/2022 (version 9.13)
+    V8_DEPRECATE("alt.getResourceExports", "alt.Resource.exports");
     V8_GET_ISOLATE_CONTEXT();
     V8_CHECK_ARGS_LEN(1);
 
@@ -380,7 +377,7 @@ static void GetEventListeners(const v8::FunctionCallbackInfo<v8::Value>& info)
     else
     {
         V8_ARG_TO_STRING(1, eventName);
-        handlers = std::move(resource->GetLocalHandlers(eventName.ToString()));
+        handlers = std::move(resource->GetLocalHandlers(eventName));
     }
 
     auto array = v8::Array::New(isolate, handlers.size());
@@ -406,7 +403,7 @@ static void GetRemoteEventListeners(const v8::FunctionCallbackInfo<v8::Value>& i
     else
     {
         V8_ARG_TO_STRING(1, eventName);
-        handlers = std::move(resource->GetRemoteHandlers(eventName.ToString()));
+        handlers = std::move(resource->GetRemoteHandlers(eventName));
     }
 
     auto array = v8::Array::New(isolate, handlers.size());
@@ -437,11 +434,21 @@ static void GetAllResources(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN(arr);
 }
 
-extern V8Class v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2, v8Vector3, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip;
+static void StringToSHA256(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STRING(1, str);
+
+    V8_RETURN_STRING(alt::ICore::Instance().StringToSHA256(str));
+}
+
+extern V8Class v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2, v8Vector3, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Resource, v8Utils;
 
 extern V8Module sharedModule("alt-shared",
                              nullptr,
-                             { v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2, v8Vector3, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip },
+                             { v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2, v8Vector3, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Resource, v8Utils },
                              [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
                                  v8::Isolate* isolate = ctx->GetIsolate();
 
@@ -484,9 +491,11 @@ extern V8Module sharedModule("alt-shared",
                                  V8Helpers::RegisterFunc(exports, "getResourceExports", &GetResourceExports);
                                  V8Helpers::RegisterFunc(exports, "getAllResources", &GetAllResources);
 
-                                 V8_OBJECT_SET_STD_STRING(exports, "version", alt::ICore::Instance().GetVersion());
-                                 V8_OBJECT_SET_STD_STRING(exports, "branch", alt::ICore::Instance().GetBranch());
-                                 V8_OBJECT_SET_INT(exports, "sdkVersion", alt::ICore::Instance().SDK_VERSION);
+                                 V8Helpers::RegisterFunc(exports, "stringToSHA256", &StringToSHA256);
+
+                                 V8_OBJECT_SET_STRING(exports, "version", alt::ICore::Instance().GetVersion());
+                                 V8_OBJECT_SET_STRING(exports, "branch", alt::ICore::Instance().GetBranch());
+                                 V8_OBJECT_SET_RAW_STRING(exports, "sdkVersion", ALT_SDK_VERSION);
                                  V8_OBJECT_SET_BOOLEAN(exports, "debug", alt::ICore::Instance().IsDebug());
 
                                  V8_OBJECT_SET_STRING(exports, "resourceName", V8ResourceImpl::GetResource(ctx)->GetName());

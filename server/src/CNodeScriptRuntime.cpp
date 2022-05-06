@@ -1,21 +1,25 @@
 #include "stdafx.h"
 
 #include "CNodeScriptRuntime.h"
+#include "CProfiler.h"
 
-CNodeScriptRuntime::CNodeScriptRuntime()
+bool CNodeScriptRuntime::Init()
 {
-    int eac;
-    const char** eav;
+    ProcessConfigOptions();
+    std::vector<std::string> argv = GetNodeArgs();
+    std::vector<std::string> execArgv;
+    std::vector<std::string> errors;
+    node::InitializeNodeWithArgs(&argv, &execArgv, &errors);
+    if(errors.size() > 0)
+    {
+        for(std::string& error : errors)
+        {
+            Log::Error << "Error while initializing node: " << error << Log::Endl;
+        }
+        return false;
+    }
 
-    const char* argv[] = { "alt-server", "--experimental-modules", "--es-module-specifier-resolution=node", "--trace-warnings" };
-    int argc = sizeof(argv) / sizeof(const char*);
-
-    node::Init(&argc, argv, &eac, &eav);
-
-    auto* tracing_agent = node::CreateAgent();
-    // auto* tracing_controller = tracing_agent->GetTracingController();
-    node::tracing::TraceEventHelper::SetAgent(tracing_agent);
-    platform.reset(node::CreatePlatform(4, node::tracing::TraceEventHelper::GetTracingController()));
+    platform = node::MultiIsolatePlatform::Create(4, (v8::TracingController*)nullptr);
 
     v8::V8::InitializePlatform(platform.get());
     v8::V8::Initialize();
@@ -39,9 +43,9 @@ CNodeScriptRuntime::CNodeScriptRuntime()
 
         V8Class::LoadAll(isolate);
     }
-}
 
-CNodeScriptRuntime::~CNodeScriptRuntime() {}
+    return true;
+}
 
 alt::IResource::Impl* CNodeScriptRuntime::CreateImpl(alt::IResource* resource)
 {
@@ -68,19 +72,129 @@ void CNodeScriptRuntime::OnDispose()
                     uv_run(uv_default_loop(), UV_RUN_DEFAULT);
                     platform->DrainTasks(isolate);
             } while (uv_loop_alive(uv_default_loop()));
-    }*/
-#ifdef WIN32
+    }
+    platform->UnregisterIsolate(isolate);
+    isolate->Dispose();
+    node::FreePlatform(platform.release());
     v8::V8::Dispose();
     v8::V8::ShutdownPlatform();
-#else
-    platform->DrainTasks(isolate);
-    platform->CancelPendingDelayedTasks(isolate);
-    platform->UnregisterIsolate(isolate);
+    */
 
-    isolate->Dispose();
-    v8::V8::Dispose();
-    platform.release();
-#endif
+    if(CProfiler::Instance().IsEnabled()) CProfiler::Instance().Dump("./");
+}
 
-    // node::FreePlatform(platform.release());
+std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
+{
+    std::vector<std::string> args = { "alt-server", "--experimental-modules", "--es-module-specifier-resolution=node", "--trace-warnings" };
+
+    alt::config::Node moduleConfig = alt::ICore::Instance().GetServerConfig()["js-module"];
+    if(!moduleConfig.IsDict()) return args;
+
+    // https://nodejs.org/api/cli.html#--inspecthostport
+    alt::config::Node inspector = moduleConfig["inspector"];
+    if(!inspector.IsNone())
+    {
+        std::string inspectorHost = "127.0.0.1";
+        alt::config::Node host = inspector["host"];
+        if(host.IsScalar()) inspectorHost = host.ToString();
+
+        std::string inspectorPort = "9229";
+        alt::config::Node port = inspector["port"];
+        if(port.IsScalar()) inspectorPort = port.ToString();
+
+        args.push_back("--inspect=" + inspectorHost + ":" + inspectorPort);
+    }
+
+    // https://nodejs.org/api/cli.html#--enable-source-maps
+    alt::config::Node enableSourceMaps = moduleConfig["source-maps"];
+    if(!enableSourceMaps.IsNone())
+    {
+        try
+        {
+            if(enableSourceMaps.ToBool()) args.push_back("--enable-source-maps");
+        }
+        catch(alt::config::Error&)
+        {
+            Log::Error << "Invalid value for 'source-maps' config option" << Log::Endl;
+        }
+    }
+
+    // https://nodejs.org/api/cli.html#--heap-prof
+    alt::config::Node enableHeapProfiler = moduleConfig["heap-profiler"];
+    if(!enableHeapProfiler.IsNone())
+    {
+        try
+        {
+            if(enableHeapProfiler.ToBool()) args.push_back("--heap-prof");
+        }
+        catch(alt::config::Error&)
+        {
+            Log::Error << "Invalid value for 'heap-profiler' config option" << Log::Endl;
+        }
+    }
+
+    // https://nodejs.org/api/cli.html#--experimental-fetch
+    alt::config::Node enableGlobalFetch = moduleConfig["global-fetch"];
+    if(!enableGlobalFetch.IsNone())
+    {
+        try
+        {
+            if(enableGlobalFetch.ToBool()) args.push_back("--experimental-fetch");
+        }
+        catch(alt::config::Error&)
+        {
+            Log::Error << "Invalid value for 'global-fetch' config option" << Log::Endl;
+        }
+    }
+
+    // https://nodejs.org/api/cli.html#--experimental-global-webcrypto
+    alt::config::Node enableGlobalWebcrypto = moduleConfig["global-webcrypto"];
+    if(!enableGlobalWebcrypto.IsNone())
+    {
+        try
+        {
+            if(enableGlobalWebcrypto.ToBool()) args.push_back("--experimental-global-webcrypto");
+        }
+        catch(alt::config::Error&)
+        {
+            Log::Error << "Invalid value for 'global-webcrypto' config option" << Log::Endl;
+        }
+    }
+
+    // https://nodejs.org/api/cli.html#--experimental-network-imports
+    alt::config::Node enableNetworkImports = moduleConfig["network-imports"];
+    if(!enableNetworkImports.IsNone())
+    {
+        try
+        {
+            if(enableNetworkImports.ToBool()) args.push_back("--experimental-network-imports");
+        }
+        catch(alt::config::Error&)
+        {
+            Log::Error << "Invalid value for 'network-imports' config option" << Log::Endl;
+        }
+    }
+
+    return args;
+}
+
+void CNodeScriptRuntime::ProcessConfigOptions()
+{
+    alt::config::Node moduleConfig = alt::ICore::Instance().GetServerConfig()["js-module"];
+    if(!moduleConfig.IsDict()) return;
+
+    alt::config::Node profiler = moduleConfig["profiler"];
+    if(profiler.IsDict())
+    {
+        CProfiler::Instance().SetIsEnabled(true);
+        try
+        {
+            bool result = profiler["logs"].ToBool();
+            CProfiler::Instance().SetLogsEnabled(result);
+        }
+        catch(alt::config::Error&)
+        {
+            Log::Error << "Invalid value for 'logs' profiler config option" << Log::Endl;
+        }
+    }
 }

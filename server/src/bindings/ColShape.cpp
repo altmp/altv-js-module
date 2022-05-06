@@ -164,7 +164,6 @@ extern V8Class v8ColshapePolygon(
           v8::MaybeLocal<v8::Value> maybeVal = arr->Get(ctx, i);
           if(maybeVal.IsEmpty()) continue;
           v8::Local<v8::Value> val = maybeVal.ToLocalChecked();
-          V8_CHECK(resource->IsVector2(val), "Invalid item in array, expected Vector2");
           V8_TO_VECTOR2(val, point);
           points.push_back(point);
       }

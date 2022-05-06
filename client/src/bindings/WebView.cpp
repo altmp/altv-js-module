@@ -17,9 +17,9 @@ static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_OBJECT_GET_STRING(webview, "url", url);
 
     std::ostringstream ss;
-    ss << "WebView{ url: " << url.CStr() << " }";
+    ss << "WebView{ url: " << url << " }";
 
-    V8_RETURN_STRING(ss.str().c_str());
+    V8_RETURN_STRING(ss.str());
 }
 
 static void On(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -32,7 +32,7 @@ static void On(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_GET_THIS_BASE_OBJECT(view, alt::IWebView);
 
-    static_cast<CV8ResourceImpl*>(resource)->SubscribeWebView(view, evName.ToString(), fun, V8Helpers::SourceLocation::GetCurrent(isolate));
+    static_cast<CV8ResourceImpl*>(resource)->SubscribeWebView(view, evName, fun, V8Helpers::SourceLocation::GetCurrent(isolate));
 }
 
 static void Once(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -45,7 +45,7 @@ static void Once(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_GET_THIS_BASE_OBJECT(view, alt::IWebView);
 
-    static_cast<CV8ResourceImpl*>(resource)->SubscribeWebView(view, evName.ToString(), fun, V8Helpers::SourceLocation::GetCurrent(isolate), true);
+    static_cast<CV8ResourceImpl*>(resource)->SubscribeWebView(view, evName, fun, V8Helpers::SourceLocation::GetCurrent(isolate), true);
 }
 
 static void Off(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -58,7 +58,7 @@ static void Off(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_GET_THIS_BASE_OBJECT(view, alt::IWebView);
 
-    static_cast<CV8ResourceImpl*>(resource)->UnsubscribeWebView(view, evName.ToString(), fun);
+    static_cast<CV8ResourceImpl*>(resource)->UnsubscribeWebView(view, evName, fun);
 }
 
 static void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -87,7 +87,7 @@ static void GetEventListeners(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_STRING(1, eventName);
 
-    std::vector<V8Helpers::EventCallback*> handlers = static_cast<CV8ResourceImpl*>(resource)->GetWebViewHandlers(view, eventName.ToString());
+    std::vector<V8Helpers::EventCallback*> handlers = static_cast<CV8ResourceImpl*>(resource)->GetWebViewHandlers(view, eventName);
 
     auto array = v8::Array::New(isolate, handlers.size());
     for(int i = 0; i < handlers.size(); i++)
@@ -226,10 +226,12 @@ extern V8Class v8WebView("WebView", v8BaseObject, &Constructor, [](v8::Local<v8:
     V8Helpers::SetMethod(isolate, tpl, "toString", ToString);
 
     V8Helpers::SetAccessor<IWebView, bool, &IWebView::IsVisible, &IWebView::SetVisible>(isolate, tpl, "isVisible");
-    V8Helpers::SetAccessor<IWebView, StringView, &IWebView::GetUrl, &IWebView::SetUrl>(isolate, tpl, "url");
+    V8Helpers::SetAccessor<IWebView, const std::string&, &IWebView::GetUrl, &IWebView::SetUrl>(isolate, tpl, "url");
     V8Helpers::SetAccessor<IWebView, bool, &IWebView::IsOverlay>(isolate, tpl, "isOverlay");
     V8Helpers::SetAccessor<IWebView, bool, &IWebView::IsReady>(isolate, tpl, "isReady");
     V8Helpers::SetAccessor(isolate, tpl, "focused", &FocusedGetter, &FocusedSetter);
+    V8Helpers::SetAccessor<IWebView, Vector2i, &IWebView::GetSize, &IWebView::SetSize>(isolate, tpl, "size");
+    V8Helpers::SetAccessor<IWebView, Vector2i, &IWebView::GetPosition>(isolate, tpl, "pos");
 
     V8Helpers::SetMethod(isolate, tpl, "on", &On);
     V8Helpers::SetMethod(isolate, tpl, "once", &Once);
