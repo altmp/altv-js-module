@@ -307,4 +307,7 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, Constructor, [](v8::Local<v8::Func
 
     // Heli setter
     V8Helpers::SetMethod(isolate, tpl, "setSearchLightTo", &SetSearchLight);
+
+    // Boat setter
+    V8Helpers::SetAccessor<IVehicle, bool, &IVehicle::IsBoatAnchorActive, &IVehicle::SetBoatAnchorActive>(isolate, tpl, "boatAnchorActive");
 });

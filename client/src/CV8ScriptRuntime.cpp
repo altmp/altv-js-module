@@ -4,14 +4,15 @@
 #include "inspector/CV8InspectorChannel.h"
 #include "V8Module.h"
 #include "events/Events.h"
+#include "CProfiler.h"
 
 CV8ScriptRuntime::CV8ScriptRuntime()
 {
     // !!! Don't change these without adjusting bytecode module !!!
-    v8::V8::SetFlagsFromString("--harmony-import-assertions --short-builtin-calls --no-lazy");
+    v8::V8::SetFlagsFromString("--harmony-import-assertions --short-builtin-calls --no-lazy --no-flush-bytecode");
     platform = v8::platform::NewDefaultPlatform();
     v8::V8::InitializePlatform(platform.get());
-    v8::V8::InitializeICU((alt::ICore::Instance().GetClientPath() + "/libs/icudtl.dat").CStr());
+    v8::V8::InitializeICU((alt::ICore::Instance().GetClientPath() + "/libs/icudtl.dat").c_str());
     v8::V8::Initialize();
 
     create_params.array_buffer_allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
@@ -131,7 +132,7 @@ CV8ScriptRuntime::CV8ScriptRuntime()
               });
           };
 
-          if(Instance().resourcesLoaded && resource->GetResource()->IsStarted())
+          if(Instance().resourcesLoaded && resource->GetResource()->IsStarted() || resource->IsPreloading())
           {
               // instantly resolve the module
               domodule();
@@ -204,6 +205,42 @@ CV8ScriptRuntime::CV8ScriptRuntime()
     }
 
     RegisterEvents();
+
+    ProcessConfigOptions();
+}
+
+void CV8ScriptRuntime::ProcessConfigOptions()
+{
+    alt::config::Node moduleConfig = alt::ICore::Instance().GetClientConfig()["js-module"];
+    if(!moduleConfig.IsDict()) return;
+
+    alt::config::Node profiler = moduleConfig["profiler"];
+    if(!profiler.IsNone())
+    {
+        try
+        {
+            bool result = profiler.ToBool();
+            CProfiler::Instance().SetIsEnabled(result);
+        }
+        catch(alt::config::Error&)
+        {
+            Log::Error << "Invalid value for 'profiler' config option" << Log::Endl;
+        }
+    }
+}
+
+void CV8ScriptRuntime::OnDispose()
+{
+    while(isolate->IsInUse()) isolate->Exit();
+    isolate->Dispose();
+    v8::V8::Dispose();
+    v8::V8::ShutdownPlatform();
+    delete create_params.array_buffer_allocator;
+
+    if(CProfiler::Instance().IsEnabled()) CProfiler::Instance().Dump(alt::ICore::Instance().GetClientPath());
+
+    CV8ScriptRuntime::SetInstance(nullptr);
+    delete this;
 }
 
 static std::string Base64Decode(const std::string& in)
@@ -238,7 +275,7 @@ v8::MaybeLocal<v8::Module>
     }
 
     std::string _specifier = *v8::String::Utf8Value{ isolate, specifier };
-    if(_specifier == resource->GetResource()->GetName().ToString())
+    if(_specifier == resource->GetResource()->GetName())
     {
         V8Helpers::Throw(isolate, "Cannot import the resource itself (self-importing)");
         return v8::MaybeLocal<v8::Module>{};
@@ -246,7 +283,6 @@ v8::MaybeLocal<v8::Module>
 
     if(importAssertions->Length() > 0)
     {
-        // todo: maybe check all import assertions?
         std::string assertionKey = *v8::String::Utf8Value(isolate, importAssertions->Get(ctx, 0).As<v8::Value>().As<v8::String>());
         if(assertionKey != "type")
         {
@@ -299,7 +335,6 @@ v8::MaybeLocal<v8::Module>
                 path.pkg->CloseFile(file);
 
                 // Parse the JSON first to check if its valid
-                // todo: do we really need this?
                 v8::MaybeLocal<v8::Value> result = v8::JSON::Parse(ctx, V8Helpers::JSValue(src));
                 if(result.IsEmpty())
                 {
@@ -307,10 +342,8 @@ v8::MaybeLocal<v8::Module>
                     return false;
                 }
 
-                // Create a fake module that just wraps the JSON file to an object as the default export
-                std::stringstream codeStream;
-                codeStream << "export default " << src << ";";
-                maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(codeStream.str(), V8Helpers::SourceLocation::GetCurrent(isolate));
+                maybeModule = static_cast<CV8ResourceImpl*>(resource)->CreateSyntheticModule((path.prefix + path.fileName), result.ToLocalChecked());
+                return true;
             }
             else
             {

@@ -7,8 +7,8 @@
 class IImportHandler
 {
 protected:
-    std::unordered_map<std::string, v8::UniquePersistent<v8::Value>> requiresMap;
-    std::unordered_map<std::string, v8::UniquePersistent<v8::Module>> modules;
+    std::unordered_map<std::string, V8Helpers::CPersistent<v8::Value>> requiresMap;
+    std::unordered_map<std::string, V8Helpers::CPersistent<v8::Module>> modules;
 
     bool isUsingBytecode = false;
 

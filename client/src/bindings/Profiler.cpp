@@ -20,6 +20,10 @@ static void GetHeapStatistics(v8::Local<v8::String>, const v8::PropertyCallbackI
     V8_OBJECT_SET_UINT(stats, "usedHeapSize", heapStats.used_heap_size());
     V8_OBJECT_SET_UINT(stats, "mallocedMemory", heapStats.malloced_memory());
     V8_OBJECT_SET_UINT(stats, "peakMallocedMemory", heapStats.peak_malloced_memory());
+    V8_OBJECT_SET_UINT(stats, "nativeContexts", heapStats.number_of_native_contexts());
+    V8_OBJECT_SET_UINT(stats, "detachedContexts", heapStats.number_of_detached_contexts());
+    V8_OBJECT_SET_UINT(stats, "totalGlobalHandleSize", heapStats.total_global_handles_size());
+    V8_OBJECT_SET_UINT(stats, "usedGlobalHandleSize", heapStats.used_global_handles_size());
 
     V8_RETURN(stats);
 }
@@ -102,7 +106,7 @@ static void StartProfiling(const v8::FunctionCallbackInfo<v8::Value>& info)
     if(info.Length() == 1)
     {
         V8_ARG_TO_STRING(1, profileName);
-        name = V8Helpers::JSValue(profileName.CStr());
+        name = V8Helpers::JSValue(profileName);
     }
     else
         name = v8::String::Empty(isolate);
@@ -128,7 +132,7 @@ static void StopProfiling(const v8::FunctionCallbackInfo<v8::Value>& info)
     if(info.Length() == 1)
     {
         V8_ARG_TO_STRING(1, profileName);
-        name = V8Helpers::JSValue(profileName.CStr());
+        name = V8Helpers::JSValue(profileName);
     }
     else
         name = v8::String::Empty(isolate);
@@ -148,7 +152,7 @@ static void StopProfiling(const v8::FunctionCallbackInfo<v8::Value>& info)
     // Set top level info about the profile
     V8_NEW_OBJECT(resultObj);
     V8_OBJECT_SET_INT(resultObj, "id", std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count());
-    V8_OBJECT_SET_STRING(resultObj, "type", alt::String("cpu"));
+    V8_OBJECT_SET_RAW_STRING(resultObj, "type", "cpu");
     V8_OBJECT_SET_INT(resultObj, "start", result->GetStartTime() / 1000);
     V8_OBJECT_SET_INT(resultObj, "end", result->GetEndTime() / 1000);
     V8_OBJECT_SET_INT(resultObj, "samples", result->GetSamplesCount());

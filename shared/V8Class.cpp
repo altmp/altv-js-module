@@ -7,31 +7,17 @@ v8::Local<v8::Value> V8Class::New(v8::Local<v8::Context> ctx, std::vector<v8::Lo
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
     v8::Local<v8::FunctionTemplate> _tpl = tplMap.at(isolate).Get(isolate);
-    v8::Local<v8::Value> obj;
 
-    V8Helpers::TryCatch([&] {
-        v8::Local<v8::Function> func;
-        if(!_tpl->GetFunction(ctx).ToLocal(&func))
-        {
-            Log::Error << "V8Class::New Invalid constructor called" << Log::Endl;
-            return false;
-        }
+    v8::Local<v8::Function> func;
+    if(!_tpl->GetFunction(ctx).ToLocal(&func))
+    {
+        V8Helpers::Throw(isolate, "V8Class::New Invalid constructor called");
+        return v8::Null(isolate);
+    }
+    v8::MaybeLocal<v8::Value> maybeObj = func->CallAsConstructor(ctx, args.size(), args.data());
 
-        v8::MaybeLocal<v8::Value> maybeObj = func->CallAsConstructor(ctx, args.size(), args.data());
-
-        if(!maybeObj.IsEmpty())
-        {
-            obj = maybeObj.ToLocalChecked();
-            return true;
-        }
-        else
-        {
-            obj = v8::Null(isolate);
-            return false;
-        }
-    });
-
-    return obj;
+    if(maybeObj.IsEmpty()) return v8::Null(isolate);
+    return maybeObj.ToLocalChecked();
 }
 
 v8::Local<v8::Value> V8Class::CreateInstance(v8::Isolate* isolate, v8::Local<v8::Context> ctx, std::vector<v8::Local<v8::Value>> args)

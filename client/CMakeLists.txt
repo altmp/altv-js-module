@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.19)
-include(cmake/GitUtils.cmake)
 include(FetchContent)
 include(cmake/DepsDownload.cmake)
+include(../shared/cmake/GenerateBindings.cmake)
 
 project(altv-client-js)
 
@@ -10,8 +10,7 @@ set(ALTV_JS_DEPS_DIR ${PROJECT_SOURCE_DIR}/deps)
 # Fetch deps
 # v8
 message("alt:V JS - Fetching v8 deps, can take a while")
-
-DownloadDeps(${ALTV_JS_DEPS_DIR})
+DownloadDeps()
 
 # cpp-sdk
 if(NOT ALTV_JS_CPP_SDK)
@@ -41,6 +40,9 @@ endmacro()
 
 GroupSources(${PROJECT_SOURCE_DIR}/src "Source Files")
 GroupSources("../shared" "Shared Files")
+
+make_includable("src/bootstrap.js" "src/bootstrap.js.gen")
+GenerateBindings()
 
 include_directories(
   ${ALTV_JS_CPP_SDK}
@@ -86,6 +88,8 @@ if(WIN32 AND MSVC)
 endif()
 
 if(DYNAMIC_BUILD)
+  include(${ALTV_JS_CPP_SDK}/cpp-sdk/CMakeLists.txt)
+
   ## SHARED
   add_library(
     ${PROJECT_NAME} SHARED
@@ -102,6 +106,8 @@ if(DYNAMIC_BUILD)
   target_link_libraries(${PROJECT_NAME} PRIVATE
     ${ALTV_JS_LINKS}
   )
+
+  add_dependencies(${PROJECT_NAME} alt-sdk)
 else()
   ## STATIC
   add_library(
@@ -118,6 +124,8 @@ else()
   target_link_libraries(${PROJECT_NAME}-static PRIVATE
     ${ALTV_JS_LINKS}
   )
+
+  add_dependencies(${PROJECT_NAME}-static alt-sdk)
 endif()
 
 if(ALTV_JS_DEINIT_CPPSDK)

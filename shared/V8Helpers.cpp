@@ -30,33 +30,20 @@ bool V8Helpers::TryCatch(const std::function<bool()>& fn)
             v8::Maybe<int32_t> line = message->GetLineNumber(context);
             v8::ScriptOrigin origin = message->GetScriptOrigin();
 
+            // Only relevant for client
+            bool isBytecodeResource = false;
+#ifdef ALT_CLIENT
+            isBytecodeResource = static_cast<CV8ResourceImpl*>(v8resource)->IsBytecodeResource();
+#endif
+
             if(!origin.ResourceName()->IsUndefined())
             {
-                // Only relevant for client
-                bool isBytecodeResource = false;
-#ifdef ALT_CLIENT
-                isBytecodeResource = static_cast<CV8ResourceImpl*>(v8resource)->IsBytecodeResource();
-#endif
                 if(line.IsNothing() || isBytecodeResource)
                 {
                     Log::Error << "[V8] Exception at " << resource->GetName() << ":" << *v8::String::Utf8Value(isolate, origin.ResourceName()) << Log::Endl;
                 }
                 else
                     Log::Error << "[V8] Exception at " << resource->GetName() << ":" << *v8::String::Utf8Value(isolate, origin.ResourceName()) << ":" << line.ToChecked() << Log::Endl;
-
-                if(!maybeSourceLine.IsEmpty() && !isBytecodeResource)
-                {
-                    v8::Local<v8::String> sourceLine = maybeSourceLine.ToLocalChecked();
-
-                    if(sourceLine->Length() <= 80)
-                    {
-                        Log::Error << "  " << *v8::String::Utf8Value(isolate, sourceLine) << Log::Endl;
-                    }
-                    else
-                    {
-                        Log::Error << "  " << std::string{ *v8::String::Utf8Value(isolate, sourceLine), 80 } << "..." << Log::Endl;
-                    }
-                }
 
                 v8resource->DispatchErrorEvent(
                   *v8::String::Utf8Value(isolate, message->Get()), *v8::String::Utf8Value(isolate, origin.ResourceName()), line.IsNothing() ? -1 : line.ToChecked());
@@ -66,11 +53,30 @@ bool V8Helpers::TryCatch(const std::function<bool()>& fn)
                 Log::Error << "[V8] Exception at " << resource->GetName() << Log::Endl;
             }
 
+            if(!maybeSourceLine.IsEmpty() && !isBytecodeResource)
+            {
+                v8::Local<v8::String> sourceLine = maybeSourceLine.ToLocalChecked();
+
+                if(sourceLine->Length() <= 80)
+                {
+                    Log::Error << "  " << *v8::String::Utf8Value(isolate, sourceLine) << Log::Endl;
+                }
+                else
+                {
+                    Log::Error << "  " << std::string{ *v8::String::Utf8Value(isolate, sourceLine), 80 } << "..." << Log::Endl;
+                }
+            }
+
             v8::MaybeLocal<v8::Value> stackTrace = tryCatch.StackTrace(context);
             if(!stackTrace.IsEmpty() && stackTrace.ToLocalChecked()->IsString())
             {
                 v8::String::Utf8Value stackTraceStr(isolate, stackTrace.ToLocalChecked().As<v8::String>());
                 Log::Error << "  " << *stackTraceStr << Log::Endl;
+            }
+
+            if(!exception.IsEmpty())
+            {
+                Log::Error << *v8::String::Utf8Value(isolate, exception) << Log::Endl;
             }
         }
         else if(!exception.IsEmpty())
@@ -111,6 +117,29 @@ v8::Local<v8::Value> V8Helpers::New(v8::Isolate* isolate, v8::Local<v8::Context>
         return true;
     });
 
+    return obj;
+}
+
+v8::Local<v8::Object> V8Helpers::CreateCustomObject(v8::Isolate* isolate,
+                                                    void* data,
+                                                    v8::GenericNamedPropertyGetterCallback getter,
+                                                    v8::GenericNamedPropertySetterCallback setter,
+                                                    v8::GenericNamedPropertyDeleterCallback deleter,
+                                                    v8::GenericNamedPropertyEnumeratorCallback enumerator,
+                                                    v8::GenericNamedPropertyQueryCallback query)
+{
+    v8::Local<v8::ObjectTemplate> objTemplate = v8::ObjectTemplate::New(isolate);
+    v8::NamedPropertyHandlerConfiguration config;
+    config.getter = getter;
+    config.setter = setter;
+    config.deleter = deleter;
+    config.query = query;
+    config.enumerator = enumerator;
+    config.data = v8::External::New(isolate, data);
+    config.flags = v8::PropertyHandlerFlags::kHasNoSideEffect;
+    objTemplate->SetHandler(config);
+
+    v8::Local<v8::Object> obj = objTemplate->NewInstance(isolate->GetEnteredOrMicrotaskContext()).ToLocalChecked();
     return obj;
 }
 
@@ -160,7 +189,7 @@ std::string V8Helpers::SourceLocation::ToString()
     // Check if not inside a worker
     if(!(*static_cast<bool*>(isolate->GetData(v8::Isolate::GetNumberOfDataSlots() - 1))))
     {
-        stream << V8ResourceImpl::Get(context.Get(v8::Isolate::GetCurrent()))->GetResource()->GetName().CStr() << ":";
+        stream << V8ResourceImpl::Get(context.Get(v8::Isolate::GetCurrent()))->GetResource()->GetName() << ":";
     }
     stream << fileName << ":" << line << "]";
     return stream.str();
@@ -317,7 +346,8 @@ V8Helpers::EventHandler::EventHandler(alt::CEvent::Type type, CallbacksGetter&& 
 // Temp issue fix for https://stackoverflow.com/questions/9459980/c-global-variable-not-initialized-when-linked-through-static-libraries-but-ok
 void V8Helpers::EventHandler::Reference()
 {
-    Log::Info << "[V8] Registered handler for " << std::to_string((int)type) << Log::Endl;
+    // Log::Info << "[V8] Registered handler for " << std::to_string((int)type) << Log::Endl;
+    (void)type;
 }
 
 std::string V8Helpers::Stringify(v8::Local<v8::Context> ctx, v8::Local<v8::Value> val)
@@ -336,7 +366,7 @@ std::string V8Helpers::Stringify(v8::Local<v8::Context> ctx, v8::Local<v8::Value
     return result;
 }
 
-alt::String V8Helpers::GetJSValueTypeName(v8::Local<v8::Value> val)
+std::string V8Helpers::GetJSValueTypeName(v8::Local<v8::Value> val)
 {
     if(val->IsUndefined()) return "undefined";
     if(val->IsNull()) return "null";
@@ -364,6 +394,7 @@ alt::String V8Helpers::GetJSValueTypeName(v8::Local<v8::Value> val)
     if(val->IsWeakSet()) return "weakset";
     if(val->IsTypedArray()) return "typedarray";
     if(val->IsProxy()) return "proxy";
+    if(val->IsModuleNamespaceObject()) return "modulenamespace";
     if(val->IsObject()) return "object";
     else
         return "unknown";

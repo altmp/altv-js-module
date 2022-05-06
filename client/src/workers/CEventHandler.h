@@ -2,6 +2,7 @@
 
 #include <queue>
 #include <string>
+#include <mutex>
 
 #include "V8Helpers.h"
 
@@ -16,6 +17,7 @@ private:
     Queue queue;
     std::mutex queueLock;
     HandlerMap handlers;
+    std::mutex handlersLock;
 
     void CleanupHandlers();
 
