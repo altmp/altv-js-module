@@ -31,17 +31,22 @@
 
 extern void StaticRequire(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-    v8::Isolate* isolate = info.GetIsolate();
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(1);
 
-    V8_CHECK(info.Length() == 1, "1 arg expected");
-    V8_CHECK(info[0]->IsString(), "moduleName must be a string");
+    V8_ARG_TO_STRING(1, name);
 
-    V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredOrMicrotaskContext());
-    V8_CHECK(resource, "invalid resource");
+    IImportHandler* handler = nullptr;
+    bool isWorker = *(bool*)isolate->GetData(isolate->GetNumberOfDataSlots() - 1);
+    if(isWorker)
+    {
+        CWorker* worker = static_cast<CWorker*>(ctx->GetAlignedPointerFromEmbedderData(2));
+        handler = worker;
+    }
+    else
+        handler = static_cast<CV8ResourceImpl*>(resource);
 
-    std::string name{ *v8::String::Utf8Value{ isolate, info[0] } };
-
-    v8::MaybeLocal<v8::Value> _exports = static_cast<CV8ResourceImpl*>(resource)->Require(name);
+    v8::MaybeLocal<v8::Value> _exports = handler->Require(name);
 
     if(!_exports.IsEmpty()) info.GetReturnValue().Set(_exports.ToLocalChecked());
     else
