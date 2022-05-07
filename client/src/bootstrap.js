@@ -1,5 +1,5 @@
 // clang-format off
-import * as alt from "alt-client";
+import * as alt from "alt";
 import * as native from "natives";
 
 // Load the global bindings code
