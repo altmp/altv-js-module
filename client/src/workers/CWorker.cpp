@@ -10,7 +10,7 @@
 
 #include <functional>
 
-CWorker::CWorker(std::string& filePath, std::string& origin, CV8ResourceImpl* resource) : filePath(filePath), origin(origin), resource(resource) {}
+CWorker::CWorker(std::string& filePath, CV8ResourceImpl* resource) : filePath(filePath), resource(resource) {}
 
 void CWorker::Start()
 {
@@ -36,10 +36,6 @@ void CWorker::Thread()
         std::vector<V8Helpers::Serialization::Value> args;
         GetMainEventHandler().Emit("load", args);
 
-        v8::Locker locker(isolate);
-        v8::Isolate::Scope isolate_scope(isolate);
-        v8::HandleScope handle_scope(isolate);
-        v8::Context::Scope context_scope(context.Get(isolate));
         while(true)
         {
             // Sleep for a short while to not overload the thread
@@ -56,18 +52,22 @@ bool CWorker::EventLoop()
     if(shouldTerminate) return false;
     if(isPaused) return true;
 
+    v8::Locker locker(isolate);
+    v8::Isolate::Scope isolate_scope(isolate);
+    v8::HandleScope handle_scope(isolate);
+    v8::Context::Scope context_scope(context.Get(isolate));
+
     // Timers
     for(auto& id : oldTimers) timers.erase(id);
     oldTimers.clear();
 
-    for(auto& p : timers)
-    {
-        int64_t time = GetTime();
-        if(!p.second->Update(time)) RemoveTimer(p.first);
-    }
-
     auto error = TryCatch([&]() {
-        microtaskQueue->PerformCheckpoint(isolate);
+        // microtaskQueue->PerformCheckpoint(isolate); // todo: fix this
+        for(auto& p : timers)
+        {
+            int64_t time = GetTime();
+            if(!p.second->Update(time)) RemoveTimer(p.first);
+        }
         GetWorkerEventHandler().Process();
         v8::platform::PumpMessageLoop(CV8ScriptRuntime::Instance().GetPlatform(), isolate);
     });
@@ -148,13 +148,18 @@ void CWorker::SetupIsolate()
     isolate->SetHostImportModuleDynamicallyCallback(
       [](v8::Local<v8::Context> context, v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray> assertions) {
           v8::Isolate* isolate = context->GetIsolate();
+          v8::Isolate::Scope isolateScope(isolate);
+          v8::HandleScope handleScope(isolate);
+          v8::Context::Scope contextScope(context);
+
           v8::MaybeLocal<v8::Promise::Resolver> maybeResolver = v8::Promise::Resolver::New(context);
           if(maybeResolver.IsEmpty()) return v8::MaybeLocal<v8::Promise>();
           v8::Local<v8::Promise::Resolver> resolver = maybeResolver.ToLocalChecked();
 
           CWorker* worker = static_cast<CWorker*>(context->GetAlignedPointerFromEmbedderData(2));
-          v8::Local<v8::Module> referrerModule = worker->GetModuleFromPath(*v8::String::Utf8Value(isolate, referrer->GetResourceName()));
-          if(referrerModule.IsEmpty()) resolver->Reject(context, v8::Exception::ReferenceError(V8Helpers::JSValue("Could not resolve referrer module")));
+          std::string referrerName = *v8::String::Utf8Value(isolate, referrer->GetResourceName());
+          v8::Local<v8::Module> referrerModule = worker->GetModuleFromPath(referrerName);
+          if(referrerModule.IsEmpty() && referrerName != "<bootstrapper>") resolver->Reject(context, v8::Exception::ReferenceError(V8Helpers::JSValue("Could not resolve referrer module")));
           else
           {
               v8::MaybeLocal<v8::Module> maybeModule = CWorker::Import(context, specifier, assertions, referrerModule);
@@ -263,12 +268,14 @@ void CWorker::DestroyIsolate()
 
 extern void StaticRequire(const v8::FunctionCallbackInfo<v8::Value>& info);
 extern V8Module altWorker;
+extern V8Module altWorkerNatives;
 void CWorker::SetupGlobals()
 {
     v8::Local<v8::Object> global = context.Get(isolate)->Global();
 
     V8Class::LoadAll(isolate);
-    V8Module::Add(isolate, { altWorker });
+    V8Module::Add(isolate, altWorker, { "alt" });
+    V8Module::Add(isolate, altWorkerNatives);
 
     auto alt = altWorker.GetExports(isolate, context.Get(isolate));
     auto console = global->Get(context.Get(isolate), V8Helpers::JSValue("console")).ToLocalChecked().As<v8::Object>();

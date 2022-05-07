@@ -42,7 +42,7 @@ alt.Utils.waitFor = function(callback, timeout = 2000) {
 }
 
 // Client only
-if (alt.isClient) {
+if (alt.isClient && !alt.isWorker) {
     alt.Utils.requestModel = async function(model, timeout = 1000) {
         const _model = model;
         if (typeof model !== "string" && typeof model !== "number") throw new Error("Expected a string or number as first argument");

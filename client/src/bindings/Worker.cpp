@@ -19,7 +19,13 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(1, path);
 
     std::string origin = V8Helpers::GetCurrentSourceOrigin(isolate);
-    auto worker = new CWorker(path, origin, static_cast<CV8ResourceImpl*>(resource));
+
+    alt::IPackage::PathInfo pathInfo = alt::ICore::Instance().Resolve(resource->GetResource(), path, origin);
+    V8_CHECK(pathInfo.pkg, "Worker file does not exist");
+
+    std::string filePath = pathInfo.prefix + pathInfo.fileName;
+
+    CWorker* worker = new CWorker(filePath, static_cast<CV8ResourceImpl*>(resource));
     info.This()->SetInternalField(0, v8::External::New(isolate, worker));
     static_cast<CV8ResourceImpl*>(resource)->AddWorker(worker);
 }

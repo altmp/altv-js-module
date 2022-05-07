@@ -1032,6 +1032,8 @@ extern V8Module altModule("alt",
                             v8RmlDocument,
                             v8RmlElement },
                           [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
+                              v8::Isolate* isolate = ctx->GetIsolate();
+
                               V8Helpers::RegisterFunc(exports, "onServer", &OnServer);
                               V8Helpers::RegisterFunc(exports, "onceServer", &OnceServer);
                               V8Helpers::RegisterFunc(exports, "offServer", &OffServer);
@@ -1144,4 +1146,6 @@ extern V8Module altModule("alt",
 
                               V8Helpers::RegisterFunc(exports, "setMinimapComponentPosition", &SetMinimapComponentPosition);
                               V8Helpers::RegisterFunc(exports, "setMinimapIsRectangle", &SetMinimapIsRectangle);
+
+                              V8_OBJECT_SET_BOOLEAN(exports, "isWorker", false);
                           });
