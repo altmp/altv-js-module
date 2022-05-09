@@ -668,10 +668,10 @@ static void IsInStreamerMode(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void TakeScreenshot(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-    static std::list<v8::UniquePersistent<v8::Promise::Resolver>> promises;
+    static std::list<v8::Global<v8::Promise::Resolver>> promises;
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-    auto& persistent = promises.emplace_back(v8::UniquePersistent<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
+    auto& persistent = promises.emplace_back(v8::Global<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
 
     alt::PermissionState state = alt::ICore::Instance().TakeScreenshot([&persistent, resource](const std::string& base64) {
         resource->RunOnNextTick([&persistent, resource, base64Str = base64]() {
@@ -692,10 +692,10 @@ static void TakeScreenshot(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void TakeScreenshotGameOnly(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-    static std::list<v8::UniquePersistent<v8::Promise::Resolver>> promises;
+    static std::list<v8::Global<v8::Promise::Resolver>> promises;
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-    auto& persistent = promises.emplace_back(v8::UniquePersistent<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
+    auto& persistent = promises.emplace_back(v8::Global<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
 
     alt::PermissionState state = alt::ICore::Instance().TakeScreenshotGameOnly([&persistent, resource](const std::string& base64) {
         resource->RunOnNextTick([&persistent, resource, base64Str = base64]() {

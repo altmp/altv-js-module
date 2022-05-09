@@ -96,7 +96,7 @@ namespace V8Helpers
 
     struct EventCallback
     {
-        v8::UniquePersistent<v8::Function> fn;
+        v8::Global<v8::Function> fn;
         SourceLocation location;
         bool removed = false;
         bool once;
