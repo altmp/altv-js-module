@@ -22,7 +22,7 @@ public:
 
     private:
         V8ResourceImpl* resource;
-        v8::UniquePersistent<v8::Function> function;
+        v8::Global<v8::Function> function;
     };
 
     V8ResourceImpl(v8::Isolate* _isolate, alt::IResource* _resource) : isolate(_isolate), resource(_resource) {}
