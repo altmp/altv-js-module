@@ -1,10 +1,12 @@
 #include "Serialization.h"
 #include "V8ResourceImpl.h"
 #include "Bindings.h"
+#include "CProfiler.h"
 
 alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
 {
-    auto& core = alt::ICore::Instance();
+    CProfiler::Sample _("V8Helpers::V8ToMValue", true);
+    alt::ICore& core = alt::ICore::Instance();
 
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
     v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
@@ -158,6 +160,7 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
 
 v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
 {
+    CProfiler::Sample _("V8Helpers::MValueToV8", true);
     static constexpr int64_t JS_MAX_SAFE_INTEGER = 9007199254740991;
     static constexpr int64_t JS_MIN_SAFE_INTEGER = JS_MAX_SAFE_INTEGER * -1;
 
@@ -292,6 +295,7 @@ static inline RawValueType GetValueType(v8::Local<v8::Context> ctx, v8::Local<v8
 
 static inline bool WriteRawValue(v8::Local<v8::Context> ctx, v8::ValueSerializer& serializer, RawValueType type, v8::Local<v8::Object> val)
 {
+    CProfiler::Sample _("WriteRawValue", true);
     serializer.WriteRawBytes(&type, sizeof(uint8_t));
     switch(type)
     {
@@ -341,6 +345,7 @@ static inline bool WriteRawValue(v8::Local<v8::Context> ctx, v8::ValueSerializer
 
 static inline v8::MaybeLocal<v8::Object> ReadRawValue(v8::Local<v8::Context> ctx, v8::ValueDeserializer& deserializer)
 {
+    CProfiler::Sample _("ReadRawValue", true);
     v8::Isolate* isolate = ctx->GetIsolate();
     V8ResourceImpl* resource = V8ResourceImpl::Get(ctx);
 
@@ -449,6 +454,7 @@ public:
 // Converts a JS value to a MValue byte array
 alt::MValueByteArray V8Helpers::V8ToRawBytes(v8::Local<v8::Value> val)
 {
+    CProfiler::Sample _("V8Helpers::V8ToRawBytes", true);
     static WriteDelegate delegate;
 
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -476,6 +482,7 @@ alt::MValueByteArray V8Helpers::V8ToRawBytes(v8::Local<v8::Value> val)
 // Converts a MValue byte array to a JS value
 v8::MaybeLocal<v8::Value> V8Helpers::RawBytesToV8(alt::MValueByteArrayConst rawBytes)
 {
+    CProfiler::Sample _("V8Helpers::RawBytesToV8", true);
     static ReadDelegate delegate;
 
     const uint8_t* data = rawBytes->GetData();
