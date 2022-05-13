@@ -44,9 +44,6 @@ bool V8Helpers::TryCatch(const std::function<bool()>& fn)
                 }
                 else
                     Log::Error << "[V8] Exception at " << resource->GetName() << ":" << *v8::String::Utf8Value(isolate, origin.ResourceName()) << ":" << line.ToChecked() << Log::Endl;
-
-                v8resource->DispatchErrorEvent(
-                  *v8::String::Utf8Value(isolate, message->Get()), *v8::String::Utf8Value(isolate, origin.ResourceName()), line.IsNothing() ? -1 : line.ToChecked());
             }
             else
             {
@@ -78,6 +75,9 @@ bool V8Helpers::TryCatch(const std::function<bool()>& fn)
             {
                 Log::Error << *v8::String::Utf8Value(isolate, exception) << Log::Endl;
             }
+
+            std::string sourceFile = origin.ResourceName()->IsUndefined() ? "<unknown>" : *v8::String::Utf8Value(isolate, origin.ResourceName());
+            v8resource->DispatchErrorEvent(*v8::String::Utf8Value(isolate, message->Get()), sourceFile, line.IsNothing() ? -1 : line.ToChecked());
         }
         else if(!exception.IsEmpty())
         {
