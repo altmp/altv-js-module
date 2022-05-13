@@ -88,7 +88,8 @@ namespace V8Helpers
             return frames;
         }
 
-        void Print(uint32_t offset = 0);
+        void Print(uint32_t offset = 0) const;
+        std::string ToString(uint32_t offset = 0) const;
 
         static StackTrace GetCurrent(v8::Isolate* isolate);
         static void Print(v8::Isolate* isolate);
