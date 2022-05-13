@@ -41,7 +41,7 @@ void V8Helpers::PromiseRejections::ProcessQueue(CV8ResourceImpl* resource)
         }
         rejection->stackTrace.Print(1);
 
-        resource->DispatchErrorEvent(rejectionMsg, fileName, rejection->location.GetLineNumber());
+        resource->DispatchErrorEvent(rejectionMsg, fileName, rejection->location.GetLineNumber(), rejection->stackTrace.ToString());
     }
 
     queue.clear();
