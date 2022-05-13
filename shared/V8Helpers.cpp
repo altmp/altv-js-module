@@ -9,6 +9,7 @@
 #include <climits>
 #include <thread>
 #include <chrono>
+#include <sstream>
 
 bool V8Helpers::TryCatch(const std::function<bool()>& fn)
 {
@@ -64,11 +65,12 @@ bool V8Helpers::TryCatch(const std::function<bool()>& fn)
                 }
             }
 
+            std::string trace;
             v8::MaybeLocal<v8::Value> stackTrace = tryCatch.StackTrace(context);
             if(!stackTrace.IsEmpty() && stackTrace.ToLocalChecked()->IsString())
             {
-                v8::String::Utf8Value stackTraceStr(isolate, stackTrace.ToLocalChecked().As<v8::String>());
-                Log::Error << "  " << *stackTraceStr << Log::Endl;
+                trace = *v8::String::Utf8Value(isolate, stackTrace.ToLocalChecked().As<v8::String>());
+                Log::Error << "  " << trace << Log::Endl;
             }
 
             if(!exception.IsEmpty())
@@ -77,7 +79,7 @@ bool V8Helpers::TryCatch(const std::function<bool()>& fn)
             }
 
             std::string sourceFile = origin.ResourceName()->IsUndefined() ? "<unknown>" : *v8::String::Utf8Value(isolate, origin.ResourceName());
-            v8resource->DispatchErrorEvent(*v8::String::Utf8Value(isolate, message->Get()), sourceFile, line.IsNothing() ? -1 : line.ToChecked());
+            v8resource->DispatchErrorEvent(*v8::String::Utf8Value(isolate, message->Get()), sourceFile, line.IsNothing() ? -1 : line.ToChecked(), trace);
         }
         else if(!exception.IsEmpty())
         {
@@ -218,16 +220,24 @@ V8Helpers::StackTrace V8Helpers::StackTrace::GetCurrent(v8::Isolate* isolate)
 
 V8Helpers::StackTrace::StackTrace(std::vector<Frame>&& frames, v8::Local<v8::Context> ctx) : frames(frames), context(ctx->GetIsolate(), ctx) {}
 
-void V8Helpers::StackTrace::Print(uint32_t offset)
+void V8Helpers::StackTrace::Print(uint32_t offset) const
 {
+    Log::Error << ToString() << Log::Endl;
+}
+
+std::string V8Helpers::StackTrace::ToString(uint32_t offset) const
+{
+    std::stringstream stream;
     auto& frames = GetFrames();
     size_t size = frames.size();
 
     for(size_t i = offset; i < size; i++)
     {
         const Frame& frame = frames[i];
-        Log::Error << "  at " << frame.function << " (" << frame.file << ":" << frame.line << ")" << Log::Endl;
+        stream << "  at " << frame.function << " (" << frame.file << ":" << frame.line << ")"
+               << "\n";
     }
+    return stream.str();
 }
 
 void V8Helpers::StackTrace::Print(v8::Isolate* isolate)
