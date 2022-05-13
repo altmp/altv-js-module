@@ -14,6 +14,7 @@ inline void RegisterEvents()
 {
     // Shared
     V8_REFERENCE_LOCAL_EVENT_HANDLER(consoleCommand);
+    V8_REFERENCE_LOCAL_EVENT_HANDLER(animationChange);
 
     // Main
     V8_REFERENCE_EVENT_HANDLER(clientScriptEvent);
@@ -30,7 +31,6 @@ inline void RegisterEvents()
     V8_REFERENCE_EVENT_HANDLER(gameEntityCreate);
     V8_REFERENCE_EVENT_HANDLER(gameEntityDestroy);
     V8_REFERENCE_LOCAL_EVENT_HANDLER(taskChange);
-    V8_REFERENCE_LOCAL_EVENT_HANDLER(animationChange);
 
     // Meta
     V8_REFERENCE_LOCAL_EVENT_HANDLER(syncedMetaChange);
