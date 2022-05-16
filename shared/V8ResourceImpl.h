@@ -230,6 +230,7 @@ public:
     }
 
     v8::Local<v8::Object> GetOrCreateResourceObject(alt::IResource* resource);
+    void DeleteResourceObject(alt::IResource* resource);
 
     bool HasBenchmarkTimer(const std::string& name)
     {
