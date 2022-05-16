@@ -319,6 +319,14 @@ v8::Local<v8::Object> V8ResourceImpl::GetOrCreateResourceObject(alt::IResource* 
     return obj;
 }
 
+void V8ResourceImpl::DeleteResourceObject(alt::IResource* resource)
+{
+    if(resourceObjects.count(resource) == 0) return;
+    v8::Local<v8::Object> obj = resourceObjects.at(resource).Get(isolate);
+    obj->SetInternalField(0, v8::External::New(isolate, nullptr));
+    resourceObjects.erase(resource);
+}
+
 void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vector<V8Helpers::EventCallback*>& handlers, std::vector<v8::Local<v8::Value>>& args, bool waitForPromiseResolve)
 {
     for(auto handler : handlers)
