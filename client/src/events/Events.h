@@ -40,7 +40,7 @@ inline void RegisterEvents()
 
     // Resource
     V8_REFERENCE_LOCAL_EVENT_HANDLER(anyResourceStart);
-    V8_REFERENCE_LOCAL_EVENT_HANDLER(anyResourceStop);
+    V8_REFERENCE_EVENT_HANDLER(anyResourceStop);
     V8_REFERENCE_LOCAL_EVENT_HANDLER(anyResourceError);
 
     // Vehicle
