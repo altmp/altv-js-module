@@ -20,7 +20,7 @@ V8_EVENT_HANDLER anyResourceStop(
       auto ev = static_cast<const alt::CResourceStopEvent*>(e);
       for(alt::IResource* res : alt::ICore::Instance().GetAllResources())
       {
-          if(res->GetType() != "js") continue;
+          if(res->GetType() != "js" || !res->IsStarted()) continue;
           static_cast<V8ResourceImpl*>(res->GetImpl())->DeleteResourceObject(resource->GetResource());
       }
       return resource->GetLocalHandlers("anyResourceStop");
