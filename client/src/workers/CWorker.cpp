@@ -6,10 +6,11 @@
 #include "V8Module.h"
 #include "WorkerTimer.h"
 #include "V8FastFunction.h"
+#include "JSBindings.h"
 
 #include <functional>
 
-CWorker::CWorker(std::string& filePath, std::string& origin, CV8ResourceImpl* resource) : filePath(filePath), origin(origin), resource(resource) {}
+CWorker::CWorker(std::string& filePath, CV8ResourceImpl* resource) : filePath(filePath), resource(resource) {}
 
 void CWorker::Start()
 {
@@ -35,10 +36,6 @@ void CWorker::Thread()
         std::vector<V8Helpers::Serialization::Value> args;
         GetMainEventHandler().Emit("load", args);
 
-        v8::Locker locker(isolate);
-        v8::Isolate::Scope isolate_scope(isolate);
-        v8::HandleScope handle_scope(isolate);
-        v8::Context::Scope context_scope(context.Get(isolate));
         while(true)
         {
             // Sleep for a short while to not overload the thread
@@ -55,18 +52,22 @@ bool CWorker::EventLoop()
     if(shouldTerminate) return false;
     if(isPaused) return true;
 
+    v8::Locker locker(isolate);
+    v8::Isolate::Scope isolate_scope(isolate);
+    v8::HandleScope handle_scope(isolate);
+    v8::Context::Scope context_scope(context.Get(isolate));
+
     // Timers
     for(auto& id : oldTimers) timers.erase(id);
     oldTimers.clear();
 
-    for(auto& p : timers)
-    {
-        int64_t time = GetTime();
-        if(!p.second->Update(time)) RemoveTimer(p.first);
-    }
-
     auto error = TryCatch([&]() {
-        microtaskQueue->PerformCheckpoint(isolate);
+        // microtaskQueue->PerformCheckpoint(isolate); // todo: fix this
+        for(auto& p : timers)
+        {
+            int64_t time = GetTime();
+            if(!p.second->Update(time)) RemoveTimer(p.first);
+        }
         GetWorkerEventHandler().Process();
         v8::platform::PumpMessageLoop(CV8ScriptRuntime::Instance().GetPlatform(), isolate);
     });
@@ -147,13 +148,18 @@ void CWorker::SetupIsolate()
     isolate->SetHostImportModuleDynamicallyCallback(
       [](v8::Local<v8::Context> context, v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray> assertions) {
           v8::Isolate* isolate = context->GetIsolate();
+          v8::Isolate::Scope isolateScope(isolate);
+          v8::HandleScope handleScope(isolate);
+          v8::Context::Scope contextScope(context);
+
           v8::MaybeLocal<v8::Promise::Resolver> maybeResolver = v8::Promise::Resolver::New(context);
           if(maybeResolver.IsEmpty()) return v8::MaybeLocal<v8::Promise>();
           v8::Local<v8::Promise::Resolver> resolver = maybeResolver.ToLocalChecked();
 
           CWorker* worker = static_cast<CWorker*>(context->GetAlignedPointerFromEmbedderData(2));
-          v8::Local<v8::Module> referrerModule = worker->GetModuleFromPath(*v8::String::Utf8Value(isolate, referrer->GetResourceName()));
-          if(referrerModule.IsEmpty()) resolver->Reject(context, v8::Exception::ReferenceError(V8Helpers::JSValue("Could not resolve referrer module")));
+          std::string referrerName = *v8::String::Utf8Value(isolate, referrer->GetResourceName());
+          v8::Local<v8::Module> referrerModule = worker->GetModuleFromPath(referrerName);
+          if(referrerModule.IsEmpty() && referrerName != "<bootstrapper>") resolver->Reject(context, v8::Exception::ReferenceError(V8Helpers::JSValue("Could not resolve referrer module")));
           else
           {
               v8::MaybeLocal<v8::Module> maybeModule = CWorker::Import(context, specifier, assertions, referrerModule);
@@ -197,40 +203,20 @@ void CWorker::SetupContext()
     ctx->SetAlignedPointerInEmbedderData(2, this);
 }
 
+extern std::string bootstrap_code;
 bool CWorker::SetupScript()
 {
     // Load code
-    auto path = alt::ICore::Instance().Resolve(resource->GetResource(), filePath, origin);
-    if(!path.pkg || !path.pkg->FileExists(path.fileName))
-    {
-        EmitError("Worker file not found");
-        return false;
-    }
-    auto file = path.pkg->OpenFile(path.fileName);
-    size_t fileSize = path.pkg->GetFileSize(file);
-    uint8_t* byteBuffer = new uint8_t[fileSize];
-    path.pkg->ReadFile(file, byteBuffer, fileSize);
-    path.pkg->CloseFile(file);
-
     isUsingBytecode = resource->IsBytecodeResource();
 
     bool failed = false;
     // Compile the code
     auto error = TryCatch([&]() {
         v8::Local<v8::Context> ctx = context.Get(isolate);
-        std::string fullPath = (path.prefix + path.fileName).ToString();
         v8::MaybeLocal<v8::Module> maybeModule;
-        if(!isUsingBytecode)
-        {
-            alt::String src{ (char*)byteBuffer, fileSize };
-            v8::ScriptOrigin scriptOrigin(isolate, V8Helpers::JSValue(fullPath), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
-            v8::ScriptCompiler::Source source{ V8Helpers::JSValue(src), scriptOrigin };
-            maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source);
-        }
-        else
-        {
-            maybeModule = ResolveBytecode(fullPath, byteBuffer, fileSize);
-        }
+        v8::ScriptOrigin scriptOrigin(isolate, V8Helpers::JSValue("<bootstrapper>"), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
+        v8::ScriptCompiler::Source source{ V8Helpers::JSValue(bootstrap_code), scriptOrigin };
+        maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source);
 
         if(maybeModule.IsEmpty())
         {
@@ -240,15 +226,12 @@ bool CWorker::SetupScript()
         }
         auto mod = maybeModule.ToLocalChecked();
 
-        modules.emplace(fullPath, v8::UniquePersistent<v8::Module>{ isolate, mod });
-
         // Start the code
         v8::Maybe<bool> result = mod->InstantiateModule(ctx, Import);
         if(result.IsNothing() || result.ToChecked() == false)
         {
             EmitError("Failed to instantiate worker module");
             failed = true;
-            modules.erase(fullPath);
             return;
         }
 
@@ -258,11 +241,9 @@ bool CWorker::SetupScript()
         {
             EmitError("Failed to evaluate worker module");
             failed = true;
-            modules.erase(fullPath);
             return;
         }
     });
-    delete byteBuffer;
     if(!error.empty() || failed)
     {
         if(!error.empty()) EmitError(error);
@@ -287,12 +268,14 @@ void CWorker::DestroyIsolate()
 
 extern void StaticRequire(const v8::FunctionCallbackInfo<v8::Value>& info);
 extern V8Module altWorker;
+extern V8Module altWorkerNatives;
 void CWorker::SetupGlobals()
 {
     v8::Local<v8::Object> global = context.Get(isolate)->Global();
 
     V8Class::LoadAll(isolate);
-    V8Module::Add(isolate, { altWorker });
+    V8Module::Add(isolate, altWorker, { "alt" });
+    V8Module::Add(isolate, altWorkerNatives);
 
     auto alt = altWorker.GetExports(isolate, context.Get(isolate));
     auto console = global->Get(context.Get(isolate), V8Helpers::JSValue("console")).ToLocalChecked().As<v8::Object>();
@@ -311,6 +294,8 @@ void CWorker::SetupGlobals()
     V8Helpers::RegisterFunc(global, "clearTimeout", &ClearTimer);
 
     global->Set(context.Get(isolate), V8Helpers::JSValue("__internal_get_exports"), v8::Function::New(context.Get(isolate), &StaticRequire).ToLocalChecked());
+    global->Set(context.Get(isolate), V8Helpers::JSValue("__internal_bindings_code"), V8Helpers::JSValue(JSBindings::GetBindingsCode()));
+    global->Set(context.Get(isolate), V8Helpers::JSValue("__internal_main_path"), V8Helpers::JSValue(filePath));
 }
 
 v8::MaybeLocal<v8::Module> CWorker::Import(v8::Local<v8::Context> context, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray>, v8::Local<v8::Module> referrer)

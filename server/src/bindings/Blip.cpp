@@ -99,7 +99,7 @@ static void AttachedToGetter(v8::Local<v8::String>, const v8::PropertyCallbackIn
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
-    V8_RETURN_BASE_OBJECT(blip);
+    V8_RETURN_BASE_OBJECT(blip->AttachedTo());
 }
 
 static void AttachedToSetter(v8::Local<v8::String>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
@@ -142,8 +142,8 @@ extern V8Class v8Blip("Blip", v8WorldObject, Constructor, [](v8::Local<v8::Funct
     V8Helpers::SetAccessor<IBlip, bool, &IBlip::GetAsShortRange, &IBlip::SetAsShortRange>(isolate, tpl, "shortRange");
     V8Helpers::SetAccessor<IBlip, int32_t, &IBlip::GetPriority, &IBlip::SetPriority>(isolate, tpl, "priority");
     V8Helpers::SetAccessor<IBlip, float, &IBlip::GetRotation, &IBlip::SetRotation>(isolate, tpl, "heading");
-    V8Helpers::SetAccessor<IBlip, alt::String, &IBlip::GetGxtName, &IBlip::SetGxtName>(isolate, tpl, "gxtName");
-    V8Helpers::SetAccessor<IBlip, alt::String, &IBlip::GetName, &IBlip::SetName>(isolate, tpl, "name");
+    V8Helpers::SetAccessor<IBlip, std::string, &IBlip::GetGxtName, const std::string&, &IBlip::SetGxtName>(isolate, tpl, "gxtName");
+    V8Helpers::SetAccessor<IBlip, std::string, &IBlip::GetName, const std::string&, &IBlip::SetName>(isolate, tpl, "name");
     V8Helpers::SetAccessor<IBlip, bool, &IBlip::GetPulse, &IBlip::SetPulse>(isolate, tpl, "pulse");
     V8Helpers::SetAccessor<IBlip, bool, &IBlip::GetAsMissionCreator, &IBlip::SetAsMissionCreator>(isolate, tpl, "asMissionCreator");
     V8Helpers::SetAccessor<IBlip, bool, &IBlip::GetTickVisible, &IBlip::SetTickVisible>(isolate, tpl, "tickVisible");

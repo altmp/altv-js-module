@@ -1,4 +1,5 @@
 #include "cpp-sdk/SDK.h"
+#include "cpp-sdk/version/version.h"
 #include "CV8ScriptRuntime.h"
 #include "Log.h"
 
@@ -25,6 +26,8 @@ static void HeapCommand(const std::vector<std::string>&)
     Log::Info << "  External memory: " << CV8ScriptRuntime::FormatBytes(heapStats.external_memory()) << Log::Endl;
     Log::Info << "  Native context count: " << heapStats.number_of_native_contexts() << Log::Endl;
     Log::Info << "  Detached context count: " << heapStats.number_of_detached_contexts() << Log::Endl;
+    Log::Info << "  Total global handle size: " << CV8ScriptRuntime::FormatBytes(heapStats.total_global_handles_size()) << Log::Endl;
+    Log::Info << "  Used global handle size: " << CV8ScriptRuntime::FormatBytes(heapStats.used_global_handles_size()) << Log::Endl;
     Log::Info << "======================================================" << Log::Endl;
 }
 
@@ -66,7 +69,7 @@ static void ClientJSCommand(const std::vector<std::string>& args)
     }
     else if(args[0] == "--version")
     {
-        Log::Colored << "~ly~cpp-sdk: v" << alt::ICore::SDK_VERSION << Log::Endl;
+        Log::Colored << "~ly~cpp-sdk: #" << ALT_SDK_VERSION << Log::Endl;
         Log::Colored << "~ly~" << u8"Copyright © 2020 altMP team." << Log::Endl;
 
         Log::Colored << "~ly~v8: v" << V8_MAJOR_VERSION << "." << V8_MINOR_VERSION << Log::Endl;
@@ -81,17 +84,19 @@ static void ClientJSCommand(const std::vector<std::string>& args)
     }
 }
 
-ALTV_JS_EXPORT void CreateScriptRuntime(alt::ICore* core)
+ALTV_JS_EXPORT alt::IScriptRuntime* CreateScriptRuntime(alt::ICore* core)
 {
     alt::ICore::SetInstance(core);
-    auto& runtime = CV8ScriptRuntime::Instance();
-    core->RegisterScriptRuntime("js", &runtime);
 
     // Commands
     core->SubscribeCommand("heap", &HeapCommand);
     core->SubscribeCommand("heapspaces", &HeapSpacesCommand);
     core->SubscribeCommand("timers", &TimersCommand);
     core->SubscribeCommand("js-module", &ClientJSCommand);
+
+    CV8ScriptRuntime* runtime = new CV8ScriptRuntime;
+    CV8ScriptRuntime::SetInstance(runtime);
+    return runtime;
 }
 
 ALTV_JS_EXPORT const char* GetType()
@@ -99,7 +104,7 @@ ALTV_JS_EXPORT const char* GetType()
     return "js";
 }
 
-ALTV_JS_EXPORT uint32_t GetSDKVersion()
+ALTV_JS_EXPORT const char* GetSDKHash()
 {
-    return alt::ICore::SDK_VERSION;
+    return ALT_SDK_VERSION;
 }

@@ -13,8 +13,8 @@ class CNodeScriptRuntime : public alt::IScriptRuntime
     std::unordered_set<CNodeResourceImpl*> resources;
 
 public:
-    CNodeScriptRuntime();
-    ~CNodeScriptRuntime();
+    CNodeScriptRuntime() = default;
+    bool Init();
 
     v8::Isolate* GetIsolate()
     {
@@ -31,6 +31,9 @@ public:
 
     void OnTick() override;
     void OnDispose() override;
+
+    std::vector<std::string> GetNodeArgs();
+    void ProcessConfigOptions();
 
     node::MultiIsolatePlatform* GetPlatform() const
     {

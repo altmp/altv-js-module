@@ -1,55 +1,36 @@
+include(../shared/cmake/DepsHelpers.cmake)
 
 # Set this to false, when using a custom v8 build for testing
 set(__deps_check_enabled true)
 
-function(DownloadDeps basePath)
-    set(__deps_release_lib "${basePath}/v8/lib/Release/v8_monolith.lib")
-    set(__deps_debug_lib "${basePath}/v8/lib/Debug/v8_monolith.lib")
-    set(__deps_headers "${basePath}/v8/include/headers.zip")
-    set(__deps_update_file "${basePath}/v8/update.json")
+function(DownloadDeps)
+    set(__base_path "${PROJECT_SOURCE_DIR}/deps/v8")
+
+    GetBranchAndOS(__deps_branch __deps_os_path_name)
+    set(__deps_url_base_path "https://cdn.altv.mp/deps/v8/dev") # TODO: Use actual branch?
 
     if(__deps_check_enabled)
-        file(DOWNLOAD "https://cdn.altv.mp/deps/v8/dev/update.json" ${__deps_update_file})
-        file(READ ${__deps_update_file} __deps_update_json)
-        string(JSON __deps_hashes GET ${__deps_update_json} hashList)
-        file(REMOVE ${__deps_update_file})
+        message("Checking release binaries...")
 
-        if(EXISTS ${__deps_release_lib})
-            file(SHA1 ${__deps_release_lib} __deps_release_checksum)
-        else()
-            set(__deps_release_checksum 0)
-        endif()
-        string(JSON __deps_release_checksum_cdn GET ${__deps_hashes} v8_monolith.lib)
-        if(NOT ${__deps_release_checksum} STREQUAL ${__deps_release_checksum_cdn})
-            message("Downloading release binary...")
-            file(DOWNLOAD "https://cdn.altv.mp/deps/v8/dev/v8_monolith.lib" ${__deps_release_lib})
-        endif()
+        GetCDNInfo("${__deps_url_base_path}/${__deps_os_path_name}/Release" __deps_release_hashes __deps_current_version)
+
+        DownloadFile("v8_monolith.lib" "${__base_path}/lib/Release" "${__deps_os_path_name}/Release" ${__deps_release_hashes})
 
         # Only download debug binary in Debug builds
         if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-            if(EXISTS ${__deps_debug_lib})
-                file(SHA1 ${__deps_debug_lib} __deps_debug_checksum)
-            else()
-                set(__deps_debug_checksum 0)
-            endif()
-            string(JSON __deps_debug_checksum_cdn GET ${__deps_hashes} v8_monolithd.lib)
-            if(NOT ${__deps_debug_checksum} STREQUAL ${__deps_debug_checksum_cdn})
-                message("Downloading debug binary...")
-                file(DOWNLOAD "https://cdn.altv.mp/deps/v8/dev/v8_monolithd.lib" ${__deps_debug_lib})
-            endif()
+            message("Checking debug binaries...")
+
+            GetCDNInfo("${__deps_url_base_path}/${__deps_os_path_name}/Debug" __deps_debug_hashes __deps_current_version)
+
+            DownloadFile("v8_monolith.lib" "${__base_path}/lib/Debug" "${__deps_os_path_name}/Debug" ${__deps_debug_hashes})
         endif()
 
-        if(EXISTS ${__deps_headers})
-            file(SHA1 ${__deps_headers} __deps_headers_checksum)
-        else()
-            set(__deps_headers_checksum 0)
-        endif()
-        string(JSON __deps_headers_checksum_cdn GET ${__deps_hashes} headers.zip)
-        if(NOT ${__deps_headers_checksum} STREQUAL ${__deps_headers_checksum_cdn})
-            message("Downloading headers...")
-            file(DOWNLOAD "https://cdn.altv.mp/deps/v8/dev/headers.zip" ${__deps_headers})
-            message("Extracting headers...")
-            file(ARCHIVE_EXTRACT INPUT ${__deps_headers} DESTINATION "${basePath}")
+        GetCDNInfo("${__deps_url_base_path}" __deps_headers_hashes __deps_current_version)
+        DownloadFile("headers.zip" "${__base_path}/include" "" ${__deps_headers_hashes})
+        file(ARCHIVE_EXTRACT INPUT "${__base_path}/include/headers.zip" DESTINATION "${__base_path}/..")
+
+        if(__deps_current_version)
+            message("V8 deps version: ${__deps_current_version}")
         endif()
     endif()
 endfunction()

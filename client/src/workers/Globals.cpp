@@ -23,7 +23,7 @@ void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
         }
         args.push_back(arg);
     }
-    worker->GetMainEventHandler().Emit(eventName.ToString(), args);
+    worker->GetMainEventHandler().Emit(eventName, args);
 }
 
 void On(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -35,7 +35,7 @@ void On(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(1, eventName);
     V8_ARG_TO_FUNCTION(2, callback);
 
-    worker->GetWorkerEventHandler().Subscribe(eventName.ToString(), callback);
+    worker->GetWorkerEventHandler().Subscribe(eventName, callback);
 }
 
 void Off(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -47,7 +47,7 @@ void Off(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(1, eventName);
     V8_ARG_TO_FUNCTION(2, callback);
 
-    worker->GetWorkerEventHandler().Unsubscribe(eventName.ToString(), callback);
+    worker->GetWorkerEventHandler().Unsubscribe(eventName, callback);
 }
 
 void Once(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -59,7 +59,7 @@ void Once(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(1, eventName);
     V8_ARG_TO_FUNCTION(2, callback);
 
-    worker->GetWorkerEventHandler().Subscribe(eventName.ToString(), callback, true);
+    worker->GetWorkerEventHandler().Subscribe(eventName, callback, true);
 }
 
 void NextTick(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -122,9 +122,11 @@ void GetSharedArrayBuffer(const v8::FunctionCallbackInfo<v8::Value>& info)
 }
 
 extern V8Module altModule;
-extern V8Class v8File, v8RGBA, v8Vector2, v8Vector3;
-extern V8Module altWorker("alt-worker", nullptr, { v8File, v8RGBA, v8Vector2, v8Vector3 }, [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
-    auto alt = altModule.GetExports(ctx->GetIsolate(), ctx);
+extern V8Class v8File, v8RGBA, v8Vector2, v8Vector3, v8Utils, v8Resource;
+extern V8Module altWorker("alt-worker", nullptr, { v8File, v8RGBA, v8Vector2, v8Vector3, v8Utils, v8Resource }, [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
+    v8::Isolate* isolate = ctx->GetIsolate();
+
+    auto alt = altModule.GetExports(isolate, ctx);
     auto InheritFromAlt = [&](const char* name) {
         auto original = alt->Get(ctx, V8Helpers::JSValue(name));
         if(original.IsEmpty()) return;
@@ -144,6 +146,8 @@ extern V8Module altWorker("alt-worker", nullptr, { v8File, v8RGBA, v8Vector2, v8
     V8Helpers::RegisterFunc(exports, "clearTimer", &ClearTimer);
     V8Helpers::RegisterFunc(exports, "getSharedArrayBuffer", &::GetSharedArrayBuffer);
 
+    V8_OBJECT_SET_BOOLEAN(exports, "isWorker", true);
+
     // *** All inherited functions from the alt module
     // Logging
     InheritFromAlt("log");
@@ -159,3 +163,6 @@ extern V8Module altWorker("alt-worker", nullptr, { v8File, v8RGBA, v8Vector2, v8
     InheritFromAlt("sdkVersion");
     InheritFromAlt("debug");
 });
+
+// Empty wrapper module
+extern V8Module altWorkerNatives("natives", nullptr, {}, [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {});

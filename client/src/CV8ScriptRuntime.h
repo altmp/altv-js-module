@@ -32,13 +32,27 @@ class CV8ScriptRuntime : public alt::IScriptRuntime
 
     uint32_t activeWorkers = 0;
 
+    static CV8ScriptRuntime*& _instance()
+    {
+        static CV8ScriptRuntime* instance = nullptr;
+        return instance;
+    }
+
 public:
     CV8ScriptRuntime();
 
+    void ProcessConfigOptions();
+
+    void OnDispose() override;
+
+    static void SetInstance(CV8ScriptRuntime* runtime)
+    {
+        _instance() = runtime;
+    }
+
     static CV8ScriptRuntime& Instance()
     {
-        static CV8ScriptRuntime instance;
-        return instance;
+        return *_instance();
     }
 
     v8::Isolate* GetIsolate() const
@@ -109,15 +123,6 @@ public:
     std::unordered_set<CV8ResourceImpl*> GetResources()
     {
         return resources;
-    }
-
-    ~CV8ScriptRuntime()
-    {
-        while(isolate->IsInUse()) isolate->Exit();
-        isolate->Dispose();
-        v8::V8::Dispose();
-        v8::V8::ShutdownPlatform();
-        delete create_params.array_buffer_allocator;
     }
 
     static v8::MaybeLocal<v8::Module> ResolveModule(v8::Local<v8::Context> ctx, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray> importAssertions, v8::Local<v8::Module> referrer);
