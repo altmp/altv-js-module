@@ -38,7 +38,7 @@ class CProfiler
         if(skipLog || !logsEnabled) return;
         float ms = duration.count() / 1000000.f;
         std::string color = ms > 50 ? "~lr~" : ms > 20 ? "~ly~" : "~lg~";
-        Log::Colored << "[Profiler] ~lc~" << name << "~w~ took: " << color << ms << "ms" << Log::Endl;
+        Log::Colored << "~c~[Profiler] ~lc~" << name << "~w~ took: " << color << ms << "ms" << Log::Endl;
     }
 
 public:
@@ -62,7 +62,7 @@ public:
         std::ofstream file(filePath.string());
         if(!file.good())
         {
-            Log::Error << "[Profiler] Failed to dump samples" << Log::Endl;
+            Log::Error << "~w~[Profiler] ~w~Failed to dump samples" << Log::Endl;
             file.close();
             return;
         }
@@ -82,7 +82,7 @@ public:
         }
 
         file.close();
-        Log::Colored << "[Profiler] Dumped samples to ~lc~" << filePath.string() << Log::Endl;
+        Log::Colored << "~c~[Profiler] ~w~Dumped samples to ~lc~" << filePath.string() << Log::Endl;
     }
 
     bool IsEnabled() const
