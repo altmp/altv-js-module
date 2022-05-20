@@ -7,7 +7,8 @@ function(DownloadDeps)
     set(__base_path "${PROJECT_SOURCE_DIR}/deps/nodejs/lib")
 
     GetBranchAndOS(__deps_branch __deps_os_path_name)
-    set(__deps_url_base_path "https://cdn.altv.mp/deps/nodejs/${__deps_branch}/${__deps_os_path_name}")
+    set(__download_branch_temp rc)
+    set(__deps_url_base_path "https://cdn.altv.mp/deps/nodejs/${__download_branch_temp}/${__deps_os_path_name}")
 
     if(__deps_check_enabled)
         if(WIN32)
