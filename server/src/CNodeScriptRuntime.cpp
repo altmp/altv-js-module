@@ -85,7 +85,8 @@ void CNodeScriptRuntime::OnDispose()
 
 std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
 {
-    std::vector<std::string> args = { "alt-server", "--experimental-modules", "--es-module-specifier-resolution=node", "--trace-warnings" };
+    // https://nodejs.org/docs/latest-v17.x/api/cli.html#options
+    std::vector<std::string> args = { "alt-server", "--experimental-specifier-resolution=node", "--trace-warnings" };
 
     alt::config::Node moduleConfig = alt::ICore::Instance().GetServerConfig()["js-module"];
     if(!moduleConfig.IsDict()) return args;
