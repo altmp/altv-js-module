@@ -9,6 +9,12 @@ const alt = process._linkedBinding("alt");
   const resource = alt.Resource.current;
   let _exports = null;
 
+  // We need this handler so that NodeJS doesn't
+  // crash the process on oncaught exceptions
+  process.on("uncaughtException", (err) => {
+    alt.logError(`Uncaught exception: ${err.stack ? `${err.stack}` : `${err.message}`}`);
+  });
+
   try {
     setupImports();
 
