@@ -397,6 +397,11 @@ void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vecto
 
 alt::MValue V8ResourceImpl::FunctionImpl::Call(alt::MValueArgs args) const
 {
+    if(!resource->GetResource()->IsStarted())
+    {
+        Log::Error << "Tried to call function on resource " << resource->GetResource()->GetName() << " while the resource is stopped" << Log::Endl;
+        return alt::ICore::Instance().CreateMValueNone();
+    }
     v8::Isolate* isolate = resource->GetIsolate();
 
     v8::Locker locker(isolate);
