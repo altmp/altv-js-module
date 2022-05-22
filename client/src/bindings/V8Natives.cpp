@@ -93,7 +93,7 @@ inline void ShowNativeArgParseErrorMsg(v8::Isolate* isolate, v8::Local<v8::Value
     Log::Error << source.ToString() << " " << errorMsg.str() << Log::Endl;
     Log::Error << "Check the documentation for the needed arguments of this native." << Log::Endl;
 
-    resource->DispatchErrorEvent(errorMsg.str(), source.GetFileName(), source.GetLineNumber(), "");
+    resource->DispatchErrorEvent(errorMsg.str(), source.GetFileName(), source.GetLineNumber(), V8Helpers::GetStackTrace(errorMsg.str()));
 }
 
 inline void ShowNativeArgMismatchErrorMsg(v8::Isolate* isolate, alt::INative* native, int expected, int received)
@@ -108,7 +108,7 @@ inline void ShowNativeArgMismatchErrorMsg(v8::Isolate* isolate, alt::INative* na
     Log::Error << source.ToString() << " " << errorMsg.str() << Log::Endl;
     Log::Error << "Check the documentation for the needed arguments of this native." << Log::Endl;
 
-    resource->DispatchErrorEvent(errorMsg.str(), source.GetFileName(), source.GetLineNumber(), "");
+    resource->DispatchErrorEvent(errorMsg.str(), source.GetFileName(), source.GetLineNumber(), V8Helpers::GetStackTrace(errorMsg.str()));
 }
 
 static void
