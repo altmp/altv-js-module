@@ -4,6 +4,7 @@ const { translators } = require("internal/modules/esm/translators");
 const { ModuleWrap } = internalRequire("internal/test/binding").internalBinding("module_wrap");
 const path = require("path");
 const alt = process._linkedBinding("alt");
+const dns = require('dns');
 
 (async () => {
   const resource = alt.Resource.current;
@@ -14,6 +15,10 @@ const alt = process._linkedBinding("alt");
   process.on("uncaughtException", (err) => {
     alt.logError(`Uncaught exception: ${err.stack ? `${err.stack}` : `${err.message}`}`);
   });
+
+  // Allows users to use "localhost" address instead of 127.0.0.1 for tcp connections (e.g. database)
+  // https://github.com/nodejs/node/issues/40702#issuecomment-958157082
+  dns.setDefaultResultOrder('ipv4first');
 
   try {
     setupImports();
