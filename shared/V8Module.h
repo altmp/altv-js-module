@@ -19,9 +19,13 @@ public:
         return all;
     }
 
-    static void Add(v8::Isolate* isolate, V8Module& mod)
+    static void Add(v8::Isolate* isolate, V8Module& mod, const std::vector<std::string>& extraNames = {})
     {
         All()[isolate][mod.moduleName] = &mod;
+        for(auto& name : extraNames)
+        {
+            All()[isolate][name] = &mod;
+        }
     }
 
     static void Add(v8::Isolate* isolate, std::initializer_list<std::reference_wrapper<V8Module>> modules)

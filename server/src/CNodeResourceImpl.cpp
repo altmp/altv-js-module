@@ -5,6 +5,8 @@
 #include "V8Module.h"
 #include "V8Helpers.h"
 
+#include "JSBindings.h"
+
 static void ResourceLoaded(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -20,50 +22,9 @@ static void ResourceLoaded(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
 }
 
-static const char bootstrap_code[] = R"(
-'use strict';
-
-(async () => {
-  const alt = process._linkedBinding('alt');
-  const path = require('path');
-  const asyncESM = require('internal/process/esm_loader');
-  const { pathToFileURL } = require('internal/url');
-  let _exports = null;
-
-  try {
-    const loader = asyncESM.ESMLoader;
-
-    loader.hook({
-      resolve(specifier, parentURL, defaultResolve) {
-        if (alt.hasResource(specifier)) {
-          return {
-            url: 'alt:' + specifier
-          };
-        }
-
-        return defaultResolve(specifier, parentURL);
-      },
-      getFormat(url, context, defaultGetFormat) {
-        return defaultGetFormat(url, context)
-      }
-    });
-    const _path = path.resolve(alt.getResourcePath(alt.resourceName), alt.getResourceMain(alt.resourceName));
-
-    _exports = await loader.import(pathToFileURL(_path).pathname);
-
-    if ('start' in _exports) {
-      const start = _exports.start;
-      if (typeof start === 'function') {
-        await start();
-      }
-    }
-  } catch (e) {
-    console.error(e);
-  }
-
-  __resourceLoaded(alt.resourceName, _exports);
-})();
-)";
+static const char bootstrap_code[] =
+#include "bootstrap.js.gen"
+  ;
 
 bool CNodeResourceImpl::Start()
 {
@@ -79,15 +40,17 @@ bool CNodeResourceImpl::Start()
     v8::Context::Scope scope(_context);
 
     _context->Global()->Set(_context, V8Helpers::JSValue("__resourceLoaded"), v8::Function::New(_context, &ResourceLoaded).ToLocalChecked());
+    _context->Global()->Set(_context, V8Helpers::JSValue("__internal_bindings_code"), V8Helpers::JSValue(JSBindings::GetBindingsCode()));
 
     _context->SetAlignedPointerInEmbedderData(1, resource);
     context.Reset(isolate, _context);
 
     V8ResourceImpl::Start();
 
-    node::EnvironmentFlags::Flags flags = (node::EnvironmentFlags::Flags)(node::EnvironmentFlags::kOwnsProcessState & node::EnvironmentFlags::kNoInitializeInspector);
+    node::EnvironmentFlags::Flags flags = (node::EnvironmentFlags::Flags)(node::EnvironmentFlags::kOwnsProcessState & node::EnvironmentFlags::kNoCreateInspector);
 
-    uvLoop = uv_loop_new();
+    uvLoop = new uv_loop_t;
+    uv_loop_init(uvLoop);
 
     nodeData = node::CreateIsolateData(isolate, uvLoop, runtime->GetPlatform());
     std::vector<std::string> argv = { "altv-resource" };
@@ -126,18 +89,22 @@ bool CNodeResourceImpl::Stop()
         asyncResource.Reset();
     }
 
-    node::EmitBeforeExit(env);
-    node::EmitExit(env);
-    node::RunAtExit(env);
+    node::EmitProcessBeforeExit(env);
+    node::EmitProcessExit(env);
 
-    // TODO: async stop function
+    V8ResourceImpl::Stop();
 
-    // node::Stop(env);
+    node::Stop(env);
 
     node::FreeEnvironment(env);
     node::FreeIsolateData(nodeData);
 
     envStarted = false;
+
+    uv_loop_close(uvLoop);
+    delete uvLoop;
+
+    connectionInfoMap.clear();
 
     return true;
 }
@@ -179,12 +146,12 @@ bool CNodeResourceImpl::OnEvent(const alt::CEvent* e)
             if(evType == alt::CEvent::Type::SERVER_SCRIPT_EVENT)
             {
                 callbacks = std::move(GetGenericHandlers(true));
-                eventName = static_cast<const alt::CServerScriptEvent*>(e)->GetName().CStr();
+                eventName = static_cast<const alt::CServerScriptEvent*>(e)->GetName().c_str();
             }
             else if(evType == alt::CEvent::Type::CLIENT_SCRIPT_EVENT)
             {
                 callbacks = std::move(GetGenericHandlers(false));
-                eventName = static_cast<const alt::CClientScriptEvent*>(e)->GetName().CStr();
+                eventName = static_cast<const alt::CClientScriptEvent*>(e)->GetName().c_str();
             }
 
             if(callbacks.size() != 0)
@@ -224,7 +191,8 @@ void CNodeResourceImpl::OnTick()
     V8ResourceImpl::OnTick();
 }
 
-bool CNodeResourceImpl::MakeClient(alt::IResource::CreationInfo* info, alt::Array<alt::String>)
+bool CNodeResourceImpl::MakeClient(alt::IResource::CreationInfo* info, alt::Array<std::string>)
 {
     if(resource->GetClientType() == "jsb") info->type = "js";
+    return true;
 }

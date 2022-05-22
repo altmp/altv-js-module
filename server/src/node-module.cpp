@@ -1,4 +1,6 @@
-﻿#include "stdafx.h"
+#include "stdafx.h"
+
+#include "cpp-sdk/version/version.h"
 
 #include "V8Module.h"
 #include "CNodeScriptRuntime.h"
@@ -50,33 +52,36 @@ namespace shared
     NODE_MODULE_LINKED(altShared, InitializeShared)
 }  // namespace shared
 
-static void CommandHandler(alt::Array<alt::StringView> args, void* userData)
+static void CommandHandler(const std::vector<std::string>& args)
 {
-    if(args.GetSize() > 0 && args[0] == "--version")
+    if(args.size() == 0)
     {
+        Log::Colored << "~y~Usage: ~w~js-module [options]" << Log::Endl;
+        Log::Colored << "  Use: ~ly~\"js-module --help\" ~w~for more info" << Log::Endl;
+    }
+    else if(args[0] == "--version")
+    {
+        Log::Colored << "~ly~cpp-sdk: #" << ALT_SDK_VERSION << Log::Endl;
+        Log::Colored << "~ly~" << u8"Copyright © 2022 altMP team." << Log::Endl;
+
         Log::Colored << "~ly~js-module: " << JS_MODULE_VERSION << Log::Endl;
         Log::Colored << "~ly~" JS_MODULE_COPYRIGHT << Log::Endl;
 
         Log::Colored << "~ly~nodejs: " << NODE_MAJOR_VERSION << "." << NODE_MINOR_VERSION << "." << NODE_PATCH_VERSION << Log::Endl;
         Log::Colored << "~ly~" NODEJS_COPYRIGHT << Log::Endl;
     }
-    else if(args.GetSize() > 0 && args[0] == "--help")
+    else if(args[0] == "--help")
     {
         Log::Colored << "~y~Usage: ~w~js-module [options]" << Log::Endl;
         Log::Colored << "~y~Options:" << Log::Endl;
         Log::Colored << "  ~ly~--help    ~w~- this message." << Log::Endl;
         Log::Colored << "  ~ly~--version ~w~- version info." << Log::Endl;
     }
-    else
-    {
-        Log::Colored << "~y~Usage: ~w~js-module [options]" << Log::Endl;
-        Log::Colored << "  Use: ~ly~\"js-module --help\" ~w~for more info" << Log::Endl;
-    }
 }
 
-static void TimersCommand(alt::Array<alt::StringView>, void* runtime)
+static void TimersCommand(const std::vector<std::string>&)
 {
-    auto resources = static_cast<CNodeScriptRuntime*>(runtime)->GetResources();
+    auto resources = CNodeScriptRuntime::Instance().GetResources();
     Log::Info << "================ Timer info =================" << Log::Endl;
     for(auto resource : resources)
     {
@@ -85,21 +90,21 @@ static void TimersCommand(alt::Array<alt::StringView>, void* runtime)
     Log::Info << "======================================================" << Log::Endl;
 }
 
-EXPORT uint32_t GetSDKVersion()
+EXPORT bool altMain(alt::ICore* core)
 {
-    return alt::ICore::SDK_VERSION;
-}
+    alt::ICore::SetInstance(core);
 
-EXPORT bool altMain(alt::ICore* _core)
-{
-    alt::ICore::SetInstance(_core);
-
-    auto& apiCore = alt::ICore::Instance();
     auto& runtime = CNodeScriptRuntime::Instance();
+    if(!runtime.Init()) return false;
 
-    apiCore.RegisterScriptRuntime("js", &runtime);
-    apiCore.SubscribeCommand("js-module", &CommandHandler);
-    apiCore.SubscribeCommand("timers", &TimersCommand);
+    core->RegisterScriptRuntime("js", &runtime);
+    core->SubscribeCommand("js-module", &CommandHandler);
+    core->SubscribeCommand("timers", &TimersCommand);
 
     return true;
+}
+
+EXPORT const char* GetSDKHash()
+{
+    return ALT_SDK_VERSION;
 }

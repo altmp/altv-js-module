@@ -16,7 +16,7 @@
     {
       "label": "Build server",
       "type": "shell",
-      "command": "cd server && ./build",
+      "command": "cd server && ./build.sh",
       "windows": {
         "command": "cd server && build.bat"
       },

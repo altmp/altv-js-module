@@ -26,6 +26,11 @@ namespace V8Helpers
         void HandlerAdded(CV8ResourceImpl* resource, v8::PromiseRejectMessage& data);
         void ProcessQueue(CV8ResourceImpl* resource);
 
+        void ClearQueue()
+        {
+            queue.clear();
+        }
+
     private:
         std::vector<std::unique_ptr<PromiseRejection>> queue;
     };

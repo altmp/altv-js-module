@@ -1,8 +1,17 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.9)
+
+include(../shared/deps/cpp-sdk/CMakeLists.txt)
+include(cmake/DepsDownload.cmake)
+include(../shared/cmake/GenerateBindings.cmake)
 
 project(js-module)
 
 set(PROJECT_NAME js-module)
+
+# Fetch deps
+# NodeJS
+message("alt:V JS - Fetching NodeJS deps, can take a while")
+DownloadDeps()
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -53,14 +62,24 @@ endmacro()
 GroupSources(${PROJECT_SOURCE_DIR}/src "Source Files")
 GroupSources("../shared" "Shared Files")
 
+make_includable("src/bootstrap.js" "src/bootstrap.js.gen")
+GenerateBindings()
+
 include_directories(
   src
   deps/nodejs/include
   deps/nodejs/deps/v8/include
   deps/nodejs/deps/uv/include
+  deps/nodejs/deps/openssl/openssl/include
   ../shared
   ../shared/deps
 )
+
+if(WIN32 AND MSVC)
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Zi")
+    set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /DEBUG:FULL /OPT:REF /OPT:ICF")
+    add_definitions(/MP)
+endif()
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   target_compile_options(${PROJECT_NAME} PRIVATE
@@ -126,6 +145,8 @@ add_library(
   ${PROJECT_SHARED_FILES}
 )
 
+add_dependencies(${PROJECT_NAME} alt-sdk)
+
 if(MSVC AND WIN32)
     set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /DEBUG")
 endif()
@@ -135,5 +156,5 @@ if (WIN32)
 endif (WIN32)
 
 if (UNIX)
-  target_link_libraries(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/deps/nodejs/lib/libnode.so.83)
+  target_link_libraries(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/deps/nodejs/lib/libnode.so.102)
 endif (UNIX)

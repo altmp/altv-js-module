@@ -19,7 +19,7 @@ V8Helpers::EventHandler clientScriptEvent(
   EventType::CLIENT_SCRIPT_EVENT,
   [](V8ResourceImpl* resource, const CEvent* e) {
       auto ev = static_cast<const alt::CClientScriptEvent*>(e);
-      return resource->GetRemoteHandlers(ev->GetName().ToString());
+      return resource->GetRemoteHandlers(ev->GetName());
   },
   [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
       auto ev = static_cast<const alt::CClientScriptEvent*>(e);
@@ -32,7 +32,7 @@ V8Helpers::EventHandler serverScriptEvent(
   EventType::SERVER_SCRIPT_EVENT,
   [](V8ResourceImpl* resource, const CEvent* e) {
       auto ev = static_cast<const alt::CServerScriptEvent*>(e);
-      return resource->GetLocalHandlers(ev->GetName().ToString());
+      return resource->GetLocalHandlers(ev->GetName());
   },
   [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
       auto ev = static_cast<const alt::CServerScriptEvent*>(e);
@@ -116,21 +116,6 @@ V8Helpers::LocalEventHandler
       args.push_back(V8Helpers::JSValue(ev->GetWeaponHash()));
   });
 
-V8Helpers::LocalEventHandler resourceStart(EventType::RESOURCE_START, "anyResourceStart", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
-    auto ev = static_cast<const alt::CResourceStartEvent*>(e);
-    args.push_back(V8Helpers::JSValue(ev->GetResource()->GetName()));
-});
-
-V8Helpers::LocalEventHandler resourceStop(EventType::RESOURCE_STOP, "anyResourceStop", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
-    auto ev = static_cast<const alt::CResourceStopEvent*>(e);
-    args.push_back(V8Helpers::JSValue(ev->GetResource()->GetName()));
-});
-
-V8Helpers::LocalEventHandler resourceError(EventType::RESOURCE_ERROR, "anyResourceError", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
-    auto ev = static_cast<const alt::CResourceErrorEvent*>(e);
-    args.push_back(V8Helpers::JSValue(ev->GetResource()->GetName()));
-});
-
 V8Helpers::LocalEventHandler syncedMetaChange(EventType::SYNCED_META_CHANGE, "syncedMetaChange", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
     auto ev = static_cast<const alt::CSyncedMetaDataChangeEvent*>(e);
 
@@ -166,3 +151,5 @@ V8Helpers::LocalEventHandler
       args.push_back(V8Helpers::MValueToV8(ev->GetVal()));
       args.push_back(V8Helpers::MValueToV8(ev->GetOldVal()));
   });
+
+V8Helpers::LocalEventHandler serverStarted(EventType::SERVER_STARTED, "serverStarted", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {});

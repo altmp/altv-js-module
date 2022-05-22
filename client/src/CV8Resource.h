@@ -103,6 +103,28 @@ public:
 
     std::vector<V8Helpers::EventCallback*> GetAudioHandlers(alt::Ref<alt::IAudio> audio, const std::string& name);
 
+    void SubscribeRml(alt::Ref<alt::IRmlElement> element, const std::string& evName, v8::Local<v8::Function> cb, V8Helpers::SourceLocation&& location)
+    {
+        rmlHandlers[element].insert({ evName, V8Helpers::EventCallback{ isolate, cb, std::move(location) } });
+    }
+
+    void UnsubscribeRml(alt::Ref<alt::IRmlElement> element, const std::string& evName, v8::Local<v8::Function> cb)
+    {
+        auto it = rmlHandlers.find(element);
+        if(it != rmlHandlers.end())
+        {
+            auto& rmlEvents = it->second;
+            auto range = rmlEvents.equal_range(evName);
+
+            for(auto it = range.first; it != range.second; ++it)
+            {
+                if(it->second.fn.Get(isolate)->StrictEquals(cb)) it->second.removed = true;
+            }
+        }
+    }
+
+    std::vector<V8Helpers::EventCallback*> GetRmlHandlers(alt::Ref<alt::IRmlElement> element, const std::string& name);
+
     void AddOwned(alt::Ref<alt::IBaseObject> handle)
     {
         ownedObjects.insert(handle);
@@ -134,9 +156,9 @@ public:
     void AddWorker(CWorker* worker);
     void RemoveWorker(CWorker* worker);
 
-    void AddWebViewEventToQueue(const alt::Ref<alt::IWebView> view, const alt::String& evName, const alt::MValueArgs& mvArgs)
+    void AddWebViewEventToQueue(const alt::Ref<alt::IWebView> view, const std::string& evName, const alt::MValueArgs& mvArgs)
     {
-        webViewsEventsQueue[view].push_back(std::pair(evName, mvArgs));
+        webViewsEventsQueue[view].push_back(std::make_pair(evName, mvArgs));
     }
 
     bool IsBytecodeResource()
@@ -144,31 +166,46 @@ public:
         return isUsingBytecode;
     }
 
-private:
-    using WebViewEvents = std::unordered_multimap<std::string, V8Helpers::EventCallback>;
-    using WebViewsEventsQueue = std::unordered_map<alt::Ref<alt::IWebView>, std::vector<std::pair<alt::String, alt::MValueArgs>>>;
+    v8::Local<v8::Module> CreateSyntheticModule(const std::string& name, v8::Local<v8::Value> exportValue);
+    v8::MaybeLocal<v8::Value> GetSyntheticModuleExport(v8::Local<v8::Module> syntheticModule);
 
-    std::unordered_map<alt::Ref<alt::IWebView>, WebViewEvents> webViewHandlers;
-    std::unordered_map<alt::Ref<alt::IWebSocketClient>, WebViewEvents> webSocketClientHandlers;
-    std::unordered_map<alt::Ref<alt::IAudio>, WebViewEvents> audioHandlers;
+    bool IsPreloading()
+    {
+        return isPreloading;
+    }
+
+private:
+    friend class CV8ScriptRuntime;
+
+    using EventHandlerMap = std::unordered_multimap<std::string, V8Helpers::EventCallback>;
+    using WebViewsEventsQueue = std::unordered_map<alt::Ref<alt::IWebView>, std::vector<std::pair<std::string, alt::MValueArgs>>>;
+
+    std::unordered_map<alt::Ref<alt::IWebView>, EventHandlerMap> webViewHandlers;
+    std::unordered_map<alt::Ref<alt::IWebSocketClient>, EventHandlerMap> webSocketClientHandlers;
+    std::unordered_map<alt::Ref<alt::IAudio>, EventHandlerMap> audioHandlers;
+    std::unordered_map<alt::Ref<alt::IRmlElement>, EventHandlerMap> rmlHandlers;
 
     WebViewsEventsQueue webViewsEventsQueue;
     WebViewsEventsQueue& GetWebviewsEventQueue()
     {
         return webViewsEventsQueue;
     }
-    void HandleWebViewEventQueue(const alt::Ref<alt::IWebView> view);
+    void HandleWebViewEventQueue(alt::Ref<alt::IWebView> view);
 
     std::unordered_set<alt::Ref<alt::IBaseObject>> ownedObjects;
 
     std::unordered_set<CWorker*> workers;
 
-    v8::Persistent<v8::Object> localStorage;
+    V8Helpers::CPersistent<v8::Object> localStorage;
 
     std::unique_ptr<v8::MicrotaskQueue> microtaskQueue;
 
     std::list<std::function<void()>> dynamicImports;
-    friend class CV8ScriptRuntime;
 
     V8Helpers::PromiseRejections promiseRejections;
+
+    // Key = Module identity hash, Value = Export value
+    std::unordered_map<int, V8Helpers::CPersistent<v8::Value>> syntheticModuleExports;
+
+    bool isPreloading = true;
 };

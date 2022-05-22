@@ -64,6 +64,6 @@ namespace V8Helpers::Vehicle
         V8_GET_ISOLATE();
         V8_GET_THIS_BASE_OBJECT(vehicle, IVehicle);
 
-        V8_RETURN_STRING(vehicle->GetGameStateBase64().CStr());
+        V8_RETURN_STRING(vehicle->GetGameStateBase64());
     }
 }  // namespace V8Helpers::Vehicle

@@ -183,7 +183,7 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, Constructor, [](v8::Local<v8::Func
     V8Helpers::SetAccessor(isolate, tpl, "neon", &NeonActiveGetter, &NeonActiveSetter);
     V8Helpers::SetAccessor<IVehicle, uint8_t, &IVehicle::GetDirtLevel, &IVehicle::SetDirtLevel>(isolate, tpl, "dirtLevel");
     V8Helpers::SetAccessor<IVehicle, uint32_t, &IVehicle::GetNumberplateIndex, &IVehicle::SetNumberplateIndex>(isolate, tpl, "numberPlateIndex");
-    V8Helpers::SetAccessor<IVehicle, StringView, &IVehicle::GetNumberplateText, &IVehicle::SetNumberplateText>(isolate, tpl, "numberPlateText");
+    V8Helpers::SetAccessor<IVehicle, std::string, &IVehicle::GetNumberplateText, const std::string&, &IVehicle::SetNumberplateText>(isolate, tpl, "numberPlateText");
     V8Helpers::SetAccessor<IVehicle, uint8_t, &IVehicle::GetLivery, &IVehicle::SetLivery>(isolate, tpl, "livery");
     V8Helpers::SetAccessor<IVehicle, uint8_t, &IVehicle::GetRoofLivery, &IVehicle::SetRoofLivery>(isolate, tpl, "roofLivery");
     V8Helpers::SetAccessor<IVehicle, uint8_t, &IVehicle::GetWheelType>(isolate, tpl, "wheelType");
@@ -301,7 +301,13 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, Constructor, [](v8::Local<v8::Func
     V8Helpers::SetMethod(isolate, tpl, "setTrainLinkedToBackwardId", &SetTrainLinkedToBackwardId);
     V8Helpers::SetAccessor<IVehicle, Ref<IVehicle>, &IVehicle::GetTrainLinkedToForwardId>(isolate, tpl, "trainLinkedToForwardId");
     V8Helpers::SetMethod(isolate, tpl, "setTrainLinkedToForwardId", &SetTrainLinkedToForwardId);
+    V8Helpers::SetAccessor<IVehicle, bool, &IVehicle::GetTrainUnk1, &IVehicle::SetTrainUnk1>(isolate, tpl, "trainUnk1");
+    V8Helpers::SetAccessor<IVehicle, bool, &IVehicle::GetTrainUnk2, &IVehicle::SetTrainUnk2>(isolate, tpl, "trainUnk2");
+    V8Helpers::SetAccessor<IVehicle, bool, &IVehicle::GetTrainUnk3, &IVehicle::SetTrainUnk3>(isolate, tpl, "trainUnk3");
 
     // Heli setter
     V8Helpers::SetMethod(isolate, tpl, "setSearchLightTo", &SetSearchLight);
+
+    // Boat setter
+    V8Helpers::SetAccessor<IVehicle, bool, &IVehicle::IsBoatAnchorActive, &IVehicle::SetBoatAnchorActive>(isolate, tpl, "boatAnchorActive");
 });

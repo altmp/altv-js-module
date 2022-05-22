@@ -3,6 +3,8 @@
 #include "V8ResourceImpl.h"
 #include "V8Helpers.h"
 
+#include "CNodeResourceImpl.h"
+
 #include "cpp-sdk/events/CPlayerConnectEvent.h"
 #include "cpp-sdk/events/CPlayerBeforeConnectEvent.h"
 #include "cpp-sdk/events/CPlayerDisconnectEvent.h"
@@ -13,9 +15,13 @@
 #include "cpp-sdk/events/CPlayerLeaveVehicleEvent.h"
 #include "cpp-sdk/events/CPlayerChangeVehicleSeatEvent.h"
 #include "cpp-sdk/events/CPlayerWeaponChangeEvent.h"
+#include "cpp-sdk/events/CLocalMetaDataChangeEvent.h"
+#include "cpp-sdk/events/CPlayerRequestControlEvent.h"
 
 using alt::CEvent;
 using EventType = CEvent::Type;
+
+extern V8Class v8ConnectionInfo;
 
 V8Helpers::LocalEventHandler playerConnect(EventType::PLAYER_CONNECT, "playerConnect", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
     auto ev = static_cast<const alt::CPlayerConnectEvent*>(e);
@@ -25,22 +31,23 @@ V8Helpers::LocalEventHandler playerConnect(EventType::PLAYER_CONNECT, "playerCon
 V8Helpers::LocalEventHandler
   beforePlayerConnect(EventType::PLAYER_BEFORE_CONNECT, "beforePlayerConnect", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
       auto ev = static_cast<const alt::CPlayerBeforeConnectEvent*>(e);
-      const alt::ConnectionInfo& info = ev->GetConnectionInfo();
       v8::Isolate* isolate = resource->GetIsolate();
       v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
-      V8_NEW_OBJECT(infoObj);
-      V8_OBJECT_SET_STD_STRING(infoObj, "name", info.name);
-      V8_OBJECT_SET_STD_STRING(infoObj, "socialID", std::to_string(info.socialId));
-      V8_OBJECT_SET_STD_STRING(infoObj, "hwidHash", std::to_string(info.hwidHash));
-      V8_OBJECT_SET_STD_STRING(infoObj, "hwidExHash", std::to_string(info.hwidExHash));
-      V8_OBJECT_SET_STD_STRING(infoObj, "authToken", info.authToken);
-      V8_OBJECT_SET_BOOLEAN(infoObj, "isDebug", info.isDebug);
-      V8_OBJECT_SET_STD_STRING(infoObj, "branch", info.branch);
-      V8_OBJECT_SET_UINT(infoObj, "build", info.build);
-      V8_OBJECT_SET_STD_STRING(infoObj, "cdnUrl", info.cdnUrl);
-      V8_OBJECT_SET_BIGUINT(infoObj, "passwordHash", info.passwordHash);
+
+      alt::Ref<alt::IConnectionInfo> info = ev->GetConnectionInfo();
+      v8::Local<v8::Object> infoObj = v8ConnectionInfo.CreateInstance(ctx);
+      infoObj->SetInternalField(0, v8::External::New(isolate, info.Get()));
+      static_cast<CNodeResourceImpl*>(resource)->AddConnectionInfoObject(info, infoObj);
+
       args.push_back(infoObj);
       args.push_back(V8Helpers::JSValue(ev->GetReason()));
+
+      resource->RunOnNextTick([=] {
+          v8::Local<v8::Object> infoObj = static_cast<CNodeResourceImpl*>(resource)->GetConnectionInfoObject(info);
+          if(infoObj.IsEmpty()) return;
+          infoObj->SetInternalField(0, v8::External::New(isolate, nullptr));
+          static_cast<CNodeResourceImpl*>(resource)->RemoveConnectionInfoObject(info);
+      });
   });
 
 V8Helpers::LocalEventHandler playerDisconnect(EventType::PLAYER_DISCONNECT, "playerDisconnect", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
@@ -119,3 +126,52 @@ V8Helpers::LocalEventHandler
       args.push_back(V8Helpers::JSValue(ev->GetOldWeapon()));
       args.push_back(V8Helpers::JSValue(ev->GetNewWeapon()));
   });
+
+V8_LOCAL_EVENT_HANDLER localMetaChange(EventType::LOCAL_SYNCED_META_CHANGE, "localMetaChange", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+    auto ev = static_cast<const alt::CLocalMetaDataChangeEvent*>(e);
+    v8::Isolate* isolate = resource->GetIsolate();
+
+    args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
+    args.push_back(V8Helpers::JSValue(ev->GetKey()));
+    args.push_back(V8Helpers::MValueToV8(ev->GetVal()));
+    args.push_back(V8Helpers::MValueToV8(ev->GetOldVal()));
+});
+
+V8_LOCAL_EVENT_HANDLER connectionQueueAdd(EventType::CONNECTION_QUEUE_ADD, "connectionQueueAdd", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+    auto ev = static_cast<const alt::CConnectionQueueAddEvent*>(e);
+    v8::Isolate* isolate = resource->GetIsolate();
+    v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
+
+    alt::Ref<alt::IConnectionInfo> info = ev->GetConnectionInfo();
+    v8::Local<v8::Object> infoObj = v8ConnectionInfo.CreateInstance(ctx);
+    infoObj->SetInternalField(0, v8::External::New(isolate, info.Get()));
+    static_cast<CNodeResourceImpl*>(resource)->AddConnectionInfoObject(info, infoObj);
+
+    args.push_back(infoObj);
+});
+
+V8_LOCAL_EVENT_HANDLER
+connectionQueueRemove(EventType::CONNECTION_QUEUE_REMOVE, "connectionQueueRemove", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+    auto ev = static_cast<const alt::CConnectionQueueRemoveEvent*>(e);
+    v8::Isolate* isolate = resource->GetIsolate();
+    v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
+
+    alt::Ref<alt::IConnectionInfo> info = ev->GetConnectionInfo();
+    resource->RunOnNextTick([resource, isolate, info] {
+        v8::Local<v8::Object> infoObj = static_cast<CNodeResourceImpl*>(resource)->GetConnectionInfoObject(info);
+        if(infoObj.IsEmpty()) return;
+        infoObj->SetInternalField(0, v8::External::New(isolate, nullptr));
+        static_cast<CNodeResourceImpl*>(resource)->RemoveConnectionInfoObject(info);
+    });
+
+    v8::Local<v8::Object> infoObj = static_cast<CNodeResourceImpl*>(resource)->GetConnectionInfoObject(info);
+    if(infoObj.IsEmpty()) return;
+    args.push_back(infoObj);
+});
+
+V8_LOCAL_EVENT_HANDLER requestControl(EventType::PLAYER_REQUEST_CONTROL, "playerRequestControl", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+    auto ev = static_cast<const alt::CPlayerRequestControlEvent*>(e);
+
+    args.push_back(resource->GetBaseObjectOrNull(ev->GetPlayer()));
+    args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
+});

@@ -1,10 +1,12 @@
 #include "Serialization.h"
 #include "V8ResourceImpl.h"
 #include "Bindings.h"
+#include "CProfiler.h"
 
 alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
 {
-    auto& core = alt::ICore::Instance();
+    CProfiler::Sample _("V8Helpers::V8ToMValue", true);
+    alt::ICore& core = alt::ICore::Instance();
 
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
     v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
@@ -21,7 +23,14 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
 
     if(val->IsUint32()) return core.CreateMValueUInt(val->Uint32Value(ctx).ToChecked());
 
-    if(val->IsBigInt()) return core.CreateMValueInt(val.As<v8::BigInt>()->Int64Value());
+    if(val->IsBigInt())
+    {
+        bool isPositive;
+        uint64_t unsignedVal = val.As<v8::BigInt>()->Uint64Value(&isPositive);
+        if(isPositive) return core.CreateMValueUInt(unsignedVal);
+        else
+            return core.CreateMValueInt(val.As<v8::BigInt>()->Int64Value());
+    }
 
     if(val->IsNumber()) return core.CreateMValueDouble(val->NumberValue(ctx).ToChecked());
 
@@ -75,8 +84,8 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
 
                 if(!maybeKey.ToLocal(&key)) continue;
                 if(!maybeValue.ToLocal(&value)) continue;
-                alt::String keyString = V8Helpers::Stringify(ctx, val);
-                if(keyString.IsEmpty()) continue;
+                std::string keyString = V8Helpers::Stringify(ctx, val);
+                if(keyString.empty()) continue;
                 dict->Set(keyString, V8ToMValue(value, false));
             }
             return dict;
@@ -151,6 +160,10 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
 
 v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
 {
+    CProfiler::Sample _("V8Helpers::MValueToV8", true);
+    static constexpr int64_t JS_MAX_SAFE_INTEGER = 9007199254740991;
+    static constexpr int64_t JS_MIN_SAFE_INTEGER = JS_MAX_SAFE_INTEGER * -1;
+
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
     v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
 
@@ -163,7 +176,7 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
         {
             int64_t _val = val.As<alt::IMValueInt>()->Value();
 
-            if(_val >= INT_MIN && _val <= INT_MAX) return V8Helpers::JSValue((int32_t)_val);
+            if(_val >= JS_MIN_SAFE_INTEGER && _val <= JS_MAX_SAFE_INTEGER) return V8Helpers::JSValue((double)_val);
 
             return V8Helpers::JSValue(_val);
         }
@@ -171,7 +184,7 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
         {
             uint64_t _val = val.As<alt::IMValueUInt>()->Value();
 
-            if(_val <= UINT_MAX) return V8Helpers::JSValue((uint32_t)_val);
+            if(_val <= JS_MAX_SAFE_INTEGER) return V8Helpers::JSValue((double)_val);
 
             return V8Helpers::JSValue(_val);
         }
@@ -180,7 +193,7 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
         case alt::IMValue::Type::LIST:
         {
             alt::MValueListConst list = val.As<alt::IMValueList>();
-            v8::Local<v8::Array> v8Arr = v8::Array::New(isolate, list->GetSize());
+            v8::Local<v8::Array> v8Arr = v8::Array::New(isolate, (int)list->GetSize());
 
             for(uint32_t i = 0; i < list->GetSize(); ++i) v8Arr->Set(ctx, i, MValueToV8(list->Get(i)));
 
@@ -242,41 +255,50 @@ static uint8_t magicBytes[] = { 'J', 'S', 'V', 'a', 'l' };
 
 enum class RawValueType : uint8_t
 {
+    INVALID,
     GENERIC,
     ENTITY,
     VECTOR3,
     VECTOR2,
-    RGBA,
-    ARRAY,
-    INVALID
+    RGBA
 };
 
-extern V8Class v8Entity;
+extern V8Class v8BaseObject;
 static inline RawValueType GetValueType(v8::Local<v8::Context> ctx, v8::Local<v8::Value> val)
 {
     V8ResourceImpl* resource = V8ResourceImpl::Get(ctx);
     bool result;
-    if(val->IsSharedArrayBuffer() || val->IsFunction() || val->IsProxy() || val->IsPromise()) return RawValueType::INVALID;
-    if(val->InstanceOf(ctx, v8Entity.JSValue(ctx->GetIsolate(), ctx)).To(&result) && result) return RawValueType::ENTITY;
+    if(val->IsSharedArrayBuffer() || val->IsPromise() || val->IsProxy()) return RawValueType::INVALID;
+    if(val->InstanceOf(ctx, v8BaseObject.JSValue(ctx->GetIsolate(), ctx)).To(&result) && result)
+    {
+        alt::Ref<alt::IBaseObject> ent = V8Entity::Get(val)->GetHandle();
+        switch(ent->GetType())
+        {
+            case alt::IBaseObject::Type::PLAYER:
+            case alt::IBaseObject::Type::VEHICLE:
+            case alt::IBaseObject::Type::LOCAL_PLAYER:
+            {
+                return RawValueType::ENTITY;
+            }
+            default:
+            {
+                return RawValueType::INVALID;
+            }
+        }
+    }
     if(resource->IsVector3(val)) return RawValueType::VECTOR3;
     if(resource->IsVector2(val)) return RawValueType::VECTOR2;
     if(resource->IsRGBA(val)) return RawValueType::RGBA;
-    if(val->IsArray()) return RawValueType::ARRAY;
     else
         return RawValueType::GENERIC;
 }
 
-static inline bool WriteRawValue(v8::Local<v8::Context> ctx, v8::ValueSerializer& serializer, RawValueType type, v8::Local<v8::Value> val)
+static inline bool WriteRawValue(v8::Local<v8::Context> ctx, v8::ValueSerializer& serializer, RawValueType type, v8::Local<v8::Object> val)
 {
+    CProfiler::Sample _("WriteRawValue", true);
     serializer.WriteRawBytes(&type, sizeof(uint8_t));
     switch(type)
     {
-        case RawValueType::GENERIC:
-        {
-            bool result;
-            if(!serializer.WriteValue(ctx, val).To(&result) || !result) return false;
-            break;
-        }
         case RawValueType::ENTITY:
         {
             V8Entity* entity = V8Entity::Get(val);
@@ -317,44 +339,28 @@ static inline bool WriteRawValue(v8::Local<v8::Context> ctx, v8::ValueSerializer
             serializer.WriteRawBytes(&rgba.a, sizeof(uint8_t));
             break;
         }
-        case RawValueType::ARRAY:
-        {
-            v8::Local<v8::Array> array = val.As<v8::Array>();
-            uint32_t length = array->Length();
-            serializer.WriteRawBytes(&length, sizeof(uint32_t));
-            for(uint32_t i = 0; i < length; ++i)
-            {
-                v8::Local<v8::Value> element;
-                if(!array->Get(ctx, i).ToLocal(&element)) return false;
-                if(!WriteRawValue(ctx, serializer, GetValueType(ctx, element), element)) return false;
-            }
-            break;
-        }
     }
     return true;
 }
 
-static inline v8::MaybeLocal<v8::Value> ReadRawValue(v8::Local<v8::Context> ctx, v8::ValueDeserializer& deserializer)
+static inline v8::MaybeLocal<v8::Object> ReadRawValue(v8::Local<v8::Context> ctx, v8::ValueDeserializer& deserializer)
 {
+    CProfiler::Sample _("ReadRawValue", true);
     v8::Isolate* isolate = ctx->GetIsolate();
     V8ResourceImpl* resource = V8ResourceImpl::Get(ctx);
 
     RawValueType* typePtr;
-    if(!deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&typePtr)) return v8::MaybeLocal<v8::Value>();
+    if(!deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&typePtr)) return v8::MaybeLocal<v8::Object>();
     RawValueType type = *typePtr;
 
     switch(type)
     {
-        case RawValueType::GENERIC:
-        {
-            return deserializer.ReadValue(ctx);
-        }
         case RawValueType::ENTITY:
         {
             uint16_t* id;
-            if(!deserializer.ReadRawBytes(sizeof(uint16_t), (const void**)&id)) return v8::MaybeLocal<v8::Value>();
+            if(!deserializer.ReadRawBytes(sizeof(uint16_t), (const void**)&id)) return v8::MaybeLocal<v8::Object>();
             alt::Ref<alt::IEntity> entity = alt::ICore::Instance().GetEntityByID(*id);
-            if(!entity) return v8::MaybeLocal<v8::Value>();
+            if(!entity) return v8::MaybeLocal<v8::Object>();
             return V8ResourceImpl::Get(ctx)->GetOrCreateEntity(entity.Get(), "Entity")->GetJSVal(isolate);
         }
         case RawValueType::VECTOR3:
@@ -364,15 +370,15 @@ static inline v8::MaybeLocal<v8::Value> ReadRawValue(v8::Local<v8::Context> ctx,
             float* z;
             if(!deserializer.ReadRawBytes(sizeof(float), (const void**)&x) || !deserializer.ReadRawBytes(sizeof(float), (const void**)&y) ||
                !deserializer.ReadRawBytes(sizeof(float), (const void**)&z))
-                return v8::MaybeLocal<v8::Value>();
-            return resource->CreateVector3({ *x, *y, *z });
+                return v8::MaybeLocal<v8::Object>();
+            return resource->CreateVector3({ *x, *y, *z }).As<v8::Object>();
         }
         case RawValueType::VECTOR2:
         {
             float* x;
             float* y;
-            if(!deserializer.ReadRawBytes(sizeof(float), (const void**)&x) || !deserializer.ReadRawBytes(sizeof(float), (const void**)&y)) return v8::MaybeLocal<v8::Value>();
-            return resource->CreateVector2({ *x, *y });
+            if(!deserializer.ReadRawBytes(sizeof(float), (const void**)&x) || !deserializer.ReadRawBytes(sizeof(float), (const void**)&y)) return v8::MaybeLocal<v8::Object>();
+            return resource->CreateVector2({ *x, *y }).As<v8::Object>();
         }
         case RawValueType::RGBA:
         {
@@ -382,23 +388,8 @@ static inline v8::MaybeLocal<v8::Value> ReadRawValue(v8::Local<v8::Context> ctx,
             uint8_t* a;
             if(!deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&r) || !deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&g) ||
                !deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&b) || !deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&a))
-                return v8::MaybeLocal<v8::Value>();
-            return resource->CreateRGBA({ *r, *g, *b, *a });
-        }
-        case RawValueType::ARRAY:
-        {
-            uint32_t* lengthPtr;
-            if(!deserializer.ReadRawBytes(sizeof(uint32_t), (const void**)&lengthPtr)) return v8::MaybeLocal<v8::Value>();
-            uint32_t length = *lengthPtr;
-            v8::Local<v8::Array> array = v8::Array::New(isolate, length);
-            for(uint32_t i = 0; i < length; ++i)
-            {
-                v8::MaybeLocal<v8::Value> element = ReadRawValue(ctx, deserializer);
-                if(element.IsEmpty()) return v8::MaybeLocal<v8::Value>();
-                bool result;
-                if(!array->Set(ctx, i, element.ToLocalChecked()).To(&result) || !result) return v8::MaybeLocal<v8::Value>();
-            }
-            return array;
+                return v8::MaybeLocal<v8::Object>();
+            return resource->CreateRGBA({ *r, *g, *b, *a }).As<v8::Object>();
         }
         default:
         {
@@ -406,27 +397,83 @@ static inline v8::MaybeLocal<v8::Value> ReadRawValue(v8::Local<v8::Context> ctx,
             break;
         }
     }
-    return v8::MaybeLocal<v8::Value>();
+    return v8::MaybeLocal<v8::Object>();
 }
+
+class WriteDelegate : public v8::ValueSerializer::Delegate
+{
+    v8::ValueSerializer* serializer;
+
+public:
+    WriteDelegate() {}
+
+    void SetSerializer(v8::ValueSerializer* _serializer)
+    {
+        serializer = _serializer;
+    }
+
+    void ThrowDataCloneError(v8::Local<v8::String> message) override
+    {
+        V8Helpers::Throw(v8::Isolate::GetCurrent(), V8Helpers::CppValue(message));
+    }
+
+    v8::Maybe<bool> WriteHostObject(v8::Isolate* isolate, v8::Local<v8::Object> object) override
+    {
+        v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
+        RawValueType type = GetValueType(ctx, object);
+        if(type == RawValueType::INVALID) return v8::Nothing<bool>();
+        bool result = WriteRawValue(ctx, *serializer, type, object);
+        if(!result)
+        {
+            V8Helpers::Throw(isolate, "Tried to write invalid raw value (functions or promises are not supported)");
+            return v8::Nothing<bool>();
+        }
+        return v8::Just(true);
+    }
+};
+
+class ReadDelegate : public v8::ValueDeserializer::Delegate
+{
+    v8::ValueDeserializer* deserializer;
+
+public:
+    ReadDelegate() {}
+
+    void SetDeserializer(v8::ValueDeserializer* _deserializer)
+    {
+        deserializer = _deserializer;
+    }
+
+    v8::MaybeLocal<v8::Object> ReadHostObject(v8::Isolate* isolate) override
+    {
+        v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
+        return ReadRawValue(ctx, *deserializer);
+    }
+};
 
 // Converts a JS value to a MValue byte array
 alt::MValueByteArray V8Helpers::V8ToRawBytes(v8::Local<v8::Value> val)
 {
+    CProfiler::Sample _("V8Helpers::V8ToRawBytes", true);
+    static WriteDelegate delegate;
+
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
     v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
 
     RawValueType type = GetValueType(ctx, val);
     if(type == RawValueType::INVALID) return alt::MValueByteArray();
 
-    v8::ValueSerializer serializer(isolate);
+    v8::ValueSerializer serializer(isolate, &delegate);
+    delegate.SetSerializer(&serializer);
+
     serializer.WriteHeader();
 
     // Write the magic bytes to the buffer
     serializer.WriteRawBytes(magicBytes, sizeof(magicBytes));
 
     // Write the serialized value to the buffer
-    bool result = WriteRawValue(ctx, serializer, type, val);
-    if(!result) return alt::MValueByteArray();
+    bool result;
+    if(!serializer.WriteValue(ctx, val).To(&result) || !result) return alt::MValueByteArray();
 
     std::pair<uint8_t*, size_t> serialized = serializer.Release();
     return alt::ICore::Instance().CreateMValueByteArray(serialized.first, serialized.second);
@@ -435,6 +482,9 @@ alt::MValueByteArray V8Helpers::V8ToRawBytes(v8::Local<v8::Value> val)
 // Converts a MValue byte array to a JS value
 v8::MaybeLocal<v8::Value> V8Helpers::RawBytesToV8(alt::MValueByteArrayConst rawBytes)
 {
+    CProfiler::Sample _("V8Helpers::RawBytesToV8", true);
+    static ReadDelegate delegate;
+
     const uint8_t* data = rawBytes->GetData();
     size_t size = rawBytes->GetSize();
     if(size < sizeof(magicBytes)) return v8::MaybeLocal<v8::Value>();
@@ -442,7 +492,8 @@ v8::MaybeLocal<v8::Value> V8Helpers::RawBytesToV8(alt::MValueByteArrayConst rawB
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
     v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
 
-    v8::ValueDeserializer deserializer(isolate, data, size);
+    v8::ValueDeserializer deserializer(isolate, data, size, &delegate);
+    delegate.SetDeserializer(&deserializer);
 
     bool headerValid;
     if(!deserializer.ReadHeader(ctx).To(&headerValid) || !headerValid) return v8::MaybeLocal<v8::Value>();
@@ -453,7 +504,7 @@ v8::MaybeLocal<v8::Value> V8Helpers::RawBytesToV8(alt::MValueByteArrayConst rawB
     if(memcmp(magicBytesPtr, magicBytes, sizeof(magicBytes)) != 0) return v8::MaybeLocal<v8::Value>();
 
     // Deserialize the value
-    v8::MaybeLocal<v8::Value> result = ReadRawValue(ctx, deserializer);
+    v8::MaybeLocal<v8::Value> result = deserializer.ReadValue(ctx);
 
     return result;
 }

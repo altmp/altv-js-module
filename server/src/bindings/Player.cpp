@@ -168,21 +168,21 @@ static void SocialIDGetter(v8::Local<v8::String> name, const v8::PropertyCallbac
 {
     V8_GET_ISOLATE();
     V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
-    V8_RETURN_STRING(std::to_string(_this->GetSocialID()).c_str());
+    V8_RETURN_STRING(std::to_string(_this->GetSocialID()));
 }
 
 static void HwidHashGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE();
     V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
-    V8_RETURN_STRING(std::to_string(_this->GetHwidHash()).c_str());
+    V8_RETURN_STRING(std::to_string(_this->GetHwidHash()));
 }
 
 static void HwidExHashGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE();
     V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
-    V8_RETURN_STRING(std::to_string(_this->GetHwidExHash()).c_str());
+    V8_RETURN_STRING(std::to_string(_this->GetHwidExHash()));
 }
 
 static void SetClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -197,12 +197,12 @@ static void SetClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     if(info.Length() == 3)
     {
-        player->SetClothes(component, drawable, texture, 2);
+        V8_RETURN(player->SetClothes(component, drawable, texture, 2));
     }
     else if(info.Length() == 4)
     {
         V8_ARG_TO_INT(4, palette);
-        player->SetClothes(component, drawable, texture, palette);
+        V8_RETURN(player->SetClothes(component, drawable, texture, palette));
     }
 }
 
@@ -221,12 +221,12 @@ static void SetDlcClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     if(info.Length() == 4)
     {
-        player->SetDlcClothes(component, drawable, texture, 2, dlc);
+        V8_RETURN(player->SetDlcClothes(component, drawable, texture, 2, dlc));
     }
     else if(info.Length() == 5)
     {
         V8_ARG_TO_INT(5, palette);
-        player->SetDlcClothes(component, drawable, texture, palette, dlc);
+        V8_RETURN(player->SetDlcClothes(component, drawable, texture, palette, dlc));
     }
 }
 
@@ -277,7 +277,7 @@ static void SetProps(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_UINT(2, drawable);
     V8_ARG_TO_UINT(3, texture);
 
-    player->SetProps(component, drawable, texture);
+    V8_RETURN(player->SetProps(component, drawable, texture));
 }
 
 static void SetDlcProps(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -291,7 +291,7 @@ static void SetDlcProps(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_UINT(3, drawable);
     V8_ARG_TO_UINT(4, texture);
 
-    player->SetDlcProps(component, drawable, texture, dlc);
+    V8_RETURN(player->SetDlcProps(component, drawable, texture, dlc));
 }
 
 static void ClearProps(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -346,9 +346,16 @@ static void IsEntityInStreamRange(const v8::FunctionCallbackInfo<v8::Value>& inf
     V8_CHECK_ARGS_LEN(1);
     V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-    V8_ARG_TO_BASE_OBJECT(1, entity, IEntity, "Entity");
-
-    V8_RETURN_BOOLEAN(player->IsEntityInStreamingRange(entity));
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, entity);
+        V8_RETURN_BOOLEAN(player->IsEntityInStreamingRange(entity));
+    }
+    else
+    {
+        V8_ARG_TO_BASE_OBJECT(1, entity, IEntity, "Entity");
+        V8_RETURN_BOOLEAN(player->IsEntityInStreamingRange(entity));
+    }
 }
 
 static void SetIntoVehicle(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -679,6 +686,50 @@ static void EmitRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
     alt::ICore::Instance().TriggerClientEvent(player, eventName, mvArgs);
 }
 
+static void HasLocalMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN_MIN(1);
+    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
+
+    V8_ARG_TO_STRING(1, key);
+
+    V8_RETURN(player->HasLocalMetaData(key));
+}
+
+static void SetLocalMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN_MIN(1);
+    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
+
+    V8_ARG_TO_STRING(1, key);
+    V8_ARG_TO_MVALUE(2, value);
+    player->SetLocalMetaData(key, value);
+}
+
+static void GetLocalMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN_MIN(1);
+    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
+
+    V8_ARG_TO_STRING(1, key);
+
+    V8_RETURN_MVALUE(player->GetLocalMetaData(key));
+}
+
+static void DeleteLocalMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN_MIN(1);
+    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
+
+    V8_ARG_TO_STRING(1, key);
+
+    player->DeleteLocalMetaData(key);
+}
+
 extern V8Class v8Entity;
 extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -691,9 +742,14 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
     V8Helpers::SetMethod(isolate, tpl, "emit", &Emit);
     V8Helpers::SetMethod(isolate, tpl, "emitRaw", &EmitRaw);
 
+    V8Helpers::SetMethod(isolate, tpl, "hasLocalMeta", &HasLocalMeta);
+    V8Helpers::SetMethod(isolate, tpl, "setLocalMeta", &SetLocalMeta);
+    V8Helpers::SetMethod(isolate, tpl, "getLocalMeta", &GetLocalMeta);
+    V8Helpers::SetMethod(isolate, tpl, "deleteLocalMeta", &DeleteLocalMeta);
+
     V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetPing>(isolate, tpl, "ping");
-    V8Helpers::SetAccessor<IPlayer, StringView, &IPlayer::GetIP>(isolate, tpl, "ip");
-    V8Helpers::SetAccessor<IPlayer, StringView, &IPlayer::GetName>(isolate, tpl, "name");
+    V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetIP>(isolate, tpl, "ip");
+    V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetName>(isolate, tpl, "name");
     V8Helpers::SetAccessor<IPlayer, Ref<IVehicle>, &IPlayer::GetVehicle>(isolate, tpl, "vehicle");
     V8Helpers::SetAccessor<IPlayer, uint8_t, &IPlayer::GetSeat>(isolate, tpl, "seat");
     V8Helpers::SetAccessor<IPlayer, uint16_t, &IPlayer::GetHealth, &IPlayer::SetHealth>(isolate, tpl, "health");
@@ -713,6 +769,10 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
     V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsSuperJumpEnabled>(isolate, tpl, "isSuperJumpEnabled");
     V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsCrouching>(isolate, tpl, "isCrouching");
     V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsStealthy>(isolate, tpl, "isStealthy");
+    V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsSpawned>(isolate, tpl, "isSpawned");
+
+    V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetCurrentAnimationDict>(isolate, tpl, "currentAnimationDict");
+    V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetCurrentAnimationName>(isolate, tpl, "currentAnimationName");
 
     V8Helpers::SetAccessor<IPlayer, Ref<IEntity>, &IPlayer::GetEntityAimingAt>(isolate, tpl, "entityAimingAt");
     V8Helpers::SetAccessor<IPlayer, Position, &IPlayer::GetEntityAimOffset>(isolate, tpl, "entityAimOffset");
@@ -725,7 +785,7 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
     V8Helpers::SetAccessor(isolate, tpl, "hwidHash", &HwidHashGetter);
     V8Helpers::SetAccessor(isolate, tpl, "hwidExHash", &HwidExHashGetter);
 
-    V8Helpers::SetAccessor<IPlayer, StringView, &IPlayer::GetAuthToken>(isolate, tpl, "authToken");
+    V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetAuthToken>(isolate, tpl, "authToken");
 
     V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsFlashlightActive>(isolate, tpl, "flashlightActive");
 
@@ -734,6 +794,7 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
     V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::GetInvincible, &IPlayer::SetInvincible>(isolate, tpl, "invincible");
 
     V8Helpers::SetMethod(isolate, tpl, "spawn", &Spawn);
+    V8Helpers::SetMethod<IPlayer, &IPlayer::Despawn>(isolate, tpl, "despawn");
     V8Helpers::SetMethod(isolate, tpl, "setDateTime", &SetDateTime);
     V8Helpers::SetMethod(isolate, tpl, "setWeather", &SetWeather);
 

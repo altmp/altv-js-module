@@ -76,7 +76,8 @@
         "format": "cpp",
         "forward_list": "cpp",
         "optional": "cpp",
-        "stop_token": "cpp"
+        "stop_token": "cpp",
+        "*.gen": "cpp"
     },
     "editor.defaultFormatter": "xaver.clang-format",
     "editor.formatOnSave": true

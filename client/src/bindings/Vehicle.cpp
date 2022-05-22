@@ -21,7 +21,7 @@ static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
     std::ostringstream ss;
     ss << "Vehicle{ id: " << std::to_string(vehicle->GetID()) << ", model: " << std::to_string((uint64_t)vehicle->GetModel()) << " }";
 
-    V8_RETURN_STRING(ss.str().c_str());
+    V8_RETURN_STRING(ss.str());
 }
 
 static void HandlingGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -152,6 +152,7 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, [](v8::Local<v8::FunctionTemplate>
     V8Helpers::SetMethod(isolate, tpl, "toggleExtra", ToggleExtra);
     V8Helpers::SetAccessor<IVehicle, uint8_t, &IVehicle::GetLightsIndicator, &IVehicle::SetLightsIndicator>(isolate, tpl, "indicatorLights");
     V8Helpers::SetAccessor<IVehicle, Vector3f, &IVehicle::GetVelocity>(isolate, tpl, "velocity");
+    V8Helpers::SetAccessor<IVehicle, uint8_t, &IVehicle::GetSeatCount>(isolate, tpl, "seatCount");
 
     /*GETTERS BELOW ARE UNIMPLEMENTED
     V8Helpers::SetAccessor(isolate, tpl, "isDestroyed", &IsDestroyedGetter);

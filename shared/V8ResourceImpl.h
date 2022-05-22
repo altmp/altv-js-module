@@ -22,14 +22,13 @@ public:
 
     private:
         V8ResourceImpl* resource;
-        v8::UniquePersistent<v8::Function> function;
+        v8::Global<v8::Function> function;
     };
 
     V8ResourceImpl(v8::Isolate* _isolate, alt::IResource* _resource) : isolate(_isolate), resource(_resource) {}
 
-    ~V8ResourceImpl();
-
     bool Start() override;
+    bool Stop() override;
 
     void OnTick() override;
 
@@ -107,18 +106,18 @@ public:
         std::vector<v8::Local<v8::Value>> args;
         args.push_back(V8Helpers::JSValue(error));
 
-        InvokeEventHandlers(nullptr, GetLocalHandlers("resourceStart"), args);
+        InvokeEventHandlers(nullptr, GetLocalHandlers("resourceStart"), args, true);
     }
 
     void DispatchStopEvent()
     {
         std::vector<v8::Local<v8::Value>> args;
-        InvokeEventHandlers(nullptr, GetLocalHandlers("resourceStop"), args);
+        InvokeEventHandlers(nullptr, GetLocalHandlers("resourceStop"), args, true);
     }
 
-    void DispatchErrorEvent(const std::string& errorMsg, const std::string& file, int32_t line)
+    void DispatchErrorEvent(const std::string& errorMsg, const std::string& file, int32_t line, const std::string& stackTrace)
     {
-        std::vector<v8::Local<v8::Value>> args = { v8::Exception::Error(V8Helpers::JSValue(errorMsg)), V8Helpers::JSValue(file), V8Helpers::JSValue(line) };
+        std::vector<v8::Local<v8::Value>> args = { v8::Exception::Error(V8Helpers::JSValue(errorMsg)), V8Helpers::JSValue(file), V8Helpers::JSValue(line), V8Helpers::JSValue(stackTrace) };
         InvokeEventHandlers(nullptr, GetLocalHandlers("resourceError"), args);
     }
 
@@ -181,8 +180,7 @@ public:
 
     uint32_t CreateTimer(v8::Local<v8::Context> context, v8::Local<v8::Function> callback, uint32_t interval, bool once, V8Helpers::SourceLocation&& location)
     {
-        uint32_t id = nextTimerId++;
-        // Log::Debug << "Create timer " << id << Log::Endl;
+        uint32_t id = ++nextTimerId;
         timers[id] = new V8Timer{ isolate, context, GetTime(), callback, interval, once, std::move(location) };
 
         return id;
@@ -191,6 +189,11 @@ public:
     void RemoveTimer(uint32_t id)
     {
         oldTimers.push_back(id);
+    }
+
+    bool DoesTimerExist(uint32_t id)
+    {
+        return timers.count(id) != 0;
     }
 
     void TimerBenchmark()
@@ -226,6 +229,26 @@ public:
         nextTickCallbacks.push_back(callback);
     }
 
+    v8::Local<v8::Object> GetOrCreateResourceObject(alt::IResource* resource);
+    void DeleteResourceObject(alt::IResource* resource);
+
+    bool HasBenchmarkTimer(const std::string& name)
+    {
+        return benchmarkTimers.count(name) != 0;
+    }
+    void CreateBenchmarkTimer(const std::string& name)
+    {
+        benchmarkTimers.insert({ name, std::chrono::high_resolution_clock::now() });
+    }
+    void RemoveBenchmarkTimer(const std::string& name)
+    {
+        benchmarkTimers.erase(name);
+    }
+    std::chrono::high_resolution_clock::time_point GetBenchmarkTimerStart(const std::string& name)
+    {
+        return benchmarkTimers.at(name);
+    }
+
     static V8ResourceImpl* Get(v8::Local<v8::Context> ctx)
     {
         alt::IResource* resource = GetResource(ctx);
@@ -245,6 +268,8 @@ protected:
 
     std::unordered_map<alt::IBaseObject*, V8Entity*> entities;
     std::unordered_map<uint32_t, V8Timer*> timers;
+    // Key = Name, Value = Start time
+    std::unordered_map<std::string, std::chrono::high_resolution_clock::time_point> benchmarkTimers;
 
     std::unordered_multimap<std::string, V8Helpers::EventCallback> localHandlers;
     std::unordered_multimap<std::string, V8Helpers::EventCallback> remoteHandlers;
@@ -255,15 +280,17 @@ protected:
     std::vector<uint32_t> oldTimers;
 
     bool playerPoolDirty = true;
-    v8::UniquePersistent<v8::Array> players;
+    V8Helpers::CPersistent<v8::Array> players;
 
     bool vehiclePoolDirty = true;
-    v8::UniquePersistent<v8::Array> vehicles;
+    V8Helpers::CPersistent<v8::Array> vehicles;
 
     V8Helpers::CPersistent<v8::Function> vector3Class;
     V8Helpers::CPersistent<v8::Function> vector2Class;
     V8Helpers::CPersistent<v8::Function> rgbaClass;
     V8Helpers::CPersistent<v8::Function> baseObjectClass;
+
+    std::unordered_map<alt::IResource*, V8Helpers::CPersistent<v8::Object>> resourceObjects;
 
     std::vector<NextTickCallback> nextTickCallbacks;
 
@@ -273,5 +300,5 @@ protected:
         return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
     }
 
-    void InvokeEventHandlers(const alt::CEvent* ev, const std::vector<V8Helpers::EventCallback*>& handlers, std::vector<v8::Local<v8::Value>>& args);
+    void InvokeEventHandlers(const alt::CEvent* ev, const std::vector<V8Helpers::EventCallback*>& handlers, std::vector<v8::Local<v8::Value>>& args, bool waitForPromiseResolve = false);
 };

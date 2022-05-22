@@ -8,12 +8,14 @@ void CEventHandler::Emit(const std::string& eventName, const std::vector<V8Helpe
 
 void CEventHandler::Subscribe(const std::string& eventName, v8::Local<v8::Function> callback, bool once)
 {
+    std::scoped_lock lock(handlersLock);
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
     handlers.insert(std::make_pair(eventName, V8Helpers::EventCallback(isolate, callback, V8Helpers::SourceLocation::GetCurrent(isolate), once)));
 }
 
 void CEventHandler::Unsubscribe(const std::string& eventName, v8::Local<v8::Function> callback)
 {
+    std::scoped_lock lock(handlersLock);
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
     auto range = handlers.equal_range(eventName);
     for(auto it = range.first; it != range.second; ++it)
@@ -24,6 +26,7 @@ void CEventHandler::Unsubscribe(const std::string& eventName, v8::Local<v8::Func
 
 void CEventHandler::CleanupHandlers()
 {
+    std::scoped_lock lock(handlersLock);
     // Clear removed event handlers
     for(auto it = handlers.begin(); it != handlers.end();)
     {
@@ -39,12 +42,12 @@ void CEventHandler::Process()
     CleanupHandlers();
 
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
-    auto context = isolate->GetEnteredOrMicrotaskContext();
-    std::scoped_lock lock(queueLock);
+    v8::Local<v8::Context> context = isolate->GetEnteredOrMicrotaskContext();
 
     while(!queue.empty())
     {
         // Get the event at the front of the queue
+        queueLock.lock();
         QueueItem& event = queue.front();
 
         // Create a vector of the event arguments
@@ -60,16 +63,29 @@ void CEventHandler::Process()
             }
             args.push_back(value.ToLocalChecked());
         }
+        handlersLock.lock();
+        auto evHandlers = handlers.equal_range(event.first);
+        queueLock.unlock();
 
         // Call all handlers with the arguments
-        auto evHandlers = handlers.equal_range(event.first);
         for(auto it = evHandlers.first; it != evHandlers.second; it++)
         {
             V8Helpers::CallFunctionWithTimeout(it->second.fn.Get(isolate), context, args);
             if(it->second.once) it->second.removed = true;
         }
+        handlersLock.unlock();
 
         // Pop the event from the queue
+        queueLock.lock();
         queue.pop();
+        queueLock.unlock();
     }
+}
+
+void CEventHandler::Reset()
+{
+    std::scoped_lock lock(queueLock);
+    std::scoped_lock lock2(handlersLock);
+    while(!queue.empty()) queue.pop();
+    handlers.clear();
 }

@@ -1,3 +1,4 @@
+#include "cpp-sdk/version/version.h"
 
 #include "../V8Helpers.h"
 #include "../V8ResourceImpl.h"
@@ -29,7 +30,7 @@ static void On(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_ARG_TO_STRING(1, evName);
         V8_ARG_TO_FUNCTION(2, callback);
 
-        resource->SubscribeLocal(evName.ToString(), callback, V8Helpers::SourceLocation::GetCurrent(isolate));
+        resource->SubscribeLocal(evName, callback, V8Helpers::SourceLocation::GetCurrent(isolate));
     }
 }
 
@@ -49,7 +50,7 @@ static void Once(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_ARG_TO_STRING(1, evName);
         V8_ARG_TO_FUNCTION(2, callback);
 
-        resource->SubscribeLocal(evName.ToString(), callback, V8Helpers::SourceLocation::GetCurrent(isolate), true);
+        resource->SubscribeLocal(evName, callback, V8Helpers::SourceLocation::GetCurrent(isolate), true);
     }
 }
 
@@ -69,7 +70,7 @@ static void Off(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_ARG_TO_STRING(1, evName);
         V8_ARG_TO_FUNCTION(2, callback);
 
-        resource->UnsubscribeLocal(evName.ToString(), callback);
+        resource->UnsubscribeLocal(evName, callback);
     }
 }
 
@@ -236,6 +237,43 @@ static void LogError(const v8::FunctionCallbackInfo<v8::Value>& info)
     alt::ICore::Instance().LogError(ss.str());
 }
 
+static void Time(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN2(0, 1);
+
+    std::string name = "";
+    if(info.Length() != 0)
+    {
+        V8_ARG_TO_STRING(1, timerName);
+        name = timerName;
+    }
+
+    V8_CHECK(!resource->HasBenchmarkTimer(name), "Benchmark timer already exists");
+    resource->CreateBenchmarkTimer(name);
+}
+
+static void TimeEnd(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN2(0, 1);
+
+    std::string name = "";
+    if(info.Length() != 0)
+    {
+        V8_ARG_TO_STRING(1, timerName);
+        name = timerName;
+    }
+
+    V8_CHECK(resource->HasBenchmarkTimer(name), "Benchmark timer not found");
+
+    std::chrono::high_resolution_clock::time_point start = resource->GetBenchmarkTimerStart(name);
+    Log::Info << "Timer " << name << ": " << (float)(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count() / 1000.f) << "ms"
+              << Log::Endl;
+
+    resource->RemoveBenchmarkTimer(name);
+}
+
 static void SetTimeout(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -288,7 +326,10 @@ static void ClearTimer(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_CHECK_ARGS_LEN(1);
 
+    V8_CHECK(!info[0]->IsNullOrUndefined(), "Invalid timer id");
     V8_ARG_TO_INT(1, timer);
+
+    V8_CHECK(resource->DoesTimerExist(timer), "Timer with that id does not exist");
 
     resource->RemoveTimer(timer);
 }
@@ -307,6 +348,8 @@ static void HasResource(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void GetResourceExports(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
+    // Deprecation added: 02/05/2022 (version 9.13)
+    V8_DEPRECATE("alt.getResourceExports", "alt.Resource.exports");
     V8_GET_ISOLATE_CONTEXT();
     V8_CHECK_ARGS_LEN(1);
 
@@ -334,7 +377,7 @@ static void GetEventListeners(const v8::FunctionCallbackInfo<v8::Value>& info)
     else
     {
         V8_ARG_TO_STRING(1, eventName);
-        handlers = std::move(resource->GetLocalHandlers(eventName.ToString()));
+        handlers = std::move(resource->GetLocalHandlers(eventName));
     }
 
     auto array = v8::Array::New(isolate, handlers.size());
@@ -360,7 +403,7 @@ static void GetRemoteEventListeners(const v8::FunctionCallbackInfo<v8::Value>& i
     else
     {
         V8_ARG_TO_STRING(1, eventName);
-        handlers = std::move(resource->GetRemoteHandlers(eventName.ToString()));
+        handlers = std::move(resource->GetRemoteHandlers(eventName));
     }
 
     auto array = v8::Array::New(isolate, handlers.size());
@@ -372,11 +415,40 @@ static void GetRemoteEventListeners(const v8::FunctionCallbackInfo<v8::Value>& i
     V8_RETURN(array);
 }
 
-extern V8Class v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2, v8Vector3, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip;
+static void GetAllResources(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    const std::vector<alt::IResource*> resources = alt::ICore::Instance().GetAllResources();
+    size_t size = resources.size();
+    v8::Local<v8::Array> arr = v8::Array::New(isolate, size);
+    for(size_t i = 0; i < size; i++)
+    {
+        alt::IResource* resource = resources[i];
+        V8_NEW_OBJECT(resourceObj);
+        resourceObj->Set(ctx, V8Helpers::JSValue("name"), V8Helpers::JSValue(resource->GetName()));
+        resourceObj->Set(ctx, V8Helpers::JSValue("type"), V8Helpers::JSValue(resource->GetType()));
+        arr->Set(ctx, i, resourceObj);
+    }
+
+    V8_RETURN(arr);
+}
+
+static void StringToSHA256(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STRING(1, str);
+
+    V8_RETURN_STRING(alt::ICore::Instance().StringToSHA256(str));
+}
+
+extern V8Class v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2, v8Vector3, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Resource, v8Utils;
 
 extern V8Module sharedModule("alt-shared",
                              nullptr,
-                             { v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2, v8Vector3, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip },
+                             { v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2, v8Vector3, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Resource, v8Utils },
                              [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
                                  v8::Isolate* isolate = ctx->GetIsolate();
 
@@ -385,6 +457,8 @@ extern V8Module sharedModule("alt-shared",
                                  V8Helpers::RegisterFunc(exports, "log", &Log);
                                  V8Helpers::RegisterFunc(exports, "logWarning", &LogWarning);
                                  V8Helpers::RegisterFunc(exports, "logError", &LogError);
+                                 V8Helpers::RegisterFunc(exports, "time", &Time);
+                                 V8Helpers::RegisterFunc(exports, "timeEnd", &TimeEnd);
 
                                  V8Helpers::RegisterFunc(exports, "on", &On);
                                  V8Helpers::RegisterFunc(exports, "once", &Once);
@@ -415,10 +489,13 @@ extern V8Module sharedModule("alt-shared",
 
                                  V8Helpers::RegisterFunc(exports, "hasResource", &HasResource);
                                  V8Helpers::RegisterFunc(exports, "getResourceExports", &GetResourceExports);
+                                 V8Helpers::RegisterFunc(exports, "getAllResources", &GetAllResources);
+
+                                 V8Helpers::RegisterFunc(exports, "stringToSHA256", &StringToSHA256);
 
                                  V8_OBJECT_SET_STRING(exports, "version", alt::ICore::Instance().GetVersion());
                                  V8_OBJECT_SET_STRING(exports, "branch", alt::ICore::Instance().GetBranch());
-                                 V8_OBJECT_SET_INT(exports, "sdkVersion", alt::ICore::Instance().SDK_VERSION);
+                                 V8_OBJECT_SET_RAW_STRING(exports, "sdkVersion", ALT_SDK_VERSION);
                                  V8_OBJECT_SET_BOOLEAN(exports, "debug", alt::ICore::Instance().IsDebug());
 
                                  V8_OBJECT_SET_STRING(exports, "resourceName", V8ResourceImpl::GetResource(ctx)->GetName());

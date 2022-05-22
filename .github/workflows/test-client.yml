@@ -3,9 +3,11 @@ on:
   push:
     paths:
       - "client/**"
+      - "shared/**"
   pull_request:
     paths:
       - "client/**"
+      - "shared/**"
 
 env:
   BUILD_TYPE: Release
@@ -16,7 +18,10 @@ jobs:
     runs-on: windows-2019
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
 
     - name: Create LFS file list
       run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
@@ -41,7 +46,7 @@ jobs:
       shell: bash
       run: |
         cd client
-        cmake . -BBUILD
+        cmake . -BBUILD -DDYNAMIC_BUILD=1
 
     - name: Build
       shell: bash

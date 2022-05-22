@@ -93,7 +93,7 @@ inline void ShowNativeArgParseErrorMsg(v8::Isolate* isolate, v8::Local<v8::Value
     Log::Error << source.ToString() << " " << errorMsg.str() << Log::Endl;
     Log::Error << "Check the documentation for the needed arguments of this native." << Log::Endl;
 
-    resource->DispatchErrorEvent(errorMsg.str(), source.GetFileName(), source.GetLineNumber());
+    resource->DispatchErrorEvent(errorMsg.str(), source.GetFileName(), source.GetLineNumber(), "");
 }
 
 inline void ShowNativeArgMismatchErrorMsg(v8::Isolate* isolate, alt::INative* native, int expected, int received)
@@ -108,7 +108,7 @@ inline void ShowNativeArgMismatchErrorMsg(v8::Isolate* isolate, alt::INative* na
     Log::Error << source.ToString() << " " << errorMsg.str() << Log::Endl;
     Log::Error << "Check the documentation for the needed arguments of this native." << Log::Endl;
 
-    resource->DispatchErrorEvent(errorMsg.str(), source.GetFileName(), source.GetLineNumber());
+    resource->DispatchErrorEvent(errorMsg.str(), source.GetFileName(), source.GetLineNumber(), "");
 }
 
 static void
@@ -388,7 +388,7 @@ static void RegisterNatives(v8::Local<v8::Context> ctx, v8::Local<v8::Object> ex
 
     for(auto native : alt::ICore::Instance().GetAllNatives())
     {
-        V8Helpers::SetFunction(isolate, ctx, exports, native->GetName().CStr(), InvokeNative, native);
+        V8Helpers::SetFunction(isolate, ctx, exports, native->GetName().c_str(), InvokeNative, native);
     }
 }
 

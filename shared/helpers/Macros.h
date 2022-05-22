@@ -25,6 +25,12 @@
     V8_GET_ISOLATE_CONTEXT();              \
     V8_GET_IRESOURCE()
 
+#define V8_CHECK_NORETN(a, b)           \
+    if(!(a))                            \
+    {                                   \
+        V8Helpers::Throw(isolate, (b)); \
+    }
+
 #define V8_CHECK_RETN(a, b, c)          \
     if(!(a))                            \
     {                                   \
@@ -88,7 +94,7 @@
     V8_CHECK(V8Helpers::SafeToInt32((v8Val), ctx, val), "Failed to convert value to integer")
 
 #define V8_TO_STRING(v8Val, val) \
-    alt::String val;             \
+    std::string val;             \
     V8_CHECK(V8Helpers::SafeToString((v8Val), isolate, ctx, val), "Failed to convert value to string")
 
 #define V8_TO_OBJECT(v8Val, val) \
@@ -131,12 +137,10 @@
 
 #define V8_OBJECT_SET_BIGUINT(v8Val, prop, val) (v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::BigInt::NewFromUnsigned(isolate, val));
 
-// todo: replace with V8_OBJECT_SET_STD_STRING
 #define V8_OBJECT_SET_STRING(v8Val, prop, val) \
-    if(!val.IsEmpty()) (v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::String::NewFromUtf8(isolate, val.CStr()).ToLocalChecked());
-
-#define V8_OBJECT_SET_STD_STRING(v8Val, prop, val) \
     if(!val.empty()) (v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::String::NewFromUtf8(isolate, val.c_str()).ToLocalChecked());
+
+#define V8_OBJECT_SET_RAW_STRING(v8Val, prop, val) (v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::String::NewFromUtf8(isolate, val).ToLocalChecked());
 
 #define V8_NEW_OBJECT(val) v8::Local<v8::Object> val = v8::Object::New(isolate);
 
@@ -179,7 +183,7 @@
 
 // idx starts with 1
 #define V8_ARG_TO_STRING(idx, val) \
-    alt::String val;               \
+    std::string val;               \
     V8_CHECK(V8Helpers::SafeToString(info[(idx)-1], isolate, ctx, val), "Failed to convert argument " #idx " to string")
 
 // idx starts with 1
@@ -246,14 +250,16 @@
     alt::RGBA val;               \
     V8_CHECK(V8Helpers::SafeToRGBA(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to rgba")
 
+#define V8_GET_DATA(type, val) auto val = static_cast<type*>(info.Data().As<v8::External>()->Value());
+
 #define V8_RETURN(val)            info.GetReturnValue().Set(val)
 #define V8_RETURN_NULL()          info.GetReturnValue().SetNull()
 #define V8_RETURN_BOOLEAN(val)    V8_RETURN(val)
 #define V8_RETURN_INT(val)        V8_RETURN(static_cast<int32_t>(val))
 #define V8_RETURN_UINT(val)       V8_RETURN(static_cast<uint32_t>(val))
 #define V8_RETURN_NUMBER(val)     V8_RETURN(static_cast<double>(val))
-#define V8_RETURN_STRING(val)     V8_RETURN(v8::String::NewFromUtf8(isolate, (val), v8::NewStringType::kNormal).ToLocalChecked())
-#define V8_RETURN_ALT_STRING(val) V8_RETURN(v8::String::NewFromUtf8(isolate, (val).CStr(), v8::NewStringType::kNormal).ToLocalChecked())
+#define V8_RETURN_STRING(val)     V8_RETURN(v8::String::NewFromUtf8(isolate, (val).c_str(), v8::NewStringType::kNormal).ToLocalChecked())
+#define V8_RETURN_RAW_STRING(val) V8_RETURN(v8::String::NewFromUtf8(isolate, (val), v8::NewStringType::kNormal).ToLocalChecked())
 #define V8_RETURN_MVALUE(val)     V8_RETURN(V8Helpers::MValueToV8(val))
 #define V8_RETURN_UINT64(val)     V8_RETURN(v8::BigInt::NewFromUnsigned(isolate, static_cast<uint64_t>(val)))
 #define V8_RETURN_INT64(val)      V8_RETURN(v8::BigInt::New(isolate, static_cast<int64_t>(val)))

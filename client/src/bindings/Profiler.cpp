@@ -1,7 +1,9 @@
 #include "V8Helpers.h"
 #include "V8Class.h"
 #include "../CV8ScriptRuntime.h"
+#include "../CV8Resource.h"
 #include "v8-profiler.h"
+
 #include <chrono>
 #include <vector>
 #include <unordered_map>
@@ -18,8 +20,73 @@ static void GetHeapStatistics(v8::Local<v8::String>, const v8::PropertyCallbackI
     V8_OBJECT_SET_UINT(stats, "usedHeapSize", heapStats.used_heap_size());
     V8_OBJECT_SET_UINT(stats, "mallocedMemory", heapStats.malloced_memory());
     V8_OBJECT_SET_UINT(stats, "peakMallocedMemory", heapStats.peak_malloced_memory());
+    V8_OBJECT_SET_UINT(stats, "nativeContexts", heapStats.number_of_native_contexts());
+    V8_OBJECT_SET_UINT(stats, "detachedContexts", heapStats.number_of_detached_contexts());
+    V8_OBJECT_SET_UINT(stats, "totalGlobalHandleSize", heapStats.total_global_handles_size());
+    V8_OBJECT_SET_UINT(stats, "usedGlobalHandleSize", heapStats.used_global_handles_size());
 
     V8_RETURN(stats);
+}
+
+// A simple wrapper that just executes the callback with the result
+class MeasureMemoryDelegate : public v8::MeasureMemoryDelegate
+{
+public:
+    using Callback = std::function<void(const std::vector<std::pair<v8::Local<v8::Context>, size_t>>&, size_t)>;
+
+    MeasureMemoryDelegate(Callback&& _callback) : callback(_callback){};
+
+    bool ShouldMeasure(v8::Local<v8::Context> context) override
+    {
+        return true;
+    }
+
+    void MeasurementComplete(const std::vector<std::pair<v8::Local<v8::Context>, size_t>>& context_sizes_in_bytes, size_t unattributed_size_in_bytes)
+    {
+        callback(context_sizes_in_bytes, unattributed_size_in_bytes);
+    }
+
+private:
+    Callback callback;
+};
+
+static void GetMemoryProfile(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    static std::list<V8Helpers::CPersistent<v8::Promise::Resolver>> promises;
+    auto& persistent = promises.emplace_back(V8Helpers::CPersistent<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
+
+    std::unique_ptr<MeasureMemoryDelegate> delegate =
+      std::make_unique<MeasureMemoryDelegate>([isolate, persistent](const std::vector<std::pair<v8::Local<v8::Context>, size_t>>& result, size_t externalBytes) {
+          v8::Locker locker(isolate);
+          v8::Isolate::Scope isolateScope(isolate);
+          v8::HandleScope handleScope(isolate);
+
+          v8::Local<v8::Promise::Resolver> resolver = v8::Local<v8::Promise::Resolver>::New(isolate, persistent);
+          v8::Local<v8::Context> ctx = resolver->GetCreationContext().ToLocalChecked();
+          v8::Context::Scope ctxScope(ctx);
+
+          V8_NEW_OBJECT(resultObj);
+          v8::Local<v8::Array> results = v8::Array::New(isolate, result.size());
+          for(size_t i = 0; i < result.size(); i++)
+          {
+              const std::pair<v8::Local<v8::Context>, size_t>& pair = result[i];
+              V8_NEW_OBJECT(obj);
+              V8_OBJECT_SET_STRING(obj, "resource", V8ResourceImpl::Get(pair.first)->GetResource()->GetName());
+              V8_OBJECT_SET_UINT(obj, "size", pair.second);
+              results->Set(ctx, i, obj);
+          }
+          resultObj->Set(ctx, V8Helpers::JSValue("results"), results);
+          resultObj->Set(ctx, V8Helpers::JSValue("externalBytes"), V8Helpers::JSValue((uint32_t)externalBytes));
+
+          resolver->Resolve(ctx, resultObj);
+
+          promises.remove(persistent);
+      });
+    isolate->MeasureMemory(std::move(delegate), v8::MeasureMemoryExecution::kDefault);
+
+    V8_RETURN(persistent.Get(isolate)->GetPromise());
 }
 
 // Key = Node ID, Value = Timestamp
@@ -39,7 +106,7 @@ static void StartProfiling(const v8::FunctionCallbackInfo<v8::Value>& info)
     if(info.Length() == 1)
     {
         V8_ARG_TO_STRING(1, profileName);
-        name = V8Helpers::JSValue(profileName.CStr());
+        name = V8Helpers::JSValue(profileName);
     }
     else
         name = v8::String::Empty(isolate);
@@ -65,7 +132,7 @@ static void StopProfiling(const v8::FunctionCallbackInfo<v8::Value>& info)
     if(info.Length() == 1)
     {
         V8_ARG_TO_STRING(1, profileName);
-        name = V8Helpers::JSValue(profileName.CStr());
+        name = V8Helpers::JSValue(profileName);
     }
     else
         name = v8::String::Empty(isolate);
@@ -85,7 +152,7 @@ static void StopProfiling(const v8::FunctionCallbackInfo<v8::Value>& info)
     // Set top level info about the profile
     V8_NEW_OBJECT(resultObj);
     V8_OBJECT_SET_INT(resultObj, "id", std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count());
-    V8_OBJECT_SET_STRING(resultObj, "type", alt::String("cpu"));
+    V8_OBJECT_SET_RAW_STRING(resultObj, "type", "cpu");
     V8_OBJECT_SET_INT(resultObj, "start", result->GetStartTime() / 1000);
     V8_OBJECT_SET_INT(resultObj, "end", result->GetEndTime() / 1000);
     V8_OBJECT_SET_INT(resultObj, "samples", result->GetSamplesCount());
@@ -132,6 +199,8 @@ extern V8Class v8Profiler("Profiler", [](v8::Local<v8::FunctionTemplate> tpl) {
 
     V8Helpers::SetStaticMethod(isolate, tpl, "startProfiling", StartProfiling);
     V8Helpers::SetStaticMethod(isolate, tpl, "stopProfiling", StopProfiling);
+
+    V8Helpers::SetStaticMethod(isolate, tpl, "getMemoryProfile", GetMemoryProfile);
 });
 
 // *** CPU Profile Serialization

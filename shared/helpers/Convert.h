@@ -10,7 +10,7 @@ namespace V8Helpers
     bool SafeToBoolean(v8::Local<v8::Value> val, v8::Isolate* isolate, bool& out);
     bool SafeToInteger(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, int64_t& out);
     bool SafeToNumber(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, double& out);
-    bool SafeToString(v8::Local<v8::Value> val, v8::Isolate* isolate, v8::Local<v8::Context> ctx, alt::String& out);
+    bool SafeToString(v8::Local<v8::Value> val, v8::Isolate* isolate, v8::Local<v8::Context> ctx, std::string& out);
     bool SafeToFunction(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::Function>& out);
     bool SafeToObject(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::Object>& out);
     bool SafeToRGBA(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, alt::RGBA& out);
@@ -47,14 +47,6 @@ namespace V8Helpers
     inline v8::Local<v8::String> JSValue(const std::string& val)
     {
         return v8::String::NewFromUtf8(v8::Isolate::GetCurrent(), val.c_str(), v8::NewStringType::kNormal, (int)val.size()).ToLocalChecked();
-    }
-    inline v8::Local<v8::String> JSValue(alt::String val)
-    {
-        return v8::String::NewFromUtf8(v8::Isolate::GetCurrent(), val.GetData(), v8::NewStringType::kNormal, (int)val.GetSize()).ToLocalChecked();
-    }
-    inline v8::Local<v8::String> JSValue(alt::StringView val)
-    {
-        return v8::String::NewFromUtf8(v8::Isolate::GetCurrent(), val.GetData(), v8::NewStringType::kNormal, (int)val.GetSize()).ToLocalChecked();
     }
     inline v8::Local<v8::String> JSValue(const uint16_t* val)
     {
@@ -111,6 +103,14 @@ namespace V8Helpers
     }
 
     // Converts a JS value to a C++ value
+    inline std::string CppValue(v8::Local<v8::Name> val)
+    {
+        return *v8::String::Utf8Value(v8::Isolate::GetCurrent(), val);
+    }
+    inline std::string CppValue(v8::Local<v8::Symbol> val)
+    {
+        return *v8::String::Utf8Value(v8::Isolate::GetCurrent(), val);
+    }
     inline std::string CppValue(v8::Local<v8::String> val)
     {
         return *v8::String::Utf8Value(v8::Isolate::GetCurrent(), val);
@@ -139,5 +139,7 @@ namespace V8Helpers
     {
         return val->Value();
     }
+
+    v8::Local<v8::Value> ConfigNodeToV8(alt::config::Node& node, v8::Local<v8::Value> parent = v8::Local<v8::Value>());
 
 }  // namespace V8Helpers

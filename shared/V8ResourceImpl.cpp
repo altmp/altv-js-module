@@ -1,25 +1,21 @@
 
 #include "cpp-sdk/objects/IPlayer.h"
 #include "cpp-sdk/objects/IVehicle.h"
+#include "cpp-sdk/events/CPlayerBeforeConnectEvent.h"
 
 #include "V8ResourceImpl.h"
 
 #ifdef ALT_SERVER_API
     #include "CNodeResourceImpl.h"
+    #include "CNodeScriptRuntime.h"
     #include "node.h"
 #endif
 
+#ifdef ALT_CLIENT_API
+    #include "CV8ScriptRuntime.h"
+#endif
+
 using namespace alt;
-
-V8ResourceImpl::~V8ResourceImpl()
-{
-    for(auto& [obj, ent] : entities)
-    {
-        delete ent;
-    }
-
-    entities.clear();
-}
 
 extern V8Class v8Vector3, v8Vector2, v8RGBA, v8BaseObject;
 bool V8ResourceImpl::Start()
@@ -28,6 +24,41 @@ bool V8ResourceImpl::Start()
     vector2Class.Reset(isolate, v8Vector2.JSValue(isolate, GetContext()));
     rgbaClass.Reset(isolate, v8RGBA.JSValue(isolate, GetContext()));
     baseObjectClass.Reset(isolate, v8BaseObject.JSValue(isolate, GetContext()));
+
+    return true;
+}
+
+bool V8ResourceImpl::Stop()
+{
+    for(auto pair : timers)
+    {
+        delete pair.second;
+    }
+    timers.clear();
+    for(auto ent : entities)
+    {
+        delete ent.second;
+    }
+    entities.clear();
+    oldTimers.clear();
+    resourceObjects.clear();
+    nextTickCallbacks.clear();
+    benchmarkTimers.clear();
+    resourceObjects.clear();
+
+    localHandlers.clear();
+    remoteHandlers.clear();
+    localGenericHandlers.clear();
+    remoteGenericHandlers.clear();
+
+    players.Reset();
+    vehicles.Reset();
+    vector3Class.Reset();
+    vector2Class.Reset();
+    rgbaClass.Reset();
+    baseObjectClass.Reset();
+
+    context.Reset();
 
     return true;
 }
@@ -77,14 +108,14 @@ void V8ResourceImpl::OnTick()
             ++it;
     }
 
-    for(auto it = localGenericHandlers.begin(); it != localGenericHandlers.end(); it++)
+    for(auto it = localGenericHandlers.begin(); it != localGenericHandlers.end();)
     {
         if(it->removed) it = localGenericHandlers.erase(it);
         else
             ++it;
     }
 
-    for(auto it = remoteGenericHandlers.begin(); it != remoteGenericHandlers.end(); it++)
+    for(auto it = remoteGenericHandlers.begin(); it != remoteGenericHandlers.end();)
     {
         if(it->removed) it = remoteGenericHandlers.erase(it);
         else
@@ -276,7 +307,27 @@ std::vector<V8Helpers::EventCallback*> V8ResourceImpl::GetGenericHandlers(bool l
     return handlers;
 }
 
-void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vector<V8Helpers::EventCallback*>& handlers, std::vector<v8::Local<v8::Value>>& args)
+extern V8Class v8Resource;
+v8::Local<v8::Object> V8ResourceImpl::GetOrCreateResourceObject(alt::IResource* resource)
+{
+    // If already created return instance
+    if(resourceObjects.count(resource) != 0) return resourceObjects.at(resource).Get(isolate);
+    // Create instance
+    v8::Local<v8::Object> obj = v8Resource.CreateInstance(GetContext());
+    obj->SetInternalField(0, v8::External::New(isolate, resource));
+    resourceObjects.insert({ resource, V8Helpers::CPersistent<v8::Object>(isolate, obj) });
+    return obj;
+}
+
+void V8ResourceImpl::DeleteResourceObject(alt::IResource* resource)
+{
+    if(resourceObjects.count(resource) == 0) return;
+    v8::Local<v8::Object> obj = resourceObjects.at(resource).Get(isolate);
+    obj->SetInternalField(0, v8::External::New(isolate, nullptr));
+    resourceObjects.erase(resource);
+}
+
+void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vector<V8Helpers::EventCallback*>& handlers, std::vector<v8::Local<v8::Value>>& args, bool waitForPromiseResolve)
 {
     for(auto handler : handlers)
     {
@@ -289,14 +340,49 @@ void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vecto
 
             v8::Local<v8::Value> returnValue = retn.ToLocalChecked();
             if(ev && returnValue->IsFalse()) ev->Cancel();
+            else if(ev && ev->GetType() == alt::CEvent::Type::PLAYER_BEFORE_CONNECT && returnValue->IsString())
+                static_cast<alt::CPlayerBeforeConnectEvent*>(const_cast<alt::CEvent*>(ev))->Cancel(*v8::String::Utf8Value(isolate, returnValue));
             // todo: add this once a generic Cancel() with string as arg has been added to the sdk
             // else if(ev && returnValue->IsString())
             //    ev->Cancel(*v8::String::Utf8Value(isolate, returnValue));
 
+            // Wait until the returned promise has been resolved, by continously forcing the event loop to run,
+            // until the promise is resolved.
+            if(waitForPromiseResolve && returnValue->IsPromise())
+            {
+                v8::Local<v8::Promise> promise = returnValue.As<v8::Promise>();
+                while(true)
+                {
+                    v8::Promise::PromiseState state = promise->State();
+                    if(state == v8::Promise::PromiseState::kPending)
+                    {
+#ifdef ALT_CLIENT_API
+                        CV8ScriptRuntime::Instance().OnTick();
+#endif
+#ifdef ALT_SERVER_API
+                        CNodeScriptRuntime::Instance().OnTick();
+#endif
+                        // Run event loop
+                        OnTick();
+                    }
+                    else if(state == v8::Promise::PromiseState::kFulfilled)
+                    {
+                        v8::Local<v8::Value> value = promise->Result();
+                        if(value->IsFalse()) ev->Cancel();
+                        break;
+                    }
+                    else if(state == v8::Promise::PromiseState::kRejected)
+                    {
+                        // todo: we should probably do something with the rejection here
+                        break;
+                    }
+                }
+            }
+
             return true;
         });
 
-        if(GetTime() - time > 5)
+        if(GetTime() - time > 5 && !waitForPromiseResolve)
         {
             if(handler->location.GetLineNumber() != 0)
                 Log::Warning << "Event handler at " << resource->GetName() << ":" << handler->location.GetFileName() << ":" << handler->location.GetLineNumber() << " was too long "
@@ -311,6 +397,11 @@ void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vecto
 
 alt::MValue V8ResourceImpl::FunctionImpl::Call(alt::MValueArgs args) const
 {
+    if(!resource->GetResource()->IsStarted())
+    {
+        Log::Error << "Tried to call function on resource " << resource->GetResource()->GetName() << " while the resource is stopped" << Log::Endl;
+        return alt::ICore::Instance().CreateMValueNone();
+    }
     v8::Isolate* isolate = resource->GetIsolate();
 
     v8::Locker locker(isolate);
