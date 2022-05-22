@@ -257,7 +257,6 @@ bool CV8ResourceImpl::Stop()
     webSocketClientHandlers.clear();
     audioHandlers.clear();
     rmlHandlers.clear();
-    webViewsEventsQueue.clear();
     localStorage.Reset();
     syntheticModuleExports.clear();
     promiseRejections.ClearQueue();
@@ -334,14 +333,6 @@ bool CV8ResourceImpl::OnEvent(const alt::CEvent* e)
         {
             CV8ScriptRuntime& runtime = CV8ScriptRuntime::Instance();
             runtime.resourcesLoaded = false;
-        }
-    }
-
-    {
-        if(e->GetType() == alt::CEvent::Type::WEB_VIEW_EVENT)
-        {
-            auto ev = static_cast<const alt::CWebViewEvent*>(e);
-            if(ev->GetName() == "load") HandleWebViewEventQueue(ev->GetTarget());
         }
     }
 
@@ -523,20 +514,4 @@ v8::MaybeLocal<v8::Value> CV8ResourceImpl::GetSyntheticModuleExport(v8::Local<v8
     auto result = syntheticModuleExports.find(syntheticModule->GetIdentityHash());
     if(result != syntheticModuleExports.end()) return result->second.Get(isolate);
     return v8::MaybeLocal<v8::Value>();
-}
-
-void CV8ResourceImpl::HandleWebViewEventQueue(alt::Ref<alt::IWebView> view)
-{
-    auto& eventQueuesMap = GetWebviewsEventQueue();
-    if(!eventQueuesMap.count(view)) return;
-
-    auto& eventQueue = eventQueuesMap.at(view);
-    if(eventQueue.empty()) return;
-
-    for(auto& [evName, mvArgs] : eventQueue)
-    {
-        view->Trigger(evName, mvArgs);
-    }
-
-    eventQueuesMap.erase(view);
 }
