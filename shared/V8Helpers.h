@@ -119,13 +119,24 @@ namespace V8Helpers
         std::vector<V8Helpers::EventCallback*> GetCallbacks(V8ResourceImpl* impl, const alt::CEvent* e);
         std::vector<v8::Local<v8::Value>> GetArgs(V8ResourceImpl* impl, const alt::CEvent* e);
 
-        static EventHandler* Get(const alt::CEvent* e);
+        alt::CEvent::Type GetType()
+        {
+            return type;
+        }
 
-    private:
+        static EventHandler* Get(const alt::CEvent* e);
+        static alt::CEvent::Type GetTypeForEventName(const std::string& event);
+
+    protected:
         alt::CEvent::Type type;
         CallbacksGetter callbacksGetter;
         ArgsGetter argsGetter;
 
+        static std::unordered_map<std::string, EventHandler*>& eventNameToHandlerMap()
+        {
+            static std::unordered_map<std::string, EventHandler*> map;
+            return map;
+        }
         static std::unordered_map<alt::CEvent::Type, EventHandler*>& all()
         {
             static std::unordered_map<alt::CEvent::Type, EventHandler*> _all;
@@ -138,7 +149,10 @@ namespace V8Helpers
     class LocalEventHandler : public EventHandler
     {
     public:
-        LocalEventHandler(alt::CEvent::Type type, const std::string& name, ArgsGetter&& argsGetter) : EventHandler(type, std::move(GetCallbacksGetter(name)), std::move(argsGetter)) {}
+        LocalEventHandler(alt::CEvent::Type type, const std::string& name, ArgsGetter&& argsGetter) : EventHandler(type, std::move(GetCallbacksGetter(name)), std::move(argsGetter))
+        {
+            eventNameToHandlerMap().insert({ name, this });
+        }
 
     private:
         static CallbacksGetter GetCallbacksGetter(const std::string& name);

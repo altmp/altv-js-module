@@ -329,6 +329,15 @@ V8Helpers::EventHandler* V8Helpers::EventHandler::Get(const alt::CEvent* e)
     return (it != _all.end()) ? it->second : nullptr;
 }
 
+alt::CEvent::Type V8Helpers::EventHandler::GetTypeForEventName(const std::string& event)
+{
+    // Shitty temp workaround
+    if(event == "keyup" || event == "keydown") return alt::CEvent::Type::KEYBOARD_EVENT;
+    auto result = eventNameToHandlerMap().find(event);
+    if(result == eventNameToHandlerMap().end()) return alt::CEvent::Type::NONE;
+    return result->second->GetType();
+}
+
 void V8Helpers::EventHandler::Register(alt::CEvent::Type type, EventHandler* handler)
 {
     auto& _all = all();
