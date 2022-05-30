@@ -10,6 +10,8 @@
 #include "V8Entity.h"
 #include "V8Timer.h"
 
+#include "IRuntimeEventHandler.h"
+
 class V8ResourceImpl : public alt::IResource::Impl
 {
 public:
