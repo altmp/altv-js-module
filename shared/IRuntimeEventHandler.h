@@ -50,10 +50,10 @@ public:
             alt::ICore::Instance().ToggleEvent(type, true);
         }
     }
-    void EventHandlerRemoved(alt::CEvent::Type type, size_t count = 1)
+    void EventHandlerRemoved(alt::CEvent::Type type)
     {
         if(IsNeededEvent(type)) return;
-        if(eventHandlersCount[type] -= count == 0)
+        if(--eventHandlersCount[type] == 0)
         {
             // If there are no more handlers for this event, we don't need it anymore
             alt::ICore::Instance().ToggleEvent(type, false);
