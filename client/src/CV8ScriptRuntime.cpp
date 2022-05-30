@@ -207,6 +207,8 @@ CV8ScriptRuntime::CV8ScriptRuntime()
     RegisterEvents();
 
     ProcessConfigOptions();
+
+    IRuntimeEventHandler::Init();
 }
 
 void CV8ScriptRuntime::ProcessConfigOptions()

@@ -6,7 +6,9 @@
 #include "V8Helpers.h"
 #include "CNodeResourceImpl.h"
 
-class CNodeScriptRuntime : public alt::IScriptRuntime
+#include "IRuntimeEventHandler.h"
+
+class CNodeScriptRuntime : public alt::IScriptRuntime, public IRuntimeEventHandler
 {
     v8::Isolate* isolate;
     std::unique_ptr<node::MultiIsolatePlatform> platform;

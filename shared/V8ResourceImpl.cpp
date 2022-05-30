@@ -30,6 +30,14 @@ bool V8ResourceImpl::Start()
 
 bool V8ResourceImpl::Stop()
 {
+    {
+        for(auto& handler : localHandlers)
+        {
+            alt::CEvent::Type type = V8Helpers::EventHandler::GetTypeForEventName(handler.first);
+            if(type != alt::CEvent::Type::NONE) IRuntimeEventHandler::Instance().EventHandlerRemoved(type);
+        }
+    }
+
     for(auto pair : timers)
     {
         delete pair.second;
