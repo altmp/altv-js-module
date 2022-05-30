@@ -5,7 +5,11 @@
 
 class IRuntimeEventHandler
 {
-    static IRuntimeEventHandler* _instance;
+    static IRuntimeEventHandler*& _instance()
+    {
+        static IRuntimeEventHandler* instance = nullptr;
+        return instance;
+    }
 
     using EventType = alt::CEvent::Type;
     // All events the module uses, which need to be enabled and never disabled
@@ -18,7 +22,7 @@ class IRuntimeEventHandler
 
     static void SetInstance(IRuntimeEventHandler* handler)
     {
-        _instance = handler;
+        _instance() = handler;
     }
 
 public:
@@ -58,6 +62,6 @@ public:
 
     static IRuntimeEventHandler& Instance()
     {
-        return *_instance;
+        return *_instance();
     }
 };
