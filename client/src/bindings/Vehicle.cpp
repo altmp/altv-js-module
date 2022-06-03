@@ -154,6 +154,7 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, [](v8::Local<v8::FunctionTemplate>
     V8Helpers::SetAccessor<IVehicle, Vector3f, &IVehicle::GetVelocity>(isolate, tpl, "velocity");
     V8Helpers::SetAccessor<IVehicle, uint8_t, &IVehicle::GetSeatCount>(isolate, tpl, "seatCount");
     V8Helpers::SetAccessor<IVehicle, uint8_t, &IVehicle::GetLockState>(isolate, tpl, "lockState");
+    V8Helpers::SetAccessor<IVehicle, int32_t, &IVehicle::GetPetrolTankHealth>(isolate, tpl, "petrolTankHealth");
 
     /*GETTERS BELOW ARE UNIMPLEMENTED
     V8Helpers::SetAccessor(isolate, tpl, "isDestroyed", &IsDestroyedGetter);
