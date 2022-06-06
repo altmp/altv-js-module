@@ -129,9 +129,19 @@ else()
 endif()
 
 if(ALTV_JS_DEINIT_CPPSDK)
-  add_custom_command(TARGET ${PROJECT_NAME}-static
-    PRE_BUILD
-    COMMAND cmd /C "tools\\deinit-cppsdk.bat"
-    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-  )
+  if(CMAKE_HOST_WIN32)
+      add_custom_command(TARGET ${PROJECT_NAME}-static
+        PRE_BUILD
+        COMMAND cmd /C "tools\\deinit-cppsdk.bat"
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+      )
+  else()
+      if(EXISTS "../shared/deps/cpp-sdk/SDK.h")
+          add_custom_command(TARGET ${PROJECT_NAME}-static
+            PRE_BUILD
+            COMMAND "git submodule deinit -f ../shared/deps/cpp-sdk"
+            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+          )
+      endif()
+  endif()
 endif()
