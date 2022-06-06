@@ -82,8 +82,8 @@ void V8ResourceImpl::OnTick()
 
     for(auto& p : timers)
     {
+        if(std::find(oldTimers.begin(), oldTimers.end(), p.first) != oldTimers.end()) continue;
         int64_t time = GetTime();
-
         if(!p.second->Update(time)) RemoveTimer(p.first);
 
         if(GetTime() - time > 10)
