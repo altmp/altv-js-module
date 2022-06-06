@@ -93,6 +93,10 @@
     int32_t val;                \
     V8_CHECK(V8Helpers::SafeToInt32((v8Val), ctx, val), "Failed to convert value to integer")
 
+#define V8_TO_UINT(v8Val, val) \
+    uint32_t val;              \
+    V8_CHECK(V8Helpers::SafeToUInt32((v8Val), ctx, val), "Failed to convert value to uint")
+
 #define V8_TO_STRING(v8Val, val) \
     std::string val;             \
     V8_CHECK(V8Helpers::SafeToString((v8Val), isolate, ctx, val), "Failed to convert value to string")

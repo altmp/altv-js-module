@@ -1010,7 +1010,7 @@ static void SetMinimapIsRectangle(const v8::FunctionCallbackInfo<v8::Value>& inf
 
 extern V8Module sharedModule;
 extern V8Class v8Player, v8Player, v8Vehicle, v8WebView, v8HandlingData, v8LocalStorage, v8MemoryBuffer, v8MapZoomData, v8Discord, v8Voice, v8WebSocketClient, v8Checkpoint, v8HttpClient,
-  v8Audio, v8LocalPlayer, v8Profiler, v8Worker, v8RmlDocument, v8RmlElement;
+  v8Audio, v8LocalPlayer, v8Profiler, v8Worker, v8RmlDocument, v8RmlElement, v8WeaponData;
 extern V8Module altModule("alt",
                           &sharedModule,
                           { v8Player,
@@ -1030,7 +1030,8 @@ extern V8Module altModule("alt",
                             v8Profiler,
                             v8Worker,
                             v8RmlDocument,
-                            v8RmlElement },
+                            v8RmlElement,
+                            v8WeaponData },
                           [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
                               v8::Isolate* isolate = ctx->GetIsolate();
 
