@@ -28,7 +28,11 @@ class IRuntimeEventHandler
 public:
     constexpr static bool IsNeededEvent(alt::CEvent::Type type)
     {
-        return std::find(internalEvents.begin(), internalEvents.end(), type) == internalEvents.end();
+        for(alt::CEvent::Type evType : internalEvents)
+        {
+            if(evType == type) return true;
+        }
+        return false;
     }
 
     void Init()
