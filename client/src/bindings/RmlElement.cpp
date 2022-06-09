@@ -322,7 +322,7 @@ static void StyleDeleterHandler(v8::Local<v8::Name> property, const v8::Property
     V8_TO_STRING(property, name);
     V8_RETURN_BOOLEAN(element->RemoveProperty(name));
 }
-static void StyleGetter(v8::Local<v8::Name>, const v8::PropertyCallbackInfo<v8::Value>& info)
+static void StyleGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
@@ -570,7 +570,7 @@ extern V8Class v8RmlElement("RmlElement", v8BaseObject, nullptr, [](v8::Local<v8
 
     V8Helpers::SetMethod(isolate, tpl, "isPointWithinElement", &IsPointWithinElement);
 
-    V8Helpers::SetLazyAccessor(isolate, tpl, "style", &StyleGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "style", &StyleGetter);
     V8Helpers::SetMethod(isolate, tpl, "setProperty", &SetProperty);
     V8Helpers::SetMethod(isolate, tpl, "removeProperty", &RemoveProperty);
     V8Helpers::SetMethod(isolate, tpl, "hasProperty", &HasProperty);
