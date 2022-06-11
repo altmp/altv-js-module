@@ -178,6 +178,15 @@ std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
         }
     }
 
+    alt::config::Node extraCliArgs = moduleConfig["extra-cli-args"];
+    if(extraCliArgs.IsList())
+    {
+        for(auto argument : extraCliArgs.ToList())
+        {
+            args.push_back(argument.ToString());
+        }
+    }
+
     return args;
 }
 
