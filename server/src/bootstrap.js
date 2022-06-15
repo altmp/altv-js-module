@@ -58,11 +58,15 @@ function setupImports() {
     });
   });
 
+  const _warningPackages = {
+    "node-fetch": "Console hangs"
+  };
   esmLoader.addCustomLoaders({
       resolve(specifier, context, defaultResolve) {
         if (alt.hasResource(specifier)) return {
             url: `alt:${specifier}`
         };
+        if(_warningPackages.hasOwnProperty(specifier)) alt.logWarning(`Using the module "${specifier}" can cause problems. Reason: ${_warningPackages[specifier]}`);
         return defaultResolve(specifier, context, defaultResolve);
       },
       load(url, context, defaultLoad) {
