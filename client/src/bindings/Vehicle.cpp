@@ -129,6 +129,120 @@ static void IndicatorLightsSetter(v8::Local<v8::String>, v8::Local<v8::Value> va
     vehicle->SetLightsIndicator(indicatorLights);
 }
 
+static void GetWheelCamber(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
+    V8_CHECK_ARGS_LEN(1);
+    V8_ARG_TO_INT(1, wheel);
+    V8_RETURN_NUMBER(vehicle->GetWheelCamber((uint8_t) wheel));
+}
+
+static void SetWheelCamber(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
+    V8_CHECK_ARGS_LEN(2);
+    V8_ARG_TO_INT(1, wheel);
+    V8_ARG_TO_NUMBER(2, value);
+    vehicle->SetWheelCamber((uint8_t) wheel, (float) value);
+}
+
+static void GetWheelTrackWidth(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
+    V8_CHECK_ARGS_LEN(1);
+    V8_ARG_TO_INT(1, wheel);
+    V8_RETURN_NUMBER(vehicle->GetWheelTrackWidth((uint8_t) wheel));
+}
+
+static void SetWheelTrackWidth(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
+    V8_CHECK_ARGS_LEN(2);
+    V8_ARG_TO_INT(1, wheel);
+    V8_ARG_TO_NUMBER(2, value);
+    vehicle->SetWheelTrackWidth((uint8_t) wheel, (float) value);
+}
+
+static void GetWheelHeight(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
+    V8_CHECK_ARGS_LEN(1);
+    V8_ARG_TO_INT(1, wheel);
+    V8_RETURN_NUMBER(vehicle->GetWheelHeight((uint8_t) wheel));
+}
+
+static void SetWheelHeight(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
+    V8_CHECK_ARGS_LEN(2);
+    V8_ARG_TO_INT(1, wheel);
+    V8_ARG_TO_NUMBER(2, value);
+    vehicle->SetWheelHeight((uint8_t) wheel, (float) value);
+}
+
+static void GetWheelTyreRadius(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
+    V8_CHECK_ARGS_LEN(1);
+    V8_ARG_TO_INT(1, wheel);
+    V8_RETURN_NUMBER(vehicle->GetWheelTyreRadius((uint8_t) wheel));
+}
+
+static void SetWheelTyreRadius(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
+    V8_CHECK_ARGS_LEN(2);
+    V8_ARG_TO_INT(1, wheel);
+    V8_ARG_TO_NUMBER(2, value);
+    vehicle->SetWheelTyreRadius((uint8_t) wheel, (float) value);
+}
+
+static void GetWheelRimRadius(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
+    V8_CHECK_ARGS_LEN(1);
+    V8_ARG_TO_INT(1, wheel);
+    V8_RETURN_NUMBER(vehicle->GetWheelRimRadius((uint8_t) wheel));
+}
+
+static void SetWheelRimRadius(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
+    V8_CHECK_ARGS_LEN(2);
+    V8_ARG_TO_INT(1, wheel);
+    V8_ARG_TO_NUMBER(2, value);
+    vehicle->SetWheelRimRadius((uint8_t) wheel, (float) value);
+}
+
+static void GetWheelTyreWidth(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
+    V8_CHECK_ARGS_LEN(1);
+    V8_ARG_TO_INT(1, wheel);
+    V8_RETURN_NUMBER(vehicle->GetWheelTyreWidth((uint8_t) wheel));
+}
+
+static void SetWheelTyreWidth(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
+    V8_CHECK_ARGS_LEN(2);
+    V8_ARG_TO_INT(1, wheel);
+    V8_ARG_TO_NUMBER(2, value);
+    vehicle->SetWheelTyreWidth((uint8_t) wheel, (float) value);
+}
+
 extern V8Class v8Entity;
 extern V8Class v8Vehicle("Vehicle", v8Entity, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -155,6 +269,19 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, [](v8::Local<v8::FunctionTemplate>
     V8Helpers::SetAccessor<IVehicle, uint8_t, &IVehicle::GetSeatCount>(isolate, tpl, "seatCount");
     V8Helpers::SetAccessor<IVehicle, uint8_t, &IVehicle::GetLockState>(isolate, tpl, "lockState");
     V8Helpers::SetAccessor<IVehicle, int32_t, &IVehicle::GetPetrolTankHealth>(isolate, tpl, "petrolTankHealth");
+
+    V8Helpers::SetMethod(isolate, tpl, "getWheelCamber", GetWheelCamber);
+    V8Helpers::SetMethod(isolate, tpl, "setWheelCamber", SetWheelCamber);
+    V8Helpers::SetMethod(isolate, tpl, "getWheelTrackWidth", GetWheelTrackWidth);
+    V8Helpers::SetMethod(isolate, tpl, "setWheelTrackWidth", SetWheelTrackWidth);
+    V8Helpers::SetMethod(isolate, tpl, "getWheelHeight", GetWheelHeight);
+    V8Helpers::SetMethod(isolate, tpl, "setWheelHeight", SetWheelHeight);
+    V8Helpers::SetMethod(isolate, tpl, "getWheelTyreRadius", GetWheelTyreRadius);
+    V8Helpers::SetMethod(isolate, tpl, "setWheelTyreRadius", SetWheelTyreRadius);
+    V8Helpers::SetMethod(isolate, tpl, "getWheelRimRadius", GetWheelRimRadius);
+    V8Helpers::SetMethod(isolate, tpl, "setWheelRimRadius", SetWheelRimRadius);
+    V8Helpers::SetMethod(isolate, tpl, "getWheelTyreWidth", GetWheelTyreWidth);
+    V8Helpers::SetMethod(isolate, tpl, "setWheelTyreWidth", SetWheelTyreWidth);
 
     /*GETTERS BELOW ARE UNIMPLEMENTED
     V8Helpers::SetAccessor(isolate, tpl, "isDestroyed", &IsDestroyedGetter);
