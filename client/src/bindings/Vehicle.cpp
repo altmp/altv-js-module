@@ -135,7 +135,7 @@ static void GetWheelCamber(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
     V8_CHECK_ARGS_LEN(1);
     V8_ARG_TO_INT(1, wheel);
-    V8_RETURN_NUMBER(vehicle->GetWheelCamber((uint8_t) wheel));
+    V8_RETURN_NUMBER(vehicle->GetWheelCamber(wheel));
 }
 
 static void SetWheelCamber(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -145,7 +145,7 @@ static void SetWheelCamber(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(2);
     V8_ARG_TO_INT(1, wheel);
     V8_ARG_TO_NUMBER(2, value);
-    vehicle->SetWheelCamber((uint8_t) wheel, (float) value);
+    vehicle->SetWheelCamber(wheel, value);
 }
 
 static void GetWheelTrackWidth(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -154,7 +154,7 @@ static void GetWheelTrackWidth(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
     V8_CHECK_ARGS_LEN(1);
     V8_ARG_TO_INT(1, wheel);
-    V8_RETURN_NUMBER(vehicle->GetWheelTrackWidth((uint8_t) wheel));
+    V8_RETURN_NUMBER(vehicle->GetWheelTrackWidth(wheel));
 }
 
 static void SetWheelTrackWidth(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -164,7 +164,7 @@ static void SetWheelTrackWidth(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(2);
     V8_ARG_TO_INT(1, wheel);
     V8_ARG_TO_NUMBER(2, value);
-    vehicle->SetWheelTrackWidth((uint8_t) wheel, (float) value);
+    vehicle->SetWheelTrackWidth(wheel, value);
 }
 
 static void GetWheelHeight(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -173,7 +173,7 @@ static void GetWheelHeight(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
     V8_CHECK_ARGS_LEN(1);
     V8_ARG_TO_INT(1, wheel);
-    V8_RETURN_NUMBER(vehicle->GetWheelHeight((uint8_t) wheel));
+    V8_RETURN_NUMBER(vehicle->GetWheelHeight(wheel));
 }
 
 static void SetWheelHeight(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -183,7 +183,7 @@ static void SetWheelHeight(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(2);
     V8_ARG_TO_INT(1, wheel);
     V8_ARG_TO_NUMBER(2, value);
-    vehicle->SetWheelHeight((uint8_t) wheel, (float) value);
+    vehicle->SetWheelHeight(wheel, value);
 }
 
 static void GetWheelTyreRadius(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -192,7 +192,7 @@ static void GetWheelTyreRadius(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
     V8_CHECK_ARGS_LEN(1);
     V8_ARG_TO_INT(1, wheel);
-    V8_RETURN_NUMBER(vehicle->GetWheelTyreRadius((uint8_t) wheel));
+    V8_RETURN_NUMBER(vehicle->GetWheelTyreRadius(wheel));
 }
 
 static void SetWheelTyreRadius(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -202,7 +202,7 @@ static void SetWheelTyreRadius(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(2);
     V8_ARG_TO_INT(1, wheel);
     V8_ARG_TO_NUMBER(2, value);
-    vehicle->SetWheelTyreRadius((uint8_t) wheel, (float) value);
+    vehicle->SetWheelTyreRadius(wheel, value);
 }
 
 static void GetWheelRimRadius(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -211,7 +211,7 @@ static void GetWheelRimRadius(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
     V8_CHECK_ARGS_LEN(1);
     V8_ARG_TO_INT(1, wheel);
-    V8_RETURN_NUMBER(vehicle->GetWheelRimRadius((uint8_t) wheel));
+    V8_RETURN_NUMBER(vehicle->GetWheelRimRadius(wheel));
 }
 
 static void SetWheelRimRadius(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -221,7 +221,7 @@ static void SetWheelRimRadius(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(2);
     V8_ARG_TO_INT(1, wheel);
     V8_ARG_TO_NUMBER(2, value);
-    vehicle->SetWheelRimRadius((uint8_t) wheel, (float) value);
+    vehicle->SetWheelRimRadius(wheel, value);
 }
 
 static void GetWheelTyreWidth(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -230,7 +230,7 @@ static void GetWheelTyreWidth(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
     V8_CHECK_ARGS_LEN(1);
     V8_ARG_TO_INT(1, wheel);
-    V8_RETURN_NUMBER(vehicle->GetWheelTyreWidth((uint8_t) wheel));
+    V8_RETURN_NUMBER(vehicle->GetWheelTyreWidth(wheel));
 }
 
 static void SetWheelTyreWidth(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -240,7 +240,7 @@ static void SetWheelTyreWidth(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(2);
     V8_ARG_TO_INT(1, wheel);
     V8_ARG_TO_NUMBER(2, value);
-    vehicle->SetWheelTyreWidth((uint8_t) wheel, (float) value);
+    vehicle->SetWheelTyreWidth(wheel, value);
 }
 
 extern V8Class v8Entity;
