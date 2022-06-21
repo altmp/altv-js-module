@@ -2,21 +2,23 @@
 #include <string>
 #include <vector>
 
+// clang-format off
 static std::string utilsBindings =
 #include "bindings/Utils.js.gen"
-  ;
+;
 
 static std::string vector3Bindings =
 #include "bindings/Vector3.js.gen"
-  ;
+;
 
 static std::string vector2Bindings =
 #include "bindings/Vector2.js.gen"
-  ;
+;
 
 static std::string rgbaBindings =
 #include "bindings/RGBA.js.gen"
-  ;
+;
+// clang-format on
 
 namespace JSBindings
 {
