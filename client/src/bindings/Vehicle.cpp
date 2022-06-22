@@ -283,6 +283,11 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, [](v8::Local<v8::FunctionTemplate>
     V8Helpers::SetMethod(isolate, tpl, "getWheelTyreWidth", GetWheelTyreWidth);
     V8Helpers::SetMethod(isolate, tpl, "setWheelTyreWidth", SetWheelTyreWidth);
 
+    V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetEngineTemperature, &IVehicle::SetEngineTemperature>(isolate, tpl, "engineTemperature");
+    V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetFuelLevel, &IVehicle::SetFuelLevel>(isolate, tpl, "fuelLevel");
+    V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetOilLevel, &IVehicle::SetOilLevel>(isolate, tpl, "oilLevel");
+
+
     /*GETTERS BELOW ARE UNIMPLEMENTED
     V8Helpers::SetAccessor(isolate, tpl, "isDestroyed", &IsDestroyedGetter);
     V8Helpers::SetAccessor(isolate, tpl, "driver", &DriverGetter);
