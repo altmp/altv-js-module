@@ -86,7 +86,7 @@ void V8ResourceImpl::OnTick()
         int64_t time = GetTime();
         if(!p.second->Update(time)) RemoveTimer(p.first);
 
-        if(GetTime() - time > 10)
+        if(GetTime() - time > 50)
         {
             auto& location = p.second->GetLocation();
 
@@ -390,7 +390,7 @@ void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vecto
             return true;
         });
 
-        if(GetTime() - time > 5 && !waitForPromiseResolve)
+        if(GetTime() - time > 50 && !waitForPromiseResolve)
         {
             if(handler->location.GetLineNumber() != 0)
                 Log::Warning << "Event handler at " << resource->GetName() << ":" << handler->location.GetFileName() << ":" << handler->location.GetLineNumber() << " was too long "
