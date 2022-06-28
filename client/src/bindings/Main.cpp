@@ -673,17 +673,21 @@ static void TakeScreenshot(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     auto& persistent = promises.emplace_back(v8::Global<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
 
-    alt::PermissionState state = alt::ICore::Instance().TakeScreenshot([&persistent, resource](const std::string& base64) {
-        resource->RunOnNextTick([&persistent, resource, base64Str = base64]() {
-            if(!resource->GetResource()->IsStarted())
+    alt::PermissionState state = alt::ICore::Instance().TakeScreenshot(
+      [&persistent, resource](const std::string& base64)
+      {
+          resource->RunOnNextTick(
+            [&persistent, resource, base64Str = base64]()
             {
+                if(!resource->GetResource()->IsStarted())
+                {
+                    promises.remove(persistent);
+                    return;
+                }
+                persistent.Get(resource->GetIsolate())->Resolve(resource->GetContext(), V8Helpers::JSValue(base64Str));
                 promises.remove(persistent);
-                return;
-            }
-            persistent.Get(resource->GetIsolate())->Resolve(resource->GetContext(), V8Helpers::JSValue(base64Str));
-            promises.remove(persistent);
-        });
-    });
+            });
+      });
     V8_CHECK(state != alt::PermissionState::Denied, "No permissions");
     V8_CHECK(state != alt::PermissionState::Unspecified, "Permissions not specified");
 
@@ -697,17 +701,21 @@ static void TakeScreenshotGameOnly(const v8::FunctionCallbackInfo<v8::Value>& in
 
     auto& persistent = promises.emplace_back(v8::Global<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
 
-    alt::PermissionState state = alt::ICore::Instance().TakeScreenshotGameOnly([&persistent, resource](const std::string& base64) {
-        resource->RunOnNextTick([&persistent, resource, base64Str = base64]() {
-            if(!resource->GetResource()->IsStarted())
+    alt::PermissionState state = alt::ICore::Instance().TakeScreenshotGameOnly(
+      [&persistent, resource](const std::string& base64)
+      {
+          resource->RunOnNextTick(
+            [&persistent, resource, base64Str = base64]()
             {
+                if(!resource->GetResource()->IsStarted())
+                {
+                    promises.remove(persistent);
+                    return;
+                }
+                persistent.Get(resource->GetIsolate())->Resolve(resource->GetContext(), V8Helpers::JSValue(base64Str));
                 promises.remove(persistent);
-                return;
-            }
-            persistent.Get(resource->GetIsolate())->Resolve(resource->GetContext(), V8Helpers::JSValue(base64Str));
-            promises.remove(persistent);
-        });
-    });
+            });
+      });
     V8_CHECK(state != alt::PermissionState::Denied, "No permissions");
     V8_CHECK(state != alt::PermissionState::Unspecified, "Permissions not specified");
 
@@ -1008,6 +1016,11 @@ static void SetMinimapIsRectangle(const v8::FunctionCallbackInfo<v8::Value>& inf
     alt::ICore::Instance().SetMinimapIsRectangle(isRectangle);
 }
 
+static void LoadDefaultIpls(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    alt::ICore::Instance().LoadDefaultIpls();
+}
+
 extern V8Module sharedModule;
 extern V8Class v8Player, v8Player, v8Vehicle, v8WebView, v8HandlingData, v8LocalStorage, v8MemoryBuffer, v8MapZoomData, v8Discord, v8Voice, v8WebSocketClient, v8Checkpoint, v8HttpClient,
   v8Audio, v8LocalPlayer, v8Profiler, v8Worker, v8RmlDocument, v8RmlElement, v8WeaponData, v8FocusData;
@@ -1015,7 +1028,8 @@ extern V8Module altModule("alt",
                           &sharedModule,
                           { v8Player,     v8Vehicle,    v8WebView, v8HandlingData, v8LocalStorage, v8MemoryBuffer, v8MapZoomData, v8Discord,    v8Voice,      v8WebSocketClient,
                             v8Checkpoint, v8HttpClient, v8Audio,   v8LocalPlayer,  v8Profiler,     v8Worker,       v8RmlDocument, v8RmlElement, v8WeaponData, v8FocusData },
-                          [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
+                          [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports)
+                          {
                               v8::Isolate* isolate = ctx->GetIsolate();
 
                               V8Helpers::RegisterFunc(exports, "onServer", &OnServer);
@@ -1130,6 +1144,8 @@ extern V8Module altModule("alt",
 
                               V8Helpers::RegisterFunc(exports, "setMinimapComponentPosition", &SetMinimapComponentPosition);
                               V8Helpers::RegisterFunc(exports, "setMinimapIsRectangle", &SetMinimapIsRectangle);
+
+                              V8Helpers::RegisterFunc(exports, "loadDefaultIpls", &LoadDefaultIpls);
 
                               V8_OBJECT_SET_BOOLEAN(exports, "isWorker", false);
                           });
