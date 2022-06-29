@@ -786,6 +786,7 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
     V8Helpers::SetAccessor(isolate, tpl, "hwidExHash", &HwidExHashGetter);
 
     V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetAuthToken>(isolate, tpl, "authToken");
+    V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetDiscordId>(isolate, tpl, "discordID");
 
     V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsFlashlightActive>(isolate, tpl, "flashlightActive");
 
