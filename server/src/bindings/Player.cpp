@@ -770,6 +770,9 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
     V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsCrouching>(isolate, tpl, "isCrouching");
     V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsStealthy>(isolate, tpl, "isStealthy");
     V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsSpawned>(isolate, tpl, "isSpawned");
+    V8Helpers::SetAccessor<IPlayer, float, &IPlayer::GetForwardSpeed>(isolate, tpl, "forwardSpeed");
+    V8Helpers::SetAccessor<IPlayer, float, &IPlayer::GetStrafeSpeed>(isolate, tpl, "strafeSpeed");
+
 
     V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetCurrentAnimationDict>(isolate, tpl, "currentAnimationDict");
     V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetCurrentAnimationName>(isolate, tpl, "currentAnimationName");
