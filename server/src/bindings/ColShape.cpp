@@ -11,9 +11,17 @@ static void IsEntityIn(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
     V8_CHECK_ARGS_LEN(1);
     V8_GET_THIS_BASE_OBJECT(_this, IColShape);
-    V8_ARG_TO_BASE_OBJECT(1, ent, IEntity, "Entity");
 
-    V8_RETURN_BOOLEAN(_this->IsEntityIn(ent));
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, entity);
+        V8_RETURN_BOOLEAN(_this->IsEntityIdIn(entity));
+    }
+    else
+    {
+        V8_ARG_TO_BASE_OBJECT(1, entity, IEntity, "Entity");
+        V8_RETURN_BOOLEAN(_this->IsEntityIn(entity));
+    }
 }
 
 static void IsPointIn(const v8::FunctionCallbackInfo<v8::Value>& info)
