@@ -144,6 +144,7 @@ static void SetTrainLinkedToForwardId(const v8::FunctionCallbackInfo<v8::Value>&
 static void SetSearchLight(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
     V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
 
     V8_ARG_TO_BASE_OBJECT(1, spottedEntity, IEntity, "Entity");
@@ -155,6 +156,7 @@ static void SetSearchLight(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void SetTimedExplosion(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(3);
     V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
 
     V8_ARG_TO_BOOLEAN(1, state);
