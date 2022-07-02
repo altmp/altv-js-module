@@ -831,6 +831,8 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
 
     V8Helpers::SetMethod(isolate, tpl, "playAmbientSpeech", &PlayAmbientSpeech);
 
+    V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetInteriorLocation>(isolate, tpl, "currentInterior");
+
     // Appearance getter & setter
     V8Helpers::SetMethod(isolate, tpl, "setHeadOverlay", &SetHeadOverlay);
     V8Helpers::SetMethod(isolate, tpl, "removeHeadOverlay", &RemoveHeadOverlay);
