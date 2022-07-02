@@ -289,23 +289,40 @@ static void HeadshotDamageModifierSetter(v8::Local<v8::String>, v8::Local<v8::Va
     weaponData->SetHeadshotDamageModifier(value);
 }
 
-extern V8Class v8WeaponData("WeaponData", Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
-    v8::Isolate* isolate = v8::Isolate::GetCurrent();
-    tpl->InstanceTemplate()->SetInternalFieldCount(1);
+static void GetForHash(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_ARG_TO_UINT(1, hash);
 
-    V8Helpers::SetAccessor(isolate, tpl, "modelHash", &ModelHashGetter);
-    V8Helpers::SetAccessor(isolate, tpl, "nameHash", &NameHashGetter);
-    V8Helpers::SetAccessor(isolate, tpl, "recoilShakeAmplitude", &RecoilShakeAmplitudeGetter, &RecoilShakeAmplitudeSetter);
-    V8Helpers::SetAccessor(isolate, tpl, "recoilAccuracyMax", &RecoilAccuracyMaxGetter, &RecoilAccuracyMaxSetter);
-    V8Helpers::SetAccessor(isolate, tpl, "recoilAccuracyToAllowHeadshotPlayer", &RecoilAccuracyToAllowHeadshotPlayerGetter, &RecoilAccuracyToAllowHeadshotPlayerSetter);
-    V8Helpers::SetAccessor(isolate, tpl, "recoilRecoveryRate", &RecoilRecoveryRateGetter, &RecoilRecoveryRateSetter);
-    V8Helpers::SetAccessor(isolate, tpl, "animReloadRate", &AnimReloadRateGetter, &AnimReloadRateSetter);
-    V8Helpers::SetAccessor(isolate, tpl, "vehicleReloadTime", &VehicleReloadRateGetter, &VehicleReloadTimeSetter);
-    V8Helpers::SetAccessor(isolate, tpl, "lockOnRange", &LockOnRangeGetter, &LockOnRangeSetter);
-    V8Helpers::SetAccessor(isolate, tpl, "accuracySpread", &AccuracySpreadGetter, &AccuracySpreadSetter);
-    V8Helpers::SetAccessor(isolate, tpl, "range", &RangeGetter, &RangeSetter);
-    V8Helpers::SetAccessor(isolate, tpl, "damage", &DamageGetter, &DamageSetter);
-    V8Helpers::SetAccessor(isolate, tpl, "clipSize", &ClipSizeGetter);
-    V8Helpers::SetAccessor(isolate, tpl, "timeBetweenShots", &TimeBetweenShotsGetter);
-    V8Helpers::SetAccessor(isolate, tpl, "headshotDamageModifier", &HeadshotDamageModifierGetter, &HeadshotDamageModifierSetter);
-});
+    std::vector<v8::Local<v8::Value>> args{ V8Helpers::JSValue(hash) };
+    extern V8Class v8WeaponData;
+    V8_RETURN(v8WeaponData.New(isolate->GetEnteredOrMicrotaskContext(), args));
+}
+
+extern V8Class v8WeaponData("WeaponData",
+                            Constructor,
+                            [](v8::Local<v8::FunctionTemplate> tpl)
+                            {
+                                v8::Isolate* isolate = v8::Isolate::GetCurrent();
+                                tpl->InstanceTemplate()->SetInternalFieldCount(1);
+
+                                V8Helpers::SetStaticMethod(isolate, tpl, "getForHash", &GetForHash);
+
+                                V8Helpers::SetAccessor(isolate, tpl, "modelHash", &ModelHashGetter);
+                                V8Helpers::SetAccessor(isolate, tpl, "nameHash", &NameHashGetter);
+                                V8Helpers::SetAccessor(isolate, tpl, "recoilShakeAmplitude", &RecoilShakeAmplitudeGetter, &RecoilShakeAmplitudeSetter);
+                                V8Helpers::SetAccessor(isolate, tpl, "recoilAccuracyMax", &RecoilAccuracyMaxGetter, &RecoilAccuracyMaxSetter);
+                                V8Helpers::SetAccessor(
+                                  isolate, tpl, "recoilAccuracyToAllowHeadshotPlayer", &RecoilAccuracyToAllowHeadshotPlayerGetter, &RecoilAccuracyToAllowHeadshotPlayerSetter);
+                                V8Helpers::SetAccessor(isolate, tpl, "recoilRecoveryRate", &RecoilRecoveryRateGetter, &RecoilRecoveryRateSetter);
+                                V8Helpers::SetAccessor(isolate, tpl, "animReloadRate", &AnimReloadRateGetter, &AnimReloadRateSetter);
+                                V8Helpers::SetAccessor(isolate, tpl, "vehicleReloadTime", &VehicleReloadRateGetter, &VehicleReloadTimeSetter);
+                                V8Helpers::SetAccessor(isolate, tpl, "lockOnRange", &LockOnRangeGetter, &LockOnRangeSetter);
+                                V8Helpers::SetAccessor(isolate, tpl, "accuracySpread", &AccuracySpreadGetter, &AccuracySpreadSetter);
+                                V8Helpers::SetAccessor(isolate, tpl, "range", &RangeGetter, &RangeSetter);
+                                V8Helpers::SetAccessor(isolate, tpl, "damage", &DamageGetter, &DamageSetter);
+                                V8Helpers::SetAccessor(isolate, tpl, "clipSize", &ClipSizeGetter);
+                                V8Helpers::SetAccessor(isolate, tpl, "timeBetweenShots", &TimeBetweenShotsGetter);
+                                V8Helpers::SetAccessor(isolate, tpl, "headshotDamageModifier", &HeadshotDamageModifierGetter, &HeadshotDamageModifierSetter);
+                            });
