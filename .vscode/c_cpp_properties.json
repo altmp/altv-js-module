@@ -1,7 +1,7 @@
 {
     "configurations": [
         {
-            "name": "Win32 Static",
+            "name": "Win32",
             "defines": [
                 "_DEBUG",
                 "UNICODE",
@@ -18,7 +18,31 @@
             "configurationProvider": "ms-vscode.cmake-tools",
             "includePath": [
                 "client/src",
-                "client/deps/v8/include",
+                "server/src",
+                "server/deps",
+                "server/deps/nodejs/include",
+                "server/deps/nodejs/deps/v8/include",
+                "server/deps/nodejs/deps/uv/include",
+                "shared/",
+                "shared/deps"
+            ]
+        },
+        {
+            "name": "Linux",
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "ALT_CLIENT_API",
+                "ALT_CLIENT",
+                "ALT_SERVER_API",
+                "ALT_SERVER",
+                "JS_MODULE_VERSION"
+            ],
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-gcc-x64",
+            "includePath": [
+                "client/src",
                 "server/src",
                 "server/deps",
                 "server/deps/nodejs/include",

@@ -8,6 +8,7 @@ static void IsStartedGetter(v8::Local<v8::String>, const v8::PropertyCallbackInf
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, resource, alt::IResource);
+    V8_CHECK(resource, "Invalid resource");
     V8_RETURN(resource->IsStarted());
 }
 
@@ -15,6 +16,7 @@ static void TypeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8:
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, resource, alt::IResource);
+    V8_CHECK(resource, "Invalid resource");
     V8_RETURN_STRING(resource->GetType());
 }
 
@@ -22,6 +24,7 @@ static void NameGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8:
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, resource, alt::IResource);
+    V8_CHECK(resource, "Invalid resource");
     V8_RETURN_STRING(resource->GetName());
 }
 
@@ -29,6 +32,7 @@ static void MainGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8:
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, resource, alt::IResource);
+    V8_CHECK(resource, "Invalid resource");
     V8_RETURN_STRING(resource->GetMain());
 }
 
@@ -36,6 +40,7 @@ static void ExportsGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, resource, alt::IResource);
+    V8_CHECK(resource, "Invalid resource");
     V8_RETURN(V8Helpers::MValueToV8(resource->GetExports()));
 }
 
@@ -43,6 +48,7 @@ static void DependenciesGetter(v8::Local<v8::String>, const v8::PropertyCallback
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, resource, alt::IResource);
+    V8_CHECK(resource, "Invalid resource");
 
     const alt::Array<std::string> deps = resource->GetDependencies();
     v8::Local<v8::Array> dependencies = v8::Array::New(isolate, deps.GetSize());
@@ -57,6 +63,7 @@ static void DependantsGetter(v8::Local<v8::String>, const v8::PropertyCallbackIn
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, resource, alt::IResource);
+    V8_CHECK(resource, "Invalid resource");
 
     const alt::Array<std::string> deps = resource->GetDependants();
     v8::Local<v8::Array> dependants = v8::Array::New(isolate, deps.GetSize());
@@ -71,6 +78,7 @@ static void RequiredPermissionsGetter(v8::Local<v8::String>, const v8::PropertyC
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, resource, alt::IResource);
+    V8_CHECK(resource, "Invalid resource");
 
     const alt::Array<alt::Permission> perms = resource->GetRequiredPermissions();
     v8::Local<v8::Array> permissions = v8::Array::New(isolate, perms.GetSize());
@@ -85,6 +93,7 @@ static void OptionalPermissionsGetter(v8::Local<v8::String>, const v8::PropertyC
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, resource, alt::IResource);
+    V8_CHECK(resource, "Invalid resource");
 
     const alt::Array<alt::Permission> perms = resource->GetOptionalPermissions();
     v8::Local<v8::Array> permissions = v8::Array::New(isolate, perms.GetSize());
@@ -100,6 +109,7 @@ static void PathGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8:
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, resource, alt::IResource);
+    V8_CHECK(resource, "Invalid resource");
     V8_RETURN_STRING(resource->GetPath());
 }
 
@@ -107,6 +117,7 @@ static void ConfigGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, resource, alt::IResource);
+    V8_CHECK(resource, "Invalid resource");
 
     auto config = resource->GetConfig();
     v8::Local<v8::Value> val = V8Helpers::ConfigNodeToV8(config);

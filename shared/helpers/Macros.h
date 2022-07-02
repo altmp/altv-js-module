@@ -49,26 +49,39 @@
     }
 
 // idx starts with 1
-#define V8_GET_THIS_INTERNAL_FIELD_OBJECT(idx, val) auto val = info.This()->GetInternalField((idx)-1)->ToObject(isolate->GetEnteredOrMicrotaskContext()).ToLocalChecked();
+#define V8_GET_THIS_INTERNAL_FIELD_OBJECT(idx, val)                                                                         \
+    V8_CHECK(info.This()->InternalFieldCount() > idx - 1, "Invalid internal field count (is the 'this' context correct?)"); \
+    auto val = info.This()->GetInternalField((idx)-1)->ToObject(isolate->GetEnteredOrMicrotaskContext()).ToLocalChecked();
 
 // idx starts with 1
-#define V8_GET_THIS_INTERNAL_FIELD_V8ENTITY(idx, val) auto val = V8Entity::Get(info.This()->GetInternalField((idx)-1)->ToObject(isolate->GetEnteredOrMicrotaskContext()).ToLocalChecked());
+#define V8_GET_THIS_INTERNAL_FIELD_V8ENTITY(idx, val)                                                                       \
+    V8_CHECK(info.This()->InternalFieldCount() > idx - 1, "Invalid internal field count (is the 'this' context correct?)"); \
+    auto val = V8Entity::Get(info.This()->GetInternalField((idx)-1)->ToObject(isolate->GetEnteredOrMicrotaskContext()).ToLocalChecked());
 
 // idx starts with 1
-#define V8_GET_THIS_INTERNAL_FIELD_ENTITY(idx, val, type) \
+#define V8_GET_THIS_INTERNAL_FIELD_ENTITY(idx, val, type)                                                                   \
+    V8_CHECK(info.This()->InternalFieldCount() > idx - 1, "Invalid internal field count (is the 'this' context correct?)"); \
     auto val = V8Entity::Get(info.This()->GetInternalField((idx)-1)->ToObject(isolate->GetEnteredOrMicrotaskContext()).ToLocalChecked())->GetHandle().As<type>();
 
 // idx starts with 1
-#define V8_GET_THIS_INTERNAL_FIELD_INTEGER(idx, val) auto val = info.This()->GetInternalField((idx)-1)->IntegerValue(ctx).ToChecked();
+#define V8_GET_THIS_INTERNAL_FIELD_INTEGER(idx, val)                                                                        \
+    V8_CHECK(info.This()->InternalFieldCount() > idx - 1, "Invalid internal field count (is the 'this' context correct?)"); \
+    auto val = info.This()->GetInternalField((idx)-1)->IntegerValue(ctx).ToChecked();
 
 // idx starts with 1
-#define V8_GET_THIS_INTERNAL_FIELD_UINT32(idx, val) auto val = info.This()->GetInternalField((idx)-1)->Uint32Value(ctx).ToChecked();
+#define V8_GET_THIS_INTERNAL_FIELD_UINT32(idx, val)                                                                         \
+    V8_CHECK(info.This()->InternalFieldCount() > idx - 1, "Invalid internal field count (is the 'this' context correct?)"); \
+    auto val = info.This()->GetInternalField((idx)-1)->Uint32Value(ctx).ToChecked();
 
 // idx starts with 1
-#define V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(idx, val, type) auto val = static_cast<type*>(info.This()->GetInternalField((idx)-1).As<v8::External>()->Value());
+#define V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(idx, val, type)                                                                 \
+    V8_CHECK(info.This()->InternalFieldCount() > idx - 1, "Invalid internal field count (is the 'this' context correct?)"); \
+    auto val = static_cast<type*>(info.This()->GetInternalField((idx)-1).As<v8::External>()->Value());
 
 // idx starts with 1
-#define V8_GET_THIS_INTERNAL_FIELD_PTR(idx, val, type) auto val = static_cast<type*>(info.This()->GetAlignedPointerFromInternalField((idx)-1));
+#define V8_GET_THIS_INTERNAL_FIELD_PTR(idx, val, type)                                                                      \
+    V8_CHECK(info.This()->InternalFieldCount() > idx - 1, "Invalid internal field count (is the 'this' context correct?)"); \
+    auto val = static_cast<type*>(info.This()->GetAlignedPointerFromInternalField((idx)-1));
 
 #define V8_CHECK_CONSTRUCTOR() V8_CHECK(info.IsConstructCall(), "function can't be called without new")
 
@@ -92,6 +105,10 @@
 #define V8_TO_INT32(v8Val, val) \
     int32_t val;                \
     V8_CHECK(V8Helpers::SafeToInt32((v8Val), ctx, val), "Failed to convert value to integer")
+
+#define V8_TO_UINT(v8Val, val) \
+    uint32_t val;              \
+    V8_CHECK(V8Helpers::SafeToUInt32((v8Val), ctx, val), "Failed to convert value to uint")
 
 #define V8_TO_STRING(v8Val, val) \
     std::string val;             \

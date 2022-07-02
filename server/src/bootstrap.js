@@ -4,10 +4,21 @@ const { translators } = require("internal/modules/esm/translators");
 const { ModuleWrap } = internalRequire("internal/test/binding").internalBinding("module_wrap");
 const path = require("path");
 const alt = process._linkedBinding("alt");
+const dns = require('dns');
 
 (async () => {
   const resource = alt.Resource.current;
   let _exports = null;
+
+  // We need this handler so that NodeJS doesn't
+  // crash the process on oncaught exceptions
+  process.on("uncaughtException", (err) => {
+    alt.logError(`Uncaught exception: ${err.stack ? `${err.stack}` : `${err.message}`}`);
+  });
+
+  // Allows users to use "localhost" address instead of 127.0.0.1 for tcp connections (e.g. database)
+  // https://github.com/nodejs/node/issues/40702#issuecomment-958157082
+  dns.setDefaultResultOrder('ipv4first');
 
   try {
     setupImports();
@@ -18,12 +29,15 @@ const alt = process._linkedBinding("alt");
     // Get the path to the main file for this resource, and load it
     const _path = path.resolve(resource.path, resource.main);
     _exports = await esmLoader.import(`file://${_path}`, "", {});
+    /* No one used this and only caused problems for people using that function name,
+       so let's just remove it for now and see if anyone complains
     if ("start" in _exports) {
       const start = _exports.start;
       if (typeof start === "function") {
         await start();
       }
     }
+    */
   } catch (e) {
     console.error(e);
   }
@@ -47,11 +61,15 @@ function setupImports() {
     });
   });
 
+  const _warningPackages = {
+    "node-fetch": "Console hangs"
+  };
   esmLoader.addCustomLoaders({
       resolve(specifier, context, defaultResolve) {
         if (alt.hasResource(specifier)) return {
             url: `alt:${specifier}`
         };
+        if(_warningPackages.hasOwnProperty(specifier)) alt.logWarning(`Using the module "${specifier}" can cause problems. Reason: ${_warningPackages[specifier]}`);
         return defaultResolve(specifier, context, defaultResolve);
       },
       load(url, context, defaultLoad) {

@@ -10,6 +10,8 @@
 #include "V8Entity.h"
 #include "V8Timer.h"
 
+#include "IRuntimeEventHandler.h"
+
 class V8ResourceImpl : public alt::IResource::Impl
 {
 public:
@@ -22,7 +24,7 @@ public:
 
     private:
         V8ResourceImpl* resource;
-        v8::UniquePersistent<v8::Function> function;
+        v8::Global<v8::Function> function;
     };
 
     V8ResourceImpl(v8::Isolate* _isolate, alt::IResource* _resource) : isolate(_isolate), resource(_resource) {}
@@ -47,6 +49,8 @@ public:
 
     void SubscribeLocal(const std::string& ev, v8::Local<v8::Function> cb, V8Helpers::SourceLocation&& location, bool once = false)
     {
+        alt::CEvent::Type type = V8Helpers::EventHandler::GetTypeForEventName(ev);
+        if(type != alt::CEvent::Type::NONE) IRuntimeEventHandler::Instance().EventHandlerAdded(type);
         localHandlers.insert({ ev, V8Helpers::EventCallback{ isolate, cb, std::move(location), once } });
     }
 
@@ -73,6 +77,8 @@ public:
         {
             if(it->second.fn.Get(isolate)->StrictEquals(cb)) it->second.removed = true;
         }
+        alt::CEvent::Type type = V8Helpers::EventHandler::GetTypeForEventName(ev);
+        if(type != alt::CEvent::Type::NONE) IRuntimeEventHandler::Instance().EventHandlerRemoved(type);
     }
 
     void UnsubscribeRemote(const std::string& ev, v8::Local<v8::Function> cb)
@@ -230,6 +236,7 @@ public:
     }
 
     v8::Local<v8::Object> GetOrCreateResourceObject(alt::IResource* resource);
+    void DeleteResourceObject(alt::IResource* resource);
 
     bool HasBenchmarkTimer(const std::string& name)
     {

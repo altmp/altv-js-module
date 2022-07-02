@@ -156,11 +156,6 @@ public:
     void AddWorker(CWorker* worker);
     void RemoveWorker(CWorker* worker);
 
-    void AddWebViewEventToQueue(const alt::Ref<alt::IWebView> view, const std::string& evName, const alt::MValueArgs& mvArgs)
-    {
-        webViewsEventsQueue[view].push_back(std::make_pair(evName, mvArgs));
-    }
-
     bool IsBytecodeResource()
     {
         return isUsingBytecode;
@@ -178,19 +173,11 @@ private:
     friend class CV8ScriptRuntime;
 
     using EventHandlerMap = std::unordered_multimap<std::string, V8Helpers::EventCallback>;
-    using WebViewsEventsQueue = std::unordered_map<alt::Ref<alt::IWebView>, std::vector<std::pair<std::string, alt::MValueArgs>>>;
 
     std::unordered_map<alt::Ref<alt::IWebView>, EventHandlerMap> webViewHandlers;
     std::unordered_map<alt::Ref<alt::IWebSocketClient>, EventHandlerMap> webSocketClientHandlers;
     std::unordered_map<alt::Ref<alt::IAudio>, EventHandlerMap> audioHandlers;
     std::unordered_map<alt::Ref<alt::IRmlElement>, EventHandlerMap> rmlHandlers;
-
-    WebViewsEventsQueue webViewsEventsQueue;
-    WebViewsEventsQueue& GetWebviewsEventQueue()
-    {
-        return webViewsEventsQueue;
-    }
-    void HandleWebViewEventQueue(alt::Ref<alt::IWebView> view);
 
     std::unordered_set<alt::Ref<alt::IBaseObject>> ownedObjects;
 

@@ -30,6 +30,14 @@ bool V8ResourceImpl::Start()
 
 bool V8ResourceImpl::Stop()
 {
+    {
+        for(auto& handler : localHandlers)
+        {
+            alt::CEvent::Type type = V8Helpers::EventHandler::GetTypeForEventName(handler.first);
+            if(type != alt::CEvent::Type::NONE) IRuntimeEventHandler::Instance().EventHandlerRemoved(type);
+        }
+    }
+
     for(auto pair : timers)
     {
         delete pair.second;
@@ -74,11 +82,11 @@ void V8ResourceImpl::OnTick()
 
     for(auto& p : timers)
     {
+        if(std::find(oldTimers.begin(), oldTimers.end(), p.first) != oldTimers.end()) continue;
         int64_t time = GetTime();
-
         if(!p.second->Update(time)) RemoveTimer(p.first);
 
-        if(GetTime() - time > 10)
+        if(GetTime() - time > 50)
         {
             auto& location = p.second->GetLocation();
 
@@ -319,6 +327,14 @@ v8::Local<v8::Object> V8ResourceImpl::GetOrCreateResourceObject(alt::IResource* 
     return obj;
 }
 
+void V8ResourceImpl::DeleteResourceObject(alt::IResource* resource)
+{
+    if(resourceObjects.count(resource) == 0) return;
+    v8::Local<v8::Object> obj = resourceObjects.at(resource).Get(isolate);
+    obj->SetInternalField(0, v8::External::New(isolate, nullptr));
+    resourceObjects.erase(resource);
+}
+
 void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vector<V8Helpers::EventCallback*>& handlers, std::vector<v8::Local<v8::Value>>& args, bool waitForPromiseResolve)
 {
     for(auto handler : handlers)
@@ -374,7 +390,7 @@ void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vecto
             return true;
         });
 
-        if(GetTime() - time > 5 && !waitForPromiseResolve)
+        if(GetTime() - time > 50 && !waitForPromiseResolve)
         {
             if(handler->location.GetLineNumber() != 0)
                 Log::Warning << "Event handler at " << resource->GetName() << ":" << handler->location.GetFileName() << ":" << handler->location.GetLineNumber() << " was too long "

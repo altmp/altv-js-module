@@ -559,5 +559,5 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 extern V8Class v8Vector2("Vector2", Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    tpl->InstanceTemplate()->SetInternalFieldCount(99);  // !! Needs to be set so V8 knows its a custom class !!
+    tpl->InstanceTemplate()->SetInternalFieldCount(1);  // !! Needs to be set so V8 knows its a custom class !!
 });

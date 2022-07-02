@@ -144,12 +144,26 @@ static void SetTrainLinkedToForwardId(const v8::FunctionCallbackInfo<v8::Value>&
 static void SetSearchLight(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
     V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
 
     V8_ARG_TO_BASE_OBJECT(1, spottedEntity, IEntity, "Entity");
     V8_ARG_TO_BOOLEAN(2, state)
 
     _this->SetSearchLight(state, spottedEntity);
+}
+
+static void SetTimedExplosion(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(3);
+    V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
+
+    V8_ARG_TO_BOOLEAN(1, state);
+    V8_ARG_TO_BASE_OBJECT(2, culprit, IPlayer, "Player");
+    V8_ARG_TO_NUMBER(3, time)
+
+    _this->SetTimedExplosion(state, culprit, time);
 }
 
 extern V8Class v8Entity;
@@ -214,6 +228,7 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, Constructor, [](v8::Local<v8::Func
     V8Helpers::SetAccessor<IVehicle, uint32_t, &IVehicle::GetRadioStationIndex, &IVehicle::SetRadioStationIndex>(isolate, tpl, "activeRadioStation");
     V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetLightsMultiplier, &IVehicle::SetLightsMultiplier>(isolate, tpl, "lightsMultiplier");
     V8Helpers::SetAccessor<IVehicle, bool, &IVehicle::IsDriftMode, &IVehicle::SetDriftMode>(isolate, tpl, "driftModeEnabled");
+    V8Helpers::SetAccessor<IVehicle, uint8_t, &IVehicle::GetLightState, &IVehicle::SetLightState>(isolate, tpl, "lightState");
 
     // Gamestate methods
     V8Helpers::SetMethod(isolate, tpl, "getDoorState", &GetDoorState);
@@ -310,4 +325,10 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, Constructor, [](v8::Local<v8::Func
 
     // Boat setter
     V8Helpers::SetAccessor<IVehicle, bool, &IVehicle::IsBoatAnchorActive, &IVehicle::SetBoatAnchorActive>(isolate, tpl, "boatAnchorActive");
+
+    // Timed explosions
+    V8Helpers::SetMethod(isolate, tpl, "setTimedExplosion", &SetTimedExplosion);
+    V8Helpers::SetAccessor<IVehicle, uint32_t, &IVehicle::GetTimedExplosionTime>(isolate, tpl, "timedExplosionTime");
+    V8Helpers::SetAccessor<IVehicle, bool, &IVehicle::HasTimedExplosion>(isolate, tpl, "hasTimedExplosion");
+    V8Helpers::SetAccessor<IVehicle, Ref<IPlayer>, &IVehicle::GetTimedExplosionCulprit>(isolate, tpl, "timedExplosionCulprit");
 });

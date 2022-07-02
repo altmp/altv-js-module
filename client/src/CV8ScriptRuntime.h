@@ -3,16 +3,16 @@
 #include "v8.h"
 #include "v8-inspector.h"
 #include "libplatform/libplatform.h"
+#include "v8-profiler.h"
 
 #include "cpp-sdk/IScriptRuntime.h"
 #include "cpp-sdk/objects/IPlayer.h"
 #include "cpp-sdk/objects/IVehicle.h"
 
 #include "CV8Resource.h"
+#include "IRuntimeEventHandler.h"
 
-#include "v8-profiler.h"
-
-class CV8ScriptRuntime : public alt::IScriptRuntime
+class CV8ScriptRuntime : public alt::IScriptRuntime, public IRuntimeEventHandler
 {
     static constexpr char inspectorViewStr[] = "alt:V Multiplayer";
 
