@@ -334,10 +334,10 @@ V8Helpers::EventHandler* V8Helpers::EventHandler::Get(const alt::CEvent* e)
 alt::CEvent::Type V8Helpers::EventHandler::GetTypeForEventName(const std::string& event)
 {
     // TODO: Shitty temp workaround
-#ifdef ALT_CLIENT
+#ifdef ALT_CLIENT_API
     if(event == "keyup" || event == "keydown") return alt::CEvent::Type::KEYBOARD_EVENT;
 #endif
-#ifdef ALT_SERVER
+#ifdef ALT_SERVER_API
     if(event == "entityEnterColshape" || event == "entityLeaveColshape") return alt::CEvent::Type::COLSHAPE_EVENT;
 #endif
     auto result = eventNameToHandlerMap().find(event);
