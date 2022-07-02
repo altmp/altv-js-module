@@ -110,14 +110,16 @@ v8::Local<v8::Value> V8Helpers::New(v8::Isolate* isolate, v8::Local<v8::Context>
 {
     v8::Local<v8::Value> obj;
 
-    V8Helpers::TryCatch([&] {
-        v8::MaybeLocal<v8::Value> maybeObj = constructor->CallAsConstructor(ctx, args.size(), args.data());
+    V8Helpers::TryCatch(
+      [&]
+      {
+          v8::MaybeLocal<v8::Value> maybeObj = constructor->CallAsConstructor(ctx, args.size(), args.data());
 
-        if(maybeObj.IsEmpty()) return false;
+          if(maybeObj.IsEmpty()) return false;
 
-        obj = maybeObj.ToLocalChecked();
-        return true;
-    });
+          obj = maybeObj.ToLocalChecked();
+          return true;
+      });
 
     return obj;
 }
@@ -331,8 +333,13 @@ V8Helpers::EventHandler* V8Helpers::EventHandler::Get(const alt::CEvent* e)
 
 alt::CEvent::Type V8Helpers::EventHandler::GetTypeForEventName(const std::string& event)
 {
-    // Shitty temp workaround
+    // TODO: Shitty temp workaround
+#ifdef ALT_CLIENT
     if(event == "keyup" || event == "keydown") return alt::CEvent::Type::KEYBOARD_EVENT;
+#endif
+#ifdef ALT_SERVER
+    if(event == "entityEnterColshape" || event == "entityLeaveColshape") return alt::CEvent::Type::COLSHAPE_EVENT;
+#endif
     auto result = eventNameToHandlerMap().find(event);
     if(result == eventNameToHandlerMap().end()) return alt::CEvent::Type::NONE;
     return result->second->GetType();
