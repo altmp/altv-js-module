@@ -32,10 +32,18 @@ static void StaticGetVoiceActivationKey(v8::Local<v8::String>, const v8::Propert
     V8_RETURN_UINT(alt::ICore::Instance().GetVoiceActivationKey());
 }
 
+static void AreVoiceControlsEnabled(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    V8_RETURN_BOOLEAN(alt::ICore::Instance().AreVoiceControlsEnabled());
+}
+
 extern V8Class v8Voice("Voice", [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
     V8Helpers::SetStaticAccessor(isolate, tpl, "muteInput", StaticGetInputMuted, StaticSetInputMuted);
     V8Helpers::SetStaticAccessor(isolate, tpl, "activityInputEnabled", StaticGetVoiceActivityInputEnabled);
     V8Helpers::SetStaticAccessor(isolate, tpl, "activationKey", StaticGetVoiceActivationKey);
+    V8Helpers::SetStaticAccessor(isolate, tpl, "voiceControlsEnabled", AreVoiceControlsEnabled);
 });

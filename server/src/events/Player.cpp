@@ -17,6 +17,7 @@
 #include "cpp-sdk/events/CPlayerWeaponChangeEvent.h"
 #include "cpp-sdk/events/CLocalMetaDataChangeEvent.h"
 #include "cpp-sdk/events/CPlayerRequestControlEvent.h"
+#include "cpp-sdk/events/CPlayerChangeInteriorEvent.h"
 
 using alt::CEvent;
 using EventType = CEvent::Type;
@@ -174,4 +175,13 @@ V8_LOCAL_EVENT_HANDLER requestControl(EventType::PLAYER_REQUEST_CONTROL, "player
 
     args.push_back(resource->GetBaseObjectOrNull(ev->GetPlayer()));
     args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
+});
+
+V8_LOCAL_EVENT_HANDLER playerInteriorChange(EventType::PLAYER_CHANGE_INTERIOR_EVENT, "playerInteriorChange", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+    auto ev = static_cast<const alt::CPlayerChangeInteriorEvent*>(e);
+    v8::Isolate* isolate = resource->GetIsolate();
+
+    args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
+    args.push_back(V8Helpers::JSValue(ev->GetNewInteriorLocation()));
+    args.push_back(V8Helpers::JSValue(ev->GetOldInteriorLocation()));
 });

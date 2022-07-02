@@ -903,7 +903,13 @@ static void ToggleRmlControls(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(1);
 
     V8_ARG_TO_BOOLEAN(1, state);
-    alt::ICore::Instance().ToggleRmlControl(state);
+    alt::ICore::Instance().ToggleRmlControls(state);
+}
+
+static void AreRmlControlsEnabled(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_RETURN_BOOLEAN(alt::ICore::Instance().AreRmlControlsEnabled());
 }
 
 static void LoadRmlFont(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -1135,6 +1141,7 @@ extern V8Module altModule("alt",
                               V8Helpers::RegisterFunc(exports, "copyToClipboard", &CopyToClipboard);
 
                               V8Helpers::RegisterFunc(exports, "toggleRmlControls", &ToggleRmlControls);
+                              V8Helpers::RegisterFunc(exports, "rmlControlsEnabled", &AreRmlControlsEnabled);
                               V8Helpers::RegisterFunc(exports, "loadRmlFont", &LoadRmlFont);
 
                               V8Helpers::RegisterFunc(exports, "worldToScreen", &WorldToScreen);
