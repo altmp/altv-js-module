@@ -93,6 +93,7 @@ V8_EVENT_HANDLER rmlEvent(
   },
   [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
       auto ev = static_cast<const alt::CRmlEvent*>(e);
+      args.push_back(resource->GetBaseObjectOrNull(ev->GetElement()));
       args.push_back(V8Helpers::MValueToV8(ev->GetArgs()));
   });
 
