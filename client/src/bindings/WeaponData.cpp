@@ -345,5 +345,5 @@ extern V8Class v8WeaponData("WeaponData",
                                 V8Helpers::SetAccessor(isolate, tpl, "clipSize", &ClipSizeGetter);
                                 V8Helpers::SetAccessor(isolate, tpl, "timeBetweenShots", &TimeBetweenShotsGetter);
                                 V8Helpers::SetAccessor(isolate, tpl, "headshotDamageModifier", &HeadshotDamageModifierGetter, &HeadshotDamageModifierSetter);
-                                V8Helpers::SetAccessor(isolate, tpl, "playerDamageModifier", &PlayerDamageModifier, &PlayerDamageModifierSetter);
+                                V8Helpers::SetAccessor(isolate, tpl, "playerDamageModifier", &PlayerDamageModifierGetter, &PlayerDamageModifierSetter);
                             });
