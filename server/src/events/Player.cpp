@@ -182,6 +182,6 @@ V8_LOCAL_EVENT_HANDLER playerInteriorChange(EventType::PLAYER_CHANGE_INTERIOR_EV
     v8::Isolate* isolate = resource->GetIsolate();
 
     args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
-    args.push_back(V8Helpers::JSValue(ev->GetNewInteriorLocation()));
     args.push_back(V8Helpers::JSValue(ev->GetOldInteriorLocation()));
+    args.push_back(V8Helpers::JSValue(ev->GetNewInteriorLocation()));
 });
