@@ -163,7 +163,7 @@ static void HeadshotDamageModifierGetter(v8::Local<v8::String>, const v8::Proper
 
     alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
-    V8_RETURN_UINT(weaponData->GetHeadshotDamageModifier());
+    V8_RETURN_NUMBER(weaponData->GetHeadshotDamageModifier());
 }
 static void PlayerDamageModifierGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
@@ -172,7 +172,7 @@ static void PlayerDamageModifierGetter(v8::Local<v8::String>, const v8::Property
 
     alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
-    V8_RETURN_UINT(weaponData->GetPlayerDamageModifier());
+    V8_RETURN_NUMBER(weaponData->GetPlayerDamageModifier());
 }
 
 // Setters
@@ -294,7 +294,7 @@ static void HeadshotDamageModifierSetter(v8::Local<v8::String>, v8::Local<v8::Va
     alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
 
-    V8_TO_UINT(val, value);
+    V8_TO_NUMBER(val, value);
     weaponData->SetHeadshotDamageModifier(value);
 }
 static void PlayerDamageModifierSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
@@ -305,7 +305,7 @@ static void PlayerDamageModifierSetter(v8::Local<v8::String>, v8::Local<v8::Valu
     alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
 
-    V8_TO_UINT(val, value);
+    V8_TO_NUMBER(val, value);
     weaponData->SetPlayerDamageModifier(value);
 }
 
