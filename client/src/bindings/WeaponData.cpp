@@ -163,7 +163,16 @@ static void HeadshotDamageModifierGetter(v8::Local<v8::String>, const v8::Proper
 
     alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
-    V8_RETURN_UINT(weaponData->GetHeadshotDamageModifier());
+    V8_RETURN_NUMBER(weaponData->GetHeadshotDamageModifier());
+}
+static void PlayerDamageModifierGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_INTERNAL_FIELD_UINT32(1, weaponHash);
+
+    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    V8_CHECK(weaponData, "Weapon data not found");
+    V8_RETURN_NUMBER(weaponData->GetPlayerDamageModifier());
 }
 
 // Setters
@@ -285,8 +294,19 @@ static void HeadshotDamageModifierSetter(v8::Local<v8::String>, v8::Local<v8::Va
     alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
 
-    V8_TO_UINT(val, value);
+    V8_TO_NUMBER(val, value);
     weaponData->SetHeadshotDamageModifier(value);
+}
+static void PlayerDamageModifierSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_INTERNAL_FIELD_UINT32(1, weaponHash);
+
+    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    V8_CHECK(weaponData, "Weapon data not found");
+
+    V8_TO_NUMBER(val, value);
+    weaponData->SetPlayerDamageModifier(value);
 }
 
 static void GetForHash(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -325,4 +345,5 @@ extern V8Class v8WeaponData("WeaponData",
                                 V8Helpers::SetAccessor(isolate, tpl, "clipSize", &ClipSizeGetter);
                                 V8Helpers::SetAccessor(isolate, tpl, "timeBetweenShots", &TimeBetweenShotsGetter);
                                 V8Helpers::SetAccessor(isolate, tpl, "headshotDamageModifier", &HeadshotDamageModifierGetter, &HeadshotDamageModifierSetter);
+                                V8Helpers::SetAccessor(isolate, tpl, "playerDamageModifier", &PlayerDamageModifierGetter, &PlayerDamageModifierSetter);
                             });
