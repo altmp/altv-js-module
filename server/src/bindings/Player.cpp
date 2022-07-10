@@ -832,7 +832,7 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
     V8Helpers::SetMethod(isolate, tpl, "playAmbientSpeech", &PlayAmbientSpeech);
 
     V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetInteriorLocation>(isolate, tpl, "currentInterior");
-    V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetLastDamagedBodyPart, IPlayer::SetLastDamagedBodyPart>(isolate, tpl, "lastDamagedBodyPart");
+    V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetLastDamagedBodyPart, &IPlayer::SetLastDamagedBodyPart>(isolate, tpl, "lastDamagedBodyPart");
 
     // Appearance getter & setter
     V8Helpers::SetMethod(isolate, tpl, "setHeadOverlay", &SetHeadOverlay);
