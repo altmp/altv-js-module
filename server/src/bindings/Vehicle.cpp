@@ -166,6 +166,29 @@ static void SetTimedExplosion(const v8::FunctionCallbackInfo<v8::Value>& info)
     _this->SetTimedExplosion(state, culprit, time);
 }
 
+static void GetWeaponCapacity(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
+
+    V8_ARG_TO_INT(1, index);
+
+    V8_RETURN_NUMBER(_this->GetWeaponCapacity(index));
+}
+
+static void SetWeaponCapacity(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+    V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
+
+    V8_ARG_TO_INT(1, index);
+    V8_ARG_TO_NUMBER(2, capacity);
+
+    _this->SetWeaponCapacity(index, capacity);
+}
+
 extern V8Class v8Entity;
 extern V8Class v8Vehicle("Vehicle", v8Entity, Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -331,4 +354,15 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, Constructor, [](v8::Local<v8::Func
     V8Helpers::SetAccessor<IVehicle, uint32_t, &IVehicle::GetTimedExplosionTime>(isolate, tpl, "timedExplosionTime");
     V8Helpers::SetAccessor<IVehicle, bool, &IVehicle::HasTimedExplosion>(isolate, tpl, "hasTimedExplosion");
     V8Helpers::SetAccessor<IVehicle, Ref<IPlayer>, &IVehicle::GetTimedExplosionCulprit>(isolate, tpl, "timedExplosionCulprit");
+
+    V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetRocketRefuelSpeed, &IVehicle::SetRocketRefuelSpeed>(isolate, tpl, "rocketRefuelSpeed");
+    V8Helpers::SetAccessor<IVehicle, uint32_t, &IVehicle::GetBombCount, &IVehicle::SetBombCount>(isolate, tpl, "bombCount");
+    V8Helpers::SetAccessor<IVehicle, uint32_t, &IVehicle::GetCounterMeasureCount, &IVehicle::SetCounterMeasureCount>(isolate, tpl, "counterMeasureCount");
+    V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetScriptMaxSpeed, &IVehicle::SetScriptMaxSpeed>(isolate, tpl, "scriptMaxSpeed");
+    V8Helpers::SetMethod(isolate, tpl, "getWeaponCapacity", &GetWeaponCapacity);
+    V8Helpers::SetMethod(isolate, tpl, "setWeaponCapacity", &SetWeaponCapacity);
+    V8Helpers::SetAccessor<IVehicle, bool, &IVehicle::GetHybridExtraActive, &IVehicle::SetHybridExtraActive>(isolate, tpl, "hybridExtraActive");
+    V8Helpers::SetAccessor<IVehicle, uint8_t, &IVehicle::GetHybridExtraState, &IVehicle::SetHybridExtraState>(isolate, tpl, "hybridExtraState");
+    V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetDamageModifier, &IVehicle::SetDamageModifier>(isolate, tpl, "damageModifier");
+    V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetDamageMultiplier, &IVehicle::SetDamageMultiplier>(isolate, tpl, "damageMultiplier");
 });
