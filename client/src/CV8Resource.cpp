@@ -121,74 +121,76 @@ bool CV8ResourceImpl::Start()
 
     Log::Info << "[V8] Starting script " << path << Log::Endl;
 
-    bool result = V8Helpers::TryCatch([&]() {
-        v8::MaybeLocal<v8::Module> maybeModule;
-        v8::ScriptOrigin scriptOrigin(isolate, V8Helpers::JSValue("<bootstrapper>"), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
-        v8::ScriptCompiler::Source source{ V8Helpers::JSValue(bootstrap_code), scriptOrigin };
-        maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source);
+    bool result = V8Helpers::TryCatch(
+      [&]()
+      {
+          v8::MaybeLocal<v8::Module> maybeModule;
+          v8::ScriptOrigin scriptOrigin(isolate, V8Helpers::JSValue("<bootstrapper>"), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
+          v8::ScriptCompiler::Source source{ V8Helpers::JSValue(bootstrap_code), scriptOrigin };
+          maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source);
 
-        if(maybeModule.IsEmpty()) return false;
+          if(maybeModule.IsEmpty()) return false;
 
-        v8::Local<v8::Module> curModule = maybeModule.ToLocalChecked();
+          v8::Local<v8::Module> curModule = maybeModule.ToLocalChecked();
 
-        auto exports = altModule.GetExports(isolate, ctx);
-        // Overwrite global console object
-        auto console = ctx->Global()->Get(ctx, V8Helpers::JSValue("console")).ToLocalChecked().As<v8::Object>();
-        if(!console.IsEmpty())
-        {
-            console->Set(ctx, V8Helpers::JSValue("log"), exports->Get(ctx, V8Helpers::JSValue("log")).ToLocalChecked());
-            console->Set(ctx, V8Helpers::JSValue("warn"), exports->Get(ctx, V8Helpers::JSValue("logWarning")).ToLocalChecked());
-            console->Set(ctx, V8Helpers::JSValue("error"), exports->Get(ctx, V8Helpers::JSValue("logError")).ToLocalChecked());
-            console->Set(ctx, V8Helpers::JSValue("time"), exports->Get(ctx, V8Helpers::JSValue("time")).ToLocalChecked());
-            console->Set(ctx, V8Helpers::JSValue("timeEnd"), exports->Get(ctx, V8Helpers::JSValue("timeEnd")).ToLocalChecked());
-        }
+          auto exports = altModule.GetExports(isolate, ctx);
+          // Overwrite global console object
+          auto console = ctx->Global()->Get(ctx, V8Helpers::JSValue("console")).ToLocalChecked().As<v8::Object>();
+          if(!console.IsEmpty())
+          {
+              console->Set(ctx, V8Helpers::JSValue("log"), exports->Get(ctx, V8Helpers::JSValue("log")).ToLocalChecked());
+              console->Set(ctx, V8Helpers::JSValue("warn"), exports->Get(ctx, V8Helpers::JSValue("logWarning")).ToLocalChecked());
+              console->Set(ctx, V8Helpers::JSValue("error"), exports->Get(ctx, V8Helpers::JSValue("logError")).ToLocalChecked());
+              console->Set(ctx, V8Helpers::JSValue("time"), exports->Get(ctx, V8Helpers::JSValue("time")).ToLocalChecked());
+              console->Set(ctx, V8Helpers::JSValue("timeEnd"), exports->Get(ctx, V8Helpers::JSValue("timeEnd")).ToLocalChecked());
+          }
 
-        // Add global timer funcs
-        ctx->Global()->Set(ctx, V8Helpers::JSValue("setInterval"), exports->Get(ctx, V8Helpers::JSValue("setInterval")).ToLocalChecked());
-        ctx->Global()->Set(ctx, V8Helpers::JSValue("setTimeout"), exports->Get(ctx, V8Helpers::JSValue("setTimeout")).ToLocalChecked());
-        ctx->Global()->Set(ctx, V8Helpers::JSValue("clearInterval"), exports->Get(ctx, V8Helpers::JSValue("clearInterval")).ToLocalChecked());
-        ctx->Global()->Set(ctx, V8Helpers::JSValue("clearTimeout"), exports->Get(ctx, V8Helpers::JSValue("clearTimeout")).ToLocalChecked());
+          // Add global timer funcs
+          ctx->Global()->Set(ctx, V8Helpers::JSValue("setInterval"), exports->Get(ctx, V8Helpers::JSValue("setInterval")).ToLocalChecked());
+          ctx->Global()->Set(ctx, V8Helpers::JSValue("setTimeout"), exports->Get(ctx, V8Helpers::JSValue("setTimeout")).ToLocalChecked());
+          ctx->Global()->Set(ctx, V8Helpers::JSValue("clearInterval"), exports->Get(ctx, V8Helpers::JSValue("clearInterval")).ToLocalChecked());
+          ctx->Global()->Set(ctx, V8Helpers::JSValue("clearTimeout"), exports->Get(ctx, V8Helpers::JSValue("clearTimeout")).ToLocalChecked());
 
-        ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_get_exports"), v8::Function::New(ctx, &StaticRequire).ToLocalChecked());
-        ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_set_exports"), v8::Function::New(ctx, &StaticSetExports).ToLocalChecked());
-        ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_bindings_code"), V8Helpers::JSValue(JSBindings::GetBindingsCode()));
-        ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_main_path"), V8Helpers::JSValue(path));
+          ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_get_exports"), v8::Function::New(ctx, &StaticRequire).ToLocalChecked());
+          ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_set_exports"), v8::Function::New(ctx, &StaticSetExports).ToLocalChecked());
+          ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_bindings_code"), V8Helpers::JSValue(JSBindings::GetBindingsCode()));
+          ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_main_path"), V8Helpers::JSValue(path));
 
-        bool res = curModule->InstantiateModule(ctx, CV8ScriptRuntime::ResolveModule).IsJust();
+          bool res = curModule->InstantiateModule(ctx, CV8ScriptRuntime::ResolveModule).IsJust();
 
-        if(!res) return false;
+          if(!res) return false;
 
-        v8::MaybeLocal<v8::Value> v = curModule->Evaluate(ctx);
-        isPreloading = false;
-        if(v.IsEmpty()) return false;
+          v8::MaybeLocal<v8::Value> v = curModule->Evaluate(ctx);
+          isPreloading = false;
+          if(v.IsEmpty()) return false;
 
-        v8::Local<v8::Promise> modulePromise = v.ToLocalChecked().As<v8::Promise>();
-        int64_t start = GetTime();
-        while(modulePromise->State() == v8::Promise::kPending)
-        {
-            if(GetTime() > start + 5000)
-            {
-                Log::Error << "[V8] Resource start timed out (broken top-level await statements?)" << Log::Endl;
-                return false;
-            }
-            OnTick();
-        }
+          v8::Local<v8::Promise> modulePromise = v.ToLocalChecked().As<v8::Promise>();
+          int64_t start = GetTime();
+          while(modulePromise->State() == v8::Promise::kPending)
+          {
+              if(GetTime() > start + 5000)
+              {
+                  Log::Error << "[V8] Resource start timed out (broken top-level await statements?)" << Log::Endl;
+                  return false;
+              }
+              OnTick();
+          }
 
-        if(curModule->GetStatus() == v8::Module::Status::kErrored)
-        {
-            v8::Local<v8::Promise> promise = v.ToLocalChecked().As<v8::Promise>();
-            bool hasHandler = promise->HasHandler();
-            if(!hasHandler)
-            {
-                promise->MarkAsHandled();
-                isolate->ThrowException(promise->Result());
-                return false;
-            }
-        }
+          if(curModule->GetStatus() == v8::Module::Status::kErrored)
+          {
+              v8::Local<v8::Promise> promise = v.ToLocalChecked().As<v8::Promise>();
+              bool hasHandler = promise->HasHandler();
+              if(!hasHandler)
+              {
+                  promise->MarkAsHandled();
+                  isolate->ThrowException(promise->Result());
+                  return false;
+              }
+          }
 
-        Log::Info << "[V8] Started script " << path << Log::Endl;
-        return true;
-    });
+          Log::Info << "[V8] Started script " << path << Log::Endl;
+          return true;
+      });
 
     DispatchStartEvent(!result);
 
@@ -257,7 +259,6 @@ bool CV8ResourceImpl::Stop()
     webSocketClientHandlers.clear();
     audioHandlers.clear();
     rmlHandlers.clear();
-    webViewsEventsQueue.clear();
     localStorage.Reset();
     syntheticModuleExports.clear();
     promiseRejections.ClearQueue();
@@ -334,14 +335,6 @@ bool CV8ResourceImpl::OnEvent(const alt::CEvent* e)
         {
             CV8ScriptRuntime& runtime = CV8ScriptRuntime::Instance();
             runtime.resourcesLoaded = false;
-        }
-    }
-
-    {
-        if(e->GetType() == alt::CEvent::Type::WEB_VIEW_EVENT)
-        {
-            auto ev = static_cast<const alt::CWebViewEvent*>(e);
-            if(ev->GetName() == "load") HandleWebViewEventQueue(ev->GetTarget());
         }
     }
 
@@ -523,20 +516,4 @@ v8::MaybeLocal<v8::Value> CV8ResourceImpl::GetSyntheticModuleExport(v8::Local<v8
     auto result = syntheticModuleExports.find(syntheticModule->GetIdentityHash());
     if(result != syntheticModuleExports.end()) return result->second.Get(isolate);
     return v8::MaybeLocal<v8::Value>();
-}
-
-void CV8ResourceImpl::HandleWebViewEventQueue(alt::Ref<alt::IWebView> view)
-{
-    auto& eventQueuesMap = GetWebviewsEventQueue();
-    if(!eventQueuesMap.count(view)) return;
-
-    auto& eventQueue = eventQueuesMap.at(view);
-    if(eventQueue.empty()) return;
-
-    for(auto& [evName, mvArgs] : eventQueue)
-    {
-        view->Trigger(evName, mvArgs);
-    }
-
-    eventQueuesMap.erase(view);
 }

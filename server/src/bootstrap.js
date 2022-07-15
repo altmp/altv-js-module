@@ -29,12 +29,15 @@ const dns = require('dns');
     // Get the path to the main file for this resource, and load it
     const _path = path.resolve(resource.path, resource.main);
     _exports = await esmLoader.import(`file://${_path}`, "", {});
+    /* No one used this and only caused problems for people using that function name,
+       so let's just remove it for now and see if anyone complains
     if ("start" in _exports) {
       const start = _exports.start;
       if (typeof start === "function") {
         await start();
       }
     }
+    */
   } catch (e) {
     console.error(e);
   }
@@ -58,11 +61,15 @@ function setupImports() {
     });
   });
 
+  const _warningPackages = {
+    "node-fetch": "Console hangs"
+  };
   esmLoader.addCustomLoaders({
       resolve(specifier, context, defaultResolve) {
         if (alt.hasResource(specifier)) return {
             url: `alt:${specifier}`
         };
+        if(_warningPackages.hasOwnProperty(specifier)) alt.logWarning(`Using the module "${specifier}" can cause problems. Reason: ${_warningPackages[specifier]}`);
         return defaultResolve(specifier, context, defaultResolve);
       },
       load(url, context, defaultLoad) {

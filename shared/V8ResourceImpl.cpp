@@ -30,6 +30,14 @@ bool V8ResourceImpl::Start()
 
 bool V8ResourceImpl::Stop()
 {
+    {
+        for(auto& handler : localHandlers)
+        {
+            alt::CEvent::Type type = V8Helpers::EventHandler::GetTypeForEventName(handler.first);
+            if(type != alt::CEvent::Type::NONE) IRuntimeEventHandler::Instance().EventHandlerRemoved(type);
+        }
+    }
+
     for(auto pair : timers)
     {
         delete pair.second;
@@ -74,11 +82,11 @@ void V8ResourceImpl::OnTick()
 
     for(auto& p : timers)
     {
+        if(std::find(oldTimers.begin(), oldTimers.end(), p.first) != oldTimers.end()) continue;
         int64_t time = GetTime();
-
         if(!p.second->Update(time)) RemoveTimer(p.first);
 
-        if(GetTime() - time > 10)
+        if(GetTime() - time > 50)
         {
             auto& location = p.second->GetLocation();
 
@@ -319,6 +327,14 @@ v8::Local<v8::Object> V8ResourceImpl::GetOrCreateResourceObject(alt::IResource* 
     return obj;
 }
 
+void V8ResourceImpl::DeleteResourceObject(alt::IResource* resource)
+{
+    if(resourceObjects.count(resource) == 0) return;
+    v8::Local<v8::Object> obj = resourceObjects.at(resource).Get(isolate);
+    obj->SetInternalField(0, v8::External::New(isolate, nullptr));
+    resourceObjects.erase(resource);
+}
+
 void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vector<V8Helpers::EventCallback*>& handlers, std::vector<v8::Local<v8::Value>>& args, bool waitForPromiseResolve)
 {
     for(auto handler : handlers)
@@ -326,55 +342,57 @@ void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vecto
         if(handler->removed) continue;
         int64_t time = GetTime();
 
-        V8Helpers::TryCatch([&] {
-            v8::MaybeLocal<v8::Value> retn = V8Helpers::CallFunctionWithTimeout(handler->fn.Get(isolate), GetContext(), args);
-            if(retn.IsEmpty()) return false;
+        V8Helpers::TryCatch(
+          [&]
+          {
+              v8::MaybeLocal<v8::Value> retn = V8Helpers::CallFunctionWithTimeout(handler->fn.Get(isolate), GetContext(), args);
+              if(retn.IsEmpty()) return false;
 
-            v8::Local<v8::Value> returnValue = retn.ToLocalChecked();
-            if(ev && returnValue->IsFalse()) ev->Cancel();
-            else if(ev && ev->GetType() == alt::CEvent::Type::PLAYER_BEFORE_CONNECT && returnValue->IsString())
-                static_cast<alt::CPlayerBeforeConnectEvent*>(const_cast<alt::CEvent*>(ev))->Cancel(*v8::String::Utf8Value(isolate, returnValue));
-            // todo: add this once a generic Cancel() with string as arg has been added to the sdk
-            // else if(ev && returnValue->IsString())
-            //    ev->Cancel(*v8::String::Utf8Value(isolate, returnValue));
+              v8::Local<v8::Value> returnValue = retn.ToLocalChecked();
+              if(ev && returnValue->IsFalse()) ev->Cancel();
+              else if(ev && ev->GetType() == alt::CEvent::Type::PLAYER_BEFORE_CONNECT && returnValue->IsString())
+                  static_cast<alt::CPlayerBeforeConnectEvent*>(const_cast<alt::CEvent*>(ev))->Cancel(*v8::String::Utf8Value(isolate, returnValue));
+              // todo: add this once a generic Cancel() with string as arg has been added to the sdk
+              // else if(ev && returnValue->IsString())
+              //    ev->Cancel(*v8::String::Utf8Value(isolate, returnValue));
 
-            // Wait until the returned promise has been resolved, by continously forcing the event loop to run,
-            // until the promise is resolved.
-            if(waitForPromiseResolve && returnValue->IsPromise())
-            {
-                v8::Local<v8::Promise> promise = returnValue.As<v8::Promise>();
-                while(true)
-                {
-                    v8::Promise::PromiseState state = promise->State();
-                    if(state == v8::Promise::PromiseState::kPending)
-                    {
+              // Wait until the returned promise has been resolved, by continously forcing the event loop to run,
+              // until the promise is resolved.
+              if(waitForPromiseResolve && returnValue->IsPromise())
+              {
+                  v8::Local<v8::Promise> promise = returnValue.As<v8::Promise>();
+                  while(true)
+                  {
+                      v8::Promise::PromiseState state = promise->State();
+                      if(state == v8::Promise::PromiseState::kPending)
+                      {
 #ifdef ALT_CLIENT_API
-                        CV8ScriptRuntime::Instance().OnTick();
+                          CV8ScriptRuntime::Instance().OnTick();
 #endif
 #ifdef ALT_SERVER_API
-                        CNodeScriptRuntime::Instance().OnTick();
+                          CNodeScriptRuntime::Instance().OnTick();
 #endif
-                        // Run event loop
-                        OnTick();
-                    }
-                    else if(state == v8::Promise::PromiseState::kFulfilled)
-                    {
-                        v8::Local<v8::Value> value = promise->Result();
-                        if(value->IsFalse()) ev->Cancel();
-                        break;
-                    }
-                    else if(state == v8::Promise::PromiseState::kRejected)
-                    {
-                        // todo: we should probably do something with the rejection here
-                        break;
-                    }
-                }
-            }
+                          // Run event loop
+                          OnTick();
+                      }
+                      else if(state == v8::Promise::PromiseState::kFulfilled)
+                      {
+                          v8::Local<v8::Value> value = promise->Result();
+                          if(value->IsFalse()) ev->Cancel();
+                          break;
+                      }
+                      else if(state == v8::Promise::PromiseState::kRejected)
+                      {
+                          // todo: we should probably do something with the rejection here
+                          break;
+                      }
+                  }
+              }
 
-            return true;
-        });
+              return true;
+          });
 
-        if(GetTime() - time > 5 && !waitForPromiseResolve)
+        if(GetTime() - time > 50 && !waitForPromiseResolve)
         {
             if(handler->location.GetLineNumber() != 0)
                 Log::Warning << "Event handler at " << resource->GetName() << ":" << handler->location.GetFileName() << ":" << handler->location.GetLineNumber() << " was too long "
@@ -413,14 +431,16 @@ alt::MValue V8ResourceImpl::FunctionImpl::Call(alt::MValueArgs args) const
     V8Helpers::MValueArgsToV8(args, v8Args);
 
     alt::MValue res;
-    V8Helpers::TryCatch([&] {
-        v8::MaybeLocal<v8::Value> _res = V8Helpers::CallFunctionWithTimeout(function.Get(isolate), resource->GetContext(), v8Args);
+    V8Helpers::TryCatch(
+      [&]
+      {
+          v8::MaybeLocal<v8::Value> _res = V8Helpers::CallFunctionWithTimeout(function.Get(isolate), resource->GetContext(), v8Args);
 
-        if(_res.IsEmpty()) return false;
+          if(_res.IsEmpty()) return false;
 
-        res = V8Helpers::V8ToMValue(_res.ToLocalChecked());
-        return true;
-    });
+          res = V8Helpers::V8ToMValue(_res.ToLocalChecked());
+          return true;
+      });
 
     if(res.IsEmpty()) res = alt::ICore::Instance().CreateMValueNone();
 

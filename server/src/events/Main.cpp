@@ -116,21 +116,6 @@ V8Helpers::LocalEventHandler
       args.push_back(V8Helpers::JSValue(ev->GetWeaponHash()));
   });
 
-V8Helpers::LocalEventHandler resourceStart(EventType::RESOURCE_START, "anyResourceStart", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
-    auto ev = static_cast<const alt::CResourceStartEvent*>(e);
-    args.push_back(V8Helpers::JSValue(ev->GetResource()->GetName()));
-});
-
-V8Helpers::LocalEventHandler resourceStop(EventType::RESOURCE_STOP, "anyResourceStop", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
-    auto ev = static_cast<const alt::CResourceStopEvent*>(e);
-    args.push_back(V8Helpers::JSValue(ev->GetResource()->GetName()));
-});
-
-V8Helpers::LocalEventHandler resourceError(EventType::RESOURCE_ERROR, "anyResourceError", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
-    auto ev = static_cast<const alt::CResourceErrorEvent*>(e);
-    args.push_back(V8Helpers::JSValue(ev->GetResource()->GetName()));
-});
-
 V8Helpers::LocalEventHandler syncedMetaChange(EventType::SYNCED_META_CHANGE, "syncedMetaChange", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
     auto ev = static_cast<const alt::CSyncedMetaDataChangeEvent*>(e);
 

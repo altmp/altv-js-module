@@ -21,14 +21,17 @@ CV8ScriptRuntime::CV8ScriptRuntime()
     isolate = v8::Isolate::New(create_params);
     isolate->SetFatalErrorHandler([](const char* location, const char* message) { Log::Error << "[V8] " << location << ": " << message << Log::Endl; });
 
-    isolate->SetOOMErrorHandler([](const char* location, bool isHeap) {
-        if(!isHeap) return;
-        Log::Error << "[V8] " << location << ": Heap out of memory. Forward this to the server developers." << Log::Endl;
-        Log::Error << "[V8] The current heap limit can be shown with the 'heap' console command. Consider increasing your system RAM." << Log::Endl;
-    });
+    isolate->SetOOMErrorHandler(
+      [](const char* location, bool isHeap)
+      {
+          if(!isHeap) return;
+          Log::Error << "[V8] " << location << ": Heap out of memory. Forward this to the server developers." << Log::Endl;
+          Log::Error << "[V8] The current heap limit can be shown with the 'heap' console command. Consider increasing your system RAM." << Log::Endl;
+      });
 
     isolate->AddNearHeapLimitCallback(
-      [](void*, size_t current, size_t initial) {
+      [](void*, size_t current, size_t initial)
+      {
           Log::Warning << "[V8] The remaining V8 heap space is approaching critical levels. Forward this to the server developers." << Log::Endl;
           Log::Warning << "[V8] Initial heap limit: " << CV8ScriptRuntime::FormatBytes(initial) << " | Current heap limit: " << CV8ScriptRuntime::FormatBytes(current) << Log::Endl;
 
@@ -40,41 +43,44 @@ CV8ScriptRuntime::CV8ScriptRuntime()
       },
       nullptr);
 
-    isolate->SetPromiseRejectCallback([](v8::PromiseRejectMessage message) {
-        v8::Isolate* isolate = v8::Isolate::GetCurrent();
-        v8::Local<v8::Value> value = message.GetValue();
-        v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
+    isolate->SetPromiseRejectCallback(
+      [](v8::PromiseRejectMessage message)
+      {
+          v8::Isolate* isolate = v8::Isolate::GetCurrent();
+          v8::Local<v8::Value> value = message.GetValue();
+          v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
 
-        CV8ResourceImpl* resource = static_cast<CV8ResourceImpl*>(V8ResourceImpl::Get(ctx));
-        if(resource)
-        {
-            if(message.GetEvent() == v8::PromiseRejectEvent::kPromiseRejectWithNoHandler)
-            {
-                resource->OnPromiseRejectedWithNoHandler(message);
-            }
-            else if(message.GetEvent() == v8::PromiseRejectEvent::kPromiseHandlerAddedAfterReject)
-            {
-                resource->OnPromiseHandlerAdded(message);
-            }
-            else if(message.GetEvent() == v8::PromiseRejectEvent::kPromiseRejectAfterResolved)
-            {
-                Log::Warning << "[V8] Promise rejected after being resolved in resource " << resource->GetResource()->GetName() << " ("
-                             << *v8::String::Utf8Value(isolate, value->ToString(ctx).ToLocalChecked()) << ")" << Log::Endl;
-            }
-            else if(message.GetEvent() == v8::PromiseRejectEvent::kPromiseResolveAfterResolved)
-            {
-                Log::Warning << "[V8] Promise resolved after being resolved in resource " << resource->GetResource()->GetName() << " ("
-                             << *v8::String::Utf8Value(isolate, value->ToString(ctx).ToLocalChecked()) << ")" << Log::Endl;
-            }
-        }
-        else
-        {
-            Log::Error << "You're not supposed to ever see this" << Log::Endl;
-        }
-    });
+          CV8ResourceImpl* resource = static_cast<CV8ResourceImpl*>(V8ResourceImpl::Get(ctx));
+          if(resource)
+          {
+              if(message.GetEvent() == v8::PromiseRejectEvent::kPromiseRejectWithNoHandler)
+              {
+                  resource->OnPromiseRejectedWithNoHandler(message);
+              }
+              else if(message.GetEvent() == v8::PromiseRejectEvent::kPromiseHandlerAddedAfterReject)
+              {
+                  resource->OnPromiseHandlerAdded(message);
+              }
+              else if(message.GetEvent() == v8::PromiseRejectEvent::kPromiseRejectAfterResolved)
+              {
+                  Log::Warning << "[V8] Promise rejected after being resolved in resource " << resource->GetResource()->GetName() << " ("
+                               << *v8::String::Utf8Value(isolate, value->ToString(ctx).ToLocalChecked()) << ")" << Log::Endl;
+              }
+              else if(message.GetEvent() == v8::PromiseRejectEvent::kPromiseResolveAfterResolved)
+              {
+                  Log::Warning << "[V8] Promise resolved after being resolved in resource " << resource->GetResource()->GetName() << " ("
+                               << *v8::String::Utf8Value(isolate, value->ToString(ctx).ToLocalChecked()) << ")" << Log::Endl;
+              }
+          }
+          else
+          {
+              Log::Error << "You're not supposed to ever see this" << Log::Endl;
+          }
+      });
 
     isolate->SetHostImportModuleDynamicallyCallback(
-      [](v8::Local<v8::Context> context, v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray> importAssertions) {
+      [](v8::Local<v8::Context> context, v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray> importAssertions)
+      {
           v8::Isolate* isolate = context->GetIsolate();
 
           auto referrerVal = referrer->GetResourceName();
@@ -93,7 +99,8 @@ CV8ScriptRuntime::CV8ScriptRuntime()
           // careful what we take in by value in the lambda
           // it is possible pass v8::Local but should not be done
           // make a V8Helpers::CPersistent out of it and pass that
-          auto domodule = [isolate, presolver, pspecifier, preferrerModule, pimportAssertions] {
+          auto domodule = [isolate, presolver, pspecifier, preferrerModule, pimportAssertions]
+          {
               auto referrerModule = preferrerModule.Get(isolate);
               auto resolver = presolver.Get(isolate);
               auto specifier = pspecifier.Get(isolate);
@@ -110,26 +117,28 @@ CV8ScriptRuntime::CV8ScriptRuntime()
               }
 
               auto mod = mmodule.ToLocalChecked();
-              V8Helpers::TryCatch([&] {
-                  if(mod->GetStatus() == v8::Module::Status::kUninstantiated)
-                  {
-                      auto result = mod->InstantiateModule(ctx, ResolveModule);
-                      if(result.IsNothing() || !result.FromJust())
-                      {
-                          resolver->Reject(ctx, v8::Exception::ReferenceError(V8Helpers::JSValue("Error instantiating module")));
-                          return false;
-                      }
-                  }
+              V8Helpers::TryCatch(
+                [&]
+                {
+                    if(mod->GetStatus() == v8::Module::Status::kUninstantiated)
+                    {
+                        auto result = mod->InstantiateModule(ctx, ResolveModule);
+                        if(result.IsNothing() || !result.FromJust())
+                        {
+                            resolver->Reject(ctx, v8::Exception::ReferenceError(V8Helpers::JSValue("Error instantiating module")));
+                            return false;
+                        }
+                    }
 
-                  if((mod->GetStatus() != v8::Module::Status::kEvaluated && mod->GetStatus() != v8::Module::Status::kErrored) && mod->Evaluate(ctx).IsEmpty())
-                  {
-                      resolver->Reject(ctx, v8::Exception::ReferenceError(V8Helpers::JSValue("Error evaluating module")));
-                      return false;
-                  }
+                    if((mod->GetStatus() != v8::Module::Status::kEvaluated && mod->GetStatus() != v8::Module::Status::kErrored) && mod->Evaluate(ctx).IsEmpty())
+                    {
+                        resolver->Reject(ctx, v8::Exception::ReferenceError(V8Helpers::JSValue("Error evaluating module")));
+                        return false;
+                    }
 
-                  resolver->Resolve(ctx, mod->GetModuleNamespace());
-                  return true;
-              });
+                    resolver->Resolve(ctx, mod->GetModuleNamespace());
+                    return true;
+                });
           };
 
           if(Instance().resourcesLoaded && resource->GetResource()->IsStarted() || resource->IsPreloading())
@@ -146,26 +155,28 @@ CV8ScriptRuntime::CV8ScriptRuntime()
           return v8::MaybeLocal<v8::Promise>(resolver->GetPromise());
       });
 
-    isolate->SetHostInitializeImportMetaObjectCallback([](v8::Local<v8::Context> context, v8::Local<v8::Module>, v8::Local<v8::Object> meta) {
-        meta->CreateDataProperty(context, V8Helpers::JSValue("url"), V8Helpers::JSValue(V8Helpers::GetCurrentSourceOrigin(context->GetIsolate())));
-    });
+    isolate->SetHostInitializeImportMetaObjectCallback(
+      [](v8::Local<v8::Context> context, v8::Local<v8::Module>, v8::Local<v8::Object> meta)
+      { meta->CreateDataProperty(context, V8Helpers::JSValue("url"), V8Helpers::JSValue(V8Helpers::GetCurrentSourceOrigin(context->GetIsolate()))); });
 
-    isolate->AddMessageListener([](v8::Local<v8::Message> message, v8::Local<v8::Value> error) {
-        v8::Isolate* isolate = v8::Isolate::GetCurrent();
+    isolate->AddMessageListener(
+      [](v8::Local<v8::Message> message, v8::Local<v8::Value> error)
+      {
+          v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-        switch(message->ErrorLevel())
-        {
-            case v8::Isolate::kMessageError:
-            {
-                std::string errorMsg = *v8::String::Utf8Value(isolate, message->Get());
-                if(errorMsg.empty()) errorMsg = *v8::String::Utf8Value(isolate, error);
-                if(errorMsg.empty()) errorMsg = "<unknown>";
-                Log::Error << "[V8] Error: " << errorMsg << Log::Endl;
-                break;
-            }
-            default: break;
-        }
-    });
+          switch(message->ErrorLevel())
+          {
+              case v8::Isolate::kMessageError:
+              {
+                  std::string errorMsg = *v8::String::Utf8Value(isolate, message->Get());
+                  if(errorMsg.empty()) errorMsg = *v8::String::Utf8Value(isolate, error);
+                  if(errorMsg.empty()) errorMsg = "<unknown>";
+                  Log::Error << "[V8] Error: " << errorMsg << Log::Endl;
+                  break;
+              }
+              default: break;
+          }
+      });
 
     isolate->SetMicrotasksPolicy(v8::MicrotasksPolicy::kExplicit);
 
@@ -207,6 +218,8 @@ CV8ScriptRuntime::CV8ScriptRuntime()
     RegisterEvents();
 
     ProcessConfigOptions();
+
+    IRuntimeEventHandler::Init();
 }
 
 void CV8ScriptRuntime::ProcessConfigOptions()
@@ -301,79 +314,81 @@ v8::MaybeLocal<v8::Module>
         }
 
         v8::Local<v8::Module> mod;
-        bool result = V8Helpers::TryCatch([&] {
-            v8::MaybeLocal<v8::Module> maybeModule;
-            std::string specifierStr = *v8::String::Utf8Value(isolate, specifier);
+        bool result = V8Helpers::TryCatch(
+          [&]
+          {
+              v8::MaybeLocal<v8::Module> maybeModule;
+              std::string specifierStr = *v8::String::Utf8Value(isolate, specifier);
 
-            // Check assertion type
-            if(typeValueStr == "base64")
-            {
-                // Handle as base64 source string
-                std::string sourceStr = Base64Decode(specifierStr);
-                maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(sourceStr, V8Helpers::SourceLocation::GetCurrent(isolate));
-            }
-            else if(typeValueStr == "source")
-            {
-                // Handle as module source code
-                maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(specifierStr, V8Helpers::SourceLocation::GetCurrent(isolate));
-            }
-            else if(typeValueStr == "json")
-            {
-                // Handle as JSON file
+              // Check assertion type
+              if(typeValueStr == "base64")
+              {
+                  // Handle as base64 source string
+                  std::string sourceStr = Base64Decode(specifierStr);
+                  maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(sourceStr, V8Helpers::SourceLocation::GetCurrent(isolate));
+              }
+              else if(typeValueStr == "source")
+              {
+                  // Handle as module source code
+                  maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(specifierStr, V8Helpers::SourceLocation::GetCurrent(isolate));
+              }
+              else if(typeValueStr == "json")
+              {
+                  // Handle as JSON file
 
-                // Read the JSON file
-                auto path =
-                  alt::ICore::Instance().Resolve(static_cast<CV8ResourceImpl*>(resource)->GetResource(), specifierStr, static_cast<CV8ResourceImpl*>(resource)->GetModulePath(referrer));
-                if(!path.pkg || !path.pkg->FileExists(path.fileName))
-                {
-                    V8Helpers::Throw(isolate, "Invalid JSON file path");
-                    return false;
-                }
-                alt::IPackage::File* file = path.pkg->OpenFile(path.fileName);
-                std::string src(path.pkg->GetFileSize(file), '\0');
-                path.pkg->ReadFile(file, src.data(), src.size());
-                path.pkg->CloseFile(file);
+                  // Read the JSON file
+                  auto path =
+                    alt::ICore::Instance().Resolve(static_cast<CV8ResourceImpl*>(resource)->GetResource(), specifierStr, static_cast<CV8ResourceImpl*>(resource)->GetModulePath(referrer));
+                  if(!path.pkg || !path.pkg->FileExists(path.fileName))
+                  {
+                      V8Helpers::Throw(isolate, "Invalid JSON file path");
+                      return false;
+                  }
+                  alt::IPackage::File* file = path.pkg->OpenFile(path.fileName);
+                  std::string src(path.pkg->GetFileSize(file), '\0');
+                  path.pkg->ReadFile(file, src.data(), src.size());
+                  path.pkg->CloseFile(file);
 
-                // Parse the JSON first to check if its valid
-                v8::MaybeLocal<v8::Value> result = v8::JSON::Parse(ctx, V8Helpers::JSValue(src));
-                if(result.IsEmpty())
-                {
-                    V8Helpers::Throw(isolate, "Invalid JSON syntax");
-                    return false;
-                }
+                  // Parse the JSON first to check if its valid
+                  v8::MaybeLocal<v8::Value> result = v8::JSON::Parse(ctx, V8Helpers::JSValue(src));
+                  if(result.IsEmpty())
+                  {
+                      V8Helpers::Throw(isolate, "Invalid JSON syntax");
+                      return false;
+                  }
 
-                maybeModule = static_cast<CV8ResourceImpl*>(resource)->CreateSyntheticModule((path.prefix + path.fileName), result.ToLocalChecked());
-                return true;
-            }
-            else
-            {
-                V8Helpers::Throw(isolate, "Invalid import assertion type");
-                return false;
-            }
+                  maybeModule = static_cast<CV8ResourceImpl*>(resource)->CreateSyntheticModule((path.prefix + path.fileName), result.ToLocalChecked());
+                  return true;
+              }
+              else
+              {
+                  V8Helpers::Throw(isolate, "Invalid import assertion type");
+                  return false;
+              }
 
-            // Run the module
-            if(maybeModule.IsEmpty())
-            {
-                V8Helpers::Throw(isolate, "Failed to resolve module");
-                return false;
-            }
-            mod = maybeModule.ToLocalChecked();
-            v8::Maybe<bool> result = mod->InstantiateModule(ctx, CV8ScriptRuntime::ResolveModule);
-            if(result.IsNothing() || result.ToChecked() == false)
-            {
-                V8Helpers::Throw(isolate, "Failed to instantiate module");
-                return false;
-            }
+              // Run the module
+              if(maybeModule.IsEmpty())
+              {
+                  V8Helpers::Throw(isolate, "Failed to resolve module");
+                  return false;
+              }
+              mod = maybeModule.ToLocalChecked();
+              v8::Maybe<bool> result = mod->InstantiateModule(ctx, CV8ScriptRuntime::ResolveModule);
+              if(result.IsNothing() || result.ToChecked() == false)
+              {
+                  V8Helpers::Throw(isolate, "Failed to instantiate module");
+                  return false;
+              }
 
-            auto returnValue = mod->Evaluate(ctx);
-            if(returnValue.IsEmpty())
-            {
-                V8Helpers::Throw(isolate, "Failed to evaluate module");
-                return false;
-            }
+              auto returnValue = mod->Evaluate(ctx);
+              if(returnValue.IsEmpty())
+              {
+                  V8Helpers::Throw(isolate, "Failed to evaluate module");
+                  return false;
+              }
 
-            return true;
-        });
+              return true;
+          });
         if(!result) return v8::MaybeLocal<v8::Module>();
         else
             return v8::MaybeLocal<v8::Module>(mod);

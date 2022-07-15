@@ -50,7 +50,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         info.This()->SetInternalField(1, V8Helpers::JSValue(size));
     }
 
-    /*v8::UniquePersistent<v8::Object> persistent(isolate, info.This());
+    /*v8::Global<v8::Object> persistent(isolate, info.This());
     persistent.SetWeak(info.This(), weakCallbackForObjectHolder, v8::WeakCallbackType::kInternalFields);*/
 }
 

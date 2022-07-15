@@ -44,6 +44,8 @@ bool CNodeScriptRuntime::Init()
         V8Class::LoadAll(isolate);
     }
 
+    IRuntimeEventHandler::Init();
+
     return true;
 }
 
@@ -85,7 +87,8 @@ void CNodeScriptRuntime::OnDispose()
 
 std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
 {
-    std::vector<std::string> args = { "alt-server", "--experimental-modules", "--es-module-specifier-resolution=node", "--trace-warnings" };
+    // https://nodejs.org/docs/latest-v17.x/api/cli.html#options
+    std::vector<std::string> args = { "alt-server", "--experimental-specifier-resolution=node", "--trace-warnings" };
 
     alt::config::Node moduleConfig = alt::ICore::Instance().GetServerConfig()["js-module"];
     if(!moduleConfig.IsDict()) return args;
@@ -172,6 +175,15 @@ std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
         catch(alt::config::Error&)
         {
             Log::Error << "Invalid value for 'network-imports' config option" << Log::Endl;
+        }
+    }
+
+    alt::config::Node extraCliArgs = moduleConfig["extra-cli-args"];
+    if(extraCliArgs.IsList())
+    {
+        for(auto argument : extraCliArgs.ToList())
+        {
+            args.push_back(argument.ToString());
         }
     }
 

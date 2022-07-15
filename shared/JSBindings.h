@@ -1,33 +1,33 @@
 #pragma once
 #include <string>
-#include <vector>
+#include <array>
 
-static std::string utilsBindings =
+// clang-format off
+static constexpr const char* utilsBindings =
 #include "bindings/Utils.js.gen"
-  ;
+;
 
-static std::string vector3Bindings =
+static constexpr const char* vector3Bindings =
 #include "bindings/Vector3.js.gen"
-  ;
+;
 
-static std::string vector2Bindings =
+static constexpr const char* vector2Bindings =
 #include "bindings/Vector2.js.gen"
-  ;
+;
 
-static std::string rgbaBindings =
+static constexpr const char* rgbaBindings =
 #include "bindings/RGBA.js.gen"
-  ;
+;
+// clang-format on
 
 namespace JSBindings
 {
-    static const std::string& GetBindingsCode()
+    static std::string GetBindingsCode()
     {
-        static std::vector<std::string> bindings = { utilsBindings, vector3Bindings, vector2Bindings, rgbaBindings };
-        static std::string code;
+        static constexpr std::array<const char*, 4> bindings = { utilsBindings, vector3Bindings, vector2Bindings, rgbaBindings };
 
-        // Append all bindings to one big bindings module once
-        if(code.empty())
-            for(const std::string& binding : bindings) code += binding;
+        std::string code;
+        for(const char* binding : bindings) code += binding;
 
         return code;
     }
