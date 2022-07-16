@@ -286,6 +286,7 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, [](v8::Local<v8::FunctionTemplate>
     V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetEngineTemperature, &IVehicle::SetEngineTemperature>(isolate, tpl, "engineTemperature");
     V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetFuelLevel, &IVehicle::SetFuelLevel>(isolate, tpl, "fuelLevel");
     V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetOilLevel, &IVehicle::SetOilLevel>(isolate, tpl, "oilLevel");
+    V8Helpers::SetAccessor<IVehicle, bool, &IVehicle::IsEngineOn>(isolate, tpl, "engineOn");
 
 
     /*GETTERS BELOW ARE UNIMPLEMENTED
