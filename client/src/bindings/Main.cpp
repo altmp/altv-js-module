@@ -1049,26 +1049,6 @@ static void IsPointOnScreen(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_BOOLEAN(alt::ICore::Instance().IsPointOnScreen(vec));
 }
 
-static void GetWeaponAmmo(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_CHECK_ARGS_LEN(1);
-
-    uint32_t weaponHash = 0;
-    if(info[0]->IsNumber())
-    {
-        V8_ARG_TO_UINT(1, weapon);
-        weaponHash = weapon;
-    }
-    else if(info[0]->IsString())
-    {
-        V8_ARG_TO_STRING(1, weaponStr);
-        weaponHash = alt::ICore::Instance().Hash(weaponStr);
-    }
-
-    V8_RETURN_UINT(alt::ICore::Instance().GetWeaponAmmo(weaponHash));
-}
-
 extern V8Module sharedModule;
 extern V8Class v8Player, v8Player, v8Vehicle, v8WebView, v8HandlingData, v8LocalStorage, v8MemoryBuffer, v8MapZoomData, v8Discord, v8Voice, v8WebSocketClient, v8Checkpoint, v8HttpClient,
   v8Audio, v8LocalPlayer, v8Profiler, v8Worker, v8RmlDocument, v8RmlElement, v8WeaponData, v8FocusData;
@@ -1100,7 +1080,6 @@ extern V8Module altModule("alt",
                               V8Helpers::RegisterFunc(exports, "requestIpl", &RequestIPL);
                               V8Helpers::RegisterFunc(exports, "removeIpl", &RemoveIPL);
                               // V8Helpers::RegisterFunc(exports, "wait", &ScriptWait);
-                              // V8Helpers::RegisterFunc(exports, "isInSandbox", &IsInSandbox);
                               V8Helpers::RegisterFunc(exports, "setCamFrozen", &SetCamFrozen);
                               V8Helpers::RegisterFunc(exports, "isCamFrozen", &IsCamFrozen);
 
@@ -1197,8 +1176,6 @@ extern V8Module altModule("alt",
                               V8Helpers::RegisterFunc(exports, "loadDefaultIpls", &LoadDefaultIpls);
 
                               V8Helpers::RegisterFunc(exports, "isPointOnScreen", &IsPointOnScreen);
-
-                              V8Helpers::RegisterFunc(exports, "getWeaponAmmo", &GetWeaponAmmo);
 
                               V8_OBJECT_SET_BOOLEAN(exports, "isWorker", false);
                           });

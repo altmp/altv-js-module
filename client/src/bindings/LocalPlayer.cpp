@@ -22,6 +22,28 @@ static void CurrentWeaponDataGetter(v8::Local<v8::String>, const v8::PropertyCal
     V8_RETURN(v8WeaponData.New(ctx, args));
 }
 
+static void GetWeaponAmmo(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(player, alt::ILocalPlayer);
+
+    V8_CHECK_ARGS_LEN(1);
+
+    uint32_t weaponHash = 0;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, weapon);
+        weaponHash = weapon;
+    }
+    else if(info[0]->IsString())
+    {
+        V8_ARG_TO_STRING(1, weaponStr);
+        weaponHash = alt::ICore::Instance().Hash(weaponStr);
+    }
+
+    V8_RETURN_UINT(player->GetWeaponAmmo(weaponHash));
+}
+
 extern V8Class v8Player;
 extern V8Class v8LocalPlayer("LocalPlayer", v8Player, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -29,4 +51,6 @@ extern V8Class v8LocalPlayer("LocalPlayer", v8Player, [](v8::Local<v8::FunctionT
     V8Helpers::SetAccessor<alt::ILocalPlayer, uint16_t, &alt::ILocalPlayer::GetCurrentAmmo>(isolate, tpl, "currentAmmo");
 
     V8Helpers::SetAccessor(isolate, tpl, "currentWeaponData", &CurrentWeaponDataGetter);
+
+    V8Helpers::SetMethod(isolate, tpl, "getWeaponAmmo", &GetWeaponAmmo);
 });
