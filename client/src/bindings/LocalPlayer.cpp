@@ -82,6 +82,36 @@ static void GetWeapons(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8:
     V8_RETURN(arr);
 }
 
+static void GetWeaponComponents(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(player, alt::ILocalPlayer);
+
+    V8_CHECK_ARGS_LEN(1);
+
+    uint32_t weaponHash = 0;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, weapon);
+        weaponHash = weapon;
+    }
+    else if(info[0]->IsString())
+    {
+        V8_ARG_TO_STRING(1, weaponStr);
+        weaponHash = alt::ICore::Instance().Hash(weaponStr);
+    }
+
+    const std::vector<uint32_t> list = player->GetWeaponComponents(weaponHash);
+    size_t size = list.size();
+    v8::Local<v8::Array> arr = v8::Array::New(isolate, size);
+    for(size_t i = 0; i < size; i++)
+    {
+        arr->Set(ctx, i, V8Helpers::JSValue(list[i]));
+    }
+
+    V8_RETURN(arr);
+}
+
 extern V8Class v8Player;
 extern V8Class v8LocalPlayer("LocalPlayer", v8Player, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -92,4 +122,5 @@ extern V8Class v8LocalPlayer("LocalPlayer", v8Player, [](v8::Local<v8::FunctionT
     V8Helpers::SetAccessor(isolate, tpl, "weapons", &GetWeapons);
 
     V8Helpers::SetAccessor(isolate, tpl, "currentWeaponData", &CurrentWeaponDataGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "weaponComponents", &GetWeaponComponents);
 });
