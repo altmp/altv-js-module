@@ -118,9 +118,9 @@ extern V8Class v8LocalPlayer("LocalPlayer", v8Player, [](v8::Local<v8::FunctionT
 
     V8Helpers::SetAccessor<alt::ILocalPlayer, uint16_t, &alt::ILocalPlayer::GetCurrentAmmo>(isolate, tpl, "currentAmmo");
     V8Helpers::SetMethod(isolate, tpl, "getWeaponAmmo", &GetWeaponAmmo);
+    V8Helpers::SetMethod(isolate, tpl, "getWeaponComponents", &GetWeaponComponents);
     V8Helpers::SetMethod(isolate, tpl, "hasWeapon", &hasWeapon);
     V8Helpers::SetAccessor(isolate, tpl, "weapons", &GetWeapons);
 
     V8Helpers::SetAccessor(isolate, tpl, "currentWeaponData", &CurrentWeaponDataGetter);
-    V8Helpers::SetAccessor(isolate, tpl, "weaponComponents", &GetWeaponComponents);
 });
