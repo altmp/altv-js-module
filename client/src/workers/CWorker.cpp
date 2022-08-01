@@ -10,7 +10,7 @@
 
 #include <functional>
 
-CWorker::CWorker(std::string& filePath, CV8ResourceImpl* resource) : filePath(filePath), resource(resource) {}
+CWorker::CWorker(std::string& filePath, bool& eval, CV8ResourceImpl* resource) : filePath(filePath), eval(eval), resource(resource) {}
 
 void CWorker::Start()
 {
@@ -296,6 +296,7 @@ void CWorker::SetupGlobals()
     global->Set(context.Get(isolate), V8Helpers::JSValue("__internal_get_exports"), v8::Function::New(context.Get(isolate), &StaticRequire).ToLocalChecked());
     global->Set(context.Get(isolate), V8Helpers::JSValue("__internal_bindings_code"), V8Helpers::JSValue(JSBindings::GetBindingsCode()));
     global->Set(context.Get(isolate), V8Helpers::JSValue("__internal_main_path"), V8Helpers::JSValue(filePath));
+    global->Set(context.Get(isolate), V8Helpers::JSValue("__internal_eval"), V8Helpers::JSValue(eval));
 }
 
 v8::MaybeLocal<v8::Module> CWorker::Import(v8::Local<v8::Context> context, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray>, v8::Local<v8::Module> referrer)
