@@ -378,13 +378,17 @@ void V8Helpers::EventHandler::Reference()
 
 std::string V8Helpers::Stringify(v8::Local<v8::Context> ctx, v8::Local<v8::Value> val)
 {
+    auto isolate = ctx->GetIsolate();
+    auto global = ctx->Global();
+
     v8::Local<v8::String> str;
     if(!val->ToString(ctx).ToLocal(&str)) return std::string();
-    if(val->IsObject() && strcmp(*v8::String::Utf8Value(ctx->GetIsolate(), str), "[object Object]") == 0)
+    if(val->IsObject() && strcmp(*v8::String::Utf8Value(isolate, str), "[object Object]") == 0)
     {
-        v8::MaybeLocal<v8::String> maybe = v8::JSON::Stringify(ctx, val);
-        v8::Local<v8::String> stringified;
-        if(maybe.ToLocal(&stringified)) str = stringified;
+        auto json = global->Get(ctx, v8::String::NewFromUtf8(isolate, "JSON", v8::NewStringType::kNormal).ToLocalChecked()).ToLocalChecked().As<v8::Object>();
+        auto stringify = json->Get(ctx, v8::String::NewFromUtf8(isolate, "stringify", v8::NewStringType::kNormal).ToLocalChecked()).ToLocalChecked().As<v8::Function>();
+        auto v = stringify->Call(ctx, Undefined(isolate), 1, &val).ToLocalChecked();
+        str = v.As<v8::String>();
     }
 
     if(str.IsEmpty()) return std::string();
