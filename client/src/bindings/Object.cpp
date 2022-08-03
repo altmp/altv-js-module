@@ -94,5 +94,12 @@ extern V8Class v8Object("Object",
                             V8Helpers::SetAccessor(isolate, tpl, "pos", &PosGetter, &PosSetter);
                             V8Helpers::SetAccessor(isolate, tpl, "rot", &RotGetter, &RotSetter);
 
+                            V8Helpers::SetAccessor<IObject, uint8_t, &IObject::GetAlpha, &IObject::SetAlpha>(isolate, tpl, "alpha");
+                            V8Helpers::SetMethod<IObject, &IObject::ResetAlpha>(isolate, tpl, "resetAlpha");
+
+                            V8Helpers::SetAccessor<IObject, bool, &IObject::IsDynamic>(isolate, tpl, "dynamic");
+                            V8Helpers::SetAccessor<IObject, uint16_t, &IObject::GetLodDistance, &IObject::SetLodDistance>(isolate, tpl, "lodDistance");
+                            V8Helpers::SetAccessor<IObject, bool, &IObject::HasGravity, &IObject::ToggleGravity>(isolate, tpl, "hasGravity");
+
                             V8Helpers::SetAccessor<IObject, bool, &IObject::IsRemote>(isolate, tpl, "isRemote");
                       });
