@@ -10,7 +10,7 @@
 
 #include <functional>
 
-CWorker::CWorker(std::string& filePath, bool& eval, CV8ResourceImpl* resource) : filePath(filePath), eval(eval), resource(resource) {}
+CWorker::CWorker(std::string& filePath, bool eval, CV8ResourceImpl* resource) : filePath(filePath), eval(eval), resource(resource) {}
 
 void CWorker::Start()
 {

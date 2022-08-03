@@ -68,7 +68,7 @@ private:
     }
 
 public:
-    CWorker(std::string& filePath, bool& eval, CV8ResourceImpl* resource);
+    CWorker(std::string& filePath, bool eval, CV8ResourceImpl* resource);
     ~CWorker() = default;
 
     void Start();
