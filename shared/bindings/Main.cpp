@@ -237,6 +237,29 @@ static void LogError(const v8::FunctionCallbackInfo<v8::Value>& info)
     alt::ICore::Instance().LogError(ss.str());
 }
 
+static void LogDebug(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    if (!alt::ICore::Instance().IsDebug()) return;
+
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN_MIN(1);
+
+    std::stringstream ss;
+    for(int i = 0; i < info.Length(); ++i)
+    {
+        v8::Local<v8::Value> val = info[i];
+
+        if(i > 0) ss << " ";
+
+        auto str = V8Helpers::Stringify(ctx, val);
+        if(str.empty()) continue;
+
+        ss << str;
+    }
+
+    alt::ICore::Instance().LogColored(ss.str());
+}
+
 static void Time(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -457,6 +480,7 @@ extern V8Module sharedModule("alt-shared",
                                  V8Helpers::RegisterFunc(exports, "log", &Log);
                                  V8Helpers::RegisterFunc(exports, "logWarning", &LogWarning);
                                  V8Helpers::RegisterFunc(exports, "logError", &LogError);
+                                 V8Helpers::RegisterFunc(exports, "logDebug", &LogDebug);
                                  V8Helpers::RegisterFunc(exports, "time", &Time);
                                  V8Helpers::RegisterFunc(exports, "timeEnd", &TimeEnd);
 
