@@ -70,6 +70,31 @@ static void RotSetter(v8::Local<v8::String>, v8::Local<v8::Value> value, const v
     object->SetRotation(val);
 }
 
+static void AttachToEntity(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(object, alt::IObject);
+    V8_CHECK_ARGS_LEN_MIN(4);
+
+    V8_ARG_TO_BASE_OBJECT(1, entity, alt::IEntity, "Entity");
+    V8_ARG_TO_INT(2, bone);
+    V8_ARG_TO_VECTOR3(3, pos);
+    V8_ARG_TO_VECTOR3(4, rot);
+    V8_ARG_TO_BOOLEAN_OPT(5, useSoftPinning, false);
+    V8_ARG_TO_BOOLEAN_OPT(6, collision, false);
+    V8_ARG_TO_BOOLEAN_OPT(7, fixedRot, false);
+
+    object->AttachToEntity(entity, bone, pos, rot, useSoftPinning, collision, fixedRot);
+}
+
+static void Detach(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(object, alt::IObject);
+
+    object->Detach();
+}
+
 static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -100,6 +125,9 @@ extern V8Class v8Object("Object",
                             V8Helpers::SetAccessor<IObject, bool, &IObject::IsDynamic>(isolate, tpl, "dynamic");
                             V8Helpers::SetAccessor<IObject, uint16_t, &IObject::GetLodDistance, &IObject::SetLodDistance>(isolate, tpl, "lodDistance");
                             V8Helpers::SetAccessor<IObject, bool, &IObject::HasGravity, &IObject::ToggleGravity>(isolate, tpl, "hasGravity");
+
+                            V8Helpers::SetMethod(isolate, tpl, "attachToEntity", &AttachToEntity);
+                            V8Helpers::SetMethod(isolate, tpl, "detach", &Detach);
 
                             V8Helpers::SetAccessor<IObject, bool, &IObject::IsRemote>(isolate, tpl, "isRemote");
                       });
