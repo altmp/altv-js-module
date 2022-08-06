@@ -78,7 +78,8 @@ static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     if(info[0]->IsNull())
     {
-        // if first argument is null this event gets send to every player
+        // Deprecation added: 06/08/2022 (version 13)
+        V8_DEPRECATE("emitClient with null", "emitAllClients");
         ICore::Instance().TriggerClientEventForAll(eventName, mvArgs);
         return;
     }
@@ -425,7 +426,8 @@ extern V8Module v8Alt("alt",
                         v8ColshapeCuboid,
                         v8ColshapeRectangle,
                         v8ColshapePolygon },
-                      [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
+                      [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports)
+                      {
                           v8::Isolate* isolate = ctx->GetIsolate();
 
                           V8Helpers::RegisterFunc(exports, "getResourceMain", &GetResourceMain);
