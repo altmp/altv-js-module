@@ -156,6 +156,8 @@ static void EmitClientRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     if(info[0]->IsNull())
     {
+        // Deprecation added: 06/08/2022 (version 13)
+        V8_DEPRECATE("emitClientRaw with null", "emitAllClientsRaw");
         // if first argument is null this event gets send to every player
         ICore::Instance().TriggerClientEventForAll(eventName, mvArgs);
         return;
