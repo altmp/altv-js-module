@@ -2,6 +2,6 @@
 // clang-format off
 // Object JS bindings
 
-alt.Object.waitForSpawn = function() {
+alt.Object.prototype.waitForSpawn = function() {
     return alt.Utils.waitFor(() => this.isSpawned);
 }
