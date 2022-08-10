@@ -247,6 +247,11 @@ static void
             break;
         case alt::INative::Type::ARG_STRUCT:
         {
+            if(val->IsNull())
+            {
+                scrCtx->Push((void*)nullptr);
+                break;
+            }
             auto buffer = ToMemoryBuffer(val, v8Ctx);
             if(buffer != nullptr) scrCtx->Push(buffer);
             else
