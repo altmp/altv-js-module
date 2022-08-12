@@ -103,6 +103,12 @@ if (alt.isClient && !alt.isWorker) {
             throw new Error(`Failed to request cutscene '${cutsceneName}'`);
         }
     }
+
+    // Shortcut for alt.Object
+    // TODO: Make client/server only bindings work
+    alt.Object.prototype.waitForSpawn = function() {
+        return alt.Utils.waitFor(() => this.scriptID !== 0);
+    }
 }
 // Server only
 else {
