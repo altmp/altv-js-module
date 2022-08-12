@@ -3,7 +3,6 @@
 #include <array>
 
 // clang-format off
-// Shared
 static constexpr const char* utilsBindings =
 #include "bindings/Utils.js.gen"
 ;
@@ -19,34 +18,16 @@ static constexpr const char* vector2Bindings =
 static constexpr const char* rgbaBindings =
 #include "bindings/RGBA.js.gen"
 ;
-// Client
-#ifdef ALT_CLIENT_API
-static constexpr const char* objectBindings =
-#include "bindings/Object.js.gen"
-;
-#endif
-// Server
-#ifdef ALT_SERVER_API
-
-#endif
 // clang-format on
 
 namespace JSBindings
 {
     static std::string GetBindingsCode()
     {
-        static constexpr std::array<const char*, 4> sharedBindings = { utilsBindings, vector3Bindings, vector2Bindings, rgbaBindings };
+        static constexpr std::array<const char*, 4> bindings = { utilsBindings, vector3Bindings, vector2Bindings, rgbaBindings };
 
         std::string code;
-        for(const char* binding : sharedBindings) code += binding;
-#ifdef ALT_CLIENT_API
-        static constexpr std::array<const char*, 1> clientBindings = { objectBindings };
-        for(const char* binding : clientBindings) code += binding;
-#endif
-#ifdef ALT_SERVER_API
-        static constexpr std::array<const char*, 0> serverBindings = {};
-        for(const char* binding : serverBindings) code += binding;
-#endif
+        for(const char* binding : bindings) code += binding;
 
         return code;
     }
