@@ -7,6 +7,7 @@
 #include "cpp-sdk/events/CGameEntityCreateEvent.h"
 #include "cpp-sdk/events/CGameEntityDestroyEvent.h"
 #include "cpp-sdk/events/CTaskChangeEvent.h"
+#include "cpp-sdk/events/CPlayerWeaponShootEvent.h"
 
 #include "cpp-sdk/SDK.h"
 
@@ -54,4 +55,13 @@ V8_LOCAL_EVENT_HANDLER taskChange(EventType::TASK_CHANGE, "taskChange", [](V8Res
 
     args.push_back(V8Helpers::JSValue(ev->GetOldTask()));
     args.push_back(V8Helpers::JSValue(ev->GetNewTask()));
+});
+
+V8_LOCAL_EVENT_HANDLER playerWeaponShoot(EventType::PLAYER_WEAPON_SHOOT_EVENT, "playerWeaponShoot", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+    auto ev = static_cast<const alt::CPlayerWeaponShootEvent*>(e);
+    v8::Isolate* isolate = resource->GetIsolate();
+
+    args.push_back(V8Helpers::JSValue(ev->GetWeapon()));
+    args.push_back(V8Helpers::JSValue(ev->GetTotalAmmo()));
+    args.push_back(V8Helpers::JSValue(ev->GetAmmoInClip()));
 });

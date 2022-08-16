@@ -31,6 +31,7 @@ inline void RegisterEvents()
     V8_REFERENCE_EVENT_HANDLER(gameEntityCreate);
     V8_REFERENCE_EVENT_HANDLER(gameEntityDestroy);
     V8_REFERENCE_LOCAL_EVENT_HANDLER(taskChange);
+    V8_REFERENCE_LOCAL_EVENT_HANDLER(playerWeaponShoot);
 
     // Meta
     V8_REFERENCE_LOCAL_EVENT_HANDLER(syncedMetaChange);
