@@ -730,6 +730,13 @@ static void DeleteLocalMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     player->DeleteLocalMetaData(key);
 }
 
+static void DiscordIDGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE();
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+    V8_RETURN_STRING(std::to_string(_this->GetDiscordId()));
+}
+
 extern V8Class v8Entity;
 extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -789,7 +796,7 @@ extern V8Class v8Player("Player", v8Entity, nullptr, [](v8::Local<v8::FunctionTe
     V8Helpers::SetAccessor(isolate, tpl, "hwidExHash", &HwidExHashGetter);
 
     V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetAuthToken>(isolate, tpl, "authToken");
-    V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetDiscordId>(isolate, tpl, "discordID");
+    V8Helpers::SetAccessor(isolate, tpl, "discordID", &DiscordIDGetter);
 
     V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsFlashlightActive>(isolate, tpl, "flashlightActive");
 
