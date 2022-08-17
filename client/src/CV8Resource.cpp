@@ -153,7 +153,6 @@ bool CV8ResourceImpl::Start()
         ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_set_exports"), v8::Function::New(ctx, &StaticSetExports).ToLocalChecked());
         ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_bindings_code"), V8Helpers::JSValue(JSBindings::GetBindingsCode()));
         ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_main_path"), V8Helpers::JSValue(path));
-        ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_eval"), V8Helpers::JSValue(false));
 
         bool res = curModule->InstantiateModule(ctx, CV8ScriptRuntime::ResolveModule).IsJust();
 

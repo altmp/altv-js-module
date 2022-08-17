@@ -14,15 +14,9 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_CONSTRUCTOR();
-    V8_CHECK_ARGS_LEN2(1, 2);
+    V8_CHECK_ARGS_LEN(1);
 
     V8_ARG_TO_STRING(1, path);
-
-    bool isEval = false;
-    if(info.Length() == 2){
-        V8_ARG_TO_BOOLEAN(2, eval);
-        isEval = eval;
-    }
 
     std::string origin = V8Helpers::GetCurrentSourceOrigin(isolate);
 
@@ -31,7 +25,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     std::string filePath = pathInfo.prefix + pathInfo.fileName;
 
-    CWorker* worker = new CWorker(filePath, isEval, static_cast<CV8ResourceImpl*>(resource));
+    CWorker* worker = new CWorker(filePath, static_cast<CV8ResourceImpl*>(resource));
     info.This()->SetInternalField(0, v8::External::New(isolate, worker));
     static_cast<CV8ResourceImpl*>(resource)->AddWorker(worker);
 }
