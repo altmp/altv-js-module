@@ -123,6 +123,24 @@ bool V8Helpers::SafeToVector3(v8::Local<v8::Value> val, v8::Local<v8::Context> c
     return false;
 }
 
+bool V8Helpers::SafeToVector3Int(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, alt::Vector3i& out)
+{
+    v8::MaybeLocal maybeVal = val->ToObject(ctx);
+    if(!maybeVal.IsEmpty())
+    {
+        v8::Local val = maybeVal.ToLocalChecked();
+
+        int x, y, z;
+        if(SafeToInt32(V8Helpers::Get(ctx, val, "x"), ctx, x) && SafeToInt32(V8Helpers::Get(ctx, val, "y"), ctx, y) && SafeToInt32(V8Helpers::Get(ctx, val, "z"), ctx, z))
+        {
+            out = alt::Vector3i{ x, y, z };
+            return true;
+        }
+    }
+
+    return false;
+}
+
 bool V8Helpers::SafeToVector2(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, alt::Vector2f& out)
 {
     v8::MaybeLocal maybeVal = val->ToObject(ctx);
@@ -134,6 +152,24 @@ bool V8Helpers::SafeToVector2(v8::Local<v8::Value> val, v8::Local<v8::Context> c
         if(SafeToNumber(V8Helpers::Get(ctx, val, "x"), ctx, x) && SafeToNumber(V8Helpers::Get(ctx, val, "y"), ctx, y))
         {
             out = alt::Vector2f{ float(x), float(y) };
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool V8Helpers::SafeToVector2Int(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, alt::Vector2i& out)
+{
+    v8::MaybeLocal maybeVal = val->ToObject(ctx);
+    if(!maybeVal.IsEmpty())
+    {
+        v8::Local val = maybeVal.ToLocalChecked();
+
+        int x, y;
+        if(SafeToInt32(V8Helpers::Get(ctx, val, "x"), ctx, x) && SafeToInt32(V8Helpers::Get(ctx, val, "y"), ctx, y))
+        {
+            out = alt::Vector2i{ x, y };
             return true;
         }
     }

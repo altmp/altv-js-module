@@ -122,9 +122,17 @@
     alt::Vector3f val;            \
     V8_CHECK(V8Helpers::SafeToVector3((v8Val), ctx, val), "Failed to convert value to Vector3")
 
+#define V8_TO_VECTOR3_INT(v8Val, val) \
+    alt::Vector3i val;                \
+    V8_CHECK(V8Helpers::SafeToVector3Int((v8Val), ctx, val), "Failed to convert value to Vector3")
+
 #define V8_TO_VECTOR2(v8Val, val) \
     alt::Vector2f val;            \
     V8_CHECK(V8Helpers::SafeToVector2((v8Val), ctx, val), "Failed to convert value to Vector2")
+
+#define V8_TO_VECTOR2_INT(v8Val, val) \
+    alt::Vector2i val;                \
+    V8_CHECK(V8Helpers::SafeToVector2Int((v8Val), ctx, val), "Failed to convert value to Vector2")
 
 #define V8_TO_RGBA(v8Val, val) \
     alt::RGBA val;             \
