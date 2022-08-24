@@ -119,17 +119,6 @@ static void SetPositionFrozen(const v8::FunctionCallbackInfo<v8::Value>& info)
     object->SetPositionFrozen(toggle);
 }
 
-static void SetTextureVariation(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_GET_THIS_BASE_OBJECT(object, alt::IObject);
-    V8_CHECK_ARGS_LEN(1);
-
-    V8_ARG_TO_NUMBER(1, variation);
-
-    object->SetTextureVariation(variation);
-}
-
 static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -175,6 +164,5 @@ extern V8Class v8Object("Object",
 
                             V8Helpers::SetMethod<IObject, &IObject::ActivatePhysics>(isolate, tpl, "activatePhysics");
 
-                            V8Helpers::SetMethod(isolate, tpl, "setTextureVariation", &SetTextureVariation);
-                            V8Helpers::SetAccessor<IObject, uint8_t, &IObject::GetTextureVariation>(isolate, tpl, "getTextureVariation");
+                            V8Helpers::SetAccessor<IObject, uint8_t, &IObject::GetTextureVariation, &IObject::SetTextureVariation>(isolate, tpl, "textureVariation");
                       });
