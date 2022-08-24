@@ -87,14 +87,6 @@ static void AttachToEntity(const v8::FunctionCallbackInfo<v8::Value>& info)
     object->AttachToEntity(entity, bone, pos, rot, useSoftPinning, collision, fixedRot);
 }
 
-static void Detach(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_GET_THIS_BASE_OBJECT(object, alt::IObject);
-
-    object->Detach();
-}
-
 static void ToggleCollision(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -105,14 +97,6 @@ static void ToggleCollision(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_BOOLEAN(2, keepPhysics);
 
     object->ToggleCollision(toggle, keepPhysics);
-}
-
-static void PlaceOnGroundProperly(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_GET_THIS_BASE_OBJECT(object, alt::IObject);
-
-    object->PlaceOnGroundProperly();
 }
 
 static void SetPositionFrozen(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -158,14 +142,16 @@ extern V8Class v8Object("Object",
                             V8Helpers::SetAccessor<IObject, bool, &IObject::HasGravity, &IObject::ToggleGravity>(isolate, tpl, "hasGravity");
 
                             V8Helpers::SetMethod(isolate, tpl, "attachToEntity", &AttachToEntity);
-                            V8Helpers::SetMethod(isolate, tpl, "detach", &Detach);
+                            V8Helpers::SetMethod<IObject, &IObject::Detach>(isolate, tpl, "detach");
 
                             V8Helpers::SetAccessor<IObject, bool, &IObject::IsRemote>(isolate, tpl, "isRemote");
 
                             V8Helpers::SetAccessor<IObject, bool, &IObject::IsCollisionEnabled>(isolate, tpl, "isCollisionEnabled");
                             V8Helpers::SetMethod(isolate, tpl, "toggleCollision", &ToggleCollision);
 
-                            V8Helpers::SetMethod(isolate, tpl, "placeOnGroundProperly", &PlaceOnGroundProperly);
+                            V8Helpers::SetMethod<IObject, &IObject::PlaceOnGroundProperly>(isolate, tpl, "placeOnGroundProperly");
 
                             V8Helpers::SetMethod(isolate, tpl, "setPositionFrozen", &SetPositionFrozen);
+
+                            V8Helpers::SetMethod<IObject, &IObject::ActivatePhysics>(isolate, tpl, "activatePhysics");
                       });
