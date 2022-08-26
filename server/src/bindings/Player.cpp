@@ -26,16 +26,43 @@ static void Spawn(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     alt::Position position;
     uint32_t delay = 0;
+
     if(info.Length() == 1 || info.Length() == 2)
     {
-        V8_ARG_TO_VECTOR3(1, pos);
-        if(info.Length() == 2)
+        alt::Vector3f pos;
+
+        // (model: number | string, pos: IVector3) overload
+        if(info[0]->IsNumber() || info[0]->IsString())
         {
-            V8_ARG_TO_UINT(2, spawnDelay);
-            delay = spawnDelay;
+            V8_CHECK_ARGS_LEN(2);
+
+            if(info[0]->IsNumber())
+            {
+                V8_TO_INTEGER(info[0], model);
+                _this->SetModel(model);
+            }
+            else
+            {
+                V8_TO_STRING(info[0], model);
+                _this->SetModel(alt::ICore::Instance().Hash(model));
+            }
+
+            V8_CHECK(V8Helpers::SafeToVector3(info[1], ctx, pos), "Failed to convert argument 2 to vector3");
         }
+        // (pos: IVector3, delay?: number) overload
+        else
+        {
+            V8_CHECK(V8Helpers::SafeToVector3(info[0], ctx, pos), "Failed to convert argument 1 to vector3");
+            if(info.Length() == 2)
+            {
+                V8_ARG_TO_UINT(2, spawnDelay);
+                delay = spawnDelay;
+            }
+        }
+
         position = { pos[0], pos[1], pos[2] };
     }
+    // (x: number, y: number, z: number, delay?: number) overload
     else if(info.Length() == 3 || info.Length() == 4)
     {
         V8_ARG_TO_NUMBER(1, x);
