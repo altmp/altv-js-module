@@ -54,7 +54,7 @@ public:
 #ifdef ALT_SERVER_API
         extern V8Class v8VoiceChannel, v8Colshape, v8Checkpoint;
 #else
-        extern V8Class v8WebView, v8LocalPlayer, v8RmlDocument, v8RmlElement;
+        extern V8Class v8WebView, v8LocalPlayer, v8RmlDocument, v8RmlElement, v8Object;
 #endif
 
         if(!handle) return nullptr;
@@ -73,6 +73,7 @@ public:
             case alt::IBaseObject::Type::LOCAL_PLAYER: return &v8LocalPlayer;
             case alt::IBaseObject::Type::RML_DOCUMENT: return &v8RmlDocument;
             case alt::IBaseObject::Type::RML_ELEMENT: return &v8RmlElement;
+            case alt::IBaseObject::Type::OBJECT: return &v8Object;
 #endif
         }
 
