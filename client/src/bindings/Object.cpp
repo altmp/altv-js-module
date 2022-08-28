@@ -165,4 +165,6 @@ extern V8Class v8Object("Object",
                             V8Helpers::SetMethod<IObject, &IObject::ActivatePhysics>(isolate, tpl, "activatePhysics");
 
                             V8Helpers::SetAccessor<IObject, uint8_t, &IObject::GetTextureVariation, &IObject::SetTextureVariation>(isolate, tpl, "textureVariation");
+
+                            V8Helpers::SetAccessor<IObject, bool, &IObject::IsGameObject>(isolate, tpl, "isGameObject");
                       });
