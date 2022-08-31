@@ -109,6 +109,81 @@ if (alt.isClient && !alt.isWorker) {
     alt.Object.prototype.waitForSpawn = function() {
         return alt.Utils.waitFor(() => this.scriptID !== 0);
     }
+
+    alt.Utils.drawText2dThisFrame = function(
+        text,
+        pos2d = new alt.Vector2(0.5, 0.5),
+        scale = 0.5,
+        fontType = 0,
+        color = new alt.RGBA(255, 255, 255),
+        useOutline = true,
+        useDropShadow = true,
+    ) {
+        native.setTextFont(fontType);
+        native.setTextProportional(false);
+        native.setTextScale(scale, scale);
+        native.setTextColour(...color.toArray());
+        native.setTextEdge(2, 0, 0, 0, 150);
+    
+        if (useDropShadow) {
+            native.setTextDropshadow(0, 0, 0, 0, 255);
+            native.setTextDropShadow();
+        }
+        if (useOutline) native.setTextOutline();
+    
+        native.setTextCentre(true);
+        native.beginTextCommandDisplayText("CELL_EMAIL_BCON");
+        // Split text into pieces of max 99 chars blocks
+        (text.match(/.{1,99}/g))?.forEach((textBlock) => {
+            native.addTextComponentSubstringPlayerName(textBlock);
+        });
+    
+        native.endTextCommandDisplayText(pos2d.x, pos2d.y, 0);
+    }
+    
+    alt.Utils.drawText2d = function(
+        text,
+        pos,
+        font,
+        scale,
+        color,
+    ) {
+        return alt.everyTick(() => {
+            alt.Utils.drawText2dThisFrame(text, pos, font, scale, color);
+        });
+    }
+    
+    alt.Utils.drawText3dThisFrame = function(
+        text,
+        pos,
+        font = 0,
+        scale = 0.5,
+        color = new alt.RGBA(255, 255, 255),
+    ) {
+        native.setDrawOrigin(pos.x, pos.y, pos.z, 0);
+        native.beginTextCommandDisplayText("STRING");
+        native.addTextComponentSubstringPlayerName(text);
+        native.setTextFont(font);
+        native.setTextScale(1, scale);
+        native.setTextWrap(0.0, 1.0);
+        native.setTextCentre(true);
+        native.setTextColour(...color.toArray());
+        native.setTextOutline();
+        native.endTextCommandDisplayText(0, 0, 0);
+        native.clearDrawOrigin();
+    }
+    
+    alt.Utils.drawText3d = function(
+        text,
+        pos,
+        font,
+        scale,
+        color,
+    ) {
+        return alt.everyTick(() => {
+            alt.Utils.drawText3dThisFrame(text, pos, font, scale, color);
+        });
+    }
 }
 // Server only
 else {
