@@ -164,24 +164,41 @@ if (alt.isClient && !alt.isWorker) {
 
     alt.Utils.drawText2dThisFrame = function(
         text,
-        pos2d = new alt.Vector2(0.5, 0.5),
+        pos2d = new alt.Vector2(0.5),
+        font = 0,
         scale = 0.5,
-        fontType = 0,
         color = new alt.RGBA(255, 255, 255),
-        useOutline = true,
-        useDropShadow = true,
+        outline = true,
+        dropShadow = true,
     ) {
-        native.setTextFont(fontType);
+        if (typeof text !== "string")
+            throw new Error("Expected a string as first argument");
+        if (typeof pos2d.x !== "number" || typeof pos2d.y !== "number")
+            throw new Error("Expected Vector2 as second argument");
+        if (typeof font !== "number")
+            throw new Error("Expected a number as third argument");
+        if (typeof scale !== "number")
+            throw new Error("Expected a number as fourth argument");
+        if (
+            typeof color.r !== "number" || typeof color.g !== "number" ||
+            typeof color.b !== "number" || typeof color.a !== "number"
+        ) throw new Error("Expected RGBA as fifth argument");
+        if (typeof outline !== "boolean")
+            throw new Error("Expected boolean as sixth argument");
+        if (typeof dropShadow !== "boolean")
+            throw new Error("Expected boolean as seventh argument");
+    
+        native.setTextFont(font);
         native.setTextProportional(false);
         native.setTextScale(scale, scale);
         native.setTextColour(...color.toArray());
         native.setTextEdge(2, 0, 0, 0, 150);
     
-        if (useDropShadow) {
+        if (outline) native.setTextOutline();
+        if (dropShadow) {
             native.setTextDropshadow(0, 0, 0, 0, 255);
             native.setTextDropShadow();
         }
-        if (useOutline) native.setTextOutline();
     
         native.setTextCentre(true);
         native.beginTextCommandDisplayText("CELL_EMAIL_BCON");
@@ -195,24 +212,45 @@ if (alt.isClient && !alt.isWorker) {
     
     alt.Utils.drawText2d = function(
         text,
-        pos,
+        pos2d,
         font,
         scale,
         color,
+        outline,
+        dropShadow,
     ) {
         return new alt.Utils.EveryTick(() => {
-            alt.Utils.drawText2dThisFrame(text, pos, font, scale, color);
+            alt.Utils.drawText2dThisFrame(text, pos2d, font, scale, color, outline, dropShadow);
         });
     }
     
     alt.Utils.drawText3dThisFrame = function(
         text,
-        pos,
+        pos3d,
         font = 0,
         scale = 0.5,
         color = new alt.RGBA(255, 255, 255),
+        outline = true,
+        dropShadow = true,
     ) {
-        native.setDrawOrigin(pos.x, pos.y, pos.z, 0);
+        if (typeof text !== "string")
+            throw new Error("Expected a string as first argument");
+        if (typeof pos3d.x !== "number" || typeof pos3d.y !== "number" || typeof pos3d.z !== "number")
+            throw new Error("Expected Vector3 as second argument");
+        if (typeof font !== "number")
+            throw new Error("Expected a number as third argument");
+        if (typeof scale !== "number")
+            throw new Error("Expected a number as fourth argument");
+        if (
+            typeof color.r !== "number" || typeof color.g !== "number" || 
+            typeof color.b !== "number" || typeof color.a !== "number"
+        ) throw new Error("Expected RGBA as fifth argument");
+        if (typeof outline !== "boolean")
+            throw new Error("Expected boolean as sixth argument");
+        if (typeof dropShadow !== "boolean")
+            throw new Error("Expected boolean as seventh argument");
+    
+        native.setDrawOrigin(pos3d.x, pos3d.y, pos3d.z, 0);
         native.beginTextCommandDisplayText("STRING");
         native.addTextComponentSubstringPlayerName(text);
         native.setTextFont(font);
@@ -220,20 +258,28 @@ if (alt.isClient && !alt.isWorker) {
         native.setTextWrap(0.0, 1.0);
         native.setTextCentre(true);
         native.setTextColour(...color.toArray());
-        native.setTextOutline();
+    
+        if (outline) native.setTextOutline();
+        if (dropShadow) {
+            native.setTextDropshadow(0, 0, 0, 0, 255);
+            native.setTextDropShadow();
+        }
+    
         native.endTextCommandDisplayText(0, 0, 0);
         native.clearDrawOrigin();
     }
     
     alt.Utils.drawText3d = function(
         text,
-        pos,
+        pos3d,
         font,
         scale,
         color,
+        outline,
+        dropShadow,
     ) {
         return new alt.Utils.EveryTick(() => {
-            alt.Utils.drawText3dThisFrame(text, pos, font, scale, color);
+            alt.Utils.drawText3dThisFrame(text, pos3d, font, scale, color, outline, dropShadow);
         });
     }
 }
