@@ -3,11 +3,63 @@
 // Utils JS bindings
 
 // Shared
+
+alt.Utils.Timer = class Timer {
+    constructor(callback, ms, once) {
+        const handler = () => {
+            if (once) this.#clearId();
+            callback();
+        };
+
+        if (once)
+            this.id = alt.setTimeout(handler, ms);
+        else
+            this.id = alt.setInterval(handler, ms);
+    }
+
+    #clearId() {
+        // timer id starts from 1
+        this.id = 0;
+    }
+
+    destroy() {
+        if (!this.id)
+            throw new Error("timer already destroyed");
+
+        alt.clearTimer(this.id);
+        this.#clearId();
+    }
+}
+
+alt.Utils.Timeout = class Timeout extends alt.Utils.Timer {
+    constructor(callback, ms) {
+        super(callback, ms, true);
+    }
+}
+
+alt.Utils.NextTick = class NextTick extends alt.Utils.Timer {
+    constructor(callback) {
+        super(callback, 0, true);
+    }
+}
+
+alt.Utils.Interval = class Interval extends alt.Utils.Timer {
+    constructor(callback, ms) {
+        super(callback, ms, false);
+    }
+}
+
+alt.Utils.EveryTick = class EveryTick extends alt.Utils.Timer {
+    constructor(callback) {
+        super(callback, 0, false);
+    }
+}
+
 alt.Utils.wait = function(timeout) {
     if (typeof timeout !== "number") throw new Error("Expected a number as first argument");
 
     return new Promise(resolve => {
-        alt.setTimeout(resolve, timeout);
+        new alt.Utils.Timeout(resolve, timeout);
     });
 }
 
@@ -18,7 +70,7 @@ alt.Utils.waitFor = function(callback, timeout = 2000) {
     const checkUntil = Date.now() + timeout;
 
     return new Promise((resolve, reject) => {
-        const tick = alt.everyTick(() => {
+        const tick = new alt.Utils.EveryTick(() => {
             let result;
             try {
                 result = callback();
@@ -26,15 +78,15 @@ alt.Utils.waitFor = function(callback, timeout = 2000) {
                 const promiseError = new Error(`Failed to wait for callback, error: ${e.message}`);
                 promiseError.stack = e.stack;
                 reject(promiseError);
-                alt.clearEveryTick(tick);
+                tick.destroy();
                 return;
             }
 
             if (result) {
-                alt.clearEveryTick(tick);
+                tick.destroy();
                 resolve();
             } else if (Date.now() > checkUntil) {
-                alt.clearEveryTick(tick);
+                tick.destroy();
                 reject(new Error(`Failed to wait for callback: ${callback}`));
             }
         });
@@ -148,7 +200,7 @@ if (alt.isClient && !alt.isWorker) {
         scale,
         color,
     ) {
-        return alt.everyTick(() => {
+        return new alt.Utils.EveryTick(() => {
             alt.Utils.drawText2dThisFrame(text, pos, font, scale, color);
         });
     }
@@ -180,7 +232,7 @@ if (alt.isClient && !alt.isWorker) {
         scale,
         color,
     ) {
-        return alt.everyTick(() => {
+        return new alt.Utils.EveryTick(() => {
             alt.Utils.drawText3dThisFrame(text, pos, font, scale, color);
         });
     }
