@@ -128,6 +128,15 @@ static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo
     V8_RETURN(jsArr);
 }
 
+static void AllWorldGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    auto objects = alt::ICore::Instance().GetWorldObjects();
+    v8::Local<v8::Array> jsArr = v8::Array::New(isolate, objects.size());
+    for(size_t i = 0; i < objects.size(); ++i) jsArr->Set(ctx, i, resource->GetBaseObjectOrNull(objects[i]));
+    V8_RETURN(jsArr);
+}
+
 extern V8Class v8Entity;
 extern V8Class v8Object("Object",
                       v8Entity,
@@ -139,6 +148,8 @@ extern V8Class v8Object("Object",
                             V8Helpers::SetMethod(isolate, tpl, "toString", ToString);
 
                             V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
+
+                            V8Helpers::SetStaticAccessor(isolate, tpl, "allWorld", &AllWorldGetter);
 
                             V8Helpers::SetAccessor(isolate, tpl, "pos", &PosGetter, &PosSetter);
                             V8Helpers::SetAccessor(isolate, tpl, "rot", &RotGetter, &RotSetter);
