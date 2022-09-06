@@ -122,7 +122,7 @@ class ConsoleCommand {
 
     destroy() {
         if (this.destroyed)
-            throw new Error("ConsoleCommand already destroyed");
+            throw new Error(`ConsoleCommand '${this.name}' already destroyed`);
         this.destroyed = true;
 
         ConsoleCommand.#handlers
