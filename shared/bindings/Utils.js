@@ -104,9 +104,6 @@ class ConsoleCommand {
         this.#handlers = new Map();
 
         alt.on("consoleCommand", (name, ...args) => {
-            // TEST
-            alt.logWarning("consoleCommand", name);
-
             ConsoleCommand.#handlers
                 .get(name)
                 ?.forEach(h => h(...args));
@@ -117,6 +114,12 @@ class ConsoleCommand {
         const handlers = ConsoleCommand.#handlers.get(name) ?? new Set();
         handlers.add(handler);
         ConsoleCommand.#handlers.set(name, handlers);
+    }
+
+    static #removeHandler({ name, handler }) {
+        ConsoleCommand.#handlers
+            .get(name)
+            ?.delete(handler);
     }
 
     destroyed = false;
@@ -136,9 +139,7 @@ class ConsoleCommand {
             throw new Error(`ConsoleCommand '${this.name}' already destroyed`);
         this.destroyed = true;
 
-        ConsoleCommand.#handlers
-            .get(this.name)
-            ?.delete(this.handler);
+        ConsoleCommand.#removeHandler(this);
     }
 }
 alt.Utils.ConsoleCommand = ConsoleCommand;
