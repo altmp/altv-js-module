@@ -97,14 +97,26 @@ class ConsoleCommand {
     /**
      * @type {Map<string, Set<(...args: string[]) => void>>}
      */
-    static #handlers = new Map();
+    static #handlers = null;
 
-    static {
+    static #init() {
+        if (this.#handlers) return;
+        this.#handlers = new Map();
+
         alt.on("consoleCommand", (name, ...args) => {
+            // TEST
+            alt.logWarning("consoleCommand", name);
+
             ConsoleCommand.#handlers
                 .get(name)
                 ?.forEach(h => h(...args));
         });
+    }
+
+    static #addHandler({ name, handler }) {
+        const handlers = ConsoleCommand.#handlers.get(name) ?? new Set();
+        handlers.add(handler);
+        ConsoleCommand.#handlers.set(name, handlers);
     }
 
     destroyed = false;
@@ -115,9 +127,8 @@ class ConsoleCommand {
         this.name = name;
         this.handler = handler;
 
-        const handlers = ConsoleCommand.#handlers.get(name) ?? new Set();
-        handlers.add(handler);
-        ConsoleCommand.#handlers.set(name, handlers);
+        ConsoleCommand.#init();
+        ConsoleCommand.#addHandler(this);
     }
 
     destroy() {
