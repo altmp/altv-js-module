@@ -93,6 +93,57 @@ alt.Utils.waitFor = function(callback, timeout = 2000) {
     });
 }
 
+class ConsoleCommand {
+    /**
+     * @type {Map<string, Set<(...args: string[]) => void>>}
+     */
+    static #handlers = null;
+
+    static #init() {
+        if (this.#handlers) return;
+        this.#handlers = new Map();
+
+        alt.on("consoleCommand", (name, ...args) => {
+            ConsoleCommand.#handlers
+                .get(name)
+                ?.forEach(h => h(...args));
+        });
+    }
+
+    static #addHandler({ name, handler }) {
+        const handlers = ConsoleCommand.#handlers.get(name) ?? new Set();
+        handlers.add(handler);
+        ConsoleCommand.#handlers.set(name, handlers);
+    }
+
+    static #removeHandler({ name, handler }) {
+        ConsoleCommand.#handlers
+            .get(name)
+            ?.delete(handler);
+    }
+
+    destroyed = false;
+    name = "";
+    handler = () => {};
+
+    constructor(name, handler) {
+        this.name = name;
+        this.handler = handler;
+
+        ConsoleCommand.#init();
+        ConsoleCommand.#addHandler(this);
+    }
+
+    destroy() {
+        if (this.destroyed)
+            throw new Error(`ConsoleCommand '${this.name}' already destroyed`);
+        this.destroyed = true;
+
+        ConsoleCommand.#removeHandler(this);
+    }
+}
+alt.Utils.ConsoleCommand = ConsoleCommand;
+
 // Client only
 if (alt.isClient && !alt.isWorker) {
     alt.Utils.requestModel = async function(model, timeout = 1000) {
