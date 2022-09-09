@@ -122,10 +122,7 @@ static void SetPositionFrozen(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    auto objects = alt::ICore::Instance().GetObjects();
-    v8::Local<v8::Array> jsArr = v8::Array::New(isolate, objects.size());
-    for(size_t i = 0; i < objects.size(); ++i) jsArr->Set(ctx, i, resource->GetBaseObjectOrNull(objects[i]));
-    V8_RETURN(jsArr);
+    V8_RETURN(resource->GetAllObjects());
 }
 
 static void AllWorldGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -139,9 +136,10 @@ static void AllWorldGetter(v8::Local<v8::String> name, const v8::PropertyCallbac
 
 extern V8Class v8Entity;
 extern V8Class v8Object("Object",
-                      v8Entity,
-                      Constructor,
-                      [](v8::Local<v8::FunctionTemplate> tpl) {
+                        v8Entity,
+                        Constructor,
+                        [](v8::Local<v8::FunctionTemplate> tpl)
+                        {
                             using namespace alt;
                             v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
@@ -178,4 +176,4 @@ extern V8Class v8Object("Object",
                             V8Helpers::SetAccessor<IObject, uint8_t, &IObject::GetTextureVariation, &IObject::SetTextureVariation>(isolate, tpl, "textureVariation");
 
                             V8Helpers::SetAccessor<IObject, bool, &IObject::IsWorldObject>(isolate, tpl, "isWorldObject");
-                      });
+                        });

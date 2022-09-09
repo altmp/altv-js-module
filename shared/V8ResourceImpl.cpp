@@ -236,6 +236,7 @@ void V8ResourceImpl::NotifyPoolUpdate(alt::IBaseObject* ent)
     {
         case alt::IBaseObject::Type::PLAYER: playerPoolDirty = true; break;
         case alt::IBaseObject::Type::VEHICLE: vehiclePoolDirty = true; break;
+        case alt::IBaseObject::Type::OBJECT: objectPoolDirty = true; break;
     }
 }
 
@@ -258,17 +259,6 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllPlayers()
     return players.Get(isolate);
 }
 
-v8::Local<v8::Array> V8ResourceImpl::GetAllBlips()
-{
-    Array<Ref<IBlip>> all = ICore::Instance().GetBlips();
-    v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.GetSize());
-
-    for(uint32_t i = 0; i < all.GetSize(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
-
-    jsAll->SetIntegrityLevel(GetContext(), v8::IntegrityLevel::kFrozen);
-    return jsAll;
-}
-
 v8::Local<v8::Array> V8ResourceImpl::GetAllVehicles()
 {
     if(vehiclePoolDirty)
@@ -286,6 +276,37 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllVehicles()
     }
     return vehicles.Get(isolate);
 }
+
+v8::Local<v8::Array> V8ResourceImpl::GetAllBlips()
+{
+    Array<Ref<IBlip>> all = ICore::Instance().GetBlips();
+    v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.GetSize());
+
+    for(uint32_t i = 0; i < all.GetSize(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
+
+    jsAll->SetIntegrityLevel(GetContext(), v8::IntegrityLevel::kFrozen);
+    return jsAll;
+}
+
+#ifdef ALT_CLIENT_API
+v8::Local<v8::Array> V8ResourceImpl::GetAllObjects()
+{
+    if(objectPoolDirty)
+    {
+        objectPoolDirty = false;
+
+        std::vector<Ref<IObject>> all = ICore::Instance().GetObjects();
+        v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
+
+        for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
+
+        objects.Reset(isolate, jsAll);
+        jsAll->SetIntegrityLevel(GetContext(), v8::IntegrityLevel::kFrozen);
+        return jsAll;
+    }
+    return objects.Get(isolate);
+}
+#endif
 
 std::vector<V8Helpers::EventCallback*> V8ResourceImpl::GetLocalHandlers(const std::string& name)
 {

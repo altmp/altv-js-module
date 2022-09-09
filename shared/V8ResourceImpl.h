@@ -224,6 +224,9 @@ public:
     v8::Local<v8::Array> GetAllPlayers();
     v8::Local<v8::Array> GetAllVehicles();
     v8::Local<v8::Array> GetAllBlips();
+#ifdef ALT_CLIENT_API
+    v8::Local<v8::Array> GetAllObjects();
+#endif
 
     std::vector<V8Helpers::EventCallback*> GetLocalHandlers(const std::string& name);
     std::vector<V8Helpers::EventCallback*> GetRemoteHandlers(const std::string& name);
@@ -290,6 +293,9 @@ protected:
 
     bool vehiclePoolDirty = true;
     V8Helpers::CPersistent<v8::Array> vehicles;
+
+    bool objectPoolDirty = true;
+    V8Helpers::CPersistent<v8::Array> objects;
 
     V8Helpers::CPersistent<v8::Function> vector3Class;
     V8Helpers::CPersistent<v8::Function> vector2Class;
