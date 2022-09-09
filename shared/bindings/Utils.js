@@ -333,6 +333,27 @@ if (alt.isClient && !alt.isWorker) {
             alt.Utils.drawText3dThisFrame(text, pos3d, font, scale, color, outline, dropShadow);
         });
     }
+
+    alt.Utils.loadMapArea = async function(pos, radius = 50.0, timeout = 5000) {
+        if (pos != null && typeof pos.x !== "number" || typeof pos.y !== "number" || typeof pos.z !== "number")
+            throw new Error("Expected Vector3 as first argument");
+        if (typeof radius !== "number")
+            throw new Error("Expected a number as second argument");
+        if (typeof timeout !== "number")
+            throw new Error("Expected a number as third argument");
+
+        alt.FocusData.overrideFocus(pos);
+        native.newLoadSceneStop();
+        native.newLoadSceneStartSphere(pos.x, pos.y, pos.z, radius, 0);
+    
+        try {
+            await alt.Utils.waitFor(native.isNewLoadSceneLoaded, timeout);
+        } catch (e) {
+            throw new Error(`Failed to load map area pos: { x: ${pos.x.toFixed(2)}, y: ${pos.y.toFixed(2)}, z: ${pos.z.toFixed(2)} }`);
+        } finally {
+            alt.FocusData.clearFocus();
+        }
+    }
 }
 // Server only
 else {
