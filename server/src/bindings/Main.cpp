@@ -417,6 +417,34 @@ static void GetServerConfig(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN(val);
 }
 
+static void GetPedModelByHash(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_UINT(1, hash);
+
+    const alt::PedModelInfo& modelInfo = alt::ICore::Instance().GetPedModelByHash(hash);
+    V8_NEW_OBJECT(infoObj);
+
+    infoObj->Set(ctx, V8Helpers::JSValue("hash"), V8Helpers::JSValue(modelInfo.hash));
+    infoObj->Set(ctx, V8Helpers::JSValue("name"), V8Helpers::JSValue(modelInfo.name));
+
+    size_t boneSize = std::size(modelInfo.bones);
+    v8::Local<v8::Array> boneArr = v8::Array::New(isolate, boneSize);
+    for(size_t i = 0; i < boneSize; i++)
+    {
+        V8_NEW_OBJECT(boneObj);
+        boneObj->Set(ctx, V8Helpers::JSValue("id"), V8Helpers::JSValue(modelInfo.bones[i].id));
+        boneObj->Set(ctx, V8Helpers::JSValue("index"), V8Helpers::JSValue(modelInfo.bones[i].index));
+        boneObj->Set(ctx, V8Helpers::JSValue("name"), V8Helpers::JSValue(modelInfo.bones[i].name));
+        boneArr->Set(ctx, i, boneObj);
+    }
+    infoObj->Set(ctx, V8Helpers::JSValue("bones"), boneArr);
+
+    V8_RETURN(infoObj);
+}
+
 extern V8Class v8Player, v8Vehicle, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Checkpoint, v8VoiceChannel, v8Colshape, v8ColshapeCylinder, v8ColshapeSphere, v8ColshapeCircle,
   v8ColshapeCuboid, v8ColshapeRectangle, v8ColshapePolygon;
 
@@ -471,6 +499,7 @@ extern V8Module v8Alt("alt",
                           V8Helpers::RegisterFunc(exports, "stopServer", &StopServer);
 
                           V8Helpers::RegisterFunc(exports, "getVehicleModelInfoByHash", &GetVehicleModelByHash);
+                          V8Helpers::RegisterFunc(exports, "getPedModelInfoByHash", &GetPedModelByHash);
 
                           V8Helpers::RegisterFunc(exports, "getServerConfig", &GetServerConfig);
 
