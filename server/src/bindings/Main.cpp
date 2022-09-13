@@ -392,6 +392,18 @@ static void GetVehicleModelByHash(const v8::FunctionCallbackInfo<v8::Value>& inf
     infoObj->Set(ctx, V8Helpers::JSValue("hasExtra"), v8::Function::New(ctx, &HasExtra, v8::Uint32::NewFromUnsigned(isolate, hash)).ToLocalChecked());
     infoObj->Set(ctx, V8Helpers::JSValue("hasDefaultExtra"), v8::Function::New(ctx, &HasDefaultExtra, v8::Uint32::NewFromUnsigned(isolate, hash)).ToLocalChecked());
 
+    size_t boneSize = std::size(modelInfo.bones);
+    v8::Local<v8::Array> boneArr = v8::Array::New(isolate, boneSize);
+    for(size_t i = 0; i < boneSize; i++)
+    {
+        V8_NEW_OBJECT(boneObj);
+        boneObj->Set(ctx, V8Helpers::JSValue("id"), V8Helpers::JSValue(modelInfo.bones[i].id));
+        boneObj->Set(ctx, V8Helpers::JSValue("index"), V8Helpers::JSValue(modelInfo.bones[i].index));
+        boneObj->Set(ctx, V8Helpers::JSValue("name"), V8Helpers::JSValue(modelInfo.bones[i].name));
+        boneArr->Set(ctx, i, boneObj);
+    }
+    infoObj->Set(ctx, V8Helpers::JSValue("bones"), boneArr);
+
     V8_RETURN(infoObj);
 }
 
