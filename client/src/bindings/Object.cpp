@@ -76,7 +76,6 @@ static void AttachToEntity(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(object, alt::IObject);
     V8_CHECK_ARGS_LEN_MIN(4);
 
-    V8_ARG_TO_BASE_OBJECT(1, entity, alt::IEntity, "Entity");
     V8_ARG_TO_INT(2, bone);
     V8_ARG_TO_VECTOR3(3, pos);
     V8_ARG_TO_VECTOR3(4, rot);
@@ -84,7 +83,16 @@ static void AttachToEntity(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_BOOLEAN_OPT(6, collision, false);
     V8_ARG_TO_BOOLEAN_OPT(7, fixedRot, false);
 
-    object->AttachToEntity(entity, bone, pos, rot, useSoftPinning, collision, fixedRot);
+    if (info[0]->IsUint32())
+    {
+        V8_ARG_TO_INT(1, scriptId);
+        object->AttachToEntity(scriptId, bone, pos, rot, useSoftPinning, collision, fixedRot);
+    }
+    else
+    {
+        V8_ARG_TO_BASE_OBJECT(1, entity, alt::IEntity, "Entity");
+        object->AttachToEntity(entity, bone, pos, rot, useSoftPinning, collision, fixedRot);
+    }
 }
 
 static void Detach(const v8::FunctionCallbackInfo<v8::Value>& info)
