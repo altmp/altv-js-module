@@ -171,7 +171,7 @@ alt.Vector3.prototype.cross = function(...args) {
         else throw new Error("Argument must be a number, an array of 3 numbers or IVector3");
     }
 
-    return new alt.Vector3((this.y * z) - (z * this.y), (this.z * x) - (this.x * z), (this.x * y) - (this.y * x));
+    return new alt.Vector3((this.y * z) - (this.z * y), (this.z * x) - (this.x * z), (this.x * y) - (this.y * x));
 }
 
 alt.Vector3.prototype.negative = function() {
