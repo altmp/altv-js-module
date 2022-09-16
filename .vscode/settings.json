@@ -80,5 +80,5 @@
         "*.gen": "cpp"
     },
     "editor.defaultFormatter": "xaver.clang-format",
-    "editor.formatOnSave": true
+    "editor.formatOnSave": false
 }

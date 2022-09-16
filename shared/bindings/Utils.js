@@ -384,6 +384,112 @@ if (alt.isClient && !alt.isWorker) {
             alt.FocusData.clearFocus();
         }
     }
+
+    alt.Utils.Keybind = class Keybind extends BaseUtility {
+        /**
+         * @type {Map<number, Set<() => void>>}
+         */
+        static #keyupHandlers = null;
+        static #keydownHandlers = null;
+
+        static #init(instance) {
+            switch (instance.#eventType) {
+                case "keyup":
+                    if (this.#keyupHandlers) return;
+                    this.#keyupHandlers = new Map();
+
+                    alt.on("keyup", (keyCode) => {
+                        Keybind.#keyupHandlers
+                            .get(keyCode)
+                            ?.forEach(h => h());
+                    });
+
+                    break;
+
+                case "keydown":
+                    if (this.#keydownHandlers) return;
+                    this.#keydownHandlers = new Map();
+
+                    alt.on("keydown", (keyCode) => {
+                        Keybind.#keydownHandlers
+                            .get(keyCode)
+                            ?.forEach(h => h());
+                    });
+
+                    break;
+
+                default:
+                    throw new Error(`Unknown eventType: ${instance.#eventType}`);
+            }
+        }
+
+        static #getHandlers(eventType, keyCode) {
+            let allHandlers;
+
+            switch (eventType) {
+                case "keyup":
+                    allHandlers = Keybind.#keyupHandlers;
+                    break;
+
+                case "keydown":
+                    allHandlers = Keybind.#keydownHandlers;
+                    break;
+
+                default:
+                    throw new Error(`Unknown eventType: ${eventType}`);
+            }
+
+            const handlers = allHandlers.get(keyCode) ?? new Set();
+            allHandlers.set(keyCode, handlers);
+
+            return handlers;
+        }
+
+        static #addHandler(instance) {
+            for (const keyCode of instance.#keyCodes) {
+                Keybind
+                    .#getHandlers(instance.#eventType, keyCode)
+                    .add(instance.#handler);
+            }
+        }
+
+        static #removeHandler(instance) {
+            for (const keyCode of instance.#keyCodes) {
+                Keybind
+                    .#getHandlers(instance.#eventType, keyCode)
+                    .delete(instance.#handler);
+            }
+        }
+
+        #eventType = "";
+        #keyCodes = [];
+        #handler = () => { };
+
+        constructor(keyCode, handler, eventType = "keyup") {
+            if (!(typeof keyCode === "number" || Array.isArray(keyCode)))
+                throw new Error("Expected a number or array as first argument");
+            if (typeof handler !== "function")
+                throw new Error("Expected a function as second argument");
+            if (typeof eventType !== "string")
+                throw new Error("Expected a string as third argument");
+
+            super();
+
+            this.#keyCodes = Array.isArray(keyCode) ? keyCode : [keyCode];
+            this.#handler = handler;
+            this.#eventType = eventType;
+
+            Keybind.#init(this);
+            Keybind.#addHandler(this);
+        }
+
+        destroy() {
+            if (!super._tryDestroy())
+                throw new Error(`Keybind keyCodes: [${this.#keyCodes.join(", ")}] already destroyed`);
+
+            Keybind.#removeHandler(this);
+        }
+    }
 }
 // Server only
 else {
