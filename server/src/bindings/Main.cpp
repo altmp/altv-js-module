@@ -513,7 +513,7 @@ extern V8Module v8Alt("alt",
 
                           V8Helpers::RegisterFunc(exports, "getServerConfig", &GetServerConfig);
 
-                          V8Helpers::RegisterFunc(exports, "setWorldProfiler", &SetWorldProfiler);
+                          V8Helpers::RegisterFunc(exports, "toggleWorldProfiler", &SetWorldProfiler);
 
                           V8_OBJECT_SET_STRING(exports, "rootDir", alt::ICore::Instance().GetRootDirectory());
                           V8_OBJECT_SET_INT(exports, "defaultDimension", alt::DEFAULT_DIMENSION);
