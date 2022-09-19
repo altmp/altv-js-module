@@ -70,10 +70,12 @@ static void ClientJSCommand(const std::vector<std::string>& args)
     else if(args[0] == "--version")
     {
         Log::Colored << "~ly~cpp-sdk: #" << ALT_SDK_VERSION << Log::Endl;
-        Log::Colored << "~ly~" << u8"Copyright © 2020 altMP team." << Log::Endl;
+        Log::Colored << "~ly~"
+                     << "Copyright | 2020 altMP team." << Log::Endl;
 
         Log::Colored << "~ly~v8: v" << V8_MAJOR_VERSION << "." << V8_MINOR_VERSION << Log::Endl;
-        Log::Colored << "~ly~" << u8"Copyright © 2014 The V8 project authors." << Log::Endl;
+        Log::Colored << "~ly~"
+                     << "Copyright | 2014 The V8 project authors." << Log::Endl;
     }
     else if(args[0] == "--help")
     {
