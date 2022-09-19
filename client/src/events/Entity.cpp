@@ -67,7 +67,7 @@ V8_LOCAL_EVENT_HANDLER playerWeaponShoot(EventType::PLAYER_WEAPON_SHOOT_EVENT, "
     args.push_back(V8Helpers::JSValue(ev->GetAmmoInClip()));
 });
 
-V8_LOCAL_EVENT_HANDLER playerWeaponChange(EventType::PLAYER_WEAPON_SHOOT_EVENT, "playerWeaponChange", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+V8_LOCAL_EVENT_HANDLER playerWeaponChange(EventType::PLAYER_WEAPON_CHANGE, "playerWeaponChange", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
     auto ev = static_cast<const alt::CPlayerWeaponChangeEvent*>(e);
     v8::Isolate* isolate = resource->GetIsolate();
 

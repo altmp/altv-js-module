@@ -34,7 +34,7 @@ static void HandlingNameHashGetter(v8::Local<v8::String>, const v8::PropertyCall
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_ENTITY(1, vehicle, alt::IVehicle);
-    V8_RETURN_INT(vehicle->GetHandling()->GetHandlingNameHash());
+    V8_RETURN_UINT(vehicle->GetHandling()->GetHandlingNameHash());
 }
 
 static void MassGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -1161,7 +1161,7 @@ static void ModelFlagsGetter(v8::Local<v8::String>, const v8::PropertyCallbackIn
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_ENTITY(1, vehicle, alt::IVehicle);
 
-    V8_RETURN_INT(vehicle->GetHandling()->GetModelFlags());
+    V8_RETURN_UINT(vehicle->GetHandling()->GetModelFlags());
 }
 
 static void ModelFlagsSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
@@ -1178,7 +1178,7 @@ static void HandlingFlagsGetter(v8::Local<v8::String>, const v8::PropertyCallbac
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_ENTITY(1, vehicle, alt::IVehicle);
-    V8_RETURN_INT(vehicle->GetHandling()->GetHandlingFlags());
+    V8_RETURN_UINT(vehicle->GetHandling()->GetHandlingFlags());
 }
 
 static void HandlingFlagsSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
@@ -1195,7 +1195,7 @@ static void DamageFlagsGetter(v8::Local<v8::String>, const v8::PropertyCallbackI
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_ENTITY(1, vehicle, alt::IVehicle);
-    V8_RETURN_INT(vehicle->GetHandling()->GetDamageFlags());
+    V8_RETURN_UINT(vehicle->GetHandling()->GetDamageFlags());
 }
 
 static void DamageFlagsSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)

@@ -51,6 +51,20 @@ V8Helpers::LocalEventHandler
       });
   });
 
+V8Helpers::LocalEventHandler playerConnectDenied(EventType::PLAYER_CONNECT_DENIED, "playerConnectDenied", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+    auto ev = static_cast<const alt::CPlayerConnectDeniedEvent*>(e);
+
+    args.push_back(V8Helpers::JSValue(ev->GetReason()));
+    args.push_back(V8Helpers::JSValue(ev->GetName()));
+    args.push_back(V8Helpers::JSValue(ev->GetIp()));
+    args.push_back(V8Helpers::JSValue(ev->GetPasswordHash()));
+    args.push_back(V8Helpers::JSValue(ev->IsDebug()));
+    args.push_back(V8Helpers::JSValue(ev->GetBranch()));
+    args.push_back(V8Helpers::JSValue(ev->GetMajorVersion()));
+    args.push_back(V8Helpers::JSValue(ev->GetCdnUrl()));
+    args.push_back(V8Helpers::JSValue(ev->GetDiscordId()));
+});
+
 V8Helpers::LocalEventHandler playerDisconnect(EventType::PLAYER_DISCONNECT, "playerDisconnect", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
     auto ev = static_cast<const alt::CPlayerDisconnectEvent*>(e);
 

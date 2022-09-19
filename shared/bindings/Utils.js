@@ -4,29 +4,55 @@
 
 // Shared
 
-alt.Utils.Timer = class Timer {
+class BaseUtility {
+    #destroyed = false;
+
+    _tryDestroy() {
+        if (this.#destroyed) return false;
+        this.#destroyed = true;
+        return true;
+    }
+}
+
+alt.Utils.Timer = class Timer extends BaseUtility {
+    #id = 0;
+
     constructor(callback, ms, once) {
+        super();
+
         const handler = () => {
-            if (once) this.#clearId();
+            if (once) {
+                super._tryDestroy();
+                this.#clearId();
+            }
+
             callback();
         };
 
         if (once)
-            this.id = alt.setTimeout(handler, ms);
+            this.#id = alt.setTimeout(handler, ms);
         else
-            this.id = alt.setInterval(handler, ms);
+            this.#id = alt.setInterval(handler, ms);
+    }
+
+    get id() {
+        return this.#id;
+    }
+
+    set id(_) {
+        throw new Error("Timer id property is read-only");
     }
 
     #clearId() {
         // timer id starts from 1
-        this.id = 0;
+        this.#id = 0;
     }
 
     destroy() {
-        if (!this.id)
-            throw new Error("timer already destroyed");
+        if (!super._tryDestroy())
+            throw new Error("Timer already destroyed");
 
-        alt.clearTimer(this.id);
+        alt.clearTimer(this.#id);
         this.#clearId();
     }
 }
@@ -93,15 +119,15 @@ alt.Utils.waitFor = function(callback, timeout = 2000) {
     });
 }
 
-class ConsoleCommand {
+alt.Utils.ConsoleCommand = class ConsoleCommand extends BaseUtility {
     /**
      * @type {Map<string, Set<(...args: string[]) => void>>}
      */
     static #handlers = null;
 
     static #init() {
-        if (this.#handlers) return;
-        this.#handlers = new Map();
+        if (ConsoleCommand.#handlers) return;
+        ConsoleCommand.#handlers = new Map();
 
         alt.on("consoleCommand", (name, ...args) => {
             ConsoleCommand.#handlers
@@ -110,39 +136,43 @@ class ConsoleCommand {
         });
     }
 
-    static #addHandler({ name, handler }) {
-        const handlers = ConsoleCommand.#handlers.get(name) ?? new Set();
-        handlers.add(handler);
-        ConsoleCommand.#handlers.set(name, handlers);
+    static #addHandler(instance) {
+        const handlers = ConsoleCommand.#handlers.get(instance.#name) ?? new Set();
+        handlers.add(instance.#handler);
+        ConsoleCommand.#handlers.set(instance.#name, handlers);
     }
 
-    static #removeHandler({ name, handler }) {
+    static #removeHandler(instance) {
         ConsoleCommand.#handlers
-            .get(name)
-            ?.delete(handler);
+            .get(instance.#name)
+            ?.delete(instance.#handler);
     }
 
-    destroyed = false;
-    name = "";
-    handler = () => {};
+    #name = "";
+    #handler = () => {};
 
     constructor(name, handler) {
-        this.name = name;
-        this.handler = handler;
+        if (typeof name !== "string")
+            throw new Error("Expected a string as first argument");
+        if (typeof handler !== "function")
+            throw new Error("Expected a function as second argument");
+
+        super();
+
+        this.#name = name;
+        this.#handler = handler;
 
         ConsoleCommand.#init();
         ConsoleCommand.#addHandler(this);
     }
 
     destroy() {
-        if (this.destroyed)
-            throw new Error(`ConsoleCommand '${this.name}' already destroyed`);
-        this.destroyed = true;
+        if (!super._tryDestroy())
+            throw new Error(`ConsoleCommand '${this.#name}' already destroyed`);
 
         ConsoleCommand.#removeHandler(this);
     }
 }
-alt.Utils.ConsoleCommand = ConsoleCommand;
 
 // Client only
 if (alt.isClient && !alt.isWorker) {
@@ -352,6 +382,112 @@ if (alt.isClient && !alt.isWorker) {
             throw new Error(`Failed to load map area pos: { x: ${pos.x.toFixed(2)}, y: ${pos.y.toFixed(2)}, z: ${pos.z.toFixed(2)} }`);
         } finally {
             alt.FocusData.clearFocus();
+        }
+    }
+
+    alt.Utils.Keybind = class Keybind extends BaseUtility {
+        /**
+         * @type {Map<number, Set<() => void>>}
+         */
+        static #keyupHandlers = null;
+        static #keydownHandlers = null;
+
+        static #init(instance) {
+            switch (instance.#eventType) {
+                case "keyup":
+                    if (this.#keyupHandlers) return;
+                    this.#keyupHandlers = new Map();
+
+                    alt.on("keyup", (keyCode) => {
+                        Keybind.#keyupHandlers
+                            .get(keyCode)
+                            ?.forEach(h => h());
+                    });
+
+                    break;
+
+                case "keydown":
+                    if (this.#keydownHandlers) return;
+                    this.#keydownHandlers = new Map();
+
+                    alt.on("keydown", (keyCode) => {
+                        Keybind.#keydownHandlers
+                            .get(keyCode)
+                            ?.forEach(h => h());
+                    });
+
+                    break;
+
+                default:
+                    throw new Error(`Unknown eventType: ${instance.#eventType}`);
+            }
+        }
+
+        static #getHandlers(eventType, keyCode) {
+            let allHandlers;
+
+            switch (eventType) {
+                case "keyup":
+                    allHandlers = Keybind.#keyupHandlers;
+                    break;
+
+                case "keydown":
+                    allHandlers = Keybind.#keydownHandlers;
+                    break;
+
+                default:
+                    throw new Error(`Unknown eventType: ${eventType}`);
+            }
+
+            const handlers = allHandlers.get(keyCode) ?? new Set();
+            allHandlers.set(keyCode, handlers);
+
+            return handlers;
+        }
+
+        static #addHandler(instance) {
+            for (const keyCode of instance.#keyCodes) {
+                Keybind
+                    .#getHandlers(instance.#eventType, keyCode)
+                    .add(instance.#handler);
+            }
+        }
+
+        static #removeHandler(instance) {
+            for (const keyCode of instance.#keyCodes) {
+                Keybind
+                    .#getHandlers(instance.#eventType, keyCode)
+                    .delete(instance.#handler);
+            }
+        }
+
+        #eventType = "";
+        #keyCodes = [];
+        #handler = () => { };
+
+        constructor(keyCode, handler, eventType = "keyup") {
+            if (!(typeof keyCode === "number" || Array.isArray(keyCode)))
+                throw new Error("Expected a number or array as first argument");
+            if (typeof handler !== "function")
+                throw new Error("Expected a function as second argument");
+            if (typeof eventType !== "string")
+                throw new Error("Expected a string as third argument");
+
+            super();
+
+            this.#keyCodes = Array.isArray(keyCode) ? keyCode : [keyCode];
+            this.#handler = handler;
+            this.#eventType = eventType;
+
+            Keybind.#init(this);
+            Keybind.#addHandler(this);
+        }
+
+        destroy() {
+            if (!super._tryDestroy())
+                throw new Error(`Keybind keyCodes: [${this.#keyCodes.join(", ")}] already destroyed`);
+
+            Keybind.#removeHandler(this);
         }
     }
 }
