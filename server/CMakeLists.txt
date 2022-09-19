@@ -13,7 +13,7 @@ set(PROJECT_NAME js-module)
 message("alt:V JS - Fetching NodeJS deps, can take a while")
 DownloadDeps()
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_definitions(-DJS_MODULE_VERSION="${JS_MODULE_VERSION}")
