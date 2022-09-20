@@ -183,7 +183,7 @@ std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
     {
         for(auto argument : extraCliArgs.ToList())
         {
-            args.push_back(argument.ToString());
+            args.push_back(argument->ToString());
         }
     }
 
