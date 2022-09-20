@@ -250,7 +250,7 @@ v8::Local<v8::Value> V8Helpers::ConfigNodeToV8(alt::config::Node& node, v8::Loca
             v8::Local<v8::Array> arr = v8::Array::New(isolate, list.size());
             for(size_t i = 0; i < list.size(); i++)
             {
-                v8::Local<v8::Value> val = ConfigNodeToV8(list[i], val);
+                v8::Local<v8::Value> val = ConfigNodeToV8(*list[i], val);
                 if(val.IsEmpty()) continue;
                 arr->Set(ctx, i, val);
             }
