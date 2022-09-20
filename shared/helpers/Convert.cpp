@@ -263,7 +263,7 @@ v8::Local<v8::Value> V8Helpers::ConfigNodeToV8(alt::config::Node& node, v8::Loca
             v8::Local<v8::Object> obj = v8::Object::New(isolate);
             for(auto& pair : dict)
             {
-                v8::Local<v8::Value> val = ConfigNodeToV8(pair.second, val);
+                v8::Local<v8::Value> val = ConfigNodeToV8(*pair.second, val);
                 if(val.IsEmpty()) continue;
                 obj->Set(ctx, V8Helpers::JSValue(pair.first), val);
             }
