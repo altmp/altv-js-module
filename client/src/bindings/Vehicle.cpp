@@ -243,6 +243,15 @@ static void SetWheelTyreWidth(const v8::FunctionCallbackInfo<v8::Value>& info)
     vehicle->SetWheelTyreWidth(wheel, value);
 }
 
+static void GetWheelSurfaceMaterial(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::IVehicle);
+    V8_CHECK_ARGS_LEN(1);
+    V8_ARG_TO_INT(1, wheel);
+    V8_RETURN_UINT(vehicle->GetWheelSurfaceMaterial(wheel));
+}
+
 extern V8Class v8Entity;
 extern V8Class v8Vehicle("Vehicle", v8Entity, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -288,6 +297,7 @@ extern V8Class v8Vehicle("Vehicle", v8Entity, [](v8::Local<v8::FunctionTemplate>
     V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetOilLevel, &IVehicle::SetOilLevel>(isolate, tpl, "oilLevel");
     V8Helpers::SetAccessor<IVehicle, bool, &IVehicle::IsEngineOn>(isolate, tpl, "engineOn");
 
+    V8Helpers::SetMethod(isolate, tpl, "getWheelSurfaceMaterial", GetWheelSurfaceMaterial);
 
     /*GETTERS BELOW ARE UNIMPLEMENTED
     V8Helpers::SetAccessor(isolate, tpl, "isDestroyed", &IsDestroyedGetter);
