@@ -490,6 +490,16 @@ if (alt.isClient && !alt.isWorker) {
             Keybind.#removeHandler(this);
         }
     }
+
+    alt.Utils.setVehicleTurboPtfx = function(scriptID, toggle) {
+        if (typeof scriptID !== "number")
+            throw new Error("Expected a number as first argument");
+        if (typeof toggle !== "boolean")
+            throw new Error("Expected a boolean as second argument");
+
+        native.requestNamedPtfxAsset('veh_xs_vehicle_mods');
+        native.setVehicleNitroEnabled(scriptID, toggle, 0.0, 0.0, 0, true);
+    }
 }
 // Server only
 else {
