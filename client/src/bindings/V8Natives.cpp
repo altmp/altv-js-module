@@ -271,7 +271,7 @@ static void PushPointerReturn(alt::INative::Type argType, v8::Local<v8::Array> r
 
     switch(argType)
     {
-        case alt::INative::Type::ARG_BOOL_PTR: retns->Set(ctx, returnsCount++, V8Helpers::JSValue(*reinterpret_cast<int32_t*>(&pointers[pointersCount++]))); break;
+        case alt::INative::Type::ARG_BOOL_PTR: retns->Set(ctx, returnsCount++, V8Helpers::JSValue((bool)*reinterpret_cast<int32_t*>(&pointers[pointersCount++]))); break;
         case alt::INative::Type::ARG_INT32_PTR: retns->Set(ctx, returnsCount++, V8Helpers::JSValue(*reinterpret_cast<int32_t*>(&pointers[pointersCount++]))); break;
         case alt::INative::Type::ARG_UINT32_PTR: retns->Set(ctx, returnsCount++, V8Helpers::JSValue(*reinterpret_cast<uint32_t*>(&pointers[pointersCount++]))); break;
         case alt::INative::Type::ARG_FLOAT_PTR: retns->Set(ctx, returnsCount++, V8Helpers::JSValue(*reinterpret_cast<float*>(&pointers[pointersCount++]))); break;
