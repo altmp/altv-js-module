@@ -497,7 +497,7 @@ if (alt.isClient && !alt.isWorker) {
         if (typeof toggle !== "boolean")
             throw new Error("Expected a boolean as second argument");
 
-        native.requestNamedPtfxAsset("veh_xs_vehicle_mods");
+        if (toggle) native.requestNamedPtfxAsset("veh_xs_vehicle_mods");
         native.setVehicleNitroEnabled(scriptID, toggle, 0.0, 0.0, 0, true);
     }
 }
