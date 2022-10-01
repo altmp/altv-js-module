@@ -39,10 +39,6 @@ alt.Utils.Timer = class Timer extends BaseUtility {
         return this.#id;
     }
 
-    set id(_) {
-        throw new Error("Timer id property is read-only");
-    }
-
     #clearId() {
         // timer id starts from 1
         this.#id = 0;
