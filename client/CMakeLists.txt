@@ -108,6 +108,8 @@ if(DYNAMIC_BUILD)
 
   add_dependencies(${PROJECT_NAME} alt-sdk)
 else()
+  include(${ALTV_JS_CPP_SDK}/cpp-sdk/CMakeLists.txt)
+
   ## STATIC
   add_library(
     ${PROJECT_NAME}-static STATIC
