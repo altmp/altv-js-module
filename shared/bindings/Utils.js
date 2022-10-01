@@ -220,7 +220,6 @@ if (alt.isClient && !alt.isWorker) {
         }
     }
 
-    // clip set is basically the same as anim set
     alt.Utils.requestClipSet = alt.Utils.requestAnimSet;
 
     alt.Utils.requestCutscene = async function(cutsceneName, flags, timeout = 1000) {
@@ -268,29 +267,29 @@ if (alt.isClient && !alt.isWorker) {
             throw new Error("Expected boolean as sixth argument");
         if (typeof dropShadow !== "boolean")
             throw new Error("Expected boolean as seventh argument");
-    
+
         native.setTextFont(font);
         native.setTextProportional(false);
         native.setTextScale(scale, scale);
         native.setTextColour(...color.toArray());
         native.setTextEdge(2, 0, 0, 0, 150);
-    
+
         if (outline) native.setTextOutline();
         if (dropShadow) {
             native.setTextDropshadow(0, 0, 0, 0, 255);
             native.setTextDropShadow();
         }
-    
+
         native.setTextCentre(true);
         native.beginTextCommandDisplayText("CELL_EMAIL_BCON");
         // Split text into pieces of max 99 chars blocks
         (text.match(/.{1,99}/g))?.forEach((textBlock) => {
             native.addTextComponentSubstringPlayerName(textBlock);
         });
-    
+
         native.endTextCommandDisplayText(pos2d.x, pos2d.y, 0);
     }
-    
+
     alt.Utils.drawText2d = function(
         text,
         pos2d,
@@ -304,7 +303,7 @@ if (alt.isClient && !alt.isWorker) {
             alt.Utils.drawText2dThisFrame(text, pos2d, font, scale, color, outline, dropShadow);
         });
     }
-    
+
     alt.Utils.drawText3dThisFrame = function(
         text,
         pos3d,
@@ -323,14 +322,14 @@ if (alt.isClient && !alt.isWorker) {
         if (typeof scale !== "number")
             throw new Error("Expected a number as fourth argument");
         if (
-            typeof color.r !== "number" || typeof color.g !== "number" || 
+            typeof color.r !== "number" || typeof color.g !== "number" ||
             typeof color.b !== "number" || typeof color.a !== "number"
         ) throw new Error("Expected RGBA as fifth argument");
         if (typeof outline !== "boolean")
             throw new Error("Expected boolean as sixth argument");
         if (typeof dropShadow !== "boolean")
             throw new Error("Expected boolean as seventh argument");
-    
+
         native.setDrawOrigin(pos3d.x, pos3d.y, pos3d.z, 0);
         native.beginTextCommandDisplayText("STRING");
         native.addTextComponentSubstringPlayerName(text);
@@ -339,17 +338,17 @@ if (alt.isClient && !alt.isWorker) {
         native.setTextWrap(0.0, 1.0);
         native.setTextCentre(true);
         native.setTextColour(...color.toArray());
-    
+
         if (outline) native.setTextOutline();
         if (dropShadow) {
             native.setTextDropshadow(0, 0, 0, 0, 255);
             native.setTextDropShadow();
         }
-    
+
         native.endTextCommandDisplayText(0, 0, 0);
         native.clearDrawOrigin();
     }
-    
+
     alt.Utils.drawText3d = function(
         text,
         pos3d,
@@ -375,7 +374,7 @@ if (alt.isClient && !alt.isWorker) {
         alt.FocusData.overrideFocus(pos);
         native.newLoadSceneStop();
         native.newLoadSceneStartSphere(pos.x, pos.y, pos.z, radius, 0);
-    
+
         try {
             await alt.Utils.waitFor(native.isNewLoadSceneLoaded, timeout);
         } catch (e) {
