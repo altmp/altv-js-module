@@ -138,11 +138,9 @@ alt.Vector2.prototype.distanceToSquared = function(vector) {
 
 alt.Vector2.prototype.angleTo = function(vector) {
     if(vector === undefined) throw new Error("1 argument expected");
-
     const posALength = Math.hypot(this.x, this.y);
     const posBLength = Math.hypot(vector.x, vector.y);
     if (posALength === 0 || posBLength === 0) throw new Error("Division by zero");
-
     return Math.acos((this.x * vector.x + this.y * vector.y) / (posALength * posBLength));
 }
 
