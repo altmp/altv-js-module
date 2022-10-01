@@ -42,7 +42,6 @@ GroupSources(${PROJECT_SOURCE_DIR}/src "Source Files")
 GroupSources("../shared" "Shared Files")
 
 make_includable("src/bootstrap.js" "src/bootstrap.js.gen")
-GenerateBindings()
 
 include_directories(
   ${ALTV_JS_CPP_SDK}

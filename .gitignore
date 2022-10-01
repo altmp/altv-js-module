@@ -1,4 +1,5 @@
 # Generated
 *.gen
+*.out.h
 
 node_modules/
