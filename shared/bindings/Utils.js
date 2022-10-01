@@ -485,6 +485,269 @@ if (alt.isClient && !alt.isWorker) {
             Keybind.#removeHandler(this);
         }
     }
+
+    alt.Utils.Marker = class Marker extends BaseUtility {
+        #tick;
+        #type;
+        #pos;
+        #dir;
+        #rot;
+        #scale;
+        #color;
+        #bobUpAndDown;
+        #faceCamera;
+        #p19;
+        #rotate;
+        #textureDict;
+        #textureName;
+        #drawOnEnts;
+      
+        constructor(
+            pos,
+            {
+                type = 0,
+                dir = alt.Vector3.zero,
+                rot = alt.Vector3.zero,
+                scale = alt.Vector3.one,
+                color = new alt.RGBA(255, 255, 255),
+                bobUpAndDown = false,
+                faceCamera = false,
+                p19 = 2,
+                rotate = false,
+                textureDict = undefined,
+                textureName = undefined,
+                drawOnEnts = false,
+            } = {},
+        ) {
+            super();
+      
+            if (!(pos != null && (typeof pos.x === "number" || typeof pos.y === "number" || typeof pos.z === "number")))
+                throw new Error("Expected IVector3 as first argument");
+            if (typeof type !== "number")
+                throw new Error("Expected a number as type option");
+            if (!(dir != null && (typeof dir.x === "number" || typeof dir.y === "number" || typeof dir.z === "number")))
+                throw new Error("Expected IVector3 as dir option");
+            if (!(rot != null && (typeof rot.x === "number" || typeof rot.y === "number" || typeof rot.z === "number")))
+                throw new Error("Expected IVector3 as rot option");
+            if (!(scale != null && (typeof scale.x === "number" || typeof scale.y === "number" || typeof scale.z === "number")))
+                throw new Error("Expected IVector3 as scale option");
+            if (!(
+                color != null &&
+                (typeof color.r === "number" && typeof color.g === "number" &&
+                typeof color.b === "number" && typeof color.a === "number")
+            )) throw new Error("Expected RGBA as color option");
+            if (typeof bobUpAndDown !== "boolean")
+                throw new Error("Expected a boolean as bobUpAndDown option");
+            if (typeof faceCamera !== "boolean")
+                throw new Error("Expected a boolean as faceCamera option");
+            if (typeof p19 !== "number")
+                throw new Error("Expected a number as p19 option");
+            if (typeof rotate !== "boolean")
+                throw new Error("Expected a boolean as rotate option");
+            if (!(typeof textureDict === "undefined" || typeof textureDict === "string"))
+                throw new Error("Expected a string or undefined as textureDict option");
+            if (!(typeof textureName === "undefined" || typeof textureName === "string"))
+                throw new Error("Expected a string or undefined as textureName option");
+            if (typeof drawOnEnts !== "boolean")
+                throw new Error("Expected a boolean as drawOnEnts option");
+      
+            this.#pos = pos;
+            this.#type = type;
+            this.#dir = dir;
+            this.#rot = rot;
+            this.#scale = scale;
+            this.#color = color;
+            this.#bobUpAndDown = bobUpAndDown;
+            this.#faceCamera = faceCamera;
+            this.#p19 = p19;
+            this.#rotate = rotate;
+            this.#textureDict = textureDict;
+            this.#textureName = textureName;
+            this.#drawOnEnts = drawOnEnts;
+      
+            this.#tick = new alt.Utils.EveryTick(() => {
+                native.drawMarker(
+                    this.#type,
+                    this.#pos.x,
+                    this.#pos.y,
+                    this.#pos.z,
+                    this.#dir.x,
+                    this.#dir.y,
+                    this.#dir.z,
+                    this.#rot.x,
+                    this.#rot.y,
+                    this.#rot.z,
+                    this.#scale.x,
+                    this.#scale.y,
+                    this.#scale.z,
+                    this.#color.r,
+                    this.#color.g,
+                    this.#color.b,
+                    this.#color.a,
+                    this.#bobUpAndDown,
+                    this.#faceCamera,
+                    this.#p19,
+                    this.#rotate,
+                    this.#textureDict,
+                    this.#textureName,
+                    this.#drawOnEnts,
+                );
+            });
+        }
+      
+        get pos() {
+            return this.#pos;
+        }
+      
+        set pos(value) {
+            if (!(value != null && (typeof value.x === "number" || typeof value.y === "number" || typeof value.z === "number")))
+                throw new Error("Expected IVector3");
+      
+            this.#pos = value;
+        }
+      
+        get type() {
+            return this.#type;
+        }
+      
+        set type(value) {
+            if (typeof value !== "number")
+                throw new Error("Expected a number");
+      
+            this.#type = value;
+        }
+      
+        get dir() {
+            return this.#dir;
+        }
+      
+        set dir(value) {
+            if (!(value != null && (typeof value.x === "number" || typeof value.y === "number" || typeof value.z === "number")))
+                throw new Error("Expected IVector3");
+      
+            this.#dir = value;
+        }
+      
+        get rot() {
+            return this.#rot;
+        }
+      
+        set rot(value) {
+            if (!(value != null && (typeof value.x === "number" || typeof value.y === "number" || typeof value.z === "number")))
+                throw new Error("Expected IVector3");
+      
+            this.#rot = value;
+        }
+      
+        get scale() {
+            return this.#scale;
+        }
+      
+        set scale(value) {
+            if (!(value != null && (typeof value.x === "number" || typeof value.y === "number" || typeof value.z === "number")))
+                throw new Error("Expected IVector3");
+      
+            this.#scale = value;
+        }
+      
+        get p19() {
+            return this.#p19;
+        }
+      
+        set p19(value) {
+            if (typeof value !== "number")
+                throw new Error("Expected a number");
+      
+            this.#p19 = value;
+        }
+      
+        get color() {
+            return this.#color;
+        }
+      
+        set color(value) {
+            if (!(
+                value != null &&
+                (typeof value.r === "number" && typeof value.g === "number" &&
+                typeof value.b === "number" && typeof value.a === "number")
+            )) throw new Error("Expected RGBA");
+      
+            this.#color = value;
+        }
+      
+        get bobUpAndDown() {
+            return this.#bobUpAndDown;
+        }
+      
+        set bobUpAndDown(value) {
+            if (typeof value !== "boolean")
+                throw new Error("Expected a boolean");
+      
+            this.#bobUpAndDown = value;
+        }
+      
+        get faceCamera() {
+            return this.#faceCamera;
+        }
+      
+        set faceCamera(value) {
+            if (typeof value !== "boolean")
+                throw new Error("Expected a boolean");
+      
+            this.#faceCamera = value;
+        }
+      
+        get rotate() {
+            return this.#rotate;
+        }
+      
+        set rotate(value) {
+            if (typeof value !== "boolean")
+                throw new Error("Expected a boolean");
+      
+            this.#rotate = value;
+        }
+      
+        get drawOnEnts() {
+            return this.#drawOnEnts;
+        }
+      
+        set drawOnEnts(value) {
+            if (typeof value !== "boolean")
+                throw new Error("Expected a boolean");
+      
+            this.#drawOnEnts = value;
+        }
+      
+        get textureDict() {
+            return this.#textureDict;
+        }
+      
+        set textureDict(value) {
+            if (!(typeof value === "undefined" || typeof value === "string"))
+                throw new Error("Expected a string or undefined");
+      
+            this.#textureDict = value;
+        }
+      
+        get textureName() {
+            return this.#textureName;
+        }
+      
+        set textureName(value) {
+            if (!(typeof value === "undefined" || typeof value === "string"))
+                throw new Error("Expected a string or undefined");
+      
+            this.#textureName = value;
+        }
+      
+        destroy() {
+            if (!super._tryDestroy())
+                throw new Error("Marker already destroyed");
+      
+            this.#tick.destroy();
+        }
+    }
 }
 // Server only
 else {
