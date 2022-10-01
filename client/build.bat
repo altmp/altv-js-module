@@ -10,5 +10,5 @@ cmake --build BUILD --config Release
 IF NOT EXIST dist (
     mkdir dist
 )
-copy BUILD\Release\altv-client-js-static.lib dist
-copy BUILD\Release\altv-client-js-static.pdb dist
+copy BUILD\Release\altv-client-js.lib dist
+copy BUILD\Release\altv-client-js.pdb dist
