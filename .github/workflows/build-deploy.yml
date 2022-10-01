@@ -30,13 +30,9 @@ jobs:
         shell: cmd
         run: |
           cd server
-          mkdir build
-          pushd build
-          cmake -G"Visual Studio 16" -A x64 -DJS_MODULE_VERSION=%VERSION% ..
-          cmake --build . --config Release
-          popd
+          build.bat
           mkdir dist\modules\js-module
-          copy build\Release\js-module.dll dist\modules\js-module
+          copy Release\js-module.dll dist\modules\js-module
           copy deps\nodejs\lib\Release\libnode.dll dist\modules\js-module
         env:
           VERSION: ${{ steps.version.outputs.VERSION }}
@@ -66,15 +62,10 @@ jobs:
       - name: Build
         run: |
           cd server
-          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-          sudo apt-get update
-          sudo apt-get install gcc-8 g++-8
-          mkdir build-linux && cd build-linux
-          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-8 -DJS_MODULE_VERSION=%VERSION% ..
-          cmake --build . --config Release
+          ./build.sh
           cd ..
           mkdir -p dist/modules/js-module
-          cp ./build-linux/libjs-module.so dist/modules/js-module
+          cp ./libjs-module.so dist/modules/js-module
           cp ./deps/nodejs/lib/libnode.so.102 dist/modules/js-module
         env:
           VERSION: ${{ steps.version.outputs.VERSION }}

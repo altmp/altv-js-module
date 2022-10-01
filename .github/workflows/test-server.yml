@@ -19,27 +19,11 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Create LFS file list
-        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
-
-      - name: Restore LFS cache
-        uses: actions/cache@v2
-        id: lfs-cache
-        with:
-          path: .git/lfs
-          key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}-v1
-
-      - name: Git LFS Pull
-        run: git lfs pull
-
       - name: Build
         shell: cmd
         run: |
           cd server
-          mkdir build
-          pushd build
-          cmake -G"Visual Studio 16" -A x64 ..
-          cmake --build . --config Release
+          build.bat
 
   test-server-linux:
     name: Test server changes on Linux
@@ -50,25 +34,7 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Create LFS file list
-        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
-
-      - name: Restore LFS cache
-        uses: actions/cache@v2
-        id: lfs-cache
-        with:
-          path: .git/lfs
-          key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}-v1
-
-      - name: Git LFS Pull
-        run: git lfs pull
-
       - name: Build
         run: |
-          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-          sudo apt-get update
-          sudo apt-get install gcc-8 g++-8
           cd server
-          mkdir build-linux && cd build-linux
-          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-8 ..
-          cmake --build . --config Release
+          ./build.sh
