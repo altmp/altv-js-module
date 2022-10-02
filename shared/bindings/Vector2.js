@@ -120,6 +120,10 @@ alt.Vector2.prototype.negative = function() {
     return new alt.Vector2(-this.x, -this.y);
 }
 
+alt.Vector2.prototype.inverse = function() {
+    return new alt.Vector2(1 / this.x, 1 / this.y);
+}
+
 alt.Vector2.prototype.normalize = function() {
     const length = this.length;
     return new alt.Vector2(this.x / length, this.y / length);

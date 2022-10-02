@@ -178,6 +178,10 @@ alt.Vector3.prototype.negative = function() {
     return new alt.Vector3(-this.x, -this.y, -this.z);
 }
 
+alt.Vector3.prototype.inverse = function() {
+    return new alt.Vector3(1 / this.x, 1 / this.y, 1 / this.z);
+}
+
 alt.Vector3.prototype.normalize = function() {
     const length = this.length;
     return new alt.Vector3(this.x / length, this.y / length, this.z / length);
