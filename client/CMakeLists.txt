@@ -86,7 +86,8 @@ if(WIN32 AND (MSVC OR CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
     add_definitions(/MP)
 endif()
 
-if(NOT TARGET alt-sdk)
+set(SDK_PROJECT_NAME alt-sdk-js)
+if(NOT TARGET ${SDK_PROJECT_NAME})
     include(${ALTV_JS_CPP_SDK}/cpp-sdk/CMakeLists.txt)
 endif()
 
@@ -108,7 +109,7 @@ if(DYNAMIC_BUILD)
     ${ALTV_JS_LINKS}
   )
 
-  add_dependencies(${PROJECT_NAME} alt-sdk)
+  add_dependencies(${PROJECT_NAME} ${SDK_PROJECT_NAME})
 else()
   ## STATIC
   add_library(
@@ -126,7 +127,7 @@ else()
     ${ALTV_JS_LINKS}
   )
 
-  add_dependencies(${PROJECT_NAME}-static alt-sdk)
+  add_dependencies(${PROJECT_NAME}-static ${SDK_PROJECT_NAME})
 endif()
 
 if(ALTV_JS_DEINIT_CPPSDK)
