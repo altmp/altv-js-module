@@ -86,9 +86,11 @@ if(WIN32 AND (MSVC OR CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
     add_definitions(/MP)
 endif()
 
-if(DYNAMIC_BUILD)
-  include(${ALTV_JS_CPP_SDK}/cpp-sdk/CMakeLists.txt)
+if(NOT TARGET alt-sdk)
+    include(${ALTV_JS_CPP_SDK}/cpp-sdk/CMakeLists.txt)
+endif()
 
+if(DYNAMIC_BUILD)
   ## SHARED
   add_library(
     ${PROJECT_NAME} SHARED
@@ -108,8 +110,6 @@ if(DYNAMIC_BUILD)
 
   add_dependencies(${PROJECT_NAME} alt-sdk)
 else()
-  include(${ALTV_JS_CPP_SDK}/cpp-sdk/CMakeLists.txt)
-
   ## STATIC
   add_library(
     ${PROJECT_NAME}-static STATIC
