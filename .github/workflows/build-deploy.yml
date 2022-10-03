@@ -31,15 +31,16 @@ jobs:
         run: |
           cd server
           build.bat 0 %VERSION%
-          mkdir upload\modules\js-module
-          ls
-          cd dist
-          ls
-          cd ..
-          copy dist\js-module.dll upload\modules\js-module
-          copy dist\libnode.dll upload\modules\js-module
         env:
           VERSION: ${{ steps.version.outputs.VERSION }}
+
+      - name: Copy files
+        shell: cmd
+        run: |
+          cd server
+          mkdir upload\modules\js-module
+          copy dist\js-module.dll upload\modules\js-module
+          copy dist\libnode.dll upload\modules\js-module
 
       - uses: actions/upload-artifact@v2
         with:
@@ -67,11 +68,15 @@ jobs:
         run: |
           cd server
           ./build.sh %VERSION%
-          mkdir -p upload/modules/js-module
-          cp ./dist/libjs-module.so upload/modules/js-module
-          cp ./dist/libnode.so.102 upload/modules/js-module
         env:
           VERSION: ${{ steps.version.outputs.VERSION }}
+
+      - name: Copy files
+        run: |
+          cd server
+          mkdir -p upload/modules/js-module
+          cp ./dist/libjs-module.so ./upload/modules/js-module
+          cp ./dist/libnode.so.102 ./upload/modules/js-module
 
       - uses: actions/upload-artifact@v2
         with:

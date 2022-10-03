@@ -38,7 +38,7 @@ namespace {Name}Bindings {
             const fileName = `${bindingName}.out.h`;
             // Write output file
             await fs.writeFile(pathUtil.resolve(bindingsPath, fileName), outputStr);
-            console.log(`Wrote bindings to file: ${fileName}`);
+            showLog(`Wrote bindings to file: ${fileName}`);
         }
     }
 })();
