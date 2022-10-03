@@ -31,16 +31,16 @@ jobs:
         run: |
           cd server
           build.bat
-          mkdir dist\modules\js-module
-          copy Release\js-module.dll dist\modules\js-module
-          copy deps\nodejs\lib\Release\libnode.dll dist\modules\js-module
+          mkdir upload\modules\js-module
+          copy dist\js-module.dll upload\modules\js-module
+          copy dist\libnode.dll upload\modules\js-module
         env:
           VERSION: ${{ steps.version.outputs.VERSION }}
 
       - uses: actions/upload-artifact@v2
         with:
           name: js-module-windows
-          path: ./server/dist/
+          path: ./server/upload/
 
   build-linux:
     name: Build linux release
@@ -63,16 +63,16 @@ jobs:
         run: |
           cd server
           ./build.sh
-          mkdir -p dist/modules/js-module
-          cp ./build-linux/libjs-module.so dist/modules/js-module
-          cp ./deps/nodejs/lib/libnode.so.102 dist/modules/js-module
+          mkdir -p upload/modules/js-module
+          cp ./dist/libjs-module.so upload/modules/js-module
+          cp ./dist/libnode.so.102 upload/modules/js-module
         env:
           VERSION: ${{ steps.version.outputs.VERSION }}
 
       - uses: actions/upload-artifact@v2
         with:
           name: js-module-linux
-          path: ./server/dist/
+          path: ./server/upload/
 
   deploy-cdn:
     name: Deploy release to alt:V CDN
