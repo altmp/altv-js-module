@@ -1,6 +1,7 @@
 // clang-format off
 const fs = require("fs").promises;
 const pathUtil = require("path");
+const util = require("util");
 
 // Base path should point to the main directory of the repo
 if (process.argv.length < 3) process.exit(1);
@@ -21,6 +22,7 @@ namespace {Name}Bindings {
 `;
 
 (async() => {
+    showLog("Generating bindings...");
     for (const path of paths) {
         const bindingsPath = pathUtil.resolve(__dirname, basePath, path);
         for await(const file of getBindingFiles(bindingsPath)) {
@@ -47,7 +49,14 @@ async function* getBindingFiles(dir) {
     for (const item of items) {
         const path = pathUtil.resolve(dir, item.name);
         if(!path.endsWith(".js")) continue;
-        if (item.isDirectory()) yield* getFiles(path);
+        if(item.isDirectory()) yield* getFiles(path);
         else yield path;
     }
+}
+
+function showLog(...args) {
+    const date = new Date();
+    const hours = date.getHours(), minutes = date.getMinutes(), seconds = date.getSeconds();
+    const time = `[${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}]`;
+    console.log(time, ...args);
 }

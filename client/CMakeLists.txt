@@ -91,7 +91,7 @@ if(NOT TARGET ${SDK_PROJECT_NAME})
     include(${ALTV_JS_CPP_SDK}/cpp-sdk/CMakeLists.txt)
 endif()
 
-if(DYNAMIC_BUILD)
+if(DYNAMIC_BUILD EQUAL 1)
   ## SHARED
   add_library(
     ${PROJECT_NAME} SHARED

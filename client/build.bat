@@ -1,12 +1,33 @@
 @echo off
 
-:: Build the project
-cmake . -BBUILD
-cmake --build BUILD --config Release
+:: If 1, builds dynamic library, otherwise builds static library
+set DYNAMIC_BUILD=1
+IF NOT "%1" == "" (
+    set DYNAMIC_BUILD=%1
+)
+
+:: Set version
+set VERSION=DEV
+IF NOT "%2" == "" (
+    set VERSION=%2
+)
+
+IF NOT EXIST build\ (
+    mkdir build
+)
+pushd build
+cmake . -A x64 -DJS_MODULE_VERSION=%VERSION% -DDYNAMIC_BUILD=%DYNAMIC_BUILD% ..
+cmake --build . --config Release
+popd
 
 :: Copy built binary to dist folder
-IF NOT EXIST dist (
+IF NOT EXIST dist\ (
     mkdir dist
 )
-copy BUILD\Release\altv-client-js-static.lib dist
-copy BUILD\Release\altv-client-js-static.pdb dist
+
+IF DYNAMIC_BUILD == 1 (
+    copy build\Release\altv-client-js.dll dist
+    copy build\Release\altv-client-js.pdb dist
+) ELSE (
+    copy build\Release\altv-client-js.lib dist
+)

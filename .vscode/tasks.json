@@ -6,7 +6,7 @@
     {
       "label": "Build client",
       "type": "shell",
-      "command": "cd client && build-debug.bat",
+      "command": "cd client && build.bat",
       "problemMatcher": ["$msCompile"],
       "group": {
         "kind": "build",
