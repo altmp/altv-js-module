@@ -144,7 +144,7 @@ add_library(
   ${PROJECT_SHARED_FILES}
 )
 
-add_dependencies(${PROJECT_NAME} alt-sdk)
+add_dependencies(${PROJECT_NAME} alt-sdk js-bindings)
 
 if(MSVC AND WIN32)
     set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /DEBUG")

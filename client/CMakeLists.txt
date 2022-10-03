@@ -109,7 +109,7 @@ if(DYNAMIC_BUILD)
     ${ALTV_JS_LINKS}
   )
 
-  add_dependencies(${PROJECT_NAME} ${SDK_PROJECT_NAME})
+  add_dependencies(${PROJECT_NAME} ${SDK_PROJECT_NAME} js-bindings)
 else()
   ## STATIC
   add_library(
@@ -127,7 +127,7 @@ else()
     ${ALTV_JS_LINKS}
   )
 
-  add_dependencies(${PROJECT_NAME}-static ${SDK_PROJECT_NAME})
+  add_dependencies(${PROJECT_NAME}-static ${SDK_PROJECT_NAME} js-bindings)
 endif()
 
 if(ALTV_JS_DEINIT_CPPSDK)

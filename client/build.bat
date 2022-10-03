@@ -1,7 +1,5 @@
 @echo off
 
-node ../tools/convert-bindings.js ..
-
 :: Build the project
 cmake . -BBUILD
 cmake --build BUILD --config Release

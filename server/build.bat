@@ -1,7 +1,5 @@
 @echo off
 
-node ../tools/convert-bindings.js ..
-
 mkdir build
 pushd build
 cmake . -A x64 -DJS_MODULE_VERSION=DEV ..
