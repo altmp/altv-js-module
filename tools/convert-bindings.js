@@ -16,32 +16,16 @@ const paths = [
     "server/src/bindings/"
 ];
 
-// Per binding template output text
-const bindingTemplate = `
-namespace {Name} {
-    static constexpr char source[] = { {Chars},'\\0' };
-}
-`;
-
-// Full output path
+// Full output file
 const resultTemplate = `// !!! THIS FILE WAS AUTOMATICALLY GENERATED, DO NOT EDIT MANUALLY !!!
 #pragma once
 #include <string>
-#include <array>
-
-namespace Bindings {
-    {BindingNamespaces}
-}
 
 namespace JSBindings {
     static std::string GetBindingsCode()
     {
-        using namespace Bindings;
-        static constexpr std::array<const char*, {BindingsSize}> bindings = { {BindingNames} };
-        std::string result;
-        result.reserve({BindingsCodeSize});
-        for(const char* binding : bindings) result += binding;
-        return result;
+        static constexpr char code[] = { {BindingsCode},'\\0' };
+        return code;
     }
 }
 `;
@@ -63,45 +47,17 @@ const outputPath = "shared/JSBindings.h";
             showLog(`Generated bindings for: ${file}`);
         }
     }
-    const outputStr = generateBindingsResult(bindings);
+    const fullBindingsCode = bindings.reduce((arr, val) => arr.concat(val));
+    const outputStr = resultTemplate.replace("{BindingsCode}", fullBindingsCode.toString());
     await fs.writeFile(pathUtil.resolve(__dirname, basePath, outputPath), outputStr);
     showLog(`Wrote bindings result to file: ${outputPath}`);
 })();
-
-function generateBindingsResult(bindings) {
-    let bindingsNamespaces = "";
-    let bindingsNames = "";
-    let bindingsCodeSize = 0;
-    for(let i = 0; i < bindings.length; i++) {
-        const { name, text } = bindings[i];
-        const isLastBinding = i == bindings.length - 1;
-
-        bindingsNamespaces += text;
-        // For array that contains all bindings source texts
-        bindingsNames += `${name}::source`;
-        if(!isLastBinding) bindingsNames += ",";
-        bindingsCodeSize += text.length;
-    }
-    return resultTemplate
-        .replace("{BindingNamespaces}", bindingsNamespaces)
-        .replace("{BindingNames}", bindingsNames)
-        .replace("{BindingsCodeSize}", bindingsCodeSize)
-        .replace("{BindingsSize}", bindings.length);
-}
 
 async function generateBinding(path) {
     const fileContent = await fs.readFile(path, "utf8");
     // Convert the whole file content to a char code array
     const chars = fileContent.split("").map((char) => char.charCodeAt(0));
-    const bindingName = pathUtil.basename(path, ".js");
-    // Fill output template with our data
-    const outputStr = bindingTemplate
-        .replace("{Name}", bindingName)
-        .replace("{Chars}", chars.toString());
-    return {
-        name: bindingName,
-        text: outputStr
-    };
+    return chars;
 }
 
 // Recursively gets all binding files in the directory, returns an async iterator
