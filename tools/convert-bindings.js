@@ -47,7 +47,7 @@ const outputPath = "shared/JSBindings.h";
             showLog(`Generated bindings for: ${file}`);
         }
     }
-    const fullBindingsCode = bindings.reduce((arr, val) => arr.concat(val));
+    const fullBindingsCode = bindings.flat();
     const outputStr = resultTemplate.replace("{BindingsCode}", fullBindingsCode.toString());
     await fs.writeFile(pathUtil.resolve(__dirname, basePath, outputPath), outputStr);
     showLog(`Wrote bindings result to file: ${outputPath}`);
