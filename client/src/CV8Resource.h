@@ -164,6 +164,8 @@ public:
     v8::Local<v8::Module> CreateSyntheticModule(const std::string& name, v8::Local<v8::Value> exportValue);
     v8::MaybeLocal<v8::Value> GetSyntheticModuleExport(v8::Local<v8::Module> syntheticModule);
 
+    bool InstantiateModule(v8::Local<v8::Module> mod, bool preload = false);
+
     bool IsPreloading()
     {
         return isPreloading;
