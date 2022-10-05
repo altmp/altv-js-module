@@ -1,6 +1,7 @@
 cmake_minimum_required (VERSION 3.19)
 include(FetchContent)
 include(cmake/DepsDownload.cmake)
+set(BINDINGS_SCOPE "CLIENT")
 include(../shared/cmake/GenerateBindings.cmake)
 
 project(altv-client-js)

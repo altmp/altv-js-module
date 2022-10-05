@@ -3,17 +3,29 @@ const fs = require("fs").promises;
 const pathUtil = require("path");
 
 // Base path should point to the main directory of the repo
-if (process.argv.length < 3) {
-    showLog("Missing 'basePath' argument, exiting...");
+if(process.argv.length < 3) {
+    showLog("Missing 'basePath' argument");
+    showUsage();
     process.exit(1);
 }
 const basePath = process.argv[2];
+if(process.argv.length < 4) {
+    showLog("Missing 'scope' argument");
+    showUsage();
+    process.exit(1);
+}
+const scope = process.argv[3];
+if(scope !== "SHARED" && scope !== "CLIENT" && scope !== "SERVER") {
+    showLog("Invalid value for 'scope' argument, allowed values: ['SHARED', 'CLIENT', 'SERVER']");
+    showUsage();
+    process.exit(1);
+}
 
 // Paths to search for JS bindings
 const paths = [
-    "shared/bindings/",
-    "client/src/bindings/",
-    "server/src/bindings/"
+    { path: "shared/bindings/", scope: "SHARED" },
+    { path: "client/src/bindings/", scope: "CLIENT" },
+    { path: "server/src/bindings/", scope: "SERVER" }
 ];
 
 // Full output file
@@ -37,7 +49,8 @@ const outputPath = "shared/JSBindings.h";
     // todo: support client/server only bindings
     showLog("Generating bindings...");
     const bindings = [];
-    for (const path of paths) {
+    for (const { path, scope: pathScope } of paths) {
+        if(pathScope !== "SHARED" && pathScope !== scope) continue;
         const bindingsPath = pathUtil.resolve(__dirname, basePath, path);
         for await(const file of getBindingFiles(bindingsPath)) {
             const fullFilePath = pathUtil.resolve(bindingsPath, file);
@@ -76,4 +89,10 @@ function showLog(...args) {
     const hours = date.getHours(), minutes = date.getMinutes(), seconds = date.getSeconds();
     const time = `[${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}]`;
     console.log(time, ...args);
+}
+
+function showUsage() {
+    showLog("Usage: convert-bindings.js <basePath> <scope>");
+    showLog("<basePath>: Path to the base of the repository");
+    showLog("<scope>: 'SHARED' includes only shared bindings, 'CLIENT' shared and client bindings, 'SERVER' shared and server bindings");
 }
