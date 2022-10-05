@@ -1,5 +1,5 @@
 # Generated
 *.gen
-*.out.h
+shared/JSBindings.h
 
 node_modules/

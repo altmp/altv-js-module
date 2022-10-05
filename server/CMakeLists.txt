@@ -2,6 +2,7 @@ cmake_minimum_required (VERSION 2.9)
 
 include(../shared/deps/cpp-sdk/CMakeLists.txt)
 include(cmake/DepsDownload.cmake)
+set(BINDINGS_SCOPE "SERVER")
 include(../shared/cmake/GenerateBindings.cmake)
 
 project(js-module)
