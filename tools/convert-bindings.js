@@ -4,19 +4,19 @@ const pathUtil = require("path");
 
 // Base path should point to the main directory of the repo
 if(process.argv.length < 3) {
-    showLog("Missing 'basePath' argument");
+    showError("Missing 'basePath' argument");
     showUsage();
     process.exit(1);
 }
 const basePath = process.argv[2];
 if(process.argv.length < 4) {
-    showLog("Missing 'scope' argument");
+    showError("Missing 'scope' argument");
     showUsage();
     process.exit(1);
 }
 const scope = process.argv[3];
 if(scope !== "SHARED" && scope !== "CLIENT" && scope !== "SERVER") {
-    showLog("Invalid value for 'scope' argument, allowed values: ['SHARED', 'CLIENT', 'SERVER']");
+    showError("Invalid value for 'scope' argument, allowed values: ['SHARED', 'CLIENT', 'SERVER']");
     showUsage();
     process.exit(1);
 }
@@ -84,11 +84,19 @@ async function* getBindingFiles(dir) {
     }
 }
 
-function showLog(...args) {
+function getTime() {
     const date = new Date();
     const hours = date.getHours(), minutes = date.getMinutes(), seconds = date.getSeconds();
     const time = `[${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}]`;
-    console.log(time, ...args);
+    return time;
+}
+
+function showLog(...args) {
+    console.log(getTime(), ...args);
+}
+
+function showError(...args) {
+    console.error(getTime(), ...args);
 }
 
 function showUsage() {
