@@ -29,7 +29,7 @@ const paths = [
 ];
 
 // Full output file
-const resultTemplate = `// !!! THIS FILE WAS AUTOMATICALLY GENERATED, DO NOT EDIT MANUALLY !!!
+const resultTemplate = `// !!! THIS FILE WAS AUTOMATICALLY GENERATED (ON {Date}), DO NOT EDIT MANUALLY !!!
 #pragma once
 #include <string>
 
@@ -61,7 +61,9 @@ const outputPath = "shared/JSBindings.h";
         }
     }
     const fullBindingsCode = bindings.flat();
-    const outputStr = resultTemplate.replace("{BindingsCode}", fullBindingsCode.toString());
+    const outputStr = resultTemplate
+        .replace("{BindingsCode}", fullBindingsCode.toString())
+        .replace("{Date}", `${getDate()} ${getTime()}`);
     await fs.writeFile(pathUtil.resolve(__dirname, basePath, outputPath), outputStr);
     showLog(`Wrote bindings result to file: ${outputPath}`);
 })();
@@ -84,19 +86,24 @@ async function* getBindingFiles(dir) {
     }
 }
 
+function getDate() {
+    const date = new Date();
+    const day = date.getDate(), month = date.getMonth() + 1, year = date.getFullYear();
+    return `${day < 10 ? `0${day}` : day}/${month < 10 ? `0${month}` : month}/${year}`;
+}
+
 function getTime() {
     const date = new Date();
     const hours = date.getHours(), minutes = date.getMinutes(), seconds = date.getSeconds();
-    const time = `[${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}]`;
-    return time;
+    return `${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
 }
 
 function showLog(...args) {
-    console.log(getTime(), ...args);
+    console.log(`[${getTime()}]`, ...args);
 }
 
 function showError(...args) {
-    console.error(getTime(), ...args);
+    console.error(`[${getTime()}]`, ...args);
 }
 
 function showUsage() {
