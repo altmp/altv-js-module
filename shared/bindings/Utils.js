@@ -45,9 +45,7 @@ alt.Utils.Timer = class Timer extends BaseUtility {
     }
 
     destroy() {
-        if (!super._tryDestroy())
-            throw new Error("Timer already destroyed");
-
+        alt.Utils.assert(super._tryDestroy(), "Timer already destroyed");
         alt.clearTimer(this.#id);
         this.#clearId();
     }
@@ -78,7 +76,7 @@ alt.Utils.EveryTick = class EveryTick extends alt.Utils.Timer {
 }
 
 alt.Utils.wait = function(timeout) {
-    if (typeof timeout !== "number") throw new Error("Expected a number as first argument");
+    alt.Utils.assert(typeof timeout === "number", "Expected a number as first argument");
 
     return new Promise(resolve => {
         new alt.Utils.Timeout(resolve, timeout);
@@ -86,8 +84,8 @@ alt.Utils.wait = function(timeout) {
 }
 
 alt.Utils.waitFor = function(callback, timeout = 2000) {
-    if (typeof callback !== "function") throw new Error("Expected a function as first argument");
-    if (typeof timeout !== "number") throw new Error("Expected a number as second argument");
+    alt.Utils.assert(typeof callback === "function", "Expected a function as first argument");
+    alt.Utils.assert(typeof timeout === "number", "Expected a number as second argument");
 
     const checkUntil = Date.now() + timeout;
 
@@ -148,10 +146,8 @@ alt.Utils.ConsoleCommand = class ConsoleCommand extends BaseUtility {
     #handler = () => {};
 
     constructor(name, handler) {
-        if (typeof name !== "string")
-            throw new Error("Expected a string as first argument");
-        if (typeof handler !== "function")
-            throw new Error("Expected a function as second argument");
+        alt.Utils.assert(typeof name === "string", "Expected a string as first argument");
+        alt.Utils.assert(typeof handler === "function", "Expected a function as second argument");
 
         super();
 
@@ -163,22 +159,31 @@ alt.Utils.ConsoleCommand = class ConsoleCommand extends BaseUtility {
     }
 
     destroy() {
-        if (!super._tryDestroy())
-            throw new Error(`ConsoleCommand '${this.#name}' already destroyed`);
+        alt.Utils.assert(super._tryDestroy(), `ConsoleCommand '${this.#name}' already destroyed`);
 
         ConsoleCommand.#removeHandler(this);
     }
 }
 
+alt.Utils.AssertionError = class AssertionError extends Error {}
+alt.Utils.assert = function(assertion, message) {
+    if(!assertion) throw new AssertionError(message ?? "Assertion failed");
+}
+
+// For convenience
+function assertRGBA(val) { return alt.Utils.assert(val && typeof val.r === "number" && typeof val.g === "number" && typeof val.b === "number" && typeof val.a === "number", "Expected RGBA"); }
+function assertVector3(val) { return alt.Utils.assert(val && typeof val.x === "number" && typeof val.y === "number" && typeof val.z === "number", "Expected Vector3"); }
+function assertVector2(val) { return alt.Utils.assert(val && typeof val.x === "number" && typeof val.y === "number", "Expected Vector2"); }
+
 // Client only
 if (alt.isClient && !alt.isWorker) {
     alt.Utils.requestModel = async function(model, timeout = 1000) {
         const _model = model;
-        if (typeof model !== "string" && typeof model !== "number") throw new Error("Expected a string or number as first argument");
-        if (typeof timeout !== "number") throw new Error("Expected a number as second argument");
+        alt.Utils.assert(typeof model === "string" || typeof model === "number", "Expected a string or number as first argument");
+        alt.Utils.assert(typeof timeout === "number", "Expected a number as second argument");
 
         if (typeof model === "string") model = alt.hash(model);
-        if (!native.isModelValid(model)) throw new Error(typeof _model === "string"
+        alt.Utils.assert(native.isModelValid(model), typeof _model === "string"
             ? `Model '${_model}', with hash ${alt.hash(_model)} is invalid`
             : `Model ${_model} is invalid`);
 
@@ -501,7 +506,7 @@ if (alt.isClient && !alt.isWorker) {
         #textureDict;
         #textureName;
         #drawOnEnts;
-      
+
         constructor(
             pos,
             {
@@ -520,37 +525,21 @@ if (alt.isClient && !alt.isWorker) {
             } = {},
         ) {
             super();
-      
-            if (!(pos != null && (typeof pos.x === "number" || typeof pos.y === "number" || typeof pos.z === "number")))
-                throw new Error("Expected IVector3 as first argument");
-            if (typeof type !== "number")
-                throw new Error("Expected a number as type option");
-            if (!(dir != null && (typeof dir.x === "number" || typeof dir.y === "number" || typeof dir.z === "number")))
-                throw new Error("Expected IVector3 as dir option");
-            if (!(rot != null && (typeof rot.x === "number" || typeof rot.y === "number" || typeof rot.z === "number")))
-                throw new Error("Expected IVector3 as rot option");
-            if (!(scale != null && (typeof scale.x === "number" || typeof scale.y === "number" || typeof scale.z === "number")))
-                throw new Error("Expected IVector3 as scale option");
-            if (!(
-                color != null &&
-                (typeof color.r === "number" && typeof color.g === "number" &&
-                typeof color.b === "number" && typeof color.a === "number")
-            )) throw new Error("Expected RGBA as color option");
-            if (typeof bobUpAndDown !== "boolean")
-                throw new Error("Expected a boolean as bobUpAndDown option");
-            if (typeof faceCamera !== "boolean")
-                throw new Error("Expected a boolean as faceCamera option");
-            if (typeof p19 !== "number")
-                throw new Error("Expected a number as p19 option");
-            if (typeof rotate !== "boolean")
-                throw new Error("Expected a boolean as rotate option");
-            if (!(typeof textureDict === "undefined" || typeof textureDict === "string"))
-                throw new Error("Expected a string or undefined as textureDict option");
-            if (!(typeof textureName === "undefined" || typeof textureName === "string"))
-                throw new Error("Expected a string or undefined as textureName option");
-            if (typeof drawOnEnts !== "boolean")
-                throw new Error("Expected a boolean as drawOnEnts option");
-      
+
+            assertVector3(pos);
+            alt.Utils.assert(typeof type === "number", "Expected a number for type option");
+            assertVector3(dir);
+            assertVector3(rot);
+            assertVector3(scale);
+            assertRGBA(color);
+            alt.Utils.assert(typeof bobUpAndDown === "boolean", "Expected a boolean for bobUpAndDown option");
+            alt.Utils.assert(typeof faceCamera === "boolean", "Expected a boolean for faceCamera option");
+            alt.Utils.assert(typeof p19 === "number", "Expected a number for p19 option");
+            alt.Utils.assert(typeof rotate === "boolean", "Expected a boolean for rotate option");
+            alt.Utils.assert(typeof textureDict === "number" || typeof textureDict === "string", "Expected a string or number for textureDict option");
+            alt.Utils.assert(typeof textureName === "number" || typeof textureName === "string", "Expected a string or number for textureName option");
+            alt.Utils.assert(typeof drawOnEnts === "boolean", "Expected a boolean for drawOnEnts option");
+
             this.#pos = pos;
             this.#type = type;
             this.#dir = dir;
@@ -564,7 +553,7 @@ if (alt.isClient && !alt.isWorker) {
             this.#textureDict = textureDict;
             this.#textureName = textureName;
             this.#drawOnEnts = drawOnEnts;
-      
+
             this.#tick = new alt.Utils.EveryTick(() => {
                 native.drawMarker(
                     this.#type,
@@ -594,157 +583,140 @@ if (alt.isClient && !alt.isWorker) {
                 );
             });
         }
-      
+
         get pos() {
             return this.#pos;
         }
-      
+
         set pos(value) {
-            if (!(value != null && (typeof value.x === "number" || typeof value.y === "number" || typeof value.z === "number")))
-                throw new Error("Expected IVector3");
-      
+            assertVector3(value);
+
             this.#pos = value;
         }
-      
+
         get type() {
             return this.#type;
         }
-      
+
         set type(value) {
-            if (typeof value !== "number")
-                throw new Error("Expected a number");
-      
+            alt.Utils.assert(typeof value === "number", "Expected a number");
+
             this.#type = value;
         }
-      
+
         get dir() {
             return this.#dir;
         }
-      
+
         set dir(value) {
-            if (!(value != null && (typeof value.x === "number" || typeof value.y === "number" || typeof value.z === "number")))
-                throw new Error("Expected IVector3");
-      
+            assertVector3(value);
+
             this.#dir = value;
         }
-      
+
         get rot() {
             return this.#rot;
         }
-      
+
         set rot(value) {
-            if (!(value != null && (typeof value.x === "number" || typeof value.y === "number" || typeof value.z === "number")))
-                throw new Error("Expected IVector3");
-      
+            assertVector3(value);
+
             this.#rot = value;
         }
-      
+
         get scale() {
             return this.#scale;
         }
-      
+
         set scale(value) {
-            if (!(value != null && (typeof value.x === "number" || typeof value.y === "number" || typeof value.z === "number")))
-                throw new Error("Expected IVector3");
-      
+            assertVector3(value);
+
             this.#scale = value;
         }
-      
+
         get p19() {
             return this.#p19;
         }
-      
+
         set p19(value) {
-            if (typeof value !== "number")
-                throw new Error("Expected a number");
-      
+            alt.Utils.assert(typeof value === "number", "Expected a number");
+
             this.#p19 = value;
         }
-      
+
         get color() {
             return this.#color;
         }
-      
+
         set color(value) {
-            if (!(
-                value != null &&
-                (typeof value.r === "number" && typeof value.g === "number" &&
-                typeof value.b === "number" && typeof value.a === "number")
-            )) throw new Error("Expected RGBA");
-      
+            assertRGBA(value);
+
             this.#color = value;
         }
-      
+
         get bobUpAndDown() {
             return this.#bobUpAndDown;
         }
-      
+
         set bobUpAndDown(value) {
-            if (typeof value !== "boolean")
-                throw new Error("Expected a boolean");
-      
+            alt.Utils.assert(typeof value === "boolean", "Expected a boolean");
+
             this.#bobUpAndDown = value;
         }
-      
+
         get faceCamera() {
             return this.#faceCamera;
         }
-      
+
         set faceCamera(value) {
-            if (typeof value !== "boolean")
-                throw new Error("Expected a boolean");
-      
+            alt.Utils.assert(typeof value === "boolean", "Expected a boolean");
+
             this.#faceCamera = value;
         }
-      
+
         get rotate() {
             return this.#rotate;
         }
-      
+
         set rotate(value) {
-            if (typeof value !== "boolean")
-                throw new Error("Expected a boolean");
-      
+            alt.Utils.assert(typeof value === "boolean", "Expected a boolean");
+
             this.#rotate = value;
         }
-      
+
         get drawOnEnts() {
             return this.#drawOnEnts;
         }
-      
+
         set drawOnEnts(value) {
-            if (typeof value !== "boolean")
-                throw new Error("Expected a boolean");
-      
+            alt.Utils.assert(typeof value === "boolean", "Expected a boolean");
+
             this.#drawOnEnts = value;
         }
-      
+
         get textureDict() {
             return this.#textureDict;
         }
-      
+
         set textureDict(value) {
-            if (!(typeof value === "undefined" || typeof value === "string"))
-                throw new Error("Expected a string or undefined");
-      
+            alt.Utils.assert(typeof value === "undefined" || typeof value === "string", "Expected a string or undefined");
+
             this.#textureDict = value;
         }
-      
+
         get textureName() {
             return this.#textureName;
         }
-      
+
         set textureName(value) {
-            if (!(typeof value === "undefined" || typeof value === "string"))
-                throw new Error("Expected a string or undefined");
-      
+            alt.Utils.assert(typeof value === "undefined" || typeof value === "string", "Expected a string or undefined");
+
             this.#textureName = value;
         }
-      
+
         destroy() {
-            if (!super._tryDestroy())
-                throw new Error("Marker already destroyed");
-      
+            alt.Utils.assert(super._tryDestroy(), "Marker already destroyed");
+
             this.#tick.destroy();
         }
     }
