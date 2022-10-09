@@ -167,7 +167,7 @@ alt.Utils.ConsoleCommand = class ConsoleCommand extends BaseUtility {
 
 alt.Utils.AssertionError = class AssertionError extends Error {}
 alt.Utils.assert = function(assertion, message) {
-    if(!assertion) throw new AssertionError(message ?? "Assertion failed");
+    if(!assertion) throw new alt.Utils.AssertionError(message ?? "Assertion failed");
 }
 
 // For convenience
