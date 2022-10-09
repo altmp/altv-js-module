@@ -25,7 +25,7 @@ IF NOT EXIST dist\ (
     mkdir dist
 )
 
-IF DYNAMIC_BUILD == 1 (
+IF %DYNAMIC_BUILD% == 1 (
     copy build\Release\altv-client-js.dll dist
     copy build\Release\altv-client-js.pdb dist
 ) ELSE (
