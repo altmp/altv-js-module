@@ -3182,8 +3182,12 @@ function stripVTControlCharacters(str) {
   return str.replace(ansi, "");
 }
 
+// Call the function once so the compiler optimizes the function calls,
+// to make subsequent calls faster
+inspect({});
+
 function genericLog(type, ...args) {
-    const logArgs = args.map((arg) => inspect(arg, { colors: type === 0 }))
+    const logArgs = args.map((arg) => inspect(arg, { colors: type === 0 }));
     __printLog(type, ...logArgs);
 }
 __global.genericLog = genericLog;
