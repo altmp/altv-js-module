@@ -3187,7 +3187,10 @@ function stripVTControlCharacters(str) {
 inspect({});
 
 function genericLog(type, ...args) {
-    const logArgs = args.map((arg) => inspect(arg, { colors: type === 0 }));
+    const logArgs = args.map((arg) => {
+      if (typeof arg === 'string') return arg;
+      return inspect(arg, { colors: type === 0 });
+    });
     __printLog(type, ...logArgs);
 }
 __global.genericLog = genericLog;
