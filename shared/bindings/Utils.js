@@ -167,13 +167,39 @@ alt.Utils.ConsoleCommand = class ConsoleCommand extends BaseUtility {
 
 alt.Utils.AssertionError = class AssertionError extends Error {}
 alt.Utils.assert = function(assertion, message) {
-    if(!assertion) throw new AssertionError(message ?? "Assertion failed");
+    if(!assertion) throw new alt.Utils.AssertionError(message ?? "Assertion failed");
 }
 
 // For convenience
-function assertRGBA(val) { return alt.Utils.assert(val && typeof val.r === "number" && typeof val.g === "number" && typeof val.b === "number" && typeof val.a === "number", "Expected RGBA"); }
-function assertVector3(val) { return alt.Utils.assert(val && typeof val.x === "number" && typeof val.y === "number" && typeof val.z === "number", "Expected Vector3"); }
-function assertVector2(val) { return alt.Utils.assert(val && typeof val.x === "number" && typeof val.y === "number", "Expected Vector2"); }
+function assertRGBA(val, message = "Expected RGBA") {
+    return alt.Utils.assert(
+        val && typeof val.r === "number" && typeof val.g === "number" && typeof val.b === "number" && typeof val.a === "number", 
+        message
+    );
+}
+function assertVector3(val, message = "Expected Vector3") {
+    return alt.Utils.assert(
+        val && typeof val.x === "number" && typeof val.y === "number" && typeof val.z === "number",
+        message
+    );
+}
+function assertVector2(val, message = "Expected Vector2") {
+    return alt.Utils.assert(
+        val && typeof val.x === "number" && typeof val.y === "number",
+        message
+    );
+}
+function assertDrawTextArgs(text, font, scale, color, outline, dropShadow) {
+    alt.Utils.assert(typeof text === "string", "Expected a string as first argument");
+    alt.Utils.assert(typeof font === "number", "Expected a number as third argument");
+    alt.Utils.assert(typeof scale === "number", "Expected a number as fourth argument");
+    assertRGBA(color, "Expected RGBA as fifth argument");
+    alt.Utils.assert(typeof outline === "boolean", "Expected boolean as sixth argument");
+    alt.Utils.assert(typeof dropShadow === "boolean", "Expected boolean as seventh argument");
+}
+function assertNotNaN(val, message = "Expected number") {
+    alt.Utils.assert(!isNaN(val), message)
+}
 
 // Client only
 if (alt.isClient && !alt.isWorker) {
@@ -196,10 +222,9 @@ if (alt.isClient && !alt.isWorker) {
     }
 
     alt.Utils.requestAnimDict = async function(animDict, timeout = 1000) {
-        if (typeof animDict !== "string") throw new Error("Expected a string as first argument");
-        if (typeof timeout !== "number") throw new Error("Expected a number as second argument");
-
-        if (!native.doesAnimDictExist(animDict)) throw new Error(`Anim dict '${animDict}' not valid`);
+        alt.Utils.assert(typeof animDict === "string", "Expected a string as first argument");
+        alt.Utils.assert(typeof timeout === "number", "Expected a number as second argument");
+        alt.Utils.assert(native.doesAnimDictExist(animDict), `Anim dict '${animDict}' not valid`);
 
         try {
             native.requestAnimDict(animDict);
@@ -210,8 +235,8 @@ if (alt.isClient && !alt.isWorker) {
     }
 
     alt.Utils.requestAnimSet = async function(animSet, timeout = 1000) {
-        if (typeof animSet !== "string") throw new Error("Expected a string as first argument");
-        if (typeof timeout !== "number") throw new Error("Expected a number as second argument");
+        alt.Utils.assert(typeof animSet === "string", "Expected a string as first argument");
+        alt.Utils.assert(typeof timeout === "number", "Expected a number as second argument");
 
         try {
             native.requestAnimSet(animSet);
@@ -224,10 +249,9 @@ if (alt.isClient && !alt.isWorker) {
     alt.Utils.requestClipSet = alt.Utils.requestAnimSet;
 
     alt.Utils.requestCutscene = async function(cutsceneName, flags, timeout = 1000) {
-        if (typeof cutsceneName !== "string") throw new Error("Expected a string as first argument");
-        if (typeof flags !== "number" && typeof flags !== "string")
-            throw new Error("Expected a number or string as second argument");
-        if (typeof timeout !== "number") throw new Error("Expected a number as third argument");
+        alt.Utils.assert(typeof cutsceneName === "string", "Expected a string as first argument");
+        alt.Utils.assert(typeof flags === "number" || typeof flags === "string", "Expected a number or string as second argument");
+        alt.Utils.assert(typeof timeout === "number", "Expected a number as third argument");
 
         try {
             native.requestCutscene(cutsceneName, typeof flags === "string" ? parseInt(flags) : flags);
@@ -252,22 +276,8 @@ if (alt.isClient && !alt.isWorker) {
         outline = true,
         dropShadow = true,
     ) {
-        if (typeof text !== "string")
-            throw new Error("Expected a string as first argument");
-        if (typeof pos2d.x !== "number" || typeof pos2d.y !== "number")
-            throw new Error("Expected Vector2 as second argument");
-        if (typeof font !== "number")
-            throw new Error("Expected a number as third argument");
-        if (typeof scale !== "number")
-            throw new Error("Expected a number as fourth argument");
-        if (
-            typeof color.r !== "number" || typeof color.g !== "number" ||
-            typeof color.b !== "number" || typeof color.a !== "number"
-        ) throw new Error("Expected RGBA as fifth argument");
-        if (typeof outline !== "boolean")
-            throw new Error("Expected boolean as sixth argument");
-        if (typeof dropShadow !== "boolean")
-            throw new Error("Expected boolean as seventh argument");
+        assertDrawTextArgs(text, font, scale, color, outline, dropShadow);
+        assertVector2(pos2d, "Expected Vector2 as second argument");
 
         native.setTextFont(font);
         native.setTextProportional(false);
@@ -314,22 +324,8 @@ if (alt.isClient && !alt.isWorker) {
         outline = true,
         dropShadow = true,
     ) {
-        if (typeof text !== "string")
-            throw new Error("Expected a string as first argument");
-        if (typeof pos3d.x !== "number" || typeof pos3d.y !== "number" || typeof pos3d.z !== "number")
-            throw new Error("Expected Vector3 as second argument");
-        if (typeof font !== "number")
-            throw new Error("Expected a number as third argument");
-        if (typeof scale !== "number")
-            throw new Error("Expected a number as fourth argument");
-        if (
-            typeof color.r !== "number" || typeof color.g !== "number" ||
-            typeof color.b !== "number" || typeof color.a !== "number"
-        ) throw new Error("Expected RGBA as fifth argument");
-        if (typeof outline !== "boolean")
-            throw new Error("Expected boolean as sixth argument");
-        if (typeof dropShadow !== "boolean")
-            throw new Error("Expected boolean as seventh argument");
+        assertDrawTextArgs(text, font, scale, color, outline, dropShadow);
+        assertVector3(pos3d, "Expected Vector3 as second argument");
 
         native.setDrawOrigin(pos3d.x, pos3d.y, pos3d.z, 0);
         native.beginTextCommandDisplayText("STRING");
@@ -365,12 +361,9 @@ if (alt.isClient && !alt.isWorker) {
     }
 
     alt.Utils.loadMapArea = async function(pos, radius = 50.0, timeout = 5000) {
-        if (pos != null && typeof pos.x !== "number" || typeof pos.y !== "number" || typeof pos.z !== "number")
-            throw new Error("Expected Vector3 as first argument");
-        if (typeof radius !== "number")
-            throw new Error("Expected a number as second argument");
-        if (typeof timeout !== "number")
-            throw new Error("Expected a number as third argument");
+        assertVector3(pos, "Expected Vector3 as first argument");
+        alt.Utils.assert(typeof radius === "number", "Expected a number as second argument");
+        alt.Utils.assert(typeof timeout === "number", "Expected a number as third argument");
 
         alt.FocusData.overrideFocus(pos);
         native.newLoadSceneStop();
@@ -466,12 +459,9 @@ if (alt.isClient && !alt.isWorker) {
         #handler = () => { };
 
         constructor(keyCode, handler, eventType = "keyup") {
-            if (!(typeof keyCode === "number" || Array.isArray(keyCode)))
-                throw new Error("Expected a number or array as first argument");
-            if (typeof handler !== "function")
-                throw new Error("Expected a function as second argument");
-            if (typeof eventType !== "string")
-                throw new Error("Expected a string as third argument");
+            alt.Utils.assert(typeof keyCode === "number" || Array.isArray(keyCode), "Expected a number or array as first argument");
+            alt.Utils.assert(typeof handler === "function", "Expected a function as second argument");
+            alt.Utils.assert(typeof eventType === "string", "Expected a string as third argument");
 
             super();
 
@@ -484,8 +474,7 @@ if (alt.isClient && !alt.isWorker) {
         }
 
         destroy() {
-            if (!super._tryDestroy())
-                throw new Error(`Keybind keyCodes: [${this.#keyCodes.join(", ")}] already destroyed`);
+            alt.Utils.assert(super._tryDestroy(), `Keybind keyCodes: [${this.#keyCodes.join(", ")}] already destroyed`);
 
             Keybind.#removeHandler(this);
         }
@@ -526,18 +515,18 @@ if (alt.isClient && !alt.isWorker) {
         ) {
             super();
 
-            assertVector3(pos);
+            assertVector3(pos, "Expected Vector3 as first argument");
             alt.Utils.assert(typeof type === "number", "Expected a number for type option");
-            assertVector3(dir);
-            assertVector3(rot);
-            assertVector3(scale);
-            assertRGBA(color);
+            assertVector3(dir, "Expected Vector3 for dir option");
+            assertVector3(rot, "Expected Vector3 for rot option");
+            assertVector3(scale, "Expected Vector3 for scale option");
+            assertRGBA(color, "Expected RGBA for color option");
             alt.Utils.assert(typeof bobUpAndDown === "boolean", "Expected a boolean for bobUpAndDown option");
             alt.Utils.assert(typeof faceCamera === "boolean", "Expected a boolean for faceCamera option");
             alt.Utils.assert(typeof p19 === "number", "Expected a number for p19 option");
             alt.Utils.assert(typeof rotate === "boolean", "Expected a boolean for rotate option");
-            alt.Utils.assert(typeof textureDict === "number" || typeof textureDict === "string", "Expected a string or number for textureDict option");
-            alt.Utils.assert(typeof textureName === "number" || typeof textureName === "string", "Expected a string or number for textureName option");
+            alt.Utils.assert(typeof textureDict === "undefined" || typeof textureDict === "string", "Expected a string or undefined for textureDict option");
+            alt.Utils.assert(typeof textureName === "undefined" || typeof textureName === "string", "Expected a string or undefined for textureName option");
             alt.Utils.assert(typeof drawOnEnts === "boolean", "Expected a boolean for drawOnEnts option");
 
             this.#pos = pos;

@@ -2,6 +2,64 @@
 // clang-format off
 // Vector3 JS bindings
 
+function getXYZFromArgs(args) {
+    alt.Utils.assert(args.length === 1 || args.length === 3, "1 or 3 arguments expected");
+
+    const firstArg = args[0];
+    let x = 0, y = 0, z = 0;
+
+    if(args.length === 3) {
+        x = parseFloat(firstArg);
+        x = parseFloat(args[1]);
+        z = parseFloat(args[2]);
+
+        assertNotNaN(x, "Expected a number as first argument");
+        assertNotNaN(y, "Expected a number as second argument");
+        assertNotNaN(z, "Expected a number as third argument");
+    }
+    else {
+        if(typeof firstArg === "number" || typeof firstArg === "string") {
+            const number = parseFloat(firstArg);
+            assertNotNaN(number, "Expected a number or string as first argument");
+
+            x = number;
+            y = number;
+            z = number;
+        }
+        else if(Array.isArray(firstArg)) {
+            if(typeof firstArg[0] === "number" || typeof firstArg[0] === "string") {
+                x = parseFloat(firstArg[0]);
+                assertNotNaN(z, "Expected an array of 3 numbers as first argument");
+            }
+            if(typeof firstArg[1] === "number" || typeof firstArg[1] === "string") {
+                y = parseFloat(firstArg[1]);
+                assertNotNaN(y, "Expected an array of 3 numbers as first argument");
+            }
+            if(typeof firstArg[2] === "number" || typeof firstArg[2] === "string") {
+                z = parseFloat(firstArg[2]);
+                assertNotNaN(z, "Expected an array of 3 numbers as first argument");
+            }
+        }
+        else if(firstArg && typeof firstArg === "object") {
+            if(firstArg.x !== undefined) {
+                x = parseFloat(firstArg.x);
+                assertNotNaN(x, "Expected Vector3 as first argument");
+            }
+            if(firstArg.y !== undefined) {
+                y = parseFloat(firstArg.y);
+                assertNotNaN(y, "Expected Vector3 as first argument");
+            }
+            if(firstArg.z !== undefined) {
+                z = parseFloat(firstArg.z);
+                assertNotNaN(z, "Expected Vector3 as first argument");
+            }
+        }
+        else throw new Error("Argument must be a number, an array of 3 numbers or IVector3");
+    }
+
+    return [x, y, z];
+}
+
 // Static properties
 alt.Vector3.zero = new alt.Vector3(0, 0, 0);
 alt.Vector3.one = new alt.Vector3(1, 1, 1);
@@ -31,146 +89,32 @@ alt.Vector3.prototype.toArray = function() {
 }
 
 alt.Vector3.prototype.add = function(...args) {
-    if(args.length !== 1 && args.length !== 3) throw new Error("1 or 3 arguments expected");
-
-    let x = 0, y = 0, z = 0;
-
-    if(args.length === 3) [x, y, z] = args;
-    else {
-        if(typeof args[0] === "number" || typeof args[0] === "string") x = parseFloat(args[0]), y = parseFloat(args[0]), z = parseFloat(args[0]);
-        else if(Array.isArray(args[0])) {
-            if(typeof args[0][0] === "number" || typeof args[0][0] === "string") x = parseFloat(args[0][0]);
-            if(typeof args[0][1] === "number" || typeof args[0][1] === "string") y = parseFloat(args[0][1]);
-            if(typeof args[0][2] === "number" || typeof args[0][2] === "string") z = parseFloat(args[0][2]);
-        }
-        else if(typeof args[0] === "object") {
-            if(args[0].x !== undefined) x = parseFloat(args[0].x);
-            if(args[0].y !== undefined) y = parseFloat(args[0].y);
-            if(args[0].z !== undefined) z = parseFloat(args[0].z);
-        }
-        else throw new Error("Argument must be a number, an array of 3 numbers or IVector3");
-    }
-
+    const [x, y, z] = getXYZFromArgs(args);
     return new alt.Vector3(this.x + x, this.y + y, this.z + z);
 }
 
 alt.Vector3.prototype.sub = function(...args) {
-    if(args.length !== 1 && args.length !== 3) throw new Error("1 or 3 arguments expected");
-
-    let x = 0, y = 0, z = 0;
-
-    if(args.length === 3) [x, y, z] = args;
-    else {
-        if(typeof args[0] === "number" || typeof args[0] === "string") x = parseFloat(args[0]), y = parseFloat(args[0]), z = parseFloat(args[0]);
-        else if(Array.isArray(args[0])) {
-            if(typeof args[0][0] === "number" || typeof args[0][0] === "string") x = parseFloat(args[0][0]);
-            if(typeof args[0][1] === "number" || typeof args[0][1] === "string") y = parseFloat(args[0][1]);
-            if(typeof args[0][2] === "number" || typeof args[0][2] === "string") z = parseFloat(args[0][2]);
-        }
-        else if(typeof args[0] === "object") {
-            if(args[0].x !== undefined) x = parseFloat(args[0].x);
-            if(args[0].y !== undefined) y = parseFloat(args[0].y);
-            if(args[0].z !== undefined) z = parseFloat(args[0].z);
-        }
-        else throw new Error("Argument must be a number, an array of 3 numbers or IVector3");
-    }
-
+    const [x, y, z] = getXYZFromArgs(args);
     return new alt.Vector3(this.x - x, this.y - y, this.z - z);
 }
 
 alt.Vector3.prototype.div = function(...args) {
-    if(args.length !== 1 && args.length !== 3) throw new Error("1 or 3 arguments expected");
-
-    let x = 0, y = 0, z = 0;
-
-    if(args.length === 3) [x, y, z] = args;
-    else {
-        if(typeof args[0] === "number" || typeof args[0] === "string") x = parseFloat(args[0]), y = parseFloat(args[0]), z = parseFloat(args[0]);
-        else if(Array.isArray(args[0])) {
-            if(typeof args[0][0] === "number" || typeof args[0][0] === "string") x = parseFloat(args[0][0]);
-            if(typeof args[0][1] === "number" || typeof args[0][1] === "string") y = parseFloat(args[0][1]);
-            if(typeof args[0][2] === "number" || typeof args[0][2] === "string") z = parseFloat(args[0][2]);
-        }
-        else if(typeof args[0] === "object") {
-            if(args[0].x !== undefined) x = parseFloat(args[0].x);
-            if(args[0].y !== undefined) y = parseFloat(args[0].y);
-            if(args[0].z !== undefined) z = parseFloat(args[0].z);
-        }
-        else throw new Error("Argument must be a number, an array of 3 numbers or IVector3");
-    }
-
+    const [x, y, z] = getXYZFromArgs(args);
     return new alt.Vector3(this.x / x, this.y / y, this.z / z);
 }
 
 alt.Vector3.prototype.mul = function(...args) {
-    if(args.length !== 1 && args.length !== 3) throw new Error("1 or 3 arguments expected");
-
-    let x = 0, y = 0, z = 0;
-
-    if(args.length === 3) [x, y, z] = args;
-    else {
-        if(typeof args[0] === "number" || typeof args[0] === "string") x = parseFloat(args[0]), y = parseFloat(args[0]), z = parseFloat(args[0]);
-        else if(Array.isArray(args[0])) {
-            if(typeof args[0][0] === "number" || typeof args[0][0] === "string") x = parseFloat(args[0][0]);
-            if(typeof args[0][1] === "number" || typeof args[0][1] === "string") y = parseFloat(args[0][1]);
-            if(typeof args[0][2] === "number" || typeof args[0][2] === "string") z = parseFloat(args[0][2]);
-        }
-        else if(typeof args[0] === "object") {
-            if(args[0].x !== undefined) x = parseFloat(args[0].x);
-            if(args[0].y !== undefined) y = parseFloat(args[0].y);
-            if(args[0].z !== undefined) z = parseFloat(args[0].z);
-        }
-        else throw new Error("Argument must be a number, an array of 3 numbers or IVector3");
-    }
-
+    const [x, y, z] = getXYZFromArgs(args);
     return new alt.Vector3(this.x * x, this.y * y, this.z * z);
 }
 
 alt.Vector3.prototype.dot = function(...args) {
-    if(args.length !== 1 && args.length !== 3) throw new Error("1 or 3 arguments expected");
-
-    let x = 0, y = 0, z = 0;
-
-    if(args.length === 3) [x, y, z] = args;
-    else {
-        if(typeof args[0] === "number" || typeof args[0] === "string") x = parseFloat(args[0]), y = parseFloat(args[0]), z = parseFloat(args[0]);
-        else if(Array.isArray(args[0])) {
-            if(typeof args[0][0] === "number" || typeof args[0][0] === "string") x = parseFloat(args[0][0]);
-            if(typeof args[0][1] === "number" || typeof args[0][1] === "string") y = parseFloat(args[0][1]);
-            if(typeof args[0][2] === "number" || typeof args[0][2] === "string") z = parseFloat(args[0][2]);
-        }
-        else if(typeof args[0] === "object") {
-            if(args[0].x !== undefined) x = parseFloat(args[0].x);
-            if(args[0].y !== undefined) y = parseFloat(args[0].y);
-            if(args[0].z !== undefined) z = parseFloat(args[0].z);
-        }
-        else throw new Error("Argument must be a number, an array of 3 numbers or IVector3");
-    }
-
+    const [x, y, z] = getXYZFromArgs(args);
     return (this.x * x) + (this.y * y) + (this.z * z);
 }
 
 alt.Vector3.prototype.cross = function(...args) {
-    if(args.length !== 1 && args.length !== 3) throw new Error("1 or 3 arguments expected");
-
-    let x = 0, y = 0, z = 0;
-
-    if(args.length === 3) [x, y, z] = args;
-    else {
-        if(typeof args[0] === "number" || typeof args[0] === "string") x = parseFloat(args[0]), y = parseFloat(args[0]), z = parseFloat(args[0]);
-        else if(Array.isArray(args[0])) {
-            if(typeof args[0][0] === "number" || typeof args[0][0] === "string") x = parseFloat(args[0][0]);
-            if(typeof args[0][1] === "number" || typeof args[0][1] === "string") y = parseFloat(args[0][1]);
-            if(typeof args[0][2] === "number" || typeof args[0][2] === "string") z = parseFloat(args[0][2]);
-        }
-        else if(typeof args[0] === "object") {
-            if(args[0].x !== undefined) x = parseFloat(args[0].x);
-            if(args[0].y !== undefined) y = parseFloat(args[0].y);
-            if(args[0].z !== undefined) z = parseFloat(args[0].z);
-        }
-        else throw new Error("Argument must be a number, an array of 3 numbers or IVector3");
-    }
-
+    const [x, y, z] = getXYZFromArgs(args);
     return new alt.Vector3((this.y * z) - (this.z * y), (this.z * x) - (this.x * z), (this.x * y) - (this.y * x));
 }
 
@@ -192,7 +136,8 @@ alt.Vector3.prototype.distanceTo = function(vector) {
 }
 
 alt.Vector3.prototype.distanceToSquared = function(vector) {
-    if(vector === undefined) throw new Error("1 argument expected");
+    alt.Utils.assert(vector != null, "Expected Vector3 as first argument");
+
     const x = this.x - parseFloat(vector.x);
     const y = this.y - parseFloat(vector.y);
     const z = this.z - parseFloat(vector.z);
@@ -200,7 +145,7 @@ alt.Vector3.prototype.distanceToSquared = function(vector) {
 }
 
 alt.Vector3.prototype.angleTo = function(vector) {
-    if(vector === undefined) throw new Error("1 argument expected");
+    alt.Utils.assert(vector != null, "Expected Vector3 as first argument");
 
     const posALength = Math.hypot(this.x, this.y);
     const posBLength = Math.hypot(vector.x, vector.y);
@@ -222,7 +167,9 @@ alt.Vector3.prototype.toRadians = function() {
 }
 
 alt.Vector3.prototype.isInRange = function(vector, range) {
-    if(vector === undefined || range === undefined) throw new Error("2 arguments expected");
+    alt.Utils.assert(vector != null, "Expected Vector3 as first argument");
+    alt.Utils.assert(typeof range === "number", "Expected a number as second argument");
+    
     const x = Math.abs(this.x - parseFloat(vector.x));
     const y = Math.abs(this.y - parseFloat(vector.y));
     const z = Math.abs(this.z - parseFloat(vector.z));
@@ -232,9 +179,11 @@ alt.Vector3.prototype.isInRange = function(vector, range) {
 }
 
 alt.Vector3.prototype.lerp = function(vector, ratio) {
-    if(vector === undefined || ratio === undefined) throw new Error("2 arguments expected");
-    const x = this.x + (vector.x - this.x) * ratio;
-    const y = this.y + (vector.y - this.y) * ratio;
-    const z = this.z + (vector.z - this.z) * ratio;
+    alt.Utils.assert(vector != null, "Expected Vector3 as first argument");
+    alt.Utils.assert(typeof ratio === "number", "Expected a number as second argument");
+
+    const x = this.x + (parseFloat(vector.x) - this.x) * ratio;
+    const y = this.y + (parseFloat(vector.y) - this.y) * ratio;
+    const z = this.z + (parseFloat(vector.z) - this.z) * ratio;
     return new alt.Vector3(x, y, z);
 }
