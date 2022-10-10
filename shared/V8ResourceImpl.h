@@ -258,6 +258,18 @@ public:
         return benchmarkTimers.at(name);
     }
 
+    v8::Local<v8::Function> GetLogFunction()
+    {
+        return logFunction.Get(isolate);
+    }
+
+    void SetLogFunction(v8::Local<v8::Function> function)
+    {
+        logFunction.Reset(isolate, function);
+    }
+
+    void SetupScriptGlobals();
+
     static V8ResourceImpl* Get(v8::Local<v8::Context> ctx)
     {
         alt::IResource* resource = GetResource(ctx);
@@ -301,6 +313,8 @@ protected:
     V8Helpers::CPersistent<v8::Function> vector2Class;
     V8Helpers::CPersistent<v8::Function> rgbaClass;
     V8Helpers::CPersistent<v8::Function> baseObjectClass;
+
+    V8Helpers::CPersistent<v8::Function> logFunction;
 
     std::unordered_map<alt::IResource*, V8Helpers::CPersistent<v8::Object>> resourceObjects;
 

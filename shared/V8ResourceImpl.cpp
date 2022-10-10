@@ -428,6 +428,62 @@ void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vecto
     }
 }
 
+// Internal script globals
+static void SetLogFunction(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(1);
+
+    v8::Local<v8::Value> function = info[0];
+    if(!function->IsFunction()) return;
+    resource->SetLogFunction(function.As<v8::Function>());
+}
+
+// Types:
+// 0 = normal
+// 1 = warning
+// 2 = error
+static void PrintLog(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN_MIN(1);
+
+    V8_ARG_TO_INT32(1, type);
+    std::stringstream stream;
+    for(size_t i = 1; i < info.Length(); i++)
+    {
+        std::string arg = *v8::String::Utf8Value(isolate, info[i]);
+        stream << arg;
+        if(i != info.Length() - 1) stream << " ";
+    }
+    switch(type)
+    {
+        case 0:
+        {
+            alt::ICore::Instance().LogColored(stream.str());
+            break;
+        }
+        case 1:
+        {
+            alt::ICore::Instance().LogWarning(stream.str());
+            break;
+        }
+        case 2:
+        {
+            alt::ICore::Instance().LogError(stream.str());
+            break;
+        }
+    }
+}
+
+void V8ResourceImpl::SetupScriptGlobals()
+{
+    v8::Local<v8::Context> ctx = context.Get(isolate);
+
+    ctx->Global()->Set(ctx, V8Helpers::JSValue("__setLogFunction"), v8::Function::New(ctx, &::SetLogFunction).ToLocalChecked());
+    ctx->Global()->Set(ctx, V8Helpers::JSValue("__printLog"), v8::Function::New(ctx, &::PrintLog).ToLocalChecked());
+}
+
 alt::MValue V8ResourceImpl::FunctionImpl::Call(alt::MValueArgs args) const
 {
     if(!resource->GetResource()->IsStarted())
