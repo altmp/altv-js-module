@@ -3191,3 +3191,5 @@ function genericLog(type, ...args) {
     __printLog(type, ...logArgs);
 }
 __global.genericLog = genericLog;
+
+alt.Utils.inspect = inspect;
