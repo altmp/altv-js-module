@@ -100,6 +100,7 @@ bool CV8ResourceImpl::Start()
     ctx->SetAlignedPointerInEmbedderData(1, resource);
 
     V8ResourceImpl::Start();
+    V8ResourceImpl::SetupScriptGlobals();
 
     v8::Context::Scope context_scope(ctx);
 

@@ -176,88 +176,60 @@ static void GetSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void Log(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_ARGS_LEN_MIN(1);
 
-    std::stringstream ss;
-    for(int i = 0; i < info.Length(); ++i)
-    {
-        v8::Local<v8::Value> val = info[i];
+    std::vector<v8::Local<v8::Value>> argsArr;
+    argsArr.reserve(info.Length() + 0);
+    argsArr.push_back(V8Helpers::JSValue(0));
+    for(int i = 0; i < info.Length(); ++i) argsArr.push_back(info[i]);
 
-        if(i > 0) ss << " ";
-
-        auto str = V8Helpers::Stringify(ctx, val);
-        if(str.empty()) continue;
-
-        ss << str;
-    }
-
-    alt::ICore::Instance().LogColored(ss.str());
+    v8::Local<v8::Function> logFunction = resource->GetLogFunction();
+    logFunction->Call(ctx, v8::Undefined(isolate), argsArr.size(), argsArr.data());
 }
 
 static void LogWarning(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_ARGS_LEN_MIN(1);
 
-    std::stringstream ss;
-    for(int i = 0; i < info.Length(); ++i)
-    {
-        v8::Local<v8::Value> val = info[i];
+    std::vector<v8::Local<v8::Value>> argsArr;
+    argsArr.reserve(info.Length() + 1);
+    argsArr.push_back(V8Helpers::JSValue(1));
+    for(int i = 0; i < info.Length(); ++i) argsArr.push_back(info[i]);
 
-        if(i > 0) ss << " ";
-
-        auto str = V8Helpers::Stringify(ctx, val);
-        if(str.empty()) continue;
-
-        ss << str;
-    }
-
-    alt::ICore::Instance().LogWarning(ss.str());
+    v8::Local<v8::Function> logFunction = resource->GetLogFunction();
+    logFunction->Call(ctx, v8::Undefined(isolate), argsArr.size(), argsArr.data());
 }
 
 static void LogError(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_ARGS_LEN_MIN(1);
 
-    std::stringstream ss;
-    for(int i = 0; i < info.Length(); ++i)
-    {
-        v8::Local<v8::Value> val = info[i];
+    std::vector<v8::Local<v8::Value>> argsArr;
+    argsArr.reserve(info.Length() + 1);
+    argsArr.push_back(V8Helpers::JSValue(2));
+    for(int i = 0; i < info.Length(); ++i) argsArr.push_back(info[i]);
 
-        if(i > 0) ss << " ";
-
-        auto str = V8Helpers::Stringify(ctx, val);
-        if(str.empty()) continue;
-
-        ss << str;
-    }
-
-    alt::ICore::Instance().LogError(ss.str());
+    v8::Local<v8::Function> logFunction = resource->GetLogFunction();
+    logFunction->Call(ctx, v8::Undefined(isolate), argsArr.size(), argsArr.data());
 }
 
 static void LogDebug(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-    if (!alt::ICore::Instance().IsDebug()) return;
+    if(!alt::ICore::Instance().IsDebug()) return;
 
-    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_ARGS_LEN_MIN(1);
 
-    std::stringstream ss;
-    for(int i = 0; i < info.Length(); ++i)
-    {
-        v8::Local<v8::Value> val = info[i];
+    std::vector<v8::Local<v8::Value>> argsArr;
+    argsArr.reserve(info.Length() + 1);
+    argsArr.push_back(V8Helpers::JSValue(0));
+    for(int i = 0; i < info.Length(); ++i) argsArr.push_back(info[i]);
 
-        if(i > 0) ss << " ";
-
-        auto str = V8Helpers::Stringify(ctx, val);
-        if(str.empty()) continue;
-
-        ss << str;
-    }
-
-    alt::ICore::Instance().LogColored(ss.str());
+    v8::Local<v8::Function> logFunction = resource->GetLogFunction();
+    logFunction->Call(ctx, v8::Undefined(isolate), argsArr.size(), argsArr.data());
 }
 
 static void Time(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -472,7 +444,8 @@ extern V8Class v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2,
 extern V8Module sharedModule("alt-shared",
                              nullptr,
                              { v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2, v8Vector3, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Resource, v8Utils },
-                             [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
+                             [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports)
+                             {
                                  v8::Isolate* isolate = ctx->GetIsolate();
 
                                  V8Helpers::RegisterFunc(exports, "hash", &HashCb);

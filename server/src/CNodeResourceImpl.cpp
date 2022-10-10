@@ -46,6 +46,7 @@ bool CNodeResourceImpl::Start()
     context.Reset(isolate, _context);
 
     V8ResourceImpl::Start();
+    V8ResourceImpl::SetupScriptGlobals();
 
     node::EnvironmentFlags::Flags flags = (node::EnvironmentFlags::Flags)(node::EnvironmentFlags::kOwnsProcessState & node::EnvironmentFlags::kNoCreateInspector);
 
