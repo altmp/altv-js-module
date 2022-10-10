@@ -2,6 +2,52 @@
 // clang-format off
 // Vector2 JS bindings
 
+function getXYFromArgs(args) {
+    alt.Utils.assert(args.length === 1 || args.length === 2, "1 or 2 arguments expected");
+
+    let x = 0, y = 0;
+
+    if(args.length === 2) {
+        x = parseFloat(args[0]);
+        x = parseFloat(args[1]);
+
+        assertNotNaN(x, "Expected a number as first argument");
+        assertNotNaN(y, "Expected a number as second argument");
+    }
+    else {
+        if(typeof args[0] === "number" || typeof args[0] === "string") {
+            const number = parseFloat(args[0]);
+            assertNotNaN(number, "Expected a number as first argument");
+
+            x = number;
+            y = number;
+        }
+        else if(Array.isArray(args[0])) {
+            if(typeof args[0][0] === "number" || typeof args[0][0] === "string") {
+                x = parseFloat(args[0][0]);
+                assertNotNaN(x, "Expected an array of 2 numbers as first argument");
+            }
+            if(typeof args[0][1] === "number" || typeof args[0][1] === "string") {
+                y = parseFloat(args[0][1]);
+                assertNotNaN(y, "Expected an array of 2 numbers as first argument");
+            }
+        }
+        else if(args[0] && typeof args[0] === "object") {
+            if(args[0].x !== undefined) {
+                x = parseFloat(args[0].x);
+                assertNotNaN(x, "Expected Vector2 as first argument");
+            }
+            if(args[0].y !== undefined) {
+                y = parseFloat(args[0].y);
+                assertNotNaN(y, "Expected Vector2 as first argument");
+            }
+        }
+        else throw new Error("Argument must be a number, an array of 2 numbers or IVector2");
+    }
+
+    return [x, y];
+}
+
 // Static properties
 alt.Vector2.zero = new alt.Vector2(0, 0);
 alt.Vector2.one = new alt.Vector2(1, 1);
@@ -29,90 +75,22 @@ alt.Vector2.prototype.toArray = function() {
 }
 
 alt.Vector2.prototype.add = function(...args) {
-    if(args.length !== 1 && args.length !== 2) throw new Error("1 or 2 arguments expected");
-
-    let x = 0, y = 0;
-
-    if(args.length === 2) [x, y] = args;
-    else {
-        if(typeof args[0] === "number" || typeof args[0] === "string") x = parseInt(args[0]), y = parseInt(args[0]);
-        else if(Array.isArray(args[0])) {
-            if(typeof args[0][0] === "number" || typeof args[0][0] === "string") x = parseInt(args[0][0]);
-            if(typeof args[0][1] === "number" || typeof args[0][1] === "string") y = parseInt(args[0][1]);
-        }
-        else if(typeof args[0] === "object") {
-            if(args[0].x !== undefined) x = parseInt(args[0].x);
-            if(args[0].y !== undefined) y = parseInt(args[0].y);
-        }
-        else throw new Error("Argument must be a number, an array of 2 numbers or IVector2");
-    }
-
+    const [x, y] = getXYFromArgs(args);
     return new alt.Vector2(this.x + x, this.y + y);
 }
 
 alt.Vector2.prototype.sub = function(...args) {
-    if(args.length !== 1 && args.length !== 2) throw new Error("1 or 2 arguments expected");
-
-    let x = 0, y = 0;
-
-    if(args.length === 2) [x, y] = args;
-    else {
-        if(typeof args[0] === "number" || typeof args[0] === "string") x = parseInt(args[0]), y = parseInt(args[0]);
-        else if(Array.isArray(args[0])) {
-            if(typeof args[0][0] === "number" || typeof args[0][0] === "string") x = parseInt(args[0][0]);
-            if(typeof args[0][1] === "number" || typeof args[0][1] === "string") y = parseInt(args[0][1]);
-        }
-        else if(typeof args[0] === "object") {
-            if(args[0].x !== undefined) x = parseInt(args[0].x);
-            if(args[0].y !== undefined) y = parseInt(args[0].y);
-        }
-        else throw new Error("Argument must be a number, an array of 2 numbers or IVector2");
-    }
-
+    const [x, y] = getXYFromArgs(args);
     return new alt.Vector2(this.x - x, this.y - y);
 }
 
 alt.Vector2.prototype.div = function(...args) {
-    if(args.length !== 1 && args.length !== 2) throw new Error("1 or 2 arguments expected");
-
-    let x = 0, y = 0;
-
-    if(args.length === 2) [x, y] = args;
-    else {
-        if(typeof args[0] === "number" || typeof args[0] === "string") x = parseInt(args[0]), y = parseInt(args[0]);
-        else if(Array.isArray(args[0])) {
-            if(typeof args[0][0] === "number" || typeof args[0][0] === "string") x = parseInt(args[0][0]);
-            if(typeof args[0][1] === "number" || typeof args[0][1] === "string") y = parseInt(args[0][1]);
-        }
-        else if(typeof args[0] === "object") {
-            if(args[0].x !== undefined) x = parseInt(args[0].x);
-            if(args[0].y !== undefined) y = parseInt(args[0].y);
-        }
-        else throw new Error("Argument must be a number, an array of 2 numbers or IVector2");
-    }
-
+    const [x, y] = getXYFromArgs(args);
     return new alt.Vector2(this.x / x, this.y / y);
 }
 
 alt.Vector2.prototype.mul = function(...args) {
-    if(args.length !== 1 && args.length !== 2) throw new Error("1 or 2 arguments expected");
-
-    let x = 0, y = 0;
-
-    if(args.length === 2) [x, y] = args;
-    else {
-        if(typeof args[0] === "number" || typeof args[0] === "string") x = parseInt(args[0]), y = parseInt(args[0]);
-        else if(Array.isArray(args[0])) {
-            if(typeof args[0][0] === "number" || typeof args[0][0] === "string") x = parseInt(args[0][0]);
-            if(typeof args[0][1] === "number" || typeof args[0][1] === "string") y = parseInt(args[0][1]);
-        }
-        else if(typeof args[0] === "object") {
-            if(args[0].x !== undefined) x = parseInt(args[0].x);
-            if(args[0].y !== undefined) y = parseInt(args[0].y);
-        }
-        else throw new Error("Argument must be a number, an array of 2 numbers or IVector2");
-    }
-
+    const [x, y] = getXYFromArgs(args);
     return new alt.Vector2(this.x * x, this.y * y);
 }
 
@@ -134,14 +112,16 @@ alt.Vector2.prototype.distanceTo = function(vector) {
 }
 
 alt.Vector2.prototype.distanceToSquared = function(vector) {
-    if(vector === undefined) throw new Error("1 argument expected");
-    const x = this.x - parseInt(vector.x);
-    const y = this.y - parseInt(vector.y);
+    alt.Utils.assert(vector != null, "Expected Vector2 as first argument");
+
+    const x = this.x - parseFloat(vector.x);
+    const y = this.y - parseFloat(vector.y);
     return x * x + y * y;
 }
 
 alt.Vector2.prototype.angleTo = function(vector) {
-    if(vector === undefined) throw new Error("1 argument expected");
+    alt.Utils.assert(vector != null, "Expected Vector2 as first argument");
+
     const posALength = Math.hypot(this.x, this.y);
     const posBLength = Math.hypot(vector.x, vector.y);
     if (posALength === 0 || posBLength === 0) throw new Error("Division by zero");
@@ -161,16 +141,20 @@ alt.Vector2.prototype.toRadians = function() {
 }
 
 alt.Vector2.prototype.isInRange = function(vector, range) {
-    if(vector === undefined || range === undefined) throw new Error("2 arguments expected");
-    const x = Math.abs(this.x - parseInt(vector.x));
-    const y = Math.abs(this.y - parseInt(vector.y));
+    alt.Utils.assert(vector != null, "Expected Vector2 as first argument");
+    alt.Utils.assert(typeof range === "number", "Expected a number as second argument");
+
+    const x = Math.abs(this.x - parseFloat(vector.x));
+    const y = Math.abs(this.y - parseFloat(vector.y));
 
     return x <= range && y <= range        // Fast check
         && x * x + y * y <= range * range; // Slow check
 }
 
 alt.Vector2.prototype.lerp = function(vector, ratio) {
-    if(vector === undefined || ratio === undefined) throw new Error("2 arguments expected");
+    alt.Utils.assert(vector != null, "Expected Vector2 as first argument");
+    alt.Utils.assert(typeof ratio === "number", "Expected a number as second argument");
+
     const x = this.x + (vector.x - this.x) * ratio;
     const y = this.y + (vector.y - this.y) * ratio;
     return new alt.Vector2(x, y);
