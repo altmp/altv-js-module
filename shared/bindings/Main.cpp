@@ -341,23 +341,6 @@ static void HasResource(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_BOOLEAN(resource && resource->IsStarted());
 }
 
-static void GetResourceExports(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    // Deprecation added: 02/05/2022 (version 9.13)
-    V8_DEPRECATE("alt.getResourceExports", "alt.Resource.exports");
-    V8_GET_ISOLATE_CONTEXT();
-    V8_CHECK_ARGS_LEN(1);
-
-    V8_ARG_TO_STRING(1, name);
-
-    alt::IResource* resource = alt::ICore::Instance().GetResource(name);
-    if(resource)
-    {
-        v8::Local<v8::Value> exports = V8Helpers::MValueToV8(resource->GetExports());
-        V8_RETURN(exports);
-    }
-}
-
 static void GetEventListeners(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -485,7 +468,6 @@ extern V8Module sharedModule("alt-shared",
                                  V8Helpers::RegisterFunc(exports, "clearInterval", &ClearTimer);
 
                                  V8Helpers::RegisterFunc(exports, "hasResource", &HasResource);
-                                 V8Helpers::RegisterFunc(exports, "getResourceExports", &GetResourceExports);
                                  V8Helpers::RegisterFunc(exports, "getAllResources", &GetAllResources);
 
                                  V8Helpers::RegisterFunc(exports, "stringToSHA256", &StringToSHA256);
