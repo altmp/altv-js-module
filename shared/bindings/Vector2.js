@@ -74,13 +74,12 @@ alt.Vector2.prototype.toArray = function() {
     return [this.x, this.y];
 }
 
-alt.Vector3.prototype.toFixed = function (precision = 4) {
+alt.Vector2.prototype.toFixed = function (precision = 4) {
     return new alt.Vector2(
         this.x.toFixed(precision),
         this.y.toFixed(precision),
     );
 };
-
 
 alt.Vector2.prototype.add = function(...args) {
     const [x, y] = getXYFromArgs(args);
