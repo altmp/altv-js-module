@@ -88,6 +88,14 @@ alt.Vector3.prototype.toArray = function() {
     return [this.x, this.y, this.z];
 }
 
+alt.Vector3.prototype.toFixed = function(precision = 4) {
+    return new alt.Vector3(
+        this.x.toFixed(precision),
+        this.y.toFixed(precision),
+        this.z.toFixed(precision)
+    );
+}
+
 alt.Vector3.prototype.add = function(...args) {
     const [x, y, z] = getXYZFromArgs(args);
     return new alt.Vector3(this.x + x, this.y + y, this.z + z);
