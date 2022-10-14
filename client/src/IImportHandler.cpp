@@ -101,10 +101,17 @@ std::string IImportHandler::GetModulePath(v8::Local<v8::Module> moduleHandle)
 {
     for(auto& md : modules)
     {
-        if(md.second == moduleHandle) return md.first;
+        if(md.second.mod == moduleHandle) return md.first;
     }
 
     return std::string{};
+}
+
+const IImportHandler::ModuleData& IImportHandler::GetModuleData(const std::string& name)
+{
+    auto result = modules.find(name);
+    if(result == modules.end()) return ModuleData{};
+    return result->second;
 }
 
 v8::Local<v8::Module> IImportHandler::GetModuleFromPath(std::string modulePath)
@@ -112,7 +119,7 @@ v8::Local<v8::Module> IImportHandler::GetModuleFromPath(std::string modulePath)
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
     for(auto& md : modules)
     {
-        if(md.first == modulePath) return md.second.Get(isolate);
+        if(md.first == modulePath) return md.second.mod.Get(isolate);
     }
 
     return v8::Local<v8::Module>{};
@@ -180,37 +187,41 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveFile(const std::string& name, 
 
     auto it = modules.find(fullName);
 
-    if(it != modules.end()) return it->second.Get(isolate);
+    if(it != modules.end()) return it->second.mod.Get(isolate);
 
     v8::MaybeLocal<v8::Module> maybeModule;
 
-    V8Helpers::TryCatch([&] {
-        alt::IPackage::File* file = path.pkg->OpenFile(fileName);
+    V8Helpers::TryCatch(
+      [&]
+      {
+          alt::IPackage::File* file = path.pkg->OpenFile(fileName);
 
-        size_t fileSize = path.pkg->GetFileSize(file);
-        uint8_t* byteBuffer = new uint8_t[fileSize];
-        path.pkg->ReadFile(file, byteBuffer, fileSize);
-        path.pkg->CloseFile(file);
+          size_t fileSize = path.pkg->GetFileSize(file);
+          uint8_t* byteBuffer = new uint8_t[fileSize];
+          path.pkg->ReadFile(file, byteBuffer, fileSize);
+          path.pkg->CloseFile(file);
 
-        if(!isUsingBytecode)
-        {
-            std::string src{ (char*)byteBuffer, fileSize };
-            maybeModule = CompileESM(isolate, fullName, src);
-        }
-        else
-        {
-            maybeModule = ResolveBytecode(fullName, byteBuffer, fileSize);
-        }
-        delete byteBuffer;
+          bool isBytecode = IsBytecodeModule(byteBuffer, fileSize);
 
-        if(maybeModule.IsEmpty()) return false;
+          if(!isBytecode)
+          {
+              std::string src{ (char*)byteBuffer, fileSize };
+              maybeModule = CompileESM(isolate, fullName, src);
+          }
+          else
+          {
+              maybeModule = ResolveBytecode(fullName, byteBuffer, fileSize);
+          }
+          delete byteBuffer;
 
-        v8::Local<v8::Module> _module = maybeModule.ToLocalChecked();
+          if(maybeModule.IsEmpty()) return false;
 
-        modules.emplace(fullName, V8Helpers::CPersistent<v8::Module>{ isolate, _module });
+          v8::Local<v8::Module> _module = maybeModule.ToLocalChecked();
 
-        return true;
-    });
+          modules.insert({ fullName, ModuleData{ V8Helpers::CPersistent<v8::Module>{ isolate, _module }, isBytecode } });
+
+          return true;
+      });
 
     if(maybeModule.IsEmpty())
     {
@@ -232,41 +243,29 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveModule(const std::string& _nam
     auto it = modules.find(name);
     if(it != modules.end())
     {
-        maybeModule = it->second.Get(isolate);
+        maybeModule = it->second.mod.Get(isolate);
     }
 
     if(maybeModule.IsEmpty())
     {
         if(IsValidModule(name))
         {
-            V8Helpers::TryCatch([&] {
-                maybeModule = WrapModule(isolate, GetModuleKeys(name), name, IsSystemModule(isolate, name));
+            V8Helpers::TryCatch(
+              [&]
+              {
+                  maybeModule = WrapModule(isolate, GetModuleKeys(name), name, IsSystemModule(isolate, name));
 
-                if(!maybeModule.IsEmpty())
-                {
-                    v8::Local<v8::Module> _module = maybeModule.ToLocalChecked();
-                    modules.emplace(name, V8Helpers::CPersistent<v8::Module>{ isolate, _module });
+                  if(!maybeModule.IsEmpty())
+                  {
+                      v8::Local<v8::Module> _module = maybeModule.ToLocalChecked();
+                      modules.insert({ name, ModuleData{ V8Helpers::CPersistent<v8::Module>{ isolate, _module }, false } });
 
-                    /*v8::Maybe<bool> res = _module->InstantiateModule(GetContext(), CV8ScriptRuntime::ResolveModule);
-                    if (res.IsNothing())
-                    {
-                            Log::Info(__LINE__, "res.IsNothing()");
-                            return false;
-                    }
+                      return true;
+                  }
 
-                    v8::MaybeLocal<v8::Value> res2 = _module->Evaluate(GetContext());
-                    if (res2.IsEmpty())
-                    {
-                            Log::Info(__LINE__, "res2.IsEmpty()");
-                            return false;
-                    }*/
-
-                    return true;
-                }
-
-                Log::Info << __LINE__ << "maybeModule.IsEmpty()";
-                return false;
-            });
+                  Log::Info << __LINE__ << "maybeModule.IsEmpty()";
+                  return false;
+              });
 
             if(maybeModule.IsEmpty())
             {

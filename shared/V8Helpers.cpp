@@ -30,28 +30,29 @@ bool V8Helpers::TryCatch(const std::function<bool()>& fn)
             v8::MaybeLocal<v8::String> maybeSourceLine = message->GetSourceLine(context);
             v8::Maybe<int32_t> line = message->GetLineNumber(context);
             v8::ScriptOrigin origin = message->GetScriptOrigin();
+            std::string name = *v8::String::Utf8Value(isolate, origin.ResourceName());
 
             // Only relevant for client
-            bool isBytecodeResource = false;
+            bool isBytecodeFile = false;
 #ifdef ALT_CLIENT
-            isBytecodeResource = static_cast<CV8ResourceImpl*>(v8resource)->IsBytecodeResource();
+            isBytecodeFile = static_cast<CV8ResourceImpl*>(v8resource)->GetModuleData(name).isBytecode;
 #endif
 
             if(!origin.ResourceName()->IsUndefined())
             {
-                if(line.IsNothing() || isBytecodeResource)
+                if(line.IsNothing() || isBytecodeFile)
                 {
-                    Log::Error << "[V8] Exception at " << resource->GetName() << ":" << *v8::String::Utf8Value(isolate, origin.ResourceName()) << Log::Endl;
+                    Log::Error << "[V8] Exception at " << resource->GetName() << ":" << name << Log::Endl;
                 }
                 else
-                    Log::Error << "[V8] Exception at " << resource->GetName() << ":" << *v8::String::Utf8Value(isolate, origin.ResourceName()) << ":" << line.ToChecked() << Log::Endl;
+                    Log::Error << "[V8] Exception at " << resource->GetName() << ":" << name << ":" << line.ToChecked() << Log::Endl;
             }
             else
             {
                 Log::Error << "[V8] Exception at " << resource->GetName() << Log::Endl;
             }
 
-            if(!maybeSourceLine.IsEmpty() && !isBytecodeResource)
+            if(!maybeSourceLine.IsEmpty() && !isBytecodeFile)
             {
                 v8::Local<v8::String> sourceLine = maybeSourceLine.ToLocalChecked();
 

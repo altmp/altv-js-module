@@ -156,11 +156,6 @@ public:
     void AddWorker(CWorker* worker);
     void RemoveWorker(CWorker* worker);
 
-    bool IsBytecodeResource()
-    {
-        return isUsingBytecode;
-    }
-
     v8::Local<v8::Module> CreateSyntheticModule(const std::string& name, v8::Local<v8::Value> exportValue);
     v8::MaybeLocal<v8::Value> GetSyntheticModuleExport(v8::Local<v8::Module> syntheticModule);
 

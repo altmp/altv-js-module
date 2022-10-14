@@ -104,27 +104,7 @@ bool CV8ResourceImpl::Start()
 
     v8::Context::Scope context_scope(ctx);
 
-    // Log::Debug(V8ResourceImpl::GetResource(ctx));
-    // Log::Debug(V8ResourceImpl::GetResource(isolate->GetEnteredOrMicrotaskContext()));
-
-    /*runtime->GetInspector()->contextCreated({
-            ctx,
-            1,
-            v8_inspector::StringView{ (uint8_t*)namec_str(), name.GetSize() }
-    });*/
-
     std::string path = resource->GetMain();
-
-    alt::IPackage* pkg = resource->GetPackage();
-    alt::IPackage::File* file = pkg->OpenFile(path);
-
-    size_t fileSize = pkg->GetFileSize(file);
-    std::vector<uint8_t> byteBuffer(fileSize);
-    pkg->ReadFile(file, byteBuffer.data(), fileSize);
-    pkg->CloseFile(file);
-
-    isUsingBytecode = IsBytecodeModule(byteBuffer.data(), fileSize);
-
     Log::Info << "[V8] Starting script " << path << Log::Endl;
 
     bool result = V8Helpers::TryCatch(
