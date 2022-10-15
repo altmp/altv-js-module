@@ -210,7 +210,7 @@ bool V8Helpers::SafeToArray(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx
     return false;
 }
 
-v8::Local<v8::Value> V8Helpers::ConfigNodeToV8(alt::config::Node& node, v8::Local<v8::Value> parent)
+v8::Local<v8::Value> V8Helpers::ConfigNodeToV8(Config::Value::ValuePtr node, v8::Local<v8::Value> parent)
 {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
     v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
@@ -220,50 +220,41 @@ v8::Local<v8::Value> V8Helpers::ConfigNodeToV8(alt::config::Node& node, v8::Loca
     else
         out = parent;
 
-    switch(node.GetType())
+    switch(node->GetType())
     {
-        case alt::config::Node::Type::SCALAR:
+        case Config::Value::Type::STRING:
         {
-            try
-            {
-                bool result = node.ToBool();
-                out = V8Helpers::JSValue(result);
-            }
-            catch(alt::config::Error&)
-            {
-                // Not a bool, check if its a number
-                try
-                {
-                    double result = node.ToNumber();
-                    out = V8Helpers::JSValue(result);
-                }
-                catch(alt::config::Error&)
-                {
-                    out = V8Helpers::JSValue(node.ToString());
-                }
-            }
+            out = V8Helpers::JSValue(node->AsString());
             break;
         }
-        case alt::config::Node::Type::LIST:
+        case Config::Value::Type::NUMBER:
         {
-            alt::config::Node::List list = node.ToList();
-            v8::Local<v8::Array> arr = v8::Array::New(isolate, list.size());
-            for(size_t i = 0; i < list.size(); i++)
+            out = V8Helpers::JSValue(node->AsNumber());
+            break;
+        }
+        case Config::Value::Type::BOOL:
+        {
+            out = V8Helpers::JSValue(node->AsBool());
+            break;
+        }
+        case Config::Value::Type::LIST:
+        {
+            v8::Local<v8::Array> arr = v8::Array::New(isolate, node->GetSize());
+            for(size_t i = 0; i < node->GetSize(); i++)
             {
-                v8::Local<v8::Value> val = ConfigNodeToV8(*list[i], val);
+                v8::Local<v8::Value> val = ConfigNodeToV8(node[i], val);
                 if(val.IsEmpty()) continue;
                 arr->Set(ctx, i, val);
             }
             out = arr;
             break;
         }
-        case alt::config::Node::Type::DICT:
+        case Config::Value::Type::DICT:
         {
-            alt::config::Node::Dict dict = node.ToDict();
             v8::Local<v8::Object> obj = v8::Object::New(isolate);
-            for(auto& pair : dict)
+            for(auto& pair : node->AsDict())
             {
-                v8::Local<v8::Value> val = ConfigNodeToV8(*pair.second, val);
+                v8::Local<v8::Value> val = ConfigNodeToV8(pair.second, val);
                 if(val.IsEmpty()) continue;
                 obj->Set(ctx, V8Helpers::JSValue(pair.first), val);
             }
