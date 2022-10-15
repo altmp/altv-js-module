@@ -16,7 +16,7 @@ IF NOT EXIST build\ (
     mkdir build
 )
 pushd build
-cmake . -A x64 -DJS_MODULE_VERSION=%VERSION% -DDYNAMIC_BUILD=%DYNAMIC_BUILD% ..
+cmake . -A x64 -G "Visual Studio 17 2022" -DJS_MODULE_VERSION=%VERSION% -DDYNAMIC_BUILD=%DYNAMIC_BUILD% ..
 cmake --build . --config Release
 popd
 
