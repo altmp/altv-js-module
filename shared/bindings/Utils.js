@@ -165,9 +165,33 @@ alt.Utils.ConsoleCommand = class ConsoleCommand extends BaseUtility {
     }
 }
 
-alt.Utils.AssertionError = class AssertionError extends Error {}
-alt.Utils.assert = function(assertion, message) {
-    if(!assertion) throw new alt.Utils.AssertionError(message ?? "Assertion failed");
+alt.Utils.AssertionError = class AssertionError extends Error {
+    static #internalStackFrame = alt.isClient ? "(eval at <anonymous> (<bootstrapper>" : "(eval at <anonymous> (node:embedder_main";
+
+    constructor(message) {
+        super(message);
+
+        // Users can still access full stack with js module internal calls if they want
+        this.fullStack = this.stack;
+
+        let stackLines = this.stack.split('\n');
+        for (let i = 2; i < stackLines.length; ++i) {
+            // Skip JS bindings stack frames
+            if (stackLines[i].includes(AssertionError.#internalStackFrame)) continue;
+
+            stackLines = [
+                ...stackLines.slice(0, 2), // Error message + alt.Utils.assert line,
+                ...stackLines.slice(i) // User's code calls
+            ];
+            break;
+        }
+
+        this.stack = stackLines.join('\n');
+    }
+}
+
+alt.Utils.assert = function (assertion, message) {
+    if (!assertion) throw new alt.Utils.AssertionError(message ?? "Assertion failed");
 }
 
 // For convenience
