@@ -210,16 +210,12 @@ bool V8Helpers::SafeToArray(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx
     return false;
 }
 
-v8::Local<v8::Value> V8Helpers::ConfigNodeToV8(Config::Value::ValuePtr node, v8::Local<v8::Value> parent)
+v8::Local<v8::Value> V8Helpers::ConfigNodeToV8(Config::Value::ValuePtr node)
 {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
     v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
 
     v8::Local<v8::Value> out;
-    if(parent.IsEmpty()) out = v8::Object::New(isolate);
-    else
-        out = parent;
-
     switch(node->GetType())
     {
         case Config::Value::Type::STRING:
@@ -242,7 +238,7 @@ v8::Local<v8::Value> V8Helpers::ConfigNodeToV8(Config::Value::ValuePtr node, v8:
             v8::Local<v8::Array> arr = v8::Array::New(isolate, node->GetSize());
             for(size_t i = 0; i < node->GetSize(); i++)
             {
-                v8::Local<v8::Value> val = ConfigNodeToV8(node[i], val);
+                v8::Local<v8::Value> val = ConfigNodeToV8(node[i]);
                 if(val.IsEmpty()) continue;
                 arr->Set(ctx, i, val);
             }
@@ -254,7 +250,7 @@ v8::Local<v8::Value> V8Helpers::ConfigNodeToV8(Config::Value::ValuePtr node, v8:
             v8::Local<v8::Object> obj = v8::Object::New(isolate);
             for(auto& pair : node->AsDict())
             {
-                v8::Local<v8::Value> val = ConfigNodeToV8(pair.second, val);
+                v8::Local<v8::Value> val = ConfigNodeToV8(pair.second);
                 if(val.IsEmpty()) continue;
                 obj->Set(ctx, V8Helpers::JSValue(pair.first), val);
             }
