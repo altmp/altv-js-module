@@ -123,7 +123,7 @@ std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
     if(enableNetworkImports->AsBool(false)) args.push_back("--experimental-network-imports");
 
     Config::Value::ValuePtr extraCliArgs = moduleConfig["extra-cli-args"];
-    for(auto arg : extraCliArgs)
+    for(auto arg : extraCliArgs->AsList())
     {
         args.push_back(arg->AsString());
     }
