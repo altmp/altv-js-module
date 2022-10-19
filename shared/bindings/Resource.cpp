@@ -104,6 +104,13 @@ static void OptionalPermissionsGetter(v8::Local<v8::String>, const v8::PropertyC
     V8_RETURN(permissions);
 }
 
+static void ValidGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, resource, alt::IResource);
+    V8_RETURN_BOOLEAN(resource == nullptr);
+}
+
 #ifdef ALT_SERVER_API
 static void PathGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
@@ -176,6 +183,7 @@ extern V8Class v8Resource("Resource", [](v8::Local<v8::FunctionTemplate> tpl) {
     V8Helpers::SetAccessor(isolate, tpl, "dependants", &DependantsGetter);
     V8Helpers::SetAccessor(isolate, tpl, "requiredPermissions", &RequiredPermissionsGetter);
     V8Helpers::SetAccessor(isolate, tpl, "optionalPermissions", &OptionalPermissionsGetter);
+    V8Helpers::SetAccessor(isolate, tpl, "valid", &ValidGetter);
 #ifdef ALT_SERVER_API
     V8Helpers::SetAccessor(isolate, tpl, "path", &PathGetter);
     V8Helpers::SetAccessor(isolate, tpl, "config", &ConfigGetter);
