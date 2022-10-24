@@ -4,7 +4,7 @@ import * as native from "natives";
 
 // Load the global bindings code
 const bindingsGlobal = {};
-new Function("alt", "__global", __internal_bindings_code)(alt, bindingsGlobal);
+new Function("alt", "native", "__global", __internal_bindings_code)(alt, native, bindingsGlobal);
 __setLogFunction(bindingsGlobal.genericLog);
 
 let mainPath = __internal_main_path;
