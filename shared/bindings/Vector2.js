@@ -76,7 +76,7 @@ alt.Vector2.prototype.toArray = function() {
 
 alt.Vector2.prototype.toFixed = function (precision = 4) {
     return new alt.Vector2(
-        this.x.toFixed(precision),
+        parseFloat(this.x.toFixed(precision)),
         this.y.toFixed(precision),
     );
 };
