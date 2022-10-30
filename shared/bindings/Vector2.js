@@ -9,7 +9,7 @@ function getXYFromArgs(args) {
 
     if(args.length === 2) {
         x = parseFloat(args[0]);
-        x = parseFloat(args[1]);
+        y = parseFloat(args[1]);
 
         assertNotNaN(x, "Expected a number as first argument");
         assertNotNaN(y, "Expected a number as second argument");
