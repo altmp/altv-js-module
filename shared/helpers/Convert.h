@@ -5,6 +5,8 @@
 
 #include "V8Entity.h"
 
+#include "Serialization.h"
+
 namespace V8Helpers
 {
     bool SafeToBoolean(v8::Local<v8::Value> val, v8::Isolate* isolate, bool& out);
@@ -140,6 +142,177 @@ namespace V8Helpers
     inline bool CppValue(v8::Local<v8::Boolean> val)
     {
         return val->Value();
+    }
+
+    class JSVal;
+    class JSArray
+    {
+        std::vector<std::shared_ptr<JSVal>> values;
+        v8::Local<v8::Context> ctx;
+
+    public:
+        JSArray() = default;
+        JSArray(v8::Local<v8::Array> array, v8::Local<v8::Context> _ctx) : ctx(_ctx)
+        {
+            uint32_t size = array->Length();
+            values.reserve(size);
+            for(uint32_t i = 0; i < size; i++) values.push_back(std::make_shared<JSVal>(array->Get(ctx, i).ToLocalChecked(), ctx));
+        }
+
+        std::shared_ptr<JSVal> Get(size_t index)
+        {
+            if(index > values.size()) return {};
+            return values.at(index);
+        }
+        size_t GetSize()
+        {
+            return values.size();
+        }
+    };
+
+    class JSObject
+    {
+        std::unordered_map<std::string, std::shared_ptr<JSVal>> values;
+        v8::Local<v8::Context> ctx;
+
+    public:
+        JSObject() = default;
+        JSObject(v8::Local<v8::Object> object, v8::Local<v8::Context> _ctx) : ctx(_ctx)
+        {
+            v8::Isolate* isolate = ctx->GetIsolate();
+            v8::Local<v8::Array> keys = object->GetOwnPropertyNames(ctx, v8::PropertyFilter::SKIP_SYMBOLS, v8::KeyConversionMode::kConvertToString).ToLocalChecked();
+            uint32_t size = keys->Length();
+            for(uint32_t i = 0; i < size; i++)
+            {
+                v8::Local<v8::String> jsKey = keys->Get(ctx, i).ToLocalChecked().As<v8::String>();
+                std::string key = *v8::String::Utf8Value(isolate, jsKey);
+                values.insert({ key, std::make_shared<JSVal>(object->Get(ctx, jsKey).ToLocalChecked(), ctx) });
+            }
+        }
+
+        std::shared_ptr<JSVal> Get(const std::string& key)
+        {
+            auto result = values.find(key);
+            if(result == values.end()) return {};
+            return result->second;
+        }
+        bool Has(const std::string& key)
+        {
+            return values.contains(key);
+        }
+    };
+
+    class JSVal
+    {
+    public:
+        enum class Type : uint8_t
+        {
+            INVALID,
+            NUMBER,
+            BIGINT,
+            STRING,
+            BOOLEAN,
+            ARRAY,
+            OBJECT
+        };
+
+    private:
+        v8::Local<v8::Value> value;
+        v8::Local<v8::Context> ctx;
+        Type type;
+
+    public:
+        JSVal() = default;
+        JSVal(v8::Local<v8::Value> _value, v8::Local<v8::Context> _ctx) : value(_value), ctx(_ctx)
+        {
+            if(value->IsNumber()) type = Type::NUMBER;
+            else if(value->IsBigInt())
+                type = Type::BIGINT;
+            else if(value->IsString())
+                type = Type::STRING;
+            else if(value->IsBoolean())
+                type = Type::BOOLEAN;
+            else if(value->IsArray())
+                type = Type::ARRAY;
+            else if(value->IsObject())
+                type = Type::OBJECT;
+            else
+                type = Type::INVALID;
+        }
+
+        template<typename T>
+        T Get(const T& fallback = T())
+        {
+            if(value.IsEmpty() || type == Type::INVALID) return fallback;
+
+            v8::Isolate* isolate = ctx->GetIsolate();
+            // Number
+            if constexpr((std::is_unsigned_v<T> && !std::is_same_v<T, uint64_t>) || (std::is_signed_v<T> && !std::is_same_v<T, int64_t>))
+            {
+                if(type != Type::NUMBER && type != Type::STRING) return fallback;
+                double val;
+                if(!value->NumberValue(ctx).To(&val)) return fallback;
+                return (T)val;
+            }
+            // BigInt
+            if constexpr(std::is_same_v<T, uint64_t> || std::is_same_v<T, int64_t>)
+            {
+                if(type != Type::BIGINT && type != Type::NUMBER && type != Type::STRING) return fallback;
+                auto maybe = value->ToBigInt(ctx);
+                v8::Local<v8::BigInt> val;
+                if(!value->ToBigInt(ctx).ToLocal(&val)) return fallback;
+                if constexpr(std::is_same_v<T, uint64_t>) return val->Uint64Value();
+                else
+                    return val->Int64Value();
+            }
+            // String
+            if constexpr(std::is_same_v<T, std::string>)
+            {
+                if(type != Type::STRING) return fallback;
+                return std::string(*v8::String::Utf8Value{ isolate, value.As<v8::String>() });
+            }
+            // Boolean
+            if constexpr(std::is_same_v<T, bool>)
+            {
+                if(type != Type::BOOLEAN) return fallback;
+                return value.As<v8::Boolean>()->Value();
+            }
+            // Array
+            if constexpr(std::is_same_v<T, JSArray>)
+            {
+                if(type != Type::ARRAY) return fallback;
+                return JSArray{ value.As<v8::Array>(), ctx };
+            }
+            // Object
+            if constexpr(std::is_same_v<T, JSObject>)
+            {
+                if(type != Type::OBJECT) return fallback;
+                return JSObject{ value.As<v8::Object>(), ctx };
+            }
+
+            // *** Special cases
+            if constexpr(std::is_same_v<T, alt::MValue>)
+            {
+                return V8Helpers::V8ToMValue(value);
+            }
+
+            return fallback;
+        }
+
+        Type GetType()
+        {
+            return type;
+        }
+    };
+
+    inline std::vector<std::shared_ptr<JSVal>> GetFunctionParams(const v8::FunctionCallbackInfo<v8::Value>& info)
+    {
+        int size = info.Length();
+        std::vector<std::shared_ptr<JSVal>> params;
+        params.reserve(size);
+        v8::Local<v8::Context> ctx = info.GetIsolate()->GetEnteredOrMicrotaskContext();
+        for(int i = 0; i < size; i++) params.push_back(std::make_shared<JSVal>(info[i], ctx));
+        return params;
     }
 
     v8::Local<v8::Value> ConfigNodeToV8(Config::Value::ValuePtr node);

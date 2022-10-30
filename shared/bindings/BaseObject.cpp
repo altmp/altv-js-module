@@ -52,12 +52,12 @@ static void GetMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void SetMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-
-    V8_CHECK_ARGS_LEN(2);
-    V8_ARG_TO_STRING(1, key);
-    V8_ARG_TO_MVALUE(2, value);
-
     V8_GET_THIS_BASE_OBJECT(obj, alt::IBaseObject);
+
+    auto params = V8Helpers::GetFunctionParams(info);
+    V8_CHECK(params.size() == 2, "Expected 2 args");
+    std::string key = params[0]->Get<std::string>();
+    alt::MValue value = params[1]->Get<alt::MValue>();
 
     obj->SetMetaData(key, value);
 }
@@ -93,19 +93,21 @@ static void RefCountGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo
     V8_RETURN_UINT(obj->GetRefCount());
 }
 
-extern V8Class v8BaseObject("BaseObject", [](v8::Local<v8::FunctionTemplate> tpl) {
-    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+extern V8Class v8BaseObject("BaseObject",
+                            [](v8::Local<v8::FunctionTemplate> tpl)
+                            {
+                                v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    tpl->InstanceTemplate()->SetInternalFieldCount(1);
+                                tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
-    V8Helpers::SetAccessor<IBaseObject, IBaseObject::Type, &IBaseObject::GetType>(isolate, tpl, "type");
-    V8Helpers::SetAccessor(isolate, tpl, "valid", &ValidGetter);
+                                V8Helpers::SetAccessor<IBaseObject, IBaseObject::Type, &IBaseObject::GetType>(isolate, tpl, "type");
+                                V8Helpers::SetAccessor(isolate, tpl, "valid", &ValidGetter);
 
-    V8Helpers::SetMethod(isolate, tpl, "hasMeta", HasMeta);
-    V8Helpers::SetMethod(isolate, tpl, "getMeta", GetMeta);
-    V8Helpers::SetMethod(isolate, tpl, "setMeta", SetMeta);
-    V8Helpers::SetMethod(isolate, tpl, "deleteMeta", DeleteMeta);
-    V8Helpers::SetMethod(isolate, tpl, "destroy", Destroy);
+                                V8Helpers::SetMethod(isolate, tpl, "hasMeta", HasMeta);
+                                V8Helpers::SetMethod(isolate, tpl, "getMeta", GetMeta);
+                                V8Helpers::SetMethod(isolate, tpl, "setMeta", SetMeta);
+                                V8Helpers::SetMethod(isolate, tpl, "deleteMeta", DeleteMeta);
+                                V8Helpers::SetMethod(isolate, tpl, "destroy", Destroy);
 
-    V8Helpers::SetAccessor(isolate, tpl, "refCount", RefCountGetter);
-});
+                                V8Helpers::SetAccessor(isolate, tpl, "refCount", RefCountGetter);
+                            });
