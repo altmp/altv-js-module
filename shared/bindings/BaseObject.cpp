@@ -55,7 +55,7 @@ static void SetMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(obj, alt::IBaseObject);
 
     auto params = V8Helpers::GetFunctionParams(info);
-    V8_CHECK(params.size() == 2, "Expected 2 args");
+    V8_CHECK(params.GetSize() == 2, "Expected 2 args");
     std::string key = params[0]->Get<std::string>();
     alt::MValue value = params[1]->Get<alt::MValue>();
 

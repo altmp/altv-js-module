@@ -158,6 +158,12 @@ namespace V8Helpers
             values.reserve(size);
             for(uint32_t i = 0; i < size; i++) values.push_back(std::make_shared<JSVal>(array->Get(ctx, i).ToLocalChecked(), ctx));
         }
+        JSArray(const std::vector<v8::Local<v8::Value>>& array, v8::Local<v8::Context> _ctx) : ctx(_ctx)
+        {
+            uint32_t size = array.size();
+            values.reserve(size);
+            for(uint32_t i = 0; i < size; i++) values.push_back(std::make_shared<JSVal>(array[i], ctx));
+        }
 
         std::shared_ptr<JSVal> Get(size_t index)
         {
@@ -167,6 +173,28 @@ namespace V8Helpers
         size_t GetSize()
         {
             return values.size();
+        }
+
+        std::shared_ptr<JSVal> operator[](size_t index)
+        {
+            return Get(index);
+        }
+
+        decltype(values)::iterator begin()
+        {
+            return values.begin();
+        }
+        decltype(values)::const_iterator begin() const
+        {
+            return values.begin();
+        }
+        decltype(values)::iterator end()
+        {
+            return values.end();
+        }
+        decltype(values)::const_iterator end() const
+        {
+            return values.end();
         }
     };
 
@@ -199,6 +227,32 @@ namespace V8Helpers
         bool Has(const std::string& key)
         {
             return values.contains(key);
+        }
+
+        std::shared_ptr<JSVal> operator[](const std::string& key)
+        {
+            return Get(key);
+        }
+        std::shared_ptr<JSVal> operator[](const char* key)
+        {
+            return Get(key);
+        }
+
+        decltype(values)::iterator begin()
+        {
+            return values.begin();
+        }
+        decltype(values)::const_iterator begin() const
+        {
+            return values.begin();
+        }
+        decltype(values)::iterator end()
+        {
+            return values.end();
+        }
+        decltype(values)::const_iterator end() const
+        {
+            return values.end();
         }
     };
 
@@ -305,14 +359,14 @@ namespace V8Helpers
         }
     };
 
-    inline std::vector<std::shared_ptr<JSVal>> GetFunctionParams(const v8::FunctionCallbackInfo<v8::Value>& info)
+    inline JSArray GetFunctionParams(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
         int size = info.Length();
-        std::vector<std::shared_ptr<JSVal>> params;
+        std::vector<v8::Local<v8::Value>> params;
         params.reserve(size);
         v8::Local<v8::Context> ctx = info.GetIsolate()->GetEnteredOrMicrotaskContext();
-        for(int i = 0; i < size; i++) params.push_back(std::make_shared<JSVal>(info[i], ctx));
-        return params;
+        for(int i = 0; i < size; i++) params.push_back(info[i]);
+        return JSArray{ params, ctx };
     }
 
     v8::Local<v8::Value> ConfigNodeToV8(Config::Value::ValuePtr node);
