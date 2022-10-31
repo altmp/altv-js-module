@@ -10,7 +10,7 @@ function getXYZFromArgs(args) {
 
     if(args.length === 3) {
         x = parseFloat(firstArg);
-        x = parseFloat(args[1]);
+        y = parseFloat(args[1]);
         z = parseFloat(args[2]);
 
         assertNotNaN(x, "Expected a number as first argument");
