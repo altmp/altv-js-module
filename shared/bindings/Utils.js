@@ -731,16 +731,6 @@ if (alt.isClient && !alt.isWorker) {
             this.#tick.destroy();
         }
     }
-    
-    const getClosestEntity = (getEntities) => (options = {}) => {
-        return getClosestEntityFromPool(
-            getEntities, 
-            {
-                pos: options.pos ?? alt.Player.local.pos,
-                ...options
-            }
-        );
-    }
 
     async function registerPedheadshotBase64(headshotNative, ped) {
         let error = null;
@@ -763,10 +753,20 @@ if (alt.isClient && !alt.isWorker) {
     
         throw error;
     }
-    
+
     alt.Utils.registerPedheadshotBase64 = registerPedheadshotBase64.bind(null, native.registerPedheadshot);
     alt.Utils.registerPedheadshot3Base64 = registerPedheadshotBase64.bind(null, native.registerPedheadshot3);
     alt.Utils.registerPedheadshotTransparentBase64 = registerPedheadshotBase64.bind(null, native.registerPedheadshotTransparent);
+
+    const getClosestEntity = (getEntities) => (options = {}) => {
+        return getClosestEntityFromPool(
+            getEntities, 
+            {
+                pos: options.pos ?? alt.Player.local.pos,
+                ...options
+            }
+        );
+    };
     
     alt.Utils.getClosestVehicle = getClosestEntity(() => alt.Vehicle.streamedIn);
     alt.Utils.getClosestPlayer = getClosestEntity(() => alt.Player.streamedIn);
