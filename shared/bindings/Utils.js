@@ -201,6 +201,28 @@ function assertNotNaN(val, message = "Expected number") {
     alt.Utils.assert(!isNaN(val), message)
 }
 
+function getClosestEntityFromPool(getEntities, options = {}) {
+    const {
+        pos,
+        range = Infinity,
+    } = options;
+    assertVector3(pos, "Expected Vector3 as pos option");
+    assertNotNaN(range, "Expected a number as range option");
+
+    let closestEntity = null;
+    let closestDistance = Infinity;
+
+    for (const entity of getEntities()) {
+        const distance = pos.distanceTo(entity.pos);
+        if (distance > range || distance > closestDistance) continue;
+
+        closestEntity = entity;
+        closestDistance = distance;
+    }
+
+    return closestEntity;
+}
+
 // Client only
 if (alt.isClient && !alt.isWorker) {
     alt.Utils.requestModel = async function(model, timeout = 1000) {
@@ -731,12 +753,33 @@ if (alt.isClient && !alt.isWorker) {
     
         throw error;
     }
-    
+
     alt.Utils.registerPedheadshotBase64 = registerPedheadshotBase64.bind(null, native.registerPedheadshot);
     alt.Utils.registerPedheadshot3Base64 = registerPedheadshotBase64.bind(null, native.registerPedheadshot3);
     alt.Utils.registerPedheadshotTransparentBase64 = registerPedheadshotBase64.bind(null, native.registerPedheadshotTransparent);
+
+    const getClosestEntity = (getEntities) => (options = {}) => {
+        return getClosestEntityFromPool(
+            getEntities, 
+            {
+                pos: options.pos ?? alt.Player.local.pos,
+                ...options
+            }
+        );
+    };
+    
+    alt.Utils.getClosestVehicle = getClosestEntity(() => alt.Vehicle.streamedIn);
+    alt.Utils.getClosestPlayer = getClosestEntity(() => alt.Player.streamedIn);
+    alt.Utils.getClosestWorldObject = getClosestEntity(() => alt.Object.allWorld);
+
+    // TODO: change it to .streamedIn when serverside api will be added
+    alt.Utils.getClosestObject = getClosestEntity(() => alt.Object.all);
 }
 // Server only
 else {
+    const getClosestEntity = (getEntities) =>
+        getClosestEntityFromPool.bind(null, getEntities);
 
+    alt.Utils.getClosestVehicle = getClosestEntity(() => alt.Vehicle.all);
+    alt.Utils.getClosestPlayer = getClosestEntity(() => alt.Player.all);
 }
