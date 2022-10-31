@@ -28,9 +28,9 @@ so make sure you have properly replaced the file.
 ## Client
 
 ### Building
-To build the client module simply run the `build-debug.bat` script.
+To build the client module simply run the `build.bat` script.
 
-Make sure to actually run the build-**debug**.bat. The `build.bat` file is for statically building the module,
+Make sure that `DYNAMIC_BUILD` equals `1`. Otherwise it builds the static module,
 which is only used internally.
 
 > For the client module there is also a VSCode task available, to build it
