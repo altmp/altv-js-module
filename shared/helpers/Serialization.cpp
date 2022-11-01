@@ -271,7 +271,9 @@ static inline RawValueType GetValueType(v8::Local<v8::Context> ctx, v8::Local<v8
     if(val->IsSharedArrayBuffer() || val->IsPromise() || val->IsProxy()) return RawValueType::INVALID;
     if(val->InstanceOf(ctx, v8BaseObject.JSValue(ctx->GetIsolate(), ctx)).To(&result) && result)
     {
-        alt::Ref<alt::IBaseObject> ent = V8Entity::Get(val)->GetHandle();
+        V8Entity* entity = V8Entity::Get(val);
+        if(!entity) return RawValueType::INVALID;
+        alt::Ref<alt::IBaseObject> ent = entity->GetHandle();
         switch(ent->GetType())
         {
             case alt::IBaseObject::Type::PLAYER:
