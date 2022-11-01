@@ -14,6 +14,46 @@ class BaseUtility {
     }
 }
 
+class BaseEvent extends BaseUtility {
+    // should be set in static blocks by inherited classes
+    static _altAddListener = null;
+    static _altRemoveListener = null;
+
+    #eventName;
+    #handler;
+
+    constructor(eventName, handler) {
+        super();
+
+        this.#eventName = eventName;
+        this.#handler = handler;
+        this.constructor._altAddListener(eventName, handler);
+    }
+
+    destroy() {
+        alt.Utils.assert(super._tryDestroy(), "Event already destroyed");
+        this.constructor._altRemoveListener(this.#eventName, this.#handler);
+    }
+}
+
+alt.Utils.LocalEvent = class LocalEvent extends BaseEvent {
+    static {
+        this._altAddListener = alt.on;
+        this._altRemoveListener = alt.off;
+    }
+}
+
+alt.Utils.GenericLocalEvent = class GenericLocalEvent extends BaseEvent {
+    static {
+        this._altAddListener = (_, handler) => alt.on(handler);
+        this._altRemoveListener = (_, handler) => alt.off(handler);
+    }
+
+    constructor(handler) {
+        super(null, handler);
+    }
+}
+
 alt.Utils.Timer = class Timer extends BaseUtility {
     #id = 0;
 
@@ -774,6 +814,24 @@ if (alt.isClient && !alt.isWorker) {
 
     // TODO: change it to .streamedIn when serverside api will be added
     alt.Utils.getClosestObject = getClosestEntity(() => alt.Object.all);
+
+    alt.Utils.ServerEvent = class ServerEvent extends BaseEvent {
+        static {
+            this._altAddListener = alt.onServer;
+            this._altRemoveListener = alt.offServer;
+        }
+    }
+
+    alt.Utils.GenericServerEvent = class GenericServerEvent extends BaseEvent {
+        static {
+            this._altAddListener = (_, handler) => alt.onServer(handler);
+            this._altRemoveListener = (_, handler) => alt.offServer(handler);
+        }
+    
+        constructor(handler) {
+            super(null, handler);
+        }
+    }
 }
 // Server only
 else {
@@ -782,4 +840,22 @@ else {
 
     alt.Utils.getClosestVehicle = getClosestEntity(() => alt.Vehicle.all);
     alt.Utils.getClosestPlayer = getClosestEntity(() => alt.Player.all);
+
+    alt.Utils.ClientEvent = class ClientEvent extends BaseEvent {
+        static {
+            this._altAddListener = alt.onClient;
+            this._altRemoveListener = alt.offClient;
+        }
+    }
+
+    alt.Utils.GenericClientEvent = class GenericClientEvent extends BaseEvent {
+        static {
+            this._altAddListener = (_, handler) => alt.onClient(handler);
+            this._altRemoveListener = (_, handler) => alt.offClient(handler);
+        }
+
+        constructor(handler) {
+            super(null, handler);
+        }
+    }
 }
