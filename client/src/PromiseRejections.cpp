@@ -30,7 +30,7 @@ void V8Helpers::PromiseRejections::ProcessQueue(CV8ResourceImpl* resource)
     {
         std::string rejectionMsg = *v8::String::Utf8Value(isolate, rejection->value.Get(isolate)->ToString(ctx).ToLocalChecked());
         auto fileName = rejection->location.GetFileName();
-        auto& moduleData = resource->GetModuleData(fileName);
+        auto moduleData = resource->GetModuleData(fileName);
         if(rejection->location.GetLineNumber() != 0 && !moduleData.isBytecode)
         {
             Log::Error << "[V8] Unhandled promise rejection at " << resource->GetResource()->GetName() << ":" << fileName << ":" << rejection->location.GetLineNumber() << " ("

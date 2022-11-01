@@ -107,7 +107,7 @@ std::string IImportHandler::GetModulePath(v8::Local<v8::Module> moduleHandle)
     return std::string{};
 }
 
-const IImportHandler::ModuleData& IImportHandler::GetModuleData(const std::string& name)
+const IImportHandler::ModuleData IImportHandler::GetModuleData(const std::string& name)
 {
     auto result = modules.find(name);
     if(result == modules.end()) return ModuleData{};
