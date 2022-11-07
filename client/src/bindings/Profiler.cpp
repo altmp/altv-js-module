@@ -57,8 +57,9 @@ static void GetMemoryProfile(const v8::FunctionCallbackInfo<v8::Value>& info)
     static std::list<V8Helpers::CPersistent<v8::Promise::Resolver>> promises;
     auto& persistent = promises.emplace_back(V8Helpers::CPersistent<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
 
-    std::unique_ptr<MeasureMemoryDelegate> delegate =
-      std::make_unique<MeasureMemoryDelegate>([isolate, persistent](const std::vector<std::pair<v8::Local<v8::Context>, size_t>>& result, size_t externalBytes) {
+    std::unique_ptr<MeasureMemoryDelegate> delegate = std::make_unique<MeasureMemoryDelegate>(
+      [isolate, persistent](const std::vector<std::pair<v8::Local<v8::Context>, size_t>>& result, size_t externalBytes)
+      {
           v8::Locker locker(isolate);
           v8::Isolate::Scope isolateScope(isolate);
           v8::HandleScope handleScope(isolate);
@@ -190,18 +191,68 @@ static void ProfilesRunningGetter(v8::Local<v8::String>, const v8::PropertyCallb
     V8_RETURN_UINT(profilerRunningCount);
 }
 
-extern V8Class v8Profiler("Profiler", [](v8::Local<v8::FunctionTemplate> tpl) {
-    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+class StringOutputStream : public v8::OutputStream
+{
+    std::stringstream stream;
+    std::function<void(const std::string&)> callback;
 
-    V8Helpers::SetStaticAccessor(isolate, tpl, "heapStats", GetHeapStatistics);
-    V8Helpers::SetStaticAccessor(isolate, tpl, "samplingInterval", SamplingIntervalGetter, SamplingIntervalSetter);
-    V8Helpers::SetStaticAccessor(isolate, tpl, "profilesRunning", ProfilesRunningGetter);
+public:
+    StringOutputStream(std::function<void(const std::string&)>&& _callback) : callback(_callback) {}
 
-    V8Helpers::SetStaticMethod(isolate, tpl, "startProfiling", StartProfiling);
-    V8Helpers::SetStaticMethod(isolate, tpl, "stopProfiling", StopProfiling);
+    virtual void EndOfStream() override
+    {
+        std::string str = stream.str();
+        callback(str);
+        delete this;
+    }
+    virtual WriteResult WriteAsciiChunk(char* data, int size) override
+    {
+        stream << data;
+        return WriteResult::kContinue;
+    }
+};
 
-    V8Helpers::SetStaticMethod(isolate, tpl, "getMemoryProfile", GetMemoryProfile);
-});
+static void TakeHeapSnapshot(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    static std::list<v8::Global<v8::Promise::Resolver>> promises;
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN2(0, 1);
+
+    v8::HeapProfiler* profiler = isolate->GetHeapProfiler();
+    const v8::HeapSnapshot* snapshot = profiler->TakeHeapSnapshot();
+
+    auto& persistent = promises.emplace_back(v8::Global<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
+
+    auto callback = [&persistent, resource](const std::string& str)
+    {
+        resource->RunOnNextTick(
+          [&persistent, resource, jsonStr = str]()
+          {
+              if(resource->GetResource()->IsStarted()) persistent.Get(resource->GetIsolate())->Resolve(resource->GetContext(), V8Helpers::JSValue(jsonStr));
+              promises.remove(persistent);
+          });
+    };
+    snapshot->Serialize(new StringOutputStream(callback));
+
+    V8_RETURN(persistent.Get(isolate)->GetPromise());
+}
+
+extern V8Class v8Profiler("Profiler",
+                          [](v8::Local<v8::FunctionTemplate> tpl)
+                          {
+                              v8::Isolate* isolate = v8::Isolate::GetCurrent();
+
+                              V8Helpers::SetStaticAccessor(isolate, tpl, "heapStats", GetHeapStatistics);
+                              V8Helpers::SetStaticAccessor(isolate, tpl, "samplingInterval", SamplingIntervalGetter, SamplingIntervalSetter);
+                              V8Helpers::SetStaticAccessor(isolate, tpl, "profilesRunning", ProfilesRunningGetter);
+
+                              V8Helpers::SetStaticMethod(isolate, tpl, "startProfiling", StartProfiling);
+                              V8Helpers::SetStaticMethod(isolate, tpl, "stopProfiling", StopProfiling);
+
+                              V8Helpers::SetStaticMethod(isolate, tpl, "getMemoryProfile", GetMemoryProfile);
+
+                              V8Helpers::SetStaticMethod(isolate, tpl, "takeHeapSnapshot", TakeHeapSnapshot);
+                          });
 
 // *** CPU Profile Serialization
 
