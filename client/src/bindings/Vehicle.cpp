@@ -78,7 +78,7 @@ static void StreamedInGetter(v8::Local<v8::String> name, const v8::PropertyCallb
     int i = 0;
     for(auto kv : streamedIn)
     {
-        arr->Set(ctx, i, resource->GetOrCreateEntity(kv.second.Get(), "Vehicle")->GetJSVal(isolate));
+        arr->Set(ctx, i, resource->GetOrCreateEntity(kv.second, "Vehicle")->GetJSVal(isolate));
         i++;
     }
 
@@ -90,7 +90,7 @@ static void StaticGetByScriptID(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_ARGS_LEN(1);
     V8_ARG_TO_INT(1, scriptGuid);
-    V8_RETURN_BASE_OBJECT(alt::ICore::Instance().GetEntityByScriptGuid(scriptGuid).As<alt::IVehicle>());
+    V8_RETURN_BASE_OBJECT(alt::ICore::Instance().GetEntityByScriptGuid(scriptGuid));
 }
 
 static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -100,7 +100,7 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_INT(1, id);
 
-    alt::Ref<alt::IEntity> entity = alt::ICore::Instance().GetEntityByID(id);
+    alt::IEntity* entity = alt::ICore::Instance().GetEntityByID(id);
 
     if(entity && entity->GetType() == alt::IEntity::Type::VEHICLE)
     {

@@ -156,7 +156,7 @@ static void
             else if(val->IsObject())
             {
                 auto ent = V8Entity::Get(val);
-                if(ent != nullptr) scrCtx->Push(ent->GetHandle().As<alt::IEntity>()->GetScriptGuid());
+                if(ent != nullptr) scrCtx->Push(dynamic_cast<alt::IEntity*>(ent->GetHandle())->GetScriptGuid());
                 else
                     scrCtx->Push(0);
             }

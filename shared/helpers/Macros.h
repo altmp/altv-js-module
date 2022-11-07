@@ -40,11 +40,11 @@
 #define V8_CHECK(a, b) V8_CHECK_RETN(a, b, )
 
 #define V8_GET_THIS_BASE_OBJECT(val, type)                 \
-    ::alt::Ref<type> val;                                  \
+    type* val;                                             \
     {                                                      \
         V8Entity* __val = V8Entity::Get(info.This());      \
         V8_CHECK(__val, "baseobject is invalid");          \
-        val = __val->GetHandle().As<type>();               \
+        val = dynamic_cast<type*>(__val->GetHandle());     \
         V8_CHECK(val, "baseobject is not of type " #type); \
     }
 
@@ -61,7 +61,7 @@
 // idx starts with 1
 #define V8_GET_THIS_INTERNAL_FIELD_ENTITY(idx, val, type)                                                                   \
     V8_CHECK(info.This()->InternalFieldCount() > idx - 1, "Invalid internal field count (is the 'this' context correct?)"); \
-    auto val = V8Entity::Get(info.This()->GetInternalField((idx)-1)->ToObject(isolate->GetEnteredOrMicrotaskContext()).ToLocalChecked())->GetHandle().As<type>();
+    auto val = dynamic_cast<type*>(V8Entity::Get(info.This()->GetInternalField((idx)-1)->ToObject(isolate->GetEnteredOrMicrotaskContext()).ToLocalChecked())->GetHandle());
 
 // idx starts with 1
 #define V8_GET_THIS_INTERNAL_FIELD_INTEGER(idx, val)                                                                        \
@@ -139,7 +139,7 @@
     V8_CHECK(V8Helpers::SafeToRGBA((v8Val), ctx, val), "Failed to convert value to RGBA")
 
 #define V8_TO_ENTITY(v8Val, val) \
-    alt::Ref<IEntity> val;       \
+    alt::IEntity* val;           \
     V8_CHECK(V8Helpers::SafeToBaseObject<IEntity>(v8Val, isolate, val), "Failed to convert to BaseObject")
 
 #define V8_OBJECT_GET_NUMBER(v8Val, prop, val) V8_TO_NUMBER((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)
@@ -223,7 +223,7 @@
 
 // idx starts with 1
 #define V8_ARG_TO_BASE_OBJECT(idx, val, type, jsClassName) \
-    alt::Ref<type> val;                                    \
+    type* val;                                             \
     V8_CHECK(V8Helpers::SafeToBaseObject<type>(info[(idx)-1], isolate, val), "Argument " #idx " must be a " jsClassName)
 
 // idx starts with 1
@@ -297,7 +297,7 @@
 
 #define V8_BIND_BASE_OBJECT(baseObjectRef, reason)        \
     {                                                     \
-        V8_CHECK(!baseObjectRef.IsEmpty(), reason);       \
+        V8_CHECK(baseObjectRef, reason);                  \
         resource->BindEntity(info.This(), baseObjectRef); \
     }
 

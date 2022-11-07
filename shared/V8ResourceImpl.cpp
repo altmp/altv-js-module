@@ -131,10 +131,10 @@ void V8ResourceImpl::OnTick()
     }
 }
 
-void V8ResourceImpl::BindEntity(v8::Local<v8::Object> val, alt::Ref<alt::IBaseObject> handle)
+void V8ResourceImpl::BindEntity(v8::Local<v8::Object> val, alt::IBaseObject* handle)
 {
     V8Entity* ent = new V8Entity(GetContext(), V8Entity::GetClass(handle), val, handle);
-    entities.insert({ handle.Get(), ent });
+    entities.insert({ handle, ent });
 }
 
 v8::Local<v8::Value> V8ResourceImpl::GetBaseObjectOrNull(alt::IBaseObject* handle)
@@ -193,7 +193,7 @@ bool V8ResourceImpl::IsBaseObject(v8::Local<v8::Value> val)
     return result;
 }
 
-void V8ResourceImpl::OnCreateBaseObject(alt::Ref<alt::IBaseObject> handle)
+void V8ResourceImpl::OnCreateBaseObject(alt::IBaseObject* handle)
 {
     // Log::Debug << "OnCreateBaseObject " << handle.Get() << " " << (entities.find(handle.Get()) != entities.end()) << Log::Endl;
 
@@ -207,23 +207,23 @@ void V8ResourceImpl::OnCreateBaseObject(alt::Ref<alt::IBaseObject> handle)
             CreateEntity(handle.Get());
     }*/
 
-    NotifyPoolUpdate(handle.Get());
+    NotifyPoolUpdate(handle);
 }
 
-void V8ResourceImpl::OnRemoveBaseObject(alt::Ref<alt::IBaseObject> handle)
+void V8ResourceImpl::OnRemoveBaseObject(alt::IBaseObject* handle)
 {
-    NotifyPoolUpdate(handle.Get());
+    NotifyPoolUpdate(handle);
 
     v8::Locker locker(isolate);
     v8::Isolate::Scope isolateScope(isolate);
     v8::HandleScope handleScope(isolate);
     v8::Context::Scope scope(GetContext());
 
-    V8Entity* ent = GetEntity(handle.Get());
+    V8Entity* ent = GetEntity(handle);
 
     if(!ent) return;
 
-    entities.erase(handle.Get());
+    entities.erase(handle);
 
     // TODO: ent->SetWeak();
     ent->GetJSVal(isolate)->SetInternalField(0, v8::External::New(isolate, nullptr));
@@ -246,7 +246,7 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllPlayers()
     {
         playerPoolDirty = false;
 
-        Array<Ref<IPlayer>> all = ICore::Instance().GetPlayers();
+        Array<IPlayer*> all = ICore::Instance().GetPlayers();
         v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.GetSize());
 
         for(uint32_t i = 0; i < all.GetSize(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
@@ -265,7 +265,7 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllVehicles()
     {
         vehiclePoolDirty = false;
 
-        Array<Ref<IVehicle>> all = ICore::Instance().GetVehicles();
+        Array<IVehicle*> all = ICore::Instance().GetVehicles();
         v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.GetSize());
 
         for(uint32_t i = 0; i < all.GetSize(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
@@ -279,10 +279,10 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllVehicles()
 
 v8::Local<v8::Array> V8ResourceImpl::GetAllBlips()
 {
-    Array<Ref<IBlip>> all = ICore::Instance().GetBlips();
-    v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.GetSize());
+    std::vector<IBlip*> all = ICore::Instance().GetBlips();
+    v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
 
-    for(uint32_t i = 0; i < all.GetSize(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
+    for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
 
     jsAll->SetIntegrityLevel(GetContext(), v8::IntegrityLevel::kFrozen);
     return jsAll;
@@ -295,7 +295,7 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllObjects()
     {
         objectPoolDirty = false;
 
-        std::vector<Ref<IObject>> all = ICore::Instance().GetObjects();
+        std::vector<IObject*> all = ICore::Instance().GetObjects();
         v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
 
         for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));

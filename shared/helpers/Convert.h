@@ -28,13 +28,13 @@ namespace V8Helpers
     bool SafeToInt32(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, int32_t& out);
 
     template<typename T>
-    bool SafeToBaseObject(v8::Local<v8::Value> val, v8::Isolate* isolate, alt::Ref<T>& out)
+    bool SafeToBaseObject(v8::Local<v8::Value> val, v8::Isolate* isolate, T*& out)
     {
         V8Entity* v8BaseObject = V8Entity::Get(val);
         if(!v8BaseObject) return false;
 
-        out = v8BaseObject->GetHandle().As<T>();
-        if(out.IsEmpty()) return false;
+        out = dynamic_cast<T*>(v8BaseObject->GetHandle());
+        if(!out) return false;
 
         return true;
     }

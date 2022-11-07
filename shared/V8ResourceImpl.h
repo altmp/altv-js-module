@@ -145,7 +145,7 @@ public:
         return ent;
     }
 
-    void BindEntity(v8::Local<v8::Object> val, alt::Ref<alt::IBaseObject> handle);
+    void BindEntity(v8::Local<v8::Object> val, alt::IBaseObject* handle);
 
     V8Entity* GetOrCreateEntity(alt::IBaseObject* handle, const char* className = "")
     {
@@ -161,7 +161,7 @@ public:
     v8::Local<v8::Value> GetBaseObjectOrNull(alt::IBaseObject* handle);
 
     template<class T>
-    v8::Local<v8::Value> GetBaseObjectOrNull(const alt::Ref<T>& handle)
+    v8::Local<v8::Value> GetBaseObjectOrNull(const T*& handle)
     {
         return GetBaseObjectOrNull(handle.Get());
     }
@@ -175,8 +175,8 @@ public:
     bool IsRGBA(v8::Local<v8::Value> val);
     bool IsBaseObject(v8::Local<v8::Value> val);
 
-    void OnCreateBaseObject(alt::Ref<alt::IBaseObject> handle) override;
-    void OnRemoveBaseObject(alt::Ref<alt::IBaseObject> handle) override;
+    void OnCreateBaseObject(alt::IBaseObject* handle) override;
+    void OnRemoveBaseObject(alt::IBaseObject* handle) override;
 
     alt::MValue GetFunction(v8::Local<v8::Value> val)
     {

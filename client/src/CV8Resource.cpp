@@ -192,7 +192,7 @@ bool CV8ResourceImpl::Stop()
         DispatchStopEvent();
     }
 
-    std::vector<alt::Ref<alt::IBaseObject>> objects(ownedObjects.size());
+    std::vector<alt::IBaseObject*> objects(ownedObjects.size());
 
     for(auto handle : ownedObjects) objects.push_back(handle);
 
@@ -298,10 +298,10 @@ bool CV8ResourceImpl::OnEvent(const alt::CEvent* e)
     return true;
 }
 
-std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetWebViewHandlers(alt::Ref<alt::IWebView> view, const std::string& name)
+std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetWebViewHandlers(alt::IWebView* view, const std::string& name)
 {
     std::vector<V8Helpers::EventCallback*> handlers;
-    auto it = webViewHandlers.find(view.Get());
+    auto it = webViewHandlers.find(view);
 
     if(it != webViewHandlers.end())
     {
@@ -313,10 +313,10 @@ std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetWebViewHandlers(alt::
     return handlers;
 }
 
-std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetWebSocketClientHandlers(alt::Ref<alt::IWebSocketClient> webSocket, const std::string& name)
+std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetWebSocketClientHandlers(alt::IWebSocketClient* webSocket, const std::string& name)
 {
     std::vector<V8Helpers::EventCallback*> handlers;
-    auto it = webSocketClientHandlers.find(webSocket.Get());
+    auto it = webSocketClientHandlers.find(webSocket);
 
     if(it != webSocketClientHandlers.end())
     {
@@ -328,10 +328,10 @@ std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetWebSocketClientHandle
     return handlers;
 }
 
-std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetAudioHandlers(alt::Ref<alt::IAudio> audio, const std::string& name)
+std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetAudioHandlers(alt::IAudio* audio, const std::string& name)
 {
     std::vector<V8Helpers::EventCallback*> handlers;
-    auto it = audioHandlers.find(audio.Get());
+    auto it = audioHandlers.find(audio);
 
     if(it != audioHandlers.end())
     {
@@ -343,7 +343,7 @@ std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetAudioHandlers(alt::Re
     return handlers;
 }
 
-std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetRmlHandlers(alt::Ref<alt::IRmlElement> element, const std::string& name)
+std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetRmlHandlers(alt::IRmlElement* element, const std::string& name)
 {
     std::vector<V8Helpers::EventCallback*> handlers;
     auto it = rmlHandlers.find(element);

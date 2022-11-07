@@ -225,7 +225,7 @@ static void StaticAllGetter(v8::Local<v8::String>, const v8::PropertyCallbackInf
     uint16_t i = 0;
     for(auto entity : alt::ICore::Instance().GetEntities())
     {
-        if(entity) arr->Set(ctx, i++, resource->GetOrCreateEntity(entity.Get(), "Entity")->GetJSVal(isolate));
+        if(entity) arr->Set(ctx, i++, resource->GetOrCreateEntity(entity, "Entity")->GetJSVal(isolate));
     };
 
     V8_RETURN(arr);
@@ -242,7 +242,7 @@ extern V8Class v8Entity("Entity",
                             V8Helpers::SetStaticAccessor(isolate, tpl, "all", StaticAllGetter);
 
                             V8Helpers::SetAccessor<IEntity, uint16_t, &IEntity::GetID>(isolate, tpl, "id");
-                            V8Helpers::SetAccessor<IEntity, Ref<IPlayer>, &IEntity::GetNetworkOwner>(isolate, tpl, "netOwner");
+                            V8Helpers::SetAccessor<IEntity, IPlayer*, &IEntity::GetNetworkOwner>(isolate, tpl, "netOwner");
 
                             V8Helpers::SetMethod(isolate, tpl, "hasSyncedMeta", HasSyncedMeta);
                             V8Helpers::SetMethod(isolate, tpl, "getSyncedMeta", GetSyncedMeta);

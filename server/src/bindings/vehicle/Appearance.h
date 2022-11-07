@@ -80,7 +80,7 @@ namespace V8Helpers::Vehicle
         V8_GET_ISOLATE_CONTEXT();
         V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
 
-        V8_RETURN(V8Helpers::CreateCustomObject(isolate, _this.Get(), &detail::NeonActiveGetterHandler, &detail::NeonActiveSetterHandler, nullptr, &detail::NeonActiveEnumeratorHandler));
+        V8_RETURN(V8Helpers::CreateCustomObject(isolate, _this, &detail::NeonActiveGetterHandler, &detail::NeonActiveSetterHandler, nullptr, &detail::NeonActiveEnumeratorHandler));
     }
 
     void NeonActiveSetter(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)

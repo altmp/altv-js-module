@@ -9,11 +9,11 @@
 class V8Entity
 {
     V8Class* _class;
-    alt::Ref<alt::IBaseObject> handle;
+    alt::IBaseObject* handle;
     v8::Persistent<v8::Object, v8::CopyablePersistentTraits<v8::Object>> jsVal;
 
 public:
-    V8Entity(v8::Local<v8::Context> ctx, V8Class* __class, v8::Local<v8::Object> obj, alt::Ref<alt::IBaseObject> _handle) : _class(__class), handle(_handle)
+    V8Entity(v8::Local<v8::Context> ctx, V8Class* __class, v8::Local<v8::Object> obj, alt::IBaseObject* _handle) : _class(__class), handle(_handle)
     {
         v8::Isolate* isolate = v8::Isolate::GetCurrent();
         obj->SetInternalField(0, v8::External::New(isolate, this));
@@ -25,7 +25,7 @@ public:
         return _class;
     }
 
-    alt::Ref<alt::IBaseObject> GetHandle()
+    alt::IBaseObject* GetHandle()
     {
         return handle;
     }
@@ -48,7 +48,7 @@ public:
         return static_cast<V8Entity*>(i.As<v8::External>()->Value());
     }
 
-    static V8Class* GetClass(alt::Ref<alt::IBaseObject> handle)
+    static V8Class* GetClass(alt::IBaseObject* handle)
     {
         extern V8Class v8Player, v8Vehicle, v8Blip;
 #ifdef ALT_SERVER_API
