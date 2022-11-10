@@ -219,7 +219,7 @@ CV8ScriptRuntime::CV8ScriptRuntime()
 
     ProcessConfigOptions();
 
-    IRuntimeEventHandler::Init();
+    IRuntimeEventHandler::Start();
 }
 
 void CV8ScriptRuntime::ProcessConfigOptions()
@@ -243,6 +243,11 @@ void CV8ScriptRuntime::OnDispose()
 
     CV8ScriptRuntime::SetInstance(nullptr);
     delete this;
+}
+
+void CV8ScriptRuntime::Init()
+{
+    IRuntimeEventHandler::Reset();
 }
 
 static std::string Base64Decode(const std::string& in)

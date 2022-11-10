@@ -45,6 +45,8 @@ public:
 
     void OnDispose() override;
 
+    void Init() override;
+
     static void SetInstance(CV8ScriptRuntime* runtime)
     {
         _instance() = runtime;

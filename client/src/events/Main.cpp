@@ -131,9 +131,8 @@ V8_EVENT_HANDLER keyboardEvent(
       args.push_back(V8Helpers::JSValue(ev->GetKeyCode()));
   });
 
-V8_LOCAL_EVENT_HANDLER connectionComplete(EventType::CONNECTION_COMPLETE,
-                                          "connectionComplete",
-                                          [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) { IRuntimeEventHandler::Instance().Reset(); });
+V8_LOCAL_EVENT_HANDLER
+  connectionComplete(EventType::CONNECTION_COMPLETE, "connectionComplete", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {});
 
 V8_LOCAL_EVENT_HANDLER disconnect(EventType::DISCONNECT_EVENT, "disconnect", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {});
 
