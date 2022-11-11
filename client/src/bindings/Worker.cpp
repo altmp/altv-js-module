@@ -12,6 +12,9 @@ static constexpr uint32_t MAX_WORKERS = 10;
 
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
+    // Deprecation added: 11/11/2022 (version 13)
+    Log::Warning << "alt.Worker is deprecated and will be removed in future versions." << Log::Endl;
+
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_CONSTRUCTOR();
     V8_CHECK_ARGS_LEN(1);
@@ -204,29 +207,32 @@ static void ActiveWorkersGetter(v8::Local<v8::String>, const v8::PropertyCallbac
     V8_RETURN(CV8ScriptRuntime::Instance().GetActiveWorkerCount());
 }
 
-extern V8Class v8Worker("Worker", &Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
-    v8::Isolate* isolate = v8::Isolate::GetCurrent();
-    tpl->InstanceTemplate()->SetInternalFieldCount(1);
+extern V8Class v8Worker("Worker",
+                        &Constructor,
+                        [](v8::Local<v8::FunctionTemplate> tpl)
+                        {
+                            v8::Isolate* isolate = v8::Isolate::GetCurrent();
+                            tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
-    tpl->Set(V8Helpers::JSValue("maxWorkers"), V8Helpers::JSValue(MAX_WORKERS), v8::PropertyAttribute::ReadOnly);
-    V8Helpers::SetStaticAccessor(isolate, tpl, "activeWorkers", &ActiveWorkersGetter);
+                            tpl->Set(V8Helpers::JSValue("maxWorkers"), V8Helpers::JSValue(MAX_WORKERS), v8::PropertyAttribute::ReadOnly);
+                            V8Helpers::SetStaticAccessor(isolate, tpl, "activeWorkers", &ActiveWorkersGetter);
 
-    V8Helpers::SetStaticMethod(isolate, tpl, "addSharedArrayBuffer", AddSharedArrayBuffer);
-    V8Helpers::SetStaticMethod(isolate, tpl, "removeSharedArrayBuffer", RemoveSharedArrayBuffer);
+                            V8Helpers::SetStaticMethod(isolate, tpl, "addSharedArrayBuffer", AddSharedArrayBuffer);
+                            V8Helpers::SetStaticMethod(isolate, tpl, "removeSharedArrayBuffer", RemoveSharedArrayBuffer);
 
-    V8Helpers::SetMethod(isolate, tpl, "toString", ToString);
-    V8Helpers::SetAccessor(isolate, tpl, "valid", ValidGetter);
-    V8Helpers::SetAccessor(isolate, tpl, "filePath", FilePathGetter);
+                            V8Helpers::SetMethod(isolate, tpl, "toString", ToString);
+                            V8Helpers::SetAccessor(isolate, tpl, "valid", ValidGetter);
+                            V8Helpers::SetAccessor(isolate, tpl, "filePath", FilePathGetter);
 
-    V8Helpers::SetMethod(isolate, tpl, "start", Start);
-    V8Helpers::SetMethod(isolate, tpl, "destroy", Destroy);
+                            V8Helpers::SetMethod(isolate, tpl, "start", Start);
+                            V8Helpers::SetMethod(isolate, tpl, "destroy", Destroy);
 
-    V8Helpers::SetMethod(isolate, tpl, "emit", Emit);
-    V8Helpers::SetMethod(isolate, tpl, "on", On);
-    V8Helpers::SetMethod(isolate, tpl, "off", Off);
-    V8Helpers::SetMethod(isolate, tpl, "once", Once);
+                            V8Helpers::SetMethod(isolate, tpl, "emit", Emit);
+                            V8Helpers::SetMethod(isolate, tpl, "on", On);
+                            V8Helpers::SetMethod(isolate, tpl, "off", Off);
+                            V8Helpers::SetMethod(isolate, tpl, "once", Once);
 
-    V8Helpers::SetAccessor(isolate, tpl, "isPaused", IsPausedGetter);
-    V8Helpers::SetMethod(isolate, tpl, "pause", Pause);
-    V8Helpers::SetMethod(isolate, tpl, "resume", Resume);
-});
+                            V8Helpers::SetAccessor(isolate, tpl, "isPaused", IsPausedGetter);
+                            V8Helpers::SetMethod(isolate, tpl, "pause", Pause);
+                            V8Helpers::SetMethod(isolate, tpl, "resume", Resume);
+                        });
