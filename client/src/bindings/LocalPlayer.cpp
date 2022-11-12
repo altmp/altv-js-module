@@ -12,7 +12,7 @@ static void CurrentWeaponDataGetter(v8::Local<v8::String>, const v8::PropertyCal
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_BASE_OBJECT(player, alt::ILocalPlayer);
 
-    alt::IWeaponData* weaponData = player->GetCurrentWeaponData();
+    auto weaponData = player->GetCurrentWeaponData();
     if(!weaponData)
     {
         V8_RETURN_NULL();
