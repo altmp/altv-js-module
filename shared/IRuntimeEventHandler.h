@@ -35,7 +35,7 @@ public:
         return false;
     }
 
-    void Init()
+    void Start()
     {
         SetInstance(this);
         Reset();

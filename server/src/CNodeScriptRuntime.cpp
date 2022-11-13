@@ -44,7 +44,7 @@ bool CNodeScriptRuntime::Init()
         V8Class::LoadAll(isolate);
     }
 
-    IRuntimeEventHandler::Init();
+    IRuntimeEventHandler::Start();
 
     return true;
 }

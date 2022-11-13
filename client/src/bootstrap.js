@@ -9,5 +9,7 @@ __setLogFunction(bindingsGlobal.genericLog);
 
 let mainPath = __internal_main_path;
 if (mainPath[0] !== "/") mainPath = "/" + mainPath;
+
 // Load the main file
-__internal_start_file(mainPath);
+if(!alt.isWorker) __internal_start_file(mainPath);
+else await import(mainPath)
