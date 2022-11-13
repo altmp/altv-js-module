@@ -83,29 +83,19 @@ static void Destroy(const v8::FunctionCallbackInfo<v8::Value>& info)
     alt::ICore::Instance().DestroyBaseObject(obj);
 }
 
-static void RefCountGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-    V8_CHECK(alt::ICore::Instance().IsDebug(), "baseObject.refCount is only available in debug mode");
+extern V8Class v8BaseObject("BaseObject",
+                            [](v8::Local<v8::FunctionTemplate> tpl)
+                            {
+                                v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    V8_GET_THIS_BASE_OBJECT(obj, alt::IBaseObject);
+                                tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
-    V8_RETURN_UINT(obj->GetRefCount());
-}
+                                V8Helpers::SetAccessor<IBaseObject, IBaseObject::Type, &IBaseObject::GetType>(isolate, tpl, "type");
+                                V8Helpers::SetAccessor(isolate, tpl, "valid", &ValidGetter);
 
-extern V8Class v8BaseObject("BaseObject", [](v8::Local<v8::FunctionTemplate> tpl) {
-    v8::Isolate* isolate = v8::Isolate::GetCurrent();
-
-    tpl->InstanceTemplate()->SetInternalFieldCount(1);
-
-    V8Helpers::SetAccessor<IBaseObject, IBaseObject::Type, &IBaseObject::GetType>(isolate, tpl, "type");
-    V8Helpers::SetAccessor(isolate, tpl, "valid", &ValidGetter);
-
-    V8Helpers::SetMethod(isolate, tpl, "hasMeta", HasMeta);
-    V8Helpers::SetMethod(isolate, tpl, "getMeta", GetMeta);
-    V8Helpers::SetMethod(isolate, tpl, "setMeta", SetMeta);
-    V8Helpers::SetMethod(isolate, tpl, "deleteMeta", DeleteMeta);
-    V8Helpers::SetMethod(isolate, tpl, "destroy", Destroy);
-
-    V8Helpers::SetAccessor(isolate, tpl, "refCount", RefCountGetter);
-});
+                                V8Helpers::SetMethod(isolate, tpl, "hasMeta", HasMeta);
+                                V8Helpers::SetMethod(isolate, tpl, "getMeta", GetMeta);
+                                V8Helpers::SetMethod(isolate, tpl, "setMeta", SetMeta);
+                                V8Helpers::SetMethod(isolate, tpl, "deleteMeta", DeleteMeta);
+                                V8Helpers::SetMethod(isolate, tpl, "destroy", Destroy);
+                            });

@@ -23,7 +23,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     else
         V8_CHECK(false, "Argument 0 must be a string or a number");
 
-    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    auto weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
 
     info.This()->SetInternalField(0, v8::Integer::NewFromUnsigned(isolate, weaponHash));
@@ -35,7 +35,7 @@ static void ModelHashGetter(v8::Local<v8::String>, const v8::PropertyCallbackInf
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, weaponHash);
 
-    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    auto weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
     V8_RETURN_UINT(weaponData->GetModelHash());
 }
@@ -44,7 +44,7 @@ static void NameHashGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, weaponHash);
 
-    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    auto weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
     V8_RETURN_UINT(weaponData->GetNameHash());
 }
@@ -53,7 +53,7 @@ static void RecoilShakeAmplitudeGetter(v8::Local<v8::String>, const v8::Property
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, weaponHash);
 
-    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    auto weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
     V8_RETURN_NUMBER(weaponData->GetRecoilShakeAmplitude());
 }
@@ -62,7 +62,7 @@ static void RecoilAccuracyMaxGetter(v8::Local<v8::String>, const v8::PropertyCal
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, weaponHash);
 
-    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    auto weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
     V8_RETURN_NUMBER(weaponData->GetRecoilAccuracyMax());
 }
@@ -71,7 +71,7 @@ static void RecoilAccuracyToAllowHeadshotPlayerGetter(v8::Local<v8::String>, con
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, weaponHash);
 
-    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    auto weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
     V8_RETURN_NUMBER(weaponData->GetRecoilAccuracyToAllowHeadshotPlayer());
 }
@@ -80,7 +80,7 @@ static void RecoilRecoveryRateGetter(v8::Local<v8::String>, const v8::PropertyCa
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, weaponHash);
 
-    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    auto weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
     V8_RETURN_NUMBER(weaponData->GetRecoilRecoveryRate());
 }
@@ -89,7 +89,7 @@ static void AnimReloadRateGetter(v8::Local<v8::String>, const v8::PropertyCallba
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, weaponHash);
 
-    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    auto weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
     V8_RETURN_NUMBER(weaponData->GetAnimReloadRate());
 }
@@ -98,7 +98,7 @@ static void VehicleReloadRateGetter(v8::Local<v8::String>, const v8::PropertyCal
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, weaponHash);
 
-    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    auto weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
     V8_RETURN_NUMBER(weaponData->GetVehicleReloadTime());
 }
@@ -107,7 +107,7 @@ static void LockOnRangeGetter(v8::Local<v8::String>, const v8::PropertyCallbackI
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, weaponHash);
 
-    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    auto weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
     V8_RETURN_NUMBER(weaponData->GetLockOnRange());
 }
@@ -116,7 +116,7 @@ static void AccuracySpreadGetter(v8::Local<v8::String>, const v8::PropertyCallba
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, weaponHash);
 
-    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    auto weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
     V8_RETURN_NUMBER(weaponData->GetAccuracySpread());
 }
@@ -125,7 +125,7 @@ static void RangeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, weaponHash);
 
-    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    auto weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
     V8_RETURN_NUMBER(weaponData->GetRange());
 }
@@ -134,7 +134,7 @@ static void DamageGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, weaponHash);
 
-    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    auto weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
     V8_RETURN_NUMBER(weaponData->GetDamage());
 }
@@ -143,7 +143,7 @@ static void ClipSizeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, weaponHash);
 
-    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    auto weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
     V8_RETURN_UINT(weaponData->GetClipSize());
 }
@@ -152,7 +152,7 @@ static void TimeBetweenShotsGetter(v8::Local<v8::String>, const v8::PropertyCall
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, weaponHash);
 
-    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    auto weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
     V8_RETURN_UINT(weaponData->GetTimeBetweenShots());
 }
@@ -161,7 +161,7 @@ static void HeadshotDamageModifierGetter(v8::Local<v8::String>, const v8::Proper
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, weaponHash);
 
-    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    auto weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
     V8_RETURN_NUMBER(weaponData->GetHeadshotDamageModifier());
 }
@@ -170,7 +170,7 @@ static void PlayerDamageModifierGetter(v8::Local<v8::String>, const v8::Property
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, weaponHash);
 
-    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    auto weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
     V8_RETURN_NUMBER(weaponData->GetPlayerDamageModifier());
 }
@@ -181,7 +181,7 @@ static void RecoilShakeAmplitudeSetter(v8::Local<v8::String>, v8::Local<v8::Valu
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, weaponHash);
 
-    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    auto weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
 
     V8_TO_NUMBER(val, value);
@@ -192,7 +192,7 @@ static void RecoilAccuracyMaxSetter(v8::Local<v8::String>, v8::Local<v8::Value> 
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, weaponHash);
 
-    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    auto weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
 
     V8_TO_NUMBER(val, value);
@@ -203,7 +203,7 @@ static void RecoilAccuracyToAllowHeadshotPlayerSetter(v8::Local<v8::String>, v8:
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, weaponHash);
 
-    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    auto weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
 
     V8_TO_NUMBER(val, value);
@@ -214,7 +214,7 @@ static void RecoilRecoveryRateSetter(v8::Local<v8::String>, v8::Local<v8::Value>
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, weaponHash);
 
-    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    auto weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
 
     V8_TO_NUMBER(val, value);
@@ -225,7 +225,7 @@ static void AnimReloadRateSetter(v8::Local<v8::String>, v8::Local<v8::Value> val
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, weaponHash);
 
-    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    auto weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
 
     V8_TO_NUMBER(val, value);
@@ -236,7 +236,7 @@ static void VehicleReloadTimeSetter(v8::Local<v8::String>, v8::Local<v8::Value> 
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, weaponHash);
 
-    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    auto weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
 
     V8_TO_NUMBER(val, value);
@@ -247,7 +247,7 @@ static void LockOnRangeSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, c
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, weaponHash);
 
-    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    auto weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
 
     V8_TO_NUMBER(val, value);
@@ -258,7 +258,7 @@ static void AccuracySpreadSetter(v8::Local<v8::String>, v8::Local<v8::Value> val
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, weaponHash);
 
-    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    auto weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
 
     V8_TO_NUMBER(val, value);
@@ -269,7 +269,7 @@ static void RangeSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, weaponHash);
 
-    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    auto weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
 
     V8_TO_NUMBER(val, value);
@@ -280,7 +280,7 @@ static void DamageSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const 
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, weaponHash);
 
-    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    auto weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
 
     V8_TO_NUMBER(val, value);
@@ -291,7 +291,7 @@ static void HeadshotDamageModifierSetter(v8::Local<v8::String>, v8::Local<v8::Va
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, weaponHash);
 
-    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    auto weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
 
     V8_TO_NUMBER(val, value);
@@ -302,7 +302,7 @@ static void PlayerDamageModifierSetter(v8::Local<v8::String>, v8::Local<v8::Valu
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_UINT32(1, weaponHash);
 
-    alt::Ref<alt::IWeaponData> weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
+    auto weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
 
     V8_TO_NUMBER(val, value);

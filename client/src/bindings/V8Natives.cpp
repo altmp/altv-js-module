@@ -111,8 +111,8 @@ inline void ShowNativeArgMismatchErrorMsg(v8::Isolate* isolate, alt::INative* na
     resource->DispatchErrorEvent(errorMsg.str(), source.GetFileName(), source.GetLineNumber(), V8Helpers::GetStackTrace(errorMsg.str()));
 }
 
-static void
-  PushArg(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native, alt::INative::Type argType, v8::Isolate* isolate, V8ResourceImpl* resource, v8::Local<v8::Value> val, uint32_t idx)
+static void PushArg(
+  std::shared_ptr<alt::INative::Context> scrCtx, alt::INative* native, alt::INative::Type argType, v8::Isolate* isolate, V8ResourceImpl* resource, v8::Local<v8::Value> val, uint32_t idx)
 {
     using ArgType = alt::INative::Type;
 
@@ -156,7 +156,7 @@ static void
             else if(val->IsObject())
             {
                 auto ent = V8Entity::Get(val);
-                if(ent != nullptr) scrCtx->Push(ent->GetHandle().As<alt::IEntity>()->GetScriptGuid());
+                if(ent != nullptr) scrCtx->Push(dynamic_cast<alt::IEntity*>(ent->GetHandle())->GetScriptGuid());
                 else
                     scrCtx->Push(0);
             }
@@ -290,7 +290,7 @@ static void PushPointerReturn(alt::INative::Type argType, v8::Local<v8::Array> r
     }
 }
 
-static v8::Local<v8::Value> GetReturn(alt::Ref<alt::INative::Context> scrCtx, alt::INative* native, alt::INative::Type retnType, v8::Isolate* isolate)
+static v8::Local<v8::Value> GetReturn(std::shared_ptr<alt::INative::Context> scrCtx, alt::INative* native, alt::INative::Type retnType, v8::Isolate* isolate)
 {
     using ArgType = alt::INative::Type;
 

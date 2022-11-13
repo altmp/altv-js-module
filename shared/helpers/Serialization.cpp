@@ -213,7 +213,7 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
         }
         case alt::IMValue::Type::BASE_OBJECT:
         {
-            alt::Ref<alt::IBaseObject> ref = val.As<alt::IMValueBaseObject>()->Value();
+            alt::IBaseObject* ref = val.As<alt::IMValueBaseObject>()->RawValue();
             return V8ResourceImpl::Get(ctx)->GetBaseObjectOrNull(ref);
         }
         case alt::IMValue::Type::FUNCTION:
@@ -273,7 +273,7 @@ static inline RawValueType GetValueType(v8::Local<v8::Context> ctx, v8::Local<v8
     {
         V8Entity* entity = V8Entity::Get(val);
         if(!entity) return RawValueType::INVALID;
-        alt::Ref<alt::IBaseObject> ent = entity->GetHandle();
+        alt::IBaseObject* ent = entity->GetHandle();
         switch(ent->GetType())
         {
             case alt::IBaseObject::Type::PLAYER:
@@ -305,7 +305,8 @@ static inline bool WriteRawValue(v8::Local<v8::Context> ctx, v8::ValueSerializer
         {
             V8Entity* entity = V8Entity::Get(val);
             if(!entity) return false;
-            uint16_t id = entity->GetHandle().As<alt::IEntity>()->GetID();
+            alt::IEntity* handle = dynamic_cast<alt::IEntity*>(entity->GetHandle());
+            uint16_t id = handle->GetID();
             serializer.WriteRawBytes(&id, sizeof(id));
             break;
         }
@@ -361,9 +362,9 @@ static inline v8::MaybeLocal<v8::Object> ReadRawValue(v8::Local<v8::Context> ctx
         {
             uint16_t* id;
             if(!deserializer.ReadRawBytes(sizeof(uint16_t), (const void**)&id)) return v8::MaybeLocal<v8::Object>();
-            alt::Ref<alt::IEntity> entity = alt::ICore::Instance().GetEntityByID(*id);
+            alt::IEntity* entity = alt::ICore::Instance().GetEntityByID(*id);
             if(!entity) return v8::MaybeLocal<v8::Object>();
-            return V8ResourceImpl::Get(ctx)->GetOrCreateEntity(entity.Get(), "Entity")->GetJSVal(isolate);
+            return V8ResourceImpl::Get(ctx)->GetOrCreateEntity(entity, "Entity")->GetJSVal(isolate);
         }
         case RawValueType::VECTOR3:
         {

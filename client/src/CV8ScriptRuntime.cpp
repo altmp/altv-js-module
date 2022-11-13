@@ -391,24 +391,24 @@ v8::MaybeLocal<v8::Module>
     return static_cast<CV8ResourceImpl*>(resource)->ResolveModule(_specifier, referrer, resource->GetResource());
 }
 
-void CV8ScriptRuntime::OnEntityStreamIn(alt::Ref<alt::IEntity> entity)
+void CV8ScriptRuntime::OnEntityStreamIn(alt::IEntity* entity)
 {
     switch(entity->GetType())
     {
         case alt::IEntity::Type::PLAYER:
         {
-            streamedInPlayers.insert({ entity->GetID(), entity.As<alt::IPlayer>() });
+            streamedInPlayers.insert({ entity->GetID(), dynamic_cast<alt::IPlayer*>(entity) });
             break;
         }
         case alt::IEntity::Type::VEHICLE:
         {
-            streamedInVehicles.insert({ entity->GetID(), entity.As<alt::IVehicle>() });
+            streamedInVehicles.insert({ entity->GetID(), dynamic_cast<alt::IVehicle*>(entity) });
             break;
         }
     }
 }
 
-void CV8ScriptRuntime::OnEntityStreamOut(alt::Ref<alt::IEntity> entity)
+void CV8ScriptRuntime::OnEntityStreamOut(alt::IEntity* entity)
 {
     switch(entity->GetType())
     {

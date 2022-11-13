@@ -12,7 +12,7 @@ static void CurrentWeaponDataGetter(v8::Local<v8::String>, const v8::PropertyCal
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_BASE_OBJECT(player, alt::ILocalPlayer);
 
-    alt::Ref<alt::IWeaponData> weaponData = player->GetCurrentWeaponData();
+    auto weaponData = player->GetCurrentWeaponData();
     if(!weaponData)
     {
         V8_RETURN_NULL();
@@ -113,14 +113,17 @@ static void GetWeaponComponents(const v8::FunctionCallbackInfo<v8::Value>& info)
 }
 
 extern V8Class v8Player;
-extern V8Class v8LocalPlayer("LocalPlayer", v8Player, [](v8::Local<v8::FunctionTemplate> tpl) {
-    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+extern V8Class v8LocalPlayer("LocalPlayer",
+                             v8Player,
+                             [](v8::Local<v8::FunctionTemplate> tpl)
+                             {
+                                 v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    V8Helpers::SetAccessor<alt::ILocalPlayer, uint16_t, &alt::ILocalPlayer::GetCurrentAmmo>(isolate, tpl, "currentAmmo");
-    V8Helpers::SetMethod(isolate, tpl, "getWeaponAmmo", &GetWeaponAmmo);
-    V8Helpers::SetMethod(isolate, tpl, "getWeaponComponents", &GetWeaponComponents);
-    V8Helpers::SetMethod(isolate, tpl, "hasWeapon", &hasWeapon);
-    V8Helpers::SetAccessor(isolate, tpl, "weapons", &GetWeapons);
+                                 V8Helpers::SetAccessor<alt::ILocalPlayer, uint16_t, &alt::ILocalPlayer::GetCurrentAmmo>(isolate, tpl, "currentAmmo");
+                                 V8Helpers::SetMethod(isolate, tpl, "getWeaponAmmo", &GetWeaponAmmo);
+                                 V8Helpers::SetMethod(isolate, tpl, "getWeaponComponents", &GetWeaponComponents);
+                                 V8Helpers::SetMethod(isolate, tpl, "hasWeapon", &hasWeapon);
+                                 V8Helpers::SetAccessor(isolate, tpl, "weapons", &GetWeapons);
 
-    V8Helpers::SetAccessor(isolate, tpl, "currentWeaponData", &CurrentWeaponDataGetter);
-});
+                                 V8Helpers::SetAccessor(isolate, tpl, "currentWeaponData", &CurrentWeaponDataGetter);
+                             });

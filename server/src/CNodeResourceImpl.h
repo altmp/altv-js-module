@@ -47,15 +47,15 @@ public:
         return envStarted;
     }
 
-    void AddConnectionInfoObject(alt::Ref<alt::IConnectionInfo> info, v8::Local<v8::Object> obj)
+    void AddConnectionInfoObject(alt::IConnectionInfo* info, v8::Local<v8::Object> obj)
     {
         connectionInfoMap.insert({ info, V8Helpers::CPersistent<v8::Object>(isolate, obj) });
     }
-    void RemoveConnectionInfoObject(alt::Ref<alt::IConnectionInfo> info)
+    void RemoveConnectionInfoObject(alt::IConnectionInfo* info)
     {
         connectionInfoMap.erase(info);
     }
-    v8::Local<v8::Object> GetConnectionInfoObject(alt::Ref<alt::IConnectionInfo> info)
+    v8::Local<v8::Object> GetConnectionInfoObject(alt::IConnectionInfo* info)
     {
         auto it = connectionInfoMap.find(info);
         if(it != connectionInfoMap.end())
@@ -77,5 +77,5 @@ private:
     V8Helpers::CPersistent<v8::Object> asyncResource;
     node::async_context asyncContext{};
 
-    std::unordered_map<alt::Ref<alt::IConnectionInfo>, V8Helpers::CPersistent<v8::Object>> connectionInfoMap;
+    std::unordered_map<alt::IConnectionInfo*, V8Helpers::CPersistent<v8::Object>> connectionInfoMap;
 };

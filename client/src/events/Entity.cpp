@@ -15,62 +15,78 @@
 using alt::CEvent;
 using EventType = CEvent::Type;
 
-V8_LOCAL_EVENT_HANDLER removeEntity(EventType::REMOVE_ENTITY_EVENT, "removeEntity", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
-    auto ev = static_cast<const alt::CRemoveEntityEvent*>(e);
-    v8::Isolate* isolate = resource->GetIsolate();
+V8_LOCAL_EVENT_HANDLER removeEntity(EventType::REMOVE_ENTITY_EVENT,
+                                    "removeEntity",
+                                    [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                    {
+                                        auto ev = static_cast<const alt::CRemoveEntityEvent*>(e);
+                                        v8::Isolate* isolate = resource->GetIsolate();
 
-    args.push_back(resource->GetOrCreateEntity(ev->GetEntity().Get())->GetJSVal(isolate));
-});
+                                        args.push_back(resource->GetOrCreateEntity(ev->GetEntity())->GetJSVal(isolate));
+                                    });
 
 V8_EVENT_HANDLER gameEntityCreate(
   EventType::GAME_ENTITY_CREATE,
-  [](V8ResourceImpl* resource, const alt::CEvent* e) {
+  [](V8ResourceImpl* resource, const alt::CEvent* e)
+  {
       CV8ScriptRuntime::Instance().OnEntityStreamIn(static_cast<const alt::CGameEntityCreateEvent*>(e)->GetTarget());
 
       return resource->GetLocalHandlers("gameEntityCreate");
   },
-  [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+  [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+  {
       auto ev = static_cast<const alt::CGameEntityCreateEvent*>(e);
       v8::Isolate* isolate = resource->GetIsolate();
 
-      args.push_back(resource->GetOrCreateEntity(ev->GetTarget().Get())->GetJSVal(isolate));
+      args.push_back(resource->GetOrCreateEntity(ev->GetTarget())->GetJSVal(isolate));
   });
 
 V8_EVENT_HANDLER gameEntityDestroy(
   EventType::GAME_ENTITY_DESTROY,
-  [](V8ResourceImpl* resource, const alt::CEvent* e) {
+  [](V8ResourceImpl* resource, const alt::CEvent* e)
+  {
       CV8ScriptRuntime::Instance().OnEntityStreamOut(static_cast<const alt::CGameEntityDestroyEvent*>(e)->GetTarget());
 
       return resource->GetLocalHandlers("gameEntityDestroy");
   },
-  [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+  [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+  {
       auto ev = static_cast<const alt::CGameEntityDestroyEvent*>(e);
       v8::Isolate* isolate = resource->GetIsolate();
 
-      args.push_back(resource->GetOrCreateEntity(ev->GetTarget().Get())->GetJSVal(isolate));
+      args.push_back(resource->GetOrCreateEntity(ev->GetTarget())->GetJSVal(isolate));
   });
 
-V8_LOCAL_EVENT_HANDLER taskChange(EventType::TASK_CHANGE, "taskChange", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
-    auto ev = static_cast<const alt::CTaskChangeEvent*>(e);
-    v8::Isolate* isolate = resource->GetIsolate();
+V8_LOCAL_EVENT_HANDLER taskChange(EventType::TASK_CHANGE,
+                                  "taskChange",
+                                  [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                  {
+                                      auto ev = static_cast<const alt::CTaskChangeEvent*>(e);
+                                      v8::Isolate* isolate = resource->GetIsolate();
 
-    args.push_back(V8Helpers::JSValue(ev->GetOldTask()));
-    args.push_back(V8Helpers::JSValue(ev->GetNewTask()));
-});
+                                      args.push_back(V8Helpers::JSValue(ev->GetOldTask()));
+                                      args.push_back(V8Helpers::JSValue(ev->GetNewTask()));
+                                  });
 
-V8_LOCAL_EVENT_HANDLER playerWeaponShoot(EventType::PLAYER_WEAPON_SHOOT_EVENT, "playerWeaponShoot", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
-    auto ev = static_cast<const alt::CPlayerWeaponShootEvent*>(e);
-    v8::Isolate* isolate = resource->GetIsolate();
+V8_LOCAL_EVENT_HANDLER playerWeaponShoot(EventType::PLAYER_WEAPON_SHOOT_EVENT,
+                                         "playerWeaponShoot",
+                                         [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                         {
+                                             auto ev = static_cast<const alt::CPlayerWeaponShootEvent*>(e);
+                                             v8::Isolate* isolate = resource->GetIsolate();
 
-    args.push_back(V8Helpers::JSValue(ev->GetWeapon()));
-    args.push_back(V8Helpers::JSValue(ev->GetTotalAmmo()));
-    args.push_back(V8Helpers::JSValue(ev->GetAmmoInClip()));
-});
+                                             args.push_back(V8Helpers::JSValue(ev->GetWeapon()));
+                                             args.push_back(V8Helpers::JSValue(ev->GetTotalAmmo()));
+                                             args.push_back(V8Helpers::JSValue(ev->GetAmmoInClip()));
+                                         });
 
-V8_LOCAL_EVENT_HANDLER playerWeaponChange(EventType::PLAYER_WEAPON_CHANGE, "playerWeaponChange", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
-    auto ev = static_cast<const alt::CPlayerWeaponChangeEvent*>(e);
-    v8::Isolate* isolate = resource->GetIsolate();
+V8_LOCAL_EVENT_HANDLER playerWeaponChange(EventType::PLAYER_WEAPON_CHANGE,
+                                          "playerWeaponChange",
+                                          [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                          {
+                                              auto ev = static_cast<const alt::CPlayerWeaponChangeEvent*>(e);
+                                              v8::Isolate* isolate = resource->GetIsolate();
 
-    args.push_back(V8Helpers::JSValue(ev->GetOldWeapon()));
-    args.push_back(V8Helpers::JSValue(ev->GetNewWeapon()));
-});
+                                              args.push_back(V8Helpers::JSValue(ev->GetOldWeapon()));
+                                              args.push_back(V8Helpers::JSValue(ev->GetNewWeapon()));
+                                          });
