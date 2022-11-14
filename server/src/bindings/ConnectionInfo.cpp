@@ -104,10 +104,13 @@ static void DiscordUserIDGetter(v8::Local<v8::String>, const v8::PropertyCallbac
 static void Accept(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN2(0, 1);
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, con, alt::IConnectionInfo);
     V8_CHECK(con, "Invalid connection info");
 
-    con->Accept();
+    V8_ARG_TO_BOOLEAN_OPT(1, sendNames, true);
+
+    con->Accept(sendNames);
 }
 
 static void Decline(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -130,25 +133,27 @@ static void IsAcceptedGetter(v8::Local<v8::String>, const v8::PropertyCallbackIn
     V8_RETURN(con->IsAccepted());
 }
 
-extern V8Class v8ConnectionInfo("ConnectionInfo", [](v8::Local<v8::FunctionTemplate> tpl) {
-    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+extern V8Class v8ConnectionInfo("ConnectionInfo",
+                                [](v8::Local<v8::FunctionTemplate> tpl)
+                                {
+                                    v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    tpl->InstanceTemplate()->SetInternalFieldCount(1);
+                                    tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
-    V8Helpers::SetMethod(isolate, tpl, "accept", &Accept);
-    V8Helpers::SetMethod(isolate, tpl, "decline", &Decline);
-    V8Helpers::SetAccessor(isolate, tpl, "isAccepted", &IsAcceptedGetter);
+                                    V8Helpers::SetMethod(isolate, tpl, "accept", &Accept);
+                                    V8Helpers::SetMethod(isolate, tpl, "decline", &Decline);
+                                    V8Helpers::SetAccessor(isolate, tpl, "isAccepted", &IsAcceptedGetter);
 
-    V8Helpers::SetAccessor(isolate, tpl, "name", &NameGetter);
-    V8Helpers::SetAccessor(isolate, tpl, "socialID", &SocialIDGetter);
-    V8Helpers::SetAccessor(isolate, tpl, "hwidHash", &HwidHashGetter);
-    V8Helpers::SetAccessor(isolate, tpl, "hwidExHash", &HwidExHashGetter);
-    V8Helpers::SetAccessor(isolate, tpl, "authToken", &AuthTokenGetter);
-    V8Helpers::SetAccessor(isolate, tpl, "isDebug", &IsDebugGetter);
-    V8Helpers::SetAccessor(isolate, tpl, "branch", &BranchGetter);
-    V8Helpers::SetAccessor(isolate, tpl, "build", &BuildGetter);
-    V8Helpers::SetAccessor(isolate, tpl, "cdnUrl", &CdnUrlGetter);
-    V8Helpers::SetAccessor(isolate, tpl, "passwordHash", &PasswordHashGetter);
-    V8Helpers::SetAccessor(isolate, tpl, "ip", &IpGetter);
-    V8Helpers::SetAccessor(isolate, tpl, "discordUserID", &DiscordUserIDGetter);
-});
+                                    V8Helpers::SetAccessor(isolate, tpl, "name", &NameGetter);
+                                    V8Helpers::SetAccessor(isolate, tpl, "socialID", &SocialIDGetter);
+                                    V8Helpers::SetAccessor(isolate, tpl, "hwidHash", &HwidHashGetter);
+                                    V8Helpers::SetAccessor(isolate, tpl, "hwidExHash", &HwidExHashGetter);
+                                    V8Helpers::SetAccessor(isolate, tpl, "authToken", &AuthTokenGetter);
+                                    V8Helpers::SetAccessor(isolate, tpl, "isDebug", &IsDebugGetter);
+                                    V8Helpers::SetAccessor(isolate, tpl, "branch", &BranchGetter);
+                                    V8Helpers::SetAccessor(isolate, tpl, "build", &BuildGetter);
+                                    V8Helpers::SetAccessor(isolate, tpl, "cdnUrl", &CdnUrlGetter);
+                                    V8Helpers::SetAccessor(isolate, tpl, "passwordHash", &PasswordHashGetter);
+                                    V8Helpers::SetAccessor(isolate, tpl, "ip", &IpGetter);
+                                    V8Helpers::SetAccessor(isolate, tpl, "discordUserID", &DiscordUserIDGetter);
+                                });
