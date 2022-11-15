@@ -90,9 +90,9 @@ alt.Vector3.prototype.toArray = function() {
 
 alt.Vector3.prototype.toFixed = function(precision = 4) {
     return new alt.Vector3(
-        this.x.toFixed(precision),
-        this.y.toFixed(precision),
-        this.z.toFixed(precision)
+        parseFloat(this.x.toFixed(precision)),
+        parseFloat(this.y.toFixed(precision)),
+        parseFloat(this.z.toFixed(precision))
     );
 }
 
