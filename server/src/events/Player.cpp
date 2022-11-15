@@ -18,6 +18,7 @@
 #include "cpp-sdk/events/CLocalMetaDataChangeEvent.h"
 #include "cpp-sdk/events/CPlayerRequestControlEvent.h"
 #include "cpp-sdk/events/CPlayerChangeInteriorEvent.h"
+#include "cpp-sdk/events/CPlayerDimensionChangeEvent.h"
 
 using alt::CEvent;
 using EventType = CEvent::Type;
@@ -240,4 +241,16 @@ V8_LOCAL_EVENT_HANDLER playerInteriorChange(EventType::PLAYER_CHANGE_INTERIOR_EV
                                                 args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
                                                 args.push_back(V8Helpers::JSValue(ev->GetOldInteriorLocation()));
                                                 args.push_back(V8Helpers::JSValue(ev->GetNewInteriorLocation()));
+                                            });
+
+V8_LOCAL_EVENT_HANDLER playerDimensionChange(EventType::PLAYER_DIMENSION_CHANGE,
+                                            "playerDimensionChange",
+                                            [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                            {
+                                                auto ev = static_cast<const alt::CPlayerDimensionChangeEvent*>(e);
+                                                v8::Isolate* isolate = resource->GetIsolate();
+
+                                                args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
+                                                args.push_back(V8Helpers::JSValue(ev->GetOldDimension()));
+                                                args.push_back(V8Helpers::JSValue(ev->GetNewDimension()));
                                             });
