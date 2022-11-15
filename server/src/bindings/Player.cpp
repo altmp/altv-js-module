@@ -865,6 +865,7 @@ extern V8Class v8Player("Player",
 
                             V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetInteriorLocation>(isolate, tpl, "currentInterior");
                             V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetLastDamagedBodyPart, &IPlayer::SetLastDamagedBodyPart>(isolate, tpl, "lastDamagedBodyPart");
+                            V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::GetSendNames, &IPlayer::SetSendNames>(isolate, tpl, "sendNames");
 
                             // Appearance getter & setter
                             V8Helpers::SetMethod(isolate, tpl, "setHeadOverlay", &SetHeadOverlay);
