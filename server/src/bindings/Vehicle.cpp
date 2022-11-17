@@ -361,13 +361,10 @@ extern V8Class v8Vehicle("Vehicle",
                              V8Helpers::SetAccessor<IVehicle, IPlayer*, &IVehicle::GetTimedExplosionCulprit>(isolate, tpl, "timedExplosionCulprit");
 
                              V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetRocketRefuelSpeed, &IVehicle::SetRocketRefuelSpeed>(isolate, tpl, "rocketRefuelSpeed");
-                             V8Helpers::SetAccessor<IVehicle, uint32_t, &IVehicle::GetBombCount, &IVehicle::SetBombCount>(isolate, tpl, "bombCount");
                              V8Helpers::SetAccessor<IVehicle, uint32_t, &IVehicle::GetCounterMeasureCount, &IVehicle::SetCounterMeasureCount>(isolate, tpl, "counterMeasureCount");
                              V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetScriptMaxSpeed, &IVehicle::SetScriptMaxSpeed>(isolate, tpl, "scriptMaxSpeed");
                              V8Helpers::SetMethod(isolate, tpl, "getWeaponCapacity", &GetWeaponCapacity);
                              V8Helpers::SetMethod(isolate, tpl, "setWeaponCapacity", &SetWeaponCapacity);
                              V8Helpers::SetAccessor<IVehicle, bool, &IVehicle::GetHybridExtraActive, &IVehicle::SetHybridExtraActive>(isolate, tpl, "hybridExtraActive");
                              V8Helpers::SetAccessor<IVehicle, uint8_t, &IVehicle::GetHybridExtraState, &IVehicle::SetHybridExtraState>(isolate, tpl, "hybridExtraState");
-                             V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetDamageModifier, &IVehicle::SetDamageModifier>(isolate, tpl, "damageModifier");
-                             V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetDamageMultiplier, &IVehicle::SetDamageMultiplier>(isolate, tpl, "damageMultiplier");
                          });
