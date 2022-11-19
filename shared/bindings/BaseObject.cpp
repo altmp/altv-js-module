@@ -74,6 +74,22 @@ static void DeleteMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     obj->DeleteMetaData(key);
 }
 
+static void GetMetaDataKeys(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(obj, alt::IBaseObject);
+
+    const std::vector<std::string> list = obj->GetMetaDataKeys();
+    size_t size = list.size();
+    v8::Local<v8::Array> arr = v8::Array::New(isolate, size);
+    for(size_t i = 0; i < size; i++)
+    {
+        arr->Set(ctx, i, V8Helpers::JSValue(list[i]));
+    }
+
+    V8_RETURN(arr);
+}
+
 static void Destroy(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -97,5 +113,6 @@ extern V8Class v8BaseObject("BaseObject",
                                 V8Helpers::SetMethod(isolate, tpl, "getMeta", GetMeta);
                                 V8Helpers::SetMethod(isolate, tpl, "setMeta", SetMeta);
                                 V8Helpers::SetMethod(isolate, tpl, "deleteMeta", DeleteMeta);
+                                V8Helpers::SetMethod(isolate, tpl, "getMetaDataKeys", GetMetaDataKeys);
                                 V8Helpers::SetMethod(isolate, tpl, "destroy", Destroy);
                             });

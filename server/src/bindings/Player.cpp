@@ -752,6 +752,22 @@ static void DeleteLocalMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     player->DeleteLocalMetaData(key);
 }
 
+static void GetLocalMetaDataKeys(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
+
+    const std::vector<std::string> list = player->GetLocalMetaDataKeys();
+    size_t size = list.size();
+    v8::Local<v8::Array> arr = v8::Array::New(isolate, size);
+    for(size_t i = 0; i < size; i++)
+    {
+        arr->Set(ctx, i, V8Helpers::JSValue(list[i]));
+    }
+
+    V8_RETURN(arr);
+}
+
 static void DiscordIDGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE();
@@ -779,6 +795,7 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetMethod(isolate, tpl, "setLocalMeta", &SetLocalMeta);
                             V8Helpers::SetMethod(isolate, tpl, "getLocalMeta", &GetLocalMeta);
                             V8Helpers::SetMethod(isolate, tpl, "deleteLocalMeta", &DeleteLocalMeta);
+                            V8Helpers::SetMethod(isolate, tpl, "getLocalMetaKeys", &GetLocalMetaDataKeys);
 
                             V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetPing>(isolate, tpl, "ping");
                             V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetIP>(isolate, tpl, "ip");
