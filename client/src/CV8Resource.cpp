@@ -230,7 +230,7 @@ bool CV8ResourceImpl::Stop()
     return true;
 }
 
-bool CV8ResourceImpl::OnEvent(const alt::CEvent* e)
+void CV8ResourceImpl::OnEvent(const alt::CEvent* e)
 {
     auto nscope = resource->PushNativesScope();
 
@@ -241,7 +241,7 @@ bool CV8ResourceImpl::OnEvent(const alt::CEvent* e)
     v8::Context::Scope scope(GetContext());
 
     V8Helpers::EventHandler* handler = V8Helpers::EventHandler::Get(e);
-    if(!handler) return true;
+    if(!handler) return;
 
     // Generic event handler
     {
@@ -295,7 +295,7 @@ bool CV8ResourceImpl::OnEvent(const alt::CEvent* e)
         }
     }
 
-    return true;
+    return;
 }
 
 std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetWebViewHandlers(alt::IWebView* view, const std::string& name)
