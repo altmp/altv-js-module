@@ -1,7 +1,6 @@
 #pragma once
 
 #include "cpp-sdk/IScriptRuntime.h"
-#include "cpp-sdk/events/CRemoveEntityEvent.h"
 
 #include "V8Helpers.h"
 #include "CNodeResourceImpl.h"

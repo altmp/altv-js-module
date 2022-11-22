@@ -6,7 +6,6 @@
 #include "cpp-sdk/events/CClientScriptEvent.h"
 #include "cpp-sdk/events/CServerScriptEvent.h"
 #include "cpp-sdk/events/CColShapeEvent.h"
-#include "cpp-sdk/events/CRemoveEntityEvent.h"
 #include "cpp-sdk/events/CWeaponDamageEvent.h"
 #include "cpp-sdk/events/CExplosionEvent.h"
 #include "cpp-sdk/events/CFireEvent.h"
@@ -54,12 +53,6 @@ V8Helpers::EventHandler colshapeEvent(
       args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
       args.push_back(resource->GetBaseObjectOrNull(ev->GetEntity()));
   });
-
-V8Helpers::LocalEventHandler removeEntity(EventType::REMOVE_ENTITY_EVENT, "removeEntity", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
-    auto ev = static_cast<const alt::CRemoveEntityEvent*>(e);
-
-    args.push_back(resource->GetBaseObjectOrNull(ev->GetEntity()));
-});
 
 V8Helpers::LocalEventHandler weaponDamage(EventType::WEAPON_DAMAGE_EVENT, "weaponDamage", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
     auto ev = static_cast<const alt::CWeaponDamageEvent*>(e);

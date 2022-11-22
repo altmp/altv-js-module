@@ -24,7 +24,7 @@ public:
     bool Start() override;
     bool Stop() override;
 
-    bool OnEvent(const alt::CEvent* ev) override;
+    void OnEvent(const alt::CEvent* ev) override;
     void OnTick() override;
 
     bool MakeClient(alt::IResource::CreationInfo* info, alt::Array<std::string>) override;

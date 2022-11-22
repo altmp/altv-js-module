@@ -124,7 +124,7 @@ void CNodeResourceImpl::Started(v8::Local<v8::Value> _exports)
     }
 }
 
-bool CNodeResourceImpl::OnEvent(const alt::CEvent* e)
+void CNodeResourceImpl::OnEvent(const alt::CEvent* e)
 {
     v8::Locker locker(isolate);
     v8::Isolate::Scope isolateScope(isolate);
@@ -134,7 +134,7 @@ bool CNodeResourceImpl::OnEvent(const alt::CEvent* e)
     // env->PushAsyncCallbackScope();
 
     V8Helpers::EventHandler* handler = V8Helpers::EventHandler::Get(e);
-    if(!handler) return true;
+    if(!handler) return;
 
     // Generic event handler
     {
@@ -176,7 +176,7 @@ bool CNodeResourceImpl::OnEvent(const alt::CEvent* e)
     }
 
     // env->PopAsyncCallbackScope();
-    return true;
+    return;
 }
 
 void CNodeResourceImpl::OnTick()
