@@ -14,7 +14,6 @@
 #include "cpp-sdk/events/CSyncedMetaDataChangeEvent.h"
 #include "cpp-sdk/events/CStreamSyncedMetaDataChangeEvent.h"
 #include "cpp-sdk/events/CGlobalSyncedMetaDataChangeEvent.h"
-#include "cpp-sdk/events/CRemoveEntityEvent.h"
 #include "cpp-sdk/events/CResourceStartEvent.h"
 #include "cpp-sdk/events/CResourceStopEvent.h"
 #include "cpp-sdk/events/CResourceErrorEvent.h"
