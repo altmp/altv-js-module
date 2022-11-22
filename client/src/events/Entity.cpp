@@ -3,7 +3,6 @@
 
 #include "../CV8ScriptRuntime.h"
 
-#include "cpp-sdk/events/CRemoveEntityEvent.h"
 #include "cpp-sdk/events/CGameEntityCreateEvent.h"
 #include "cpp-sdk/events/CGameEntityDestroyEvent.h"
 #include "cpp-sdk/events/CTaskChangeEvent.h"
@@ -14,16 +13,6 @@
 
 using alt::CEvent;
 using EventType = CEvent::Type;
-
-V8_LOCAL_EVENT_HANDLER removeEntity(EventType::REMOVE_ENTITY_EVENT,
-                                    "removeEntity",
-                                    [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args)
-                                    {
-                                        auto ev = static_cast<const alt::CRemoveEntityEvent*>(e);
-                                        v8::Isolate* isolate = resource->GetIsolate();
-
-                                        args.push_back(resource->GetOrCreateEntity(ev->GetEntity())->GetJSVal(isolate));
-                                    });
 
 V8_EVENT_HANDLER gameEntityCreate(
   EventType::GAME_ENTITY_CREATE,
