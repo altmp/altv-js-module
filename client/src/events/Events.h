@@ -15,7 +15,8 @@ inline void RegisterEvents()
     // Shared
     V8_REFERENCE_LOCAL_EVENT_HANDLER(consoleCommand);
     V8_REFERENCE_LOCAL_EVENT_HANDLER(animationChange);
-    V8_REFERENCE_LOCAL_EVENT_HANDLER(entityCreate);
+    V8_REFERENCE_LOCAL_EVENT_HANDLER(baseObjectCreate);
+    V8_REFERENCE_LOCAL_EVENT_HANDLER(baseObjectRemove);
 
     // Main
     V8_REFERENCE_EVENT_HANDLER(clientScriptEvent);
