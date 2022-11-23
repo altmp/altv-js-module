@@ -91,7 +91,7 @@ This repository includes `.editorconfig` and `ClangFormat` code style definition
 Please make sure to configure your code editor to conform to these style definitions, it is also recommended to enable `Format on save`
 to make sure you don't forget to format the files using the provided style.
 
-> Make sure to use the newest version of ClangFormat, to not run into any issue
+> Make sure to use the newest version of ClangFormat, to not run into any issue (Currently recommended version: `14.x`)
 
 ### ToDos
 It is allowed to add `todo` comments to your code, for e.g. later optimizations that aren't needed for the initial implementation

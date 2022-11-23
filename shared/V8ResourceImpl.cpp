@@ -131,10 +131,16 @@ void V8ResourceImpl::OnTick()
     }
 }
 
-void V8ResourceImpl::BindEntity(v8::Local<v8::Object> val, alt::Ref<alt::IBaseObject> handle)
+void V8ResourceImpl::BindEntity(v8::Local<v8::Object> val, alt::IBaseObject* handle)
 {
-    V8Entity* ent = new V8Entity(GetContext(), V8Entity::GetClass(handle), val, handle);
-    entities.insert({ handle.Get(), ent });
+    V8Class* entityClass = V8Entity::GetClass(handle);
+    if(!entityClass)
+    {
+        Log::Error << "Failed to bind entity: Type " << (int)handle->GetType() << " has no class" << Log::Endl;
+        return;
+    }
+    V8Entity* ent = new V8Entity(GetContext(), entityClass, val, handle);
+    entities.insert({ handle, ent });
 }
 
 v8::Local<v8::Value> V8ResourceImpl::GetBaseObjectOrNull(alt::IBaseObject* handle)
@@ -193,39 +199,34 @@ bool V8ResourceImpl::IsBaseObject(v8::Local<v8::Value> val)
     return result;
 }
 
-void V8ResourceImpl::OnCreateBaseObject(alt::Ref<alt::IBaseObject> handle)
+void V8ResourceImpl::OnCreateBaseObject(alt::IBaseObject* handle)
 {
-    // Log::Debug << "OnCreateBaseObject " << handle.Get() << " " << (entities.find(handle.Get()) != entities.end()) << Log::Endl;
-
-    /*if (entities.find(handle.Get()) == entities.end())
-    {
-            v8::Locker locker(isolate);
-            v8::Isolate::Scope isolateScope(isolate);
-            v8::HandleScope handleScope(isolate);
-
-            v8::Context::Scope scope(GetContext());
-            CreateEntity(handle.Get());
-    }*/
-
-    NotifyPoolUpdate(handle.Get());
+    NotifyPoolUpdate(handle);
 }
 
-void V8ResourceImpl::OnRemoveBaseObject(alt::Ref<alt::IBaseObject> handle)
+void V8ResourceImpl::OnRemoveBaseObject(alt::IBaseObject* handle)
 {
-    NotifyPoolUpdate(handle.Get());
+    NotifyPoolUpdate(handle);
 
     v8::Locker locker(isolate);
     v8::Isolate::Scope isolateScope(isolate);
     v8::HandleScope handleScope(isolate);
     v8::Context::Scope scope(GetContext());
 
-    V8Entity* ent = GetEntity(handle.Get());
-
+    V8Entity* ent = GetEntity(handle);
     if(!ent) return;
 
-    entities.erase(handle.Get());
+    auto entityType = handle->GetType();
+    if (entityType == alt::IBaseObject::Type::PLAYER
+        || entityType == alt::IBaseObject::Type::LOCAL_PLAYER
+        || entityType == alt::IBaseObject::Type::VEHICLE
+    ) {
+        std::vector<V8Helpers::EventCallback*> handlers = GetLocalHandlers("removeEntity");
+        std::vector<v8::Local<v8::Value>> args{ ent->GetJSVal(isolate) };
+        InvokeEventHandlers(nullptr, handlers, args);
+    }
 
-    // TODO: ent->SetWeak();
+    entities.erase(handle);
     ent->GetJSVal(isolate)->SetInternalField(0, v8::External::New(isolate, nullptr));
     delete ent;
 }
@@ -236,6 +237,7 @@ void V8ResourceImpl::NotifyPoolUpdate(alt::IBaseObject* ent)
     {
         case alt::IBaseObject::Type::PLAYER: playerPoolDirty = true; break;
         case alt::IBaseObject::Type::VEHICLE: vehiclePoolDirty = true; break;
+        case alt::IBaseObject::Type::OBJECT: objectPoolDirty = true; break;
     }
 }
 
@@ -245,26 +247,17 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllPlayers()
     {
         playerPoolDirty = false;
 
-        Array<Ref<IPlayer>> all = ICore::Instance().GetPlayers();
+        Array<IPlayer*> all = ICore::Instance().GetPlayers();
         v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.GetSize());
 
         for(uint32_t i = 0; i < all.GetSize(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
 
         players.Reset(isolate, jsAll);
+        jsAll->SetIntegrityLevel(GetContext(), v8::IntegrityLevel::kFrozen);
         return jsAll;
     }
 
     return players.Get(isolate);
-}
-
-v8::Local<v8::Array> V8ResourceImpl::GetAllBlips()
-{
-    Array<Ref<IBlip>> all = ICore::Instance().GetBlips();
-    v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.GetSize());
-
-    for(uint32_t i = 0; i < all.GetSize(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
-
-    return jsAll;
 }
 
 v8::Local<v8::Array> V8ResourceImpl::GetAllVehicles()
@@ -273,17 +266,48 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllVehicles()
     {
         vehiclePoolDirty = false;
 
-        Array<Ref<IVehicle>> all = ICore::Instance().GetVehicles();
+        Array<IVehicle*> all = ICore::Instance().GetVehicles();
         v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.GetSize());
 
         for(uint32_t i = 0; i < all.GetSize(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
 
         vehicles.Reset(isolate, jsAll);
+        jsAll->SetIntegrityLevel(GetContext(), v8::IntegrityLevel::kFrozen);
         return jsAll;
     }
-
     return vehicles.Get(isolate);
 }
+
+v8::Local<v8::Array> V8ResourceImpl::GetAllBlips()
+{
+    std::vector<IBlip*> all = ICore::Instance().GetBlips();
+    v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
+
+    for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
+
+    jsAll->SetIntegrityLevel(GetContext(), v8::IntegrityLevel::kFrozen);
+    return jsAll;
+}
+
+#ifdef ALT_CLIENT_API
+v8::Local<v8::Array> V8ResourceImpl::GetAllObjects()
+{
+    if(objectPoolDirty)
+    {
+        objectPoolDirty = false;
+
+        std::vector<IObject*> all = ICore::Instance().GetObjects();
+        v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
+
+        for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
+
+        objects.Reset(isolate, jsAll);
+        jsAll->SetIntegrityLevel(GetContext(), v8::IntegrityLevel::kFrozen);
+        return jsAll;
+    }
+    return objects.Get(isolate);
+}
+#endif
 
 std::vector<V8Helpers::EventCallback*> V8ResourceImpl::GetLocalHandlers(const std::string& name)
 {
@@ -342,53 +366,55 @@ void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vecto
         if(handler->removed) continue;
         int64_t time = GetTime();
 
-        V8Helpers::TryCatch([&] {
-            v8::MaybeLocal<v8::Value> retn = V8Helpers::CallFunctionWithTimeout(handler->fn.Get(isolate), GetContext(), args);
-            if(retn.IsEmpty()) return false;
+        V8Helpers::TryCatch(
+          [&]
+          {
+              v8::MaybeLocal<v8::Value> retn = V8Helpers::CallFunctionWithTimeout(handler->fn.Get(isolate), GetContext(), args);
+              if(retn.IsEmpty()) return false;
 
-            v8::Local<v8::Value> returnValue = retn.ToLocalChecked();
-            if(ev && returnValue->IsFalse()) ev->Cancel();
-            else if(ev && ev->GetType() == alt::CEvent::Type::PLAYER_BEFORE_CONNECT && returnValue->IsString())
-                static_cast<alt::CPlayerBeforeConnectEvent*>(const_cast<alt::CEvent*>(ev))->Cancel(*v8::String::Utf8Value(isolate, returnValue));
-            // todo: add this once a generic Cancel() with string as arg has been added to the sdk
-            // else if(ev && returnValue->IsString())
-            //    ev->Cancel(*v8::String::Utf8Value(isolate, returnValue));
+              v8::Local<v8::Value> returnValue = retn.ToLocalChecked();
+              if(ev && returnValue->IsFalse()) ev->Cancel();
+              else if(ev && ev->GetType() == alt::CEvent::Type::PLAYER_BEFORE_CONNECT && returnValue->IsString())
+                  static_cast<alt::CPlayerBeforeConnectEvent*>(const_cast<alt::CEvent*>(ev))->Cancel(*v8::String::Utf8Value(isolate, returnValue));
+              // todo: add this once a generic Cancel() with string as arg has been added to the sdk
+              // else if(ev && returnValue->IsString())
+              //    ev->Cancel(*v8::String::Utf8Value(isolate, returnValue));
 
-            // Wait until the returned promise has been resolved, by continously forcing the event loop to run,
-            // until the promise is resolved.
-            if(waitForPromiseResolve && returnValue->IsPromise())
-            {
-                v8::Local<v8::Promise> promise = returnValue.As<v8::Promise>();
-                while(true)
-                {
-                    v8::Promise::PromiseState state = promise->State();
-                    if(state == v8::Promise::PromiseState::kPending)
-                    {
+              // Wait until the returned promise has been resolved, by continously forcing the event loop to run,
+              // until the promise is resolved.
+              if(waitForPromiseResolve && returnValue->IsPromise())
+              {
+                  v8::Local<v8::Promise> promise = returnValue.As<v8::Promise>();
+                  while(true)
+                  {
+                      v8::Promise::PromiseState state = promise->State();
+                      if(state == v8::Promise::PromiseState::kPending)
+                      {
 #ifdef ALT_CLIENT_API
-                        CV8ScriptRuntime::Instance().OnTick();
+                          CV8ScriptRuntime::Instance().OnTick();
 #endif
 #ifdef ALT_SERVER_API
-                        CNodeScriptRuntime::Instance().OnTick();
+                          CNodeScriptRuntime::Instance().OnTick();
 #endif
-                        // Run event loop
-                        OnTick();
-                    }
-                    else if(state == v8::Promise::PromiseState::kFulfilled)
-                    {
-                        v8::Local<v8::Value> value = promise->Result();
-                        if(value->IsFalse()) ev->Cancel();
-                        break;
-                    }
-                    else if(state == v8::Promise::PromiseState::kRejected)
-                    {
-                        // todo: we should probably do something with the rejection here
-                        break;
-                    }
-                }
-            }
+                          // Run event loop
+                          OnTick();
+                      }
+                      else if(state == v8::Promise::PromiseState::kFulfilled)
+                      {
+                          v8::Local<v8::Value> value = promise->Result();
+                          if(value->IsFalse()) ev->Cancel();
+                          break;
+                      }
+                      else if(state == v8::Promise::PromiseState::kRejected)
+                      {
+                          // todo: we should probably do something with the rejection here
+                          break;
+                      }
+                  }
+              }
 
-            return true;
-        });
+              return true;
+          });
 
         if(GetTime() - time > 50 && !waitForPromiseResolve)
         {
@@ -401,6 +427,62 @@ void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vecto
 
         if(handler->once) handler->removed = true;
     }
+}
+
+// Internal script globals
+static void SetLogFunction(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(1);
+
+    v8::Local<v8::Value> function = info[0];
+    if(!function->IsFunction()) return;
+    resource->SetLogFunction(function.As<v8::Function>());
+}
+
+// Types:
+// 0 = normal
+// 1 = warning
+// 2 = error
+static void PrintLog(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN_MIN(1);
+
+    V8_ARG_TO_INT32(1, type);
+    std::stringstream stream;
+    for(size_t i = 1; i < info.Length(); i++)
+    {
+        std::string arg = *v8::String::Utf8Value(isolate, info[i]);
+        stream << arg;
+        if(i != info.Length() - 1) stream << " ";
+    }
+    switch(type)
+    {
+        case 0:
+        {
+            alt::ICore::Instance().LogColored(stream.str());
+            break;
+        }
+        case 1:
+        {
+            alt::ICore::Instance().LogWarning(stream.str());
+            break;
+        }
+        case 2:
+        {
+            alt::ICore::Instance().LogError(stream.str());
+            break;
+        }
+    }
+}
+
+void V8ResourceImpl::SetupScriptGlobals()
+{
+    v8::Local<v8::Context> ctx = context.Get(isolate);
+
+    ctx->Global()->Set(ctx, V8Helpers::JSValue("__setLogFunction"), v8::Function::New(ctx, &::SetLogFunction).ToLocalChecked());
+    ctx->Global()->Set(ctx, V8Helpers::JSValue("__printLog"), v8::Function::New(ctx, &::PrintLog).ToLocalChecked());
 }
 
 alt::MValue V8ResourceImpl::FunctionImpl::Call(alt::MValueArgs args) const
@@ -429,14 +511,16 @@ alt::MValue V8ResourceImpl::FunctionImpl::Call(alt::MValueArgs args) const
     V8Helpers::MValueArgsToV8(args, v8Args);
 
     alt::MValue res;
-    V8Helpers::TryCatch([&] {
-        v8::MaybeLocal<v8::Value> _res = V8Helpers::CallFunctionWithTimeout(function.Get(isolate), resource->GetContext(), v8Args);
+    V8Helpers::TryCatch(
+      [&]
+      {
+          v8::MaybeLocal<v8::Value> _res = V8Helpers::CallFunctionWithTimeout(function.Get(isolate), resource->GetContext(), v8Args);
 
-        if(_res.IsEmpty()) return false;
+          if(_res.IsEmpty()) return false;
 
-        res = V8Helpers::V8ToMValue(_res.ToLocalChecked());
-        return true;
-    });
+          res = V8Helpers::V8ToMValue(_res.ToLocalChecked());
+          return true;
+      });
 
     if(res.IsEmpty()) res = alt::ICore::Instance().CreateMValueNone();
 

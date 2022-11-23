@@ -1,6 +1,7 @@
 cmake_minimum_required (VERSION 3.19)
 include(FetchContent)
 include(cmake/DepsDownload.cmake)
+set(BINDINGS_SCOPE "CLIENT")
 include(../shared/cmake/GenerateBindings.cmake)
 
 project(altv-client-js)
@@ -42,7 +43,6 @@ GroupSources(${PROJECT_SOURCE_DIR}/src "Source Files")
 GroupSources("../shared" "Shared Files")
 
 make_includable("src/bootstrap.js" "src/bootstrap.js.gen")
-GenerateBindings()
 
 include_directories(
   ${ALTV_JS_CPP_SDK}
@@ -87,9 +87,12 @@ if(WIN32 AND (MSVC OR CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
     add_definitions(/MP)
 endif()
 
-if(DYNAMIC_BUILD)
-  include(${ALTV_JS_CPP_SDK}/cpp-sdk/CMakeLists.txt)
+set(SDK_PROJECT_NAME alt-sdk-js)
+if(NOT TARGET ${SDK_PROJECT_NAME})
+    include(${ALTV_JS_CPP_SDK}/cpp-sdk/CMakeLists.txt)
+endif()
 
+if(DYNAMIC_BUILD EQUAL 1)
   ## SHARED
   add_library(
     ${PROJECT_NAME} SHARED
@@ -97,7 +100,7 @@ if(DYNAMIC_BUILD)
     ${PROJECT_SHARED_FILES}
   )
   set_target_properties(${PROJECT_NAME} PROPERTIES
-    CXX_STANDARD 17
+    CXX_STANDARD 20
   )
   target_compile_definitions(${PROJECT_NAME} PRIVATE
     ${ALTV_JS_DEFS}
@@ -107,7 +110,7 @@ if(DYNAMIC_BUILD)
     ${ALTV_JS_LINKS}
   )
 
-  add_dependencies(${PROJECT_NAME} alt-sdk)
+  add_dependencies(${PROJECT_NAME} ${SDK_PROJECT_NAME} js-bindings)
 else()
   ## STATIC
   add_library(
@@ -116,7 +119,7 @@ else()
     ${PROJECT_SHARED_FILES}
   )
   set_target_properties(${PROJECT_NAME}-static PROPERTIES
-    CXX_STANDARD 17
+    CXX_STANDARD 20
   )
   target_compile_definitions(${PROJECT_NAME}-static PRIVATE
     ${ALTV_JS_DEFS}
@@ -125,7 +128,7 @@ else()
     ${ALTV_JS_LINKS}
   )
 
-  add_dependencies(${PROJECT_NAME}-static alt-sdk)
+  add_dependencies(${PROJECT_NAME}-static ${SDK_PROJECT_NAME} js-bindings)
 endif()
 
 if(ALTV_JS_DEINIT_CPPSDK)

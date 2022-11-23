@@ -4,62 +4,6 @@
 
 namespace V8Helpers::Vehicle
 {
-    namespace detail
-    {
-        void NeonActiveGetterHandler(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
-        {
-            V8_GET_ISOLATE_CONTEXT();
-            V8_GET_DATA(alt::IVehicle, vehicle);
-
-            bool left, right, front, back;
-            vehicle->GetNeonActive(&left, &right, &front, &back);
-
-            std::string prop = V8Helpers::CppValue(property);
-            if(prop == "left") V8_RETURN(left);
-            else if(prop == "right")
-                V8_RETURN(right);
-            else if(prop == "front")
-                V8_RETURN(front);
-            else if(prop == "back")
-                V8_RETURN(back);
-            else
-                V8_RETURN(v8::Undefined(isolate));
-        }
-        void NeonActiveSetterHandler(v8::Local<v8::Name> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<v8::Value>& info)
-        {
-            V8_GET_ISOLATE_CONTEXT();
-            V8_GET_DATA(alt::IVehicle, vehicle);
-            V8_TO_BOOLEAN(value, neonActive);
-            std::string prop = V8Helpers::CppValue(property);
-
-            bool left, right, front, back;
-            vehicle->GetNeonActive(&left, &right, &front, &back);
-
-            if(prop == "left") left = neonActive;
-            else if(prop == "right")
-                right = neonActive;
-            else if(prop == "front")
-                front = neonActive;
-            else if(prop == "back")
-                back = neonActive;
-
-            vehicle->SetNeonActive(left, right, front, back);
-            V8_RETURN(neonActive);
-        }
-        void NeonActiveEnumeratorHandler(const v8::PropertyCallbackInfo<v8::Array>& info)
-        {
-            V8_GET_ISOLATE_CONTEXT();
-
-            v8::Local<v8::Array> arr = v8::Array::New(isolate, 4);
-            arr->Set(ctx, 0, V8Helpers::JSValue("left"));
-            arr->Set(ctx, 1, V8Helpers::JSValue("right"));
-            arr->Set(ctx, 2, V8Helpers::JSValue("front"));
-            arr->Set(ctx, 3, V8Helpers::JSValue("back"));
-
-            V8_RETURN(arr);
-        }
-    }  // namespace detail
-
     void ModKitGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
     {
         V8_GET_ISOLATE();
@@ -80,7 +24,16 @@ namespace V8Helpers::Vehicle
         V8_GET_ISOLATE_CONTEXT();
         V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
 
-        V8_RETURN(V8Helpers::CreateCustomObject(isolate, _this.Get(), &detail::NeonActiveGetterHandler, &detail::NeonActiveSetterHandler, nullptr, &detail::NeonActiveEnumeratorHandler));
+        bool left, right, front, back;
+        _this->GetNeonActive(&left, &right, &front, &back);
+
+        V8_NEW_OBJECT(neon);
+        V8_OBJECT_SET_BOOLEAN(neon, "left", left);
+        V8_OBJECT_SET_BOOLEAN(neon, "right", left);
+        V8_OBJECT_SET_BOOLEAN(neon, "front", left);
+        V8_OBJECT_SET_BOOLEAN(neon, "back", left);
+
+        V8_RETURN(neon);
     }
 
     void NeonActiveSetter(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)

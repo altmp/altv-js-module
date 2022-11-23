@@ -9,9 +9,6 @@ on:
       - "client/**"
       - "shared/**"
 
-env:
-  BUILD_TYPE: Release
-
 jobs:
   test-client:
     name: Test client changes
@@ -23,34 +20,9 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Create LFS file list
-      run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
-
-    - name: Restore LFS cache
-      uses: actions/cache@v2
-      id: lfs-cache
-      with:
-        path: .git/lfs
-        key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}-v1
-
-    - name: Git LFS Pull
-      run: git lfs pull
-
-    - name: Fetch Submodules
-      shell: bash
-      run: |
-        git submodule init
-        git submodule update
-
-    - name: Generate
-      shell: bash
-      run: |
-        cd client
-        cmake . -BBUILD -DDYNAMIC_BUILD=1
-
     - name: Build
-      shell: bash
+      shell: cmd
       run: |
         cd client
-        cmake --build BUILD --config $BUILD_TYPE
+        build.bat
 

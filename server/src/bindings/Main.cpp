@@ -78,7 +78,8 @@ static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     if(info[0]->IsNull())
     {
-        // if first argument is null this event gets send to every player
+        // Deprecation added: 06/08/2022 (version 13)
+        V8_DEPRECATE("emitClient with null", "emitAllClients");
         ICore::Instance().TriggerClientEventForAll(eventName, mvArgs);
         return;
     }
@@ -87,12 +88,12 @@ static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
         // if first argument is an array of players this event will be sent to every player in array
         v8::Local<v8::Array> arr = info[0].As<v8::Array>();
-        Array<Ref<IPlayer>> targets;
+        Array<IPlayer*> targets;
         targets.Reserve(arr->Length());
 
         for(int i = 0; i < arr->Length(); ++i)
         {
-            Ref<IPlayer> player;
+            IPlayer* player;
             v8::Local<v8::Value> ply;
 
             bool toLocalSuccess = arr->Get(ctx, i).ToLocal(&ply);
@@ -103,7 +104,7 @@ static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
             bool isPlayerType = v8Player && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER;
             V8_CHECK_NORETN(isPlayerType, "player inside array expected");
             if(!isPlayerType) continue;
-            targets.Push(v8Player->GetHandle().As<IPlayer>());
+            targets.Push(dynamic_cast<alt::IPlayer*>(v8Player->GetHandle()));
         }
 
         ICore::Instance().TriggerClientEvent(targets, eventName, mvArgs);
@@ -114,7 +115,7 @@ static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8Entity* v8Player = V8Entity::Get(info[0]);
         V8_CHECK(v8Player && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER, "player or null expected");
 
-        ICore::Instance().TriggerClientEvent(v8Player->GetHandle().As<IPlayer>(), eventName, mvArgs);
+        ICore::Instance().TriggerClientEvent(dynamic_cast<alt::IPlayer*>(v8Player->GetHandle()), eventName, mvArgs);
     }
 }
 
@@ -155,6 +156,8 @@ static void EmitClientRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     if(info[0]->IsNull())
     {
+        // Deprecation added: 06/08/2022 (version 13)
+        V8_DEPRECATE("emitClientRaw with null", "emitAllClientsRaw");
         // if first argument is null this event gets send to every player
         ICore::Instance().TriggerClientEventForAll(eventName, mvArgs);
         return;
@@ -164,12 +167,12 @@ static void EmitClientRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
         // if first argument is an array of players this event will be sent to every player in array
         v8::Local<v8::Array> arr = info[0].As<v8::Array>();
-        Array<Ref<IPlayer>> targets;
+        Array<IPlayer*> targets;
         targets.Reserve(arr->Length());
 
         for(int i = 0; i < arr->Length(); ++i)
         {
-            Ref<IPlayer> player;
+            IPlayer* player;
             v8::Local<v8::Value> ply;
 
             bool toLocalSuccess = arr->Get(ctx, i).ToLocal(&ply);
@@ -180,7 +183,7 @@ static void EmitClientRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
             bool isPlayerType = v8Player && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER;
             V8_CHECK_NORETN(isPlayerType, "player inside array expected");
             if(!isPlayerType) continue;
-            targets.Push(v8Player->GetHandle().As<IPlayer>());
+            targets.Push(dynamic_cast<alt::IPlayer*>(v8Player->GetHandle()));
         }
 
         ICore::Instance().TriggerClientEvent(targets, eventName, mvArgs);
@@ -191,7 +194,7 @@ static void EmitClientRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8Entity* v8Player = V8Entity::Get(info[0]);
         V8_CHECK(v8Player && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER, "player or null expected");
 
-        ICore::Instance().TriggerClientEvent(v8Player->GetHandle().As<IPlayer>(), eventName, mvArgs);
+        ICore::Instance().TriggerClientEvent(dynamic_cast<alt::IPlayer*>(v8Player->GetHandle()), eventName, mvArgs);
     }
 }
 
@@ -289,38 +292,6 @@ static void RestartResource(const v8::FunctionCallbackInfo<v8::Value>& info)
     alt::ICore::Instance().RestartResource(name);
 }
 
-static void GetResourceMain(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    // Deprecation added: 02/05/2022 (version 9.13)
-    V8_DEPRECATE("alt.getResourceMain", "alt.Resource.name");
-    V8_GET_ISOLATE_CONTEXT();
-    V8_CHECK_ARGS_LEN(1);
-
-    V8_ARG_TO_STRING(1, name);
-
-    alt::IResource* resource = alt::ICore::Instance().GetResource(name);
-
-    V8_CHECK(resource, "Resource does not exist");
-
-    V8_RETURN_STRING(resource->GetMain());
-}
-
-static void GetResourcePath(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    // Deprecation added: 02/05/2022 (version 9.13)
-    V8_DEPRECATE("alt.getResourcePath", "alt.Resource.name");
-    V8_GET_ISOLATE_CONTEXT();
-    V8_CHECK_ARGS_LEN(1);
-
-    V8_ARG_TO_STRING(1, name);
-
-    alt::IResource* resource = alt::ICore::Instance().GetResource(name);
-
-    V8_CHECK(resource, "Resource does not exist");
-
-    V8_RETURN_STRING(resource->GetPath());
-}
-
 static void HashServerPassword(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -389,6 +360,18 @@ static void GetVehicleModelByHash(const v8::FunctionCallbackInfo<v8::Value>& inf
     infoObj->Set(ctx, V8Helpers::JSValue("hasExtra"), v8::Function::New(ctx, &HasExtra, v8::Uint32::NewFromUnsigned(isolate, hash)).ToLocalChecked());
     infoObj->Set(ctx, V8Helpers::JSValue("hasDefaultExtra"), v8::Function::New(ctx, &HasDefaultExtra, v8::Uint32::NewFromUnsigned(isolate, hash)).ToLocalChecked());
 
+    size_t boneSize = std::size(modelInfo.bones);
+    v8::Local<v8::Array> boneArr = v8::Array::New(isolate, boneSize);
+    for(size_t i = 0; i < boneSize; i++)
+    {
+        V8_NEW_OBJECT(boneObj);
+        boneObj->Set(ctx, V8Helpers::JSValue("id"), V8Helpers::JSValue(modelInfo.bones[i].id));
+        boneObj->Set(ctx, V8Helpers::JSValue("index"), V8Helpers::JSValue(modelInfo.bones[i].index));
+        boneObj->Set(ctx, V8Helpers::JSValue("name"), V8Helpers::JSValue(modelInfo.bones[i].name));
+        boneArr->Set(ctx, i, boneObj);
+    }
+    infoObj->Set(ctx, V8Helpers::JSValue("bones"), boneArr);
+
     V8_RETURN(infoObj);
 }
 
@@ -400,6 +383,44 @@ static void GetServerConfig(const v8::FunctionCallbackInfo<v8::Value>& info)
     v8::Local<v8::Value> val = V8Helpers::ConfigNodeToV8(config);
     V8_CHECK(!val.IsEmpty(), "Failed to convert server config to V8 value");
     V8_RETURN(val);
+}
+
+static void GetPedModelByHash(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_UINT(1, hash);
+
+    const alt::PedModelInfo& modelInfo = alt::ICore::Instance().GetPedModelByHash(hash);
+    V8_NEW_OBJECT(infoObj);
+
+    infoObj->Set(ctx, V8Helpers::JSValue("hash"), V8Helpers::JSValue(modelInfo.hash));
+    infoObj->Set(ctx, V8Helpers::JSValue("name"), V8Helpers::JSValue(modelInfo.name));
+
+    size_t boneSize = std::size(modelInfo.bones);
+    v8::Local<v8::Array> boneArr = v8::Array::New(isolate, boneSize);
+    for(size_t i = 0; i < boneSize; i++)
+    {
+        V8_NEW_OBJECT(boneObj);
+        boneObj->Set(ctx, V8Helpers::JSValue("id"), V8Helpers::JSValue(modelInfo.bones[i].id));
+        boneObj->Set(ctx, V8Helpers::JSValue("index"), V8Helpers::JSValue(modelInfo.bones[i].index));
+        boneObj->Set(ctx, V8Helpers::JSValue("name"), V8Helpers::JSValue(modelInfo.bones[i].name));
+        boneArr->Set(ctx, i, boneObj);
+    }
+    infoObj->Set(ctx, V8Helpers::JSValue("bones"), boneArr);
+
+    V8_RETURN(infoObj);
+}
+
+static void SetWorldProfiler(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE();
+
+    V8_CHECK_ARGS_LEN(1);
+    V8_ARG_TO_BOOLEAN(1, isActive);
+
+    ICore::Instance().SetWorldProfiler(isActive);
 }
 
 extern V8Class v8Player, v8Vehicle, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Checkpoint, v8VoiceChannel, v8Colshape, v8ColshapeCylinder, v8ColshapeSphere, v8ColshapeCircle,
@@ -425,11 +446,9 @@ extern V8Module v8Alt("alt",
                         v8ColshapeCuboid,
                         v8ColshapeRectangle,
                         v8ColshapePolygon },
-                      [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
+                      [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports)
+                      {
                           v8::Isolate* isolate = ctx->GetIsolate();
-
-                          V8Helpers::RegisterFunc(exports, "getResourceMain", &GetResourceMain);
-                          V8Helpers::RegisterFunc(exports, "getResourcePath", &GetResourcePath);
 
                           V8Helpers::RegisterFunc(exports, "startResource", &StartResource);
                           V8Helpers::RegisterFunc(exports, "stopResource", &StopResource);
@@ -455,8 +474,11 @@ extern V8Module v8Alt("alt",
                           V8Helpers::RegisterFunc(exports, "stopServer", &StopServer);
 
                           V8Helpers::RegisterFunc(exports, "getVehicleModelInfoByHash", &GetVehicleModelByHash);
+                          V8Helpers::RegisterFunc(exports, "getPedModelInfoByHash", &GetPedModelByHash);
 
                           V8Helpers::RegisterFunc(exports, "getServerConfig", &GetServerConfig);
+
+                          V8Helpers::RegisterFunc(exports, "toggleWorldProfiler", &SetWorldProfiler);
 
                           V8_OBJECT_SET_STRING(exports, "rootDir", alt::ICore::Instance().GetRootDirectory());
                           V8_OBJECT_SET_INT(exports, "defaultDimension", alt::DEFAULT_DIMENSION);

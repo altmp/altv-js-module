@@ -27,8 +27,8 @@ class CV8ScriptRuntime : public alt::IScriptRuntime, public IRuntimeEventHandler
     v8::CpuProfiler* profiler;
     uint32_t profilerSamplingInterval = 100;
 
-    std::unordered_map<uint16_t, alt::Ref<alt::IPlayer>> streamedInPlayers;
-    std::unordered_map<uint16_t, alt::Ref<alt::IVehicle>> streamedInVehicles;
+    std::unordered_map<uint16_t, alt::IPlayer*> streamedInPlayers;
+    std::unordered_map<uint16_t, alt::IVehicle*> streamedInVehicles;
 
     uint32_t activeWorkers = 0;
 
@@ -44,6 +44,8 @@ public:
     void ProcessConfigOptions();
 
     void OnDispose() override;
+
+    void Init() override;
 
     static void SetInstance(CV8ScriptRuntime* runtime)
     {
@@ -200,8 +202,8 @@ public:
 
     bool resourcesLoaded = false;
 
-    void OnEntityStreamIn(alt::Ref<alt::IEntity> entity);
-    void OnEntityStreamOut(alt::Ref<alt::IEntity> entity);
+    void OnEntityStreamIn(alt::IEntity* entity);
+    void OnEntityStreamOut(alt::IEntity* entity);
 
     auto GetStreamedInPlayers()
     {

@@ -129,7 +129,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     alt::IResource* altres = V8ResourceImpl::GetResource(isolate->GetEnteredOrMicrotaskContext());
     V8_CHECK(altres, "invalid resource");
 
-    alt::Ref<IWebView> view = nullptr;
+    alt::IWebView* view = nullptr;
 
     if(info.Length() == 4)
     {
@@ -167,7 +167,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_CHECK(texture != nullptr, "Texture not found");
 
         view = alt::ICore::Instance().CreateWebView(altres, url, (uint32_t)drawableHash, targetTextureStr);
-        V8_CHECK(!view.IsEmpty(), "Interactive WebView cannot be created");
+        V8_CHECK(view, "Interactive WebView cannot be created");
     }
     else if(info.Length() == 2 && info[1]->IsObject())
     {
@@ -218,27 +218,31 @@ static void SetZoomLevel(const v8::FunctionCallbackInfo<v8::Value>& info)
 }
 
 extern V8Class v8BaseObject;
-extern V8Class v8WebView("WebView", v8BaseObject, &Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
-    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+extern V8Class v8WebView("WebView",
+                         v8BaseObject,
+                         &Constructor,
+                         [](v8::Local<v8::FunctionTemplate> tpl)
+                         {
+                             v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    V8Helpers::SetMethod(isolate, tpl, "toString", ToString);
+                             V8Helpers::SetMethod(isolate, tpl, "toString", ToString);
 
-    V8Helpers::SetAccessor<IWebView, bool, &IWebView::IsVisible, &IWebView::SetVisible>(isolate, tpl, "isVisible");
-    V8Helpers::SetAccessor<IWebView, const std::string&, &IWebView::GetUrl, &IWebView::SetUrl>(isolate, tpl, "url");
-    V8Helpers::SetAccessor<IWebView, bool, &IWebView::IsOverlay>(isolate, tpl, "isOverlay");
-    V8Helpers::SetAccessor<IWebView, bool, &IWebView::IsReady>(isolate, tpl, "isReady");
-    V8Helpers::SetAccessor(isolate, tpl, "focused", &FocusedGetter, &FocusedSetter);
-    V8Helpers::SetAccessor<IWebView, Vector2i, &IWebView::GetSize, &IWebView::SetSize>(isolate, tpl, "size");
-    V8Helpers::SetAccessor<IWebView, Vector2i, &IWebView::GetPosition>(isolate, tpl, "pos");
+                             V8Helpers::SetAccessor<IWebView, bool, &IWebView::IsVisible, &IWebView::SetVisible>(isolate, tpl, "isVisible");
+                             V8Helpers::SetAccessor<IWebView, const std::string&, &IWebView::GetUrl, &IWebView::SetUrl>(isolate, tpl, "url");
+                             V8Helpers::SetAccessor<IWebView, bool, &IWebView::IsOverlay>(isolate, tpl, "isOverlay");
+                             V8Helpers::SetAccessor<IWebView, bool, &IWebView::IsReady>(isolate, tpl, "isReady");
+                             V8Helpers::SetAccessor(isolate, tpl, "focused", &FocusedGetter, &FocusedSetter);
+                             V8Helpers::SetAccessor<IWebView, Vector2i, &IWebView::GetSize, &IWebView::SetSize>(isolate, tpl, "size");
+                             V8Helpers::SetAccessor<IWebView, Vector2i, &IWebView::GetPosition>(isolate, tpl, "pos");
 
-    V8Helpers::SetMethod(isolate, tpl, "on", &On);
-    V8Helpers::SetMethod(isolate, tpl, "once", &Once);
-    V8Helpers::SetMethod(isolate, tpl, "off", &Off);
-    V8Helpers::SetMethod(isolate, tpl, "getEventListeners", GetEventListeners);
-    V8Helpers::SetMethod(isolate, tpl, "emit", &Emit);
-    V8Helpers::SetMethod<IWebView, &IWebView::Focus>(isolate, tpl, "focus");
-    V8Helpers::SetMethod<IWebView, &IWebView::Unfocus>(isolate, tpl, "unfocus");
+                             V8Helpers::SetMethod(isolate, tpl, "on", &On);
+                             V8Helpers::SetMethod(isolate, tpl, "once", &Once);
+                             V8Helpers::SetMethod(isolate, tpl, "off", &Off);
+                             V8Helpers::SetMethod(isolate, tpl, "getEventListeners", GetEventListeners);
+                             V8Helpers::SetMethod(isolate, tpl, "emit", &Emit);
+                             V8Helpers::SetMethod<IWebView, &IWebView::Focus>(isolate, tpl, "focus");
+                             V8Helpers::SetMethod<IWebView, &IWebView::Unfocus>(isolate, tpl, "unfocus");
 
-    V8Helpers::SetMethod(isolate, tpl, "setExtraHeader", &SetExtraHeader);
-    V8Helpers::SetMethod(isolate, tpl, "setZoomLevel", &SetZoomLevel);
-});
+                             V8Helpers::SetMethod(isolate, tpl, "setExtraHeader", &SetExtraHeader);
+                             V8Helpers::SetMethod(isolate, tpl, "setZoomLevel", &SetZoomLevel);
+                         });

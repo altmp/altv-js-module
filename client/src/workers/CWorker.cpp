@@ -61,16 +61,18 @@ bool CWorker::EventLoop()
     for(auto& id : oldTimers) timers.erase(id);
     oldTimers.clear();
 
-    auto error = TryCatch([&]() {
-        // microtaskQueue->PerformCheckpoint(isolate); // todo: fix this
-        for(auto& p : timers)
-        {
-            int64_t time = GetTime();
-            if(!p.second->Update(time)) RemoveTimer(p.first);
-        }
-        GetWorkerEventHandler().Process();
-        v8::platform::PumpMessageLoop(CV8ScriptRuntime::Instance().GetPlatform(), isolate);
-    });
+    auto error = TryCatch(
+      [&]()
+      {
+          // microtaskQueue->PerformCheckpoint(isolate); // todo: fix this
+          for(auto& p : timers)
+          {
+              int64_t time = GetTime();
+              if(!p.second->Update(time)) RemoveTimer(p.first);
+          }
+          GetWorkerEventHandler().Process();
+          v8::platform::PumpMessageLoop(CV8ScriptRuntime::Instance().GetPlatform(), isolate);
+      });
     if(!error.empty())
     {
         EmitError(error);
@@ -106,47 +108,50 @@ void CWorker::SetupIsolate()
 
     isolate->SetFatalErrorHandler([](const char* location, const char* message) { Log::Error << "[Worker] " << location << ": " << message << Log::Endl; });
 
-    isolate->SetPromiseRejectCallback([](v8::PromiseRejectMessage message) {
-        v8::Isolate* isolate = v8::Isolate::GetCurrent();
-        v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
-        auto worker = static_cast<CWorker*>(ctx->GetAlignedPointerFromEmbedderData(2));
-        if(!worker) return;
+    isolate->SetPromiseRejectCallback(
+      [](v8::PromiseRejectMessage message)
+      {
+          v8::Isolate* isolate = v8::Isolate::GetCurrent();
+          v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
+          auto worker = static_cast<CWorker*>(ctx->GetAlignedPointerFromEmbedderData(2));
+          if(!worker) return;
 
-        v8::Local<v8::Value> value = message.GetValue();
-        if(value.IsEmpty()) value = v8::Undefined(isolate);
-        auto location = V8Helpers::SourceLocation::GetCurrent(isolate);
+          v8::Local<v8::Value> value = message.GetValue();
+          if(value.IsEmpty()) value = v8::Undefined(isolate);
+          auto location = V8Helpers::SourceLocation::GetCurrent(isolate);
 
-        switch(message.GetEvent())
-        {
-            case v8::kPromiseRejectWithNoHandler:
-            {
-                worker->OnPromiseRejectedWithNoHandler(message);
-                break;
-            }
-            case v8::kPromiseHandlerAddedAfterReject:
-            {
-                worker->OnPromiseHandlerAdded(message);
-                break;
-            }
-            case v8::kPromiseRejectAfterResolved:
-            {
-                std::ostringstream stream;
-                stream << location.ToString() << " Promise rejected after being resolved (" << *v8::String::Utf8Value(isolate, value->ToString(ctx).ToLocalChecked()) << ")";
-                worker->EmitError(stream.str());
-                break;
-            }
-            case v8::kPromiseResolveAfterResolved:
-            {
-                std::ostringstream stream;
-                stream << location.ToString() << " Promise resolved after being resolved (" << *v8::String::Utf8Value(isolate, value->ToString(ctx).ToLocalChecked()) << ")";
-                worker->EmitError(stream.str());
-                break;
-            }
-        }
-    });
+          switch(message.GetEvent())
+          {
+              case v8::kPromiseRejectWithNoHandler:
+              {
+                  worker->OnPromiseRejectedWithNoHandler(message);
+                  break;
+              }
+              case v8::kPromiseHandlerAddedAfterReject:
+              {
+                  worker->OnPromiseHandlerAdded(message);
+                  break;
+              }
+              case v8::kPromiseRejectAfterResolved:
+              {
+                  std::ostringstream stream;
+                  stream << location.ToString() << " Promise rejected after being resolved (" << *v8::String::Utf8Value(isolate, value->ToString(ctx).ToLocalChecked()) << ")";
+                  worker->EmitError(stream.str());
+                  break;
+              }
+              case v8::kPromiseResolveAfterResolved:
+              {
+                  std::ostringstream stream;
+                  stream << location.ToString() << " Promise resolved after being resolved (" << *v8::String::Utf8Value(isolate, value->ToString(ctx).ToLocalChecked()) << ")";
+                  worker->EmitError(stream.str());
+                  break;
+              }
+          }
+      });
 
     isolate->SetHostImportModuleDynamicallyCallback(
-      [](v8::Local<v8::Context> context, v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray> assertions) {
+      [](v8::Local<v8::Context> context, v8::Local<v8::ScriptOrModule> referrer, v8::Local<v8::String> specifier, v8::Local<v8::FixedArray> assertions)
+      {
           v8::Isolate* isolate = context->GetIsolate();
           v8::Isolate::Scope isolateScope(isolate);
           v8::HandleScope handleScope(isolate);
@@ -181,9 +186,9 @@ void CWorker::SetupIsolate()
           return v8::MaybeLocal<v8::Promise>(resolver->GetPromise());
       });
 
-    isolate->SetHostInitializeImportMetaObjectCallback([](v8::Local<v8::Context> context, v8::Local<v8::Module>, v8::Local<v8::Object> meta) {
-        meta->CreateDataProperty(context, V8Helpers::JSValue("url"), V8Helpers::JSValue(V8Helpers::GetCurrentSourceOrigin(context->GetIsolate())));
-    });
+    isolate->SetHostInitializeImportMetaObjectCallback(
+      [](v8::Local<v8::Context> context, v8::Local<v8::Module>, v8::Local<v8::Object> meta)
+      { meta->CreateDataProperty(context, V8Helpers::JSValue("url"), V8Helpers::JSValue(V8Helpers::GetCurrentSourceOrigin(context->GetIsolate()))); });
 
     // Disable creating shared array buffers in Workers
     isolate->SetSharedArrayBufferConstructorEnabledCallback([](v8::Local<v8::Context>) { return false; });
@@ -206,44 +211,43 @@ void CWorker::SetupContext()
 extern std::string bootstrap_code;
 bool CWorker::SetupScript()
 {
-    // Load code
-    isUsingBytecode = resource->IsBytecodeResource();
-
     bool failed = false;
     // Compile the code
-    auto error = TryCatch([&]() {
-        v8::Local<v8::Context> ctx = context.Get(isolate);
-        v8::MaybeLocal<v8::Module> maybeModule;
-        v8::ScriptOrigin scriptOrigin(isolate, V8Helpers::JSValue("<bootstrapper>"), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
-        v8::ScriptCompiler::Source source{ V8Helpers::JSValue(bootstrap_code), scriptOrigin };
-        maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source);
+    auto error = TryCatch(
+      [&]()
+      {
+          v8::Local<v8::Context> ctx = context.Get(isolate);
+          v8::MaybeLocal<v8::Module> maybeModule;
+          v8::ScriptOrigin scriptOrigin(isolate, V8Helpers::JSValue("<bootstrapper>"), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
+          v8::ScriptCompiler::Source source{ V8Helpers::JSValue(bootstrap_code), scriptOrigin };
+          maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source);
 
-        if(maybeModule.IsEmpty())
-        {
-            EmitError("Failed to compile worker module");
-            failed = true;
-            return;
-        }
-        auto mod = maybeModule.ToLocalChecked();
+          if(maybeModule.IsEmpty())
+          {
+              EmitError("Failed to compile worker module");
+              failed = true;
+              return;
+          }
+          auto mod = maybeModule.ToLocalChecked();
 
-        // Start the code
-        v8::Maybe<bool> result = mod->InstantiateModule(ctx, Import);
-        if(result.IsNothing() || result.ToChecked() == false)
-        {
-            EmitError("Failed to instantiate worker module");
-            failed = true;
-            return;
-        }
+          // Start the code
+          v8::Maybe<bool> result = mod->InstantiateModule(ctx, Import);
+          if(result.IsNothing() || result.ToChecked() == false)
+          {
+              EmitError("Failed to instantiate worker module");
+              failed = true;
+              return;
+          }
 
-        // Evaluate the code
-        auto returnValue = mod->Evaluate(ctx);
-        if(returnValue.IsEmpty())
-        {
-            EmitError("Failed to evaluate worker module");
-            failed = true;
-            return;
-        }
-    });
+          // Evaluate the code
+          auto returnValue = mod->Evaluate(ctx);
+          if(returnValue.IsEmpty())
+          {
+              EmitError("Failed to evaluate worker module");
+              failed = true;
+              return;
+          }
+      });
     if(!error.empty() || failed)
     {
         if(!error.empty()) EmitError(error);

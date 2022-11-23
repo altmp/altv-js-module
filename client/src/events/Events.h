@@ -15,6 +15,8 @@ inline void RegisterEvents()
     // Shared
     V8_REFERENCE_LOCAL_EVENT_HANDLER(consoleCommand);
     V8_REFERENCE_LOCAL_EVENT_HANDLER(animationChange);
+    V8_REFERENCE_LOCAL_EVENT_HANDLER(baseObjectCreate);
+    V8_REFERENCE_LOCAL_EVENT_HANDLER(baseObjectRemove);
 
     // Main
     V8_REFERENCE_EVENT_HANDLER(clientScriptEvent);
@@ -27,10 +29,11 @@ inline void RegisterEvents()
     V8_REFERENCE_LOCAL_EVENT_HANDLER(disconnect);
 
     // Entity
-    V8_REFERENCE_LOCAL_EVENT_HANDLER(removeEntity);
     V8_REFERENCE_EVENT_HANDLER(gameEntityCreate);
     V8_REFERENCE_EVENT_HANDLER(gameEntityDestroy);
     V8_REFERENCE_LOCAL_EVENT_HANDLER(taskChange);
+    V8_REFERENCE_LOCAL_EVENT_HANDLER(playerWeaponShoot);
+    V8_REFERENCE_LOCAL_EVENT_HANDLER(playerWeaponChange);
 
     // Meta
     V8_REFERENCE_LOCAL_EVENT_HANDLER(syncedMetaChange);

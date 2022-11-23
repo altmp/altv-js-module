@@ -62,7 +62,8 @@ static void CommandHandler(const std::vector<std::string>& args)
     else if(args[0] == "--version")
     {
         Log::Colored << "~ly~cpp-sdk: #" << ALT_SDK_VERSION << Log::Endl;
-        Log::Colored << "~ly~" << u8"Copyright © 2022 altMP team." << Log::Endl;
+        Log::Colored << "~ly~"
+                     << "Copyright | 2022 altMP team." << Log::Endl;
 
         Log::Colored << "~ly~js-module: " << JS_MODULE_VERSION << Log::Endl;
         Log::Colored << "~ly~" JS_MODULE_COPYRIGHT << Log::Endl;

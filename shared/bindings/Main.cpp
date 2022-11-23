@@ -99,8 +99,7 @@ static void EmitRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     for(int i = 1; i < info.Length(); ++i)
     {
-        // Local events can send / receive functions, so we
-        // need to explicitly check for them here
+        // Local events can send / receive functions, so we need to explicitly check for them here
         if(info[i]->IsFunction()) args.Push(V8Helpers::V8ToMValue(info[i]));
         else
         {
@@ -176,65 +175,60 @@ static void GetSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void Log(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_ARGS_LEN_MIN(1);
 
-    std::stringstream ss;
-    for(int i = 0; i < info.Length(); ++i)
-    {
-        v8::Local<v8::Value> val = info[i];
+    std::vector<v8::Local<v8::Value>> argsArr;
+    argsArr.reserve(info.Length() + 0);
+    argsArr.push_back(V8Helpers::JSValue(0));
+    for(int i = 0; i < info.Length(); ++i) argsArr.push_back(info[i]);
 
-        if(i > 0) ss << " ";
-
-        auto str = V8Helpers::Stringify(ctx, val);
-        if(str.empty()) continue;
-
-        ss << str;
-    }
-
-    alt::ICore::Instance().LogColored(ss.str());
+    v8::Local<v8::Function> logFunction = resource->GetLogFunction();
+    logFunction->Call(ctx, v8::Undefined(isolate), argsArr.size(), argsArr.data());
 }
 
 static void LogWarning(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_ARGS_LEN_MIN(1);
 
-    std::stringstream ss;
-    for(int i = 0; i < info.Length(); ++i)
-    {
-        v8::Local<v8::Value> val = info[i];
+    std::vector<v8::Local<v8::Value>> argsArr;
+    argsArr.reserve(info.Length() + 1);
+    argsArr.push_back(V8Helpers::JSValue(1));
+    for(int i = 0; i < info.Length(); ++i) argsArr.push_back(info[i]);
 
-        if(i > 0) ss << " ";
-
-        auto str = V8Helpers::Stringify(ctx, val);
-        if(str.empty()) continue;
-
-        ss << str;
-    }
-
-    alt::ICore::Instance().LogWarning(ss.str());
+    v8::Local<v8::Function> logFunction = resource->GetLogFunction();
+    logFunction->Call(ctx, v8::Undefined(isolate), argsArr.size(), argsArr.data());
 }
 
 static void LogError(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_ARGS_LEN_MIN(1);
 
-    std::stringstream ss;
-    for(int i = 0; i < info.Length(); ++i)
-    {
-        v8::Local<v8::Value> val = info[i];
+    std::vector<v8::Local<v8::Value>> argsArr;
+    argsArr.reserve(info.Length() + 1);
+    argsArr.push_back(V8Helpers::JSValue(2));
+    for(int i = 0; i < info.Length(); ++i) argsArr.push_back(info[i]);
 
-        if(i > 0) ss << " ";
+    v8::Local<v8::Function> logFunction = resource->GetLogFunction();
+    logFunction->Call(ctx, v8::Undefined(isolate), argsArr.size(), argsArr.data());
+}
 
-        auto str = V8Helpers::Stringify(ctx, val);
-        if(str.empty()) continue;
+static void LogDebug(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    if(!alt::ICore::Instance().IsDebug()) return;
 
-        ss << str;
-    }
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN_MIN(1);
 
-    alt::ICore::Instance().LogError(ss.str());
+    std::vector<v8::Local<v8::Value>> argsArr;
+    argsArr.reserve(info.Length() + 1);
+    argsArr.push_back(V8Helpers::JSValue(0));
+    for(int i = 0; i < info.Length(); ++i) argsArr.push_back(info[i]);
+
+    v8::Local<v8::Function> logFunction = resource->GetLogFunction();
+    logFunction->Call(ctx, v8::Undefined(isolate), argsArr.size(), argsArr.data());
 }
 
 static void Time(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -346,23 +340,6 @@ static void HasResource(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_BOOLEAN(resource && resource->IsStarted());
 }
 
-static void GetResourceExports(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    // Deprecation added: 02/05/2022 (version 9.13)
-    V8_DEPRECATE("alt.getResourceExports", "alt.Resource.exports");
-    V8_GET_ISOLATE_CONTEXT();
-    V8_CHECK_ARGS_LEN(1);
-
-    V8_ARG_TO_STRING(1, name);
-
-    alt::IResource* resource = alt::ICore::Instance().GetResource(name);
-    if(resource)
-    {
-        v8::Local<v8::Value> exports = V8Helpers::MValueToV8(resource->GetExports());
-        V8_RETURN(exports);
-    }
-}
-
 static void GetEventListeners(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -449,7 +426,8 @@ extern V8Class v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2,
 extern V8Module sharedModule("alt-shared",
                              nullptr,
                              { v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2, v8Vector3, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Resource, v8Utils },
-                             [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports) {
+                             [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports)
+                             {
                                  v8::Isolate* isolate = ctx->GetIsolate();
 
                                  V8Helpers::RegisterFunc(exports, "hash", &HashCb);
@@ -457,6 +435,7 @@ extern V8Module sharedModule("alt-shared",
                                  V8Helpers::RegisterFunc(exports, "log", &Log);
                                  V8Helpers::RegisterFunc(exports, "logWarning", &LogWarning);
                                  V8Helpers::RegisterFunc(exports, "logError", &LogError);
+                                 V8Helpers::RegisterFunc(exports, "logDebug", &LogDebug);
                                  V8Helpers::RegisterFunc(exports, "time", &Time);
                                  V8Helpers::RegisterFunc(exports, "timeEnd", &TimeEnd);
 
@@ -488,7 +467,6 @@ extern V8Module sharedModule("alt-shared",
                                  V8Helpers::RegisterFunc(exports, "clearInterval", &ClearTimer);
 
                                  V8Helpers::RegisterFunc(exports, "hasResource", &HasResource);
-                                 V8Helpers::RegisterFunc(exports, "getResourceExports", &GetResourceExports);
                                  V8Helpers::RegisterFunc(exports, "getAllResources", &GetAllResources);
 
                                  V8Helpers::RegisterFunc(exports, "stringToSHA256", &StringToSHA256);
