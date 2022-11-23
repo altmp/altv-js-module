@@ -139,6 +139,11 @@ public:
     V8Entity* CreateEntity(alt::IBaseObject* handle)
     {
         V8Class* _class = V8Entity::GetClass(handle);
+        if(!_class)
+        {
+            Log::Error << "Failed to create entity: Type " << (int)handle->GetType() << " has no class" << Log::Endl;
+            return nullptr;
+        }
 
         V8Entity* ent = new V8Entity(GetContext(), _class, _class->CreateInstance(GetContext()), handle);
         entities.insert({ handle, ent });

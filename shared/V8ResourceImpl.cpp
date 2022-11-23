@@ -133,7 +133,13 @@ void V8ResourceImpl::OnTick()
 
 void V8ResourceImpl::BindEntity(v8::Local<v8::Object> val, alt::IBaseObject* handle)
 {
-    V8Entity* ent = new V8Entity(GetContext(), V8Entity::GetClass(handle), val, handle);
+    V8Class* entityClass = V8Entity::GetClass(handle);
+    if(!entityClass)
+    {
+        Log::Error << "Failed to bind entity: Type " << (int)handle->GetType() << " has no class" << Log::Endl;
+        return;
+    }
+    V8Entity* ent = new V8Entity(GetContext(), entityClass, val, handle);
     entities.insert({ handle, ent });
 }
 
