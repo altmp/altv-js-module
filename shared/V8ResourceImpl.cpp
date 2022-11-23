@@ -201,19 +201,18 @@ bool V8ResourceImpl::IsBaseObject(v8::Local<v8::Value> val)
 
 void V8ResourceImpl::OnCreateBaseObject(alt::IBaseObject* handle)
 {
-    // Log::Debug << "OnCreateBaseObject " << handle.Get() << " " << (entities.find(handle.Get()) != entities.end()) << Log::Endl;
-
-    /*if (entities.find(handle.Get()) == entities.end())
-    {
-            v8::Locker locker(isolate);
-            v8::Isolate::Scope isolateScope(isolate);
-            v8::HandleScope handleScope(isolate);
-
-            v8::Context::Scope scope(GetContext());
-            CreateEntity(handle.Get());
-    }*/
-
     NotifyPoolUpdate(handle);
+
+    v8::Locker locker(isolate);
+    v8::Isolate::Scope isolateScope(isolate);
+    v8::HandleScope handleScope(isolate);
+    v8::Context::Scope scope(GetContext());
+
+    V8Entity* ent = GetEntity(handle);
+    if(!ent) return;
+    std::vector<V8Helpers::EventCallback*> handlers = GetLocalHandlers("entityCreate");
+    std::vector<v8::Local<v8::Value>> args{ ent->GetJSVal(isolate) };
+    InvokeEventHandlers(nullptr, handlers, args);
 }
 
 void V8ResourceImpl::OnRemoveBaseObject(alt::IBaseObject* handle)
@@ -226,12 +225,12 @@ void V8ResourceImpl::OnRemoveBaseObject(alt::IBaseObject* handle)
     v8::Context::Scope scope(GetContext());
 
     V8Entity* ent = GetEntity(handle);
-
     if(!ent) return;
+    std::vector<V8Helpers::EventCallback*> handlers = GetLocalHandlers("entityRemove");
+    std::vector<v8::Local<v8::Value>> args{ ent->GetJSVal(isolate) };
+    InvokeEventHandlers(nullptr, handlers, args);
 
     entities.erase(handle);
-
-    // TODO: ent->SetWeak();
     ent->GetJSVal(isolate)->SetInternalField(0, v8::External::New(isolate, nullptr));
     delete ent;
 }
