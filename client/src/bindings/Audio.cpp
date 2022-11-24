@@ -49,7 +49,7 @@ static void On(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
 
-    static_cast<CV8ResourceImpl*>(resource)->SubscribeAudio(audio, evName, fun, V8Helpers::SourceLocation::GetCurrent(isolate));
+    static_cast<CV8ResourceImpl*>(resource)->SubscribeAudio(audio, evName, fun, V8Helpers::SourceLocation::GetCurrent(isolate, resource));
 }
 
 static void Off(const v8::FunctionCallbackInfo<v8::Value>& info)

@@ -6,7 +6,7 @@ void WorkerPromiseRejections::RejectedWithNoHandler(CWorker* worker, v8::Promise
 {
     v8::Isolate* isolate = worker->GetIsolate();
 
-    queue.push_back(std::make_unique<WorkerPromiseRejection>(isolate, data.GetPromise(), data.GetValue(), V8Helpers::SourceLocation::GetCurrent(isolate)));
+    queue.push_back(std::make_unique<WorkerPromiseRejection>(isolate, data.GetPromise(), data.GetValue(), V8Helpers::SourceLocation::GetCurrent(isolate, nullptr)));
 }
 
 void WorkerPromiseRejections::HandlerAdded(CWorker* worker, v8::PromiseRejectMessage& data)

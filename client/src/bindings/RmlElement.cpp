@@ -462,7 +462,7 @@ static void On(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(1, evName);
     V8_ARG_TO_FUNCTION(2, fun);
 
-    static_cast<CV8ResourceImpl*>(resource)->SubscribeRml(element, evName, fun, V8Helpers::SourceLocation::GetCurrent(isolate));
+    static_cast<CV8ResourceImpl*>(resource)->SubscribeRml(element, evName, fun, V8Helpers::SourceLocation::GetCurrent(isolate, resource));
 }
 
 static void Off(const v8::FunctionCallbackInfo<v8::Value>& info)

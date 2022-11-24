@@ -18,14 +18,14 @@ static void OnServer(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
         V8_ARG_TO_FUNCTION(1, callback);
 
-        resource->SubscribeGenericRemote(callback, V8Helpers::SourceLocation::GetCurrent(isolate));
+        resource->SubscribeGenericRemote(callback, V8Helpers::SourceLocation::GetCurrent(isolate, resource));
     }
     else if(info.Length() == 2)
     {
         V8_ARG_TO_STRING(1, eventName);
         V8_ARG_TO_FUNCTION(2, callback);
 
-        resource->SubscribeRemote(eventName, callback, V8Helpers::SourceLocation::GetCurrent(isolate));
+        resource->SubscribeRemote(eventName, callback, V8Helpers::SourceLocation::GetCurrent(isolate, resource));
     }
 }
 
@@ -38,14 +38,14 @@ static void OnceServer(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
         V8_ARG_TO_FUNCTION(1, callback);
 
-        resource->SubscribeGenericRemote(callback, V8Helpers::SourceLocation::GetCurrent(isolate), true);
+        resource->SubscribeGenericRemote(callback, V8Helpers::SourceLocation::GetCurrent(isolate, resource), true);
     }
     else if(info.Length() == 2)
     {
         V8_ARG_TO_STRING(1, eventName);
         V8_ARG_TO_FUNCTION(2, callback);
 
-        resource->SubscribeRemote(eventName, callback, V8Helpers::SourceLocation::GetCurrent(isolate), true);
+        resource->SubscribeRemote(eventName, callback, V8Helpers::SourceLocation::GetCurrent(isolate, resource), true);
     }
 }
 
@@ -1054,8 +1054,8 @@ extern V8Class v8Player, v8Player, v8Vehicle, v8WebView, v8HandlingData, v8Local
   v8Audio, v8LocalPlayer, v8Profiler, v8Worker, v8RmlDocument, v8RmlElement, v8WeaponData, v8FocusData, v8Object;
 extern V8Module altModule("alt",
                           &sharedModule,
-                          { v8Player,     v8Vehicle,    v8WebView, v8HandlingData, v8LocalStorage, v8MemoryBuffer, v8MapZoomData, v8Discord,    v8Voice,      v8WebSocketClient,
-                            v8Checkpoint, v8HttpClient, v8Audio,   v8LocalPlayer,  v8Profiler,     v8Worker,       v8RmlDocument, v8RmlElement, v8WeaponData, v8FocusData, v8Object },
+                          { v8Player,     v8Vehicle, v8WebView,     v8HandlingData, v8LocalStorage, v8MemoryBuffer, v8MapZoomData, v8Discord,    v8Voice,     v8WebSocketClient, v8Checkpoint,
+                            v8HttpClient, v8Audio,   v8LocalPlayer, v8Profiler,     v8Worker,       v8RmlDocument,  v8RmlElement,  v8WeaponData, v8FocusData, v8Object },
                           [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports)
                           {
                               v8::Isolate* isolate = ctx->GetIsolate();
