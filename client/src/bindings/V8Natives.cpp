@@ -84,7 +84,6 @@ inline void ShowNativeArgParseErrorMsg(V8ResourceImpl* resource, v8::Local<v8::V
 {
     v8::Isolate* isolate = resource->GetIsolate();
     V8Helpers::SourceLocation source = V8Helpers::SourceLocation::GetCurrent(isolate, resource);
-    V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredOrMicrotaskContext());
 
     std::stringstream errorMsg;
     errorMsg << "Native argument at index " << idx << " "
@@ -102,7 +101,6 @@ inline void ShowNativeArgMismatchErrorMsg(V8ResourceImpl* resource, alt::INative
     v8::Isolate* isolate = resource->GetIsolate();
     V8Helpers::SourceLocation source = V8Helpers::SourceLocation::GetCurrent(isolate, resource);
     auto ctx = isolate->GetEnteredOrMicrotaskContext();
-    V8ResourceImpl* resource = V8ResourceImpl::Get(ctx);
 
     std::stringstream errorMsg;
     errorMsg << "Native argument size mismatch. Expected: " << expected << ", Received: " << received << " (" << native->GetName() << ")";
