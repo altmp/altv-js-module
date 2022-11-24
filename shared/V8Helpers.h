@@ -61,7 +61,7 @@ namespace V8Helpers
 
         std::string ToString();
 
-        static SourceLocation GetCurrent(v8::Isolate* isolate);
+        static SourceLocation GetCurrent(v8::Isolate* isolate, V8ResourceImpl* resource = nullptr);
 
     private:
         CPersistent<v8::Context> context;
@@ -91,7 +91,7 @@ namespace V8Helpers
         void Print(uint32_t offset = 0) const;
         std::string ToString(uint32_t offset = 0) const;
 
-        static StackTrace GetCurrent(v8::Isolate* isolate);
+        static StackTrace GetCurrent(v8::Isolate* isolate, V8ResourceImpl* resource = nullptr);
         static void Print(v8::Isolate* isolate);
     };
 

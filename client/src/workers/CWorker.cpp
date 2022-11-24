@@ -118,7 +118,7 @@ void CWorker::SetupIsolate()
 
           v8::Local<v8::Value> value = message.GetValue();
           if(value.IsEmpty()) value = v8::Undefined(isolate);
-          auto location = V8Helpers::SourceLocation::GetCurrent(isolate);
+          auto location = V8Helpers::SourceLocation::GetCurrent(isolate, nullptr);
 
           switch(message.GetEvent())
           {

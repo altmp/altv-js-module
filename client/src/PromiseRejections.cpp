@@ -8,8 +8,8 @@ void V8Helpers::PromiseRejections::RejectedWithNoHandler(CV8ResourceImpl* resour
 {
     v8::Isolate* isolate = resource->GetIsolate();
 
-    queue.push_back(
-      std::make_unique<PromiseRejection>(isolate, data.GetPromise(), data.GetValue(), V8Helpers::SourceLocation::GetCurrent(isolate), V8Helpers::StackTrace::GetCurrent(isolate)));
+    queue.push_back(std::make_unique<PromiseRejection>(
+      isolate, data.GetPromise(), data.GetValue(), V8Helpers::SourceLocation::GetCurrent(isolate, resource), V8Helpers::StackTrace::GetCurrent(isolate, resource)));
 }
 
 void V8Helpers::PromiseRejections::HandlerAdded(CV8ResourceImpl* resource, v8::PromiseRejectMessage& data)

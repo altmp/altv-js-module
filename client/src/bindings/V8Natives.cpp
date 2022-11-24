@@ -80,10 +80,10 @@ static const char* GetNativeTypeName(alt::INative::Type type)
     return "unknown";
 }
 
-inline void ShowNativeArgParseErrorMsg(v8::Isolate* isolate, v8::Local<v8::Value> val, alt::INative* native, alt::INative::Type argType, uint32_t idx)
+inline void ShowNativeArgParseErrorMsg(V8ResourceImpl* resource, v8::Local<v8::Value> val, alt::INative* native, alt::INative::Type argType, uint32_t idx)
 {
-    V8Helpers::SourceLocation source = V8Helpers::SourceLocation::GetCurrent(isolate);
-    V8ResourceImpl* resource = V8ResourceImpl::Get(isolate->GetEnteredOrMicrotaskContext());
+    v8::Isolate* isolate = resource->GetIsolate();
+    V8Helpers::SourceLocation source = V8Helpers::SourceLocation::GetCurrent(isolate, resource);
 
     std::stringstream errorMsg;
     errorMsg << "Native argument at index " << idx << " "
@@ -96,11 +96,11 @@ inline void ShowNativeArgParseErrorMsg(v8::Isolate* isolate, v8::Local<v8::Value
     resource->DispatchErrorEvent(errorMsg.str(), source.GetFileName(), source.GetLineNumber(), V8Helpers::GetStackTrace(errorMsg.str()));
 }
 
-inline void ShowNativeArgMismatchErrorMsg(v8::Isolate* isolate, alt::INative* native, int expected, int received)
+inline void ShowNativeArgMismatchErrorMsg(V8ResourceImpl* resource, alt::INative* native, int expected, int received)
 {
-    V8Helpers::SourceLocation source = V8Helpers::SourceLocation::GetCurrent(isolate);
+    v8::Isolate* isolate = resource->GetIsolate();
+    V8Helpers::SourceLocation source = V8Helpers::SourceLocation::GetCurrent(isolate, resource);
     auto ctx = isolate->GetEnteredOrMicrotaskContext();
-    V8ResourceImpl* resource = V8ResourceImpl::Get(ctx);
 
     std::stringstream errorMsg;
     errorMsg << "Native argument size mismatch. Expected: " << expected << ", Received: " << received << " (" << native->GetName() << ")";
@@ -136,7 +136,7 @@ static void PushArg(
                 }
                 else
                 {
-                    ShowNativeArgParseErrorMsg(isolate, val, native, argType, idx);
+                    ShowNativeArgParseErrorMsg(resource, val, native, argType, idx);
                     scrCtx->Push(0);
                 }
             }
@@ -149,7 +149,7 @@ static void PushArg(
                 }
                 else
                 {
-                    ShowNativeArgParseErrorMsg(isolate, val, native, argType, idx);
+                    ShowNativeArgParseErrorMsg(resource, val, native, argType, idx);
                     scrCtx->Push(0);
                 }
             }
@@ -162,7 +162,7 @@ static void PushArg(
             }
             else
             {
-                ShowNativeArgParseErrorMsg(isolate, val, native, argType, idx);
+                ShowNativeArgParseErrorMsg(resource, val, native, argType, idx);
                 scrCtx->Push(0);
             }
             break;
@@ -182,7 +182,7 @@ static void PushArg(
                 }
                 else
                 {
-                    ShowNativeArgParseErrorMsg(isolate, val, native, argType, idx);
+                    ShowNativeArgParseErrorMsg(resource, val, native, argType, idx);
                     scrCtx->Push(0);
                 }
             }
@@ -195,13 +195,13 @@ static void PushArg(
                 }
                 else
                 {
-                    ShowNativeArgParseErrorMsg(isolate, val, native, argType, idx);
+                    ShowNativeArgParseErrorMsg(resource, val, native, argType, idx);
                     scrCtx->Push(0);
                 }
             }
             else
             {
-                ShowNativeArgParseErrorMsg(isolate, val, native, argType, idx);
+                ShowNativeArgParseErrorMsg(resource, val, native, argType, idx);
                 scrCtx->Push(0);
             }
             break;
@@ -221,13 +221,13 @@ static void PushArg(
                 }
                 else
                 {
-                    ShowNativeArgParseErrorMsg(isolate, val, native, argType, idx);
+                    ShowNativeArgParseErrorMsg(resource, val, native, argType, idx);
                     scrCtx->Push(0.f);
                 }
             }
             else
             {
-                ShowNativeArgParseErrorMsg(isolate, val, native, argType, idx);
+                ShowNativeArgParseErrorMsg(resource, val, native, argType, idx);
                 scrCtx->Push(0.f);
             }
             break;
@@ -256,7 +256,7 @@ static void PushArg(
             if(buffer != nullptr) scrCtx->Push(buffer);
             else
             {
-                ShowNativeArgParseErrorMsg(isolate, val, native, argType, idx);
+                ShowNativeArgParseErrorMsg(resource, val, native, argType, idx);
                 scrCtx->Push((void*)nullptr);
             }
             break;
@@ -346,13 +346,14 @@ static void InvokeNative(const v8::FunctionCallbackInfo<v8::Value>& info)
         return;
     }
 
+    auto resource = V8ResourceImpl::Get(v8Ctx);
     auto args = native->GetArgTypes();
     uint32_t argsSize = args.GetSize();
 
     auto neededArgs = GetNativeNeededArgCount(native);
     if(neededArgs > info.Length())
     {
-        ShowNativeArgMismatchErrorMsg(isolate, native, neededArgs, info.Length());
+        ShowNativeArgMismatchErrorMsg(resource, native, neededArgs, info.Length());
         return;
     }
 
@@ -360,7 +361,6 @@ static void InvokeNative(const v8::FunctionCallbackInfo<v8::Value>& info)
     pointersCount = 0;
     returnsCount = 1;
 
-    auto resource = V8ResourceImpl::Get(v8Ctx);
     for(uint32_t i = 0; i < argsSize; ++i) PushArg(ctx, native, args[i], isolate, resource, info[i], i);
 
     if(!native->Invoke(ctx))
