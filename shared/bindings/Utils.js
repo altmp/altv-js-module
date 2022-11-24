@@ -1,3 +1,4 @@
+// // @ts-check // uncomment if you need typescript checks, e.g. for gta natives update
 /// <reference path="../../bindings.d.ts"/>
 // clang-format off
 // Utils JS bindings
