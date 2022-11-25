@@ -77,7 +77,7 @@ public:
             case alt::IBaseObject::Type::WEBSOCKET_CLIENT: return &v8WebSocketClient;
             case alt::IBaseObject::Type::AUDIO: return &v8Audio;
             case alt::IBaseObject::Type::HTTP_CLIENT: return &v8HttpClient;
-
+#endif
         }
 
         return nullptr;
