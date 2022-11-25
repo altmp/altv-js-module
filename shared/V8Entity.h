@@ -54,7 +54,7 @@ public:
 #ifdef ALT_SERVER_API
         extern V8Class v8VoiceChannel, v8Colshape;
 #else
-        extern V8Class v8WebView, v8LocalPlayer, v8RmlDocument, v8RmlElement, v8Object;
+        extern V8Class v8WebView, v8LocalPlayer, v8RmlDocument, v8RmlElement, v8Object, v8WebSocketClient;
 #endif
 
         if(!handle) return nullptr;
@@ -74,6 +74,7 @@ public:
             case alt::IBaseObject::Type::RML_DOCUMENT: return &v8RmlDocument;
             case alt::IBaseObject::Type::RML_ELEMENT: return &v8RmlElement;
             case alt::IBaseObject::Type::OBJECT: return &v8Object;
+            case alt::IBaseObject::Type::WEBSOCKET_CLIENT: return &v8WebSocketClient;
 #endif
         }
 
