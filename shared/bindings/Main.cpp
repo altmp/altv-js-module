@@ -23,14 +23,14 @@ static void On(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
         V8_ARG_TO_FUNCTION(1, callback);
 
-        resource->SubscribeGenericLocal(callback, V8Helpers::SourceLocation::GetCurrent(isolate));
+        resource->SubscribeGenericLocal(callback, V8Helpers::SourceLocation::GetCurrent(isolate, resource));
     }
     else if(info.Length() == 2)
     {
         V8_ARG_TO_STRING(1, evName);
         V8_ARG_TO_FUNCTION(2, callback);
 
-        resource->SubscribeLocal(evName, callback, V8Helpers::SourceLocation::GetCurrent(isolate));
+        resource->SubscribeLocal(evName, callback, V8Helpers::SourceLocation::GetCurrent(isolate, resource));
     }
 }
 
@@ -43,14 +43,14 @@ static void Once(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
         V8_ARG_TO_FUNCTION(1, callback);
 
-        resource->SubscribeGenericLocal(callback, V8Helpers::SourceLocation::GetCurrent(isolate), true);
+        resource->SubscribeGenericLocal(callback, V8Helpers::SourceLocation::GetCurrent(isolate, resource), true);
     }
     else if(info.Length() == 2)
     {
         V8_ARG_TO_STRING(1, evName);
         V8_ARG_TO_FUNCTION(2, callback);
 
-        resource->SubscribeLocal(evName, callback, V8Helpers::SourceLocation::GetCurrent(isolate), true);
+        resource->SubscribeLocal(evName, callback, V8Helpers::SourceLocation::GetCurrent(isolate, resource), true);
     }
 }
 
@@ -277,7 +277,7 @@ static void SetTimeout(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_FUNCTION(1, callback);
     V8_ARG_TO_INT(2, time);
 
-    V8_RETURN_INT(resource->CreateTimer(ctx, callback, time, true, V8Helpers::SourceLocation::GetCurrent(isolate)));
+    V8_RETURN_INT(resource->CreateTimer(ctx, callback, time, true, V8Helpers::SourceLocation::GetCurrent(isolate, resource)));
 }
 
 static void SetInterval(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -289,7 +289,7 @@ static void SetInterval(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_FUNCTION(1, callback);
     V8_ARG_TO_INT(2, time);
 
-    V8_RETURN_INT(resource->CreateTimer(ctx, callback, time, false, V8Helpers::SourceLocation::GetCurrent(isolate)));
+    V8_RETURN_INT(resource->CreateTimer(ctx, callback, time, false, V8Helpers::SourceLocation::GetCurrent(isolate, resource)));
 }
 
 static void NextTick(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -300,7 +300,7 @@ static void NextTick(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_FUNCTION(1, callback);
 
-    V8_RETURN_INT(resource->CreateTimer(ctx, callback, 0, true, V8Helpers::SourceLocation::GetCurrent(isolate)));
+    V8_RETURN_INT(resource->CreateTimer(ctx, callback, 0, true, V8Helpers::SourceLocation::GetCurrent(isolate, resource)));
 }
 
 static void EveryTick(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -311,7 +311,7 @@ static void EveryTick(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_FUNCTION(1, callback);
 
-    V8_RETURN_INT(resource->CreateTimer(ctx, callback, 0, false, V8Helpers::SourceLocation::GetCurrent(isolate)));
+    V8_RETURN_INT(resource->CreateTimer(ctx, callback, 0, false, V8Helpers::SourceLocation::GetCurrent(isolate, resource)));
 }
 
 static void ClearTimer(const v8::FunctionCallbackInfo<v8::Value>& info)
