@@ -14,14 +14,14 @@ static void OnClient(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
         V8_ARG_TO_FUNCTION(1, callback);
 
-        resource->SubscribeGenericRemote(callback, V8Helpers::SourceLocation::GetCurrent(isolate));
+        resource->SubscribeGenericRemote(callback, V8Helpers::SourceLocation::GetCurrent(isolate, resource));
     }
     else if(info.Length() == 2)
     {
         V8_ARG_TO_STRING(1, eventName);
         V8_ARG_TO_FUNCTION(2, callback);
 
-        resource->SubscribeRemote(eventName, callback, V8Helpers::SourceLocation::GetCurrent(isolate));
+        resource->SubscribeRemote(eventName, callback, V8Helpers::SourceLocation::GetCurrent(isolate, resource));
     }
 }
 
@@ -34,14 +34,14 @@ static void OnceClient(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
         V8_ARG_TO_FUNCTION(1, callback);
 
-        resource->SubscribeGenericRemote(callback, V8Helpers::SourceLocation::GetCurrent(isolate), true);
+        resource->SubscribeGenericRemote(callback, V8Helpers::SourceLocation::GetCurrent(isolate, resource), true);
     }
     else if(info.Length() == 2)
     {
         V8_ARG_TO_STRING(1, eventName);
         V8_ARG_TO_FUNCTION(2, callback);
 
-        resource->SubscribeRemote(eventName, callback, V8Helpers::SourceLocation::GetCurrent(isolate), true);
+        resource->SubscribeRemote(eventName, callback, V8Helpers::SourceLocation::GetCurrent(isolate, resource), true);
     }
 }
 
