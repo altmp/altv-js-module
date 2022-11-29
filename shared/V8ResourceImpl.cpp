@@ -207,7 +207,8 @@ void V8ResourceImpl::OnCreateBaseObject(alt::IBaseObject* handle)
     v8::Isolate::Scope isolateScope(isolate);
     v8::HandleScope handleScope(isolate);
     v8::Context::Scope scope(GetContext());
-    CreateEntity(handle);
+
+    if(entities.find(handle) == entities.end()) CreateEntity(handle);
 }
 
 void V8ResourceImpl::OnRemoveBaseObject(alt::IBaseObject* handle)
