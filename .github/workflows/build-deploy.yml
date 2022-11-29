@@ -39,13 +39,20 @@ jobs:
         run: |
           cd server
           mkdir upload\modules\js-module
+          mkdir debug
           copy dist\js-module.dll upload\modules\js-module
           copy dist\libnode.dll upload\modules\js-module
+          copy dist\js-module.pdb debug
 
       - uses: actions/upload-artifact@v2
         with:
           name: js-module-windows
           path: ./server/upload/
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: js-module-windows-debug
+          path: ./debug
 
   build-linux:
     name: Build linux release
@@ -149,6 +156,12 @@ jobs:
           name: js-module-windows
           path: dist-windows
 
+      - name: Download windows debug artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: js-module-windows-debug
+          path: dist-windows
+
       - name: Download linux artifacts
         uses: actions/download-artifact@v2
         with:
@@ -209,3 +222,4 @@ jobs:
           name: |
             js-module-linux
             js-module-windows
+            js-module-windows-debug
