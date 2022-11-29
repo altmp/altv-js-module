@@ -18,7 +18,7 @@ namespace V8Helpers::Vehicle
             alt::IEntity* damager = vehicle->GetLastAttacker();
 
             if (damager)
-                    info.GetReturnValue().Set(resource->GetOrCreateEntity(damager)->GetJSVal());
+                    info.GetReturnValue().Set(resource->GetEntity(damager)->GetJSVal());
             else
                     info.GetReturnValue().Set(v8::Null(isolate));
     }

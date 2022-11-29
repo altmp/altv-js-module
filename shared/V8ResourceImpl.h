@@ -127,11 +127,15 @@ public:
         InvokeEventHandlers(nullptr, GetLocalHandlers("resourceError"), args);
     }
 
-    V8Entity* GetEntity(alt::IBaseObject* handle)
+    V8Entity* GetEntity(alt::IBaseObject* handle, const char* className = "")
     {
         auto it = entities.find(handle);
 
-        if(it == entities.end()) return nullptr;
+        if(it == entities.end())
+        {
+            Log::Error << __FUNCTION__ << ": Invalid entity with type " << className << Log::Endl;
+            return nullptr;
+        }
 
         return it->second;
     }
