@@ -52,7 +52,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: js-module-windows-debug
-          path: ./debug
+          path: ./server/debug
 
   build-linux:
     name: Build linux release
