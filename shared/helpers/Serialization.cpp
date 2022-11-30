@@ -364,7 +364,7 @@ static inline v8::MaybeLocal<v8::Object> ReadRawValue(v8::Local<v8::Context> ctx
             if(!deserializer.ReadRawBytes(sizeof(uint16_t), (const void**)&id)) return v8::MaybeLocal<v8::Object>();
             alt::IEntity* entity = alt::ICore::Instance().GetEntityByID(*id);
             if(!entity) return v8::MaybeLocal<v8::Object>();
-            return V8ResourceImpl::Get(ctx)->GetOrCreateEntity(entity, "Entity")->GetJSVal(isolate);
+            return V8ResourceImpl::Get(ctx)->GetEntity(entity, "Entity")->GetJSVal(isolate);
         }
         case RawValueType::VECTOR3:
         {

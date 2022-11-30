@@ -139,6 +139,14 @@ void V8ResourceImpl::BindEntity(v8::Local<v8::Object> val, alt::IBaseObject* han
         Log::Error << "Failed to bind entity: Type " << (int)handle->GetType() << " has no class" << Log::Endl;
         return;
     }
+
+    auto existing = entities.find(handle);
+    if(existing != entities.end())
+    {
+        delete existing->second;
+        entities.erase(existing);
+    }
+
     V8Entity* ent = new V8Entity(GetContext(), entityClass, val, handle);
     entities.insert({ handle, ent });
 }
@@ -147,7 +155,7 @@ v8::Local<v8::Value> V8ResourceImpl::GetBaseObjectOrNull(alt::IBaseObject* handl
 {
     if(handle == nullptr) return v8::Null(isolate);
     else
-        return GetOrCreateEntity(handle)->GetJSVal(isolate);
+        return GetEntity(handle)->GetJSVal(isolate);
 }
 
 v8::Local<v8::Value> V8ResourceImpl::CreateVector3(alt::Vector3f vec)
@@ -202,6 +210,13 @@ bool V8ResourceImpl::IsBaseObject(v8::Local<v8::Value> val)
 void V8ResourceImpl::OnCreateBaseObject(alt::IBaseObject* handle)
 {
     NotifyPoolUpdate(handle);
+
+    v8::Locker locker(isolate);
+    v8::Isolate::Scope isolateScope(isolate);
+    v8::HandleScope handleScope(isolate);
+    v8::Context::Scope scope(GetContext());
+
+    if(entities.find(handle) == entities.end()) CreateEntity(handle);
 }
 
 void V8ResourceImpl::OnRemoveBaseObject(alt::IBaseObject* handle)
@@ -217,10 +232,8 @@ void V8ResourceImpl::OnRemoveBaseObject(alt::IBaseObject* handle)
     if(!ent) return;
 
     auto entityType = handle->GetType();
-    if (entityType == alt::IBaseObject::Type::PLAYER
-        || entityType == alt::IBaseObject::Type::LOCAL_PLAYER
-        || entityType == alt::IBaseObject::Type::VEHICLE
-    ) {
+    if(entityType == alt::IBaseObject::Type::PLAYER || entityType == alt::IBaseObject::Type::LOCAL_PLAYER || entityType == alt::IBaseObject::Type::VEHICLE)
+    {
         std::vector<V8Helpers::EventCallback*> handlers = GetLocalHandlers("removeEntity");
         std::vector<v8::Local<v8::Value>> args{ ent->GetJSVal(isolate) };
         InvokeEventHandlers(nullptr, handlers, args);
