@@ -153,9 +153,12 @@ void V8ResourceImpl::BindEntity(v8::Local<v8::Object> val, alt::IBaseObject* han
 
 v8::Local<v8::Value> V8ResourceImpl::GetBaseObjectOrNull(alt::IBaseObject* handle)
 {
-    if(handle == nullptr) return v8::Null(isolate);
-    else
-        return GetEntity(handle)->GetJSVal(isolate);
+    if (handle == nullptr) return v8::Null(isolate);
+
+    V8Entity* ent = GetEntity(handle);
+    if (ent == nullptr) return v8::Null(isolate);
+
+    return ent->GetJSVal(isolate);
 }
 
 v8::Local<v8::Value> V8ResourceImpl::CreateVector3(alt::Vector3f vec)
