@@ -257,7 +257,12 @@ static void StaticAllGetter(v8::Local<v8::String>, const v8::PropertyCallbackInf
     uint16_t i = 0;
     for(auto entity : alt::ICore::Instance().GetEntities())
     {
-        if(entity) arr->Set(ctx, i++, resource->GetEntity(entity, "Entity")->GetJSVal(isolate));
+        if(entity)
+        {
+            V8Entity* ent = resource->GetEntity(entity, "Entity");
+            if (ent == nullptr) continue;
+            arr->Set(ctx, i++, ent->GetJSVal(isolate));
+        }
     };
 
     V8_RETURN(arr);
