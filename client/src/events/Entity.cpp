@@ -88,7 +88,6 @@ V8_LOCAL_EVENT_HANDLER weaponDamage(EventType::WEAPON_DAMAGE_EVENT,
                                         auto ev = static_cast<const alt::CWeaponDamageEvent*>(e);
                                         v8::Isolate* isolate = resource->GetIsolate();
 
-                                        args.push_back(resource->GetBaseObjectOrNull(ev->GetSource()));
                                         args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
                                         args.push_back(V8Helpers::JSValue(ev->GetWeaponHash()));
                                         args.push_back(V8Helpers::JSValue(ev->GetDamageValue()));
