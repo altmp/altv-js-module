@@ -17,7 +17,7 @@ class CWorker;
 class CV8ResourceImpl : public V8ResourceImpl, public IImportHandler
 {
 public:
-    CV8ResourceImpl(alt::IResource* resource, v8::Isolate* isolate) : V8ResourceImpl(isolate, resource) {}
+    CV8ResourceImpl(alt::IResource* resource, v8::Isolate* isolate);
 
     ~CV8ResourceImpl()
     {
