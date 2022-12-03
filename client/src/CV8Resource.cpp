@@ -79,14 +79,8 @@ extern std::string bootstrap_code =
 #include "bootstrap.js.gen"
   ;
 
-extern V8Module altModule;
-bool CV8ResourceImpl::Start()
+CV8ResourceImpl::CV8ResourceImpl(alt::IResource* resource, v8::Isolate* isolate) : V8ResourceImpl(isolate, resource)
 {
-    if(resource->GetMain().empty()) return false;
-
-    resource->EnableNatives();
-    auto nscope = resource->PushNativesScope();
-
     v8::Locker locker(isolate);
     v8::Isolate::Scope isolate_scope(isolate);
     v8::HandleScope handle_scope(isolate);
@@ -97,11 +91,25 @@ bool CV8ResourceImpl::Start()
 
     context.Reset(isolate, ctx);
     ctx->SetAlignedPointerInEmbedderData(1, resource);
+}
+
+extern V8Module altModule;
+bool CV8ResourceImpl::Start()
+{
+    if(resource->GetMain().empty()) return false;
+
+    resource->EnableNatives();
+    auto nscope = resource->PushNativesScope();
+
+    v8::Local<v8::Context> ctx = GetContext();
+
+    v8::Locker locker(isolate);
+    v8::Isolate::Scope isolate_scope(isolate);
+    v8::HandleScope handle_scope(isolate);
+    v8::Context::Scope context_scope(ctx);
 
     V8ResourceImpl::Start();
     V8ResourceImpl::SetupScriptGlobals();
-
-    v8::Context::Scope context_scope(ctx);
 
     std::string path = resource->GetMain();
     Log::Info << "[V8] Starting script " << path << Log::Endl;
