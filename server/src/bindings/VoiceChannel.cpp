@@ -82,7 +82,7 @@ static void GetPlayers(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8:
     for(size_t i = 0; i < size; ++i)
     {
         V8Entity* ent = resource->GetEntity(players[i], "Player");
-        if (ent == nullptr) continue;
+        if(ent == nullptr) continue;
 
         playersArr->Set(ctx, i, ent->GetJSVal(isolate));
     }
@@ -104,7 +104,9 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(2);
     V8_ARG_TO_BOOLEAN(1, isSpatial);
     V8_ARG_TO_NUMBER(2, maxDistance);
-    V8_BIND_BASE_OBJECT(ICore::Instance().CreateVoiceChannel(isSpatial, maxDistance), "Failed to create VoiceChannel, make sure voice chat is enabled");
+
+    alt::IVoiceChannel* channel = ICore::Instance().CreateVoiceChannel(isSpatial, maxDistance);
+    V8_BIND_BASE_OBJECT(channel, "Failed to create VoiceChannel, make sure voice chat is enabled");
 }
 
 extern V8Class v8BaseObject;
