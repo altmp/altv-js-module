@@ -74,7 +74,7 @@ static void StreamedInGetter(v8::Local<v8::String> name, const v8::PropertyCallb
     int i = 0;
     for(auto kv : streamedIn)
     {
-        arr->Set(ctx, i, resource->GetEntity(kv.second, "Player")->GetJSVal(isolate));
+        arr->Set(ctx, i, resource->GetBaseObjectOrNull(kv.second));
         i++;
     }
 

@@ -19,7 +19,7 @@ V8_LOCAL_EVENT_HANDLER syncedMetaChange(EventType::SYNCED_META_CHANGE,
                                             auto ev = static_cast<const alt::CSyncedMetaDataChangeEvent*>(e);
                                             v8::Isolate* isolate = resource->GetIsolate();
 
-                                            args.push_back(resource->GetEntity(ev->GetTarget())->GetJSVal(isolate));
+                                            args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
                                             args.push_back(V8Helpers::JSValue(ev->GetKey()));
                                             args.push_back(V8Helpers::MValueToV8(ev->GetVal()));
                                             args.push_back(V8Helpers::MValueToV8(ev->GetOldVal()));
@@ -33,7 +33,7 @@ streamSyncedMetaChange(EventType::STREAM_SYNCED_META_CHANGE,
                            auto ev = static_cast<const alt::CStreamSyncedMetaDataChangeEvent*>(e);
                            v8::Isolate* isolate = resource->GetIsolate();
 
-                           args.push_back(resource->GetEntity(ev->GetTarget())->GetJSVal(isolate));
+                           args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
                            args.push_back(V8Helpers::JSValue(ev->GetKey()));
                            args.push_back(V8Helpers::MValueToV8(ev->GetVal()));
                            args.push_back(V8Helpers::MValueToV8(ev->GetOldVal()));

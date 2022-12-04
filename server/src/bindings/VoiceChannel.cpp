@@ -81,10 +81,7 @@ static void GetPlayers(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8:
     v8::Local<v8::Array> playersArr = v8::Array::New(isolate, size);
     for(size_t i = 0; i < size; ++i)
     {
-        V8Entity* ent = resource->GetEntity(players[i], "Player");
-        if(ent == nullptr) continue;
-
-        playersArr->Set(ctx, i, ent->GetJSVal(isolate));
+        playersArr->Set(ctx, i, resource->GetBaseObjectOrNull(players[i]));
     }
     V8_RETURN(playersArr);
 }
