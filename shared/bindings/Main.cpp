@@ -70,7 +70,7 @@ static void Off(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_ARG_TO_STRING(1, evName);
         V8_ARG_TO_FUNCTION(2, callback);
 
-        resource->UnsubscribeLocal(evName, callback);
+        resource->UnsubscribeLocal(evName, callback, V8Helpers::SourceLocation::GetCurrent(isolate, resource));
     }
 }
 
