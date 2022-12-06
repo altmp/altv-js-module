@@ -202,12 +202,6 @@ bool V8ResourceImpl::IsBaseObject(v8::Local<v8::Value> val)
 void V8ResourceImpl::OnCreateBaseObject(alt::IBaseObject* handle)
 {
     NotifyPoolUpdate(handle);
-
-    v8::Locker locker(isolate);
-    v8::Isolate::Scope isolateScope(isolate);
-    v8::HandleScope handleScope(isolate);
-    v8::Context::Scope scope(GetContext());
-    CreateEntity(handle);
 }
 
 void V8ResourceImpl::OnRemoveBaseObject(alt::IBaseObject* handle)
