@@ -101,10 +101,11 @@ bool CV8ResourceImpl::Start()
     resource->EnableNatives();
     auto nscope = resource->PushNativesScope();
 
+    v8::Local<v8::Context> ctx = GetContext();
+
     v8::Locker locker(isolate);
     v8::Isolate::Scope isolate_scope(isolate);
     v8::HandleScope handle_scope(isolate);
-    v8::Local<v8::Context> ctx = GetContext();
     v8::Context::Scope context_scope(ctx);
 
     V8ResourceImpl::Start();
