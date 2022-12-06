@@ -28,7 +28,7 @@ V8_EVENT_HANDLER gameEntityCreate(
       auto ev = static_cast<const alt::CGameEntityCreateEvent*>(e);
       v8::Isolate* isolate = resource->GetIsolate();
 
-      args.push_back(resource->GetEntity(ev->GetTarget())->GetJSVal(isolate));
+      args.push_back(resource->GetOrCreateEntity(ev->GetTarget())->GetJSVal(isolate));
   });
 
 V8_EVENT_HANDLER gameEntityDestroy(
@@ -44,7 +44,7 @@ V8_EVENT_HANDLER gameEntityDestroy(
       auto ev = static_cast<const alt::CGameEntityDestroyEvent*>(e);
       v8::Isolate* isolate = resource->GetIsolate();
 
-      args.push_back(resource->GetEntity(ev->GetTarget())->GetJSVal(isolate));
+      args.push_back(resource->GetOrCreateEntity(ev->GetTarget())->GetJSVal(isolate));
   });
 
 V8_LOCAL_EVENT_HANDLER taskChange(EventType::TASK_CHANGE,
@@ -81,9 +81,9 @@ V8_LOCAL_EVENT_HANDLER playerWeaponChange(EventType::PLAYER_WEAPON_CHANGE,
                                               args.push_back(V8Helpers::JSValue(ev->GetNewWeapon()));
                                           });
 
-V8_LOCAL_EVENT_HANDLER weaponDamage(EventType::WEAPON_DAMAGE_EVENT, 
-                                    "weaponDamage", 
-                                    [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) 
+V8_LOCAL_EVENT_HANDLER weaponDamage(EventType::WEAPON_DAMAGE_EVENT,
+                                    "weaponDamage",
+                                    [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args)
                                     {
                                         auto ev = static_cast<const alt::CWeaponDamageEvent*>(e);
                                         v8::Isolate* isolate = resource->GetIsolate();
