@@ -153,12 +153,9 @@ void V8ResourceImpl::BindEntity(v8::Local<v8::Object> val, alt::IBaseObject* han
 
 v8::Local<v8::Value> V8ResourceImpl::GetBaseObjectOrNull(alt::IBaseObject* handle)
 {
-    if (handle == nullptr) return v8::Null(isolate);
-
-    V8Entity* ent = GetEntity(handle);
-    if (ent == nullptr) return v8::Null(isolate);
-
-    return ent->GetJSVal(isolate);
+    if(handle == nullptr) return v8::Null(isolate);
+    else
+        return GetEntity(handle)->GetJSVal(isolate);
 }
 
 v8::Local<v8::Value> V8ResourceImpl::CreateVector3(alt::Vector3f vec)
@@ -218,8 +215,7 @@ void V8ResourceImpl::OnCreateBaseObject(alt::IBaseObject* handle)
     v8::Isolate::Scope isolateScope(isolate);
     v8::HandleScope handleScope(isolate);
     v8::Context::Scope scope(GetContext());
-
-    if(entities.find(handle) == entities.end()) CreateEntity(handle);
+    CreateEntity(handle);
 }
 
 void V8ResourceImpl::OnRemoveBaseObject(alt::IBaseObject* handle)
@@ -235,8 +231,10 @@ void V8ResourceImpl::OnRemoveBaseObject(alt::IBaseObject* handle)
     if(!ent) return;
 
     auto entityType = handle->GetType();
-    if(entityType == alt::IBaseObject::Type::PLAYER || entityType == alt::IBaseObject::Type::LOCAL_PLAYER || entityType == alt::IBaseObject::Type::VEHICLE)
-    {
+    if (entityType == alt::IBaseObject::Type::PLAYER
+        || entityType == alt::IBaseObject::Type::LOCAL_PLAYER
+        || entityType == alt::IBaseObject::Type::VEHICLE
+    ) {
         std::vector<V8Helpers::EventCallback*> handlers = GetLocalHandlers("removeEntity");
         std::vector<v8::Local<v8::Value>> args{ ent->GetJSVal(isolate) };
         InvokeEventHandlers(nullptr, handlers, args);

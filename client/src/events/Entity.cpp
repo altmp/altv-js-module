@@ -28,7 +28,7 @@ V8_EVENT_HANDLER gameEntityCreate(
       auto ev = static_cast<const alt::CGameEntityCreateEvent*>(e);
       v8::Isolate* isolate = resource->GetIsolate();
 
-      args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
+      args.push_back(resource->GetOrCreateEntity(ev->GetTarget())->GetJSVal(isolate));
   });
 
 V8_EVENT_HANDLER gameEntityDestroy(
@@ -44,7 +44,7 @@ V8_EVENT_HANDLER gameEntityDestroy(
       auto ev = static_cast<const alt::CGameEntityDestroyEvent*>(e);
       v8::Isolate* isolate = resource->GetIsolate();
 
-      args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
+      args.push_back(resource->GetOrCreateEntity(ev->GetTarget())->GetJSVal(isolate));
   });
 
 V8_LOCAL_EVENT_HANDLER taskChange(EventType::TASK_CHANGE,
