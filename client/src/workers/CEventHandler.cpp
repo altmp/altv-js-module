@@ -1,4 +1,5 @@
 #include "CEventHandler.h"
+#include "V8ResourceImpl.h"
 
 void CEventHandler::Emit(const std::string& eventName, const std::vector<V8Helpers::Serialization::Value>& args)
 {
@@ -10,7 +11,9 @@ void CEventHandler::Subscribe(const std::string& eventName, v8::Local<v8::Functi
 {
     std::scoped_lock lock(handlersLock);
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
-    handlers.insert(std::make_pair(eventName, V8Helpers::EventCallback(isolate, callback, V8Helpers::SourceLocation::GetCurrent(isolate), once)));
+    // todo: This is a subclass of resource, this shouldn't be like this
+    auto resource = V8ResourceImpl::Get(isolate->GetEnteredOrMicrotaskContext());
+    handlers.insert(std::make_pair(eventName, V8Helpers::EventCallback(isolate, callback, V8Helpers::SourceLocation::GetCurrent(isolate, resource), once)));
 }
 
 void CEventHandler::Unsubscribe(const std::string& eventName, v8::Local<v8::Function> callback)

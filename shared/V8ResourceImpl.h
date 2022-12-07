@@ -139,13 +139,18 @@ public:
     V8Entity* CreateEntity(alt::IBaseObject* handle)
     {
         V8Class* _class = V8Entity::GetClass(handle);
+        if(!_class)
+        {
+            Log::Error << "Failed to create entity: Type " << (int)handle->GetType() << " has no class" << Log::Endl;
+            return nullptr;
+        }
 
         V8Entity* ent = new V8Entity(GetContext(), _class, _class->CreateInstance(GetContext()), handle);
         entities.insert({ handle, ent });
         return ent;
     }
 
-    void BindEntity(v8::Local<v8::Object> val, alt::Ref<alt::IBaseObject> handle);
+    void BindEntity(v8::Local<v8::Object> val, alt::IBaseObject* handle);
 
     V8Entity* GetOrCreateEntity(alt::IBaseObject* handle, const char* className = "")
     {
@@ -161,7 +166,7 @@ public:
     v8::Local<v8::Value> GetBaseObjectOrNull(alt::IBaseObject* handle);
 
     template<class T>
-    v8::Local<v8::Value> GetBaseObjectOrNull(const alt::Ref<T>& handle)
+    v8::Local<v8::Value> GetBaseObjectOrNull(const T*& handle)
     {
         return GetBaseObjectOrNull(handle.Get());
     }
@@ -175,8 +180,8 @@ public:
     bool IsRGBA(v8::Local<v8::Value> val);
     bool IsBaseObject(v8::Local<v8::Value> val);
 
-    void OnCreateBaseObject(alt::Ref<alt::IBaseObject> handle) override;
-    void OnRemoveBaseObject(alt::Ref<alt::IBaseObject> handle) override;
+    void OnCreateBaseObject(alt::IBaseObject* handle) override;
+    void OnRemoveBaseObject(alt::IBaseObject* handle) override;
 
     alt::MValue GetFunction(v8::Local<v8::Value> val)
     {
@@ -224,6 +229,9 @@ public:
     v8::Local<v8::Array> GetAllPlayers();
     v8::Local<v8::Array> GetAllVehicles();
     v8::Local<v8::Array> GetAllBlips();
+#ifdef ALT_CLIENT_API
+    v8::Local<v8::Array> GetAllObjects();
+#endif
 
     std::vector<V8Helpers::EventCallback*> GetLocalHandlers(const std::string& name);
     std::vector<V8Helpers::EventCallback*> GetRemoteHandlers(const std::string& name);
@@ -254,6 +262,18 @@ public:
     {
         return benchmarkTimers.at(name);
     }
+
+    v8::Local<v8::Function> GetLogFunction()
+    {
+        return logFunction.Get(isolate);
+    }
+
+    void SetLogFunction(v8::Local<v8::Function> function)
+    {
+        logFunction.Reset(isolate, function);
+    }
+
+    void SetupScriptGlobals();
 
     static V8ResourceImpl* Get(v8::Local<v8::Context> ctx)
     {
@@ -291,10 +311,15 @@ protected:
     bool vehiclePoolDirty = true;
     V8Helpers::CPersistent<v8::Array> vehicles;
 
+    bool objectPoolDirty = true;
+    V8Helpers::CPersistent<v8::Array> objects;
+
     V8Helpers::CPersistent<v8::Function> vector3Class;
     V8Helpers::CPersistent<v8::Function> vector2Class;
     V8Helpers::CPersistent<v8::Function> rgbaClass;
     V8Helpers::CPersistent<v8::Function> baseObjectClass;
+
+    V8Helpers::CPersistent<v8::Function> logFunction;
 
     std::unordered_map<alt::IResource*, V8Helpers::CPersistent<v8::Object>> resourceObjects;
 

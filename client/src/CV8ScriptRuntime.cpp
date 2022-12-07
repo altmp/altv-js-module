@@ -219,27 +219,16 @@ CV8ScriptRuntime::CV8ScriptRuntime()
 
     ProcessConfigOptions();
 
-    IRuntimeEventHandler::Init();
+    IRuntimeEventHandler::Start();
 }
 
 void CV8ScriptRuntime::ProcessConfigOptions()
 {
-    alt::config::Node moduleConfig = alt::ICore::Instance().GetClientConfig()["js-module"];
-    if(!moduleConfig.IsDict()) return;
+    Config::Value::ValuePtr moduleConfig = alt::ICore::Instance().GetClientConfig()["js-module"];
+    if(!moduleConfig->IsDict()) return;
 
-    alt::config::Node profiler = moduleConfig["profiler"];
-    if(!profiler.IsNone())
-    {
-        try
-        {
-            bool result = profiler.ToBool();
-            CProfiler::Instance().SetIsEnabled(result);
-        }
-        catch(alt::config::Error&)
-        {
-            Log::Error << "Invalid value for 'profiler' config option" << Log::Endl;
-        }
-    }
+    Config::Value::ValuePtr profiler = moduleConfig["profiler"];
+    CProfiler::Instance().SetIsEnabled(profiler->AsBool(false));
 }
 
 void CV8ScriptRuntime::OnDispose()
@@ -254,6 +243,11 @@ void CV8ScriptRuntime::OnDispose()
 
     CV8ScriptRuntime::SetInstance(nullptr);
     delete this;
+}
+
+void CV8ScriptRuntime::Init()
+{
+    IRuntimeEventHandler::Reset();
 }
 
 static std::string Base64Decode(const std::string& in)
@@ -325,12 +319,12 @@ v8::MaybeLocal<v8::Module>
               {
                   // Handle as base64 source string
                   std::string sourceStr = Base64Decode(specifierStr);
-                  maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(sourceStr, V8Helpers::SourceLocation::GetCurrent(isolate));
+                  maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(sourceStr, V8Helpers::SourceLocation::GetCurrent(isolate, resource));
               }
               else if(typeValueStr == "source")
               {
                   // Handle as module source code
-                  maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(specifierStr, V8Helpers::SourceLocation::GetCurrent(isolate));
+                  maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(specifierStr, V8Helpers::SourceLocation::GetCurrent(isolate, resource));
               }
               else if(typeValueStr == "json")
               {
@@ -397,24 +391,24 @@ v8::MaybeLocal<v8::Module>
     return static_cast<CV8ResourceImpl*>(resource)->ResolveModule(_specifier, referrer, resource->GetResource());
 }
 
-void CV8ScriptRuntime::OnEntityStreamIn(alt::Ref<alt::IEntity> entity)
+void CV8ScriptRuntime::OnEntityStreamIn(alt::IEntity* entity)
 {
     switch(entity->GetType())
     {
         case alt::IEntity::Type::PLAYER:
         {
-            streamedInPlayers.insert({ entity->GetID(), entity.As<alt::IPlayer>() });
+            streamedInPlayers.insert({ entity->GetID(), dynamic_cast<alt::IPlayer*>(entity) });
             break;
         }
         case alt::IEntity::Type::VEHICLE:
         {
-            streamedInVehicles.insert({ entity->GetID(), entity.As<alt::IVehicle>() });
+            streamedInVehicles.insert({ entity->GetID(), dynamic_cast<alt::IVehicle*>(entity) });
             break;
         }
     }
 }
 
-void CV8ScriptRuntime::OnEntityStreamOut(alt::Ref<alt::IEntity> entity)
+void CV8ScriptRuntime::OnEntityStreamOut(alt::IEntity* entity)
 {
     switch(entity->GetType())
     {

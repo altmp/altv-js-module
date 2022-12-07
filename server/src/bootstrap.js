@@ -24,7 +24,9 @@ const dns = require('dns');
     setupImports();
 
     // Load the global bindings code
-    new Function("alt", __internal_bindings_code)(alt);
+    const bindingsGlobal = {};
+    new Function("alt", "__global", __internal_bindings_code)(alt, bindingsGlobal);
+    __setLogFunction(bindingsGlobal.genericLog);
 
     // Get the path to the main file for this resource, and load it
     const _path = path.resolve(resource.path, resource.main);

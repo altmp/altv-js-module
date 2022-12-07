@@ -327,7 +327,7 @@ static void StyleGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_GET_THIS_BASE_OBJECT(element, alt::IRmlElement);
 
-    V8_RETURN(V8Helpers::CreateCustomObject(isolate, element.Get(), StyleGetterHandler, StyleSetterHandler, StyleDeleterHandler));
+    V8_RETURN(V8Helpers::CreateCustomObject(isolate, element, StyleGetterHandler, StyleSetterHandler, StyleDeleterHandler));
 }
 
 static void ChildrenGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -339,7 +339,7 @@ static void ChildrenGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo
     v8::Local<v8::Array> arr = v8::Array::New(isolate, size);
     for(size_t i = 0; i < size; i++)
     {
-        arr->Set(ctx, i, resource->GetBaseObjectOrNull(element->GetChild(i).Get()));
+        arr->Set(ctx, i, resource->GetBaseObjectOrNull(element->GetChild(i)));
     }
 
     V8_RETURN(arr);
@@ -375,12 +375,12 @@ static void GetElementsByTagName(const v8::FunctionCallbackInfo<v8::Value>& info
 
     V8_ARG_TO_STRING(1, tag);
 
-    const std::vector<alt::Ref<alt::IRmlElement>> elements = element->GetElementsByTagName(tag);
+    const std::vector<alt::IRmlElement*> elements = element->GetElementsByTagName(tag);
     size_t size = elements.size();
     v8::Local<v8::Array> arr = v8::Array::New(isolate, size);
     for(size_t i = 0; i < size; i++)
     {
-        arr->Set(ctx, i, resource->GetBaseObjectOrNull(elements[i].Get()));
+        arr->Set(ctx, i, resource->GetBaseObjectOrNull(elements[i]));
     }
 
     V8_RETURN(arr);
@@ -394,12 +394,12 @@ static void GetElementsByClassName(const v8::FunctionCallbackInfo<v8::Value>& in
 
     V8_ARG_TO_STRING(1, className);
 
-    const std::vector<alt::Ref<alt::IRmlElement>> elements = element->GetElementsByClassName(className);
+    const std::vector<alt::IRmlElement*> elements = element->GetElementsByClassName(className);
     size_t size = elements.size();
     v8::Local<v8::Array> arr = v8::Array::New(isolate, size);
     for(size_t i = 0; i < size; i++)
     {
-        arr->Set(ctx, i, resource->GetBaseObjectOrNull(elements[i].Get()));
+        arr->Set(ctx, i, resource->GetBaseObjectOrNull(elements[i]));
     }
 
     V8_RETURN(arr);
@@ -424,12 +424,12 @@ static void QuerySelectorAll(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_STRING(1, selector);
 
-    const std::vector<alt::Ref<alt::IRmlElement>> elements = element->QuerySelectorAll(selector);
+    const std::vector<alt::IRmlElement*> elements = element->QuerySelectorAll(selector);
     size_t size = elements.size();
     v8::Local<v8::Array> arr = v8::Array::New(isolate, size);
     for(size_t i = 0; i < size; i++)
     {
-        arr->Set(ctx, i, resource->GetBaseObjectOrNull(elements[i].Get()));
+        arr->Set(ctx, i, resource->GetBaseObjectOrNull(elements[i]));
     }
 
     V8_RETURN(arr);
@@ -462,7 +462,7 @@ static void On(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(1, evName);
     V8_ARG_TO_FUNCTION(2, fun);
 
-    static_cast<CV8ResourceImpl*>(resource)->SubscribeRml(element, evName, fun, V8Helpers::SourceLocation::GetCurrent(isolate));
+    static_cast<CV8ResourceImpl*>(resource)->SubscribeRml(element, evName, fun, V8Helpers::SourceLocation::GetCurrent(isolate, resource));
 }
 
 static void Off(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -515,7 +515,7 @@ extern V8Class v8RmlElement("RmlElement",
                                 V8Helpers::SetAccessor<alt::IRmlElement, float, &alt::IRmlElement::GetZIndex>(isolate, tpl, "zIndex");
                                 V8Helpers::SetAccessor<alt::IRmlElement, Vector2f, &alt::IRmlElement::GetContainingBlock>(isolate, tpl, "containingBlock");
 
-                                V8Helpers::SetAccessor<alt::IRmlElement, Ref<IRmlElement>, &alt::IRmlElement::GetFocusedElement>(isolate, tpl, "focusedElement");
+                                V8Helpers::SetAccessor<alt::IRmlElement, IRmlElement*, &alt::IRmlElement::GetFocusedElement>(isolate, tpl, "focusedElement");
 
                                 V8Helpers::SetAccessor<alt::IRmlElement, const std::string&, &alt::IRmlElement::GetTagName>(isolate, tpl, "tagName");
                                 V8Helpers::SetAccessor<alt::IRmlElement, const std::string&, &alt::IRmlElement::GetID, &alt::IRmlElement::SetID>(isolate, tpl, "id");
@@ -540,11 +540,11 @@ extern V8Class v8RmlElement("RmlElement",
 
                                 V8Helpers::SetAccessor<alt::IRmlElement, bool, &alt::IRmlElement::IsVisible>(isolate, tpl, "isVisible");
 
-                                V8Helpers::SetAccessor<alt::IRmlElement, Ref<IRmlElement>, &alt::IRmlElement::GetParent>(isolate, tpl, "parent");
-                                V8Helpers::SetAccessor<alt::IRmlElement, Ref<IRmlElement>, &alt::IRmlElement::GetNextSibling>(isolate, tpl, "nextSibling");
-                                V8Helpers::SetAccessor<alt::IRmlElement, Ref<IRmlElement>, &alt::IRmlElement::GetPreviousSibling>(isolate, tpl, "previousSibling");
-                                V8Helpers::SetAccessor<alt::IRmlElement, Ref<IRmlElement>, &alt::IRmlElement::GetFirstChild>(isolate, tpl, "firstChild");
-                                V8Helpers::SetAccessor<alt::IRmlElement, Ref<IRmlElement>, &alt::IRmlElement::GetLastChild>(isolate, tpl, "lastChild");
+                                V8Helpers::SetAccessor<alt::IRmlElement, IRmlElement*, &alt::IRmlElement::GetParent>(isolate, tpl, "parent");
+                                V8Helpers::SetAccessor<alt::IRmlElement, IRmlElement*, &alt::IRmlElement::GetNextSibling>(isolate, tpl, "nextSibling");
+                                V8Helpers::SetAccessor<alt::IRmlElement, IRmlElement*, &alt::IRmlElement::GetPreviousSibling>(isolate, tpl, "previousSibling");
+                                V8Helpers::SetAccessor<alt::IRmlElement, IRmlElement*, &alt::IRmlElement::GetFirstChild>(isolate, tpl, "firstChild");
+                                V8Helpers::SetAccessor<alt::IRmlElement, IRmlElement*, &alt::IRmlElement::GetLastChild>(isolate, tpl, "lastChild");
 
                                 V8Helpers::SetAccessor<alt::IRmlElement, int, &alt::IRmlElement::GetChildCount>(isolate, tpl, "childCount");
                                 V8Helpers::SetAccessor<alt::IRmlElement, bool, &alt::IRmlElement::HasChildren>(isolate, tpl, "hasChildren");
@@ -552,7 +552,7 @@ extern V8Class v8RmlElement("RmlElement",
                                 V8Helpers::SetAccessor<alt::IRmlElement, std::string, &alt::IRmlElement::GetInnerRML, const std::string&, &alt::IRmlElement::SetInnerRML>(
                                   isolate, tpl, "innerRML");
 
-                                V8Helpers::SetAccessor<alt::IRmlElement, Ref<IRmlDocument>, &alt::IRmlElement::GetOwnerDocument>(isolate, tpl, "ownerDocument");
+                                V8Helpers::SetAccessor<alt::IRmlElement, IRmlDocument*, &alt::IRmlElement::GetOwnerDocument>(isolate, tpl, "ownerDocument");
 
                                 V8Helpers::SetAccessor(isolate, tpl, "childNodes", &ChildrenGetter);
 

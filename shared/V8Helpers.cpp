@@ -30,28 +30,29 @@ bool V8Helpers::TryCatch(const std::function<bool()>& fn)
             v8::MaybeLocal<v8::String> maybeSourceLine = message->GetSourceLine(context);
             v8::Maybe<int32_t> line = message->GetLineNumber(context);
             v8::ScriptOrigin origin = message->GetScriptOrigin();
+            std::string name = *v8::String::Utf8Value(isolate, origin.ResourceName());
 
             // Only relevant for client
-            bool isBytecodeResource = false;
+            bool isBytecodeFile = false;
 #ifdef ALT_CLIENT
-            isBytecodeResource = static_cast<CV8ResourceImpl*>(v8resource)->IsBytecodeResource();
+            isBytecodeFile = static_cast<CV8ResourceImpl*>(v8resource)->GetModuleData(name).isBytecode;
 #endif
 
             if(!origin.ResourceName()->IsUndefined())
             {
-                if(line.IsNothing() || isBytecodeResource)
+                if(line.IsNothing() || isBytecodeFile)
                 {
-                    Log::Error << "[V8] Exception at " << resource->GetName() << ":" << *v8::String::Utf8Value(isolate, origin.ResourceName()) << Log::Endl;
+                    Log::Error << "[V8] Exception at " << resource->GetName() << ":" << name << Log::Endl;
                 }
                 else
-                    Log::Error << "[V8] Exception at " << resource->GetName() << ":" << *v8::String::Utf8Value(isolate, origin.ResourceName()) << ":" << line.ToChecked() << Log::Endl;
+                    Log::Error << "[V8] Exception at " << resource->GetName() << ":" << name << ":" << line.ToChecked() << Log::Endl;
             }
             else
             {
                 Log::Error << "[V8] Exception at " << resource->GetName() << Log::Endl;
             }
 
-            if(!maybeSourceLine.IsEmpty() && !isBytecodeResource)
+            if(!maybeSourceLine.IsEmpty() && !isBytecodeFile)
             {
                 v8::Local<v8::String> sourceLine = maybeSourceLine.ToLocalChecked();
 
@@ -161,7 +162,7 @@ inline static std::string GetStackFrameScriptName(v8::Local<v8::StackFrame> fram
         return "[unknown]";
 }
 
-V8Helpers::SourceLocation V8Helpers::SourceLocation::GetCurrent(v8::Isolate* isolate)
+V8Helpers::SourceLocation V8Helpers::SourceLocation::GetCurrent(v8::Isolate* isolate, V8ResourceImpl* resource)
 {
     v8::Local<v8::StackTrace> stackTrace = v8::StackTrace::CurrentStackTrace(isolate, 5);
     auto ctx = isolate->GetEnteredOrMicrotaskContext();
@@ -172,7 +173,11 @@ V8Helpers::SourceLocation V8Helpers::SourceLocation::GetCurrent(v8::Isolate* iso
         if(frame->GetScriptName().IsEmpty() && !frame->IsEval() && !frame->IsWasm() && frame->IsUserJavaScript()) continue;
 
         std::string name = GetStackFrameScriptName(frame);
-        int line = frame->GetLineNumber();
+        bool isBytecode = false;
+#ifdef ALT_CLIENT_API
+        isBytecode = resource ? static_cast<CV8ResourceImpl*>(resource)->GetModuleData(name).isBytecode : false;
+#endif
+        int line = isBytecode ? 0 : frame->GetLineNumber();
         return SourceLocation{ std::move(name), line, ctx };
     }
 
@@ -199,7 +204,7 @@ std::string V8Helpers::SourceLocation::ToString()
     return stream.str();
 }
 
-V8Helpers::StackTrace V8Helpers::StackTrace::GetCurrent(v8::Isolate* isolate)
+V8Helpers::StackTrace V8Helpers::StackTrace::GetCurrent(v8::Isolate* isolate, V8ResourceImpl* resource)
 {
     v8::Local<v8::StackTrace> stackTrace = v8::StackTrace::CurrentStackTrace(isolate, 5);
     auto ctx = isolate->GetEnteredOrMicrotaskContext();
@@ -209,7 +214,11 @@ V8Helpers::StackTrace V8Helpers::StackTrace::GetCurrent(v8::Isolate* isolate)
         v8::Local<v8::StackFrame> frame = stackTrace->GetFrame(isolate, i);
         Frame frameData;
         frameData.file = GetStackFrameScriptName(frame);
-        frameData.line = frame->GetLineNumber();
+        bool isBytecode = false;
+#ifdef ALT_CLIENT_API
+        isBytecode = resource ? static_cast<CV8ResourceImpl*>(resource)->GetModuleData(frameData.file).isBytecode : false;
+#endif
+        frameData.line = isBytecode ? 0 : frame->GetLineNumber();
         if(frame->GetFunctionName().IsEmpty()) frameData.function = "[anonymous]";
         else
             frameData.function = *v8::String::Utf8Value(isolate, frame->GetFunctionName());

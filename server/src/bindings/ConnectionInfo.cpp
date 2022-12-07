@@ -98,16 +98,19 @@ static void DiscordUserIDGetter(v8::Local<v8::String>, const v8::PropertyCallbac
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, con, alt::IConnectionInfo);
     V8_CHECK(con, "Invalid connection info");
-    V8_RETURN_STRING(con->GetDiscordUserID());
+    V8_RETURN_STRING(std::to_string(con->GetDiscordUserID()));
 }
 
 static void Accept(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN2(0, 1);
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, con, alt::IConnectionInfo);
     V8_CHECK(con, "Invalid connection info");
 
-    con->Accept();
+    V8_ARG_TO_BOOLEAN_OPT(1, sendNames, true);
+
+    con->Accept(sendNames);
 }
 
 static void Decline(const v8::FunctionCallbackInfo<v8::Value>& info)

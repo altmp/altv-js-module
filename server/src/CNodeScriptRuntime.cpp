@@ -44,7 +44,7 @@ bool CNodeScriptRuntime::Init()
         V8Class::LoadAll(isolate);
     }
 
-    IRuntimeEventHandler::Init();
+    IRuntimeEventHandler::Start();
 
     return true;
 }
@@ -90,101 +90,42 @@ std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
     // https://nodejs.org/docs/latest-v17.x/api/cli.html#options
     std::vector<std::string> args = { "alt-server", "--experimental-specifier-resolution=node", "--trace-warnings" };
 
-    alt::config::Node moduleConfig = alt::ICore::Instance().GetServerConfig()["js-module"];
-    if(!moduleConfig.IsDict()) return args;
+    Config::Value::ValuePtr moduleConfig = alt::ICore::Instance().GetServerConfig()["js-module"];
+    if(!moduleConfig->IsDict()) return args;
 
     // https://nodejs.org/api/cli.html#--inspecthostport
-    alt::config::Node inspector = moduleConfig["inspector"];
-    if(!inspector.IsNone())
+    Config::Value::ValuePtr inspector = moduleConfig["inspector"];
+    if(!inspector->IsNone())
     {
-        std::string inspectorHost = "127.0.0.1";
-        alt::config::Node host = inspector["host"];
-        if(host.IsScalar()) inspectorHost = host.ToString();
-
-        std::string inspectorPort = "9229";
-        alt::config::Node port = inspector["port"];
-        if(port.IsScalar()) inspectorPort = port.ToString();
-
-        args.push_back("--inspect=" + inspectorHost + ":" + inspectorPort);
+        std::string inspectorHost = inspector["host"]->AsString("127.0.0.1");
+        int inspectorPort = inspector["port"]->AsNumber(9229);
+        args.push_back("--inspect=" + inspectorHost + ":" + std::to_string(inspectorPort));
     }
 
     // https://nodejs.org/api/cli.html#--enable-source-maps
-    alt::config::Node enableSourceMaps = moduleConfig["source-maps"];
-    if(!enableSourceMaps.IsNone())
-    {
-        try
-        {
-            if(enableSourceMaps.ToBool()) args.push_back("--enable-source-maps");
-        }
-        catch(alt::config::Error&)
-        {
-            Log::Error << "Invalid value for 'source-maps' config option" << Log::Endl;
-        }
-    }
+    Config::Value::ValuePtr enableSourceMaps = moduleConfig["source-maps"];
+    if(enableSourceMaps->AsBool(false)) args.push_back("--enable-source-maps");
 
     // https://nodejs.org/api/cli.html#--heap-prof
-    alt::config::Node enableHeapProfiler = moduleConfig["heap-profiler"];
-    if(!enableHeapProfiler.IsNone())
-    {
-        try
-        {
-            if(enableHeapProfiler.ToBool()) args.push_back("--heap-prof");
-        }
-        catch(alt::config::Error&)
-        {
-            Log::Error << "Invalid value for 'heap-profiler' config option" << Log::Endl;
-        }
-    }
+    Config::Value::ValuePtr enableHeapProfiler = moduleConfig["heap-profiler"];
+    if(enableHeapProfiler->AsBool(false)) args.push_back("--heap-prof");
 
     // https://nodejs.org/api/cli.html#--experimental-fetch
-    alt::config::Node enableGlobalFetch = moduleConfig["global-fetch"];
-    if(!enableGlobalFetch.IsNone())
-    {
-        try
-        {
-            if(enableGlobalFetch.ToBool()) args.push_back("--experimental-fetch");
-        }
-        catch(alt::config::Error&)
-        {
-            Log::Error << "Invalid value for 'global-fetch' config option" << Log::Endl;
-        }
-    }
+    Config::Value::ValuePtr enableGlobalFetch = moduleConfig["global-fetch"];
+    if(enableGlobalFetch->AsBool(false)) args.push_back("--experimental-fetch");
 
     // https://nodejs.org/api/cli.html#--experimental-global-webcrypto
-    alt::config::Node enableGlobalWebcrypto = moduleConfig["global-webcrypto"];
-    if(!enableGlobalWebcrypto.IsNone())
-    {
-        try
-        {
-            if(enableGlobalWebcrypto.ToBool()) args.push_back("--experimental-global-webcrypto");
-        }
-        catch(alt::config::Error&)
-        {
-            Log::Error << "Invalid value for 'global-webcrypto' config option" << Log::Endl;
-        }
-    }
+    Config::Value::ValuePtr enableGlobalWebcrypto = moduleConfig["global-webcrypto"];
+    if(enableGlobalWebcrypto->AsBool(false)) args.push_back("--experimental-global-webcrypto");
 
     // https://nodejs.org/api/cli.html#--experimental-network-imports
-    alt::config::Node enableNetworkImports = moduleConfig["network-imports"];
-    if(!enableNetworkImports.IsNone())
-    {
-        try
-        {
-            if(enableNetworkImports.ToBool()) args.push_back("--experimental-network-imports");
-        }
-        catch(alt::config::Error&)
-        {
-            Log::Error << "Invalid value for 'network-imports' config option" << Log::Endl;
-        }
-    }
+    Config::Value::ValuePtr enableNetworkImports = moduleConfig["network-imports"];
+    if(enableNetworkImports->AsBool(false)) args.push_back("--experimental-network-imports");
 
-    alt::config::Node extraCliArgs = moduleConfig["extra-cli-args"];
-    if(extraCliArgs.IsList())
+    Config::Value::ValuePtr extraCliArgs = moduleConfig["extra-cli-args"];
+    for(auto arg : extraCliArgs->AsList())
     {
-        for(auto argument : extraCliArgs.ToList())
-        {
-            args.push_back(argument.ToString());
-        }
+        args.push_back(arg->AsString());
     }
 
     return args;
@@ -192,21 +133,13 @@ std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
 
 void CNodeScriptRuntime::ProcessConfigOptions()
 {
-    alt::config::Node moduleConfig = alt::ICore::Instance().GetServerConfig()["js-module"];
-    if(!moduleConfig.IsDict()) return;
+    Config::Value::ValuePtr moduleConfig = alt::ICore::Instance().GetServerConfig()["js-module"];
+    if(!moduleConfig->IsDict()) return;
 
-    alt::config::Node profiler = moduleConfig["profiler"];
-    if(profiler.IsDict())
+    Config::Value::ValuePtr profiler = moduleConfig["profiler"];
+    if(profiler->IsDict())
     {
         CProfiler::Instance().SetIsEnabled(true);
-        try
-        {
-            bool result = profiler["logs"].ToBool();
-            CProfiler::Instance().SetLogsEnabled(result);
-        }
-        catch(alt::config::Error&)
-        {
-            Log::Error << "Invalid value for 'logs' profiler config option" << Log::Endl;
-        }
+        CProfiler::Instance().SetLogsEnabled(profiler["logs"]->AsBool(false));
     }
 }

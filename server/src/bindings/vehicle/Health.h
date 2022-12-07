@@ -13,7 +13,7 @@ namespace V8Helpers::Vehicle
             V8Entity* _this = V8Entity::Get(info.This());
             V8_CHECK(_this, "entity is invalid");
 
-            Ref<IVehicle> vehicle = _this->GetHandle().As<IVehicle>();
+            IVehicle* vehicle = _this->GetHandle().As<IVehicle>();
 
             alt::IEntity* damager = vehicle->GetLastAttacker();
 
@@ -33,7 +33,7 @@ namespace V8Helpers::Vehicle
             V8Entity* _this = V8Entity::Get(info.This());
             V8_CHECK(_this, "entity is invalid");
 
-            Ref<IVehicle> vehicle = _this->GetHandle().As<IVehicle>();
+            IVehicle* vehicle = _this->GetHandle().As<IVehicle>();
 
             info.GetReturnValue().Set(v8::Integer::New(isolate, vehicle->GetLastDamagedWith()));
     }*/

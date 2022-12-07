@@ -14,7 +14,6 @@
 #include "cpp-sdk/events/CSyncedMetaDataChangeEvent.h"
 #include "cpp-sdk/events/CStreamSyncedMetaDataChangeEvent.h"
 #include "cpp-sdk/events/CGlobalSyncedMetaDataChangeEvent.h"
-#include "cpp-sdk/events/CRemoveEntityEvent.h"
 #include "cpp-sdk/events/CResourceStartEvent.h"
 #include "cpp-sdk/events/CResourceStopEvent.h"
 #include "cpp-sdk/events/CResourceErrorEvent.h"
@@ -53,12 +52,17 @@ extern void StaticRequire(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8Helpers::Throw(isolate, "No such module " + name);
 }
 
-void StaticSetExports(const v8::FunctionCallbackInfo<v8::Value>& info)
+void StartFile(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-    V8_GET_ISOLATE_CONTEXT_IRESOURCE();
-    V8_CHECK(info.Length() == 1, "1 arg expected");
-    alt::MValueDict exports = V8Helpers::V8ToMValue(info[0]).As<alt::IMValueDict>();
-    resource->SetExports(exports);
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(1);
+    V8_ARG_TO_STRING(1, path);
+    v8::MaybeLocal<v8::Module> maybeMod = static_cast<CV8ResourceImpl*>(resource)->ResolveFile(path, v8::Local<v8::Module>(), resource->GetResource());
+    V8_CHECK(!maybeMod.IsEmpty(), "Failed to start file");
+    auto mod = maybeMod.ToLocalChecked();
+    static_cast<CV8ResourceImpl*>(resource)->InstantiateModule(mod);
+    alt::MValueDict exports = V8Helpers::V8ToMValue(mod->GetModuleNamespace()).As<alt::IMValueDict>();
+    resource->GetResource()->SetExports(exports);
 }
 
 void CV8ResourceImpl::ProcessDynamicImports()
@@ -75,6 +79,20 @@ extern std::string bootstrap_code =
 #include "bootstrap.js.gen"
   ;
 
+CV8ResourceImpl::CV8ResourceImpl(alt::IResource* resource, v8::Isolate* isolate) : V8ResourceImpl(isolate, resource)
+{
+    v8::Locker locker(isolate);
+    v8::Isolate::Scope isolate_scope(isolate);
+    v8::HandleScope handle_scope(isolate);
+
+    microtaskQueue = v8::MicrotaskQueue::New(isolate, v8::MicrotasksPolicy::kExplicit);
+    v8::Local<v8::Context> ctx =
+      v8::Context::New(isolate, nullptr, v8::MaybeLocal<v8::ObjectTemplate>(), v8::MaybeLocal<v8::Value>(), v8::DeserializeInternalFieldsCallback(), microtaskQueue.get());
+
+    context.Reset(isolate, ctx);
+    ctx->SetAlignedPointerInEmbedderData(1, resource);
+}
+
 extern V8Module altModule;
 bool CV8ResourceImpl::Start()
 {
@@ -86,39 +104,13 @@ bool CV8ResourceImpl::Start()
     v8::Locker locker(isolate);
     v8::Isolate::Scope isolate_scope(isolate);
     v8::HandleScope handle_scope(isolate);
-
-    microtaskQueue = v8::MicrotaskQueue::New(isolate, v8::MicrotasksPolicy::kExplicit);
-    v8::Local<v8::Context> ctx =
-      v8::Context::New(isolate, nullptr, v8::MaybeLocal<v8::ObjectTemplate>(), v8::MaybeLocal<v8::Value>(), v8::DeserializeInternalFieldsCallback(), microtaskQueue.get());
-
-    context.Reset(isolate, ctx);
-    ctx->SetAlignedPointerInEmbedderData(1, resource);
-
-    V8ResourceImpl::Start();
-
+    v8::Local<v8::Context> ctx = GetContext();
     v8::Context::Scope context_scope(ctx);
 
-    // Log::Debug(V8ResourceImpl::GetResource(ctx));
-    // Log::Debug(V8ResourceImpl::GetResource(isolate->GetEnteredOrMicrotaskContext()));
-
-    /*runtime->GetInspector()->contextCreated({
-            ctx,
-            1,
-            v8_inspector::StringView{ (uint8_t*)namec_str(), name.GetSize() }
-    });*/
+    V8ResourceImpl::Start();
+    V8ResourceImpl::SetupScriptGlobals();
 
     std::string path = resource->GetMain();
-
-    alt::IPackage* pkg = resource->GetPackage();
-    alt::IPackage::File* file = pkg->OpenFile(path);
-
-    size_t fileSize = pkg->GetFileSize(file);
-    std::vector<uint8_t> byteBuffer(fileSize);
-    pkg->ReadFile(file, byteBuffer.data(), fileSize);
-    pkg->CloseFile(file);
-
-    isUsingBytecode = IsBytecodeModule(byteBuffer.data(), fileSize);
-
     Log::Info << "[V8] Starting script " << path << Log::Endl;
 
     bool result = V8Helpers::TryCatch(
@@ -152,41 +144,12 @@ bool CV8ResourceImpl::Start()
           ctx->Global()->Set(ctx, V8Helpers::JSValue("clearTimeout"), exports->Get(ctx, V8Helpers::JSValue("clearTimeout")).ToLocalChecked());
 
           ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_get_exports"), v8::Function::New(ctx, &StaticRequire).ToLocalChecked());
-          ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_set_exports"), v8::Function::New(ctx, &StaticSetExports).ToLocalChecked());
           ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_bindings_code"), V8Helpers::JSValue(JSBindings::GetBindingsCode()));
           ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_main_path"), V8Helpers::JSValue(path));
+          ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_start_file"), v8::Function::New(ctx, &StartFile).ToLocalChecked());
 
-          bool res = curModule->InstantiateModule(ctx, CV8ScriptRuntime::ResolveModule).IsJust();
-
-          if(!res) return false;
-
-          v8::MaybeLocal<v8::Value> v = curModule->Evaluate(ctx);
-          isPreloading = false;
-          if(v.IsEmpty()) return false;
-
-          v8::Local<v8::Promise> modulePromise = v.ToLocalChecked().As<v8::Promise>();
-          int64_t start = GetTime();
-          while(modulePromise->State() == v8::Promise::kPending)
-          {
-              if(GetTime() > start + 5000)
-              {
-                  Log::Error << "[V8] Resource start timed out (broken top-level await statements?)" << Log::Endl;
-                  return false;
-              }
-              OnTick();
-          }
-
-          if(curModule->GetStatus() == v8::Module::Status::kErrored)
-          {
-              v8::Local<v8::Promise> promise = v.ToLocalChecked().As<v8::Promise>();
-              bool hasHandler = promise->HasHandler();
-              if(!hasHandler)
-              {
-                  promise->MarkAsHandled();
-                  isolate->ThrowException(promise->Result());
-                  return false;
-              }
-          }
+          bool result = InstantiateModule(curModule);
+          if(!result) return false;
 
           Log::Info << "[V8] Started script " << path << Log::Endl;
           return true;
@@ -235,7 +198,7 @@ bool CV8ResourceImpl::Stop()
         DispatchStopEvent();
     }
 
-    std::vector<alt::Ref<alt::IBaseObject>> objects(ownedObjects.size());
+    std::vector<alt::IBaseObject*> objects(ownedObjects.size());
 
     for(auto handle : ownedObjects) objects.push_back(handle);
 
@@ -273,7 +236,7 @@ bool CV8ResourceImpl::Stop()
     return true;
 }
 
-bool CV8ResourceImpl::OnEvent(const alt::CEvent* e)
+void CV8ResourceImpl::OnEvent(const alt::CEvent* e)
 {
     auto nscope = resource->PushNativesScope();
 
@@ -284,7 +247,7 @@ bool CV8ResourceImpl::OnEvent(const alt::CEvent* e)
     v8::Context::Scope scope(GetContext());
 
     V8Helpers::EventHandler* handler = V8Helpers::EventHandler::Get(e);
-    if(!handler) return true;
+    if(!handler) return;
 
     // Generic event handler
     {
@@ -338,13 +301,13 @@ bool CV8ResourceImpl::OnEvent(const alt::CEvent* e)
         }
     }
 
-    return true;
+    return;
 }
 
-std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetWebViewHandlers(alt::Ref<alt::IWebView> view, const std::string& name)
+std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetWebViewHandlers(alt::IWebView* view, const std::string& name)
 {
     std::vector<V8Helpers::EventCallback*> handlers;
-    auto it = webViewHandlers.find(view.Get());
+    auto it = webViewHandlers.find(view);
 
     if(it != webViewHandlers.end())
     {
@@ -356,10 +319,10 @@ std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetWebViewHandlers(alt::
     return handlers;
 }
 
-std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetWebSocketClientHandlers(alt::Ref<alt::IWebSocketClient> webSocket, const std::string& name)
+std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetWebSocketClientHandlers(alt::IWebSocketClient* webSocket, const std::string& name)
 {
     std::vector<V8Helpers::EventCallback*> handlers;
-    auto it = webSocketClientHandlers.find(webSocket.Get());
+    auto it = webSocketClientHandlers.find(webSocket);
 
     if(it != webSocketClientHandlers.end())
     {
@@ -371,10 +334,10 @@ std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetWebSocketClientHandle
     return handlers;
 }
 
-std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetAudioHandlers(alt::Ref<alt::IAudio> audio, const std::string& name)
+std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetAudioHandlers(alt::IAudio* audio, const std::string& name)
 {
     std::vector<V8Helpers::EventCallback*> handlers;
-    auto it = audioHandlers.find(audio.Get());
+    auto it = audioHandlers.find(audio);
 
     if(it != audioHandlers.end())
     {
@@ -386,7 +349,7 @@ std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetAudioHandlers(alt::Re
     return handlers;
 }
 
-std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetRmlHandlers(alt::Ref<alt::IRmlElement> element, const std::string& name)
+std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetRmlHandlers(alt::IRmlElement* element, const std::string& name)
 {
     std::vector<V8Helpers::EventCallback*> handlers;
     auto it = rmlHandlers.find(element);
@@ -516,4 +479,41 @@ v8::MaybeLocal<v8::Value> CV8ResourceImpl::GetSyntheticModuleExport(v8::Local<v8
     auto result = syntheticModuleExports.find(syntheticModule->GetIdentityHash());
     if(result != syntheticModuleExports.end()) return result->second.Get(isolate);
     return v8::MaybeLocal<v8::Value>();
+}
+
+bool CV8ResourceImpl::InstantiateModule(v8::Local<v8::Module> mod, bool preload)
+{
+    bool res = mod->InstantiateModule(GetContext(), CV8ScriptRuntime::ResolveModule).IsJust();
+
+    if(!res) return false;
+
+    v8::MaybeLocal<v8::Value> v = mod->Evaluate(GetContext());
+    if(v.IsEmpty()) return false;
+
+    if(preload) isPreloading = false;
+
+    v8::Local<v8::Promise> modulePromise = v.ToLocalChecked().As<v8::Promise>();
+    int64_t start = GetTime();
+    while(modulePromise->State() == v8::Promise::kPending)
+    {
+        if(GetTime() > start + 5000)
+        {
+            Log::Error << "[V8] Resource start timed out (broken top-level await statements?)" << Log::Endl;
+            return false;
+        }
+        OnTick();
+    }
+
+    if(mod->GetStatus() == v8::Module::Status::kErrored)
+    {
+        v8::Local<v8::Promise> promise = v.ToLocalChecked().As<v8::Promise>();
+        bool hasHandler = promise->HasHandler();
+        if(!hasHandler)
+        {
+            promise->MarkAsHandled();
+            isolate->ThrowException(promise->Result());
+            return false;
+        }
+    }
+    return true;
 }

@@ -35,14 +35,20 @@ public:
         return false;
     }
 
-    void Init()
+    void Start()
+    {
+        SetInstance(this);
+        Reset();
+    }
+
+    void Reset()
     {
         // Enable all events the module needs
         for(EventType type : internalEvents)
         {
             alt::ICore::Instance().ToggleEvent(type, true);
         }
-        SetInstance(this);
+        eventHandlersCount.clear();
     }
 
     void EventHandlerAdded(alt::CEvent::Type type)

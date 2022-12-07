@@ -10,28 +10,37 @@
 using alt::CEvent;
 using EventType = CEvent::Type;
 
-V8_LOCAL_EVENT_HANDLER enteredVehicle(EventType::PLAYER_ENTER_VEHICLE, "enteredVehicle", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
-    auto ev = static_cast<const alt::CPlayerEnterVehicleEvent*>(e);
-    v8::Isolate* isolate = resource->GetIsolate();
+V8_LOCAL_EVENT_HANDLER enteredVehicle(EventType::PLAYER_ENTER_VEHICLE,
+                                      "enteredVehicle",
+                                      [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                      {
+                                          auto ev = static_cast<const alt::CPlayerEnterVehicleEvent*>(e);
+                                          v8::Isolate* isolate = resource->GetIsolate();
 
-    args.push_back(resource->GetOrCreateEntity(ev->GetTarget().Get())->GetJSVal(isolate));
-    args.push_back(V8Helpers::JSValue(ev->GetSeat()));
-});
+                                          args.push_back(resource->GetOrCreateEntity(ev->GetTarget())->GetJSVal(isolate));
+                                          args.push_back(V8Helpers::JSValue(ev->GetSeat()));
+                                      });
 
-V8_LOCAL_EVENT_HANDLER leftVehicle(EventType::PLAYER_LEAVE_VEHICLE, "leftVehicle", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
-    auto ev = static_cast<const alt::CPlayerLeaveVehicleEvent*>(e);
-    v8::Isolate* isolate = resource->GetIsolate();
+V8_LOCAL_EVENT_HANDLER leftVehicle(EventType::PLAYER_LEAVE_VEHICLE,
+                                   "leftVehicle",
+                                   [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                   {
+                                       auto ev = static_cast<const alt::CPlayerLeaveVehicleEvent*>(e);
+                                       v8::Isolate* isolate = resource->GetIsolate();
 
-    args.push_back(resource->GetOrCreateEntity(ev->GetTarget().Get())->GetJSVal(isolate));
-    args.push_back(V8Helpers::JSValue(ev->GetSeat()));
-});
+                                       args.push_back(resource->GetOrCreateEntity(ev->GetTarget())->GetJSVal(isolate));
+                                       args.push_back(V8Helpers::JSValue(ev->GetSeat()));
+                                   });
 
 V8_LOCAL_EVENT_HANDLER
-changedVehicleSeat(EventType::PLAYER_CHANGE_VEHICLE_SEAT, "changedVehicleSeat", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
-    auto ev = static_cast<const alt::CPlayerChangeVehicleSeatEvent*>(e);
-    v8::Isolate* isolate = resource->GetIsolate();
+changedVehicleSeat(EventType::PLAYER_CHANGE_VEHICLE_SEAT,
+                   "changedVehicleSeat",
+                   [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                   {
+                       auto ev = static_cast<const alt::CPlayerChangeVehicleSeatEvent*>(e);
+                       v8::Isolate* isolate = resource->GetIsolate();
 
-    args.push_back(resource->GetOrCreateEntity(ev->GetTarget().Get())->GetJSVal(isolate));
-    args.push_back(V8Helpers::JSValue(ev->GetOldSeat()));
-    args.push_back(V8Helpers::JSValue(ev->GetNewSeat()));
-});
+                       args.push_back(resource->GetOrCreateEntity(ev->GetTarget())->GetJSVal(isolate));
+                       args.push_back(V8Helpers::JSValue(ev->GetOldSeat()));
+                       args.push_back(V8Helpers::JSValue(ev->GetNewSeat()));
+                   });

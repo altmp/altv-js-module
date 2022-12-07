@@ -27,10 +27,12 @@ inline void RegisterEvents()
     V8_REFERENCE_LOCAL_EVENT_HANDLER(disconnect);
 
     // Entity
-    V8_REFERENCE_LOCAL_EVENT_HANDLER(removeEntity);
     V8_REFERENCE_EVENT_HANDLER(gameEntityCreate);
     V8_REFERENCE_EVENT_HANDLER(gameEntityDestroy);
     V8_REFERENCE_LOCAL_EVENT_HANDLER(taskChange);
+    V8_REFERENCE_LOCAL_EVENT_HANDLER(playerWeaponShoot);
+    V8_REFERENCE_LOCAL_EVENT_HANDLER(playerWeaponChange);
+    V8_REFERENCE_LOCAL_EVENT_HANDLER(weaponDamage);
 
     // Meta
     V8_REFERENCE_LOCAL_EVENT_HANDLER(syncedMetaChange);

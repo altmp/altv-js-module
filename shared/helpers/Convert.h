@@ -15,7 +15,9 @@ namespace V8Helpers
     bool SafeToObject(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::Object>& out);
     bool SafeToRGBA(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, alt::RGBA& out);
     bool SafeToVector3(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, alt::Vector3f& out);
+    bool SafeToVector3Int(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, alt::Vector3i& out);
     bool SafeToVector2(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, alt::Vector2f& out);
+    bool SafeToVector2Int(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, alt::Vector2i& out);
     bool SafeToArrayBuffer(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::ArrayBuffer>& out);
     bool SafeToArrayBufferView(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::ArrayBufferView>& out);
     bool SafeToArray(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::Array>& out);
@@ -26,13 +28,13 @@ namespace V8Helpers
     bool SafeToInt32(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, int32_t& out);
 
     template<typename T>
-    bool SafeToBaseObject(v8::Local<v8::Value> val, v8::Isolate* isolate, alt::Ref<T>& out)
+    bool SafeToBaseObject(v8::Local<v8::Value> val, v8::Isolate* isolate, T*& out)
     {
         V8Entity* v8BaseObject = V8Entity::Get(val);
         if(!v8BaseObject) return false;
 
-        out = v8BaseObject->GetHandle().As<T>();
-        if(out.IsEmpty()) return false;
+        out = dynamic_cast<T*>(v8BaseObject->GetHandle());
+        if(!out) return false;
 
         return true;
     }
@@ -140,6 +142,6 @@ namespace V8Helpers
         return val->Value();
     }
 
-    v8::Local<v8::Value> ConfigNodeToV8(alt::config::Node& node, v8::Local<v8::Value> parent = v8::Local<v8::Value>());
+    v8::Local<v8::Value> ConfigNodeToV8(Config::Value::ValuePtr node);
 
 }  // namespace V8Helpers

@@ -56,12 +56,13 @@ namespace V8Helpers
         V8_CALL_GETTER(alt::RGBA, V8_GET_ISOLATE_CONTEXT_RESOURCE, V8_RETURN_RGBA);
         V8_CALL_GETTER(alt::IColShape::ColShapeType, V8_GET_ISOLATE_CONTEXT_RESOURCE, V8_RETURN_ENUM);
         V8_CALL_GETTER(alt::IBaseObject::Type, V8_GET_ISOLATE_CONTEXT_RESOURCE, V8_RETURN_ENUM);
-        V8_CALL_GETTER(alt::Ref<alt::IBaseObject>, V8_GET_ISOLATE_CONTEXT_RESOURCE, V8_RETURN_BASE_OBJECT);
-        V8_CALL_GETTER(alt::Ref<alt::IEntity>, V8_GET_ISOLATE_CONTEXT_RESOURCE, V8_RETURN_BASE_OBJECT);
-        V8_CALL_GETTER(alt::Ref<alt::IPlayer>, V8_GET_ISOLATE_CONTEXT_RESOURCE, V8_RETURN_BASE_OBJECT);
-        V8_CALL_GETTER(alt::Ref<alt::IVehicle>, V8_GET_ISOLATE_CONTEXT_RESOURCE, V8_RETURN_BASE_OBJECT);
-        V8_CALL_GETTER(alt::Ref<alt::IRmlElement>, V8_GET_ISOLATE_CONTEXT_RESOURCE, V8_RETURN_BASE_OBJECT);
-        V8_CALL_GETTER(alt::Ref<alt::IRmlDocument>, V8_GET_ISOLATE_CONTEXT_RESOURCE, V8_RETURN_BASE_OBJECT);
+        V8_CALL_GETTER(alt::IBaseObject*, V8_GET_ISOLATE_CONTEXT_RESOURCE, V8_RETURN_BASE_OBJECT);
+        V8_CALL_GETTER(alt::IEntity*, V8_GET_ISOLATE_CONTEXT_RESOURCE, V8_RETURN_BASE_OBJECT);
+        V8_CALL_GETTER(alt::IPlayer*, V8_GET_ISOLATE_CONTEXT_RESOURCE, V8_RETURN_BASE_OBJECT);
+        V8_CALL_GETTER(alt::IVehicle*, V8_GET_ISOLATE_CONTEXT_RESOURCE, V8_RETURN_BASE_OBJECT);
+        V8_CALL_GETTER(alt::IRmlElement*, V8_GET_ISOLATE_CONTEXT_RESOURCE, V8_RETURN_BASE_OBJECT);
+        V8_CALL_GETTER(alt::IRmlDocument*, V8_GET_ISOLATE_CONTEXT_RESOURCE, V8_RETURN_BASE_OBJECT);
+        V8_CALL_GETTER(alt::IObject*, V8_GET_ISOLATE_CONTEXT_RESOURCE, V8_RETURN_BASE_OBJECT);
 
         V8_CALL_SETTER(bool, V8_GET_ISOLATE, V8_TO_BOOLEAN);
         V8_CALL_SETTER(uint8_t, V8_GET_ISOLATE_CONTEXT, V8_TO_INTEGER);
@@ -79,17 +80,17 @@ namespace V8Helpers
         V8_CALL_SETTER(alt::Rotation, V8_GET_ISOLATE_CONTEXT, V8_TO_VECTOR3);
         V8_CALL_SETTER(alt::Vector3f, V8_GET_ISOLATE_CONTEXT, V8_TO_VECTOR3);
         V8_CALL_SETTER(alt::Vector2f, V8_GET_ISOLATE_CONTEXT, V8_TO_VECTOR2);
-        V8_CALL_SETTER(alt::Vector3i, V8_GET_ISOLATE_CONTEXT, V8_TO_VECTOR3);
-        V8_CALL_SETTER(alt::Vector2i, V8_GET_ISOLATE_CONTEXT, V8_TO_VECTOR2);
+        V8_CALL_SETTER(alt::Vector3i, V8_GET_ISOLATE_CONTEXT, V8_TO_VECTOR3_INT);
+        V8_CALL_SETTER(alt::Vector2i, V8_GET_ISOLATE_CONTEXT, V8_TO_VECTOR2_INT);
         V8_CALL_SETTER(alt::RGBA, V8_GET_ISOLATE_CONTEXT, V8_TO_RGBA);
-        // V8_CALL_SETTER(alt::Ref<alt::IEntity>, V8_GET_ISOLATE_CONTEXT, V8_TO_ENTITY);
+        // V8_CALL_SETTER(alt::IEntity*, V8_GET_ISOLATE_CONTEXT, V8_TO_ENTITY);
 
         template<class T, class U, U (T::*Getter)() const>
         static void WrapGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
         {
             V8_GET_ISOLATE();
             V8_GET_THIS_BASE_OBJECT(_this, T);
-            CallGetter<T>(info, _this.Get(), Getter);
+            CallGetter<T>(info, _this, Getter);
         }
 
         template<class T, class U, void (T::*Setter)(U)>
@@ -97,7 +98,7 @@ namespace V8Helpers
         {
             V8_GET_ISOLATE();
             V8_GET_THIS_BASE_OBJECT(_this, T);
-            CallSetter<T>(info, value, _this.Get(), Setter);
+            CallSetter<T>(info, value, _this, Setter);
         }
 
         template<class T, void (T::*Method)()>
@@ -105,7 +106,7 @@ namespace V8Helpers
         {
             V8_GET_ISOLATE();
             V8_GET_THIS_BASE_OBJECT(_this, T);
-            (_this.Get()->*Method)();
+            (_this->*Method)();
         }
     }  // namespace detail
 
@@ -125,6 +126,12 @@ namespace V8Helpers
     inline void SetAccessor(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> tpl, const char* name)
     {
         V8Helpers::SetAccessor(isolate, tpl, name, V8Helpers::detail::WrapGetter<T, U, Getter>, V8Helpers::detail::WrapSetter<T, OtherU, Setter>);
+    }
+
+    template<class T, class U, U (T::*Getter)() const>
+    inline void SetLazyAccessor(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> tpl, const char* name)
+    {
+        V8Helpers::SetLazyAccessor(isolate, tpl, name, V8Helpers::detail::WrapGetter<T, U, Getter>);
     }
 
     template<class T, void (T::*Method)()>

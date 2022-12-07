@@ -26,7 +26,7 @@ static const char bootstrap_code[] =
 #include "bootstrap.js.gen"
   ;
 
-bool CNodeResourceImpl::Start()
+CNodeResourceImpl::CNodeResourceImpl(CNodeScriptRuntime* _runtime, v8::Isolate* isolate, alt::IResource* resource) : V8ResourceImpl(isolate, resource), runtime(_runtime)
 {
     v8::Locker locker(isolate);
     v8::Isolate::Scope isolateScope(isolate);
@@ -39,13 +39,23 @@ bool CNodeResourceImpl::Start()
     v8::Local<v8::Context> _context = node::NewContext(isolate, global);
     v8::Context::Scope scope(_context);
 
+    _context->SetAlignedPointerInEmbedderData(1, resource);
+    context.Reset(isolate, _context);
+}
+
+bool CNodeResourceImpl::Start()
+{
+    v8::Locker locker(isolate);
+    v8::Isolate::Scope isolateScope(isolate);
+    v8::HandleScope handleScope(isolate);
+    v8::Local<v8::Context> _context = GetContext();
+    v8::Context::Scope scope(_context);
+
     _context->Global()->Set(_context, V8Helpers::JSValue("__resourceLoaded"), v8::Function::New(_context, &ResourceLoaded).ToLocalChecked());
     _context->Global()->Set(_context, V8Helpers::JSValue("__internal_bindings_code"), V8Helpers::JSValue(JSBindings::GetBindingsCode()));
 
-    _context->SetAlignedPointerInEmbedderData(1, resource);
-    context.Reset(isolate, _context);
-
     V8ResourceImpl::Start();
+    V8ResourceImpl::SetupScriptGlobals();
 
     node::EnvironmentFlags::Flags flags = (node::EnvironmentFlags::Flags)(node::EnvironmentFlags::kOwnsProcessState & node::EnvironmentFlags::kNoCreateInspector);
 
@@ -123,7 +133,7 @@ void CNodeResourceImpl::Started(v8::Local<v8::Value> _exports)
     }
 }
 
-bool CNodeResourceImpl::OnEvent(const alt::CEvent* e)
+void CNodeResourceImpl::OnEvent(const alt::CEvent* e)
 {
     v8::Locker locker(isolate);
     v8::Isolate::Scope isolateScope(isolate);
@@ -133,7 +143,7 @@ bool CNodeResourceImpl::OnEvent(const alt::CEvent* e)
     // env->PushAsyncCallbackScope();
 
     V8Helpers::EventHandler* handler = V8Helpers::EventHandler::Get(e);
-    if(!handler) return true;
+    if(!handler) return;
 
     // Generic event handler
     {
@@ -175,7 +185,7 @@ bool CNodeResourceImpl::OnEvent(const alt::CEvent* e)
     }
 
     // env->PopAsyncCallbackScope();
-    return true;
+    return;
 }
 
 void CNodeResourceImpl::OnTick()

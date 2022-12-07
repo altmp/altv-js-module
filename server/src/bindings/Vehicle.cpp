@@ -57,11 +57,11 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         rot = { rx, ry, rz };
     }
 
-    Ref<IVehicle> veh = alt::ICore::Instance().CreateVehicle(modelHash, pos, rot);
+    IVehicle* veh = alt::ICore::Instance().CreateVehicle(modelHash, pos, rot);
 
     V8_CHECK(veh, "Failed to create vehicle");
 
-    resource->BindEntity(info.This(), veh.Get());
+    resource->BindEntity(info.This(), veh);
 }
 
 static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -78,7 +78,7 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_INT(1, id);
 
-    alt::Ref<alt::IEntity> entity = alt::ICore::Instance().GetEntityByID(id);
+    alt::IEntity* entity = alt::ICore::Instance().GetEntityByID(id);
 
     if(entity && entity->GetType() == alt::IEntity::Type::VEHICLE)
     {
@@ -97,7 +97,7 @@ static void SetTrainEngineId(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     if(info[0]->IsNull())
     {
-        alt::Ref<alt::IVehicle> ref;
+        alt::IVehicle* ref;
         _this->SetTrainEngineId(ref);
     }
     else
@@ -114,7 +114,7 @@ static void SetTrainLinkedToBackwardId(const v8::FunctionCallbackInfo<v8::Value>
 
     if(info[0]->IsNull())
     {
-        alt::Ref<alt::IVehicle> ref;
+        alt::IVehicle* ref;
         _this->SetTrainLinkedToBackwardId(ref);
     }
     else
@@ -131,7 +131,7 @@ static void SetTrainLinkedToForwardId(const v8::FunctionCallbackInfo<v8::Value>&
 
     if(info[0]->IsNull())
     {
-        alt::Ref<alt::IVehicle> ref;
+        alt::IVehicle* ref;
         _this->SetTrainLinkedToForwardId(ref);
     }
     else
@@ -166,6 +166,29 @@ static void SetTimedExplosion(const v8::FunctionCallbackInfo<v8::Value>& info)
     _this->SetTimedExplosion(state, culprit, time);
 }
 
+static void GetWeaponCapacity(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
+
+    V8_ARG_TO_INT(1, index);
+
+    V8_RETURN_NUMBER(_this->GetWeaponCapacity(index));
+}
+
+static void SetWeaponCapacity(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+    V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
+
+    V8_ARG_TO_INT(1, index);
+    V8_ARG_TO_NUMBER(2, capacity);
+
+    _this->SetWeaponCapacity(index, capacity);
+}
+
 extern V8Class v8Entity;
 extern V8Class v8Vehicle("Vehicle",
                          v8Entity,
@@ -179,7 +202,7 @@ extern V8Class v8Vehicle("Vehicle",
 
                              // Common getter/setters
                              V8Helpers::SetAccessor<IVehicle, bool, &IVehicle::IsDestroyed>(isolate, tpl, "destroyed");
-                             V8Helpers::SetAccessor<IVehicle, Ref<IPlayer>, &IVehicle::GetDriver>(isolate, tpl, "driver");
+                             V8Helpers::SetAccessor<IVehicle, IPlayer*, &IVehicle::GetDriver>(isolate, tpl, "driver");
                              V8Helpers::SetAccessor<IVehicle, Vector3f, &IVehicle::GetVelocity>(isolate, tpl, "velocity");
 
                              // Appearance getters/setters
@@ -298,13 +321,13 @@ extern V8Class v8Vehicle("Vehicle",
                              V8Helpers::SetMethod(isolate, tpl, "getScriptDataBase64", &GetScriptData);
                              V8Helpers::SetMethod(isolate, tpl, "setScriptDataBase64", &SetScriptData);
 
-                             V8Helpers::SetAccessor<IVehicle, Ref<IVehicle>, &IVehicle::GetAttached>(isolate, tpl, "attached");
-                             V8Helpers::SetAccessor<IVehicle, Ref<IVehicle>, &IVehicle::GetAttachedTo>(isolate, tpl, "attachedTo");
+                             V8Helpers::SetAccessor<IVehicle, IVehicle*, &IVehicle::GetAttached>(isolate, tpl, "attached");
+                             V8Helpers::SetAccessor<IVehicle, IVehicle*, &IVehicle::GetAttachedTo>(isolate, tpl, "attachedTo");
 
                              // Train getter/setter
                              V8Helpers::SetAccessor<IVehicle, bool, &IVehicle::IsTrainMissionTrain, &IVehicle::SetTrainMissionTrain>(isolate, tpl, "isMissionTrain");
                              V8Helpers::SetAccessor<IVehicle, int8_t, &IVehicle::GetTrainTrackId, &IVehicle::SetTrainTrackId>(isolate, tpl, "trainTrackId");
-                             V8Helpers::SetAccessor<IVehicle, Ref<IVehicle>, &IVehicle::GetTrainEngineId>(isolate, tpl, "trainEngineId");
+                             V8Helpers::SetAccessor<IVehicle, IVehicle*, &IVehicle::GetTrainEngineId>(isolate, tpl, "trainEngineId");
                              V8Helpers::SetMethod(isolate, tpl, "setTrainEngineId", &SetTrainEngineId);
                              V8Helpers::SetAccessor<IVehicle, int8_t, &IVehicle::GetTrainConfigIndex, &IVehicle::SetTrainConfigIndex>(isolate, tpl, "trainConfigIndex");
                              V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetTrainDistanceFromEngine, &IVehicle::SetTrainDistanceFromEngine>(isolate, tpl, "trainDistanceFromEngine");
@@ -317,9 +340,9 @@ extern V8Class v8Vehicle("Vehicle",
                              V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetTrainCruiseSpeed, &IVehicle::SetTrainCruiseSpeed>(isolate, tpl, "trainCruiseSpeed");
                              V8Helpers::SetAccessor<IVehicle, int8_t, &IVehicle::GetTrainCarriageConfigIndex, &IVehicle::SetTrainCarriageConfigIndex>(
                                isolate, tpl, "trainCarriageConfigIndex");
-                             V8Helpers::SetAccessor<IVehicle, Ref<IVehicle>, &IVehicle::GetTrainLinkedToBackwardId>(isolate, tpl, "trainLinkedToBackwardId");
+                             V8Helpers::SetAccessor<IVehicle, IVehicle*, &IVehicle::GetTrainLinkedToBackwardId>(isolate, tpl, "trainLinkedToBackwardId");
                              V8Helpers::SetMethod(isolate, tpl, "setTrainLinkedToBackwardId", &SetTrainLinkedToBackwardId);
-                             V8Helpers::SetAccessor<IVehicle, Ref<IVehicle>, &IVehicle::GetTrainLinkedToForwardId>(isolate, tpl, "trainLinkedToForwardId");
+                             V8Helpers::SetAccessor<IVehicle, IVehicle*, &IVehicle::GetTrainLinkedToForwardId>(isolate, tpl, "trainLinkedToForwardId");
                              V8Helpers::SetMethod(isolate, tpl, "setTrainLinkedToForwardId", &SetTrainLinkedToForwardId);
                              V8Helpers::SetAccessor<IVehicle, bool, &IVehicle::GetTrainUnk1, &IVehicle::SetTrainUnk1>(isolate, tpl, "trainUnk1");
                              V8Helpers::SetAccessor<IVehicle, bool, &IVehicle::GetTrainUnk2, &IVehicle::SetTrainUnk2>(isolate, tpl, "trainUnk2");
@@ -335,5 +358,13 @@ extern V8Class v8Vehicle("Vehicle",
                              V8Helpers::SetMethod(isolate, tpl, "setTimedExplosion", &SetTimedExplosion);
                              V8Helpers::SetAccessor<IVehicle, uint32_t, &IVehicle::GetTimedExplosionTime>(isolate, tpl, "timedExplosionTime");
                              V8Helpers::SetAccessor<IVehicle, bool, &IVehicle::HasTimedExplosion>(isolate, tpl, "hasTimedExplosion");
-                             V8Helpers::SetAccessor<IVehicle, Ref<IPlayer>, &IVehicle::GetTimedExplosionCulprit>(isolate, tpl, "timedExplosionCulprit");
+                             V8Helpers::SetAccessor<IVehicle, IPlayer*, &IVehicle::GetTimedExplosionCulprit>(isolate, tpl, "timedExplosionCulprit");
+
+                             V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetRocketRefuelSpeed, &IVehicle::SetRocketRefuelSpeed>(isolate, tpl, "rocketRefuelSpeed");
+                             V8Helpers::SetAccessor<IVehicle, uint32_t, &IVehicle::GetCounterMeasureCount, &IVehicle::SetCounterMeasureCount>(isolate, tpl, "counterMeasureCount");
+                             V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetScriptMaxSpeed, &IVehicle::SetScriptMaxSpeed>(isolate, tpl, "scriptMaxSpeed");
+                             V8Helpers::SetMethod(isolate, tpl, "getWeaponCapacity", &GetWeaponCapacity);
+                             V8Helpers::SetMethod(isolate, tpl, "setWeaponCapacity", &SetWeaponCapacity);
+                             V8Helpers::SetAccessor<IVehicle, bool, &IVehicle::GetHybridExtraActive, &IVehicle::SetHybridExtraActive>(isolate, tpl, "hybridExtraActive");
+                             V8Helpers::SetAccessor<IVehicle, uint8_t, &IVehicle::GetHybridExtraState, &IVehicle::SetHybridExtraState>(isolate, tpl, "hybridExtraState");
                          });

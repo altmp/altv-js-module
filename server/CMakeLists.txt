@@ -2,6 +2,7 @@ cmake_minimum_required (VERSION 2.9)
 
 include(../shared/deps/cpp-sdk/CMakeLists.txt)
 include(cmake/DepsDownload.cmake)
+set(BINDINGS_SCOPE "SERVER")
 include(../shared/cmake/GenerateBindings.cmake)
 
 project(js-module)
@@ -13,7 +14,7 @@ set(PROJECT_NAME js-module)
 message("alt:V JS - Fetching NodeJS deps, can take a while")
 DownloadDeps()
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_definitions(-DJS_MODULE_VERSION="${JS_MODULE_VERSION}")
@@ -63,7 +64,6 @@ GroupSources(${PROJECT_SOURCE_DIR}/src "Source Files")
 GroupSources("../shared" "Shared Files")
 
 make_includable("src/bootstrap.js" "src/bootstrap.js.gen")
-GenerateBindings()
 
 include_directories(
   src
@@ -129,7 +129,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   else()
     target_compile_options(${PROJECT_NAME} PRIVATE
       -fuse-ld=lld
-      -std=c++17
+      -std=c++20
       -stdlib=libc++
     )
   endif()
@@ -145,7 +145,7 @@ add_library(
   ${PROJECT_SHARED_FILES}
 )
 
-add_dependencies(${PROJECT_NAME} alt-sdk)
+add_dependencies(${PROJECT_NAME} alt-sdk js-bindings)
 
 if(MSVC AND WIN32)
     set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /DEBUG")

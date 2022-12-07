@@ -8,8 +8,8 @@ void V8Helpers::PromiseRejections::RejectedWithNoHandler(CV8ResourceImpl* resour
 {
     v8::Isolate* isolate = resource->GetIsolate();
 
-    queue.push_back(
-      std::make_unique<PromiseRejection>(isolate, data.GetPromise(), data.GetValue(), V8Helpers::SourceLocation::GetCurrent(isolate), V8Helpers::StackTrace::GetCurrent(isolate)));
+    queue.push_back(std::make_unique<PromiseRejection>(
+      isolate, data.GetPromise(), data.GetValue(), V8Helpers::SourceLocation::GetCurrent(isolate, resource), V8Helpers::StackTrace::GetCurrent(isolate, resource)));
 }
 
 void V8Helpers::PromiseRejections::HandlerAdded(CV8ResourceImpl* resource, v8::PromiseRejectMessage& data)
@@ -30,7 +30,8 @@ void V8Helpers::PromiseRejections::ProcessQueue(CV8ResourceImpl* resource)
     {
         std::string rejectionMsg = *v8::String::Utf8Value(isolate, rejection->value.Get(isolate)->ToString(ctx).ToLocalChecked());
         auto fileName = rejection->location.GetFileName();
-        if(rejection->location.GetLineNumber() != 0 && !resource->IsBytecodeResource())
+        auto moduleData = resource->GetModuleData(fileName);
+        if(rejection->location.GetLineNumber() != 0 && !moduleData.isBytecode)
         {
             Log::Error << "[V8] Unhandled promise rejection at " << resource->GetResource()->GetName() << ":" << fileName << ":" << rejection->location.GetLineNumber() << " ("
                        << rejectionMsg << ")" << Log::Endl;

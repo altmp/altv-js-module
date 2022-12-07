@@ -24,11 +24,13 @@ using EventType = CEvent::Type;
 
 V8_EVENT_HANDLER clientScriptEvent(
   EventType::CLIENT_SCRIPT_EVENT,
-  [](V8ResourceImpl* resource, const CEvent* e) {
+  [](V8ResourceImpl* resource, const CEvent* e)
+  {
       auto ev = static_cast<const alt::CClientScriptEvent*>(e);
       return resource->GetLocalHandlers(ev->GetName());
   },
-  [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+  [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+  {
       auto ev = static_cast<const alt::CClientScriptEvent*>(e);
 
       V8Helpers::MValueArgsToV8(ev->GetArgs(), args);
@@ -36,11 +38,13 @@ V8_EVENT_HANDLER clientScriptEvent(
 
 V8_EVENT_HANDLER serverScriptEvent(
   EventType::SERVER_SCRIPT_EVENT,
-  [](V8ResourceImpl* resource, const CEvent* e) {
+  [](V8ResourceImpl* resource, const CEvent* e)
+  {
       auto ev = static_cast<const alt::CServerScriptEvent*>(e);
       return resource->GetRemoteHandlers(ev->GetName());
   },
-  [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+  [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+  {
       auto ev = static_cast<const alt::CServerScriptEvent*>(e);
 
       V8Helpers::MValueArgsToV8(ev->GetArgs(), args);
@@ -48,12 +52,14 @@ V8_EVENT_HANDLER serverScriptEvent(
 
 V8_EVENT_HANDLER webviewEvent(
   EventType::WEB_VIEW_EVENT,
-  [](V8ResourceImpl* resource, const CEvent* e) {
+  [](V8ResourceImpl* resource, const CEvent* e)
+  {
       auto ev = static_cast<const alt::CWebViewEvent*>(e);
 
       return static_cast<CV8ResourceImpl*>(resource)->GetWebViewHandlers(ev->GetTarget(), ev->GetName());
   },
-  [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+  [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+  {
       auto ev = static_cast<const alt::CWebViewEvent*>(e);
 
       V8Helpers::MValueArgsToV8(ev->GetArgs(), args);
@@ -61,12 +67,14 @@ V8_EVENT_HANDLER webviewEvent(
 
 V8_EVENT_HANDLER webSocketEvent(
   EventType::WEB_SOCKET_CLIENT_EVENT,
-  [](V8ResourceImpl* resource, const CEvent* e) {
+  [](V8ResourceImpl* resource, const CEvent* e)
+  {
       auto ev = static_cast<const alt::CWebSocketClientEvent*>(e);
 
       return static_cast<CV8ResourceImpl*>(resource)->GetWebSocketClientHandlers(ev->GetTarget(), ev->GetName());
   },
-  [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+  [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+  {
       auto ev = static_cast<const alt::CWebSocketClientEvent*>(e);
 
       V8Helpers::MValueArgsToV8(ev->GetArgs(), args);
@@ -74,12 +82,14 @@ V8_EVENT_HANDLER webSocketEvent(
 
 V8_EVENT_HANDLER audioEvent(
   EventType::AUDIO_EVENT,
-  [](V8ResourceImpl* resource, const CEvent* e) {
+  [](V8ResourceImpl* resource, const CEvent* e)
+  {
       auto ev = static_cast<const alt::CAudioEvent*>(e);
 
       return static_cast<CV8ResourceImpl*>(resource)->GetAudioHandlers(ev->GetTarget(), ev->GetName());
   },
-  [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+  [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+  {
       auto ev = static_cast<const alt::CAudioEvent*>(e);
 
       V8Helpers::MValueArgsToV8(ev->GetArgs(), args);
@@ -87,11 +97,13 @@ V8_EVENT_HANDLER audioEvent(
 
 V8_EVENT_HANDLER rmlEvent(
   EventType::RMLUI_EVENT,
-  [](V8ResourceImpl* resource, const CEvent* e) {
+  [](V8ResourceImpl* resource, const CEvent* e)
+  {
       auto ev = static_cast<const alt::CRmlEvent*>(e);
       return static_cast<CV8ResourceImpl*>(resource)->GetRmlHandlers(ev->GetElement(), ev->GetName());
   },
-  [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+  [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+  {
       auto ev = static_cast<const alt::CRmlEvent*>(e);
       args.push_back(resource->GetBaseObjectOrNull(ev->GetElement()));
       args.push_back(V8Helpers::MValueToV8(ev->GetArgs()));
@@ -99,7 +111,8 @@ V8_EVENT_HANDLER rmlEvent(
 
 V8_EVENT_HANDLER keyboardEvent(
   EventType::KEYBOARD_EVENT,
-  [](V8ResourceImpl* resource, const CEvent* e) {
+  [](V8ResourceImpl* resource, const CEvent* e)
+  {
       auto ev = static_cast<const alt::CKeyboardEvent*>(e);
       if(ev->GetKeyState() == alt::CKeyboardEvent::KeyState::UP) return resource->GetLocalHandlers("keyup");
       else if(ev->GetKeyState() == alt::CKeyboardEvent::KeyState::DOWN)
@@ -110,40 +123,50 @@ V8_EVENT_HANDLER keyboardEvent(
           return std::vector<V8Helpers::EventCallback*>();
       }
   },
-  [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+  [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+  {
       auto ev = static_cast<const alt::CKeyboardEvent*>(e);
       v8::Isolate* isolate = resource->GetIsolate();
 
       args.push_back(V8Helpers::JSValue(ev->GetKeyCode()));
   });
 
-V8_LOCAL_EVENT_HANDLER connectionComplete(EventType::CONNECTION_COMPLETE, "connectionComplete", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
-});
+V8_LOCAL_EVENT_HANDLER
+  connectionComplete(EventType::CONNECTION_COMPLETE, "connectionComplete", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {});
 
 V8_LOCAL_EVENT_HANDLER disconnect(EventType::DISCONNECT_EVENT, "disconnect", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {});
 
 V8_LOCAL_EVENT_HANDLER spawned(EventType::SPAWNED, "spawned", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {});
 
-V8_LOCAL_EVENT_HANDLER netOwnerChange(EventType::NETOWNER_CHANGE, "netOwnerChange", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
-    auto ev = static_cast<const alt::CNetOwnerChangeEvent*>(e);
+V8_LOCAL_EVENT_HANDLER netOwnerChange(EventType::NETOWNER_CHANGE,
+                                      "netOwnerChange",
+                                      [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                      {
+                                          auto ev = static_cast<const alt::CNetOwnerChangeEvent*>(e);
 
-    args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
-    args.push_back(resource->GetBaseObjectOrNull(ev->GetNewOwner()));
-    args.push_back(resource->GetBaseObjectOrNull(ev->GetOldOwner()));
-});
+                                          args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
+                                          args.push_back(resource->GetBaseObjectOrNull(ev->GetNewOwner()));
+                                          args.push_back(resource->GetBaseObjectOrNull(ev->GetOldOwner()));
+                                      });
 
-V8_LOCAL_EVENT_HANDLER windowFocusChange(EventType::WINDOW_FOCUS_CHANGE, "windowFocusChange", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
-    auto ev = static_cast<const alt::CWindowFocusChangeEvent*>(e);
-    v8::Isolate* isolate = resource->GetIsolate();
+V8_LOCAL_EVENT_HANDLER windowFocusChange(EventType::WINDOW_FOCUS_CHANGE,
+                                         "windowFocusChange",
+                                         [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                         {
+                                             auto ev = static_cast<const alt::CWindowFocusChangeEvent*>(e);
+                                             v8::Isolate* isolate = resource->GetIsolate();
 
-    args.push_back(V8Helpers::JSValue(ev->GetState()));
-});
+                                             args.push_back(V8Helpers::JSValue(ev->GetState()));
+                                         });
 
 V8_LOCAL_EVENT_HANDLER
-windowResolutionChange(EventType::WINDOW_RESOLUTION_CHANGE, "windowResolutionChange", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
-    auto ev = static_cast<const alt::CWindowResolutionChangeEvent*>(e);
-    v8::Isolate* isolate = resource->GetIsolate();
+windowResolutionChange(EventType::WINDOW_RESOLUTION_CHANGE,
+                       "windowResolutionChange",
+                       [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                       {
+                           auto ev = static_cast<const alt::CWindowResolutionChangeEvent*>(e);
+                           v8::Isolate* isolate = resource->GetIsolate();
 
-    args.push_back(resource->CreateVector2(ev->GetOldResolution()));
-    args.push_back(resource->CreateVector2(ev->GetNewResolution()));
-});
+                           args.push_back(resource->CreateVector2(ev->GetOldResolution()));
+                           args.push_back(resource->CreateVector2(ev->GetNewResolution()));
+                       });

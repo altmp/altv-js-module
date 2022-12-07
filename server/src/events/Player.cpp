@@ -18,6 +18,7 @@
 #include "cpp-sdk/events/CLocalMetaDataChangeEvent.h"
 #include "cpp-sdk/events/CPlayerRequestControlEvent.h"
 #include "cpp-sdk/events/CPlayerChangeInteriorEvent.h"
+#include "cpp-sdk/events/CPlayerDimensionChangeEvent.h"
 
 using alt::CEvent;
 using EventType = CEvent::Type;
@@ -40,9 +41,9 @@ V8Helpers::LocalEventHandler beforePlayerConnect(EventType::PLAYER_BEFORE_CONNEC
                                                      v8::Isolate* isolate = resource->GetIsolate();
                                                      v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
 
-                                                     alt::Ref<alt::IConnectionInfo> info = ev->GetConnectionInfo();
+                                                     alt::IConnectionInfo* info = ev->GetConnectionInfo();
                                                      v8::Local<v8::Object> infoObj = v8ConnectionInfo.CreateInstance(ctx);
-                                                     infoObj->SetInternalField(0, v8::External::New(isolate, info.Get()));
+                                                     infoObj->SetInternalField(0, v8::External::New(isolate, info));
                                                      static_cast<CNodeResourceImpl*>(resource)->AddConnectionInfoObject(info, infoObj);
 
                                                      args.push_back(infoObj);
@@ -56,6 +57,23 @@ V8Helpers::LocalEventHandler beforePlayerConnect(EventType::PLAYER_BEFORE_CONNEC
                                                            infoObj->SetInternalField(0, v8::External::New(isolate, nullptr));
                                                            static_cast<CNodeResourceImpl*>(resource)->RemoveConnectionInfoObject(info);
                                                        });
+                                                 });
+
+V8Helpers::LocalEventHandler playerConnectDenied(EventType::PLAYER_CONNECT_DENIED,
+                                                 "playerConnectDenied",
+                                                 [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                                 {
+                                                     auto ev = static_cast<const alt::CPlayerConnectDeniedEvent*>(e);
+
+                                                     args.push_back(V8Helpers::JSValue(ev->GetReason()));
+                                                     args.push_back(V8Helpers::JSValue(ev->GetName()));
+                                                     args.push_back(V8Helpers::JSValue(ev->GetIp()));
+                                                     args.push_back(V8Helpers::JSValue(ev->GetPasswordHash()));
+                                                     args.push_back(V8Helpers::JSValue(ev->IsDebug()));
+                                                     args.push_back(V8Helpers::JSValue(ev->GetBranch()));
+                                                     args.push_back(V8Helpers::JSValue(ev->GetMajorVersion()));
+                                                     args.push_back(V8Helpers::JSValue(ev->GetCdnUrl()));
+                                                     args.push_back(V8Helpers::JSValue(ev->GetDiscordId()));
                                                  });
 
 V8Helpers::LocalEventHandler playerDisconnect(EventType::PLAYER_DISCONNECT,
@@ -171,9 +189,9 @@ V8_LOCAL_EVENT_HANDLER connectionQueueAdd(EventType::CONNECTION_QUEUE_ADD,
                                               v8::Isolate* isolate = resource->GetIsolate();
                                               v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
 
-                                              alt::Ref<alt::IConnectionInfo> info = ev->GetConnectionInfo();
+                                              alt::IConnectionInfo* info = ev->GetConnectionInfo();
                                               v8::Local<v8::Object> infoObj = v8ConnectionInfo.CreateInstance(ctx);
-                                              infoObj->SetInternalField(0, v8::External::New(isolate, info.Get()));
+                                              infoObj->SetInternalField(0, v8::External::New(isolate, info));
                                               static_cast<CNodeResourceImpl*>(resource)->AddConnectionInfoObject(info, infoObj);
 
                                               args.push_back(infoObj);
@@ -188,7 +206,7 @@ connectionQueueRemove(EventType::CONNECTION_QUEUE_REMOVE,
                           v8::Isolate* isolate = resource->GetIsolate();
                           v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
 
-                          alt::Ref<alt::IConnectionInfo> info = ev->GetConnectionInfo();
+                          alt::IConnectionInfo* info = ev->GetConnectionInfo();
                           resource->RunOnNextTick(
                             [resource, isolate, info]
                             {
@@ -223,4 +241,16 @@ V8_LOCAL_EVENT_HANDLER playerInteriorChange(EventType::PLAYER_CHANGE_INTERIOR_EV
                                                 args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
                                                 args.push_back(V8Helpers::JSValue(ev->GetOldInteriorLocation()));
                                                 args.push_back(V8Helpers::JSValue(ev->GetNewInteriorLocation()));
+                                            });
+
+V8_LOCAL_EVENT_HANDLER playerDimensionChange(EventType::PLAYER_DIMENSION_CHANGE,
+                                            "playerDimensionChange",
+                                            [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                            {
+                                                auto ev = static_cast<const alt::CPlayerDimensionChangeEvent*>(e);
+                                                v8::Isolate* isolate = resource->GetIsolate();
+
+                                                args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
+                                                args.push_back(V8Helpers::JSValue(ev->GetOldDimension()));
+                                                args.push_back(V8Helpers::JSValue(ev->GetNewDimension()));
                                             });

@@ -1,9 +1,7 @@
 /// <reference types="@altv/types-shared"/>
+/// <reference types="@altv/types-client"/>
+/// <reference types="@altv/types-server"/>
 /// <reference types="@altv/types-natives"/>
-import * as altShared from "alt-shared";
-import * as altNatives from "natives";
 
-declare global {
-    export const alt: typeof altShared;
-    export const native: typeof altNatives;
-}
+declare const alt: typeof import("alt-shared") & typeof import("alt-client") & typeof import("alt-server");
+declare const native: typeof import("natives");

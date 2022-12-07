@@ -29,7 +29,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_OBJECT_GET_INT(color, "b", b);
         V8_OBJECT_GET_INT(color, "a", a);
 
-        alt::Ref<alt::ICheckpoint> cp = alt::ICore::Instance().CreateCheckpoint(type, { x, y, z }, { x2, y2, z2 }, radius, height, { (uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a });
+        alt::ICheckpoint* cp = alt::ICore::Instance().CreateCheckpoint(type, { x, y, z }, { x2, y2, z2 }, radius, height, { (uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a });
         V8_BIND_BASE_OBJECT(cp, "Failed to create Checkpoint");
     }
     else if(info.Length() == 10)
@@ -50,7 +50,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_OBJECT_GET_INT(color, "b", b);
         V8_OBJECT_GET_INT(color, "a", a);
 
-        alt::Ref<alt::ICheckpoint> cp = alt::ICore::Instance().CreateCheckpoint(type, { x, y, z }, { x2, y2, z2 }, radius, height, { (uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a });
+        alt::ICheckpoint* cp = alt::ICore::Instance().CreateCheckpoint(type, { x, y, z }, { x2, y2, z2 }, radius, height, { (uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a });
         V8_BIND_BASE_OBJECT(cp, "Failed to create Checkpoint");
     }
     else
@@ -81,16 +81,20 @@ static void IsPointIn(const v8::FunctionCallbackInfo<v8::Value>& info)
 }
 
 extern V8Class v8WorldObject;
-extern V8Class v8Checkpoint("Checkpoint", v8WorldObject, Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
-    using namespace alt;
-    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+extern V8Class v8Checkpoint("Checkpoint",
+                            v8WorldObject,
+                            Constructor,
+                            [](v8::Local<v8::FunctionTemplate> tpl)
+                            {
+                                using namespace alt;
+                                v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    V8Helpers::SetAccessor<ICheckpoint, uint8_t, &ICheckpoint::GetCheckpointType, &ICheckpoint::SetCheckpointType>(isolate, tpl, "checkpointType");
-    V8Helpers::SetAccessor<ICheckpoint, float, &ICheckpoint::GetRadius, &ICheckpoint::SetRadius>(isolate, tpl, "radius");
-    V8Helpers::SetAccessor<ICheckpoint, float, &ICheckpoint::GetHeight, &ICheckpoint::SetHeight>(isolate, tpl, "height");
-    V8Helpers::SetAccessor<ICheckpoint, RGBA, &ICheckpoint::GetColor, &ICheckpoint::SetColor>(isolate, tpl, "color");
-    V8Helpers::SetAccessor<ICheckpoint, Position, &ICheckpoint::GetNextPosition, &ICheckpoint::SetNextPosition>(isolate, tpl, "nextPos");
+                                V8Helpers::SetAccessor<ICheckpoint, uint8_t, &ICheckpoint::GetCheckpointType, &ICheckpoint::SetCheckpointType>(isolate, tpl, "checkpointType");
+                                V8Helpers::SetAccessor<ICheckpoint, float, &ICheckpoint::GetRadius, &ICheckpoint::SetRadius>(isolate, tpl, "radius");
+                                V8Helpers::SetAccessor<ICheckpoint, float, &ICheckpoint::GetHeight, &ICheckpoint::SetHeight>(isolate, tpl, "height");
+                                V8Helpers::SetAccessor<ICheckpoint, RGBA, &ICheckpoint::GetColor, &ICheckpoint::SetColor>(isolate, tpl, "color");
+                                V8Helpers::SetAccessor<ICheckpoint, Position, &ICheckpoint::GetNextPosition, &ICheckpoint::SetNextPosition>(isolate, tpl, "nextPos");
 
-    V8Helpers::SetMethod(isolate, tpl, "isEntityIn", &IsEntityIn);
-    V8Helpers::SetMethod(isolate, tpl, "isPointIn", &IsPointIn);
-});
+                                V8Helpers::SetMethod(isolate, tpl, "isEntityIn", &IsEntityIn);
+                                V8Helpers::SetMethod(isolate, tpl, "isPointIn", &IsPointIn);
+                            });

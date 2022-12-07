@@ -63,8 +63,8 @@ static void CreateElement(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_STRING(1, tag);
 
-    alt::Ref<alt::IRmlElement> element = document->CreateElement(tag);
-    V8_CHECK(!element.IsEmpty(), "Failed to create element");
+    alt::IRmlElement* element = document->CreateElement(tag);
+    V8_CHECK(element, "Failed to create element");
 
     V8_RETURN(resource->GetBaseObjectOrNull(element));
 }
@@ -77,29 +77,33 @@ static void CreateTextNode(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_STRING(1, text);
 
-    alt::Ref<alt::IRmlElement> node = document->CreateTextNode(text);
-    V8_CHECK(!node.IsEmpty(), "Failed to create text node");
+    alt::IRmlElement* node = document->CreateTextNode(text);
+    V8_CHECK(node, "Failed to create text node");
 
     V8_RETURN(resource->GetBaseObjectOrNull(node));
 }
 
 extern V8Class v8RmlElement;
-extern V8Class v8RmlDocument("RmlDocument", v8RmlElement, &DocumentConstructor, [](v8::Local<v8::FunctionTemplate> tpl) {
-    using namespace alt;
-    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+extern V8Class v8RmlDocument("RmlDocument",
+                             v8RmlElement,
+                             &DocumentConstructor,
+                             [](v8::Local<v8::FunctionTemplate> tpl)
+                             {
+                                 using namespace alt;
+                                 v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    V8Helpers::SetAccessor<alt::IRmlDocument, const std::string&, &alt::IRmlDocument::GetTitle, &alt::IRmlDocument::SetTitle>(isolate, tpl, "title");
-    V8Helpers::SetAccessor<alt::IRmlDocument, const std::string&, &alt::IRmlDocument::GetSourceUrl>(isolate, tpl, "sourceUrl");
-    V8Helpers::SetAccessor<alt::IRmlDocument, bool, &alt::IRmlDocument::IsVisible>(isolate, tpl, "isVisible");
-    V8Helpers::SetAccessor<alt::IRmlDocument, bool, &alt::IRmlDocument::IsModal>(isolate, tpl, "isModal");
+                                 V8Helpers::SetAccessor<alt::IRmlDocument, const std::string&, &alt::IRmlDocument::GetTitle, &alt::IRmlDocument::SetTitle>(isolate, tpl, "title");
+                                 V8Helpers::SetAccessor<alt::IRmlDocument, const std::string&, &alt::IRmlDocument::GetSourceUrl>(isolate, tpl, "sourceUrl");
+                                 V8Helpers::SetAccessor<alt::IRmlDocument, bool, &alt::IRmlDocument::IsVisible>(isolate, tpl, "isVisible");
+                                 V8Helpers::SetAccessor<alt::IRmlDocument, bool, &alt::IRmlDocument::IsModal>(isolate, tpl, "isModal");
 
-    V8Helpers::SetAccessor<alt::IRmlDocument, Ref<IRmlElement>, &alt::IRmlDocument::GetBody>(isolate, tpl, "body");
+                                 V8Helpers::SetAccessor<alt::IRmlDocument, IRmlElement*, &alt::IRmlDocument::GetBody>(isolate, tpl, "body");
 
-    V8Helpers::SetMethod(isolate, tpl, "show", &Show);
-    V8Helpers::SetMethod<alt::IRmlDocument, &alt::IRmlDocument::Hide>(isolate, tpl, "hide");
+                                 V8Helpers::SetMethod(isolate, tpl, "show", &Show);
+                                 V8Helpers::SetMethod<alt::IRmlDocument, &alt::IRmlDocument::Hide>(isolate, tpl, "hide");
 
-    V8Helpers::SetMethod<alt::IRmlDocument, &alt::IRmlDocument::Update>(isolate, tpl, "update");
+                                 V8Helpers::SetMethod<alt::IRmlDocument, &alt::IRmlDocument::Update>(isolate, tpl, "update");
 
-    V8Helpers::SetMethod(isolate, tpl, "createElement", &CreateElement);
-    V8Helpers::SetMethod(isolate, tpl, "createTextNode", &CreateTextNode);
-});
+                                 V8Helpers::SetMethod(isolate, tpl, "createElement", &CreateElement);
+                                 V8Helpers::SetMethod(isolate, tpl, "createTextNode", &CreateTextNode);
+                             });

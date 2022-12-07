@@ -17,7 +17,7 @@ class CWorker;
 class CV8ResourceImpl : public V8ResourceImpl, public IImportHandler
 {
 public:
-    CV8ResourceImpl(alt::IResource* resource, v8::Isolate* isolate) : V8ResourceImpl(isolate, resource) {}
+    CV8ResourceImpl(alt::IResource* resource, v8::Isolate* isolate);
 
     ~CV8ResourceImpl()
     {
@@ -30,19 +30,19 @@ public:
 
     bool Stop() override;
 
-    bool OnEvent(const alt::CEvent* ev) override;
+    void OnEvent(const alt::CEvent* ev) override;
 
     void OnTick() override;
 
     void OnPromiseRejectedWithNoHandler(v8::PromiseRejectMessage& data);
     void OnPromiseHandlerAdded(v8::PromiseRejectMessage& data);
 
-    void SubscribeWebView(alt::Ref<alt::IWebView> view, const std::string& evName, v8::Local<v8::Function> cb, V8Helpers::SourceLocation&& location, bool once = false)
+    void SubscribeWebView(alt::IWebView* view, const std::string& evName, v8::Local<v8::Function> cb, V8Helpers::SourceLocation&& location, bool once = false)
     {
         webViewHandlers[view].insert({ evName, V8Helpers::EventCallback{ isolate, cb, std::move(location), once } });
     }
 
-    void UnsubscribeWebView(alt::Ref<alt::IWebView> view, const std::string& evName, v8::Local<v8::Function> cb)
+    void UnsubscribeWebView(alt::IWebView* view, const std::string& evName, v8::Local<v8::Function> cb)
     {
         auto it = webViewHandlers.find(view);
         if(it != webViewHandlers.end())
@@ -57,14 +57,14 @@ public:
         }
     }
 
-    std::vector<V8Helpers::EventCallback*> GetWebViewHandlers(alt::Ref<alt::IWebView> view, const std::string& name);
+    std::vector<V8Helpers::EventCallback*> GetWebViewHandlers(alt::IWebView* view, const std::string& name);
 
-    void SubscribeWebSocketClient(alt::Ref<alt::IWebSocketClient> webSocket, const std::string& evName, v8::Local<v8::Function> cb, V8Helpers::SourceLocation&& location)
+    void SubscribeWebSocketClient(alt::IWebSocketClient* webSocket, const std::string& evName, v8::Local<v8::Function> cb, V8Helpers::SourceLocation&& location)
     {
         webSocketClientHandlers[webSocket].insert({ evName, V8Helpers::EventCallback{ isolate, cb, std::move(location) } });
     }
 
-    void UnsubscribeWebSocketClient(alt::Ref<alt::IWebSocketClient> webSocket, const std::string& evName, v8::Local<v8::Function> cb)
+    void UnsubscribeWebSocketClient(alt::IWebSocketClient* webSocket, const std::string& evName, v8::Local<v8::Function> cb)
     {
         auto it = webSocketClientHandlers.find(webSocket);
         if(it != webSocketClientHandlers.end())
@@ -79,14 +79,14 @@ public:
         }
     }
 
-    std::vector<V8Helpers::EventCallback*> GetWebSocketClientHandlers(alt::Ref<alt::IWebSocketClient> webSocket, const std::string& name);
+    std::vector<V8Helpers::EventCallback*> GetWebSocketClientHandlers(alt::IWebSocketClient* webSocket, const std::string& name);
 
-    void SubscribeAudio(alt::Ref<alt::IAudio> audio, const std::string& evName, v8::Local<v8::Function> cb, V8Helpers::SourceLocation&& location)
+    void SubscribeAudio(alt::IAudio* audio, const std::string& evName, v8::Local<v8::Function> cb, V8Helpers::SourceLocation&& location)
     {
         audioHandlers[audio].insert({ evName, V8Helpers::EventCallback{ isolate, cb, std::move(location) } });
     }
 
-    void UnsubscribeAudio(alt::Ref<alt::IAudio> audio, const std::string& evName, v8::Local<v8::Function> cb)
+    void UnsubscribeAudio(alt::IAudio* audio, const std::string& evName, v8::Local<v8::Function> cb)
     {
         auto it = audioHandlers.find(audio);
         if(it != audioHandlers.end())
@@ -101,14 +101,14 @@ public:
         }
     }
 
-    std::vector<V8Helpers::EventCallback*> GetAudioHandlers(alt::Ref<alt::IAudio> audio, const std::string& name);
+    std::vector<V8Helpers::EventCallback*> GetAudioHandlers(alt::IAudio* audio, const std::string& name);
 
-    void SubscribeRml(alt::Ref<alt::IRmlElement> element, const std::string& evName, v8::Local<v8::Function> cb, V8Helpers::SourceLocation&& location)
+    void SubscribeRml(alt::IRmlElement* element, const std::string& evName, v8::Local<v8::Function> cb, V8Helpers::SourceLocation&& location)
     {
         rmlHandlers[element].insert({ evName, V8Helpers::EventCallback{ isolate, cb, std::move(location) } });
     }
 
-    void UnsubscribeRml(alt::Ref<alt::IRmlElement> element, const std::string& evName, v8::Local<v8::Function> cb)
+    void UnsubscribeRml(alt::IRmlElement* element, const std::string& evName, v8::Local<v8::Function> cb)
     {
         auto it = rmlHandlers.find(element);
         if(it != rmlHandlers.end())
@@ -123,20 +123,20 @@ public:
         }
     }
 
-    std::vector<V8Helpers::EventCallback*> GetRmlHandlers(alt::Ref<alt::IRmlElement> element, const std::string& name);
+    std::vector<V8Helpers::EventCallback*> GetRmlHandlers(alt::IRmlElement* element, const std::string& name);
 
-    void AddOwned(alt::Ref<alt::IBaseObject> handle)
+    void AddOwned(alt::IBaseObject* handle)
     {
         ownedObjects.insert(handle);
     }
 
-    void OnRemoveBaseObject(alt::Ref<alt::IBaseObject> handle)
+    void OnRemoveBaseObject(alt::IBaseObject* handle)
     {
         ownedObjects.erase(handle);
 
-        if(handle->GetType() == alt::IBaseObject::Type::WEBVIEW) webViewHandlers.erase(handle.As<alt::IWebView>());
+        if(handle->GetType() == alt::IBaseObject::Type::WEBVIEW) webViewHandlers.erase(dynamic_cast<alt::IWebView*>(handle));
 
-        if(handle->GetType() == alt::IBaseObject::Type::WEBSOCKET_CLIENT) webSocketClientHandlers.erase(handle.As<alt::IWebSocketClient>());
+        if(handle->GetType() == alt::IBaseObject::Type::WEBSOCKET_CLIENT) webSocketClientHandlers.erase(dynamic_cast<alt::IWebSocketClient*>(handle));
 
         V8ResourceImpl::OnRemoveBaseObject(handle);
     }
@@ -156,13 +156,10 @@ public:
     void AddWorker(CWorker* worker);
     void RemoveWorker(CWorker* worker);
 
-    bool IsBytecodeResource()
-    {
-        return isUsingBytecode;
-    }
-
     v8::Local<v8::Module> CreateSyntheticModule(const std::string& name, v8::Local<v8::Value> exportValue);
     v8::MaybeLocal<v8::Value> GetSyntheticModuleExport(v8::Local<v8::Module> syntheticModule);
+
+    bool InstantiateModule(v8::Local<v8::Module> mod, bool preload = false);
 
     bool IsPreloading()
     {
@@ -174,12 +171,12 @@ private:
 
     using EventHandlerMap = std::unordered_multimap<std::string, V8Helpers::EventCallback>;
 
-    std::unordered_map<alt::Ref<alt::IWebView>, EventHandlerMap> webViewHandlers;
-    std::unordered_map<alt::Ref<alt::IWebSocketClient>, EventHandlerMap> webSocketClientHandlers;
-    std::unordered_map<alt::Ref<alt::IAudio>, EventHandlerMap> audioHandlers;
-    std::unordered_map<alt::Ref<alt::IRmlElement>, EventHandlerMap> rmlHandlers;
+    std::unordered_map<alt::IWebView*, EventHandlerMap> webViewHandlers;
+    std::unordered_map<alt::IWebSocketClient*, EventHandlerMap> webSocketClientHandlers;
+    std::unordered_map<alt::IAudio*, EventHandlerMap> audioHandlers;
+    std::unordered_map<alt::IRmlElement*, EventHandlerMap> rmlHandlers;
 
-    std::unordered_set<alt::Ref<alt::IBaseObject>> ownedObjects;
+    std::unordered_set<alt::IBaseObject*> ownedObjects;
 
     std::unordered_set<CWorker*> workers;
 

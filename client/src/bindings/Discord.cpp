@@ -12,7 +12,7 @@ static void CurrentUserGetter(v8::Local<v8::String>, const v8::PropertyCallbackI
     {
         V8_NEW_OBJECT(discordInfo);
 
-        V8_OBJECT_SET_STRING(discordInfo, "id", discord->GetUserID());
+        V8_OBJECT_SET_STRING(discordInfo, "id", std::to_string(discord->GetUserID()));
         V8_OBJECT_SET_STRING(discordInfo, "name", discord->GetUsername());
         V8_OBJECT_SET_STRING(discordInfo, "discriminator", discord->GetDiscriminator());
         V8_OBJECT_SET_STRING(discordInfo, "avatar", discord->GetAvatar());

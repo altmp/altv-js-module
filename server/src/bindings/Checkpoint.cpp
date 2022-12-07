@@ -46,9 +46,9 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         height = heightVal;
     }
 
-    Ref<ICheckpoint> cp = ICore::Instance().CreateCheckpoint(type, pos, radius, height, color);
+    ICheckpoint* cp = ICore::Instance().CreateCheckpoint(type, pos, radius, height, color);
 
-    if(cp) resource->BindEntity(info.This(), cp.Get());
+    if(cp) resource->BindEntity(info.This(), cp);
     else
         V8Helpers::Throw(isolate, "Failed to create Checkpoint");
 }
