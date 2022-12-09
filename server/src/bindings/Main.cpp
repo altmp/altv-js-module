@@ -101,7 +101,7 @@ static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
             if(!toLocalSuccess) continue;
             V8Entity* v8Player = V8Entity::Get(ply);
 
-            bool isPlayerType = v8Player && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER;
+            bool isPlayerType = v8Player && v8Player->GetHandle() && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER;
             V8_CHECK_NORETN(isPlayerType, "player inside array expected");
             if(!isPlayerType) continue;
             targets.Push(dynamic_cast<alt::IPlayer*>(v8Player->GetHandle()));
@@ -180,7 +180,7 @@ static void EmitClientRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
             if(!toLocalSuccess) continue;
             V8Entity* v8Player = V8Entity::Get(ply);
 
-            bool isPlayerType = v8Player && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER;
+            bool isPlayerType = v8Player && v8Player->GetHandle() && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER;
             V8_CHECK_NORETN(isPlayerType, "player inside array expected");
             if(!isPlayerType) continue;
             targets.Push(dynamic_cast<alt::IPlayer*>(v8Player->GetHandle()));
