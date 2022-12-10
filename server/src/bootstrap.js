@@ -32,9 +32,9 @@ const dns = require('dns');
     const _path = path.resolve(resource.path, resource.main);
     // Hacky way to check if resource path is valid
     try {
-      new URL(_path);
+      new URL(`file://${_path}`);
     } catch(e) {
-      console.error(`Invalid characters in resource path, move the resource to a path without special characters`);
+      alt.logError(`Invalid characters in resource path, move the resource to a path without special characters`);
     }
 
     _exports = await esmLoader.import(`file://${_path}`, "", {});
