@@ -29,7 +29,7 @@ static void CurrentWeaponComponentsGetter(v8::Local<v8::String>, const v8::Prope
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
 
-    alt::Array<uint32_t> comps = player->GetCurrentWeaponComponents();
+    std::vector<uint32_t> comps = player->GetCurrentWeaponComponents();
     v8::Local<v8::Array> componentsArray = V8Helpers::JSValue(comps);
 
     V8_RETURN(componentsArray);
