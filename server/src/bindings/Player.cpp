@@ -11,7 +11,7 @@ static void CurrentWeaponComponentsGetter(v8::Local<v8::String> name, const v8::
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 
-    alt::Array<uint32_t> comps = _this->GetCurrentWeaponComponents();
+    std::vector<uint32_t> comps = _this->GetCurrentWeaponComponents();
     v8::Local<v8::Array> componentsArray = V8Helpers::JSValue(comps);
 
     V8_RETURN(componentsArray);
@@ -650,8 +650,8 @@ static void GetWeapons(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8:
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-    alt::Array<alt::Weapon> weapons = player->GetWeapons();
-    alt::Size size = weapons.GetSize();
+    std::vector<alt::Weapon> weapons = player->GetWeapons();
+    size_t size = weapons.size();
     v8::Local<v8::Array> weaponsArr = v8::Array::New(isolate, (int)size);
     for(alt::Size i = 0; i < size; i++)
     {
