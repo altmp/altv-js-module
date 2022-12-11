@@ -245,10 +245,10 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllPlayers()
     {
         playerPoolDirty = false;
 
-        Array<IPlayer*> all = ICore::Instance().GetPlayers();
-        v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.GetSize());
+        std::vector<IPlayer*> all = ICore::Instance().GetPlayers();
+        v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
 
-        for(uint32_t i = 0; i < all.GetSize(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
+        for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
 
         players.Reset(isolate, jsAll);
         jsAll->SetIntegrityLevel(GetContext(), v8::IntegrityLevel::kFrozen);
@@ -264,10 +264,10 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllVehicles()
     {
         vehiclePoolDirty = false;
 
-        Array<IVehicle*> all = ICore::Instance().GetVehicles();
-        v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.GetSize());
+        std::vector<IVehicle*> all = ICore::Instance().GetVehicles();
+        v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
 
-        for(uint32_t i = 0; i < all.GetSize(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
+        for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
 
         vehicles.Reset(isolate, jsAll);
         jsAll->SetIntegrityLevel(GetContext(), v8::IntegrityLevel::kFrozen);
