@@ -109,7 +109,7 @@ static void EmitRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
         }
     }
 
-    alt::ICore::Instance().TriggerLocalEvent(name, args);
+    alt::ICore::Instance().TriggerLocalEventOnMain(name, args);
 }
 
 static void HasMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
