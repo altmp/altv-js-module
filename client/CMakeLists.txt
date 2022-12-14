@@ -77,6 +77,9 @@ set(ALTV_JS_DEFS
   -DV8_COMPRESS_POINTERS
   -DV8_31BIT_SMIS_ON_64BIT_ARCH
   -DV8_IMMINENT_DEPRECATION_WARNINGS
+
+  # Custom
+  -DDYNAMIC_BUILD="${DYNAMIC_BUILD}"
 )
 
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD /Zi /bigobj")
@@ -128,7 +131,7 @@ else()
     ${ALTV_JS_LINKS}
   )
 
-  add_dependencies(${PROJECT_NAME}-static ${SDK_PROJECT_NAME} js-bindings)
+  add_dependencies(${PROJECT_NAME}-static js-bindings)
 endif()
 
 if(ALTV_JS_DEINIT_CPPSDK)
