@@ -10,7 +10,8 @@
                 "ALT_CLIENT",
                 "ALT_SERVER_API",
                 "ALT_SERVER",
-                "JS_MODULE_VERSION"
+                "JS_MODULE_VERSION",
+                "DYNAMIC_BUILD"
             ],
             "windowsSdkVersion": "10.0.19041.0",
             "cppStandard": "c++20",
