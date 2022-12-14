@@ -1,5 +1,5 @@
 #include "cpp-sdk/SDK.h"
-#if DYNAMIC_BUILD == 1
+#ifdef DYNAMIC_BUILD
     #include "cpp-sdk/version/version.h"
 #else
     #define ALT_SDK_VERSION ""
