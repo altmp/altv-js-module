@@ -1,5 +1,9 @@
 #include "cpp-sdk/SDK.h"
-#include "cpp-sdk/version/version.h"
+#ifdef DYNAMIC_BUILD
+    #include "cpp-sdk/version/version.h"
+#else
+    #define ALT_SDK_VERSION ""
+#endif
 #include "CV8ScriptRuntime.h"
 #include "Log.h"
 

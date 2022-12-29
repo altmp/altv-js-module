@@ -79,6 +79,20 @@ extern std::string bootstrap_code =
 #include "bootstrap.js.gen"
   ;
 
+CV8ResourceImpl::CV8ResourceImpl(alt::IResource* resource, v8::Isolate* isolate) : V8ResourceImpl(isolate, resource)
+{
+    v8::Locker locker(isolate);
+    v8::Isolate::Scope isolate_scope(isolate);
+    v8::HandleScope handle_scope(isolate);
+
+    microtaskQueue = v8::MicrotaskQueue::New(isolate, v8::MicrotasksPolicy::kExplicit);
+    v8::Local<v8::Context> ctx =
+      v8::Context::New(isolate, nullptr, v8::MaybeLocal<v8::ObjectTemplate>(), v8::MaybeLocal<v8::Value>(), v8::DeserializeInternalFieldsCallback(), microtaskQueue.get());
+
+    context.Reset(isolate, ctx);
+    ctx->SetAlignedPointerInEmbedderData(1, resource);
+}
+
 extern V8Module altModule;
 bool CV8ResourceImpl::Start()
 {
@@ -90,18 +104,11 @@ bool CV8ResourceImpl::Start()
     v8::Locker locker(isolate);
     v8::Isolate::Scope isolate_scope(isolate);
     v8::HandleScope handle_scope(isolate);
-
-    microtaskQueue = v8::MicrotaskQueue::New(isolate, v8::MicrotasksPolicy::kExplicit);
-    v8::Local<v8::Context> ctx =
-      v8::Context::New(isolate, nullptr, v8::MaybeLocal<v8::ObjectTemplate>(), v8::MaybeLocal<v8::Value>(), v8::DeserializeInternalFieldsCallback(), microtaskQueue.get());
-
-    context.Reset(isolate, ctx);
-    ctx->SetAlignedPointerInEmbedderData(1, resource);
+    v8::Local<v8::Context> ctx = GetContext();
+    v8::Context::Scope context_scope(ctx);
 
     V8ResourceImpl::Start();
     V8ResourceImpl::SetupScriptGlobals();
-
-    v8::Context::Scope context_scope(ctx);
 
     std::string path = resource->GetMain();
     Log::Info << "[V8] Starting script " << path << Log::Endl;

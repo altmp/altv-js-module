@@ -286,8 +286,8 @@ if (alt.isClient && !alt.isWorker) {
 
     // Shortcut for alt.Object
     // TODO: Make client/server only bindings work
-    alt.Object.prototype.waitForSpawn = function() {
-        return alt.Utils.waitFor(() => this.scriptID !== 0);
+    alt.Object.prototype.waitForSpawn = function(timeout = 2000) {
+        return alt.Utils.waitFor(() => this.scriptID !== 0, timeout);
     }
 
     alt.Utils.drawText2dThisFrame = function(

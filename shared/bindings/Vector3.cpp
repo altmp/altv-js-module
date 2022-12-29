@@ -145,8 +145,11 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8Helpers::DefineOwnProperty(isolate, ctx, _this, V8Helpers::Vector3_ZKey(isolate), z, v8::PropertyAttribute::ReadOnly);
 }
 
-extern V8Class v8Vector3("Vector3", Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
-    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+extern V8Class v8Vector3("Vector3",
+                         Constructor,
+                         [](v8::Local<v8::FunctionTemplate> tpl)
+                         {
+                             v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    tpl->InstanceTemplate()->SetInternalFieldCount(1);  // !! Needs to be set so V8 knows its a custom class !!
-});
+                             tpl->InstanceTemplate()->SetInternalFieldCount(1);  // !! Needs to be set so V8 knows its a custom class !!
+                         });

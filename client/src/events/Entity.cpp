@@ -8,6 +8,7 @@
 #include "cpp-sdk/events/CTaskChangeEvent.h"
 #include "cpp-sdk/events/CPlayerWeaponShootEvent.h"
 #include "cpp-sdk/events/CPlayerWeaponChangeEvent.h"
+#include "cpp-sdk/events/CWeaponDamageEvent.h"
 
 #include "cpp-sdk/SDK.h"
 
@@ -79,3 +80,17 @@ V8_LOCAL_EVENT_HANDLER playerWeaponChange(EventType::PLAYER_WEAPON_CHANGE,
                                               args.push_back(V8Helpers::JSValue(ev->GetOldWeapon()));
                                               args.push_back(V8Helpers::JSValue(ev->GetNewWeapon()));
                                           });
+
+V8_LOCAL_EVENT_HANDLER weaponDamage(EventType::WEAPON_DAMAGE_EVENT,
+                                    "weaponDamage",
+                                    [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                    {
+                                        auto ev = static_cast<const alt::CWeaponDamageEvent*>(e);
+                                        v8::Isolate* isolate = resource->GetIsolate();
+
+                                        args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
+                                        args.push_back(V8Helpers::JSValue(ev->GetWeaponHash()));
+                                        args.push_back(V8Helpers::JSValue(ev->GetDamageValue()));
+                                        args.push_back(resource->CreateVector3(ev->GetShotOffset()));
+                                        args.push_back(V8Helpers::JSValue(static_cast<int8_t>(ev->GetBodyPart())));
+                                    });

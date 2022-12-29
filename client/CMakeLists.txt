@@ -105,6 +105,7 @@ if(DYNAMIC_BUILD EQUAL 1)
   target_compile_definitions(${PROJECT_NAME} PRIVATE
     ${ALTV_JS_DEFS}
     -DALTV_JS_SHARED
+    -DDYNAMIC_BUILD
   )
   target_link_libraries(${PROJECT_NAME} PRIVATE
     ${ALTV_JS_LINKS}
@@ -128,7 +129,7 @@ else()
     ${ALTV_JS_LINKS}
   )
 
-  add_dependencies(${PROJECT_NAME}-static ${SDK_PROJECT_NAME} js-bindings)
+  add_dependencies(${PROJECT_NAME}-static js-bindings)
 endif()
 
 if(ALTV_JS_DEINIT_CPPSDK)

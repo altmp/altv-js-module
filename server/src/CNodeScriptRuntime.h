@@ -26,8 +26,9 @@ public:
 
     void DestroyImpl(alt::IResource::Impl* impl) override
     {
-        resources.insert(static_cast<CNodeResourceImpl*>(impl));
-        delete static_cast<CNodeResourceImpl*>(impl);
+        auto res = static_cast<CNodeResourceImpl*>(impl);
+        resources.erase(res);
+        delete res;
     }
 
     void OnTick() override;
