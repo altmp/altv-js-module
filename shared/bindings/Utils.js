@@ -226,7 +226,7 @@ function getClosestEntityFromPool(getEntities, options = {}) {
 
 // Client only
 if (alt.isClient && !alt.isWorker) {
-    alt.Utils.requestModel = async function(model, timeout = 1000) {
+    alt.Utils.requestModel = async function(model, timeout = 5000) {
         const _model = model;
         alt.Utils.assert(typeof model === "string" || typeof model === "number", "Expected a string or number as first argument");
         alt.Utils.assert(typeof timeout === "number", "Expected a number as second argument");
@@ -244,7 +244,7 @@ if (alt.isClient && !alt.isWorker) {
         }
     }
 
-    alt.Utils.requestAnimDict = async function(animDict, timeout = 1000) {
+    alt.Utils.requestAnimDict = async function(animDict, timeout = 5000) {
         alt.Utils.assert(typeof animDict === "string", "Expected a string as first argument");
         alt.Utils.assert(typeof timeout === "number", "Expected a number as second argument");
         alt.Utils.assert(native.doesAnimDictExist(animDict), `Anim dict '${animDict}' not valid`);
@@ -257,7 +257,7 @@ if (alt.isClient && !alt.isWorker) {
         }
     }
 
-    alt.Utils.requestAnimSet = async function(animSet, timeout = 1000) {
+    alt.Utils.requestAnimSet = async function(animSet, timeout = 5000) {
         alt.Utils.assert(typeof animSet === "string", "Expected a string as first argument");
         alt.Utils.assert(typeof timeout === "number", "Expected a number as second argument");
 
@@ -271,7 +271,7 @@ if (alt.isClient && !alt.isWorker) {
 
     alt.Utils.requestClipSet = alt.Utils.requestAnimSet;
 
-    alt.Utils.requestCutscene = async function(cutsceneName, flags, timeout = 1000) {
+    alt.Utils.requestCutscene = async function(cutsceneName, flags, timeout = 5000) {
         alt.Utils.assert(typeof cutsceneName === "string", "Expected a string as first argument");
         alt.Utils.assert(typeof flags === "number" || typeof flags === "string", "Expected a number or string as second argument");
         alt.Utils.assert(typeof timeout === "number", "Expected a number as third argument");
