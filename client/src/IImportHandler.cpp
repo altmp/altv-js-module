@@ -327,9 +327,9 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveBytecode(const std::string& na
 
     // Create source string
     std::string sourceString;
-    sourceString.reserve(bytecodeSize + 2);
+    sourceString.reserve(sourceCodeSize + 2);
     sourceString += "'";
-    for(size_t i = 0; i < bytecodeSize - 2; i++)
+    for(size_t i = 0; i < sourceCodeSize; i++)
     {
         sourceString += "a";
     }
