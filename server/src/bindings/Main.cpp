@@ -397,6 +397,10 @@ static void GetPedModelByHash(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     infoObj->Set(ctx, V8Helpers::JSValue("hash"), V8Helpers::JSValue(modelInfo.hash));
     infoObj->Set(ctx, V8Helpers::JSValue("name"), V8Helpers::JSValue(modelInfo.name));
+    infoObj->Set(ctx, V8Helpers::JSValue("type"), V8Helpers::JSValue(modelInfo.type));
+    infoObj->Set(ctx, V8Helpers::JSValue("dlcName"), V8Helpers::JSValue(modelInfo.dlcName));
+    infoObj->Set(ctx, V8Helpers::JSValue("defaultUnarmedWeapon"), V8Helpers::JSValue(modelInfo.defaultUnarmedWeapon));
+    infoObj->Set(ctx, V8Helpers::JSValue("movementClipSet"), V8Helpers::JSValue(modelInfo.movementClipSet));
 
     size_t boneSize = std::size(modelInfo.bones);
     v8::Local<v8::Array> boneArr = v8::Array::New(isolate, boneSize);
