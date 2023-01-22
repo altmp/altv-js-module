@@ -108,7 +108,7 @@ static void ValidGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, resource, alt::IResource);
-    V8_RETURN_BOOLEAN(resource == nullptr);
+    V8_RETURN_BOOLEAN(resource != nullptr);
 }
 
 #ifdef ALT_SERVER_API

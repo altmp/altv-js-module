@@ -326,7 +326,14 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveBytecode(const std::string& na
     v8::ScriptOrigin origin(isolate, V8Helpers::JSValue(name), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
 
     // Create source string
-    std::string sourceString(sourceCodeSize, ' ');
+    std::string sourceString;
+    sourceString.reserve(sourceCodeSize + 2);
+    sourceString += "'";
+    for(size_t i = 0; i < sourceCodeSize; i++)
+    {
+        sourceString += "a";
+    }
+    sourceString += "'";
     v8::ScriptCompiler::Source source{ V8Helpers::JSValue(sourceString), origin, cachedData };
     v8::MaybeLocal<v8::Module> module = v8::ScriptCompiler::CompileModule(isolate, &source, v8::ScriptCompiler::kConsumeCodeCache);
     if(cachedData->rejected)
