@@ -5,6 +5,7 @@ const { ModuleWrap } = internalRequire("internal/test/binding").internalBinding(
 const path = require("path");
 const alt = process._linkedBinding("alt");
 const dns = require('dns');
+const url = require("url");
 
 (async () => {
   const resource = alt.Resource.current;
@@ -30,14 +31,7 @@ const dns = require('dns');
 
     // Get the path to the main file for this resource, and load it
     const _path = path.resolve(resource.path, resource.main);
-    // Hacky way to check if resource path is valid
-    try {
-      new URL(`file://${_path}`);
-    } catch(e) {
-      alt.logError(`Invalid characters in resource path, move the resource to a path without special characters`);
-    }
-
-    _exports = await esmLoader.import(`file://${_path}`, "", {});
+    _exports = await esmLoader.import(url.pathToFileURL(_path), "", {});
     /* No one used this and only caused problems for people using that function name,
        so let's just remove it for now and see if anyone complains
     if ("start" in _exports) {
