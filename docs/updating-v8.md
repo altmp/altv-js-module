@@ -76,7 +76,7 @@ Now the build files have been generated, and we can start compiling.
 
 To start compilation we use the following command:
 ```sh
-ninja -C out/release
+ninja -C out/release v8_monolith
 ```
 
 > Make sure [Ninja](https://ninja-build.org/) is installed on your machine before running this command
