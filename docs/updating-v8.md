@@ -85,6 +85,14 @@ Hopefully, after a while (can take up to 2 hours) the build is finished without 
 
 We can now find the built binaries in `out/release/obj`. There, we should find the `v8_monolith.lib`.
 
+### `obj\\v8_heap_base_headers.lib` can't be opened
+
+If you get this error during compilation, go to the `BUILD.gn` file in the root of the v8 repository
+and change the line `v8_source_set("v8_heap_base_headers")` to `v8_header_set("v8_heap_base_headers")`.
+
+Then you just need to generate the build files again with `gn args out/release` and start compilation again.
+(Don't worry, the compilation progress until the error occured is saved and you don't need to compile V8 from the start again.)
+
 ## Updating V8 in the client module
 
 Now we have built V8 and have the new built binary for our new V8 version.
