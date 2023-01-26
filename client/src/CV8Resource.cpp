@@ -313,7 +313,11 @@ std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetWebViewHandlers(alt::
     {
         auto range = it->second.equal_range(name);
 
-        for(auto it = range.first; it != range.second; ++it) handlers.push_back(&it->second);
+        for(auto it = range.first; it != range.second; ++it)
+        {
+            if(it->second.removed) continue;
+            handlers.push_back(&it->second);
+        }
     }
 
     return handlers;
@@ -328,7 +332,11 @@ std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetWebSocketClientHandle
     {
         auto range = it->second.equal_range(name);
 
-        for(auto it = range.first; it != range.second; ++it) handlers.push_back(&it->second);
+        for(auto it = range.first; it != range.second; ++it)
+        {
+            if(it->second.removed) continue;
+            handlers.push_back(&it->second);
+        }
     }
 
     return handlers;
@@ -343,7 +351,11 @@ std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetAudioHandlers(alt::IA
     {
         auto range = it->second.equal_range(name);
 
-        for(auto it = range.first; it != range.second; ++it) handlers.push_back(&it->second);
+        for(auto it = range.first; it != range.second; ++it)
+        {
+            if(it->second.removed) continue;
+            handlers.push_back(&it->second);
+        }
     }
 
     return handlers;
@@ -358,7 +370,11 @@ std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetRmlHandlers(alt::IRml
     {
         auto range = it->second.equal_range(name);
 
-        for(auto it = range.first; it != range.second; ++it) handlers.push_back(&it->second);
+        for(auto it = range.first; it != range.second; ++it)
+        {
+            if(it->second.removed) continue;
+            handlers.push_back(&it->second);
+        }
     }
 
     return handlers;
