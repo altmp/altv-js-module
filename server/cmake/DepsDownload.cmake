@@ -1,7 +1,7 @@
 include(../shared/cmake/DepsHelpers.cmake)
 
 # Set this to false, when using a custom nodejs build for testing
-set(__deps_check_enabled false)
+set(__deps_check_enabled true)
 
 function(DownloadDeps)
     set(__base_path "${PROJECT_SOURCE_DIR}/deps/nodejs/lib")
