@@ -5,6 +5,8 @@
 
 #include "V8Entity.h"
 
+#include <optional>
+
 namespace V8Helpers
 {
     bool SafeToBoolean(v8::Local<v8::Value> val, v8::Isolate* isolate, bool& out);
@@ -140,6 +142,42 @@ namespace V8Helpers
     inline bool CppValue(v8::Local<v8::Boolean> val)
     {
         return val->Value();
+    }
+    template<typename T, int Size = 0>
+    std::optional<std::vector<T>> CppValue(v8::Local<v8::Array> arr)
+    {
+        v8::Isolate* isolate = v8::Isolate::GetCurrent();
+        v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
+        uint32_t size = arr->Length();
+        if(Size != 0 && size != Size) return std::nullopt;
+
+        std::vector<T> result;
+        result.reserve(size);
+        for(uint32_t i = 0; i < size; i++)
+        {
+            v8::MaybeLocal<v8::Value> maybeVal = arr->Get(ctx, i);
+            v8::Local<v8::Value> val;
+            if(!maybeVal.ToLocal(&val)) return std::nullopt;
+
+            if constexpr(std::is_integral_v<T> || std::is_floating_point_v<T>)
+            {
+                if(!val->IsNumber()) return std::nullopt;
+                result.push_back((T)val->ToNumber(ctx).ToLocalChecked()->Value());
+            }
+            if constexpr(std::is_same_v<T, std::string>)
+            {
+                if(!val->IsString()) return std::nullopt;
+                result.push_back(*v8::String::Utf8Value(isolate, val->ToString(ctx).ToLocalChecked()));
+            }
+            if constexpr(std::is_same_v<T, bool>)
+            {
+                if(!val->IsBoolean()) return std::nullopt;
+                result.push_back(val->ToBoolean(isolate)->Value());
+            }
+            else
+                static_assert("Invalid type specified to CppValue<v8::Array>");
+        }
+        return result;
     }
 
     v8::Local<v8::Value> ConfigNodeToV8(Config::Value::ValuePtr node);

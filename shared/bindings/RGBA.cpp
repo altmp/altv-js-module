@@ -15,28 +15,14 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
         if(info[0]->IsArray())
         {
-            // todo: we should probably have a helper instead of doing this awfulness...
             v8::Local<v8::Array> arr = info[0].As<v8::Array>();
             V8_CHECK(arr->Length() >= 3, "Array has to contain atleast 3 (R, G, B) values");
-            v8::Local<v8::Value> val;
-            V8_CHECK(arr->Get(ctx, 0).ToLocal(&val), "Invalid array value at index 0");
-            V8_CHECK(val->IsNumber(), "Invalid array value type at index 0");
-            r = val->Int32Value(ctx).FromMaybe(0);
-            V8_CHECK(arr->Get(ctx, 1).ToLocal(&val), "Invalid array value at index 1");
-            V8_CHECK(val->IsNumber(), "Invalid array value type at index 1");
-            g = val->Int32Value(ctx).FromMaybe(0);
-            V8_CHECK(arr->Get(ctx, 2).ToLocal(&val), "Invalid array value at index 2");
-            V8_CHECK(val->IsNumber(), "Invalid array value type at index 2");
-            b = val->Int32Value(ctx).FromMaybe(0);
-
-            if(arr->Length() > 3)
-            {
-                V8_CHECK(arr->Get(ctx, 3).ToLocal(&val), "Invalid array value at index 3");
-                V8_CHECK(val->IsNumber(), "Invalid array value type at index 3");
-                a = val->Int32Value(ctx).FromMaybe(255);
-            }
-            else
-                a = 255;
+            std::optional<std::vector<int>> values = V8Helpers::CppValue<int>(arr);
+            V8_CHECK(values.has_value(), "Invalid array passed");
+            r = values->at(0);
+            g = values->at(1);
+            b = values->at(2);
+            if(values->size() > 3) a = values->at(3);
         }
         else if(info[0]->IsObject())
         {
