@@ -183,12 +183,12 @@ namespace V8Helpers
                 if(!vec.has_value()) return std::nullopt;
                 result.push_back(vec.value());
             }
-            else if constexpr(std::is_same_v<T, std::unordered_map<typename T::value_type>>)
+            else if constexpr(std::is_same_v<T, std::unordered_map<typename T::value_type::first_type, typename T::value_type::second_type>>)
             {
                 using MapType = typename T::value_type;
                 if constexpr(!std::is_same_v<std::string, typename MapType::first_type>) return std::nullopt;
                 if(!val->IsObject()) return std::nullopt;
-                std::optional<std::unordered_map<MapType>> vec = CppValue<typename MapType::second_type>(val.As<v8::Object>());
+                std::optional<std::unordered_map<std::string, typename MapType::second_type>> vec = CppValue<typename MapType::second_type>(val.As<v8::Object>());
                 if(!vec.has_value()) return std::nullopt;
                 result.push_back(vec.value());
             }
@@ -237,12 +237,12 @@ namespace V8Helpers
                 if(!vec.has_value()) return std::nullopt;
                 result.insert({ key, vec.value() });
             }
-            else if constexpr(std::is_same_v<T, std::unordered_map<typename T::value_type>>)
+            else if constexpr(std::is_same_v<T, std::unordered_map<typename T::value_type::first_type, typename T::value_type::second_type>>)
             {
                 using MapType = typename T::value_type;
                 if constexpr(!std::is_same_v<std::string, typename MapType::first_type>) return std::nullopt;
                 if(!val->IsObject()) return std::nullopt;
-                std::optional<std::unordered_map<MapType>> vec = CppValue<typename MapType::second_type>(val.As<v8::Object>());
+                std::optional<std::unordered_map<std::string, typename MapType::second_type>> vec = CppValue<typename MapType::second_type>(val.As<v8::Object>());
                 if(!vec.has_value()) return std::nullopt;
                 result.insert({ key, vec.value() });
             }
