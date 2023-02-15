@@ -32,6 +32,16 @@
 # define NODE_EXTERN __attribute__((visibility("default")))
 #endif
 
+// Declarations annotated with NODE_EXTERN_PRIVATE do not form part of
+// the public API. They are implementation details that can and will
+// change between releases, even in semver patch releases. Do not use
+// any such symbol in external code.
+#ifdef NODE_SHARED_MODE
+#define NODE_EXTERN_PRIVATE NODE_EXTERN
+#else
+#define NODE_EXTERN_PRIVATE
+#endif
+
 #ifdef BUILDING_NODE_EXTENSION
 # undef BUILDING_V8_SHARED
 # undef BUILDING_UV_SHARED
@@ -65,8 +75,9 @@
 #include "v8-platform.h"  // NOLINT(build/include_order)
 #include "node_version.h"  // NODE_MODULE_VERSION
 
-#include <memory>
 #include <functional>
+#include <memory>
+#include <ostream>
 
 // We cannot use __POSIX__ in this header because that's only defined when
 // building Node.js.
@@ -213,11 +224,16 @@ namespace node {
 
 class IsolateData;
 class Environment;
+class MultiIsolatePlatform;
+class InitializationResultImpl;
 
 namespace ProcessFlags {
+// TODO(addaleax): Switch to uint32_t to match std::atomic<uint32_t>
+// init_process_flags in node.cc
 enum Flags : uint64_t {
   kNoFlags = 0,
   // Enable stdio inheritance, which is disabled by default.
+  // This flag is also implied by kNoStdioInitialization.
   kEnableStdioInheritance = 1 << 0,
   // Disable reading the NODE_OPTIONS environment variable.
   kDisableNodeOptionsEnv = 1 << 1,
@@ -225,8 +241,67 @@ enum Flags : uint64_t {
   kDisableCLIOptions = 1 << 2,
   // Do not initialize ICU.
   kNoICU = 1 << 3,
+  // Do not modify stdio file descriptor or TTY state.
+  kNoStdioInitialization = 1 << 4,
+  // Do not register Node.js-specific signal handlers
+  // and reset other signal handlers to default state.
+  kNoDefaultSignalHandling = 1 << 5,
+  // Do not perform V8 initialization.
+  kNoInitializeV8 = 1 << 6,
+  // Do not initialize a default Node.js-provided V8 platform instance.
+  kNoInitializeNodeV8Platform = 1 << 7,
+  // Do not initialize OpenSSL config.
+  kNoInitOpenSSL = 1 << 8,
+  // Do not initialize Node.js debugging based on environment variables.
+  kNoParseGlobalDebugVariables = 1 << 9,
+  // Do not adjust OS resource limits for this process.
+  kNoAdjustResourceLimits = 1 << 10,
+  // Do not map code segments into large pages for this process.
+  kNoUseLargePages = 1 << 11,
+  // Skip printing output for --help, --version, --v8-options.
+  kNoPrintHelpOrVersionOutput = 1 << 12,
+
+  // Emulate the behavior of InitializeNodeWithArgs() when passing
+  // a flags argument to the InitializeOncePerProcess() replacement
+  // function.
+  kLegacyInitializeNodeWithArgsBehavior =
+      kNoStdioInitialization | kNoDefaultSignalHandling | kNoInitializeV8 |
+      kNoInitializeNodeV8Platform | kNoInitOpenSSL |
+      kNoParseGlobalDebugVariables | kNoAdjustResourceLimits |
+      kNoUseLargePages | kNoPrintHelpOrVersionOutput,
 };
 }  // namespace ProcessFlags
+// TODO(addaleax): Make this the canonical name, as it is more descriptive.
+namespace ProcessInitializationFlags = ProcessFlags;
+
+class NODE_EXTERN InitializationResult {
+ public:
+  virtual ~InitializationResult();
+
+  // Returns a suggested process exit code.
+  virtual int exit_code() const = 0;
+
+  // Returns 'true' if initialization was aborted early due to errors.
+  virtual bool early_return() const = 0;
+
+  // Returns the parsed list of non-Node.js arguments.
+  virtual const std::vector<std::string>& args() const = 0;
+
+  // Returns the parsed list of Node.js arguments.
+  virtual const std::vector<std::string>& exec_args() const = 0;
+
+  // Returns an array of errors. Note that these may be warnings
+  // whose existence does not imply a non-zero exit code.
+  virtual const std::vector<std::string>& errors() const = 0;
+
+  // If kNoInitializeNodeV8Platform was not specified, the global Node.js
+  // platform instance.
+  virtual MultiIsolatePlatform* platform() const = 0;
+
+ private:
+  InitializationResult() = default;
+  friend class InitializationResultImpl;
+};
 
 // TODO(addaleax): Officially deprecate this and replace it with something
 // better suited for a public embedder API.
@@ -236,20 +311,44 @@ NODE_EXTERN int Start(int argc, char* argv[]);
 // in the loop and / or actively executing JavaScript code).
 NODE_EXTERN int Stop(Environment* env);
 
+// This runs a subset of the initialization performed by
+// InitializeOncePerProcess(), which supersedes this function.
+// The subset is roughly equivalent to the one given by
+// `ProcessInitializationFlags::kLegacyInitializeNodeWithArgsBehavior`.
+NODE_DEPRECATED("Use InitializeOncePerProcess() instead",
+                NODE_EXTERN int InitializeNodeWithArgs(
+                    std::vector<std::string>* argv,
+                    std::vector<std::string>* exec_argv,
+                    std::vector<std::string>* errors,
+                    ProcessInitializationFlags::Flags flags));
+NODE_DEPRECATED("Use InitializeOncePerProcess() instead",
+                NODE_EXTERN int InitializeNodeWithArgs(
+                    std::vector<std::string>* argv,
+                    std::vector<std::string>* exec_argv,
+                    std::vector<std::string>* errors));
+
 // Set up per-process state needed to run Node.js. This will consume arguments
-// from argv, fill exec_argv, and possibly add errors resulting from parsing
-// the arguments to `errors`. The return value is a suggested exit code for the
-// program; If it is 0, then initializing Node.js succeeded.
-NODE_EXTERN int InitializeNodeWithArgs(
-    std::vector<std::string>* argv,
-    std::vector<std::string>* exec_argv,
-    std::vector<std::string>* errors);
-// TODO(zcbenz): Turn above overloaded version into below's default argument.
-NODE_EXTERN int InitializeNodeWithArgs(
-    std::vector<std::string>* argv,
-    std::vector<std::string>* exec_argv,
-    std::vector<std::string>* errors,
-    ProcessFlags::Flags flags);
+// from args, and return information about the initialization success,
+// including the arguments split into argv/exec_argv, a list of potential
+// errors encountered during initialization, and a potential suggested
+// exit code.
+NODE_EXTERN std::unique_ptr<InitializationResult> InitializeOncePerProcess(
+    const std::vector<std::string>& args,
+    ProcessInitializationFlags::Flags flags =
+        ProcessInitializationFlags::kNoFlags);
+// Undoes the initialization performed by InitializeOncePerProcess(),
+// where cleanup is necessary.
+NODE_EXTERN void TearDownOncePerProcess();
+// Convenience overload for specifying multiple flags without having
+// to worry about casts.
+inline std::unique_ptr<InitializationResult> InitializeOncePerProcess(
+    const std::vector<std::string>& args,
+    std::initializer_list<ProcessInitializationFlags::Flags> list) {
+  uint64_t flags_accum = ProcessInitializationFlags::kNoFlags;
+  for (const auto flag : list) flags_accum |= static_cast<uint64_t>(flag);
+  return InitializeOncePerProcess(
+      args, static_cast<ProcessInitializationFlags::Flags>(flags_accum));
+}
 
 enum OptionEnvvarSettings {
   kAllowedInEnvironment,
@@ -440,6 +539,8 @@ enum Flags : uint64_t {
   // do not expect to have their behaviors changed because of globally
   // installed modules.
   kNoGlobalSearchPaths = 1 << 7,
+  // Do not export browser globals like setTimeout, console, etc.
+  kNoBrowserGlobals = 1 << 8,
   // Controls whether or not the Environment should call V8Inspector::create().
   // This control is needed by embedders who may not want to initialize the V8
   // inspector in situations where one has already been created,
@@ -518,6 +619,33 @@ NODE_EXTERN v8::MaybeLocal<v8::Value> PrepareStackTraceCallback(
     v8::Local<v8::Context> context,
     v8::Local<v8::Value> exception,
     v8::Local<v8::Array> trace);
+
+// Writes a diagnostic report to a file. If filename is not provided, the
+// default filename includes the date, time, PID, and a sequence number.
+// The report's JavaScript stack trace is taken from err, if present.
+// If isolate is nullptr, no information about the JavaScript environment
+// is included in the report.
+// Returns the filename of the written report.
+NODE_EXTERN std::string TriggerNodeReport(v8::Isolate* isolate,
+                                          const char* message,
+                                          const char* trigger,
+                                          const std::string& filename,
+                                          v8::Local<v8::Value> error);
+NODE_EXTERN std::string TriggerNodeReport(Environment* env,
+                                          const char* message,
+                                          const char* trigger,
+                                          const std::string& filename,
+                                          v8::Local<v8::Value> error);
+NODE_EXTERN void GetNodeReport(v8::Isolate* isolate,
+                               const char* message,
+                               const char* trigger,
+                               v8::Local<v8::Value> error,
+                               std::ostream& out);
+NODE_EXTERN void GetNodeReport(Environment* env,
+                               const char* message,
+                               const char* trigger,
+                               v8::Local<v8::Value> error,
+                               std::ostream& out);
 
 // This returns the MultiIsolatePlatform used for an Environment or IsolateData
 // instance, if one exists.
@@ -825,11 +953,13 @@ extern "C" NODE_EXTERN void node_module_register(void* mod);
 #endif
 
 #if defined(_MSC_VER)
-#pragma section(".CRT$XCU", read)
 #define NODE_C_CTOR(fn)                                               \
   NODE_CTOR_PREFIX void __cdecl fn(void);                             \
-  __declspec(dllexport, allocate(".CRT$XCU"))                         \
-      void (__cdecl*fn ## _)(void) = fn;                              \
+  namespace {                                                         \
+  struct fn##_ {                                                      \
+    fn##_() { fn(); };                                                \
+  } fn##_v_;                                                          \
+  }                                                                   \
   NODE_CTOR_PREFIX void __cdecl fn(void)
 #else
 #define NODE_C_CTOR(fn)                                               \
@@ -987,6 +1117,15 @@ NODE_EXTERN void RemoveEnvironmentCleanupHookInternal(ACHHandle* holder);
 inline void RemoveEnvironmentCleanupHook(AsyncCleanupHookHandle holder) {
   RemoveEnvironmentCleanupHookInternal(holder.get());
 }
+
+// This behaves like V8's Isolate::RequestInterrupt(), but also wakes up
+// the event loop if it is currently idle. Interrupt requests are drained
+// in `FreeEnvironment()`. The passed callback can not call back into
+// JavaScript.
+// This function can be called from any thread.
+NODE_EXTERN void RequestInterrupt(Environment* env,
+                                  void (*fun)(void* arg),
+                                  void* arg);
 
 /* Returns the id of the current execution context. If the return value is
  * zero then no execution has been set. This will happen if the user handles

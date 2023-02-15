@@ -13,16 +13,44 @@ namespace fs {
 
 class FileHandleReadWrap;
 
+enum class FsStatsOffset {
+  kDev = 0,
+  kMode,
+  kNlink,
+  kUid,
+  kGid,
+  kRdev,
+  kBlkSize,
+  kIno,
+  kSize,
+  kBlocks,
+  kATimeSec,
+  kATimeNsec,
+  kMTimeSec,
+  kMTimeNsec,
+  kCTimeSec,
+  kCTimeNsec,
+  kBirthTimeSec,
+  kBirthTimeNsec,
+  kFsStatsFieldsNumber
+};
+
+// Stat fields buffers contain twice the number of entries in an uv_stat_t
+// because `fs.StatWatcher` needs room to store 2 `fs.Stats` instances.
+constexpr size_t kFsStatsBufferLength =
+    static_cast<size_t>(FsStatsOffset::kFsStatsFieldsNumber) * 2;
+
 class BindingData : public SnapshotableObject {
  public:
   explicit BindingData(Environment* env, v8::Local<v8::Object> wrap);
 
   AliasedFloat64Array stats_field_array;
-  AliasedBigUint64Array stats_field_bigint_array;
+  AliasedBigInt64Array stats_field_bigint_array;
 
   std::vector<BaseObjectPtr<FileHandleReadWrap>>
       file_handle_read_wrap_freelist;
 
+  using InternalFieldInfo = InternalFieldInfoBase;
   SERIALIZABLE_OBJECT_METHODS()
   static constexpr FastStringKey type_name{"node::fs::BindingData"};
   static constexpr EmbedderObjectType type_int =
@@ -89,8 +117,10 @@ class FSReqBase : public ReqWrap<uv_fs_t> {
   enum encoding encoding() const { return encoding_; }
   bool use_bigint() const { return use_bigint_; }
   bool is_plain_open() const { return is_plain_open_; }
+  bool with_file_types() const { return with_file_types_; }
 
   void set_is_plain_open(bool value) { is_plain_open_ = value; }
+  void set_with_file_types(bool value) { with_file_types_ = value; }
 
   FSContinuationData* continuation_data() const {
     return continuation_data_.get();
@@ -116,6 +146,7 @@ class FSReqBase : public ReqWrap<uv_fs_t> {
   bool has_data_ = false;
   bool use_bigint_ = false;
   bool is_plain_open_ = false;
+  bool with_file_types_ = false;
   const char* syscall_ = nullptr;
 
   BaseObjectPtr<BindingData> binding_data_;

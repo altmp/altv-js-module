@@ -50,7 +50,8 @@ class HostPort {
 
 class Options {
  public:
-  virtual void CheckOptions(std::vector<std::string>* errors) {}
+  virtual void CheckOptions(std::vector<std::string>* errors,
+                            std::vector<std::string>* argv) {}
   virtual ~Options() = default;
 };
 
@@ -71,6 +72,7 @@ class DebugOptions : public Options {
   DebugOptions(DebugOptions&&) = default;
   DebugOptions& operator=(DebugOptions&&) = default;
 
+  bool allow_attaching_debugger = true;
   // --inspect
   bool inspector_enabled = false;
   // --debug
@@ -98,7 +100,8 @@ class DebugOptions : public Options {
     return break_first_line || break_node_first_line;
   }
 
-  void CheckOptions(std::vector<std::string>* errors) override;
+  void CheckOptions(std::vector<std::string>* errors,
+                    std::vector<std::string>* argv) override;
 };
 
 class EnvironmentOptions : public Options {
@@ -107,7 +110,8 @@ class EnvironmentOptions : public Options {
   std::vector<std::string> conditions;
   std::string dns_result_order;
   bool enable_source_maps = false;
-  bool experimental_fetch = false;
+  bool experimental_fetch = true;
+  bool experimental_global_customevent = false;
   bool experimental_global_web_crypto = false;
   bool experimental_https_modules = false;
   std::string experimental_specifier_resolution;
@@ -120,6 +124,7 @@ class EnvironmentOptions : public Options {
   bool experimental_repl_await = true;
   bool experimental_vm_modules = false;
   bool expose_internals = false;
+  bool force_node_api_uncaught_exceptions_policy = false;
   bool frozen_intrinsics = false;
   int64_t heap_snapshot_near_heap_limit = 0;
   std::string heap_snapshot_signal;
@@ -134,6 +139,7 @@ class EnvironmentOptions : public Options {
   bool preserve_symlinks = false;
   bool preserve_symlinks_main = false;
   bool prof_process = false;
+  bool update_assert_snapshot = false;
 #if HAVE_INSPECTOR
   std::string cpu_prof_dir;
   static const uint64_t kDefaultCpuProfInterval = 1000;
@@ -148,6 +154,9 @@ class EnvironmentOptions : public Options {
 #endif  // HAVE_INSPECTOR
   std::string redirect_warnings;
   std::string diagnostic_dir;
+  bool test_runner = false;
+  std::vector<std::string> test_name_pattern;
+  bool test_only = false;
   bool test_udp_no_try_send = false;
   bool throw_deprecation = false;
   bool trace_atomics_wait = false;
@@ -159,13 +168,18 @@ class EnvironmentOptions : public Options {
   bool trace_warnings = false;
   bool extra_info_on_fatal_exception = true;
   std::string unhandled_rejections;
-  std::string userland_loader;
+  std::vector<std::string> userland_loaders;
   bool verify_base_objects =
 #ifdef DEBUG
       true;
 #else
       false;
 #endif  // DEBUG
+
+  bool watch_mode = false;
+  bool watch_mode_report_to_parent = false;
+  bool watch_mode_preserve_output = false;
+  std::vector<std::string> watch_mode_paths;
 
   bool syntax_check_only = false;
   bool has_eval_string = false;
@@ -191,7 +205,8 @@ class EnvironmentOptions : public Options {
   inline DebugOptions* get_debug_options() { return &debug_options_; }
   inline const DebugOptions& debug_options() const { return debug_options_; }
 
-  void CheckOptions(std::vector<std::string>* errors) override;
+  void CheckOptions(std::vector<std::string>* errors,
+                    std::vector<std::string>* argv) override;
 
  private:
   DebugOptions debug_options_;
@@ -201,13 +216,13 @@ class PerIsolateOptions : public Options {
  public:
   std::shared_ptr<EnvironmentOptions> per_env { new EnvironmentOptions() };
   bool track_heap_objects = false;
-  bool node_snapshot = true;
   bool report_uncaught_exception = false;
   bool report_on_signal = false;
-  bool experimental_top_level_await = true;
+  bool experimental_shadow_realm = false;
   std::string report_signal = "SIGUSR2";
   inline EnvironmentOptions* get_per_env_options();
-  void CheckOptions(std::vector<std::string>* errors) override;
+  void CheckOptions(std::vector<std::string>* errors,
+                    std::vector<std::string>* argv) override;
 };
 
 class PerProcessOptions : public Options {
@@ -229,6 +244,12 @@ class PerProcessOptions : public Options {
   bool zero_fill_all_buffers = false;
   bool debug_arraybuffer_allocations = false;
   std::string disable_proto;
+  bool build_snapshot = false;
+  // We enable the shared read-only heap which currently requires that the
+  // snapshot used in different isolates in the same process to be the same.
+  // Therefore --node-snapshot is a per-process option.
+  bool node_snapshot = true;
+  std::string snapshot_blob;
 
   std::vector<std::string> security_reverts;
   bool print_bash_completion = false;
@@ -259,6 +280,7 @@ class PerProcessOptions : public Options {
 #endif
 #if OPENSSL_VERSION_MAJOR >= 3
   bool openssl_legacy_provider = false;
+  bool openssl_shared_config = false;
 #endif
 
   // Per-process because reports can be triggered outside a known V8 context.
@@ -273,7 +295,8 @@ class PerProcessOptions : public Options {
   std::vector<std::string> cmdline;
 
   inline PerIsolateOptions* get_per_isolate_options();
-  void CheckOptions(std::vector<std::string>* errors) override;
+  void CheckOptions(std::vector<std::string>* errors,
+                    std::vector<std::string>* argv) override;
 };
 
 // The actual options parser, as opposed to the structs containing them:
@@ -486,7 +509,7 @@ void Parse(
 namespace per_process {
 
 extern Mutex cli_options_mutex;
-extern std::shared_ptr<PerProcessOptions> cli_options;
+extern NODE_EXTERN_PRIVATE std::shared_ptr<PerProcessOptions> cli_options;
 
 }  // namespace per_process
 

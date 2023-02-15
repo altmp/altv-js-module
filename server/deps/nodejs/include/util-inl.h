@@ -361,14 +361,12 @@ T* UncheckedRealloc(T* pointer, size_t n) {
 // As per spec realloc behaves like malloc if passed nullptr.
 template <typename T>
 inline T* UncheckedMalloc(size_t n) {
-  if (n == 0) n = 1;
   return UncheckedRealloc<T>(nullptr, n);
 }
 
 template <typename T>
 inline T* UncheckedCalloc(size_t n) {
-  if (n == 0) n = 1;
-  MultiplyWithOverflowCheck(sizeof(T), n);
+  if (MultiplyWithOverflowCheck(sizeof(T), n) == 0) return nullptr;
   return static_cast<T*>(calloc(n, sizeof(T)));
 }
 
@@ -515,8 +513,9 @@ SlicedArguments::SlicedArguments(
 template <typename T, size_t S>
 ArrayBufferViewContents<T, S>::ArrayBufferViewContents(
     v8::Local<v8::Value> value) {
-  CHECK(value->IsArrayBufferView());
-  Read(value.As<v8::ArrayBufferView>());
+  DCHECK(value->IsArrayBufferView() || value->IsSharedArrayBuffer() ||
+         value->IsArrayBuffer());
+  ReadValue(value);
 }
 
 template <typename T, size_t S>
@@ -537,11 +536,30 @@ void ArrayBufferViewContents<T, S>::Read(v8::Local<v8::ArrayBufferView> abv) {
   static_assert(sizeof(T) == 1, "Only supports one-byte data at the moment");
   length_ = abv->ByteLength();
   if (length_ > sizeof(stack_storage_) || abv->HasBuffer()) {
-    data_ = static_cast<T*>(abv->Buffer()->GetBackingStore()->Data()) +
-        abv->ByteOffset();
+    data_ = static_cast<T*>(abv->Buffer()->Data()) + abv->ByteOffset();
   } else {
     abv->CopyContents(stack_storage_, sizeof(stack_storage_));
     data_ = stack_storage_;
+  }
+}
+
+template <typename T, size_t S>
+void ArrayBufferViewContents<T, S>::ReadValue(v8::Local<v8::Value> buf) {
+  static_assert(sizeof(T) == 1, "Only supports one-byte data at the moment");
+  DCHECK(buf->IsArrayBufferView() || buf->IsSharedArrayBuffer() ||
+         buf->IsArrayBuffer());
+
+  if (buf->IsArrayBufferView()) {
+    Read(buf.As<v8::ArrayBufferView>());
+  } else if (buf->IsArrayBuffer()) {
+    auto ab = buf.As<v8::ArrayBuffer>();
+    length_ = ab->ByteLength();
+    data_ = static_cast<T*>(ab->Data());
+  } else {
+    CHECK(buf->IsSharedArrayBuffer());
+    auto sab = buf.As<v8::SharedArrayBuffer>();
+    length_ = sab->ByteLength();
+    data_ = static_cast<T*>(sab->Data());
   }
 }
 

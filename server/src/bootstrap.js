@@ -30,14 +30,7 @@ const dns = require('dns');
 
     // Get the path to the main file for this resource, and load it
     const _path = path.resolve(resource.path, resource.main);
-    // Hacky way to check if resource path is valid
-    try {
-      new URL(`file://${_path}`);
-    } catch(e) {
-      alt.logError(`Invalid characters in resource path, move the resource to a path without special characters`);
-    }
-
-    _exports = await esmLoader.import(`file://${_path}`, "", {});
+    _exports = await esmLoader.import(url.pathToFileURL(_path).toString(), "", {});
     /* No one used this and only caused problems for people using that function name,
        so let's just remove it for now and see if anyone complains
     if ("start" in _exports) {
@@ -56,7 +49,7 @@ const dns = require('dns');
 
 // Sets up our custom way of importing alt:V resources
 function setupImports() {
-  translators.set("alt", async function(url) {
+  translators.set("altresource", async function(url) {
     const name = url.slice(4); // Remove "alt:" scheme
     const exports = alt.Resource.getByName(name).exports;
     return new ModuleWrap(url, undefined, Object.keys(exports), function() {
@@ -76,7 +69,7 @@ function setupImports() {
   esmLoader.addCustomLoaders({
       resolve(specifier, context, defaultResolve) {
         if (alt.hasResource(specifier)) return {
-            url: `alt:${specifier}`
+            url: `altresource:${specifier}`
         };
         if(_warningPackages.hasOwnProperty(specifier)) alt.logWarning(`Using the module "${specifier}" can cause problems. Reason: ${_warningPackages[specifier]}`);
         return defaultResolve(specifier, context, defaultResolve);
@@ -84,7 +77,7 @@ function setupImports() {
       load(url, context, defaultLoad) {
         if(url.startsWith("alt:"))
             return {
-              format: "alt",
+              format: "altresource",
               source: null,
             };
         return defaultLoad(url, context, defaultLoad);
