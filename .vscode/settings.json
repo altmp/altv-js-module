@@ -79,7 +79,6 @@
         "stop_token": "cpp",
         "*.gen": "cpp",
         "cinttypes": "cpp",
-        "complex": "cpp",
         "csignal": "cpp",
         "stack": "cpp",
         "variant": "cpp"

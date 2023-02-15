@@ -83,7 +83,7 @@ jobs:
           cd server
           mkdir -p upload/modules/js-module
           cp ./dist/libjs-module.so ./upload/modules/js-module
-          cp ./dist/libnode.so.102 ./upload/modules/js-module
+          cp ./dist/libnode.so.108 ./upload/modules/js-module
 
       - uses: actions/upload-artifact@v3
         with:
