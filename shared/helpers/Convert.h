@@ -5,6 +5,8 @@
 
 #include "V8Entity.h"
 
+#include <optional>
+
 namespace V8Helpers
 {
     bool SafeToBoolean(v8::Local<v8::Value> val, v8::Isolate* isolate, bool& out);
@@ -140,6 +142,114 @@ namespace V8Helpers
     inline bool CppValue(v8::Local<v8::Boolean> val)
     {
         return val->Value();
+    }
+    template<typename T, int Size = 0>
+    std::optional<std::vector<T>> CppValue(v8::Local<v8::Array> arr)
+    {
+        v8::Isolate* isolate = v8::Isolate::GetCurrent();
+        v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
+        uint32_t size = arr->Length();
+        if(Size != 0 && size != Size) return std::nullopt;
+
+        std::vector<T> result;
+        result.reserve(size);
+        for(uint32_t i = 0; i < size; i++)
+        {
+            v8::MaybeLocal<v8::Value> maybeVal = arr->Get(ctx, i);
+            v8::Local<v8::Value> val;
+            if(!maybeVal.ToLocal(&val)) return std::nullopt;
+
+            if constexpr(std::is_same_v<T, v8::Local<v8::Value>>) result.push_back(val);
+            else if constexpr(std::is_integral_v<T> || std::is_floating_point_v<T>)
+            {
+                if(!val->IsNumber()) return std::nullopt;
+                result.push_back((T)val->ToNumber(ctx).ToLocalChecked()->Value());
+            }
+            else if constexpr(std::is_same_v<T, std::string>)
+            {
+                if(!val->IsString()) return std::nullopt;
+                result.push_back(*v8::String::Utf8Value(isolate, val->ToString(ctx).ToLocalChecked()));
+            }
+            else if constexpr(std::is_same_v<T, bool>)
+            {
+                if(!val->IsBoolean()) return std::nullopt;
+                result.push_back(val->ToBoolean(isolate)->Value());
+            }
+            else if constexpr(std::is_same_v<T, std::vector<typename T::value_type>>)
+            {
+                using VecType = typename T::value_type;
+                if(!val->IsArray()) return std::nullopt;
+                std::optional<std::vector<VecType>> vec = CppValue<VecType>(val.As<v8::Array>());
+                if(!vec.has_value()) return std::nullopt;
+                result.push_back(vec.value());
+            }
+            else if constexpr(std::is_same_v<T, std::unordered_map<typename T::value_type::first_type, typename T::value_type::second_type>>)
+            {
+                using MapType = typename T::value_type;
+                if constexpr(!std::is_same_v<std::string, typename MapType::first_type>) return std::nullopt;
+                if(!val->IsObject()) return std::nullopt;
+                std::optional<std::unordered_map<std::string, typename MapType::second_type>> vec = CppValue<typename MapType::second_type>(val.As<v8::Object>());
+                if(!vec.has_value()) return std::nullopt;
+                result.push_back(vec.value());
+            }
+            else
+                static_assert("Invalid type specified to CppValue<v8::Array>");
+        }
+        return result;
+    }
+    template<typename T>
+    std::optional<std::unordered_map<std::string, T>> CppValue(v8::Local<v8::Object> obj)
+    {
+        v8::Isolate* isolate = v8::Isolate::GetCurrent();
+        v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
+        std::optional<std::vector<std::string>> keys = CppValue<std::string>(obj->GetOwnPropertyNames(ctx).ToLocalChecked());
+        if(!keys.has_value()) return std::nullopt;
+
+        std::unordered_map<std::string, T> result;
+        for(uint32_t i = 0; i < keys->size(); i++)
+        {
+            const std::string& key = keys->at(i);
+            v8::MaybeLocal<v8::Value> maybeVal = obj->Get(ctx, JSValue(key));
+            v8::Local<v8::Value> val;
+            if(!maybeVal.ToLocal(&val)) return std::nullopt;
+
+            if constexpr(std::is_same_v<T, v8::Local<v8::Value>>) result.insert({ key, val });
+            else if constexpr(std::is_integral_v<T> || std::is_floating_point_v<T>)
+            {
+                if(!val->IsNumber()) return std::nullopt;
+                result.insert({ key, (T)val->ToNumber(ctx).ToLocalChecked()->Value() });
+            }
+            else if constexpr(std::is_same_v<T, std::string>)
+            {
+                if(!val->IsString()) return std::nullopt;
+                result.insert({ key, *v8::String::Utf8Value(isolate, val->ToString(ctx).ToLocalChecked()) });
+            }
+            else if constexpr(std::is_same_v<T, bool>)
+            {
+                if(!val->IsBoolean()) return std::nullopt;
+                result.insert({ key, val->ToBoolean(isolate)->Value() });
+            }
+            else if constexpr(std::is_same_v<T, std::vector<typename T::value_type>>)
+            {
+                using VecType = typename T::value_type;
+                if(!val->IsArray()) return std::nullopt;
+                std::optional<std::vector<VecType>> vec = CppValue<VecType>(val.As<v8::Array>());
+                if(!vec.has_value()) return std::nullopt;
+                result.insert({ key, vec.value() });
+            }
+            else if constexpr(std::is_same_v<T, std::unordered_map<typename T::value_type::first_type, typename T::value_type::second_type>>)
+            {
+                using MapType = typename T::value_type;
+                if constexpr(!std::is_same_v<std::string, typename MapType::first_type>) return std::nullopt;
+                if(!val->IsObject()) return std::nullopt;
+                std::optional<std::unordered_map<std::string, typename MapType::second_type>> vec = CppValue<typename MapType::second_type>(val.As<v8::Object>());
+                if(!vec.has_value()) return std::nullopt;
+                result.insert({ key, vec.value() });
+            }
+            else
+                static_assert("Invalid type specified to CppValue<v8::Object>");
+        }
+        return result;
     }
 
     v8::Local<v8::Value> ConfigNodeToV8(Config::Value::ValuePtr node);

@@ -15,51 +15,24 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
         if(info[0]->IsArray())
         {
-            // todo: we should probably have a helper instead of doing this awfulness...
             v8::Local<v8::Array> arr = info[0].As<v8::Array>();
             V8_CHECK(arr->Length() >= 3, "Array has to contain atleast 3 (R, G, B) values");
-            v8::Local<v8::Value> val;
-            V8_CHECK(arr->Get(ctx, 0).ToLocal(&val), "Invalid array value at index 0");
-            V8_CHECK(val->IsNumber(), "Invalid array value type at index 0");
-            r = val->Int32Value(ctx).FromMaybe(0);
-            V8_CHECK(arr->Get(ctx, 1).ToLocal(&val), "Invalid array value at index 1");
-            V8_CHECK(val->IsNumber(), "Invalid array value type at index 1");
-            g = val->Int32Value(ctx).FromMaybe(0);
-            V8_CHECK(arr->Get(ctx, 2).ToLocal(&val), "Invalid array value at index 2");
-            V8_CHECK(val->IsNumber(), "Invalid array value type at index 2");
-            b = val->Int32Value(ctx).FromMaybe(0);
-
-            if(arr->Length() > 3)
-            {
-                V8_CHECK(arr->Get(ctx, 3).ToLocal(&val), "Invalid array value at index 3");
-                V8_CHECK(val->IsNumber(), "Invalid array value type at index 3");
-                a = val->Int32Value(ctx).FromMaybe(255);
-            }
-            else
-                a = 255;
+            std::optional<std::vector<int>> values = V8Helpers::CppValue<int>(arr);
+            V8_CHECK(values.has_value(), "Invalid array passed");
+            r = values->at(0);
+            g = values->at(1);
+            b = values->at(2);
+            if(values->size() > 3) a = values->at(3);
         }
         else if(info[0]->IsObject())
         {
             v8::Local<v8::Object> obj = info[0].As<v8::Object>();
-            v8::Local<v8::Value> val;
-            V8_CHECK(obj->Get(ctx, V8Helpers::RGBA_RKey(isolate)).ToLocal(&val), "Invalid object value at key 'r'");
-            V8_CHECK(val->IsNumber(), "Invalid object value type at key 'r'");
-            r = val->Int32Value(ctx).FromMaybe(0);
-            V8_CHECK(obj->Get(ctx, V8Helpers::RGBA_GKey(isolate)).ToLocal(&val), "Invalid object value at key 'g'");
-            V8_CHECK(val->IsNumber(), "Invalid object value type at key 'g'");
-            g = val->Int32Value(ctx).FromMaybe(0);
-            V8_CHECK(obj->Get(ctx, V8Helpers::RGBA_BKey(isolate)).ToLocal(&val), "Invalid object value at key 'b'");
-            V8_CHECK(val->IsNumber(), "Invalid object value type at key 'b'");
-            b = val->Int32Value(ctx).FromMaybe(0);
-
-            if(obj->Has(ctx, V8Helpers::RGBA_AKey(isolate)).FromMaybe(false))
-            {
-                V8_CHECK(obj->Get(ctx, V8Helpers::RGBA_AKey(isolate)).ToLocal(&val), "Invalid object value at key 'a'");
-                V8_CHECK(val->IsNumber(), "Invalid object value type at key 'a'");
-                a = val->Int32Value(ctx).FromMaybe(255);
-            }
-            else
-                a = 255;
+            std::optional<std::unordered_map<std::string, int>> values = V8Helpers::CppValue<int>(obj);
+            V8_CHECK(values.has_value(), "Invalid object passed");
+            r = values->at("r");
+            g = values->at("g");
+            b = values->at("b");
+            if(values->contains("a")) a = values->at("a");
         }
         else
         {
