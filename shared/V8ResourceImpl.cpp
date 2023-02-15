@@ -459,17 +459,17 @@ static void PrintLog(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
         case 0:
         {
-            alt::ICore::Instance().LogColored(stream.str());
+            alt::ICore::Instance().LogColored(stream.str(), resource->GetResource());
             break;
         }
         case 1:
         {
-            alt::ICore::Instance().LogWarning(stream.str());
+            alt::ICore::Instance().LogWarning(stream.str(), resource->GetResource());
             break;
         }
         case 2:
         {
-            alt::ICore::Instance().LogError(stream.str());
+            alt::ICore::Instance().LogError(stream.str(), resource->GetResource());
             break;
         }
     }
