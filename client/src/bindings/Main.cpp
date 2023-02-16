@@ -1049,6 +1049,17 @@ static void IsPointOnScreen(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_BOOLEAN(alt::ICore::Instance().IsPointOnScreen(vec));
 }
 
+static void GetPedBonePos(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(2);
+
+    V8_ARG_TO_INT(1, scriptId);
+    V8_ARG_TO_UINT(2, boneId);
+
+    V8_RETURN_VECTOR3(alt::ICore::Instance().GetPedBonePos(scriptId, boneId));
+}
+
 extern V8Module sharedModule;
 extern V8Class v8Player, v8Player, v8Vehicle, v8WebView, v8HandlingData, v8LocalStorage, v8MemoryBuffer, v8MapZoomData, v8Discord, v8Voice, v8WebSocketClient, v8Checkpoint, v8HttpClient,
   v8Audio, v8LocalPlayer, v8Profiler, v8Worker, v8RmlDocument, v8RmlElement, v8WeaponData, v8FocusData, v8Object;
@@ -1176,6 +1187,8 @@ extern V8Module altModule("alt",
                               V8Helpers::RegisterFunc(exports, "loadDefaultIpls", &LoadDefaultIpls);
 
                               V8Helpers::RegisterFunc(exports, "isPointOnScreen", &IsPointOnScreen);
+
+                              V8Helpers::RegisterFunc(exports, "getPedBonePos", &GetPedBonePos);
 
                               V8_OBJECT_SET_BOOLEAN(exports, "isWorker", false);
                           });

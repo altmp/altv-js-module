@@ -29,12 +29,11 @@
 extern V8Module v8Alt;
 namespace main
 {
-    static void Initialize(v8::Local<v8::Object> exports)
+    static void Initialize(v8::Local<v8::Object> exports, v8::Local<v8::Value> module, v8::Local<v8::Context> context, void*)
     {
         v8::Isolate* isolate = v8::Isolate::GetCurrent();
-        v8::HandleScope handle_scope(isolate);
 
-        v8Alt.Register(isolate, isolate->GetEnteredOrMicrotaskContext(), exports);
+        v8Alt.Register(isolate, context, exports);
     }
     NODE_MODULE_LINKED(alt, Initialize)
 }  // namespace main
@@ -42,12 +41,11 @@ namespace main
 extern V8Module sharedModule;
 namespace shared
 {
-    static void InitializeShared(v8::Local<v8::Object> exports)
+    static void InitializeShared(v8::Local<v8::Object> exports, v8::Local<v8::Value> module, v8::Local<v8::Context> context, void*)
     {
         v8::Isolate* isolate = v8::Isolate::GetCurrent();
-        v8::HandleScope handle_scope(isolate);
 
-        sharedModule.Register(isolate, isolate->GetEnteredOrMicrotaskContext(), exports);
+        sharedModule.Register(isolate, context, exports);
     }
     NODE_MODULE_LINKED(altShared, InitializeShared)
 }  // namespace shared

@@ -189,6 +189,46 @@ static void SetWeaponCapacity(const v8::FunctionCallbackInfo<v8::Value>& info)
     _this->SetWeaponCapacity(index, capacity);
 }
 
+static void RoofStateSetter(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
+
+    // Deprecation added: 27/12/2022 (version 14)
+    V8_DEPRECATE("vehicle roofState setter", "roofClosed setter");
+
+    V8_TO_UINT(value, _val);
+    _this->SetRoofState(_val);
+}
+
+static void RoofStateGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
+
+    // Deprecation added: 27/12/2022 (version 14)
+    V8_DEPRECATE("vehicle roofState getter", "roofClosed getter");
+
+    V8_RETURN_UINT(_this->GetRoofState());
+}
+
+static void RoofClosedSetter(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
+
+    V8_TO_UINT(value, _val);
+    _this->SetRoofState(_val);
+}
+
+static void RoofClosedGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
+
+    V8_RETURN_BOOLEAN(_this->GetRoofState() == 1);
+}
+
 extern V8Class v8Entity;
 extern V8Class v8Vehicle("Vehicle",
                          v8Entity,
@@ -250,7 +290,8 @@ extern V8Class v8Vehicle("Vehicle",
                              V8Helpers::SetAccessor<IVehicle, uint8_t, &IVehicle::GetLockState, &IVehicle::SetLockState>(isolate, tpl, "lockState");
                              V8Helpers::SetAccessor<IVehicle, bool, &IVehicle::IsDaylightOn>(isolate, tpl, "daylightOn");
                              V8Helpers::SetAccessor<IVehicle, bool, &IVehicle::IsNightlightOn>(isolate, tpl, "nightlightOn");
-                             V8Helpers::SetAccessor<IVehicle, uint8_t, &IVehicle::GetRoofState, &IVehicle::SetRoofState>(isolate, tpl, "roofState");
+                             V8Helpers::SetAccessor(isolate, tpl, "roofState", &RoofStateGetter, &RoofStateSetter);
+                             V8Helpers::SetAccessor(isolate, tpl, "roofClosed", &RoofClosedGetter, &RoofClosedSetter);
                              V8Helpers::SetAccessor<IVehicle, bool, &IVehicle::IsFlamethrowerActive>(isolate, tpl, "flamethrowerActive");
                              V8Helpers::SetAccessor<IVehicle, uint32_t, &IVehicle::GetRadioStationIndex, &IVehicle::SetRadioStationIndex>(isolate, tpl, "activeRadioStation");
                              V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetLightsMultiplier, &IVehicle::SetLightsMultiplier>(isolate, tpl, "lightsMultiplier");

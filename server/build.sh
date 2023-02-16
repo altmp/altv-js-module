@@ -16,4 +16,4 @@ if [ ! -d "./dist" ]; then
     mkdir dist
 fi
 cp ./build-linux/libjs-module.so dist
-cp ./deps/nodejs/lib/libnode.so.102 dist
+cp ./deps/nodejs/lib/libnode.so.108 dist
