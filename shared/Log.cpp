@@ -14,10 +14,10 @@ Log& Log::Endl(Log& log)
 #else
     isolate = CNodeScriptRuntime::Instance().GetIsolate();
 #endif
-    V8ResourceImpl* v8Resource = isolate ? V8ResourceImpl::Get(isolate->GetEnteredOrMicrotaskContext()) : nullptr;
+    v8::Local<v8::Context> ctx;
+    if(isolate) ctx = isolate->GetEnteredOrMicrotaskContext();
+    V8ResourceImpl* v8Resource = !ctx.IsEmpty() ? V8ResourceImpl::Get(ctx) : nullptr;
     alt::IResource* resource = v8Resource ? v8Resource->GetResource() : nullptr;
-
-    std::cout << isolate << " " << v8Resource << " " << resource << std::endl;
 
     switch(log.type)
     {
