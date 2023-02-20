@@ -50,8 +50,10 @@ const url = require('url');
 
 // Sets up our custom way of importing alt:V resources
 function setupImports() {
-  translators.set("altresource", async function(url) {
-    const name = url.slice(4); // Remove "alt:" scheme
+  const altResourceInternalPrefix = "altresource";
+
+  translators.set(altResourceInternalPrefix, async function(url) {
+    const name = url.slice(altResourceInternalPrefix.length + 1); // Remove prefix
     const exports = alt.Resource.getByName(name).exports;
     return new ModuleWrap(url, undefined, Object.keys(exports), function() {
       for (const exportName in exports) {
@@ -67,23 +69,30 @@ function setupImports() {
   const _warningPackages = {
     "node-fetch": "Console hangs"
   };
-  esmLoader.addCustomLoaders({
+  const customLoaders = [{
+    exports: {
       resolve(specifier, context, defaultResolve) {
-        if (alt.hasResource(specifier)) return {
-            url: `altresource:${specifier}`
-        };
+        if (alt.hasResource(specifier))
+          return {
+            url: `${altResourceInternalPrefix}:${specifier}`,
+            shortCircuit: true
+          };
+
         if(_warningPackages.hasOwnProperty(specifier)) alt.logWarning(`Using the module "${specifier}" can cause problems. Reason: ${_warningPackages[specifier]}`);
         return defaultResolve(specifier, context, defaultResolve);
       },
       load(url, context, defaultLoad) {
-        if(url.startsWith("alt:"))
-            return {
-              format: "altresource",
-              source: null,
-            };
+        if(url.startsWith(`${altResourceInternalPrefix}:`))
+          return {
+            format: altResourceInternalPrefix,
+            source: null,
+            shortCircuit: true
+          };
         return defaultLoad(url, context, defaultLoad);
       },
-  });
+    }
+  }];
+  esmLoader.addCustomLoaders(customLoaders);
 }
 
 // ***** Utils
