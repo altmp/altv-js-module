@@ -238,6 +238,7 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveModule(const std::string& _nam
 
     std::string name = _name;
 
+    if(name.starts_with("alt:")) name = name.substr(4);
     if(name == "alt-client") name = "alt";
 
     auto it = modules.find(name);
