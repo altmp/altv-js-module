@@ -17,6 +17,8 @@ To build the server module simply run the `build.bat` / `build.sh` script.
 
 The compiled `js-module.dll` will then be in the `dist` directory.
 
+> Make sure the `libnode.dll` in your server directory is the same one as the one used for building
+
 ### Testing
 Drag this file into your `modules` folder for your alt:V server and start the server.
 The JS module should then be running, and by typing `js-module --version` it should show
