@@ -102,10 +102,6 @@ std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
     Config::Value::ValuePtr enableHeapProfiler = moduleConfig["heap-profiler"];
     if(enableHeapProfiler->AsBool(false)) args.push_back("--heap-prof");
 
-    // https://nodejs.org/api/cli.html#--experimental-fetch
-    Config::Value::ValuePtr enableGlobalFetch = moduleConfig["global-fetch"];
-    if(enableGlobalFetch->AsBool(false)) args.push_back("--experimental-fetch");
-
     // https://nodejs.org/api/cli.html#--experimental-global-webcrypto
     Config::Value::ValuePtr enableGlobalWebcrypto = moduleConfig["global-webcrypto"];
     if(enableGlobalWebcrypto->AsBool(false)) args.push_back("--experimental-global-webcrypto");
