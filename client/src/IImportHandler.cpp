@@ -160,29 +160,7 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveFile(const std::string& name, 
 
     if(!path.pkg) return v8::MaybeLocal<v8::Module>();
 
-    auto fileName = path.fileName;
-
-    if(fileName.size() == 0)
-    {
-        if(path.pkg->FileExists("index.js")) fileName = "index.js";
-        else if(path.pkg->FileExists("index.mjs"))
-            fileName = "index.mjs";
-        else
-            return v8::MaybeLocal<v8::Module>();
-    }
-    else
-    {
-        if(path.pkg->FileExists(fileName + ".js")) fileName += ".js";
-        else if(path.pkg->FileExists(fileName + ".mjs"))
-            fileName += ".mjs";
-        else if(path.pkg->FileExists(fileName + "/index.js"))
-            fileName += "/index.js";
-        else if(path.pkg->FileExists(fileName + "/index.mjs"))
-            fileName += "/index.mjs";
-        else if(!path.pkg->FileExists(fileName))
-            return v8::MaybeLocal<v8::Module>();
-    }
-
+    std::string fileName = path.fileName;
     std::string fullName = path.prefix + fileName;
 
     auto it = modules.find(fullName);
