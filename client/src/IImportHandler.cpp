@@ -161,6 +161,7 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveFile(const std::string& name, 
     if(!path.pkg) return v8::MaybeLocal<v8::Module>();
 
     std::string fileName = path.fileName;
+    if(!path.pkg->FileExists(fileName)) return v8::MaybeLocal<v8::Module>();
     std::string fullName = path.prefix + fileName;
 
     auto it = modules.find(fullName);
