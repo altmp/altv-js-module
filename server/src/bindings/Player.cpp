@@ -110,7 +110,18 @@ static void GiveWeapon(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 
-    V8_ARG_TO_UINT(1, weaponHash);
+    uint32_t weaponHash;
+    if(info[0]->IsString())
+    {
+        V8_ARG_TO_STRING(1, modelName);
+        weaponHash = alt::ICore::Instance().Hash(modelName);
+    }
+    else
+    {
+        V8_ARG_TO_UINT(1, _weaponHash);
+        weaponHash = _weaponHash;
+    }
+
     V8_ARG_TO_INT(2, ammo);
     V8_ARG_TO_BOOLEAN(3, equipNow);
 
