@@ -65,6 +65,7 @@ bool V8ResourceImpl::Stop()
     vector2Class.Reset();
     rgbaClass.Reset();
     baseObjectClass.Reset();
+    objects.Reset();
 
     context.Reset();
 
