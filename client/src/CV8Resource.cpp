@@ -125,24 +125,6 @@ bool CV8ResourceImpl::Start()
 
           v8::Local<v8::Module> curModule = maybeModule.ToLocalChecked();
 
-          auto exports = altModule.GetExports(isolate, ctx);
-          // Overwrite global console object
-          auto console = ctx->Global()->Get(ctx, V8Helpers::JSValue("console")).ToLocalChecked().As<v8::Object>();
-          if(!console.IsEmpty())
-          {
-              console->Set(ctx, V8Helpers::JSValue("log"), exports->Get(ctx, V8Helpers::JSValue("log")).ToLocalChecked());
-              console->Set(ctx, V8Helpers::JSValue("warn"), exports->Get(ctx, V8Helpers::JSValue("logWarning")).ToLocalChecked());
-              console->Set(ctx, V8Helpers::JSValue("error"), exports->Get(ctx, V8Helpers::JSValue("logError")).ToLocalChecked());
-              console->Set(ctx, V8Helpers::JSValue("time"), exports->Get(ctx, V8Helpers::JSValue("time")).ToLocalChecked());
-              console->Set(ctx, V8Helpers::JSValue("timeEnd"), exports->Get(ctx, V8Helpers::JSValue("timeEnd")).ToLocalChecked());
-          }
-
-          // Add global timer funcs
-          ctx->Global()->Set(ctx, V8Helpers::JSValue("setInterval"), exports->Get(ctx, V8Helpers::JSValue("setInterval")).ToLocalChecked());
-          ctx->Global()->Set(ctx, V8Helpers::JSValue("setTimeout"), exports->Get(ctx, V8Helpers::JSValue("setTimeout")).ToLocalChecked());
-          ctx->Global()->Set(ctx, V8Helpers::JSValue("clearInterval"), exports->Get(ctx, V8Helpers::JSValue("clearInterval")).ToLocalChecked());
-          ctx->Global()->Set(ctx, V8Helpers::JSValue("clearTimeout"), exports->Get(ctx, V8Helpers::JSValue("clearTimeout")).ToLocalChecked());
-
           ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_get_exports"), v8::Function::New(ctx, &StaticRequire).ToLocalChecked());
           ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_bindings_code"), V8Helpers::JSValue(JSBindings::GetBindingsCode()));
           ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_main_path"), V8Helpers::JSValue(path));
