@@ -73,7 +73,7 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
             v8::Local<v8::TypedArray> typedArray = val.As<v8::TypedArray>();
             if(!typedArray->HasBuffer()) return core.CreateMValueNone();
             v8::Local<v8::ArrayBuffer> v8Buffer = typedArray->Buffer();
-            return core.CreateMValueByteArray((uint8_t*)((uintptr_t)v8Buffer->Data() + typedArray->ByteOffset()), typedArray->ByteLength());
+            return core.CreateMValueByteArray((uint8_t*)((uintptr_t)v8Buffer->GetBackingStore()->Data() + typedArray->ByteOffset()), typedArray->ByteLength());
         }
         else if(val->IsMap())
         {
