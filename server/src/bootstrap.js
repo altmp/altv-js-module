@@ -76,7 +76,7 @@ function setupImports() {
         return defaultResolve(specifier, context, defaultResolve);
       },
       load(url, context, defaultLoad) {
-        if(url.startsWith("alt:"))
+        if(url.startsWith("altresource:"))
             return {
               format: "altresource",
               source: null,
