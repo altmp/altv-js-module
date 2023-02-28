@@ -5,6 +5,7 @@ const { ModuleWrap } = internalRequire("internal/test/binding").internalBinding(
 const path = require("path");
 const alt = process._linkedBinding("alt");
 const dns = require('dns');
+const url = require('url');
 
 (async () => {
   const resource = alt.Resource.current;
