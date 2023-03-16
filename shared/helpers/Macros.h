@@ -59,9 +59,15 @@
     auto val = V8Entity::Get(info.This()->GetInternalField((idx)-1)->ToObject(isolate->GetEnteredOrMicrotaskContext()).ToLocalChecked());
 
 // idx starts with 1
-#define V8_GET_THIS_INTERNAL_FIELD_ENTITY(idx, val, type)                                                                   \
-    V8_CHECK(info.This()->InternalFieldCount() > idx - 1, "Invalid internal field count (is the 'this' context correct?)"); \
-    auto val = dynamic_cast<type*>(V8Entity::Get(info.This()->GetInternalField((idx)-1)->ToObject(isolate->GetEnteredOrMicrotaskContext()).ToLocalChecked())->GetHandle());
+#define V8_GET_THIS_INTERNAL_FIELD_ENTITY(idx, val, type)                                                                                            \
+    type* val;                                                                                                                                       \
+    {                                                                                                                                                \
+        V8_CHECK(info.This()->InternalFieldCount() > idx - 1, "Invalid internal field count (is the 'this' context correct?)");                      \
+        V8Entity* __val = V8Entity::Get(info.This()->GetInternalField((idx)-1)->ToObject(isolate->GetEnteredOrMicrotaskContext()).ToLocalChecked()); \
+        V8_CHECK(__val, "baseobject is invalid");                                                                                                    \
+        val = dynamic_cast<type*>(__val->GetHandle());                                                                                               \
+        V8_CHECK(val, "baseobject is not of type " #type);                                                                                           \
+    }
 
 // idx starts with 1
 #define V8_GET_THIS_INTERNAL_FIELD_INTEGER(idx, val)                                                                        \
