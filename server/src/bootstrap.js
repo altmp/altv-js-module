@@ -5,6 +5,7 @@ const { ModuleWrap } = internalRequire("internal/test/binding").internalBinding(
 const path = require("path");
 const alt = process._linkedBinding("alt");
 const dns = require('dns');
+const url = require("url");
 
 (async () => {
   const resource = alt.Resource.current;
@@ -30,7 +31,7 @@ const dns = require('dns');
 
     // Get the path to the main file for this resource, and load it
     const _path = path.resolve(resource.path, resource.main);
-    _exports = await esmLoader.import(`file://${_path}`, "", {});
+    _exports = await esmLoader.import(url.pathToFileURL(_path).toString(), "", {});
     /* No one used this and only caused problems for people using that function name,
        so let's just remove it for now and see if anyone complains
     if ("start" in _exports) {
@@ -49,8 +50,11 @@ const dns = require('dns');
 
 // Sets up our custom way of importing alt:V resources
 function setupImports() {
-  translators.set("alt", async function(url) {
-    const name = url.slice(4); // Remove "alt:" scheme
+  const altResourceInternalPrefix = "altresource";
+  const altResourceImportPrefix = "alt";
+
+  translators.set(altResourceInternalPrefix, async function(url) {
+    const name = url.slice(altResourceInternalPrefix.length + 1); // Remove prefix
     const exports = alt.Resource.getByName(name).exports;
     return new ModuleWrap(url, undefined, Object.keys(exports), function() {
       for (const exportName in exports) {
@@ -66,23 +70,41 @@ function setupImports() {
   const _warningPackages = {
     "node-fetch": "Console hangs"
   };
-  esmLoader.addCustomLoaders({
+  const customLoaders = [{
+    exports: {
       resolve(specifier, context, defaultResolve) {
-        if (alt.hasResource(specifier)) return {
-            url: `alt:${specifier}`
-        };
+        const hasAltPrefix = specifier.startsWith(`${altResourceImportPrefix}:`);
+        if (alt.hasResource(specifier) && !hasAltPrefix) {
+          alt.logWarning(`Trying to import resource '${specifier}' without '${altResourceImportPrefix}:' prefix, this is deprecated behaviour.`);
+          alt.logWarning(`Import '${altResourceImportPrefix}:${specifier}' instead to silence this warning.`);
+          return {
+            url: `${altResourceInternalPrefix}:${specifier}`,
+            shortCircuit: true
+          };
+        }
+        const specifierWithoutPrefix = specifier.slice(altResourceImportPrefix.length + 1);
+        if(hasAltPrefix && alt.hasResource(specifierWithoutPrefix)) {
+          return {
+            url: `${altResourceInternalPrefix}:${specifierWithoutPrefix}`,
+            shortCircuit: true
+          };
+        }
+
         if(_warningPackages.hasOwnProperty(specifier)) alt.logWarning(`Using the module "${specifier}" can cause problems. Reason: ${_warningPackages[specifier]}`);
         return defaultResolve(specifier, context, defaultResolve);
       },
       load(url, context, defaultLoad) {
-        if(url.startsWith("alt:"))
-            return {
-              format: "alt",
-              source: null,
-            };
+        if(url.startsWith(`${altResourceInternalPrefix}:`))
+          return {
+            format: altResourceInternalPrefix,
+            source: null,
+            shortCircuit: true
+          };
         return defaultLoad(url, context, defaultLoad);
       },
-  });
+    }
+  }];
+  esmLoader.addCustomLoaders(customLoaders);
 }
 
 // ***** Utils

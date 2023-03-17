@@ -1,4 +1,4 @@
-#include "cpp-sdk/version/version.h"
+//#include "cpp-sdk/version/version.h"
 
 #include "../V8Helpers.h"
 #include "../V8ResourceImpl.h"
@@ -70,7 +70,7 @@ static void Off(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_ARG_TO_STRING(1, evName);
         V8_ARG_TO_FUNCTION(2, callback);
 
-        resource->UnsubscribeLocal(evName, callback);
+        resource->UnsubscribeLocal(evName, callback, V8Helpers::SourceLocation::GetCurrent(isolate, resource));
     }
 }
 
@@ -85,7 +85,7 @@ static void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     for(int i = 1; i < info.Length(); ++i) args.Push(V8Helpers::V8ToMValue(info[i]));
 
-    alt::ICore::Instance().TriggerLocalEvent(name, args);
+    alt::ICore::Instance().TriggerLocalEventOnMain(name, args);
 }
 
 static void EmitRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -109,7 +109,7 @@ static void EmitRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
         }
     }
 
-    alt::ICore::Instance().TriggerLocalEvent(name, args);
+    alt::ICore::Instance().TriggerLocalEventOnMain(name, args);
 }
 
 static void HasMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -473,7 +473,7 @@ extern V8Module sharedModule("alt-shared",
 
                                  V8_OBJECT_SET_STRING(exports, "version", alt::ICore::Instance().GetVersion());
                                  V8_OBJECT_SET_STRING(exports, "branch", alt::ICore::Instance().GetBranch());
-                                 V8_OBJECT_SET_RAW_STRING(exports, "sdkVersion", ALT_SDK_VERSION);
+                                 //V8_OBJECT_SET_RAW_STRING(exports, "sdkVersion", ALT_SDK_VERSION);
                                  V8_OBJECT_SET_BOOLEAN(exports, "debug", alt::ICore::Instance().IsDebug());
 
                                  V8_OBJECT_SET_STRING(exports, "resourceName", V8ResourceImpl::GetResource(ctx)->GetName());

@@ -160,29 +160,8 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveFile(const std::string& name, 
 
     if(!path.pkg) return v8::MaybeLocal<v8::Module>();
 
-    auto fileName = path.fileName;
-
-    if(fileName.size() == 0)
-    {
-        if(path.pkg->FileExists("index.js")) fileName = "index.js";
-        else if(path.pkg->FileExists("index.mjs"))
-            fileName = "index.mjs";
-        else
-            return v8::MaybeLocal<v8::Module>();
-    }
-    else
-    {
-        if(path.pkg->FileExists(fileName + ".js")) fileName += ".js";
-        else if(path.pkg->FileExists(fileName + ".mjs"))
-            fileName += ".mjs";
-        else if(path.pkg->FileExists(fileName + "/index.js"))
-            fileName += "/index.js";
-        else if(path.pkg->FileExists(fileName + "/index.mjs"))
-            fileName += "/index.mjs";
-        else if(!path.pkg->FileExists(fileName))
-            return v8::MaybeLocal<v8::Module>();
-    }
-
+    std::string fileName = path.fileName;
+    if(!path.pkg->FileExists(fileName)) return v8::MaybeLocal<v8::Module>();
     std::string fullName = path.prefix + fileName;
 
     auto it = modules.find(fullName);
@@ -238,6 +217,7 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveModule(const std::string& _nam
 
     std::string name = _name;
 
+    if(name.starts_with("alt:")) name = name.substr(4);
     if(name == "alt-client") name = "alt";
 
     auto it = modules.find(name);
@@ -326,7 +306,14 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveBytecode(const std::string& na
     v8::ScriptOrigin origin(isolate, V8Helpers::JSValue(name), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
 
     // Create source string
-    std::string sourceString(sourceCodeSize, ' ');
+    std::string sourceString;
+    sourceString.reserve(sourceCodeSize + 2);
+    sourceString += "'";
+    for(size_t i = 0; i < sourceCodeSize; i++)
+    {
+        sourceString += "a";
+    }
+    sourceString += "'";
     v8::ScriptCompiler::Source source{ V8Helpers::JSValue(sourceString), origin, cachedData };
     v8::MaybeLocal<v8::Module> module = v8::ScriptCompiler::CompileModule(isolate, &source, v8::ScriptCompiler::kConsumeCodeCache);
     if(cachedData->rejected)

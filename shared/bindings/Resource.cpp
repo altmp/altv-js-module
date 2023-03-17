@@ -108,7 +108,7 @@ static void ValidGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, resource, alt::IResource);
-    V8_RETURN_BOOLEAN(resource == nullptr);
+    V8_RETURN_BOOLEAN(resource != nullptr);
 }
 
 #ifdef ALT_SERVER_API
@@ -169,10 +169,12 @@ static void CurrentGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<
     V8_RETURN(resource->GetOrCreateResourceObject(resource->GetResource()));
 }
 
-extern V8Class v8Resource("Resource", [](v8::Local<v8::FunctionTemplate> tpl) {
-    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+extern V8Class v8Resource("Resource",
+                          [](v8::Local<v8::FunctionTemplate> tpl)
+                          {
+                              v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    tpl->InstanceTemplate()->SetInternalFieldCount(2);  // Set it to 2, so that our check for V8 entities works (as this isn't a base object)
+                              tpl->InstanceTemplate()->SetInternalFieldCount(2);  // Set it to 2, so that our check for V8 entities works (as this isn't a base object)
 
     V8Helpers::SetAccessor(isolate, tpl, "isStarted", &IsStartedGetter);
     V8Helpers::SetAccessor(isolate, tpl, "type", &TypeGetter);
@@ -185,11 +187,11 @@ extern V8Class v8Resource("Resource", [](v8::Local<v8::FunctionTemplate> tpl) {
     V8Helpers::SetAccessor(isolate, tpl, "optionalPermissions", &OptionalPermissionsGetter);
     V8Helpers::SetAccessor(isolate, tpl, "valid", &ValidGetter);
 #ifdef ALT_SERVER_API
-    V8Helpers::SetAccessor(isolate, tpl, "path", &PathGetter);
-    V8Helpers::SetAccessor(isolate, tpl, "config", &ConfigGetter);
+                              V8Helpers::SetAccessor(isolate, tpl, "path", &PathGetter);
+                              V8Helpers::SetAccessor(isolate, tpl, "config", &ConfigGetter);
 #endif
 
-    V8Helpers::SetStaticMethod(isolate, tpl, "getByName", &GetByName);
-    V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
-    V8Helpers::SetStaticAccessor(isolate, tpl, "current", &CurrentGetter);
-});
+                              V8Helpers::SetStaticMethod(isolate, tpl, "getByName", &GetByName);
+                              V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
+                              V8Helpers::SetStaticAccessor(isolate, tpl, "current", &CurrentGetter);
+                          });

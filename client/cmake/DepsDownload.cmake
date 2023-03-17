@@ -7,7 +7,7 @@ function(DownloadDeps)
     set(__base_path "${PROJECT_SOURCE_DIR}/deps/v8")
 
     GetBranchAndOS(__deps_branch __deps_os_path_name)
-    set(__deps_url_base_path "https://cdn.altv.mp/deps/v8/dev") # TODO: Use actual branch?
+    set(__deps_url_base_path "https://cdn.alt-mp.com/deps/v8/${__deps_branch}")
 
     if(__deps_check_enabled)
         message("Checking release binaries...")

@@ -80,8 +80,8 @@ async function* getBindingFiles(dir) {
     const items = await fs.readdir(dir, { withFileTypes: true });
     for (const item of items) {
         const path = pathUtil.resolve(dir, item.name);
+        if(item.isDirectory()) yield* getBindingFiles(path);
         if(!path.endsWith(".js")) continue;
-        if(item.isDirectory()) yield* getFiles(path);
         else yield path;
     }
 }

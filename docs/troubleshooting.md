@@ -9,9 +9,9 @@ Add a C++ file to your project with following content and include it in the  `so
 #include <node.h>
 #include <dlfcn.h>
 
-extern "C" NODE_EXTERN void node_module_register(void* mod) 
+extern "C" NODE_EXTERN void node_module_register(void* mod)
 {
-    auto base_ptr = dlopen("libnode.so.102", RTLD_NOW | RTLD_GLOBAL);
+    auto base_ptr = dlopen("libnode.so.108", RTLD_NOW | RTLD_GLOBAL);
     if (base_ptr == nullptr) return;
     auto register_func = reinterpret_cast<decltype(&node_module_register)>(dlsym(base_ptr, "node_module_register"));
     if (register_func == nullptr) return;

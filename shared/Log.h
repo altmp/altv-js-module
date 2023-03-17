@@ -15,7 +15,7 @@ class Log
         INFO,
         DEBUG,
         WARNING,
-        ERROR,
+        ERR,
         COLORED
     } type = INFO;
 
@@ -86,7 +86,7 @@ public:
         template<class T>
         Log& operator<<(const T& val) const
         {
-            return Instance().SetType(ERROR).Put(val);
+            return Instance().SetType(ERR).Put(val);
         }
     } Error{};
 
@@ -99,20 +99,7 @@ public:
         }
     } Colored{};
 
-    static Log& Endl(Log& log)
-    {
-        switch(log.type)
-        {
-            case INFO: alt::ICore::Instance().LogInfo(log.buf.str()); break;
-            case DEBUG: alt::ICore::Instance().LogDebug(log.buf.str().c_str()); break;
-            case WARNING: alt::ICore::Instance().LogWarning(log.buf.str().c_str()); break;
-            case ERROR: alt::ICore::Instance().LogError(log.buf.str().c_str()); break;
-            case COLORED: alt::ICore::Instance().LogColored(log.buf.str().c_str()); break;
-        }
-
-        log.buf.str("");
-        return log;
-    }
+    static Log& Endl(Log& log);
 
     static Log& Instance()
     {

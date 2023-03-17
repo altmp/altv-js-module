@@ -76,7 +76,7 @@ Now the build files have been generated, and we can start compiling.
 
 To start compilation we use the following command:
 ```sh
-ninja -C out/release
+ninja -C out/release v8_monolith
 ```
 
 > Make sure [Ninja](https://ninja-build.org/) is installed on your machine before running this command
@@ -84,6 +84,14 @@ ninja -C out/release
 Hopefully, after a while (can take up to 2 hours) the build is finished without errors.
 
 We can now find the built binaries in `out/release/obj`. There, we should find the `v8_monolith.lib`.
+
+### `obj\\v8_heap_base_headers.lib` can't be opened
+
+If you get this error during compilation, go to the `BUILD.gn` file in the root of the v8 repository
+and change the line `v8_source_set("v8_heap_base_headers")` to `v8_header_set("v8_heap_base_headers")`.
+
+Then you just need to generate the build files again with `gn args out/release` and start compilation again.
+(Don't worry, the compilation progress until the error occured is saved and you don't need to compile V8 from the start again.)
 
 ## Updating V8 in the client module
 

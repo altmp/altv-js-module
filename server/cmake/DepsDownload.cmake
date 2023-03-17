@@ -7,7 +7,7 @@ function(DownloadDeps)
     set(__base_path "${PROJECT_SOURCE_DIR}/deps/nodejs/lib")
 
     GetBranchAndOS(__deps_branch __deps_os_path_name)
-    set(__deps_url_base_path "https://cdn.altv.mp/deps/nodejs/${__deps_branch}/${__deps_os_path_name}")
+    set(__deps_url_base_path "https://cdn.alt-mp.com/deps/nodejs/${__deps_branch}/${__deps_os_path_name}")
 
     if(__deps_check_enabled)
         if(WIN32)
@@ -32,7 +32,7 @@ function(DownloadDeps)
 
             GetCDNInfo("${__deps_url_base_path}" __deps_linux_hashes __deps_current_version)
 
-            DownloadFile("libnode.so.102" "${__base_path}" "" ${__deps_linux_hashes})
+            DownloadFile("libnode.so.108" "${__base_path}" "" ${__deps_linux_hashes})
         endif()
 
         if(__deps_current_version)

@@ -7,6 +7,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_CONSTRUCTOR();
+
     if(info.Length() == 6)
     {
         V8_ARG_TO_INT(1, type);
@@ -29,7 +30,8 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_OBJECT_GET_INT(color, "b", b);
         V8_OBJECT_GET_INT(color, "a", a);
 
-        alt::ICheckpoint* cp = alt::ICore::Instance().CreateCheckpoint(type, { x, y, z }, { x2, y2, z2 }, radius, height, { (uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a });
+        alt::ICheckpoint* cp =
+          alt::ICore::Instance().CreateCheckpoint(type, { x, y, z }, { x2, y2, z2 }, radius, height, { (uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a }, resource->GetResource());
         V8_BIND_BASE_OBJECT(cp, "Failed to create Checkpoint");
     }
     else if(info.Length() == 10)
@@ -50,7 +52,8 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_OBJECT_GET_INT(color, "b", b);
         V8_OBJECT_GET_INT(color, "a", a);
 
-        alt::ICheckpoint* cp = alt::ICore::Instance().CreateCheckpoint(type, { x, y, z }, { x2, y2, z2 }, radius, height, { (uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a });
+        alt::ICheckpoint* cp =
+          alt::ICore::Instance().CreateCheckpoint(type, { x, y, z }, { x2, y2, z2 }, radius, height, { (uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a }, resource->GetResource());
         V8_BIND_BASE_OBJECT(cp, "Failed to create Checkpoint");
     }
     else

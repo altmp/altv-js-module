@@ -88,8 +88,8 @@ static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
         // if first argument is an array of players this event will be sent to every player in array
         v8::Local<v8::Array> arr = info[0].As<v8::Array>();
-        Array<IPlayer*> targets;
-        targets.Reserve(arr->Length());
+        std::vector<IPlayer*> targets;
+        targets.reserve(arr->Length());
 
         for(int i = 0; i < arr->Length(); ++i)
         {
@@ -101,10 +101,10 @@ static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
             if(!toLocalSuccess) continue;
             V8Entity* v8Player = V8Entity::Get(ply);
 
-            bool isPlayerType = v8Player && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER;
+            bool isPlayerType = v8Player && v8Player->GetHandle() && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER;
             V8_CHECK_NORETN(isPlayerType, "player inside array expected");
             if(!isPlayerType) continue;
-            targets.Push(dynamic_cast<alt::IPlayer*>(v8Player->GetHandle()));
+            targets.push_back(dynamic_cast<alt::IPlayer*>(v8Player->GetHandle()));
         }
 
         ICore::Instance().TriggerClientEvent(targets, eventName, mvArgs);
@@ -113,7 +113,7 @@ static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
         // if first argument is not null and not an array this event gets sent to the specific player
         V8Entity* v8Player = V8Entity::Get(info[0]);
-        V8_CHECK(v8Player && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER, "player or null expected");
+        V8_CHECK(v8Player && v8Player->GetHandle() && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER, "player or null expected");
 
         ICore::Instance().TriggerClientEvent(dynamic_cast<alt::IPlayer*>(v8Player->GetHandle()), eventName, mvArgs);
     }
@@ -167,8 +167,8 @@ static void EmitClientRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
         // if first argument is an array of players this event will be sent to every player in array
         v8::Local<v8::Array> arr = info[0].As<v8::Array>();
-        Array<IPlayer*> targets;
-        targets.Reserve(arr->Length());
+        std::vector<IPlayer*> targets;
+        targets.reserve(arr->Length());
 
         for(int i = 0; i < arr->Length(); ++i)
         {
@@ -180,10 +180,10 @@ static void EmitClientRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
             if(!toLocalSuccess) continue;
             V8Entity* v8Player = V8Entity::Get(ply);
 
-            bool isPlayerType = v8Player && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER;
+            bool isPlayerType = v8Player && v8Player->GetHandle() && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER;
             V8_CHECK_NORETN(isPlayerType, "player inside array expected");
             if(!isPlayerType) continue;
-            targets.Push(dynamic_cast<alt::IPlayer*>(v8Player->GetHandle()));
+            targets.push_back(dynamic_cast<alt::IPlayer*>(v8Player->GetHandle()));
         }
 
         ICore::Instance().TriggerClientEvent(targets, eventName, mvArgs);
@@ -192,7 +192,7 @@ static void EmitClientRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
         // if first argument is not null and not an array this event gets sent to the specific player
         V8Entity* v8Player = V8Entity::Get(info[0]);
-        V8_CHECK(v8Player && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER, "player or null expected");
+        V8_CHECK(v8Player && v8Player->GetHandle() && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER, "player or null expected");
 
         ICore::Instance().TriggerClientEvent(dynamic_cast<alt::IPlayer*>(v8Player->GetHandle()), eventName, mvArgs);
     }
@@ -397,6 +397,10 @@ static void GetPedModelByHash(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     infoObj->Set(ctx, V8Helpers::JSValue("hash"), V8Helpers::JSValue(modelInfo.hash));
     infoObj->Set(ctx, V8Helpers::JSValue("name"), V8Helpers::JSValue(modelInfo.name));
+    infoObj->Set(ctx, V8Helpers::JSValue("type"), V8Helpers::JSValue(modelInfo.type));
+    infoObj->Set(ctx, V8Helpers::JSValue("dlcName"), V8Helpers::JSValue(modelInfo.dlcName));
+    infoObj->Set(ctx, V8Helpers::JSValue("defaultUnarmedWeapon"), V8Helpers::JSValue(modelInfo.defaultUnarmedWeapon));
+    infoObj->Set(ctx, V8Helpers::JSValue("movementClipSet"), V8Helpers::JSValue(modelInfo.movementClipSet));
 
     size_t boneSize = std::size(modelInfo.bones);
     v8::Local<v8::Array> boneArr = v8::Array::New(isolate, boneSize);

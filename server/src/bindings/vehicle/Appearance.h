@@ -29,9 +29,9 @@ namespace V8Helpers::Vehicle
 
         V8_NEW_OBJECT(neon);
         V8_OBJECT_SET_BOOLEAN(neon, "left", left);
-        V8_OBJECT_SET_BOOLEAN(neon, "right", left);
-        V8_OBJECT_SET_BOOLEAN(neon, "front", left);
-        V8_OBJECT_SET_BOOLEAN(neon, "back", left);
+        V8_OBJECT_SET_BOOLEAN(neon, "right", right);
+        V8_OBJECT_SET_BOOLEAN(neon, "front", front);
+        V8_OBJECT_SET_BOOLEAN(neon, "back", back);
 
         V8_RETURN(neon);
     }

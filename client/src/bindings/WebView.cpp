@@ -143,7 +143,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_OBJECT_GET_INT(size, "x", sizeX);
         V8_OBJECT_GET_INT(size, "y", sizeY);
 
-        view = alt::ICore::Instance().CreateWebView(altres, url, { posX, posY }, { sizeX, sizeY }, true, isOverlayBool);
+        view = alt::ICore::Instance().CreateWebView(url, { posX, posY }, { sizeX, sizeY }, true, isOverlayBool, altres);
     }
     else if(info.Length() == 3 && info[2]->IsObject())
     {
@@ -156,7 +156,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_OBJECT_GET_INT(size, "x", sizeX);
         V8_OBJECT_GET_INT(size, "y", sizeY);
 
-        view = alt::ICore::Instance().CreateWebView(altres, url, { posX, posY }, { sizeX, sizeY }, true, false);
+        view = alt::ICore::Instance().CreateWebView(url, { posX, posY }, { sizeX, sizeY }, true, false, altres);
     }
     else if(info.Length() == 3)
     {
@@ -166,7 +166,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         auto texture = alt::ICore::Instance().GetTextureFromDrawable(drawableHash, targetTextureStr);
         V8_CHECK(texture != nullptr, "Texture not found");
 
-        view = alt::ICore::Instance().CreateWebView(altres, url, (uint32_t)drawableHash, targetTextureStr);
+        view = alt::ICore::Instance().CreateWebView(url, (uint32_t)drawableHash, targetTextureStr, altres);
         V8_CHECK(view, "Interactive WebView cannot be created");
     }
     else if(info.Length() == 2 && info[1]->IsObject())
@@ -176,17 +176,17 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_OBJECT_GET_INT(pos, "x", posX);
         V8_OBJECT_GET_INT(pos, "y", posY);
 
-        view = alt::ICore::Instance().CreateWebView(altres, url, { posX, posY }, { 0, 0 }, true, false);
+        view = alt::ICore::Instance().CreateWebView(url, { posX, posY }, { 0, 0 }, true, false, altres);
     }
     else if(info.Length() == 2)
     {
         V8_ARG_TO_BOOLEAN(2, isOverlayBool);
 
-        view = alt::ICore::Instance().CreateWebView(altres, url, { 0, 0 }, { 0, 0 }, true, isOverlayBool);
+        view = alt::ICore::Instance().CreateWebView(url, { 0, 0 }, { 0, 0 }, true, isOverlayBool, altres);
     }
     else
     {
-        view = alt::ICore::Instance().CreateWebView(altres, url, { 0, 0 }, { 0, 0 }, true, false);
+        view = alt::ICore::Instance().CreateWebView(url, { 0, 0 }, { 0, 0 }, true, false, altres);
     }
 
     V8_BIND_BASE_OBJECT(view, "Failed to create WebView");

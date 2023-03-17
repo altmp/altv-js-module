@@ -19,19 +19,11 @@ bool CNodeScriptRuntime::Init()
         return false;
     }
 
-    platform = node::MultiIsolatePlatform::Create(4, (v8::TracingController*)nullptr);
-
+    platform = node::MultiIsolatePlatform::Create(4);
     v8::V8::InitializePlatform(platform.get());
     v8::V8::Initialize();
 
-    isolate = v8::Isolate::Allocate();
-
-    platform->RegisterIsolate(isolate, uv_default_loop());
-
-    v8::Isolate::CreateParams params;
-    params.array_buffer_allocator = node::CreateArrayBufferAllocator();
-
-    v8::Isolate::Initialize(isolate, params);
+    isolate = node::NewIsolate(node::CreateArrayBufferAllocator(), uv_default_loop(), platform.get());
 
     // IsWorker data slot
     isolate->SetData(v8::Isolate::GetNumberOfDataSlots() - 1, new bool(false));
@@ -88,7 +80,7 @@ void CNodeScriptRuntime::OnDispose()
 std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
 {
     // https://nodejs.org/docs/latest-v17.x/api/cli.html#options
-    std::vector<std::string> args = { "alt-server", "--experimental-specifier-resolution=node", "--trace-warnings" };
+    std::vector<std::string> args = { "alt-server", "--no-warnings" };
 
     Config::Value::ValuePtr moduleConfig = alt::ICore::Instance().GetServerConfig()["js-module"];
     if(!moduleConfig->IsDict()) return args;
@@ -109,10 +101,6 @@ std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
     // https://nodejs.org/api/cli.html#--heap-prof
     Config::Value::ValuePtr enableHeapProfiler = moduleConfig["heap-profiler"];
     if(enableHeapProfiler->AsBool(false)) args.push_back("--heap-prof");
-
-    // https://nodejs.org/api/cli.html#--experimental-fetch
-    Config::Value::ValuePtr enableGlobalFetch = moduleConfig["global-fetch"];
-    if(enableGlobalFetch->AsBool(false)) args.push_back("--experimental-fetch");
 
     // https://nodejs.org/api/cli.html#--experimental-global-webcrypto
     Config::Value::ValuePtr enableGlobalWebcrypto = moduleConfig["global-webcrypto"];
