@@ -245,9 +245,10 @@ void CV8ScriptRuntime::OnDispose()
     delete this;
 }
 
-void CV8ScriptRuntime::Init()
+void CV8ScriptRuntime::Init(std::function<void(bool success, std::string error)> next, std::function<void(alt::InitState state, float progress, float total)> setProgress)
 {
     IRuntimeEventHandler::Reset();
+    next(true, "");
 }
 
 static std::string Base64Decode(const std::string& in)
