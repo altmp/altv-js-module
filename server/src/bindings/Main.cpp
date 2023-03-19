@@ -76,14 +76,6 @@ static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     for(int i = 2; i < info.Length(); ++i) mvArgs.Push(V8Helpers::V8ToMValue(info[i], false));
 
-    if(info[0]->IsNull())
-    {
-        // Deprecation added: 06/08/2022 (version 13)
-        V8_DEPRECATE("emitClient with null", "emitAllClients");
-        ICore::Instance().TriggerClientEventForAll(eventName, mvArgs);
-        return;
-    }
-
     if(info[0]->IsArray())
     {
         // if first argument is an array of players this event will be sent to every player in array
@@ -198,15 +190,6 @@ static void EmitClientRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
         }
         V8_CHECK(!result.IsEmpty(), "Failed to serialize value");
         mvArgs.Push(result);
-    }
-
-    if(info[0]->IsNull())
-    {
-        // Deprecation added: 06/08/2022 (version 13)
-        V8_DEPRECATE("emitClientRaw with null", "emitAllClientsRaw");
-        // if first argument is null this event gets send to every player
-        ICore::Instance().TriggerClientEventForAll(eventName, mvArgs);
-        return;
     }
 
     if(info[0]->IsArray())
