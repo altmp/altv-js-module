@@ -119,6 +119,52 @@ static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
 }
 
+static void EmitClientUnreliable(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN_MIN(2);
+
+    V8_ARG_TO_STRING(2, eventName);
+
+    MValueArgs mvArgs;
+
+    for(int i = 2; i < info.Length(); ++i) mvArgs.Push(V8Helpers::V8ToMValue(info[i], false));
+
+    if(info[0]->IsArray())
+    {
+        // if first argument is an array of players this event will be sent to every player in array
+        v8::Local<v8::Array> arr = info[0].As<v8::Array>();
+        std::vector<IPlayer*> targets;
+        targets.reserve(arr->Length());
+
+        for(int i = 0; i < arr->Length(); ++i)
+        {
+            IPlayer* player;
+            v8::Local<v8::Value> ply;
+
+            bool toLocalSuccess = arr->Get(ctx, i).ToLocal(&ply);
+            V8_CHECK_NORETN(toLocalSuccess, "Invalid player in emitClientUnreliable players array");
+            if(!toLocalSuccess) continue;
+            V8Entity* v8Player = V8Entity::Get(ply);
+
+            bool isPlayerType = v8Player && v8Player->GetHandle() && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER;
+            V8_CHECK_NORETN(isPlayerType, "player inside array expected");
+            if(!isPlayerType) continue;
+            targets.push_back(dynamic_cast<alt::IPlayer*>(v8Player->GetHandle()));
+        }
+
+        ICore::Instance().TriggerClientEventUnreliable(targets, eventName, mvArgs);
+    }
+    else
+    {
+        // if first argument is not null and not an array this event gets sent to the specific player
+        V8Entity* v8Player = V8Entity::Get(info[0]);
+        V8_CHECK(v8Player && v8Player->GetHandle() && v8Player->GetHandle()->GetType() == alt::IBaseObject::Type::PLAYER, "player or player array expected");
+
+        ICore::Instance().TriggerClientEventUnreliable(dynamic_cast<alt::IPlayer*>(v8Player->GetHandle()), eventName, mvArgs);
+    }
+}
+
 static void EmitAllClients(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -220,6 +266,19 @@ static void EmitAllClientsRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
 
     ICore::Instance().TriggerClientEventForAll(eventName, args);
+}
+
+static void EmitAllClientsUnreliable(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN_MIN(1);
+    V8_ARG_TO_STRING(1, eventName);
+
+    MValueArgs args;
+
+    for(int i = 1; i < info.Length(); ++i) args.Push(V8Helpers::V8ToMValue(info[i], false));
+
+    ICore::Instance().TriggerClientEventUnreliableForAll(eventName, args);
 }
 
 static void SetSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -465,6 +524,8 @@ extern V8Module v8Alt("alt",
                           V8Helpers::RegisterFunc(exports, "emitAllClients", &EmitAllClients);
                           V8Helpers::RegisterFunc(exports, "emitClientRaw", &EmitClientRaw);
                           V8Helpers::RegisterFunc(exports, "emitAllClientsRaw", &EmitAllClientsRaw);
+                          V8Helpers::RegisterFunc(exports, "emitClientUnreliable", &EmitClientUnreliable);
+                          V8Helpers::RegisterFunc(exports, "emitAllClientsUnreliable", &EmitAllClientsUnreliable);
 
                           V8Helpers::RegisterFunc(exports, "setSyncedMeta", &SetSyncedMeta);
                           V8Helpers::RegisterFunc(exports, "deleteSyncedMeta", &DeleteSyncedMeta);

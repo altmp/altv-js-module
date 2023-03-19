@@ -108,6 +108,20 @@ static void EmitServerRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
     alt::ICore::Instance().TriggerServerEvent(eventName, args);
 }
 
+static void EmitServerUnreliable(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+
+    V8_CHECK_ARGS_LEN_MIN(1);
+    V8_ARG_TO_STRING(1, eventName);
+
+    alt::MValueArgs args;
+
+    for(int i = 1; i < info.Length(); ++i) args.Push(V8Helpers::V8ToMValue(info[i], false));
+
+    alt::ICore::Instance().TriggerServerEventUnreliable(eventName, args);
+}
+
 static void GameControlsEnabled(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE();
@@ -1077,6 +1091,7 @@ extern V8Module altModule("alt",
                               V8Helpers::RegisterFunc(exports, "offServer", &OffServer);
                               V8Helpers::RegisterFunc(exports, "emitServer", &EmitServer);
                               V8Helpers::RegisterFunc(exports, "emitServerRaw", &EmitServerRaw);
+                              V8Helpers::RegisterFunc(exports, "emitServerUnreliable", &EmitServerUnreliable);
                               V8Helpers::RegisterFunc(exports, "gameControlsEnabled", &GameControlsEnabled);
                               V8Helpers::RegisterFunc(exports, "toggleGameControls", &ToggleGameControls);
                               V8Helpers::RegisterFunc(exports, "toggleVoiceControls", &ToggleVoiceControls);
