@@ -244,13 +244,23 @@ V8_LOCAL_EVENT_HANDLER playerInteriorChange(EventType::PLAYER_CHANGE_INTERIOR_EV
                                             });
 
 V8_LOCAL_EVENT_HANDLER playerDimensionChange(EventType::PLAYER_DIMENSION_CHANGE,
-                                            "playerDimensionChange",
-                                            [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args)
-                                            {
-                                                auto ev = static_cast<const alt::CPlayerDimensionChangeEvent*>(e);
-                                                v8::Isolate* isolate = resource->GetIsolate();
+                                             "playerDimensionChange",
+                                             [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                             {
+                                                 auto ev = static_cast<const alt::CPlayerDimensionChangeEvent*>(e);
+                                                 v8::Isolate* isolate = resource->GetIsolate();
 
-                                                args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
-                                                args.push_back(V8Helpers::JSValue(ev->GetOldDimension()));
-                                                args.push_back(V8Helpers::JSValue(ev->GetNewDimension()));
-                                            });
+                                                 args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
+                                                 args.push_back(V8Helpers::JSValue(ev->GetOldDimension()));
+                                                 args.push_back(V8Helpers::JSValue(ev->GetNewDimension()));
+                                             });
+
+V8_LOCAL_EVENT_HANDLER playerSpawn(EventType::PLAYER_SPAWN,
+                                   "playerSpawn",
+                                   [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                   {
+                                       auto ev = static_cast<const alt::CPlayerSpawnEvent*>(e);
+                                       v8::Isolate* isolate = resource->GetIsolate();
+
+                                       args.push_back(resource->GetBaseObjectOrNull(ev->GetPlayer()));
+                                   });

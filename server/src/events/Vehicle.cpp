@@ -75,3 +75,13 @@ V8Helpers::LocalEventHandler vehicleHorn(EventType::VEHICLE_HORN,
                                              args.push_back(resource->GetBaseObjectOrNull(ev->GetReporter()));
                                              args.push_back(V8Helpers::JSValue(ev->GetToggle()));
                                          });
+
+V8Helpers::LocalEventHandler vehicleSiren(EventType::VEHICLE_SIREN,
+                                          "vehicleSiren",
+                                          [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                          {
+                                              auto ev = static_cast<const alt::CVehicleSirenEvent*>(e);
+
+                                              args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
+                                              args.push_back(V8Helpers::JSValue(ev->GetToggle()));
+                                          });
