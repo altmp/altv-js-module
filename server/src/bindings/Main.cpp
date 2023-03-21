@@ -469,6 +469,56 @@ static void SetWorldProfiler(const v8::FunctionCallbackInfo<v8::Value>& info)
     ICore::Instance().SetWorldProfiler(isActive);
 }
 
+static void GetEntitiesInDimension(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+
+    V8_CHECK_ARGS_LEN(2);
+    V8_ARG_TO_INT32(1, dimension);
+    V8_ARG_TO_UINT(2, allowedTypes);
+
+    auto entities = ICore::Instance().GetEntitiesInDimension(dimension, allowedTypes);
+    v8::Local<v8::Array> jsAll = v8::Array::New(isolate, entities.size());
+    for(uint32_t i = 0; i < entities.size(); ++i) jsAll->Set(resource->GetContext(), i, resource->GetBaseObjectOrNull(entities[i]));
+
+    V8_RETURN(jsAll);
+}
+
+static void GetEntitiesInRange(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+
+    V8_CHECK_ARGS_LEN(4);
+    V8_ARG_TO_VECTOR3(1, position);
+    V8_ARG_TO_INT32(2, range);
+    V8_ARG_TO_INT32(3, dimension);
+    V8_ARG_TO_UINT(4, allowedTypes);
+
+    auto entities = ICore::Instance().GetEntitiesInRange(position, range, dimension, allowedTypes);
+    v8::Local<v8::Array> jsAll = v8::Array::New(isolate, entities.size());
+    for(uint32_t i = 0; i < entities.size(); ++i) jsAll->Set(resource->GetContext(), i, resource->GetBaseObjectOrNull(entities[i]));
+
+    V8_RETURN(jsAll);
+}
+
+static void GetClosestEntities(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+
+    V8_CHECK_ARGS_LEN(5);
+    V8_ARG_TO_VECTOR3(1, position);
+    V8_ARG_TO_INT32(2, range);
+    V8_ARG_TO_INT32(3, dimension);
+    V8_ARG_TO_INT32(4, limit)
+    V8_ARG_TO_UINT(5, allowedTypes);
+
+    auto entities = ICore::Instance().GetClosestEntities(position, range, dimension, limit, allowedTypes);
+    v8::Local<v8::Array> jsAll = v8::Array::New(isolate, entities.size());
+    for(uint32_t i = 0; i < entities.size(); ++i) jsAll->Set(resource->GetContext(), i, resource->GetBaseObjectOrNull(entities[i]));
+
+    V8_RETURN(jsAll);
+}
+
 extern V8Class v8Player, v8Vehicle, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Checkpoint, v8VoiceChannel, v8Colshape, v8ColshapeCylinder, v8ColshapeSphere, v8ColshapeCircle,
   v8ColshapeCuboid, v8ColshapeRectangle, v8ColshapePolygon, v8Ped;
 
@@ -528,6 +578,10 @@ extern V8Module v8Alt("alt",
                           V8Helpers::RegisterFunc(exports, "getServerConfig", &GetServerConfig);
 
                           V8Helpers::RegisterFunc(exports, "toggleWorldProfiler", &SetWorldProfiler);
+
+                          V8Helpers::RegisterFunc(exports, "getEntitiesInDimension", &GetEntitiesInDimension);
+                          V8Helpers::RegisterFunc(exports, "getEntitiesInRange", &GetEntitiesInRange);
+                          V8Helpers::RegisterFunc(exports, "getClosestEntities", &GetClosestEntities);
 
                           V8_OBJECT_SET_STRING(exports, "rootDir", alt::ICore::Instance().GetRootDirectory());
                           V8_OBJECT_SET_INT(exports, "defaultDimension", alt::DEFAULT_DIMENSION);
