@@ -52,7 +52,7 @@ public:
     {
         extern V8Class v8Player, v8Vehicle, v8Blip, v8Checkpoint;
 #ifdef ALT_SERVER_API
-        extern V8Class v8VoiceChannel, v8Colshape, v8Checkpoint, v8Ped;
+        extern V8Class v8VoiceChannel, v8Colshape, v8Ped;
 #else
         extern V8Class v8WebView, v8LocalPlayer, v8RmlDocument, v8RmlElement, v8Object, v8WebSocketClient, v8Audio, v8HttpClient;
 #endif
