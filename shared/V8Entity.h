@@ -50,9 +50,9 @@ public:
 
     static V8Class* GetClass(alt::IBaseObject* handle)
     {
-        extern V8Class v8Player, v8Vehicle, v8Blip, v8Checkpoint;
+        extern V8Class v8Player, v8Vehicle, v8Blip, v8Checkpoint, v8Ped;
 #ifdef ALT_SERVER_API
-        extern V8Class v8VoiceChannel, v8Colshape, v8Ped;
+        extern V8Class v8VoiceChannel, v8Colshape;
 #else
         extern V8Class v8WebView, v8LocalPlayer, v8RmlDocument, v8RmlElement, v8Object, v8WebSocketClient, v8Audio, v8HttpClient;
 #endif
@@ -65,10 +65,10 @@ public:
             case alt::IBaseObject::Type::VEHICLE: return &v8Vehicle;
             case alt::IBaseObject::Type::BLIP: return &v8Blip;
             case alt::IBaseObject::Type::CHECKPOINT: return &v8Checkpoint;
+            case alt::IBaseObject::Type::PED: return &v8Ped;
 #ifdef ALT_SERVER_API
             case alt::IBaseObject::Type::COLSHAPE: return &v8Colshape;
             case alt::IBaseObject::Type::VOICE_CHANNEL: return &v8VoiceChannel;
-            case alt::IBaseObject::Type::PED: return &v8Ped;
 #else
             case alt::IBaseObject::Type::WEBVIEW: return &v8WebView;
             case alt::IBaseObject::Type::LOCAL_PLAYER: return &v8LocalPlayer;
