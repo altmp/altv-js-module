@@ -32,5 +32,14 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     resource->BindEntity(info.This(), ped);
 }
 
+// clang-format off
 extern V8Class v8Entity;
-extern V8Class v8Ped("Ped", v8Entity, Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {});
+extern V8Class v8Ped("Ped", v8Entity, Constructor, [](v8::Local<v8::FunctionTemplate> tpl)
+{
+    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+
+    V8Helpers::SetAccessor<IPed, uint32_t, &IPed::GetCurrentWeapon, &IPed::SetCurrentWeapon>(isolate, tpl, "currentWeapon");
+    V8Helpers::SetAccessor<IPed, uint16_t, &IPed::GetHealth, &IPed::SetHealth>(isolate, tpl, "health");
+    V8Helpers::SetAccessor<IPed, uint16_t, &IPed::GetMaxHealth, &IPed::SetMaxHealth>(isolate, tpl, "maxHealth");
+    V8Helpers::SetAccessor<IPed, uint16_t, &IPed::GetArmour, &IPed::SetArmour>(isolate, tpl, "armour");
+});
