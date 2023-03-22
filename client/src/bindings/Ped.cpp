@@ -1,5 +1,3 @@
-#include "stdafx.h"
-
 #include "V8Helpers.h"
 #include "V8ResourceImpl.h"
 #include "helpers/BindHelpers.h"
