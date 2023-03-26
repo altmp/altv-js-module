@@ -10,7 +10,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_CONSTRUCTOR();
-    V8_CHECK_ARGS_LEN(3);
+    V8_CHECK_ARGS_LEN_MIN_MAX(3, 6);
 
     uint32_t model;
     if(info[0]->IsString())
@@ -27,7 +27,28 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_VECTOR3(2, pos);
     V8_ARG_TO_VECTOR3(3, rot);
 
-    INetworkObject* object = alt::ICore::Instance().CreateNetworkObject(model, pos, rot);
+    uint8_t alpha = 255;
+    if(info[3]->IsNumber())
+    {
+        V8_ARG_TO_UINT(4, alphaVal);
+        alpha = alphaVal;
+    }
+
+    uint8_t textureVariation = 0;
+    if(info[4]->IsNumber())
+    {
+        V8_ARG_TO_UINT(5, textureVariationVal);
+        textureVariation = textureVariationVal;
+    }
+
+    uint16_t lodDistance = 100;
+    if(info[5]->IsNumber())
+    {
+        V8_ARG_TO_UINT(6, lodDistanceVal);
+        lodDistance = lodDistanceVal;
+    }
+
+    INetworkObject* object = alt::ICore::Instance().CreateNetworkObject(model, pos, rot, alpha, textureVariation, lodDistance);
     V8_CHECK(object, "Failed to create object");
     resource->BindEntity(info.This(), object);
 }
@@ -37,4 +58,11 @@ extern V8Class v8Entity;
 extern V8Class v8NetworkObject("NetworkObject", v8Entity, Constructor, [](v8::Local<v8::FunctionTemplate> tpl)
 {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
+
+    V8Helpers::SetMethod<alt::INetworkObject, &alt::INetworkObject::ActivatePhysics>(isolate, tpl, "activatePhysics");
+    V8Helpers::SetMethod<alt::INetworkObject, &alt::INetworkObject::PlaceOnGroundProperly>(isolate, tpl, "placeOnGroundProperly");
+
+    V8Helpers::SetAccessor<alt::INetworkObject, uint8_t, &alt::INetworkObject::GetAlpha, &alt::INetworkObject::SetAlpha>(isolate, tpl, "alpha");
+    V8Helpers::SetAccessor<alt::INetworkObject, uint8_t, &alt::INetworkObject::GetTextureVariation, &alt::INetworkObject::SetTextureVariation>(isolate, tpl, "textureVariation");
+    V8Helpers::SetAccessor<alt::INetworkObject, uint16_t, &alt::INetworkObject::GetLodDistance, &alt::INetworkObject::SetLodDistance>(isolate, tpl, "lodDistance");
 });
