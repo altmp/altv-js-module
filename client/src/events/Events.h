@@ -49,4 +49,7 @@ inline void RegisterEvents()
     V8_REFERENCE_LOCAL_EVENT_HANDLER(enteredVehicle);
     V8_REFERENCE_LOCAL_EVENT_HANDLER(leftVehicle);
     V8_REFERENCE_LOCAL_EVENT_HANDLER(changedVehicleSeat);
+
+    // World Object
+    V8_REFERENCE_LOCAL_EVENT_HANDLER(worldObjectPositionChange);
 }
