@@ -86,8 +86,8 @@ public:
 
         if(!anyHandlerRemoved)
         {
-            Log::Warning << 
-                location.ToString() << " alt.off was called for event \"" << ev << 
+            Log::Warning <<
+                location.ToString() << " alt.off was called for event \"" << ev <<
                 "\" with function reference that was not subscribed" << Log::Endl;
             return;
         }
@@ -244,6 +244,8 @@ public:
     v8::Local<v8::Array> GetAllPlayers();
     v8::Local<v8::Array> GetAllVehicles();
     v8::Local<v8::Array> GetAllBlips();
+    v8::Local<v8::Array> GetAllVirtualEntityGroups();
+    v8::Local<v8::Array> GetAllVirtualEntities();
 #ifdef ALT_CLIENT_API
     v8::Local<v8::Array> GetAllObjects();
 #endif
