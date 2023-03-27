@@ -42,6 +42,7 @@ extern V8Class v8Colshape("Colshape",
                           {
                               v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
+                              V8Helpers::SetAccessor<IColShape, uint32_t, &IColShape::GetID>(isolate, tpl, "id");
                               V8Helpers::SetAccessor<IColShape, IColShape::ColShapeType, &IColShape::GetColshapeType>(isolate, tpl, "colshapeType");
                               V8Helpers::SetAccessor<IColShape, bool, &IColShape::IsPlayersOnly, &IColShape::SetPlayersOnly>(isolate, tpl, "playersOnly");
 
