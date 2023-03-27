@@ -83,6 +83,13 @@ static void IsPointIn(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_BOOLEAN(cp->IsPointIn({ x, y, z }));
 }
 
+static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+
+    V8_RETURN(resource->GetAllCheckpoints());
+}
+
 extern V8Class v8WorldObject;
 extern V8Class v8Checkpoint("Checkpoint",
                             v8WorldObject,
@@ -91,6 +98,8 @@ extern V8Class v8Checkpoint("Checkpoint",
                             {
                                 using namespace alt;
                                 v8::Isolate* isolate = v8::Isolate::GetCurrent();
+
+                                V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
 
                                 V8Helpers::SetAccessor<ICheckpoint, uint8_t, &ICheckpoint::GetCheckpointType, &ICheckpoint::SetCheckpointType>(isolate, tpl, "checkpointType");
                                 V8Helpers::SetAccessor<ICheckpoint, float, &ICheckpoint::GetRadius, &ICheckpoint::SetRadius>(isolate, tpl, "radius");
