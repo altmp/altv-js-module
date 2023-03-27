@@ -86,9 +86,7 @@ public:
 
         if(!anyHandlerRemoved)
         {
-            Log::Warning <<
-                location.ToString() << " alt.off was called for event \"" << ev <<
-                "\" with function reference that was not subscribed" << Log::Endl;
+            Log::Warning << location.ToString() << " alt.off was called for event \"" << ev << "\" with function reference that was not subscribed" << Log::Endl;
             return;
         }
 
@@ -249,6 +247,7 @@ public:
 #ifdef ALT_CLIENT_API
     v8::Local<v8::Array> GetAllObjects();
 #endif
+    v8::Local<v8::Array> GetAllNetworkObjects();
 
     std::vector<V8Helpers::EventCallback*> GetLocalHandlers(const std::string& name);
     std::vector<V8Helpers::EventCallback*> GetRemoteHandlers(const std::string& name);
