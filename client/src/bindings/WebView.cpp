@@ -217,6 +217,15 @@ static void SetZoomLevel(const v8::FunctionCallbackInfo<v8::Value>& info)
     view->SetZoomLevel(zoomLevel);
 }
 
+static void AllWebviewGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    auto objects = alt::ICore::Instance().GetWebViews();
+    v8::Local<v8::Array> jsArr = v8::Array::New(isolate, objects.size());
+    for(size_t i = 0; i < objects.size(); ++i) jsArr->Set(ctx, i, resource->GetBaseObjectOrNull(objects[i]));
+    V8_RETURN(jsArr);
+}
+
 extern V8Class v8BaseObject;
 extern V8Class v8WebView("WebView",
                          v8BaseObject,
@@ -225,8 +234,10 @@ extern V8Class v8WebView("WebView",
                          {
                              v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
+                             V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllWebviewGetter);
                              V8Helpers::SetMethod(isolate, tpl, "toString", ToString);
 
+                             V8Helpers::SetAccessor<IWebView, uint32_t, &IWebView::GetID>(isolate, tpl, "id");
                              V8Helpers::SetAccessor<IWebView, bool, &IWebView::IsVisible, &IWebView::SetVisible>(isolate, tpl, "isVisible");
                              V8Helpers::SetAccessor<IWebView, const std::string&, &IWebView::GetUrl, &IWebView::SetUrl>(isolate, tpl, "url");
                              V8Helpers::SetAccessor<IWebView, bool, &IWebView::IsOverlay>(isolate, tpl, "isOverlay");
