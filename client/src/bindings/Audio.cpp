@@ -180,6 +180,15 @@ static void Seek(const v8::FunctionCallbackInfo<v8::Value>& info)
     audio->Seek(time);
 }
 
+static void AllAudioGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    auto objects = alt::ICore::Instance().GetAudios();
+    v8::Local<v8::Array> jsArr = v8::Array::New(isolate, objects.size());
+    for(size_t i = 0; i < objects.size(); ++i) jsArr->Set(ctx, i, resource->GetBaseObjectOrNull(objects[i]));
+    V8_RETURN(jsArr);
+}
+
 extern V8Class v8BaseObject;
 extern V8Class v8Audio("Audio",
                        v8BaseObject,
@@ -189,10 +198,13 @@ extern V8Class v8Audio("Audio",
                            using namespace alt;
                            v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
+                           V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllAudioGetter);
+
                            V8Helpers::SetMethod(isolate, tpl, "on", &On);
                            V8Helpers::SetMethod(isolate, tpl, "off", &Off);
                            V8Helpers::SetMethod(isolate, tpl, "getEventListeners", GetEventListeners);
 
+                           V8Helpers::SetAccessor<IAudio, uint32_t, &IAudio::GetID>(isolate, tpl, "id");
                            V8Helpers::SetAccessor<IAudio, const std::string&, &IAudio::GetSource, &IAudio::SetSource>(isolate, tpl, "source");
                            V8Helpers::SetAccessor<IAudio, bool, &IAudio::IsLoop, &IAudio::SetLoop>(isolate, tpl, "looped");
                            V8Helpers::SetAccessor<IAudio, float, &IAudio::GetVolume, &IAudio::SetVolume>(isolate, tpl, "volume");
@@ -210,4 +222,6 @@ extern V8Class v8Audio("Audio",
                            V8Helpers::SetMethod<IAudio, &IAudio::Pause>(isolate, tpl, "pause");
                            V8Helpers::SetMethod<IAudio, &IAudio::Reset>(isolate, tpl, "reset");
                            V8Helpers::SetMethod(isolate, tpl, "seek", &Seek);
+
+                           V8Helpers::SetAccessor<IAudio, uint32_t, &IAudio::GetRemoteID>(isolate, tpl, "remoteId");
                        });
