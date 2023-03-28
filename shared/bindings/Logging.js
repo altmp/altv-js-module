@@ -3187,15 +3187,11 @@ function stripVTControlCharacters(str) {
 inspect({});
 
 function genericLog(type, ...args) {
-    if(args.length === 0 || !args[0]) throw new Error("Invalid log arguments");
-
-    const logStr = args.reduce((result, arg, idx) => {
-        let space = " ";
-        if(idx === 0) space = "";
-        return `${result}${space}${typeof arg === 'string' ? arg : inspect(arg, { colors: type === 0 })}`;
-    }, "");
-
-    __printLog(type, logStr);
+    const logArgs = args.map((arg) => {
+      if (typeof arg === 'string') return arg;
+      return inspect(arg, { colors: type === 0 });
+    });
+    __printLog(type, ...logArgs);
 }
 __global.genericLog = genericLog;
 
