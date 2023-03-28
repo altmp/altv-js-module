@@ -3,6 +3,8 @@
 #include "V8Helpers.h"
 #include "V8ResourceImpl.h"
 
+#include "helpers/BindHelpers.h"
+
 using namespace alt;
 
 static void AddPlayer(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -113,6 +115,10 @@ extern V8Class v8VoiceChannel("VoiceChannel",
                               [](v8::Local<v8::FunctionTemplate> tpl)
                               {
                                   v8::Isolate* isolate = v8::Isolate::GetCurrent();
+
+                                  V8Helpers::SetAccessor<IVoiceChannel, uint32_t, &IVoiceChannel::GetID>(isolate, tpl, "id");
+                                  V8Helpers::SetAccessor<IVoiceChannel, float, &IVoiceChannel::GetMaxDistance>(isolate, tpl, "maxDistance");
+                                  V8Helpers::SetAccessor<IVoiceChannel, bool, &IVoiceChannel::IsSpatial>(isolate, tpl, "isSpatial");
 
                                   V8Helpers::SetMethod(isolate, tpl, "addPlayer", &AddPlayer);
                                   V8Helpers::SetMethod(isolate, tpl, "removePlayer", &RemovePlayer);
