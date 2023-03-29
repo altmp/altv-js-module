@@ -242,6 +242,8 @@ static void PushArg(
             break;
         case alt::INative::Type::ARG_STRING:
             if(val->IsString()) scrCtx->Push(SaveString(*v8::String::Utf8Value(isolate, val->ToString(v8Ctx).ToLocalChecked())));
+            else if(val->IsNullOrUndefined())
+                scrCtx->Push((char*)nullptr);
             else
                 scrCtx->Push((char*)nullptr);
             break;
