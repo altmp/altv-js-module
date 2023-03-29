@@ -267,6 +267,8 @@ static bool PushArg(
         case alt::INative::Type::ARG_STRING:
         {
             if(val->IsString()) scrCtx->Push(SaveString(*v8::String::Utf8Value(isolate, val->ToString(v8Ctx).ToLocalChecked())));
+            else if(val->IsNullOrUndefined())
+                scrCtx->Push((char*)nullptr);
             else
             {
                 ShowNativeArgParseErrorMsg(resource, val, native, argType, idx);
