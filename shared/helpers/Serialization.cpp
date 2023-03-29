@@ -134,7 +134,6 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
             else if(resource->IsBaseObject(v8Obj))
             {
                 V8Entity* ent = V8Entity::Get(v8Obj);
-                Log::Debug << "Instanceof BaseObject" << Log::Endl;
 
                 V8_CHECK_RETN(ent, "Unable to convert base object to MValue because it was destroyed and is now invalid", core.CreateMValueNil());
                 return core.CreateMValueBaseObject(ent->GetHandle());
