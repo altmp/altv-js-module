@@ -68,6 +68,13 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
             auto v8Buffer = val.As<v8::ArrayBuffer>()->GetBackingStore();
             return core.CreateMValueByteArray((uint8_t*)v8Buffer->Data(), v8Buffer->ByteLength());
         }
+        else if(val->IsTypedArray())
+        {
+            v8::Local<v8::TypedArray> typedArray = val.As<v8::TypedArray>();
+            if(!typedArray->HasBuffer()) return core.CreateMValueNone();
+            v8::Local<v8::ArrayBuffer> v8Buffer = typedArray->Buffer();
+            return core.CreateMValueByteArray((uint8_t*)((uintptr_t)v8Buffer->GetBackingStore()->Data() + typedArray->ByteOffset()), typedArray->ByteLength());
+        }
         else if(val->IsMap())
         {
             v8::Local<v8::Map> map = val.As<v8::Map>();
@@ -127,7 +134,6 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
             else if(resource->IsBaseObject(v8Obj))
             {
                 V8Entity* ent = V8Entity::Get(v8Obj);
-                Log::Debug << "Instanceof BaseObject" << Log::Endl;
 
                 V8_CHECK_RETN(ent, "Unable to convert base object to MValue because it was destroyed and is now invalid", core.CreateMValueNil());
                 return core.CreateMValueBaseObject(ent->GetHandle());

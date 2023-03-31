@@ -5,7 +5,7 @@ const { ModuleWrap } = internalRequire("internal/test/binding").internalBinding(
 const path = require("path");
 const alt = process._linkedBinding("alt");
 const dns = require('dns');
-const url = require('url');
+const url = require("url");
 
 (async () => {
   const resource = alt.Resource.current;
@@ -51,6 +51,7 @@ const url = require('url');
 // Sets up our custom way of importing alt:V resources
 function setupImports() {
   const altResourceInternalPrefix = "altresource";
+  const altResourceImportPrefix = "alt";
 
   translators.set(altResourceInternalPrefix, async function(url) {
     const name = url.slice(altResourceInternalPrefix.length + 1); // Remove prefix
@@ -72,11 +73,22 @@ function setupImports() {
   const customLoaders = [{
     exports: {
       resolve(specifier, context, defaultResolve) {
-        if (alt.hasResource(specifier))
+        const hasAltPrefix = specifier.startsWith(`${altResourceImportPrefix}:`);
+        if (alt.hasResource(specifier) && !hasAltPrefix) {
+          alt.logWarning(`Trying to import resource '${specifier}' without '${altResourceImportPrefix}:' prefix, this is deprecated behaviour.`);
+          alt.logWarning(`Import '${altResourceImportPrefix}:${specifier}' instead to silence this warning.`);
           return {
             url: `${altResourceInternalPrefix}:${specifier}`,
             shortCircuit: true
           };
+        }
+        const specifierWithoutPrefix = specifier.slice(altResourceImportPrefix.length + 1);
+        if(hasAltPrefix && alt.hasResource(specifierWithoutPrefix)) {
+          return {
+            url: `${altResourceInternalPrefix}:${specifierWithoutPrefix}`,
+            shortCircuit: true
+          };
+        }
 
         if(_warningPackages.hasOwnProperty(specifier)) alt.logWarning(`Using the module "${specifier}" can cause problems. Reason: ${_warningPackages[specifier]}`);
         return defaultResolve(specifier, context, defaultResolve);

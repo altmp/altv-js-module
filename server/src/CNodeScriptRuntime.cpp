@@ -80,7 +80,7 @@ void CNodeScriptRuntime::OnDispose()
 std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
 {
     // https://nodejs.org/docs/latest-v17.x/api/cli.html#options
-    std::vector<std::string> args = { "alt-server", "--experimental-specifier-resolution=node", "--no-warnings" };
+    std::vector<std::string> args = { "alt-server", "--no-warnings" };
 
     Config::Value::ValuePtr moduleConfig = alt::ICore::Instance().GetServerConfig()["js-module"];
     if(!moduleConfig->IsDict()) return args;
@@ -101,10 +101,6 @@ std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
     // https://nodejs.org/api/cli.html#--heap-prof
     Config::Value::ValuePtr enableHeapProfiler = moduleConfig["heap-profiler"];
     if(enableHeapProfiler->AsBool(false)) args.push_back("--heap-prof");
-
-    // https://nodejs.org/api/cli.html#--experimental-fetch
-    Config::Value::ValuePtr enableGlobalFetch = moduleConfig["global-fetch"];
-    if(enableGlobalFetch->AsBool(false)) args.push_back("--experimental-fetch");
 
     // https://nodejs.org/api/cli.html#--experimental-global-webcrypto
     Config::Value::ValuePtr enableGlobalWebcrypto = moduleConfig["global-webcrypto"];

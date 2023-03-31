@@ -36,7 +36,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_BOOLEAN_OPT(4, noOffset, false);
     V8_ARG_TO_BOOLEAN_OPT(5, dynamic, false);
 
-    auto obj = alt::ICore::Instance().CreateObject(modelHash, pos, rot, noOffset, dynamic);
+    auto obj = alt::ICore::Instance().CreateObject(modelHash, pos, rot, noOffset, dynamic, resource->GetResource());
     V8_BIND_BASE_OBJECT(obj, "Failed to create object");
 }
 
@@ -83,7 +83,7 @@ static void AttachToEntity(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_BOOLEAN_OPT(6, collision, false);
     V8_ARG_TO_BOOLEAN_OPT(7, fixedRot, false);
 
-    if (info[0]->IsUint32())
+    if(info[0]->IsUint32())
     {
         V8_ARG_TO_INT(1, scriptId);
         object->AttachToEntity(scriptId, bone, pos, rot, useSoftPinning, collision, fixedRot);

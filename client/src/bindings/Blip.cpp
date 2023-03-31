@@ -32,7 +32,7 @@ static void ConstructorAreaBlip(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_NUMBER(4, width);
     V8_ARG_TO_NUMBER(5, height);
 
-    alt::IBlip* blip = alt::ICore::Instance().CreateBlip({ x, y, z }, width, height);
+    alt::IBlip* blip = alt::ICore::Instance().CreateBlip({ x, y, z }, width, height, resource->GetResource());
     V8_BIND_BASE_OBJECT(blip, "Failed to create AreaBlip");
 }
 
@@ -46,7 +46,7 @@ static void ConstructorRadiusBlip(const v8::FunctionCallbackInfo<v8::Value>& inf
     V8_ARG_TO_NUMBER(3, z);
     V8_ARG_TO_NUMBER(4, radius);
 
-    alt::IBlip* blip = alt::ICore::Instance().CreateBlip({ x, y, z }, radius);
+    alt::IBlip* blip = alt::ICore::Instance().CreateBlip({ x, y, z }, radius, resource->GetResource());
     V8_BIND_BASE_OBJECT(blip, "Failed to create RadiusBlip");
 }
 
@@ -59,7 +59,7 @@ static void ConstructorPointBlip(const v8::FunctionCallbackInfo<v8::Value>& info
     V8_ARG_TO_NUMBER(2, y);
     V8_ARG_TO_NUMBER(3, z);
 
-    alt::IBlip* blip = alt::ICore::Instance().CreateBlip(alt::IBlip::BlipType::DESTINATION, { x, y, z });
+    alt::IBlip* blip = alt::ICore::Instance().CreateBlip(alt::IBlip::BlipType::DESTINATION, { x, y, z }, resource->GetResource());
     V8_BIND_BASE_OBJECT(blip, "Failed to create PointBlip");
 }
 

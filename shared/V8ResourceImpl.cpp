@@ -65,6 +65,7 @@ bool V8ResourceImpl::Stop()
     vector2Class.Reset();
     rgbaClass.Reset();
     baseObjectClass.Reset();
+    objects.Reset();
 
     context.Reset();
 
@@ -374,6 +375,8 @@ void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vecto
               if(ev && returnValue->IsFalse()) ev->Cancel();
               else if(ev && ev->GetType() == alt::CEvent::Type::PLAYER_BEFORE_CONNECT && returnValue->IsString())
                   static_cast<alt::CPlayerBeforeConnectEvent*>(const_cast<alt::CEvent*>(ev))->Cancel(*v8::String::Utf8Value(isolate, returnValue));
+              else if(ev && ev->GetType() == alt::CEvent::Type::WEAPON_DAMAGE_EVENT && returnValue->IsNumber())
+                  static_cast<alt::CWeaponDamageEvent*>(const_cast<alt::CEvent*>(ev))->SetDamageValue((uint32_t)returnValue->NumberValue(GetContext()).ToChecked());
               // todo: add this once a generic Cancel() with string as arg has been added to the sdk
               // else if(ev && returnValue->IsString())
               //    ev->Cancel(*v8::String::Utf8Value(isolate, returnValue));
@@ -459,17 +462,17 @@ static void PrintLog(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
         case 0:
         {
-            alt::ICore::Instance().LogColored(stream.str());
+            alt::ICore::Instance().LogColored(stream.str(), resource->GetResource());
             break;
         }
         case 1:
         {
-            alt::ICore::Instance().LogWarning(stream.str());
+            alt::ICore::Instance().LogWarning(stream.str(), resource->GetResource());
             break;
         }
         case 2:
         {
-            alt::ICore::Instance().LogError(stream.str());
+            alt::ICore::Instance().LogError(stream.str(), resource->GetResource());
             break;
         }
     }

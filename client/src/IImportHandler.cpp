@@ -160,29 +160,8 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveFile(const std::string& name, 
 
     if(!path.pkg) return v8::MaybeLocal<v8::Module>();
 
-    auto fileName = path.fileName;
-
-    if(fileName.size() == 0)
-    {
-        if(path.pkg->FileExists("index.js")) fileName = "index.js";
-        else if(path.pkg->FileExists("index.mjs"))
-            fileName = "index.mjs";
-        else
-            return v8::MaybeLocal<v8::Module>();
-    }
-    else
-    {
-        if(path.pkg->FileExists(fileName + ".js")) fileName += ".js";
-        else if(path.pkg->FileExists(fileName + ".mjs"))
-            fileName += ".mjs";
-        else if(path.pkg->FileExists(fileName + "/index.js"))
-            fileName += "/index.js";
-        else if(path.pkg->FileExists(fileName + "/index.mjs"))
-            fileName += "/index.mjs";
-        else if(!path.pkg->FileExists(fileName))
-            return v8::MaybeLocal<v8::Module>();
-    }
-
+    std::string fileName = path.fileName;
+    if(!path.pkg->FileExists(fileName)) return v8::MaybeLocal<v8::Module>();
     std::string fullName = path.prefix + fileName;
 
     auto it = modules.find(fullName);
@@ -238,6 +217,7 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveModule(const std::string& _nam
 
     std::string name = _name;
 
+    if(name.starts_with("alt:")) name = name.substr(4);
     if(name == "alt-client") name = "alt";
 
     auto it = modules.find(name);
@@ -310,35 +290,6 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveCode(const std::string& code, 
     return maybeModule;
 }
 
-inline void CopyValueToBuffer(const uint8_t* buffer, size_t offset, uint32_t val)
-{
-    bool isLittleEndian = true;
-    {
-        int n = 1;
-        isLittleEndian = *(char*)&n == 1;
-    }
-
-    uintptr_t dst = (uintptr_t)buffer + offset;
-    if(isLittleEndian) memcpy((void*)(dst), &val, sizeof(val));
-    else
-    {
-        // Code inspired by V8
-        uint8_t* src = reinterpret_cast<uint8_t*>(&val);
-        uint8_t* dstPtr = reinterpret_cast<uint8_t*>(dst);
-        for(size_t i = 0; i < sizeof(val); i++)
-        {
-            dstPtr[i] = src[sizeof(val) - i - 1];
-        }
-    }
-}
-
-inline uint32_t CreateV8SourceHash(uint32_t sourceSize)
-{
-    // We always use modules, so this flag is always used
-    static constexpr uint32_t moduleFlagMask = (1 << 31);
-    return sourceSize | moduleFlagMask;
-}
-
 v8::MaybeLocal<v8::Module> IImportHandler::ResolveBytecode(const std::string& name, uint8_t* buffer, size_t size)
 {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -350,9 +301,6 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveBytecode(const std::string& na
     size_t bytecodeSize = size - sizeof(bytecodeMagic) - sizeof(int);
     uint8_t* bytecode = new uint8_t[bytecodeSize];
     memcpy(bytecode, buffer + sizeof(bytecodeMagic) + sizeof(int), bytecodeSize);
-
-    // VERY TEMP
-    CopyValueToBuffer(bytecode, 8, CreateV8SourceHash(sourceCodeSize + 2));
 
     v8::ScriptCompiler::CachedData* cachedData = new v8::ScriptCompiler::CachedData(bytecode, bytecodeSize, v8::ScriptCompiler::CachedData::BufferOwned);
     v8::ScriptOrigin origin(isolate, V8Helpers::JSValue(name), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
