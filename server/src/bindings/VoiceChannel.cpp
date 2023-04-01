@@ -110,17 +110,17 @@ static void SetFilter(v8::Local<v8::String>, v8::Local<v8::Value> value, const v
     V8_GET_THIS_BASE_OBJECT(channel, IVoiceChannel);
 
     uint32_t filterHash = 0;
-    if (value->IsNumber())
+    if(value->IsNumber())
     {
         V8_TO_UINT(value, filter);
         filterHash = filter;
     }
-    else if (value->IsString())
+    else if(value->IsString())
     {
         V8_TO_STRING(value, model);
         filterHash = alt::ICore::Instance().Hash(model);
     }
-    else if (value->IsNull())
+    else if(value->IsNull())
     {
         filterHash = 0;
     }
@@ -156,7 +156,6 @@ extern V8Class v8VoiceChannel("VoiceChannel",
                                   V8Helpers::SetAccessor<IVoiceChannel, float, &IVoiceChannel::GetMaxDistance>(isolate, tpl, "maxDistance");
                                   V8Helpers::SetAccessor<IVoiceChannel, bool, &IVoiceChannel::IsSpatial>(isolate, tpl, "isSpatial");
                                   V8Helpers::SetAccessor<IVoiceChannel, int32_t, &IVoiceChannel::GetPriority, &IVoiceChannel::SetPriority>(isolate, tpl, "priority");
-                                  V8Helpers::SetAccessor<IVoiceChannel, bool, &IVoiceChannel::IsSpatial>(isolate, tpl, "");
 
                                   V8Helpers::SetMethod(isolate, tpl, "addPlayer", &AddPlayer);
                                   V8Helpers::SetMethod(isolate, tpl, "removePlayer", &RemovePlayer);
