@@ -96,6 +96,42 @@ static void GetPlayerCount(v8::Local<v8::String>, const v8::PropertyCallbackInfo
     V8_RETURN((uint32_t)channel->GetPlayerCount());
 }
 
+static void GetFilter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(channel, IVoiceChannel);
+
+    V8_RETURN((uint32_t)channel->GetFilter());
+}
+
+static void SetFilter(v8::Local<v8::String>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(channel, IVoiceChannel);
+
+    uint32_t filterHash = 0;
+    if (value->IsNumber())
+    {
+        V8_TO_UINT(value, filter);
+        filterHash = filter;
+    }
+    else if (value->IsString())
+    {
+        V8_TO_STRING(value, model);
+        filterHash = alt::ICore::Instance().Hash(model);
+    }
+    else if (value->IsNull())
+    {
+        filterHash = 0;
+    }
+    else
+    {
+        V8Helpers::Throw(isolate, "VoiceChannel.filter setter expects string, number or null");
+    }
+
+    channel->SetFilter(filterHash);
+}
+
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -119,6 +155,8 @@ extern V8Class v8VoiceChannel("VoiceChannel",
                                   V8Helpers::SetAccessor<IVoiceChannel, uint32_t, &IVoiceChannel::GetID>(isolate, tpl, "id");
                                   V8Helpers::SetAccessor<IVoiceChannel, float, &IVoiceChannel::GetMaxDistance>(isolate, tpl, "maxDistance");
                                   V8Helpers::SetAccessor<IVoiceChannel, bool, &IVoiceChannel::IsSpatial>(isolate, tpl, "isSpatial");
+                                  V8Helpers::SetAccessor<IVoiceChannel, int32_t, &IVoiceChannel::GetPriority, &IVoiceChannel::SetPriority>(isolate, tpl, "priority");
+                                  V8Helpers::SetAccessor<IVoiceChannel, bool, &IVoiceChannel::IsSpatial>(isolate, tpl, "");
 
                                   V8Helpers::SetMethod(isolate, tpl, "addPlayer", &AddPlayer);
                                   V8Helpers::SetMethod(isolate, tpl, "removePlayer", &RemovePlayer);
@@ -129,4 +167,5 @@ extern V8Class v8VoiceChannel("VoiceChannel",
 
                                   V8Helpers::SetAccessor(isolate, tpl, "players", &GetPlayers);
                                   V8Helpers::SetAccessor(isolate, tpl, "playerCount", &GetPlayerCount);
+                                  V8Helpers::SetAccessor(isolate, tpl, "filter", &GetFilter, &SetFilter);
                               });
