@@ -951,6 +951,7 @@ extern V8Class v8Player("Player",
 
                             V8Helpers::SetMethod(isolate, tpl, "playAmbientSpeech", &PlayAmbientSpeech);
                             V8Helpers::SetMethod(isolate, tpl, "playAnimation", &PlayAnimation);
+                            V8Helpers::SetMethod<IPlayer, &IPlayer::ClearTasks>(isolate, tpl, "clearTasks");
 
                             V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetInteriorLocation>(isolate, tpl, "currentInterior");
                             V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetLastDamagedBodyPart, &IPlayer::SetLastDamagedBodyPart>(isolate, tpl, "lastDamagedBodyPart");
