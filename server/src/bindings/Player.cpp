@@ -442,6 +442,66 @@ static void PlayAmbientSpeech(const v8::FunctionCallbackInfo<v8::Value>& info)
     player->PlayAmbientSpeech(speechName, speechParam, speechDictHash);
 }
 
+static void PlayAnimation(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(10);
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    V8_ARG_TO_STRING(1, animDict);
+    V8_ARG_TO_STRING(2, animName);
+    float blendInSpeed = 8.0f;
+    if(info.Length() > 2)
+    {
+        V8_ARG_TO_NUMBER(3, blendInSpeedVal);
+        blendInSpeed = blendInSpeedVal;
+    }
+    float blendOutSpeed = 8.0f;
+    if(info.Length() > 3)
+    {
+        V8_ARG_TO_NUMBER(4, blendOutSpeedVal);
+        blendOutSpeed = blendOutSpeedVal;
+    }
+    int duration = -1;
+    if(info.Length() > 4)
+    {
+        V8_ARG_TO_INT(5, durationVal);
+        duration = durationVal;
+    }
+    int flag = 0;
+    if(info.Length() > 5)
+    {
+        V8_ARG_TO_INT(6, flagVal);
+        flag = flagVal;
+    }
+    float playbackRate = 1.0f;
+    if(info.Length() > 6)
+    {
+        V8_ARG_TO_NUMBER(7, playbackRateVal);
+        playbackRate = playbackRateVal;
+    }
+    bool lockX = false;
+    if(info.Length() > 7)
+    {
+        V8_ARG_TO_BOOLEAN(8, lockXVal);
+        lockX = lockXVal;
+    }
+    bool lockY = false;
+    if(info.Length() > 8)
+    {
+        V8_ARG_TO_BOOLEAN(9, lockYVal);
+        lockY = lockYVal;
+    }
+    bool lockZ = false;
+    if(info.Length() > 9)
+    {
+        V8_ARG_TO_BOOLEAN(10, lockZVal);
+        lockZ = lockZVal;
+    }
+
+    player->PlayAnimation(animDict, animName, blendInSpeed, blendOutSpeed, duration, flag, playbackRate, lockX, lockY, lockZ);
+}
+
 static void SetHeadOverlay(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -890,6 +950,7 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetMethod(isolate, tpl, "setIntoVehicle", &SetIntoVehicle);
 
                             V8Helpers::SetMethod(isolate, tpl, "playAmbientSpeech", &PlayAmbientSpeech);
+                            V8Helpers::SetMethod(isolate, tpl, "playAnimation", &PlayAnimation);
 
                             V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetInteriorLocation>(isolate, tpl, "currentInterior");
                             V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetLastDamagedBodyPart, &IPlayer::SetLastDamagedBodyPart>(isolate, tpl, "lastDamagedBodyPart");
