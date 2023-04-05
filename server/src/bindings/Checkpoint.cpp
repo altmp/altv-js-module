@@ -2,6 +2,7 @@
 
 #include "V8Helpers.h"
 #include "V8ResourceImpl.h"
+#include "helpers/BindHelpers.h"
 
 using namespace alt;
 
@@ -60,6 +61,71 @@ static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo
     V8_RETURN(resource->GetAllCheckpoints());
 }
 
+static void HasStreamSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    V8_CHECK_ARGS_LEN(1);
+    V8_ARG_TO_STRING(1, key);
+
+    V8_GET_THIS_BASE_OBJECT(checkpoint, alt::ICheckpoint);
+
+    V8_RETURN_BOOLEAN(checkpoint->HasStreamSyncedMetaData(key));
+}
+
+static void GetStreamSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    V8_CHECK_ARGS_LEN(1);
+    V8_ARG_TO_STRING(1, key);
+
+    V8_GET_THIS_BASE_OBJECT(checkpoint, alt::ICheckpoint);
+
+    V8_RETURN_MVALUE(checkpoint->GetStreamSyncedMetaData(key));
+}
+
+static void GetStreamSyncedMetaDataKeys(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(checkpoint, alt::ICheckpoint);
+
+    const std::vector<std::string> list = checkpoint->GetStreamSyncedMetaDataKeys();
+    size_t size = list.size();
+    v8::Local<v8::Array> arr = v8::Array::New(isolate, size);
+    for(size_t i = 0; i < size; i++)
+    {
+        arr->Set(ctx, i, V8Helpers::JSValue(list[i]));
+    }
+
+    V8_RETURN(arr);
+}
+
+static void SetStreamSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    V8_CHECK_ARGS_LEN(2);
+    V8_ARG_TO_STRING(1, key);
+    V8_ARG_TO_MVALUE(2, value);
+
+    V8_GET_THIS_BASE_OBJECT(checkpoint, alt::ICheckpoint);
+
+    checkpoint->SetStreamSyncedMetaData(key, value);
+}
+
+static void DeleteStreamSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    V8_CHECK_ARGS_LEN(1);
+    V8_ARG_TO_STRING(1, key);
+
+    V8_GET_THIS_BASE_OBJECT(checkpoint, alt::ICheckpoint);
+
+    checkpoint->DeleteStreamSyncedMetaData(key);
+}
+
 extern V8Class v8Colshape;
 extern V8Class v8Checkpoint("Checkpoint",
                             v8Colshape,
@@ -69,4 +135,5 @@ extern V8Class v8Checkpoint("Checkpoint",
                                 v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
                                 V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
+                                V8Helpers::SetAccessor<ICheckpoint, uint32_t, &ICheckpoint::GetStreamingDistance>(isolate, tpl, "streamingDistance");
                             });
