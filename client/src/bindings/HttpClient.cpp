@@ -2,6 +2,7 @@
 #include "V8ResourceImpl.h"
 #include "V8Class.h"
 #include "../CV8ScriptRuntime.h"
+#include "helpers/BindHelpers.h"
 
 static void SetExtraHeader(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
@@ -50,7 +51,8 @@ static void Get(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(1, url);
 
     auto& persistent = requestPromises.emplace_back(v8::Global<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
-    auto callback = [](alt::IHttpClient::HttpResponse response, const void* userData) {
+    auto callback = [](alt::IHttpClient::HttpResponse response, const void* userData)
+    {
         // TODO: NOT PERFORMANCE EFFICIENT TO LOCK HERE, RESOLVE IN NEXT TICK INSTEAD
 
         v8::Isolate* isolate = CV8ScriptRuntime::Instance().GetIsolate();
@@ -92,7 +94,8 @@ static void Head(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(1, url);
 
     auto& persistent = requestPromises.emplace_back(v8::Global<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
-    auto callback = [](alt::IHttpClient::HttpResponse response, const void* userData) {
+    auto callback = [](alt::IHttpClient::HttpResponse response, const void* userData)
+    {
         // TODO: NOT PERFORMANCE EFFICIENT TO LOCK HERE, RESOLVE IN NEXT TICK INSTEAD
 
         v8::Isolate* isolate = CV8ScriptRuntime::Instance().GetIsolate();
@@ -135,7 +138,8 @@ static void Post(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(2, body);
 
     auto& persistent = requestPromises.emplace_back(v8::Global<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
-    auto callback = [](alt::IHttpClient::HttpResponse response, const void* userData) {
+    auto callback = [](alt::IHttpClient::HttpResponse response, const void* userData)
+    {
         // TODO: NOT PERFORMANCE EFFICIENT TO LOCK HERE, RESOLVE IN NEXT TICK INSTEAD
 
         v8::Isolate* isolate = CV8ScriptRuntime::Instance().GetIsolate();
@@ -178,7 +182,8 @@ static void Put(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(2, body);
 
     auto& persistent = requestPromises.emplace_back(v8::Global<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
-    auto callback = [](alt::IHttpClient::HttpResponse response, const void* userData) {
+    auto callback = [](alt::IHttpClient::HttpResponse response, const void* userData)
+    {
         // TODO: NOT PERFORMANCE EFFICIENT TO LOCK HERE, RESOLVE IN NEXT TICK INSTEAD
 
         v8::Isolate* isolate = CV8ScriptRuntime::Instance().GetIsolate();
@@ -221,7 +226,8 @@ static void Delete(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(2, body);
 
     auto& persistent = requestPromises.emplace_back(v8::Global<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
-    auto callback = [](alt::IHttpClient::HttpResponse response, const void* userData) {
+    auto callback = [](alt::IHttpClient::HttpResponse response, const void* userData)
+    {
         // TODO: NOT PERFORMANCE EFFICIENT TO LOCK HERE, RESOLVE IN NEXT TICK INSTEAD
 
         v8::Isolate* isolate = CV8ScriptRuntime::Instance().GetIsolate();
@@ -264,7 +270,8 @@ static void Connect(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(2, body);
 
     auto& persistent = requestPromises.emplace_back(v8::Global<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
-    auto callback = [](alt::IHttpClient::HttpResponse response, const void* userData) {
+    auto callback = [](alt::IHttpClient::HttpResponse response, const void* userData)
+    {
         // TODO: NOT PERFORMANCE EFFICIENT TO LOCK HERE, RESOLVE IN NEXT TICK INSTEAD
 
         v8::Isolate* isolate = CV8ScriptRuntime::Instance().GetIsolate();
@@ -307,7 +314,8 @@ static void Options(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(2, body);
 
     auto& persistent = requestPromises.emplace_back(v8::Global<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
-    auto callback = [](alt::IHttpClient::HttpResponse response, const void* userData) {
+    auto callback = [](alt::IHttpClient::HttpResponse response, const void* userData)
+    {
         // TODO: NOT PERFORMANCE EFFICIENT TO LOCK HERE, RESOLVE IN NEXT TICK INSTEAD
 
         v8::Isolate* isolate = CV8ScriptRuntime::Instance().GetIsolate();
@@ -350,7 +358,8 @@ static void Trace(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(2, body);
 
     auto& persistent = requestPromises.emplace_back(v8::Global<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
-    auto callback = [](alt::IHttpClient::HttpResponse response, const void* userData) {
+    auto callback = [](alt::IHttpClient::HttpResponse response, const void* userData)
+    {
         // TODO: NOT PERFORMANCE EFFICIENT TO LOCK HERE, RESOLVE IN NEXT TICK INSTEAD
 
         v8::Isolate* isolate = CV8ScriptRuntime::Instance().GetIsolate();
@@ -393,7 +402,8 @@ static void Patch(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(2, body);
 
     auto& persistent = requestPromises.emplace_back(v8::Global<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
-    auto callback = [](alt::IHttpClient::HttpResponse response, const void* userData) {
+    auto callback = [](alt::IHttpClient::HttpResponse response, const void* userData)
+    {
         // TODO: NOT PERFORMANCE EFFICIENT TO LOCK HERE, RESOLVE IN NEXT TICK INSTEAD
 
         v8::Isolate* isolate = CV8ScriptRuntime::Instance().GetIsolate();
@@ -427,19 +437,25 @@ static void Patch(const v8::FunctionCallbackInfo<v8::Value>& info)
 }
 
 extern V8Class v8BaseObject;
-extern V8Class v8HttpClient("HttpClient", v8BaseObject, &Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
-    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+extern V8Class v8HttpClient("HttpClient",
+                            v8BaseObject,
+                            &Constructor,
+                            [](v8::Local<v8::FunctionTemplate> tpl)
+                            {
+                                v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    V8Helpers::SetMethod(isolate, tpl, "setExtraHeader", &SetExtraHeader);
-    V8Helpers::SetMethod(isolate, tpl, "getExtraHeaders", &GetExtraHeaders);
+                                V8Helpers::SetAccessor<alt::IHttpClient, uint32_t, &alt::IHttpClient::GetID>(isolate, tpl, "id");
 
-    V8Helpers::SetMethod(isolate, tpl, "get", Get);
-    V8Helpers::SetMethod(isolate, tpl, "head", Head);
-    V8Helpers::SetMethod(isolate, tpl, "post", Post);
-    V8Helpers::SetMethod(isolate, tpl, "put", Put);
-    V8Helpers::SetMethod(isolate, tpl, "delete", Delete);
-    V8Helpers::SetMethod(isolate, tpl, "connect", Connect);
-    V8Helpers::SetMethod(isolate, tpl, "options", Options);
-    V8Helpers::SetMethod(isolate, tpl, "trace", Trace);
-    V8Helpers::SetMethod(isolate, tpl, "patch", Patch);
-});
+                                V8Helpers::SetMethod(isolate, tpl, "setExtraHeader", &SetExtraHeader);
+                                V8Helpers::SetMethod(isolate, tpl, "getExtraHeaders", &GetExtraHeaders);
+
+                                V8Helpers::SetMethod(isolate, tpl, "get", Get);
+                                V8Helpers::SetMethod(isolate, tpl, "head", Head);
+                                V8Helpers::SetMethod(isolate, tpl, "post", Post);
+                                V8Helpers::SetMethod(isolate, tpl, "put", Put);
+                                V8Helpers::SetMethod(isolate, tpl, "delete", Delete);
+                                V8Helpers::SetMethod(isolate, tpl, "connect", Connect);
+                                V8Helpers::SetMethod(isolate, tpl, "options", Options);
+                                V8Helpers::SetMethod(isolate, tpl, "trace", Trace);
+                                V8Helpers::SetMethod(isolate, tpl, "patch", Patch);
+                            });

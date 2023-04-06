@@ -167,6 +167,8 @@ extern V8Class v8WebSocketClient("WebSocketClient",
                                  {
                                      v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
+                                     V8Helpers::SetAccessor<IWebSocketClient, uint32_t, &IWebSocketClient::GetID>(isolate, tpl, "id");
+
                                      V8Helpers::SetMethod(isolate, tpl, "on", &On);
                                      V8Helpers::SetMethod(isolate, tpl, "off", &Off);
                                      V8Helpers::SetMethod(isolate, tpl, "getEventListeners", GetEventListeners);
