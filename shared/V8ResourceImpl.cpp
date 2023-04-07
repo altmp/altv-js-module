@@ -22,6 +22,7 @@ bool V8ResourceImpl::Start()
 {
     vector3Class.Reset(isolate, v8Vector3.JSValue(isolate, GetContext()));
     vector2Class.Reset(isolate, v8Vector2.JSValue(isolate, GetContext()));
+    quaternionClass.Reset(isolate, v8Quaternion.JSValue(isolate, GetContext()));
     rgbaClass.Reset(isolate, v8RGBA.JSValue(isolate, GetContext()));
     baseObjectClass.Reset(isolate, v8BaseObject.JSValue(isolate, GetContext()));
 
@@ -63,6 +64,7 @@ bool V8ResourceImpl::Stop()
     vehicles.Reset();
     vector3Class.Reset();
     vector2Class.Reset();
+    quaternionClass.Reset();
     rgbaClass.Reset();
     baseObjectClass.Reset();
     objects.Reset();
@@ -190,6 +192,13 @@ bool V8ResourceImpl::IsVector2(v8::Local<v8::Value> val)
 {
     bool result = false;
     val->InstanceOf(GetContext(), vector2Class.Get(isolate)).To(&result);
+    return result;
+}
+
+bool V8ResourceImpl::IsQuaternion(v8::Local<v8::Value> val)
+{
+    bool result = false;
+    val->InstanceOf(GetContext(), quaternionClass.Get(isolate)).To(&result);
     return result;
 }
 
