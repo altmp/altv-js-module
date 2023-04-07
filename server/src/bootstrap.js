@@ -83,8 +83,11 @@ function setupImports() {
           };
         }
         const specifierWithoutPrefix = specifier.slice(altResourceImportPrefix.length + 1);
-        if(hasAltPrefix && alt.hasResource(specifierWithoutPrefix)) {
-          return {
+        if(hasAltPrefix) {
+          if(!alt.hasResource(specifierWithoutPrefix)) {
+            alt.logError(`Trying to import resource '${specifierWithoutPrefix}' that doesn't exist`);
+          }
+          else return {
             url: `${altResourceInternalPrefix}:${specifierWithoutPrefix}`,
             shortCircuit: true
           };
