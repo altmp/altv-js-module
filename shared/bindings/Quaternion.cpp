@@ -14,8 +14,8 @@ static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Quaternion_XKey(isolate)), x);
     V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Quaternion_YKey(isolate)), y);
-    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Quaternion_WKey(isolate)), z);
-    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Quaternion_ZKey(isolate)), w);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Quaternion_ZKey(isolate)), z);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Quaternion_WKey(isolate)), w);
 
     std::ostringstream ss;
     ss << std::fixed << std::setprecision(4) << "Quaternion{ x: " << x << ", y: " << y << ", z: " << z << ", w: " << w << " }";
@@ -31,8 +31,8 @@ static void ToArray(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Quaternion_XKey(isolate)), x);
     V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Quaternion_YKey(isolate)), y);
-    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Quaternion_WKey(isolate)), z);
-    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Quaternion_ZKey(isolate)), w);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Quaternion_ZKey(isolate)), z);
+    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Quaternion_WKey(isolate)), w);
 
     v8::Local<v8::Array> arr = v8::Array::New(isolate, 4);
     arr->Set(ctx, 0, V8Helpers::JSValue(x));
@@ -77,10 +77,10 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         {
             v8::Local<v8::Object> obj = val.As<v8::Object>();
 
-            x = obj->Get(ctx, V8Helpers::Vector3_XKey(isolate)).ToLocalChecked();
-            y = obj->Get(ctx, V8Helpers::Vector3_YKey(isolate)).ToLocalChecked();
-            z = obj->Get(ctx, V8Helpers::Vector3_ZKey(isolate)).ToLocalChecked();
-            w = obj->Get(ctx, V8Helpers::Vector3_ZKey(isolate)).ToLocalChecked();
+            x = obj->Get(ctx, V8Helpers::Quaternion_XKey(isolate)).ToLocalChecked();
+            y = obj->Get(ctx, V8Helpers::Quaternion_YKey(isolate)).ToLocalChecked();
+            z = obj->Get(ctx, V8Helpers::Quaternion_ZKey(isolate)).ToLocalChecked();
+            w = obj->Get(ctx, V8Helpers::Quaternion_WKey(isolate)).ToLocalChecked();
 
             V8_CHECK(x->IsNumber(), "Argument must be an array of 4 numbers");
             V8_CHECK(y->IsNumber(), "Argument must be an array of 4 numbers");
