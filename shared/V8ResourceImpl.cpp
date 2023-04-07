@@ -17,7 +17,7 @@
 
 using namespace alt;
 
-extern V8Class v8Vector3, v8Vector2, v8RGBA, v8BaseObject;
+extern V8Class v8Vector3, v8Vector2, v8RGBA, v8BaseObject, v8Quaternion;
 bool V8ResourceImpl::Start()
 {
     vector3Class.Reset(isolate, v8Vector3.JSValue(isolate, GetContext()));
@@ -163,6 +163,13 @@ v8::Local<v8::Value> V8ResourceImpl::CreateVector2(alt::Vector2f vec)
     std::vector<v8::Local<v8::Value>> args{ V8Helpers::JSValue(vec[0]), V8Helpers::JSValue(vec[1]) };
 
     return v8Vector2.CreateInstance(isolate, GetContext(), args);
+}
+
+v8::Local<v8::Value> V8ResourceImpl::CreateQuaternion(alt::Quaternion quat)
+{
+    std::vector<v8::Local<v8::Value>> args{ V8Helpers::JSValue(quat.x), V8Helpers::JSValue(quat.y), V8Helpers::JSValue(quat.z), V8Helpers::JSValue(quat.w) };
+
+    return v8Quaternion.CreateInstance(isolate, GetContext(), args);
 }
 
 v8::Local<v8::Value> V8ResourceImpl::CreateRGBA(alt::RGBA rgba)
