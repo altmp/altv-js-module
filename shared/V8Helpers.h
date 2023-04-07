@@ -176,6 +176,11 @@ namespace V8Helpers
     v8::Local<v8::String> Vector3_YKey(v8::Isolate* isolate);
     v8::Local<v8::String> Vector3_ZKey(v8::Isolate* isolate);
 
+    v8::Local<v8::String> Quaternion_XKey(v8::Isolate* isolate);
+    v8::Local<v8::String> Quaternion_YKey(v8::Isolate* isolate);
+    v8::Local<v8::String> Quaternion_ZKey(v8::Isolate* isolate);
+    v8::Local<v8::String> Quaternion_WKey(v8::Isolate* isolate);
+
     v8::Local<v8::String> RGBA_RKey(v8::Isolate* isolate);
     v8::Local<v8::String> RGBA_GKey(v8::Isolate* isolate);
     v8::Local<v8::String> RGBA_BKey(v8::Isolate* isolate);

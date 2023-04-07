@@ -140,6 +140,10 @@
     alt::Vector2i val;                \
     V8_CHECK(V8Helpers::SafeToVector2Int((v8Val), ctx, val), "Failed to convert value to Vector2")
 
+#define V8_TO_QUATERNION(v8Val, val) \
+    alt::Quaternion val;             \
+    V8_CHECK(V8Helpers::SafeToQuaternion((v8Val), ctx, val), "Failed to convert value to Quaternion")
+
 #define V8_TO_RGBA(v8Val, val) \
     alt::RGBA val;             \
     V8_CHECK(V8Helpers::SafeToRGBA((v8Val), ctx, val), "Failed to convert value to RGBA")
@@ -296,6 +300,7 @@
 #define V8_RETURN_INT64(val)      V8_RETURN(v8::BigInt::New(isolate, static_cast<int64_t>(val)))
 #define V8_RETURN_VECTOR3(val)    V8_RETURN(resource->CreateVector3(val))
 #define V8_RETURN_VECTOR2(val)    V8_RETURN(resource->CreateVector2(val))
+#define V8_RETURN_QUATERNION(val) V8_RETURN(resource->CreateQuaternion(val))
 #define V8_RETURN_RGBA(val)       V8_RETURN(resource->CreateRGBA(val))
 #define V8_RETURN_ENUM(val)       V8_RETURN(uint32_t(val))
 
