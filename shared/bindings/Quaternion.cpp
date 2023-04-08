@@ -4,45 +4,6 @@
 #include "../V8Helpers.h"
 #include "../V8ResourceImpl.h"
 
-constexpr double PI = 3.141592653589793238463;
-
-static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-
-    v8::Local<v8::Object> _this = info.This();
-
-    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Quaternion_XKey(isolate)), x);
-    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Quaternion_YKey(isolate)), y);
-    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Quaternion_ZKey(isolate)), z);
-    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Quaternion_WKey(isolate)), w);
-
-    std::ostringstream ss;
-    ss << std::fixed << std::setprecision(4) << "Quaternion{ x: " << x << ", y: " << y << ", z: " << z << ", w: " << w << " }";
-
-    V8_RETURN_STRING(ss.str());
-}
-
-static void ToArray(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-
-    v8::Local<v8::Object> _this = info.This();
-
-    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Quaternion_XKey(isolate)), x);
-    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Quaternion_YKey(isolate)), y);
-    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Quaternion_ZKey(isolate)), z);
-    V8_TO_NUMBER(V8Helpers::Get(ctx, _this, V8Helpers::Quaternion_WKey(isolate)), w);
-
-    v8::Local<v8::Array> arr = v8::Array::New(isolate, 4);
-    arr->Set(ctx, 0, V8Helpers::JSValue(x));
-    arr->Set(ctx, 1, V8Helpers::JSValue(y));
-    arr->Set(ctx, 2, V8Helpers::JSValue(z));
-    arr->Set(ctx, 3, V8Helpers::JSValue(w));
-
-    V8_RETURN(arr);
-}
-
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();

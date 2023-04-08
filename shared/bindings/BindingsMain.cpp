@@ -421,11 +421,11 @@ static void StringToSHA256(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_STRING(alt::ICore::Instance().StringToSHA256(str));
 }
 
-extern V8Class v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2, v8Vector3, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Resource, v8Utils;
+extern V8Class v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2, v8Vector3, v8Quaternion, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Resource, v8Utils;
 
 extern V8Module sharedModule("alt-shared",
                              nullptr,
-                             { v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2, v8Vector3, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Resource, v8Utils },
+                             { v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2, v8Vector3, v8Quaternion, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Resource, v8Utils },
                              [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports)
                              {
                                  v8::Isolate* isolate = ctx->GetIsolate();

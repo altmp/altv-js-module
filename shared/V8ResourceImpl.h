@@ -191,6 +191,7 @@ public:
 
     bool IsVector3(v8::Local<v8::Value> val);
     bool IsVector2(v8::Local<v8::Value> val);
+    bool IsQuaternion(v8::Local<v8::Value> val);
     bool IsRGBA(v8::Local<v8::Value> val);
     bool IsBaseObject(v8::Local<v8::Value> val);
 
@@ -336,6 +337,7 @@ protected:
 
     V8Helpers::CPersistent<v8::Function> vector3Class;
     V8Helpers::CPersistent<v8::Function> vector2Class;
+    V8Helpers::CPersistent<v8::Function> quaternionClass;
     V8Helpers::CPersistent<v8::Function> rgbaClass;
     V8Helpers::CPersistent<v8::Function> baseObjectClass;
 

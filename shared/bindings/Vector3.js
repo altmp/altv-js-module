@@ -29,7 +29,7 @@ function getXYZFromArgs(args) {
         else if(Array.isArray(firstArg)) {
             if(typeof firstArg[0] === "number" || typeof firstArg[0] === "string") {
                 x = parseFloat(firstArg[0]);
-                assertNotNaN(z, "Expected an array of 3 numbers as first argument");
+                assertNotNaN(x, "Expected an array of 3 numbers as first argument");
             }
             if(typeof firstArg[1] === "number" || typeof firstArg[1] === "string") {
                 y = parseFloat(firstArg[1]);
