@@ -249,6 +249,7 @@ public:
     v8::Local<v8::Array> GetAllPeds();
 #ifdef ALT_CLIENT_API
     v8::Local<v8::Array> GetAllObjects();
+    v8::Local<v8::Array> GetAllMarkers();
 #endif
     v8::Local<v8::Array> GetAllNetworkObjects();
 
