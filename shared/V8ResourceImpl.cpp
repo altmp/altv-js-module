@@ -328,6 +328,17 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllCheckpoints()
     return jsAll;
 }
 
+v8::Local<v8::Array> V8ResourceImpl::GetAllPeds()
+{
+    std::vector<IPed*> all = ICore::Instance().GetPeds();
+    v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
+
+    for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
+
+    jsAll->SetIntegrityLevel(GetContext(), v8::IntegrityLevel::kFrozen);
+    return jsAll;
+}
+
 #ifdef ALT_CLIENT_API
 v8::Local<v8::Array> V8ResourceImpl::GetAllObjects()
 {

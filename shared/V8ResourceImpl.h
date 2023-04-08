@@ -246,6 +246,7 @@ public:
     v8::Local<v8::Array> GetAllCheckpoints();
     v8::Local<v8::Array> GetAllVirtualEntityGroups();
     v8::Local<v8::Array> GetAllVirtualEntities();
+    v8::Local<v8::Array> GetAllPeds();
 #ifdef ALT_CLIENT_API
     v8::Local<v8::Array> GetAllObjects();
 #endif
