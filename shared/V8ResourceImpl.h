@@ -186,6 +186,7 @@ public:
 
     v8::Local<v8::Value> CreateVector3(alt::Vector3f vec);
     v8::Local<v8::Value> CreateVector2(alt::Vector2f vec);
+    v8::Local<v8::Value> CreateQuaternion(alt::Quaternion quat);
     v8::Local<v8::Value> CreateRGBA(alt::RGBA rgba);
 
     bool IsVector3(v8::Local<v8::Value> val);

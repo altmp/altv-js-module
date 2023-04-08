@@ -244,6 +244,7 @@ extern V8Class v8Vehicle("Vehicle",
                              V8Helpers::SetAccessor<IVehicle, bool, &IVehicle::IsDestroyed>(isolate, tpl, "destroyed");
                              V8Helpers::SetAccessor<IVehicle, IPlayer*, &IVehicle::GetDriver>(isolate, tpl, "driver");
                              V8Helpers::SetAccessor<IVehicle, Vector3f, &IVehicle::GetVelocity>(isolate, tpl, "velocity");
+                             V8Helpers::SetAccessor<IVehicle, Quaternion, &IVehicle::GetQuaternion, &IVehicle::SetQuaternion>(isolate, tpl, "quaternion");
 
                              // Appearance getters/setters
                              V8Helpers::SetAccessor(isolate, tpl, "modKit", &ModKitGetter, &ModKitSetter);

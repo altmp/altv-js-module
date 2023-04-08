@@ -177,6 +177,24 @@ bool V8Helpers::SafeToVector2Int(v8::Local<v8::Value> val, v8::Local<v8::Context
     return false;
 }
 
+bool V8Helpers::SafeToQuaternion(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, alt::Quaternion& out)
+{
+    v8::MaybeLocal maybeVal = val->ToObject(ctx);
+    if(!maybeVal.IsEmpty())
+    {
+        v8::Local val = maybeVal.ToLocalChecked();
+
+        double x, y, z, w;
+        if(SafeToNumber(V8Helpers::Get(ctx, val, "x"), ctx, x) && SafeToNumber(V8Helpers::Get(ctx, val, "y"), ctx, y) && SafeToNumber(V8Helpers::Get(ctx, val, "z"), ctx, z) && SafeToNumber(V8Helpers::Get(ctx, val, "w"), ctx, w))
+        {
+            out = alt::Quaternion{ (float) x, (float) y, (float) z, (float) w };
+            return true;
+        }
+    }
+
+    return false;
+}
+
 bool V8Helpers::SafeToArrayBuffer(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::ArrayBuffer>& out)
 {
     if(val->IsArrayBuffer())
