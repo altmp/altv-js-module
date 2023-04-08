@@ -60,5 +60,5 @@ extern V8Class v8Marker("Marker",
                             V8Helpers::SetAccessor<IMarker, RGBA, &IMarker::GetColor, &IMarker::SetColor>(isolate, tpl, "color");
                             V8Helpers::SetAccessor<IMarker, Position, &IMarker::GetScale, &IMarker::SetScale>(isolate, tpl, "scale");
                             V8Helpers::SetAccessor<IMarker, Rotation, &IMarker::GetRotation, &IMarker::SetRotation>(isolate, tpl, "rotation");
-                            V8Helpers::SetAccessor<IMarker, Vector4f, &IMarker::GetDirection, &IMarker::SetDirection>(isolate, tpl, "direction");
+                            V8Helpers::SetAccessor<IMarker, Position, &IMarker::GetDirection, &IMarker::SetDirection>(isolate, tpl, "direction");
                         });
