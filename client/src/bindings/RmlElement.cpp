@@ -518,7 +518,7 @@ extern V8Class v8RmlElement("RmlElement",
                                 V8Helpers::SetAccessor<alt::IRmlElement, IRmlElement*, &alt::IRmlElement::GetFocusedElement>(isolate, tpl, "focusedElement");
 
                                 V8Helpers::SetAccessor<alt::IRmlElement, const std::string&, &alt::IRmlElement::GetTagName>(isolate, tpl, "tagName");
-                                V8Helpers::SetAccessor<alt::IRmlElement, const std::string&, &alt::IRmlElement::GetID, &alt::IRmlElement::SetID>(isolate, tpl, "id");
+                                V8Helpers::SetAccessor<alt::IRmlElement, const std::string&, &alt::IRmlElement::GetID, &alt::IRmlElement::SetID>(isolate, tpl, "rmlId");
 
                                 V8Helpers::SetAccessor<alt::IRmlElement, bool, &alt::IRmlElement::IsOwned>(isolate, tpl, "isOwned");
 
