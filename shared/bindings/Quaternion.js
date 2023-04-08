@@ -2,6 +2,8 @@
 // clang-format off
 // Quaternion JS bindings
 
+/*
+ * Can be used if someone wants to add .add, .sub, .div etc.
 function getXYZWFromArgs(args) {
     alt.Utils.assert(args.length === 1 || args.length === 4, "1 or 4 arguments expected");
 
@@ -70,6 +72,7 @@ function getXYZWFromArgs(args) {
 
     return [x, y, z, w];
 }
+ */
 
 // Static properties
 alt.Quaternion.zero = new alt.Quaternion(0, 0, 0, 0);
