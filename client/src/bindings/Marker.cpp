@@ -58,4 +58,5 @@ extern V8Class v8Marker("Marker",
                             V8Helpers::SetAccessor<IMarker, bool, &IMarker::GetVisible, &IMarker::SetVisible>(isolate, tpl, "visible");
                             V8Helpers::SetAccessor(isolate, tpl, "type", &TypeGetter, &TypeSetter);
                             V8Helpers::SetAccessor<IMarker, RGBA, &IMarker::GetColor, &IMarker::SetColor>(isolate, tpl, "color");
+                            V8Helpers::SetAccessor<IMarker, Position, &IMarker::GetScale, &IMarker::SetScale>(isolate, tpl, "scale");
                         });
