@@ -50,11 +50,11 @@ public:
 
     static V8Class* GetClass(alt::IBaseObject* handle)
     {
-        extern V8Class v8Player, v8Vehicle, v8Blip, v8Checkpoint, v8Ped, v8NetworkObject, v8VirtualEntity, v8VirtualEntityGroup;
+        extern V8Class v8Player, v8Vehicle, v8Blip, v8Checkpoint, v8Ped, v8NetworkObject, v8VirtualEntity, v8VirtualEntityGroup, v8Marker;
 #ifdef ALT_SERVER_API
         extern V8Class v8VoiceChannel, v8Colshape;
 #else
-        extern V8Class v8WebView, v8LocalPlayer, v8RmlDocument, v8RmlElement, v8Object, v8WebSocketClient, v8Audio, v8HttpClient, v8AudioFilter, v8Marker;
+        extern V8Class v8WebView, v8LocalPlayer, v8RmlDocument, v8RmlElement, v8Object, v8WebSocketClient, v8Audio, v8HttpClient, v8AudioFilter;
 #endif
 
         if(!handle) return nullptr;
@@ -69,6 +69,7 @@ public:
             case alt::IBaseObject::Type::NETWORK_OBJECT: return &v8NetworkObject;
             case alt::IBaseObject::Type::VIRTUAL_ENTITY: return &v8VirtualEntity;
             case alt::IBaseObject::Type::VIRTUAL_ENTITY_GROUP: return &v8VirtualEntityGroup;
+            case alt::IBaseObject::Type::MARKER: return &v8Marker;
 #ifdef ALT_SERVER_API
             case alt::IBaseObject::Type::COLSHAPE: return &v8Colshape;
             case alt::IBaseObject::Type::VOICE_CHANNEL: return &v8VoiceChannel;
@@ -82,7 +83,6 @@ public:
             case alt::IBaseObject::Type::AUDIO: return &v8Audio;
             case alt::IBaseObject::Type::HTTP_CLIENT: return &v8HttpClient;
             case alt::IBaseObject::Type::AUDIO_FILTER: return &v8AudioFilter;
-            case alt::IBaseObject::Type::MARKER: return &v8Marker;
 #endif
         }
 

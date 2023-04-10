@@ -248,9 +248,9 @@ public:
     v8::Local<v8::Array> GetAllVirtualEntityGroups();
     v8::Local<v8::Array> GetAllVirtualEntities();
     v8::Local<v8::Array> GetAllPeds();
+    v8::Local<v8::Array> GetAllMarkers();
 #ifdef ALT_CLIENT_API
     v8::Local<v8::Array> GetAllObjects();
-    v8::Local<v8::Array> GetAllMarkers();
 #endif
     v8::Local<v8::Array> GetAllNetworkObjects();
 

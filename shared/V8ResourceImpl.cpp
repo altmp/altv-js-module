@@ -348,6 +348,17 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllPeds()
     return jsAll;
 }
 
+v8::Local<v8::Array> V8ResourceImpl::GetAllMarkers()
+{
+    std::vector<IMarker*> all = ICore::Instance().GetMarkers();
+    v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
+
+    for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
+
+    jsAll->SetIntegrityLevel(GetContext(), v8::IntegrityLevel::kFrozen);
+    return jsAll;
+}
+
 #ifdef ALT_CLIENT_API
 v8::Local<v8::Array> V8ResourceImpl::GetAllObjects()
 {
@@ -365,17 +376,6 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllObjects()
         return jsAll;
     }
     return objects.Get(isolate);
-}
-
-v8::Local<v8::Array> V8ResourceImpl::GetAllMarkers()
-{
-    std::vector<IMarker*> all = ICore::Instance().GetMarkers();
-    v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
-
-    for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
-
-    jsAll->SetIntegrityLevel(GetContext(), v8::IntegrityLevel::kFrozen);
-    return jsAll;
 }
 #endif
 

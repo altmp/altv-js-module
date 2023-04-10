@@ -1,4 +1,3 @@
-#include "../CV8Resource.h"
 #include "V8Helpers.h"
 #include "helpers/BindHelpers.h"
 #include "cpp-sdk/script-objects/IMarker.h"
@@ -13,7 +12,11 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_VECTOR3(2, position);
     V8_ARG_TO_RGBA(3, color);
 
-    alt::IMarker* marker = alt::ICore::Instance().CreateMarker((alt::IMarker::MarkerType)type, position, color, resource->GetResource());
+#ifdef ALT_SERVER_API
+    alt::IMarker* marker = alt::ICore::Instance().CreateMarker(nullptr, (alt::IMarker::MarkerType)type, position, color, resource->GetResource());
+#else
+    alt::IMarker* marker = alt::ICore::Instance().CreateMarker((alt::IMarker::MarkerType)type, position, color);
+#endif
 
     V8_BIND_BASE_OBJECT(marker, "Failed to create Marker");
 }
@@ -74,7 +77,14 @@ extern V8Class v8Marker("Marker",
                             V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
                             V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
 
+#ifdef ALT_CLIENT_API
+                            V8Helpers::SetAccessor<IMarker, bool, &IMarker::IsRemote>(isolate, tpl, "isRemote");
+                            V8Helpers::SetAccessor<IMarker, uint32_t, &IMarker::GetRemoteID>(isolate, tpl, "remoteId");
+#endif
+
                             V8Helpers::SetAccessor<IMarker, uint32_t, &IMarker::GetID>(isolate, tpl, "id");
+                            V8Helpers::SetAccessor<IMarker, bool, &IMarker::IsGlobal>(isolate, tpl, "isGlobal");
+                            V8Helpers::SetAccessor<IMarker, IPlayer*, &IMarker::GetTarget>(isolate, tpl, "target");
                             V8Helpers::SetAccessor<IMarker, bool, &IMarker::GetVisible, &IMarker::SetVisible>(isolate, tpl, "visible");
                             V8Helpers::SetAccessor(isolate, tpl, "markerType", &TypeGetter, &TypeSetter);
                             V8Helpers::SetAccessor<IMarker, RGBA, &IMarker::GetColor, &IMarker::SetColor>(isolate, tpl, "color");
