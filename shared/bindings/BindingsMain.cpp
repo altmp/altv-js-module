@@ -132,6 +132,21 @@ static void GetMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_MVALUE(alt::ICore::Instance().GetMetaData(key));
 }
 
+static void GetMetaKeys(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    const std::vector<std::string> list = alt::ICore::Instance().GetMetaDataKeys();
+    size_t size = list.size();
+    v8::Local<v8::Array> arr = v8::Array::New(isolate, size);
+    for(size_t i = 0; i < size; i++)
+    {
+        arr->Set(ctx, i, V8Helpers::JSValue(list[i]));
+    }
+
+    V8_RETURN(arr);
+}
+
 static void SetMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -171,6 +186,21 @@ static void GetSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(1, key);
 
     V8_RETURN_MVALUE(alt::ICore::Instance().GetSyncedMetaData(key));
+}
+
+static void GetSyncedMetaKeys(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    const std::vector<std::string> list = alt::ICore::Instance().GetSyncedMetaDataKeys();
+    size_t size = list.size();
+    v8::Local<v8::Array> arr = v8::Array::New(isolate, size);
+    for(size_t i = 0; i < size; i++)
+    {
+        arr->Set(ctx, i, V8Helpers::JSValue(list[i]));
+    }
+
+    V8_RETURN(arr);
 }
 
 static void Log(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -452,9 +482,11 @@ extern V8Module sharedModule("alt-shared",
                                  V8Helpers::RegisterFunc(exports, "getMeta", &GetMeta);
                                  V8Helpers::RegisterFunc(exports, "setMeta", &SetMeta);
                                  V8Helpers::RegisterFunc(exports, "deleteMeta", &DeleteMeta);
+                                 V8Helpers::RegisterFunc(exports, "getMetaKeys", &GetMetaKeys);
 
                                  V8Helpers::RegisterFunc(exports, "hasSyncedMeta", &HasSyncedMeta);
                                  V8Helpers::RegisterFunc(exports, "getSyncedMeta", &GetSyncedMeta);
+                                 V8Helpers::RegisterFunc(exports, "getSyncedMetaKeys", &GetSyncedMetaKeys);
 
                                  V8Helpers::RegisterFunc(exports, "nextTick", &NextTick);
                                  V8Helpers::RegisterFunc(exports, "everyTick", &EveryTick);
