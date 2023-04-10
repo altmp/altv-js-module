@@ -66,6 +66,8 @@ static void GetStreamSyncedMetaDataKeys(const v8::FunctionCallbackInfo<v8::Value
     V8_RETURN(arr);
 }
 
+#ifdef ALT_SERVER_API
+
 static void SetStreamSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -78,6 +80,8 @@ static void SetStreamSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     ent->SetStreamSyncedMetaData(key, value);
 }
+
+#endif  // ALT_SERVER_API
 
 static void DeleteStreamSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
@@ -108,6 +112,15 @@ extern V8Class v8VirtualEntity("VirtualEntity",
                             V8Helpers::SetMethod(isolate, tpl, "hasStreamSyncedMeta", HasStreamSyncedMeta);
                             V8Helpers::SetMethod(isolate, tpl, "getStreamSyncedMeta", GetStreamSyncedMeta);
                             V8Helpers::SetMethod(isolate, tpl, "getStreamSyncedMetaKeys", GetStreamSyncedMetaDataKeys);
+
+#ifdef ALT_SERVER_API
                             V8Helpers::SetMethod(isolate, tpl, "setStreamSyncedMeta", SetStreamSyncedMeta);
                             V8Helpers::SetMethod(isolate, tpl, "deleteStreamSyncedMeta", DeleteStreamSyncedMeta);
+#endif  // ALT_SERVER_API
+
+#ifdef ALT_CLIENT_API
+                            V8Helpers::SetAccessor<IVirtualEntity, uint32_t, &IVirtualEntity::GetRemoteID>(isolate, tpl, "remoteId");
+                            V8Helpers::SetAccessor<IVirtualEntity, bool, &IVirtualEntity::IsRemote>(isolate, tpl, "isRemote");
+                            V8Helpers::SetAccessor<IVirtualEntity, bool, &IVirtualEntity::IsStreamedIn>(isolate, tpl, "isStreamedIn");
+#endif  // ALT_CLIENT_API
                         });
