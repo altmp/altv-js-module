@@ -58,7 +58,7 @@ static void GetStreamSyncedMetaDataKeys(const v8::FunctionCallbackInfo<v8::Value
     const std::vector<std::string> list = ent->GetStreamSyncedMetaDataKeys();
     size_t size = list.size();
     v8::Local<v8::Array> arr = v8::Array::New(isolate, size);
-    for (size_t i = 0; i < size; i++)
+    for(size_t i = 0; i < size; i++)
     {
         arr->Set(ctx, i, V8Helpers::JSValue(list[i]));
     }
@@ -81,8 +81,6 @@ static void SetStreamSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     ent->SetStreamSyncedMetaData(key, value);
 }
 
-#endif  // ALT_SERVER_API
-
 static void DeleteStreamSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -95,32 +93,34 @@ static void DeleteStreamSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& in
     ent->DeleteStreamSyncedMetaData(key);
 }
 
+#endif  // ALT_SERVER_API
+
 extern V8Class v8WorldObject;
 extern V8Class v8VirtualEntity("VirtualEntity",
-                        v8WorldObject,
-                        Constructor,
-                        [](v8::Local<v8::FunctionTemplate> tpl)
-                        {
-                            v8::Isolate* isolate = v8::Isolate::GetCurrent();
+                               v8WorldObject,
+                               Constructor,
+                               [](v8::Local<v8::FunctionTemplate> tpl)
+                               {
+                                   v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-                            V8Helpers::SetStaticAccessor(isolate, tpl, "all", AllGetter);
+                                   V8Helpers::SetStaticAccessor(isolate, tpl, "all", AllGetter);
 
-                            V8Helpers::SetAccessor<IVirtualEntity, uint32_t, &IVirtualEntity::GetID>(isolate, tpl, "id");
-                            V8Helpers::SetAccessor<IVirtualEntity, IVirtualEntityGroup*, &IVirtualEntity::GetGroup>(isolate, tpl, "group");
-                            V8Helpers::SetAccessor<IVirtualEntity, uint32_t, &IVirtualEntity::GetStreamingDistance>(isolate, tpl, "streamingDistance");
+                                   V8Helpers::SetAccessor<IVirtualEntity, uint32_t, &IVirtualEntity::GetID>(isolate, tpl, "id");
+                                   V8Helpers::SetAccessor<IVirtualEntity, IVirtualEntityGroup*, &IVirtualEntity::GetGroup>(isolate, tpl, "group");
+                                   V8Helpers::SetAccessor<IVirtualEntity, uint32_t, &IVirtualEntity::GetStreamingDistance>(isolate, tpl, "streamingDistance");
 
-                            V8Helpers::SetMethod(isolate, tpl, "hasStreamSyncedMeta", HasStreamSyncedMeta);
-                            V8Helpers::SetMethod(isolate, tpl, "getStreamSyncedMeta", GetStreamSyncedMeta);
-                            V8Helpers::SetMethod(isolate, tpl, "getStreamSyncedMetaKeys", GetStreamSyncedMetaDataKeys);
+                                   V8Helpers::SetMethod(isolate, tpl, "hasStreamSyncedMeta", HasStreamSyncedMeta);
+                                   V8Helpers::SetMethod(isolate, tpl, "getStreamSyncedMeta", GetStreamSyncedMeta);
+                                   V8Helpers::SetMethod(isolate, tpl, "getStreamSyncedMetaKeys", GetStreamSyncedMetaDataKeys);
 
 #ifdef ALT_SERVER_API
-                            V8Helpers::SetMethod(isolate, tpl, "setStreamSyncedMeta", SetStreamSyncedMeta);
-                            V8Helpers::SetMethod(isolate, tpl, "deleteStreamSyncedMeta", DeleteStreamSyncedMeta);
+                                   V8Helpers::SetMethod(isolate, tpl, "setStreamSyncedMeta", SetStreamSyncedMeta);
+                                   V8Helpers::SetMethod(isolate, tpl, "deleteStreamSyncedMeta", DeleteStreamSyncedMeta);
 #endif  // ALT_SERVER_API
 
 #ifdef ALT_CLIENT_API
-                            V8Helpers::SetAccessor<IVirtualEntity, uint32_t, &IVirtualEntity::GetRemoteID>(isolate, tpl, "remoteId");
-                            V8Helpers::SetAccessor<IVirtualEntity, bool, &IVirtualEntity::IsRemote>(isolate, tpl, "isRemote");
-                            V8Helpers::SetAccessor<IVirtualEntity, bool, &IVirtualEntity::IsStreamedIn>(isolate, tpl, "isStreamedIn");
+                                   V8Helpers::SetAccessor<IVirtualEntity, uint32_t, &IVirtualEntity::GetRemoteID>(isolate, tpl, "remoteId");
+                                   V8Helpers::SetAccessor<IVirtualEntity, bool, &IVirtualEntity::IsRemote>(isolate, tpl, "isRemote");
+                                   V8Helpers::SetAccessor<IVirtualEntity, bool, &IVirtualEntity::IsStreamedIn>(isolate, tpl, "isStreamedIn");
 #endif  // ALT_CLIENT_API
-                        });
+                               });
