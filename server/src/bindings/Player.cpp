@@ -893,6 +893,11 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsSpawned>(isolate, tpl, "isSpawned");
                             V8Helpers::SetAccessor<IPlayer, float, &IPlayer::GetForwardSpeed>(isolate, tpl, "forwardSpeed");
                             V8Helpers::SetAccessor<IPlayer, float, &IPlayer::GetStrafeSpeed>(isolate, tpl, "strafeSpeed");
+                            V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsEnteringVehicle>(isolate, tpl, "isEnteringVehicle");
+                            V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsLeavingVehicle>(isolate, tpl, "isLeavingVehicle");
+                            V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsOnLadder>(isolate, tpl, "isOnLadder");
+                            V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsInMelee>(isolate, tpl, "isInMelee");
+                            V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsInCover>(isolate, tpl, "isInCover");
 
                             V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetCurrentAnimationDict>(isolate, tpl, "currentAnimationDict");
                             V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetCurrentAnimationName>(isolate, tpl, "currentAnimationName");
