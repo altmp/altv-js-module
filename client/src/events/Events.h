@@ -41,6 +41,8 @@ inline void RegisterEvents()
     V8_REFERENCE_LOCAL_EVENT_HANDLER(streamSyncedMetaChange);
     V8_REFERENCE_LOCAL_EVENT_HANDLER(globalSyncedMetaChange);
     V8_REFERENCE_LOCAL_EVENT_HANDLER(globalMetaChange);
+    V8_REFERENCE_LOCAL_EVENT_HANDLER(localMetaChange);
+    V8_REFERENCE_LOCAL_EVENT_HANDLER(metaChange);
 
     // Resource
     V8_REFERENCE_LOCAL_EVENT_HANDLER(anyResourceStart);
