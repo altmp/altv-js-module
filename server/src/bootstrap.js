@@ -30,7 +30,7 @@ const url = require("url");
     __setLogFunction(bindingsGlobal.genericLog);
 
     const extraBootstrapFile = __getExtraBootstrapFile();
-    if(extraBootstrapFile.length !== 0) new Function(extraBootstrapFile)();
+    if(extraBootstrapFile.length !== 0) new Function("alt", extraBootstrapFile)(alt);
 
     // Get the path to the main file for this resource, and load it
     const _path = path.resolve(resource.path, resource.main);
