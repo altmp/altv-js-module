@@ -26,6 +26,71 @@ static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo
     V8_RETURN(resource->GetAllVirtualEntities());
 }
 
+static void HasMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    V8_CHECK_ARGS_LEN(1);
+    V8_ARG_TO_STRING(1, key);
+
+    V8_GET_THIS_BASE_OBJECT(ent, alt::IVirtualEntity);
+
+    V8_RETURN_BOOLEAN(ent->HasMetaData(key));
+}
+
+static void GetMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    V8_CHECK_ARGS_LEN(1);
+    V8_ARG_TO_STRING(1, key);
+
+    V8_GET_THIS_BASE_OBJECT(ent, alt::IVirtualEntity);
+
+    V8_RETURN_MVALUE(ent->GetMetaData(key));
+}
+
+static void GetMetaKeys(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(ent, alt::IVirtualEntity);
+
+    const std::vector<std::string> list = ent->GetMetaDataKeys();
+    size_t size = list.size();
+    v8::Local<v8::Array> arr = v8::Array::New(isolate, size);
+    for(size_t i = 0; i < size; i++)
+    {
+        arr->Set(ctx, i, V8Helpers::JSValue(list[i]));
+    }
+
+    V8_RETURN(arr);
+}
+
+static void SetMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    V8_CHECK_ARGS_LEN(2);
+    V8_ARG_TO_STRING(1, key);
+    V8_ARG_TO_MVALUE(2, value);
+
+    V8_GET_THIS_BASE_OBJECT(ent, alt::IVirtualEntity);
+
+    ent->SetMetaData(key, value);
+}
+
+static void DeleteMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    V8_CHECK_ARGS_LEN(1);
+    V8_ARG_TO_STRING(1, key);
+
+    V8_GET_THIS_BASE_OBJECT(ent, alt::IVirtualEntity);
+
+    ent->DeleteMetaData(key);
+}
+
 static void HasStreamSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -108,6 +173,12 @@ extern V8Class v8VirtualEntity("VirtualEntity",
                                    V8Helpers::SetAccessor<IVirtualEntity, uint32_t, &IVirtualEntity::GetID>(isolate, tpl, "id");
                                    V8Helpers::SetAccessor<IVirtualEntity, IVirtualEntityGroup*, &IVirtualEntity::GetGroup>(isolate, tpl, "group");
                                    V8Helpers::SetAccessor<IVirtualEntity, uint32_t, &IVirtualEntity::GetStreamingDistance>(isolate, tpl, "streamingDistance");
+
+                                   V8Helpers::SetMethod(isolate, tpl, "hasMeta", HasMeta);
+                                   V8Helpers::SetMethod(isolate, tpl, "getMeta", GetMeta);
+                                   V8Helpers::SetMethod(isolate, tpl, "getMetaKeys", GetMetaKeys);
+                                   V8Helpers::SetMethod(isolate, tpl, "setMeta", SetMeta);
+                                   V8Helpers::SetMethod(isolate, tpl, "deleteMeta", DeleteMeta);
 
                                    V8Helpers::SetMethod(isolate, tpl, "hasStreamSyncedMeta", HasStreamSyncedMeta);
                                    V8Helpers::SetMethod(isolate, tpl, "getStreamSyncedMeta", GetStreamSyncedMeta);
