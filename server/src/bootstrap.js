@@ -29,6 +29,9 @@ const url = require("url");
     new Function("alt", "__global", __internal_bindings_code)(alt, bindingsGlobal);
     __setLogFunction(bindingsGlobal.genericLog);
 
+    const extraBootstrapFile = __getExtraBootstrapFile();
+    if(extraBootstrapFile.length !== 0) new Function(extraBootstrapFile)();
+
     // Get the path to the main file for this resource, and load it
     const _path = path.resolve(resource.path, resource.main);
     _exports = await esmLoader.import(url.pathToFileURL(_path).toString(), "", {});

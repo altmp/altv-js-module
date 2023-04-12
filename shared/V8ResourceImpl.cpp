@@ -560,12 +560,42 @@ static void PrintLog(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
 }
 
+static std::string extraBootstrapFile;
+
+static void RegisterExtraBootstrapFile(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STRING(1, filePath);
+
+    auto path = alt::ICore::Instance().Resolve(resource->GetResource(), filePath, "");
+    V8_CHECK(path.pkg, "Invalid file");
+
+    alt::IPackage::File* file = path.pkg->OpenFile(path.fileName);
+    V8_CHECK(file, "File does not exist");
+
+    std::string data(path.pkg->GetFileSize(file), 0);
+    path.pkg->ReadFile(file, data.data(), data.size());
+    path.pkg->CloseFile(file);
+
+    extraBootstrapFile = data;
+}
+
+static void GetExtraBootstrapFile(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE();
+    V8_RETURN_STRING(extraBootstrapFile);
+}
+
 void V8ResourceImpl::SetupScriptGlobals()
 {
     v8::Local<v8::Context> ctx = context.Get(isolate);
 
     ctx->Global()->Set(ctx, V8Helpers::JSValue("__setLogFunction"), v8::Function::New(ctx, &::SetLogFunction).ToLocalChecked());
     ctx->Global()->Set(ctx, V8Helpers::JSValue("__printLog"), v8::Function::New(ctx, &::PrintLog).ToLocalChecked());
+    ctx->Global()->Set(ctx, V8Helpers::JSValue("__registerExtraBootstrapFile"), v8::Function::New(ctx, &::RegisterExtraBootstrapFile).ToLocalChecked());
+    ctx->Global()->Set(ctx, V8Helpers::JSValue("__getExtraBootstrapFile"), v8::Function::New(ctx, &::GetExtraBootstrapFile).ToLocalChecked());
 }
 
 alt::MValue V8ResourceImpl::FunctionImpl::Call(alt::MValueArgs args) const
