@@ -1074,6 +1074,47 @@ static void GetPedBonePos(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_VECTOR3(alt::ICore::Instance().GetPedBonePos(scriptId, boneId));
 }
 
+static void EvalModule(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+
+    V8_CHECK_ARGS_LEN(1);
+    V8_ARG_TO_STRING(1, code);
+
+    v8::Local<v8::Module> mod;
+
+    auto result = V8Helpers::TryCatch(
+      [&]
+      {
+          auto maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(code, V8Helpers::SourceLocation::GetCurrent(isolate));
+          if(maybeModule.IsEmpty())
+          {
+              V8Helpers::Throw(isolate, "Failed to resolve module");
+              return false;
+          }
+
+          mod = maybeModule.ToLocalChecked();
+          v8::Maybe<bool> result = mod->InstantiateModule(ctx, CV8ScriptRuntime::ResolveModule);
+          if(result.IsNothing() || result.ToChecked() == false)
+          {
+              V8Helpers::Throw(isolate, "Failed to instantiate module");
+              return false;
+          }
+
+          auto returnValue = mod->Evaluate(ctx);
+          if(returnValue.IsEmpty())
+          {
+              V8Helpers::Throw(isolate, "Failed to evaluate module");
+              return false;
+          }
+
+          return true;
+      });
+    if(!result) return;
+
+    V8_RETURN(mod->GetModuleNamespace());
+}
+
 extern V8Module sharedModule;
 extern V8Class v8Player, v8Player, v8Vehicle, v8WebView, v8HandlingData, v8LocalStorage, v8MemoryBuffer, v8MapZoomData, v8Discord, v8Voice, v8WebSocketClient, v8Checkpoint, v8HttpClient,
   v8Audio, v8LocalPlayer, v8Profiler, v8Worker, v8RmlDocument, v8RmlElement, v8WeaponData, v8FocusData, v8Object, v8TextEncoder, v8TextDecoder, v8NetworkObject, v8VirtualEntityGroup,
@@ -1206,6 +1247,8 @@ extern V8Module altModule("alt",
                               V8Helpers::RegisterFunc(exports, "isPointOnScreen", &IsPointOnScreen);
 
                               V8Helpers::RegisterFunc(exports, "getPedBonePos", &GetPedBonePos);
+
+                              V8Helpers::RegisterFunc(exports, "evalModule", &EvalModule);
 
                               V8_OBJECT_SET_BOOLEAN(exports, "isWorker", false);
                           });
