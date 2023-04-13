@@ -445,7 +445,7 @@ static void PlayAmbientSpeech(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void PlayAnimation(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_CHECK_ARGS_LEN(10);
+    V8_CHECK_ARGS_LEN_MIN_MAX(2, 10);
     V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
     V8_ARG_TO_STRING(1, animDict);
