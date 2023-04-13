@@ -8,7 +8,7 @@ new Function("alt", "native", "__global", __internal_bindings_code)(alt, native,
 __setLogFunction(bindingsGlobal.genericLog);
 
 const extraBootstrapFile = __getExtraBootstrapFile();
-if(extraBootstrapFile.length !== 0) new Function(extraBootstrapFile)();
+if(extraBootstrapFile.length !== 0) new Function("alt", "native", extraBootstrapFile)(alt, native);
 
 let mainPath = __internal_main_path;
 if (mainPath[0] !== "/") mainPath = "/" + mainPath;
