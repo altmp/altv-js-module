@@ -61,7 +61,7 @@ static void ConstructorPointBlip(const v8::FunctionCallbackInfo<v8::Value>& info
         blip = ICore::Instance().CreateBlip(nullptr, alt::IBlip::BlipType::DESTINATION, { x, y, z });
     }
 
-    if(info.Length() == 1)
+    else if(info.Length() == 1)
     {
         if(resource->IsVector3(info[0]))
         {
@@ -72,6 +72,10 @@ static void ConstructorPointBlip(const v8::FunctionCallbackInfo<v8::Value>& info
         {
             V8_ARG_TO_BASE_OBJECT(1, ent, IEntity, "entity");
             blip = ICore::Instance().CreateBlip(nullptr, alt::IBlip::BlipType::DESTINATION, ent);
+        }
+        else
+        {
+            V8_CHECK(false, "The PointBlip argument must be a Vector3 or an Entity");
         }
     }
 
