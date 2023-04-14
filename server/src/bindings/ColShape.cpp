@@ -34,6 +34,13 @@ static void IsPointIn(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_BOOLEAN(_this->IsPointIn(point));
 }
 
+static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+
+    V8_RETURN(resource->GetAllColshapes()->Clone());
+}
+
 extern V8Class v8WorldObject;
 extern V8Class v8Colshape("Colshape",
                           v8WorldObject,
@@ -41,6 +48,8 @@ extern V8Class v8Colshape("Colshape",
                           [](v8::Local<v8::FunctionTemplate> tpl)
                           {
                               v8::Isolate* isolate = v8::Isolate::GetCurrent();
+
+                              V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
 
                               V8Helpers::SetAccessor<IColShape, uint32_t, &IColShape::GetID>(isolate, tpl, "id");
                               V8Helpers::SetAccessor<IColShape, IColShape::ColShapeType, &IColShape::GetColshapeType>(isolate, tpl, "colshapeType");

@@ -249,6 +249,7 @@ public:
     v8::Local<v8::Array> GetAllVirtualEntities();
     v8::Local<v8::Array> GetAllPeds();
     v8::Local<v8::Array> GetAllMarkers();
+    v8::Local<v8::Array> GetAllColshapes();
 #ifdef ALT_CLIENT_API
     v8::Local<v8::Array> GetAllObjects();
 #endif
