@@ -15,7 +15,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 #ifdef ALT_SERVER_API
     alt::IMarker* marker = alt::ICore::Instance().CreateMarker(nullptr, (alt::IMarker::MarkerType)type, position, color, resource->GetResource());
 #else
-    alt::IMarker* marker = alt::ICore::Instance().CreateMarker((alt::IMarker::MarkerType)type, position, color);
+    alt::IMarker* marker = alt::ICore::Instance().CreateMarker((alt::IMarker::MarkerType)type, position, color, resource->GetResource());
 #endif
 
     V8_BIND_BASE_OBJECT(marker, "Failed to create Marker");
