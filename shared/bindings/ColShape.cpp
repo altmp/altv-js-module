@@ -1,5 +1,3 @@
-#include "stdafx.h"
-
 #include "V8Helpers.h"
 #include "helpers/BindHelpers.h"
 #include "V8ResourceImpl.h"
@@ -52,6 +50,10 @@ extern V8Class v8Colshape("Colshape",
                               V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
 
                               V8Helpers::SetAccessor<IColShape, uint32_t, &IColShape::GetID>(isolate, tpl, "id");
+#ifdef ALT_CLIENT_API
+                              V8Helpers::SetAccessor<IColShape, uint32_t, &IColShape::GetRemoteID>(isolate, tpl, "remoteId");
+                              V8Helpers::SetAccessor<IColShape, bool, &IColShape::IsRemote>(isolate, tpl, "isRemote");
+#endif
                               V8Helpers::SetAccessor<IColShape, IColShape::ColShapeType, &IColShape::GetColshapeType>(isolate, tpl, "colshapeType");
                               V8Helpers::SetAccessor<IColShape, bool, &IColShape::IsPlayersOnly, &IColShape::SetPlayersOnly>(isolate, tpl, "playersOnly");
 
@@ -66,7 +68,7 @@ extern V8Class v8ColshapeCylinder(
   {
       V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-      V8_CHECK(info.IsConstructCall(), "ColshapeCylinder constructor is not a function");
+      V8_CHECK_CONSTRUCTOR();
       V8_CHECK_ARGS_LEN(5);
 
       V8_ARG_TO_NUMBER(1, x);
@@ -76,9 +78,8 @@ extern V8Class v8ColshapeCylinder(
       V8_ARG_TO_NUMBER(5, height);
 
       IColShape* cs = ICore::Instance().CreateColShapeCylinder({ x, y, z }, radius, height);
-      V8_CHECK(cs, "Failed to create ColshapeCylinder");
 
-      resource->BindEntity(info.This(), cs);
+      V8_BIND_BASE_OBJECT(cs, "Failed to create ColshapeCylinder");
   },
   [](v8::Local<v8::FunctionTemplate> tpl) {});
 
@@ -89,7 +90,7 @@ extern V8Class v8ColshapeSphere(
   {
       V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-      V8_CHECK(info.IsConstructCall(), "ColshapeSphere constructor is not a function");
+      V8_CHECK_CONSTRUCTOR();
       V8_CHECK_ARGS_LEN(4);
 
       V8_ARG_TO_NUMBER(1, x);
@@ -98,9 +99,8 @@ extern V8Class v8ColshapeSphere(
       V8_ARG_TO_NUMBER(4, radius);
 
       IColShape* cs = alt::ICore::Instance().CreateColShapeSphere({ x, y, z }, radius);
-      V8_CHECK(cs, "Failed to create ColshapeSphere");
 
-      resource->BindEntity(info.This(), cs);
+      V8_BIND_BASE_OBJECT(cs, "Failed to create ColshapeSphere");
   },
   [](v8::Local<v8::FunctionTemplate> tpl) {});
 
@@ -111,7 +111,7 @@ extern V8Class v8ColshapeCircle(
   {
       V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-      V8_CHECK(info.IsConstructCall(), "ColshapeCircle constructor is not a function");
+      V8_CHECK_CONSTRUCTOR();
       V8_CHECK_ARGS_LEN(3);
 
       V8_ARG_TO_NUMBER(1, x);
@@ -119,9 +119,8 @@ extern V8Class v8ColshapeCircle(
       V8_ARG_TO_NUMBER(3, radius);
 
       IColShape* cs = alt::ICore::Instance().CreateColShapeCircle({ x, y, 0 }, radius);
-      V8_CHECK(cs, "Failed to create ColshapeCircle");
 
-      resource->BindEntity(info.This(), cs);
+      V8_BIND_BASE_OBJECT(cs, "Failed to create ColshapeCircle");
   },
   [](v8::Local<v8::FunctionTemplate> tpl) {});
 
@@ -132,7 +131,7 @@ extern V8Class v8ColshapeCuboid(
   {
       V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-      V8_CHECK(info.IsConstructCall(), "ColshapeCuboid constructor is not a function");
+      V8_CHECK_CONSTRUCTOR();
       V8_CHECK_ARGS_LEN(6);
 
       V8_ARG_TO_NUMBER(1, x1);
@@ -143,9 +142,8 @@ extern V8Class v8ColshapeCuboid(
       V8_ARG_TO_NUMBER(6, z2);
 
       IColShape* cs = alt::ICore::Instance().CreateColShapeCube({ x1, y1, z1 }, { x2, y2, z2 });
-      V8_CHECK(cs, "Failed to create ColshapeCuboid");
 
-      resource->BindEntity(info.This(), cs);
+      V8_BIND_BASE_OBJECT(cs, "Failed to create ColshapeCuboid");
   },
   [](v8::Local<v8::FunctionTemplate> tpl) {});
 
@@ -156,7 +154,7 @@ extern V8Class v8ColshapeRectangle(
   {
       V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-      V8_CHECK(info.IsConstructCall(), "ColshapeRectangle constructor is not a function");
+      V8_CHECK_CONSTRUCTOR();
       V8_CHECK_ARGS_LEN(4);
 
       V8_ARG_TO_NUMBER(1, x1);
@@ -165,9 +163,8 @@ extern V8Class v8ColshapeRectangle(
       V8_ARG_TO_NUMBER(4, y2);
 
       IColShape* cs = alt::ICore::Instance().CreateColShapeRectangle(x1, y1, x2, y2, 0);
-      V8_CHECK(cs, "Failed to create ColshapeRectangle");
 
-      resource->BindEntity(info.This(), cs);
+      V8_BIND_BASE_OBJECT(cs, "Failed to create ColshapeRectangle");
   },
   [](v8::Local<v8::FunctionTemplate> tpl) {});
 
@@ -197,8 +194,7 @@ extern V8Class v8ColshapePolygon(
       }
 
       IColShape* cs = alt::ICore::Instance().CreateColShapePolygon(minZ, maxZ, points);
-      V8_CHECK(cs, "Failed to create ColShapePolygon");
 
-      resource->BindEntity(info.This(), cs);
+      V8_BIND_BASE_OBJECT(cs, "Failed to create ColShapePolygon");
   },
   [](v8::Local<v8::FunctionTemplate> tpl) {});
