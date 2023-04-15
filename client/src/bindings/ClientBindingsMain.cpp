@@ -295,12 +295,31 @@ static void RemoveGxtText(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void GetGxtText(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-    V8_GET_ISOLATE_CONTEXT_IRESOURCE();
+    V8_GET_ISOLATE_CONTEXT();
 
     V8_CHECK_ARGS_LEN(1);
-    V8_ARG_TO_STRING(1, key);
 
-    V8_RETURN_STRING(resource->GetGxtText(ICore::Instance().Hash(key)));
+    uint32_t hash;
+    if (info[0]->IsString())
+    {
+        V8_ARG_TO_STRING(1, key);
+        hash = ICore::Instance().Hash(key);
+    }
+    else
+    {
+        V8_ARG_TO_UINT(1, _hash);
+        hash = _hash;
+    }
+
+    const char* text = ICore::Instance().GetGxtEntry(hash);
+    if (text)
+    {
+        V8_RETURN_RAW_STRING(text);
+    }
+    else
+    {
+        V8_RETURN_NULL();
+    }
 }
 
 static void GetMsPerGameMinute(const v8::FunctionCallbackInfo<v8::Value>& info)
