@@ -54,7 +54,7 @@ public:
 #ifdef ALT_SERVER_API
         extern V8Class v8VoiceChannel;
 #else
-        extern V8Class v8WebView, v8LocalPlayer, v8RmlDocument, v8RmlElement, v8Object, v8WebSocketClient, v8Audio, v8HttpClient, v8AudioFilter;
+        extern V8Class v8WebView, v8LocalPlayer, v8RmlDocument, v8RmlElement, v8Object, v8WebSocketClient, v8Audio, v8HttpClient, v8AudioFilter, v8TextLabel;
 #endif
 
         if(!handle) return nullptr;
@@ -83,6 +83,7 @@ public:
             case alt::IBaseObject::Type::AUDIO: return &v8Audio;
             case alt::IBaseObject::Type::HTTP_CLIENT: return &v8HttpClient;
             case alt::IBaseObject::Type::AUDIO_FILTER: return &v8AudioFilter;
+            case alt::IBaseObject::Type::TEXT_LABEL: return &v8TextLabel;
 #endif
         }
 
