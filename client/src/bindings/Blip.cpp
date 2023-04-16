@@ -114,6 +114,14 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
 }
 
+static void StaticGetByScriptID(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(1);
+    V8_ARG_TO_INT(1, scriptGuid);
+    V8_RETURN_BASE_OBJECT(alt::ICore::Instance().GetEntityByScriptGuid(scriptGuid));
+}
+
 extern V8Class v8WorldObject;
 extern V8Class v8Blip("Blip",
                       v8WorldObject,
@@ -161,6 +169,8 @@ extern V8Class v8Blip("Blip",
                           V8Helpers::SetAccessor<IBlip, bool, &IBlip::GetShrinked, &IBlip::SetShrinked>(isolate, tpl, "shrinked");
 
                           V8Helpers::SetAccessor<IBlip, uint32_t, &IBlip::GetScriptID>(isolate, tpl, "scriptID");
+                          V8Helpers::SetStaticMethod(isolate, tpl, "getByScriptID", StaticGetByScriptID);
+
                           V8Helpers::SetAccessor<IBlip, bool, &IBlip::IsRemote>(isolate, tpl, "isRemote");
                           V8Helpers::SetAccessor<IBlip, uint32_t, &IBlip::GetRemoteID>(isolate, tpl, "remoteId");
 
