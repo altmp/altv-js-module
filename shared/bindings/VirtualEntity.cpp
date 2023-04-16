@@ -160,6 +160,19 @@ static void DeleteStreamSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& in
 
 #endif  // ALT_SERVER_API
 
+#ifdef ALT_CLIENT_API
+
+static void StreamedInGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    auto streamed = alt::ICore::Instance().GetVirtualEntitiesStreamedIn();
+    v8::Local<v8::Array> jsArr = v8::Array::New(isolate, streamed.size());
+    for(size_t i = 0; i < streamed.size(); ++i) jsArr->Set(ctx, i, resource->GetBaseObjectOrNull(streamed[i]));
+    V8_RETURN(jsArr);
+}
+
+#endif  // ALT_CLIENT_API
+
 extern V8Class v8WorldObject;
 extern V8Class v8VirtualEntity("VirtualEntity",
                                v8WorldObject,
@@ -193,5 +206,6 @@ extern V8Class v8VirtualEntity("VirtualEntity",
                                    V8Helpers::SetAccessor<IVirtualEntity, uint32_t, &IVirtualEntity::GetRemoteID>(isolate, tpl, "remoteId");
                                    V8Helpers::SetAccessor<IVirtualEntity, bool, &IVirtualEntity::IsRemote>(isolate, tpl, "isRemote");
                                    V8Helpers::SetAccessor<IVirtualEntity, bool, &IVirtualEntity::IsStreamedIn>(isolate, tpl, "isStreamedIn");
+                                   V8Helpers::SetStaticAccessor(isolate, tpl, "streamedIn", &StreamedInGetter);
 #endif  // ALT_CLIENT_API
                                });
