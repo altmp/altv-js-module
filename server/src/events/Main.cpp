@@ -43,24 +43,6 @@ V8Helpers::EventHandler serverScriptEvent(
       V8Helpers::MValueArgsToV8(ev->GetArgs(), args);
   });
 
-V8Helpers::EventHandler colshapeEvent(
-  EventType::COLSHAPE_EVENT,
-  [](V8ResourceImpl* resource, const CEvent* e)
-  {
-      auto ev = static_cast<const alt::CColShapeEvent*>(e);
-
-      if(ev->GetState()) return resource->GetLocalHandlers("entityEnterColshape");
-      else
-          return resource->GetLocalHandlers("entityLeaveColshape");
-  },
-  [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args)
-  {
-      auto ev = static_cast<const alt::CColShapeEvent*>(e);
-
-      args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
-      args.push_back(resource->GetBaseObjectOrNull(ev->GetEntity()));
-  });
-
 V8Helpers::LocalEventHandler weaponDamage(EventType::WEAPON_DAMAGE_EVENT,
                                           "weaponDamage",
                                           [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args)
