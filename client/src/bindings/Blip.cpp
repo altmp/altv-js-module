@@ -95,6 +95,25 @@ static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo
     V8_RETURN(resource->GetAllBlips()->Clone());
 }
 
+static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_INT(1, id);
+
+    alt::IBaseObject* baseObject = alt::ICore::Instance().GetBaseObjectByID(alt::IBaseObject::Type::BLIP, id);
+
+    if(baseObject && baseObject->GetType() == alt::IEntity::Type::BLIP)
+    {
+        V8_RETURN_BASE_OBJECT(baseObject);
+    }
+    else
+    {
+        V8_RETURN_NULL();
+    }
+}
+
 extern V8Class v8WorldObject;
 extern V8Class v8Blip("Blip",
                       v8WorldObject,
@@ -107,6 +126,7 @@ extern V8Class v8Blip("Blip",
                           V8Helpers::SetMethod(isolate, tpl, "toString", ToString);
 
                           V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
+                          V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
 
                           V8Helpers::SetAccessor<IBlip, RGBA, &IBlip::GetRouteColor, &IBlip::SetRouteColor>(isolate, tpl, "routeColor");
                           V8Helpers::SetAccessor<IBlip, int32_t, &IBlip::GetSprite, &IBlip::SetSprite>(isolate, tpl, "sprite");
