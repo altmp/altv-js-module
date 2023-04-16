@@ -17,6 +17,7 @@ inline void RegisterEvents()
     V8_REFERENCE_LOCAL_EVENT_HANDLER(animationChange);
     V8_REFERENCE_LOCAL_EVENT_HANDLER(baseObjectCreate);
     V8_REFERENCE_LOCAL_EVENT_HANDLER(baseObjectRemove);
+    V8_REFERENCE_EVENT_HANDLER(colshapeEvent);
 
     // Main
     V8_REFERENCE_EVENT_HANDLER(clientScriptEvent);
