@@ -60,6 +60,11 @@ static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo
     V8_RETURN(resource->GetAllNetworkObjects());
 }
 
+static void CountGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_RETURN_UINT(alt::ICore::Instance().GetNetworkObjects().size());
+}
+
 // clang-format off
 extern V8Class v8Entity;
 extern V8Class v8NetworkObject("NetworkObject", v8Entity, Constructor, [](v8::Local<v8::FunctionTemplate> tpl)
@@ -67,6 +72,7 @@ extern V8Class v8NetworkObject("NetworkObject", v8Entity, Constructor, [](v8::Lo
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
     V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
+    V8Helpers::SetStaticAccessor(isolate, tpl, "count", &CountGetter);
 
     V8Helpers::SetMethod<alt::INetworkObject, &alt::INetworkObject::ActivatePhysics>(isolate, tpl, "activatePhysics");
     V8Helpers::SetMethod<alt::INetworkObject, &alt::INetworkObject::PlaceOnGroundProperly>(isolate, tpl, "placeOnGroundProperly");

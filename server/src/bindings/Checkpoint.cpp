@@ -61,6 +61,11 @@ static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo
     V8_RETURN(resource->GetAllCheckpoints());
 }
 
+static void CountGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_RETURN_UINT(alt::ICore::Instance().GetCheckpoints().size());
+}
+
 static void HasStreamSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -135,6 +140,7 @@ extern V8Class v8Checkpoint("Checkpoint",
                                 v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
                                 V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
+                                V8Helpers::SetStaticAccessor(isolate, tpl, "count", &CountGetter);
                                 V8Helpers::SetAccessor<ICheckpoint, uint32_t, &ICheckpoint::GetStreamingDistance>(isolate, tpl, "streamingDistance");
 
                                 V8Helpers::SetMethod(isolate, tpl, "hasStreamSyncedMeta", HasStreamSyncedMeta);

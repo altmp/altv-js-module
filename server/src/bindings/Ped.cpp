@@ -39,6 +39,11 @@ static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo
     V8_RETURN(resource->GetAllPeds());
 }
 
+static void CountGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_RETURN_UINT(alt::ICore::Instance().GetPeds().size());
+}
+
 static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -65,6 +70,7 @@ extern V8Class v8Ped("Ped", v8Entity, Constructor, [](v8::Local<v8::FunctionTemp
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
     V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
+    V8Helpers::SetStaticAccessor(isolate, tpl, "count", &CountGetter);
     V8Helpers::SetStaticMethod(isolate, tpl, "getByID", &StaticGetByID);
 
     V8Helpers::SetAccessor<IPed, uint32_t, &IPed::GetCurrentWeapon, &IPed::SetCurrentWeapon>(isolate, tpl, "currentWeapon");
