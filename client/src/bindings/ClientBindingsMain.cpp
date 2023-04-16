@@ -721,8 +721,8 @@ static void TakeScreenshot(const v8::FunctionCallbackInfo<v8::Value>& info)
                 promises.remove(persistent);
             });
       });
-    V8_CHECK(state != alt::PermissionState::Denied, "No permissions");
-    V8_CHECK(state != alt::PermissionState::Unspecified, "Permissions not specified");
+    V8_CHECK(state != alt::PermissionState::DENIED, "No permissions");
+    V8_CHECK(state != alt::PermissionState::UNSPECIFIED, "Permissions not specified");
 
     V8_RETURN(persistent.Get(isolate)->GetPromise());
 }
@@ -749,8 +749,8 @@ static void TakeScreenshotGameOnly(const v8::FunctionCallbackInfo<v8::Value>& in
                 promises.remove(persistent);
             });
       });
-    V8_CHECK(state != alt::PermissionState::Denied, "No permissions");
-    V8_CHECK(state != alt::PermissionState::Unspecified, "Permissions not specified");
+    V8_CHECK(state != alt::PermissionState::DENIED, "No permissions");
+    V8_CHECK(state != alt::PermissionState::UNSPECIFIED, "Permissions not specified");
 
     V8_RETURN(persistent.Get(isolate)->GetPromise());
 }
@@ -925,9 +925,9 @@ static void CopyToClipboard(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
 
     alt::PermissionState state = alt::ICore::Instance().CopyToClipboard(text);
-    V8_CHECK(state != alt::PermissionState::Denied, "No permissions");
-    V8_CHECK(state != alt::PermissionState::Unspecified, "Permission not specified");
-    V8_CHECK(state != alt::PermissionState::Failed, "Failed to copy to clipboard");
+    V8_CHECK(state != alt::PermissionState::DENIED, "No permissions");
+    V8_CHECK(state != alt::PermissionState::UNSPECIFIED, "Permission not specified");
+    V8_CHECK(state != alt::PermissionState::FAILED, "Failed to copy to clipboard");
 }
 
 static void ToggleRmlControls(const v8::FunctionCallbackInfo<v8::Value>& info)
