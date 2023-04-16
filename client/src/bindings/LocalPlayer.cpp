@@ -128,4 +128,5 @@ extern V8Class v8LocalPlayer("LocalPlayer",
                                  V8Helpers::SetAccessor(isolate, tpl, "currentWeaponData", &CurrentWeaponDataGetter);
                                  V8Helpers::SetAccessor<alt::ILocalPlayer, float, &alt::ILocalPlayer::GetStamina, &alt::ILocalPlayer::SetStamina>(isolate, tpl, "stamina");
                                  V8Helpers::SetAccessor<alt::ILocalPlayer, float, &alt::ILocalPlayer::GetMaxStamina, &alt::ILocalPlayer::SetMaxStamina>(isolate, tpl, "maxStamina");
+                                 V8Helpers::SetAccessor<alt::IWorldObject, int32_t, &alt::IWorldObject::GetDimension>(isolate, tpl, "dimension");
                              });
