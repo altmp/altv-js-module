@@ -69,6 +69,11 @@ static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo
     V8_RETURN(resource->GetAllVehicles()->Clone());
 }
 
+static void CountGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_RETURN_UINT(alt::ICore::Instance().GetVehicles().size());
+}
+
 static void StreamedInGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -265,6 +270,7 @@ extern V8Class v8Vehicle("Vehicle",
                              V8Helpers::SetStaticMethod(isolate, tpl, "getByScriptID", StaticGetByScriptID);
 
                              V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
+                             V8Helpers::SetStaticAccessor(isolate, tpl, "count", &CountGetter);
                              V8Helpers::SetStaticAccessor(isolate, tpl, "streamedIn", &StreamedInGetter);
 
                              // Common getters

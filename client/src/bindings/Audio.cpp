@@ -189,6 +189,12 @@ static void AllAudioGetter(v8::Local<v8::String> name, const v8::PropertyCallbac
     V8_RETURN(jsArr);
 }
 
+
+static void AudioCountGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_RETURN_UINT(alt::ICore::Instance().GetAudios().size());
+}
+
 extern V8Class v8BaseObject;
 extern V8Class v8Audio("Audio",
                        v8BaseObject,
@@ -199,6 +205,7 @@ extern V8Class v8Audio("Audio",
                            v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
                            V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllAudioGetter);
+                           V8Helpers::SetStaticAccessor(isolate, tpl, "count", &AudioCountGetter);
 
                            V8Helpers::SetMethod(isolate, tpl, "on", &On);
                            V8Helpers::SetMethod(isolate, tpl, "off", &Off);

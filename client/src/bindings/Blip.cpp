@@ -95,6 +95,11 @@ static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo
     V8_RETURN(resource->GetAllBlips()->Clone());
 }
 
+static void CountGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_RETURN_UINT(alt::ICore::Instance().GetBlips().size());
+}
+
 static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -134,6 +139,9 @@ extern V8Class v8Blip("Blip",
                           V8Helpers::SetMethod(isolate, tpl, "toString", ToString);
 
                           V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
+                          V8Helpers::SetStaticAccessor(isolate, tpl, "count", &CountGetter);
+
+
                           V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
 
                           V8Helpers::SetAccessor<IBlip, RGBA, &IBlip::GetRouteColor, &IBlip::SetRouteColor>(isolate, tpl, "routeColor");

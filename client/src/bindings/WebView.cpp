@@ -226,6 +226,11 @@ static void AllWebviewGetter(v8::Local<v8::String> name, const v8::PropertyCallb
     V8_RETURN(jsArr);
 }
 
+static void WebviewCountGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_RETURN_UINT(alt::ICore::Instance().GetWebViews().size());
+}
+
 static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -254,6 +259,7 @@ extern V8Class v8WebView("WebView",
                              v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
                              V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllWebviewGetter);
+                             V8Helpers::SetStaticAccessor(isolate, tpl, "count", &WebviewCountGetter);
                              V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
                              V8Helpers::SetMethod(isolate, tpl, "toString", ToString);
 

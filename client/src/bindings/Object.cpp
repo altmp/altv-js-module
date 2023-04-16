@@ -133,6 +133,11 @@ static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo
     V8_RETURN(resource->GetAllObjects());
 }
 
+static void CountGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_RETURN_UINT(alt::ICore::Instance().GetObjects().size());
+}
+
 static void AllWorldGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -154,6 +159,7 @@ extern V8Class v8Object("Object",
                             V8Helpers::SetMethod(isolate, tpl, "toString", ToString);
 
                             V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
+                            V8Helpers::SetStaticAccessor(isolate, tpl, "count", &CountGetter);
 
                             V8Helpers::SetStaticAccessor(isolate, tpl, "allWorld", &AllWorldGetter);
 
