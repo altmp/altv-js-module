@@ -101,6 +101,22 @@ static void DiscordUserIDGetter(v8::Local<v8::String>, const v8::PropertyCallbac
     V8_RETURN_STRING(std::to_string(con->GetDiscordUserID()));
 }
 
+static void SocialClubNameGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, con, alt::IConnectionInfo);
+    V8_CHECK(con, "Invalid connection info");
+    V8_RETURN_STRING(con->GetSocialName());
+}
+
+static void ConnectionIDGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, con, alt::IConnectionInfo);
+    V8_CHECK(con, "Invalid connection info");
+    V8_RETURN_UINT(con->GetID());
+}
+
 static void Accept(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -156,4 +172,6 @@ extern V8Class v8ConnectionInfo("ConnectionInfo",
                                     V8Helpers::SetAccessor(isolate, tpl, "passwordHash", &PasswordHashGetter);
                                     V8Helpers::SetAccessor(isolate, tpl, "ip", &IpGetter);
                                     V8Helpers::SetAccessor(isolate, tpl, "discordUserID", &DiscordUserIDGetter);
+                                    V8Helpers::SetAccessor(isolate, tpl, "socialClubName", &SocialClubNameGetter);
+                                    V8Helpers::SetAccessor(isolate, tpl, "id", &ConnectionIDGetter);
                                 });
