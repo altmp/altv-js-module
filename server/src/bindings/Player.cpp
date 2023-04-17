@@ -918,6 +918,7 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetAccessor(isolate, tpl, "socialID", &SocialIDGetter);
                             V8Helpers::SetAccessor(isolate, tpl, "hwidHash", &HwidHashGetter);
                             V8Helpers::SetAccessor(isolate, tpl, "hwidExHash", &HwidExHashGetter);
+                            V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetSocialClubName>(isolate, tpl, "socialClubName");
 
                             V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetAuthToken>(isolate, tpl, "authToken");
                             V8Helpers::SetAccessor(isolate, tpl, "discordID", &DiscordIDGetter);
