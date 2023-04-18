@@ -131,6 +131,25 @@ static void DeleteStreamSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& in
     checkpoint->DeleteStreamSyncedMetaData(key);
 }
 
+static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_INT(1, id);
+
+    alt::IBaseObject* baseObject = alt::ICore::Instance().GetBaseObjectByID(alt::IBaseObject::Type::CHECKPOINT, id);
+
+    if(baseObject && baseObject->GetType() == alt::IEntity::Type::CHECKPOINT)
+    {
+        V8_RETURN_BASE_OBJECT(baseObject);
+    }
+    else
+    {
+        V8_RETURN_NULL();
+    }
+}
+
 extern V8Class v8Colshape;
 extern V8Class v8Checkpoint("Checkpoint",
                             v8Colshape,
@@ -141,6 +160,7 @@ extern V8Class v8Checkpoint("Checkpoint",
 
                                 V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
                                 V8Helpers::SetStaticAccessor(isolate, tpl, "count", &CountGetter);
+                                V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
                                 V8Helpers::SetAccessor<ICheckpoint, uint32_t, &ICheckpoint::GetStreamingDistance>(isolate, tpl, "streamingDistance");
 
                                 V8Helpers::SetMethod(isolate, tpl, "hasStreamSyncedMeta", HasStreamSyncedMeta);
