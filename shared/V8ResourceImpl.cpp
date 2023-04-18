@@ -1,7 +1,6 @@
 
 #include "cpp-sdk/objects/IPlayer.h"
 #include "cpp-sdk/objects/IVehicle.h"
-#include "cpp-sdk/events/CPlayerBeforeConnectEvent.h"
 
 #include "V8ResourceImpl.h"
 
