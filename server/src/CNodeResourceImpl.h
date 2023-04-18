@@ -27,7 +27,7 @@ public:
     void OnEvent(const alt::CEvent* ev) override;
     void OnTick() override;
 
-    bool MakeClient(alt::IResource::CreationInfo* info, alt::Array<std::string>) override;
+    bool MakeClient(alt::IResource::CreationInfo* info, std::vector<std::string>) override;
 
     void Started(v8::Local<v8::Value> exports);
     node::Environment* GetEnv()

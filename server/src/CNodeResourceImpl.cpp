@@ -201,7 +201,7 @@ void CNodeResourceImpl::OnTick()
     V8ResourceImpl::OnTick();
 }
 
-bool CNodeResourceImpl::MakeClient(alt::IResource::CreationInfo* info, alt::Array<std::string>)
+bool CNodeResourceImpl::MakeClient(alt::IResource::CreationInfo* info, std::vector<std::string>)
 {
     if(resource->GetClientType() == "jsb") info->type = "js";
     return true;

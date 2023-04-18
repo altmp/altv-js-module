@@ -80,9 +80,9 @@ V8Helpers::LocalEventHandler fireEvent(EventType::FIRE_EVENT,
                                            v8::Isolate* isolate = resource->GetIsolate();
 
                                            auto& fires = ev->GetFires();
-                                           v8::Local<v8::Array> v8fires = v8::Array::New(isolate, fires.GetSize());
+                                           v8::Local<v8::Array> v8fires = v8::Array::New(isolate, fires.size());
 
-                                           for(int i = 0; i < fires.GetSize(); ++i)
+                                           for(int i = 0; i < fires.size(); ++i)
                                            {
                                                v8::Local<v8::Object> v8fire = v8::Object::New(isolate);
                                                v8fire->Set(resource->GetContext(), V8Helpers::Fire_PosKey(isolate), resource->CreateVector3(fires[i].position));

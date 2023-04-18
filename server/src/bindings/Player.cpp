@@ -760,7 +760,7 @@ static void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(1, eventName);
 
     MValueArgs mvArgs;
-    for(int i = 1; i < info.Length(); ++i) mvArgs.Push(V8Helpers::V8ToMValue(info[i], false));
+    for(int i = 1; i < info.Length(); ++i) mvArgs.emplace_back(V8Helpers::V8ToMValue(info[i], false));
 
     alt::ICore::Instance().TriggerClientEvent(player, eventName, mvArgs);
 }
@@ -778,7 +778,7 @@ static void EmitRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
         alt::MValueByteArray result = V8Helpers::V8ToRawBytes(info[i]);
         V8_CHECK(!result.IsEmpty(), "Failed to serialize value");
-        mvArgs.Push(result);
+        mvArgs.emplace_back(result);
     }
 
     alt::ICore::Instance().TriggerClientEvent(player, eventName, mvArgs);

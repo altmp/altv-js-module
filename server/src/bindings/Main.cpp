@@ -74,7 +74,7 @@ static void EmitClient(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     MValueArgs mvArgs;
 
-    for(int i = 2; i < info.Length(); ++i) mvArgs.Push(V8Helpers::V8ToMValue(info[i], false));
+    for(int i = 2; i < info.Length(); ++i) mvArgs.emplace_back(V8Helpers::V8ToMValue(info[i], false));
 
     if(info[0]->IsArray())
     {
@@ -120,7 +120,7 @@ static void EmitClientUnreliable(const v8::FunctionCallbackInfo<v8::Value>& info
 
     MValueArgs mvArgs;
 
-    for(int i = 2; i < info.Length(); ++i) mvArgs.Push(V8Helpers::V8ToMValue(info[i], false));
+    for(int i = 2; i < info.Length(); ++i) mvArgs.emplace_back(V8Helpers::V8ToMValue(info[i], false));
 
     if(info[0]->IsArray())
     {
@@ -165,7 +165,7 @@ static void EmitAllClients(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     MValueArgs args;
 
-    for(int i = 1; i < info.Length(); ++i) args.Push(V8Helpers::V8ToMValue(info[i], false));
+    for(int i = 1; i < info.Length(); ++i) args.emplace_back(V8Helpers::V8ToMValue(info[i], false));
 
     ICore::Instance().TriggerClientEventForAll(eventName, args);
 }
@@ -189,7 +189,7 @@ static void EmitClientRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
             return;
         }
         V8_CHECK(!result.IsEmpty(), "Failed to serialize value");
-        mvArgs.Push(result);
+        mvArgs.emplace_back(result);
     }
 
     if(info[0]->IsArray())
@@ -245,7 +245,7 @@ static void EmitAllClientsRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
             return;
         }
         V8_CHECK(!result.IsEmpty(), "Failed to serialize value");
-        args.Push(result);
+        args.emplace_back(result);
     }
 
     ICore::Instance().TriggerClientEventForAll(eventName, args);
@@ -259,7 +259,7 @@ static void EmitAllClientsUnreliable(const v8::FunctionCallbackInfo<v8::Value>& 
 
     MValueArgs args;
 
-    for(int i = 1; i < info.Length(); ++i) args.Push(V8Helpers::V8ToMValue(info[i], false));
+    for(int i = 1; i < info.Length(); ++i) args.emplace_back(V8Helpers::V8ToMValue(info[i], false));
 
     ICore::Instance().TriggerClientEventUnreliableForAll(eventName, args);
 }
