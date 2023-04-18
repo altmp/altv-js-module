@@ -72,7 +72,7 @@ static void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     alt::MValueArgs mvArgs;
 
-    for(int i = 1; i < info.Length(); ++i) mvArgs.Push(V8Helpers::V8ToMValue(info[i], false));
+    for(int i = 1; i < info.Length(); ++i) mvArgs.emplace_back(V8Helpers::V8ToMValue(info[i], false));
 
     view->Trigger(evName, mvArgs);
 }

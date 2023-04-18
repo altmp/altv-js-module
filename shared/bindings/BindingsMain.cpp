@@ -83,7 +83,7 @@ static void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     alt::MValueArgs args;
 
-    for(int i = 1; i < info.Length(); ++i) args.Push(V8Helpers::V8ToMValue(info[i]));
+    for(int i = 1; i < info.Length(); ++i) args.emplace_back(V8Helpers::V8ToMValue(info[i]));
 
     alt::ICore::Instance().TriggerLocalEventOnMain(name, args);
 }
@@ -100,12 +100,12 @@ static void EmitRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
     for(int i = 1; i < info.Length(); ++i)
     {
         // Local events can send / receive functions, so we need to explicitly check for them here
-        if(info[i]->IsFunction()) args.Push(V8Helpers::V8ToMValue(info[i]));
+        if(info[i]->IsFunction()) args.emplace_back(V8Helpers::V8ToMValue(info[i]));
         else
         {
             alt::MValueByteArray result = V8Helpers::V8ToRawBytes(info[i]);
             V8_CHECK(!result.IsEmpty(), "Failed to serialize value");
-            args.Push(result);
+            args.emplace_back(result);
         }
     }
 

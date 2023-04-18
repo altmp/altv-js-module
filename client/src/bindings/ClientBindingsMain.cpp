@@ -78,7 +78,7 @@ static void EmitServer(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     alt::MValueArgs args;
 
-    for(int i = 1; i < info.Length(); ++i) args.Push(V8Helpers::V8ToMValue(info[i], false));
+    for(int i = 1; i < info.Length(); ++i) args.emplace_back(V8Helpers::V8ToMValue(info[i], false));
 
     alt::ICore::Instance().TriggerServerEvent(eventName, args);
 }
@@ -102,7 +102,7 @@ static void EmitServerRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
             return;
         }
         V8_CHECK(!result.IsEmpty(), "Failed to serialize value");
-        args.Push(result);
+        args.emplace_back(result);
     }
 
     alt::ICore::Instance().TriggerServerEvent(eventName, args);
@@ -117,7 +117,7 @@ static void EmitServerUnreliable(const v8::FunctionCallbackInfo<v8::Value>& info
 
     alt::MValueArgs args;
 
-    for(int i = 1; i < info.Length(); ++i) args.Push(V8Helpers::V8ToMValue(info[i], false));
+    for(int i = 1; i < info.Length(); ++i) args.emplace_back(V8Helpers::V8ToMValue(info[i], false));
 
     alt::ICore::Instance().TriggerServerEventUnreliable(eventName, args);
 }
@@ -368,18 +368,18 @@ static void SetWeatherCycle(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK(multipliers->Length() < 256, "Multipliers array size must be <= 255");
     V8_CHECK(weathers->Length() == multipliers->Length(), "Weathers and multipliers array has to be the same size");
 
-    Array<uint8_t> weathersVec;
-    Array<uint8_t> multipliersVec;
+    std::vector<uint8_t> weathersVec;
+    std::vector<uint8_t> multipliersVec;
 
     for(int i = 0; i < weathers->Length(); ++i)
     {
         V8_TO_INTEGER(weathers->Get(ctx, i).ToLocalChecked(), weatherNum);
         V8_CHECK(weatherNum >= 0 && weatherNum <= 14, "weather ids must be >= 0 && <= 14");
-        weathersVec.Push(weatherNum);
+        weathersVec.push_back(weatherNum);
 
         V8_TO_INTEGER(multipliers->Get(ctx, i).ToLocalChecked(), multiplierNum);
         V8_CHECK(multiplierNum > 0 && multiplierNum < 256, "multipliers must be > 0 && <= 255");
-        multipliersVec.Push(multiplierNum);
+        multipliersVec.push_back(multiplierNum);
     }
 
     ICore::Instance().SetWeatherCycle(weathersVec, multipliersVec);

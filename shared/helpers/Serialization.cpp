@@ -253,7 +253,7 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
 
 void V8Helpers::MValueArgsToV8(alt::MValueArgs args, std::vector<v8::Local<v8::Value>>& v8Args)
 {
-    for(uint64_t i = 0; i < args.GetSize(); ++i) v8Args.push_back(MValueToV8(args[i]));
+    for(uint64_t i = 0; i < args.size(); ++i) v8Args.push_back(MValueToV8(args[i]));
 }
 
 // Magic bytes to identify raw JS value buffers

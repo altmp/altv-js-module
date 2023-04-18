@@ -25,7 +25,7 @@ void V8Helpers::FunctionCallback(const v8::FunctionCallbackInfo<v8::Value>& info
 
     alt::MValueArgs args;
 
-    for(uint64_t i = 0; i < info.Length(); ++i) args.Push(V8Helpers::V8ToMValue(info[i]));
+    for(uint64_t i = 0; i < info.Length(); ++i) args.emplace_back(V8Helpers::V8ToMValue(info[i]));
 
     alt::MValue res = (*fn)->Call(args);
 
