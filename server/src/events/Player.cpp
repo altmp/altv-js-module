@@ -6,7 +6,6 @@
 #include "CNodeResourceImpl.h"
 
 #include "cpp-sdk/events/CPlayerConnectEvent.h"
-#include "cpp-sdk/events/CPlayerBeforeConnectEvent.h"
 #include "cpp-sdk/events/CPlayerDisconnectEvent.h"
 #include "cpp-sdk/events/CPlayerDamageEvent.h"
 #include "cpp-sdk/events/CPlayerDeathEvent.h"
@@ -32,32 +31,6 @@ V8Helpers::LocalEventHandler playerConnect(EventType::PLAYER_CONNECT,
                                                auto ev = static_cast<const alt::CPlayerConnectEvent*>(e);
                                                args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
                                            });
-
-V8Helpers::LocalEventHandler beforePlayerConnect(EventType::PLAYER_BEFORE_CONNECT,
-                                                 "beforePlayerConnect",
-                                                 [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args)
-                                                 {
-                                                     auto ev = static_cast<const alt::CPlayerBeforeConnectEvent*>(e);
-                                                     v8::Isolate* isolate = resource->GetIsolate();
-                                                     v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
-
-                                                     alt::IConnectionInfo* info = ev->GetConnectionInfo();
-                                                     v8::Local<v8::Object> infoObj = v8ConnectionInfo.CreateInstance(ctx);
-                                                     infoObj->SetInternalField(0, v8::External::New(isolate, info));
-                                                     static_cast<CNodeResourceImpl*>(resource)->AddConnectionInfoObject(info, infoObj);
-
-                                                     args.push_back(infoObj);
-                                                     args.push_back(V8Helpers::JSValue(ev->GetReason()));
-
-                                                     resource->RunOnNextTick(
-                                                       [=]
-                                                       {
-                                                           v8::Local<v8::Object> infoObj = static_cast<CNodeResourceImpl*>(resource)->GetConnectionInfoObject(info);
-                                                           if(infoObj.IsEmpty()) return;
-                                                           infoObj->SetInternalField(0, v8::External::New(isolate, nullptr));
-                                                           static_cast<CNodeResourceImpl*>(resource)->RemoveConnectionInfoObject(info);
-                                                       });
-                                                 });
 
 V8Helpers::LocalEventHandler playerConnectDenied(EventType::PLAYER_CONNECT_DENIED,
                                                  "playerConnectDenied",

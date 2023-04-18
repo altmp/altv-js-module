@@ -466,8 +466,6 @@ void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vecto
 
               v8::Local<v8::Value> returnValue = retn.ToLocalChecked();
               if(ev && returnValue->IsFalse()) ev->Cancel();
-              else if(ev && ev->GetType() == alt::CEvent::Type::PLAYER_BEFORE_CONNECT && returnValue->IsString())
-                  static_cast<alt::CPlayerBeforeConnectEvent*>(const_cast<alt::CEvent*>(ev))->Cancel(*v8::String::Utf8Value(isolate, returnValue));
               else if(ev && ev->GetType() == alt::CEvent::Type::WEAPON_DAMAGE_EVENT && returnValue->IsNumber())
                   static_cast<alt::CWeaponDamageEvent*>(const_cast<alt::CEvent*>(ev))->SetDamageValue((uint32_t)returnValue->NumberValue(GetContext()).ToChecked());
               // todo: add this once a generic Cancel() with string as arg has been added to the sdk
