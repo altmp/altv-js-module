@@ -119,6 +119,7 @@ static void PathGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8:
     V8_CHECK(resource, "Invalid resource");
     V8_RETURN_STRING(resource->GetPath());
 }
+#endif
 
 static void ConfigGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
@@ -131,7 +132,6 @@ static void ConfigGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v
     V8_CHECK(!val.IsEmpty(), "Failed to convert config to V8 value");
     V8_RETURN(val);
 }
-#endif
 
 // *** Static
 static void GetByName(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -188,8 +188,8 @@ extern V8Class v8Resource("Resource",
     V8Helpers::SetAccessor(isolate, tpl, "valid", &ValidGetter);
 #ifdef ALT_SERVER_API
                               V8Helpers::SetAccessor(isolate, tpl, "path", &PathGetter);
-                              V8Helpers::SetAccessor(isolate, tpl, "config", &ConfigGetter);
 #endif
+                              V8Helpers::SetAccessor(isolate, tpl, "config", &ConfigGetter);
 
                               V8Helpers::SetStaticMethod(isolate, tpl, "getByName", &GetByName);
                               V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
