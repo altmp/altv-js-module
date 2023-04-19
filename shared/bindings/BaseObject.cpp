@@ -14,7 +14,7 @@ static void HasSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(1);
     V8_ARG_TO_STRING(1, key);
 
-    V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
+    V8_GET_THIS_BASE_OBJECT(ent, alt::IBaseObject);
 
     V8_RETURN_BOOLEAN(ent->HasSyncedMetaData(key));
 }
@@ -26,7 +26,7 @@ static void GetSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(1);
     V8_ARG_TO_STRING(1, key);
 
-    V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
+    V8_GET_THIS_BASE_OBJECT(ent, alt::IBaseObject);
 
     V8_RETURN_MVALUE(ent->GetSyncedMetaData(key));
 }
@@ -35,7 +35,7 @@ static void GetSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void GetSyncedMetaDataKeys(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
+    V8_GET_THIS_BASE_OBJECT(ent, alt::IBaseObject);
 
     const std::vector<std::string> list = ent->GetSyncedMetaDataKeys();
     size_t size = list.size();
@@ -160,7 +160,7 @@ static void SetSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(1, key);
     V8_ARG_TO_MVALUE(2, value);
 
-    V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
+    V8_GET_THIS_BASE_OBJECT(ent, alt::IBaseObject);
 
     ent->SetSyncedMetaData(key, value);
 }
@@ -172,7 +172,7 @@ static void DeleteSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(1);
     V8_ARG_TO_STRING(1, key);
 
-    V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
+    V8_GET_THIS_BASE_OBJECT(ent, alt::IBaseObject);
 
     ent->DeleteSyncedMetaData(key);
 }
