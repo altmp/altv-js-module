@@ -8,30 +8,6 @@
 
 using namespace alt;
 
-static void HasSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-
-    V8_CHECK_ARGS_LEN(1);
-    V8_ARG_TO_STRING(1, key);
-
-    V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
-
-    V8_RETURN_BOOLEAN(ent->HasSyncedMetaData(key));
-}
-
-static void GetSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-
-    V8_CHECK_ARGS_LEN(1);
-    V8_ARG_TO_STRING(1, key);
-
-    V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
-
-    V8_RETURN_MVALUE(ent->GetSyncedMetaData(key));
-}
-
 static void HasStreamSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -72,22 +48,6 @@ static void GetStreamSyncedMetaDataKeys(const v8::FunctionCallbackInfo<v8::Value
     V8_RETURN(arr);
 }
 
-static void GetSyncedMetaDataKeys(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
-
-    const std::vector<std::string> list = ent->GetSyncedMetaDataKeys();
-    size_t size = list.size();
-    v8::Local<v8::Array> arr = v8::Array::New(isolate, size);
-    for(size_t i = 0; i < size; i++)
-    {
-        arr->Set(ctx, i, V8Helpers::JSValue(list[i]));
-    }
-
-    V8_RETURN(arr);
-}
-
 #ifdef ALT_SERVER_API
 
 static void ModelGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -112,31 +72,6 @@ static void ModelSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v
         V8_TO_STRING(val, model);
         player->SetModel(alt::ICore::Instance().Hash(model));
     }
-}
-
-static void SetSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-
-    V8_CHECK_ARGS_LEN(2);
-    V8_ARG_TO_STRING(1, key);
-    V8_ARG_TO_MVALUE(2, value);
-
-    V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
-
-    ent->SetSyncedMetaData(key, value);
-}
-
-static void DeleteSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-
-    V8_CHECK_ARGS_LEN(1);
-    V8_ARG_TO_STRING(1, key);
-
-    V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
-
-    ent->DeleteSyncedMetaData(key);
 }
 
 static void SetStreamSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -276,10 +211,6 @@ extern V8Class v8Entity("Entity",
                             V8Helpers::SetAccessor<IEntity, uint16_t, &IEntity::GetID>(isolate, tpl, "id");
                             V8Helpers::SetAccessor<IEntity, IPlayer*, &IEntity::GetNetworkOwner>(isolate, tpl, "netOwner");
 
-                            V8Helpers::SetMethod(isolate, tpl, "hasSyncedMeta", HasSyncedMeta);
-                            V8Helpers::SetMethod(isolate, tpl, "getSyncedMeta", GetSyncedMeta);
-                            V8Helpers::SetMethod(isolate, tpl, "getSyncedMetaKeys", GetSyncedMetaDataKeys);
-
                             V8Helpers::SetMethod(isolate, tpl, "hasStreamSyncedMeta", HasStreamSyncedMeta);
                             V8Helpers::SetMethod(isolate, tpl, "getStreamSyncedMeta", GetStreamSyncedMeta);
                             V8Helpers::SetMethod(isolate, tpl, "getStreamSyncedMetaKeys", GetStreamSyncedMetaDataKeys);
@@ -289,9 +220,6 @@ extern V8Class v8Entity("Entity",
                             V8Helpers::SetAccessor(isolate, tpl, "model", &ModelGetter, &ModelSetter);
                             V8Helpers::SetAccessor<IEntity, bool, &IEntity::GetVisible, &IEntity::SetVisible>(isolate, tpl, "visible");
                             V8Helpers::SetAccessor<IEntity, bool, &IEntity::GetStreamed, &IEntity::SetStreamed>(isolate, tpl, "streamed");
-
-                            V8Helpers::SetMethod(isolate, tpl, "setSyncedMeta", SetSyncedMeta);
-                            V8Helpers::SetMethod(isolate, tpl, "deleteSyncedMeta", DeleteSyncedMeta);
 
                             V8Helpers::SetMethod(isolate, tpl, "setStreamSyncedMeta", SetStreamSyncedMeta);
                             V8Helpers::SetMethod(isolate, tpl, "deleteStreamSyncedMeta", DeleteStreamSyncedMeta);
