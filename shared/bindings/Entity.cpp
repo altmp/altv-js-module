@@ -208,7 +208,7 @@ extern V8Class v8Entity("Entity",
                             V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
                             V8Helpers::SetStaticAccessor(isolate, tpl, "all", StaticAllGetter);
 
-                            V8Helpers::SetAccessor<IEntity, uint16_t, &IEntity::GetID>(isolate, tpl, "id");
+                            V8Helpers::SetAccessor<IEntity, uint32_t, &IEntity::GetID>(isolate, tpl, "id");
                             V8Helpers::SetAccessor<IEntity, IPlayer*, &IEntity::GetNetworkOwner>(isolate, tpl, "netOwner");
 
                             V8Helpers::SetMethod(isolate, tpl, "hasStreamSyncedMeta", HasStreamSyncedMeta);
