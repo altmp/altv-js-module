@@ -1096,16 +1096,17 @@ static void GetPedBonePos(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void EvalModule(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(2);
 
-    V8_CHECK_ARGS_LEN(1);
-    V8_ARG_TO_STRING(1, code);
+    V8_ARG_TO_STRING(1, name);
+    V8_ARG_TO_STRING(2, code);
 
     v8::Local<v8::Module> mod;
 
     auto result = V8Helpers::TryCatch(
       [&]
       {
-          auto maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(code, V8Helpers::SourceLocation::GetCurrent(isolate));
+          auto maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(name, code, V8Helpers::SourceLocation::GetCurrent(isolate));
           if(maybeModule.IsEmpty())
           {
               V8Helpers::Throw(isolate, "Failed to resolve module");

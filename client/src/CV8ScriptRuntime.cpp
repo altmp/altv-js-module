@@ -320,12 +320,12 @@ v8::MaybeLocal<v8::Module>
               {
                   // Handle as base64 source string
                   std::string sourceStr = Base64Decode(specifierStr);
-                  maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(sourceStr, V8Helpers::SourceLocation::GetCurrent(isolate, resource));
+                  maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode("", sourceStr, V8Helpers::SourceLocation::GetCurrent(isolate, resource));
               }
               else if(typeValueStr == "source")
               {
                   // Handle as module source code
-                  maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(specifierStr, V8Helpers::SourceLocation::GetCurrent(isolate, resource));
+                  maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode("", specifierStr, V8Helpers::SourceLocation::GetCurrent(isolate, resource));
               }
               else if(typeValueStr == "json")
               {

@@ -279,13 +279,15 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveModule(const std::string& _nam
     return maybeModule;
 }
 
-v8::MaybeLocal<v8::Module> IImportHandler::ResolveCode(const std::string& code, const V8Helpers::SourceLocation& location)
+v8::MaybeLocal<v8::Module> IImportHandler::ResolveCode(const std::string& name, const std::string& code, const V8Helpers::SourceLocation& location)
 {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
     v8::MaybeLocal<v8::Module> maybeModule;
-    std::stringstream name;
-    name << "[module " << location.GetFileName() << ":" << location.GetLineNumber() << "]";
-    maybeModule = CompileESM(isolate, name.str(), code);
+    std::stringstream nameStream;
+    if(name.empty()) nameStream << "[module " << location.GetFileName() << ":" << location.GetLineNumber() << "]";
+    else
+        nameStream << name;
+    maybeModule = CompileESM(isolate, nameStream.str(), code);
 
     return maybeModule;
 }
