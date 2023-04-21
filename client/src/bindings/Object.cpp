@@ -190,4 +190,6 @@ extern V8Class v8Object("Object",
                             V8Helpers::SetAccessor<IObject, uint8_t, &IObject::GetTextureVariation, &IObject::SetTextureVariation>(isolate, tpl, "textureVariation");
 
                             V8Helpers::SetAccessor<IObject, bool, &IObject::IsWorldObject>(isolate, tpl, "isWorldObject");
+
+                            V8Helpers::SetAccessor<IObject, bool, &IObject::IsStreamedIn>(isolate, tpl, "isStreamedIn");
                         });
