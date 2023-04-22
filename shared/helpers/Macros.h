@@ -265,6 +265,17 @@
     uint32_t val;                \
     V8_CHECK(V8Helpers::SafeToUInt32(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to uint32")
 
+#define V8_ARG_TO_UINT_OPT(idx, val, defaultVal)                                                                     \
+    uint32_t val;                                                                                                    \
+    if(info.Length() >= (idx))                                                                                       \
+    {                                                                                                                \
+        V8_CHECK(V8Helpers::SafeToUInt32(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to uint32"); \
+    }                                                                                                                \
+    else                                                                                                             \
+    {                                                                                                                \
+        val = defaultVal;                                                                                            \
+    }
+
 // idx starts with 1
 #define V8_ARG_TO_INT32(idx, val) \
     int32_t val;                  \
