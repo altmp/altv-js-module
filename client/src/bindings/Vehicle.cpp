@@ -287,7 +287,7 @@ extern V8Class v8Vehicle("Vehicle",
                              V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetWheelSpeed>(isolate, tpl, "speed");
                              V8Helpers::SetAccessor<IVehicle, uint16_t, &IVehicle::GetCurrentGear, &IVehicle::SetCurrentGear>(isolate, tpl, "gear");
                              V8Helpers::SetAccessor<IVehicle, uint16_t, &IVehicle::GetMaxGear>(isolate, tpl, "maxGear");
-                             V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetCurrentRPM>(isolate, tpl, "rpm");
+                             V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetCurrentRPM, &IVehicle::SetCurrentRPM>(isolate, tpl, "rpm");
                              V8Helpers::SetAccessor<IVehicle, uint8_t, &IVehicle::GetWheelsCount>(isolate, tpl, "wheelsCount");
                              V8Helpers::SetAccessor<IVehicle, alt::Vector3f, &IVehicle::GetSpeedVector>(isolate, tpl, "speedVector");
                              V8Helpers::SetAccessor(isolate, tpl, "handling", &HandlingGetter);
