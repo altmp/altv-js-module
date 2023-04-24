@@ -14,7 +14,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_VECTOR3(2, position);
     V8_ARG_TO_UINT(3, streamingDistance);
 
-    IVirtualEntity* virtualEntity = alt::ICore::Instance().CreateVirtualEntity(ent, position, streamingDistance);
+    IVirtualEntity* virtualEntity = alt::ICore::Instance().CreateVirtualEntity(ent, position, streamingDistance, {});
 
     V8_BIND_BASE_OBJECT(virtualEntity, "Failed to create virtual entity group");
 }
