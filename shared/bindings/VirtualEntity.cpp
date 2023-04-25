@@ -24,9 +24,9 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         {
             const auto v8Key = propertyNames->Get(ctx, i).ToLocalChecked();
             V8_TO_STRING(v8Key, key)
-            const auto v8Value = propertyNames->Get(ctx, i).ToLocalChecked();
+            const auto v8Value = passedData->Get(ctx, V8Helpers::JSValue(key)).ToLocalChecked();
             auto value = V8Helpers::V8ToMValue(v8Value, false);
-            data.insert({key, value});
+            data.insert({ key, value });
         }
     }
 
