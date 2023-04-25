@@ -7,14 +7,30 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_CONSTRUCTOR();
-    V8_CHECK_ARGS_LEN(3);
+    V8_CHECK_ARGS_LEN2(3, 4);
 
     V8_CHECK(info[2]->IsNumber(), "number expected");
     V8_ARG_TO_BASE_OBJECT(1, ent, IVirtualEntityGroup, "virtualEntityGroup")
-    V8_ARG_TO_VECTOR3(2, position);
-    V8_ARG_TO_UINT(3, streamingDistance);
+    V8_ARG_TO_VECTOR3(2, position)
+    V8_ARG_TO_UINT(3, streamingDistance)
 
-    IVirtualEntity* virtualEntity = alt::ICore::Instance().CreateVirtualEntity(ent, position, streamingDistance, {});
+    std::unordered_map<std::string, alt::MValue> data;
+    if(info.Length() == 4)
+    {
+        V8_ARG_TO_OBJECT(4, passedData)
+        const auto propertyNames = passedData->GetPropertyNames(ctx).ToLocalChecked();
+
+        for(uint32_t i = 0; i < propertyNames->Length(); ++i)
+        {
+            const auto v8Key = propertyNames->Get(ctx, i).ToLocalChecked();
+            V8_TO_STRING(v8Key, key)
+            const auto v8Value = propertyNames->Get(ctx, i).ToLocalChecked();
+            auto value = V8Helpers::V8ToMValue(v8Value, false);
+            data.insert({key, value});
+        }
+    }
+
+    IVirtualEntity* virtualEntity = alt::ICore::Instance().CreateVirtualEntity(ent, position, streamingDistance, data);
 
     V8_BIND_BASE_OBJECT(virtualEntity, "Failed to create virtual entity group");
 }
