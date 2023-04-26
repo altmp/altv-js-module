@@ -185,4 +185,5 @@ extern V8Class v8Object("Object",
                             V8Helpers::SetAccessor<IObject, bool, &IObject::IsStreamedIn>(isolate, tpl, "isStreamedIn");
 
                             V8Helpers::SetAccessor<IObject, uint32_t, &IObject::GetStreamingDistance>(isolate, tpl, "streamingDistance");
+                            V8Helpers::SetAccessor<IObject, bool, &IObject::IsVisible, &IObject::SetVisible>(isolate, tpl, "visible");
                         });

@@ -137,6 +137,7 @@ extern V8Class v8Checkpoint("Checkpoint",
                                 V8Helpers::SetAccessor<ICheckpoint, uint32_t, &ICheckpoint::GetStreamingDistance>(isolate, tpl, "streamingDistance");
                                 V8Helpers::SetAccessor<ICheckpoint, bool, &ICheckpoint::IsStreamedIn>(isolate, tpl, "isStreamedIn");
 
+                                V8Helpers::SetAccessor<ICheckpoint, bool, &ICheckpoint::IsVisible, &ICheckpoint::SetVisible>(isolate, tpl, "visible");
                                 V8Helpers::SetMethod(isolate, tpl, "isEntityIn", &IsEntityIn);
                                 V8Helpers::SetMethod(isolate, tpl, "isPointIn", &IsPointIn);
                             });
