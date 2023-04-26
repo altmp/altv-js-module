@@ -167,6 +167,7 @@ extern V8Class v8Checkpoint("Checkpoint",
                                 V8Helpers::SetStaticAccessor(isolate, tpl, "count", &CountGetter);
                                 V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
                                 V8Helpers::SetAccessor<ICheckpoint, uint32_t, &ICheckpoint::GetStreamingDistance>(isolate, tpl, "streamingDistance");
+                                V8Helpers::SetAccessor<ICheckpoint, bool, &ICheckpoint::IsVisible, &ICheckpoint::SetVisible>(isolate, tpl, "visible");
 
                                 V8Helpers::SetMethod(isolate, tpl, "hasStreamSyncedMeta", HasStreamSyncedMeta);
                                 V8Helpers::SetMethod(isolate, tpl, "getStreamSyncedMeta", GetStreamSyncedMeta);
