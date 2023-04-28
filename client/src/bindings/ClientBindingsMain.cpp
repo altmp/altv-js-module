@@ -1138,14 +1138,15 @@ static void EvalModule(const v8::FunctionCallbackInfo<v8::Value>& info)
 extern V8Module sharedModule;
 extern V8Class v8Player, v8Player, v8Vehicle, v8WebView, v8HandlingData, v8LocalStorage, v8MemoryBuffer, v8MapZoomData, v8Discord, v8Voice, v8WebSocketClient, v8Checkpoint, v8HttpClient,
   v8Audio, v8LocalPlayer, v8Profiler, v8Worker, v8RmlDocument, v8RmlElement, v8WeaponData, v8FocusData, v8Object, v8TextEncoder, v8TextDecoder, v8NetworkObject, v8VirtualEntityGroup,
-  v8VirtualEntity, v8AudioFilter, v8Marker, v8Ped, v8Colshape, v8ColshapeCylinder, v8ColshapeSphere, v8ColshapeCircle, v8ColshapeCuboid, v8ColshapeRectangle, v8ColshapePolygon, v8TextLabel;
+  v8VirtualEntity, v8AudioFilter, v8Marker, v8Ped, v8Colshape, v8ColshapeCylinder, v8ColshapeSphere, v8ColshapeCircle, v8ColshapeCuboid, v8ColshapeRectangle, v8ColshapePolygon, v8TextLabel,
+  v8LocalPed;
 extern V8Module
   altModule("alt",
             &sharedModule,
             { v8Player,           v8Vehicle,        v8WebView,        v8HandlingData,   v8LocalStorage,       v8MemoryBuffer,    v8MapZoomData, v8Discord,    v8Voice,      v8WebSocketClient,
               v8Checkpoint,       v8HttpClient,     v8Audio,          v8LocalPlayer,    v8Profiler,           v8Worker,          v8RmlDocument, v8RmlElement, v8WeaponData, v8FocusData,
               v8Object,           v8TextEncoder,    v8TextDecoder,    v8NetworkObject,  v8VirtualEntityGroup, v8VirtualEntity,   v8AudioFilter, v8Marker,     v8Ped,        v8Colshape,
-              v8ColshapeCylinder, v8ColshapeSphere, v8ColshapeCircle, v8ColshapeCuboid, v8ColshapeRectangle,  v8ColshapePolygon, v8TextLabel },
+              v8ColshapeCylinder, v8ColshapeSphere, v8ColshapeCircle, v8ColshapeCuboid, v8ColshapeRectangle,  v8ColshapePolygon, v8TextLabel,   v8LocalPed },
             [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports)
             {
                 v8::Isolate* isolate = ctx->GetIsolate();
