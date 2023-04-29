@@ -166,7 +166,15 @@ static bool PushArg(
             else if(val->IsObject())
             {
                 auto ent = V8Entity::Get(val);
-                if(ent != nullptr) scrCtx->Push(dynamic_cast<alt::IEntity*>(ent->GetHandle())->GetScriptGuid());
+                if(ent != nullptr)
+                {
+                    switch(ent->GetHandle()->GetType())
+                    {
+                        case alt::IBaseObject::Type::LOCAL_PED: scrCtx->Push(dynamic_cast<alt::ILocalPed*>(ent->GetHandle())->GetScriptID()); break;
+                        case alt::IBaseObject::Type::LOCAL_VEHICLE: scrCtx->Push(dynamic_cast<alt::ILocalVehicle*>(ent->GetHandle())->GetScriptID()); break;
+                        default: scrCtx->Push(dynamic_cast<alt::IEntity*>(ent->GetHandle())->GetScriptGuid());
+                    }
+                }
                 else
                 {
                     ShowNativeArgParseErrorMsg(resource, val, native, argType, idx);
