@@ -15,7 +15,11 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 #ifdef ALT_SERVER_API
     alt::IMarker* marker = alt::ICore::Instance().CreateMarker(nullptr, (alt::IMarker::MarkerType)type, position, color, resource->GetResource());
 #else
-    alt::IMarker* marker = alt::ICore::Instance().CreateMarker((alt::IMarker::MarkerType)type, position, color, false, 0, resource->GetResource());
+
+    V8_ARG_TO_BOOLEAN_OPT(6, useStreaming, false);
+    V8_ARG_TO_UINT_OPT(7, streamingDistance, 0);
+
+    alt::IMarker* marker = alt::ICore::Instance().CreateMarker((alt::IMarker::MarkerType)type, position, color, useStreaming, streamingDistance, resource->GetResource());
 #endif
 
     V8_BIND_BASE_OBJECT(marker, "Failed to create Marker");
@@ -80,6 +84,7 @@ extern V8Class v8Marker("Marker",
 #ifdef ALT_CLIENT_API
                             V8Helpers::SetAccessor<IMarker, bool, &IMarker::IsRemote>(isolate, tpl, "isRemote");
                             V8Helpers::SetAccessor<IMarker, uint32_t, &IMarker::GetRemoteID>(isolate, tpl, "remoteId");
+                            V8Helpers::SetAccessor<IMarker, bool, &IMarker::IsStreamedIn>(isolate, tpl, "isStreamedIn");
 #endif
 
                             V8Helpers::SetAccessor<IMarker, uint32_t, &IMarker::GetID>(isolate, tpl, "id");
@@ -91,4 +96,6 @@ extern V8Class v8Marker("Marker",
                             V8Helpers::SetAccessor<IMarker, Position, &IMarker::GetScale, &IMarker::SetScale>(isolate, tpl, "scale");
                             V8Helpers::SetAccessor<IMarker, Rotation, &IMarker::GetRotation, &IMarker::SetRotation>(isolate, tpl, "rot");
                             V8Helpers::SetAccessor<IMarker, Position, &IMarker::GetDirection, &IMarker::SetDirection>(isolate, tpl, "dir");
+
+                            V8Helpers::SetAccessor<IMarker, uint32_t, &IMarker::GetStreamingDistance>(isolate, tpl, "streamingDistance");
                         });
