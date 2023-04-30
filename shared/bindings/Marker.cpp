@@ -6,7 +6,11 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_CONSTRUCTOR();
+#ifdef ALT_SERVER_API
     V8_CHECK_ARGS_LEN(3);
+#else
+    V8_CHECK_ARGS_LEN_MIN_MAX(3, 5);
+#endif
 
     V8_ARG_TO_NUMBER(1, type);
     V8_ARG_TO_VECTOR3(2, position);
@@ -16,8 +20,8 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     alt::IMarker* marker = alt::ICore::Instance().CreateMarker(nullptr, (alt::IMarker::MarkerType)type, position, color, resource->GetResource());
 #else
 
-    V8_ARG_TO_BOOLEAN_OPT(6, useStreaming, false);
-    V8_ARG_TO_UINT_OPT(7, streamingDistance, 0);
+    V8_ARG_TO_BOOLEAN_OPT(4, useStreaming, false);
+    V8_ARG_TO_UINT_OPT(5, streamingDistance, 0);
 
     alt::IMarker* marker = alt::ICore::Instance().CreateMarker((alt::IMarker::MarkerType)type, position, color, useStreaming, streamingDistance, resource->GetResource());
 #endif
