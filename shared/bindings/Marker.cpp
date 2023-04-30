@@ -102,4 +102,5 @@ extern V8Class v8Marker("Marker",
                             V8Helpers::SetAccessor<IMarker, Position, &IMarker::GetDirection, &IMarker::SetDirection>(isolate, tpl, "dir");
 
                             V8Helpers::SetAccessor<IMarker, uint32_t, &IMarker::GetStreamingDistance>(isolate, tpl, "streamingDistance");
+                            V8Helpers::SetAccessor<IMarker, bool, &IMarker::IsFaceCamera, &IMarker::SetFaceCamera>(isolate, tpl, "faceCamera");
                         });
