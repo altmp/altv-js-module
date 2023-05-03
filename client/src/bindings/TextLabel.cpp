@@ -7,7 +7,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_CONSTRUCTOR();
-    V8_CHECK_ARGS_LEN(9);
+    V8_CHECK_ARGS_LEN_MIN_MAX(9, 11);
 
     V8_ARG_TO_STRING(1, text);
     V8_ARG_TO_STRING(2, fontName);
@@ -18,8 +18,11 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_RGBA(7, color);
     V8_ARG_TO_NUMBER(8, outlineWidth);
     V8_ARG_TO_RGBA(9, outlineColor);
+    V8_ARG_TO_BOOLEAN(10, useStreaming);
+    V8_ARG_TO_UINT(11, streamingDistance);
 
-    auto textLabel = alt::ICore::Instance().CreateTextLabel(text, fontName, fontSize, scale, pos, rot, color, outlineWidth, outlineColor, resource->GetResource());
+    auto textLabel =
+      alt::ICore::Instance().CreateTextLabel(text, fontName, fontSize, scale, pos, rot, color, outlineWidth, outlineColor, useStreaming, streamingDistance, resource->GetResource());
     V8_BIND_BASE_OBJECT(textLabel, "Failed to create textlabel");
 }
 
@@ -63,11 +66,14 @@ extern V8Class v8TextLabel("TextLabel",
                                V8Helpers::SetAccessor<ITextLabel, uint32_t, &ITextLabel::GetID>(isolate, tpl, "id");
                                V8Helpers::SetAccessor<ITextLabel, bool, &ITextLabel::IsRemote>(isolate, tpl, "isRemote");
                                V8Helpers::SetAccessor<ITextLabel, uint32_t, &ITextLabel::GetRemoteID>(isolate, tpl, "remoteId");
+                               V8Helpers::SetAccessor<ITextLabel, bool, &ITextLabel::IsStreamedIn>(isolate, tpl, "isStreamedIn");
 
                                V8Helpers::SetAccessor<ITextLabel, bool, &ITextLabel::IsGlobal>(isolate, tpl, "isGlobal");
                                V8Helpers::SetAccessor<ITextLabel, IPlayer*, &ITextLabel::GetTarget>(isolate, tpl, "target");
-                               V8Helpers::SetAccessor<ITextLabel, bool, &ITextLabel::GetVisible, &ITextLabel::SetVisible>(isolate, tpl, "visible");
+                               V8Helpers::SetAccessor<ITextLabel, bool, &ITextLabel::IsVisible, &ITextLabel::SetVisible>(isolate, tpl, "visible");
                                V8Helpers::SetAccessor<ITextLabel, RGBA, &ITextLabel::GetColor, &ITextLabel::SetColor>(isolate, tpl, "color");
                                V8Helpers::SetAccessor<ITextLabel, float, &ITextLabel::GetScale, &ITextLabel::SetScale>(isolate, tpl, "scale");
                                V8Helpers::SetAccessor<ITextLabel, Rotation, &ITextLabel::GetRotation, &ITextLabel::SetRotation>(isolate, tpl, "rot");
+
+                               V8Helpers::SetAccessor<ITextLabel, uint32_t, &ITextLabel::GetStreamingDistance>(isolate, tpl, "streamingDistance");
                            });
