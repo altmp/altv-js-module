@@ -70,6 +70,8 @@ jobs:
           TAG=${GITHUB_REF/refs\/tags\//}
           echo ::set-output name=BRANCH::${TAG/\/*}
           echo ::set-output name=VERSION::${TAG/*\/}
+          cd shared/deps/cpp-sdk
+          echo "SDK_COMMIT=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
       - name: Build
         run: |
@@ -84,6 +86,7 @@ jobs:
           mkdir -p upload/modules/js-module
           cp ./dist/libjs-module.so ./upload/modules/js-module
           cp ./dist/libnode.so.108 ./upload/modules/js-module
+          echo ${{ steps.version.outputs.SDK_COMMIT }} >> ./upload/sdk.version
 
       - uses: actions/upload-artifact@v3
         with:
@@ -125,6 +128,7 @@ jobs:
           TAG=${GITHUB_REF/refs\/tags\//}
           echo ::set-output name=BRANCH::${TAG/\/*}
           echo ::set-output name=VERSION::${TAG/*\/}
+          rm dist-linux/sdk.version
 
       - name: Install upload tool
         run: npm i @altmp/upload-tool@latest
@@ -168,11 +172,6 @@ jobs:
           name: js-module-linux
           path: dist-linux
 
-      - name: Zip artifacts
-        run: |
-          zip -r -j js-module-windows dist-windows
-          zip -r -j js-module-linux dist-linux
-
       - name: Extract version
         id: version
         shell: bash
@@ -180,6 +179,13 @@ jobs:
           TAG=${GITHUB_REF/refs\/tags\//}
           echo ::set-output name=BRANCH::${TAG/\/*}
           echo ::set-output name=VERSION::${TAG/*\/}
+          echo "SDK_COMMIT=$(cat dist-linux/sdk.version)" >> $GITHUB_OUTPUT
+          rm dist-linux/sdk.version
+
+      - name: Zip artifacts
+        run: |
+          zip -r -j js-module-windows dist-windows
+          zip -r -j js-module-linux dist-linux
 
       - name: Create Release
         id: create_release
@@ -189,6 +195,8 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ steps.version.outputs.VERSION }}
+          body: |
+            SDK version: [${{ steps.version.outputs.SDK_COMMIT }}](https://github.com/altmp/cpp-sdk/commit/${{ steps.version.outputs.SDK_COMMIT }})
 
       - name: Upload windows artifacts
         uses: actions/upload-release-asset@v1
