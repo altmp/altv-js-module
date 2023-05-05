@@ -83,6 +83,44 @@ static void StaticSetNoiseSuppressionEnabled(v8::Local<v8::String>, v8::Local<v8
     V8_CHECK(state != alt::PermissionState::UNSPECIFIED, "Permissions not specified");
 }
 
+static void StaticGetInputDevice(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    std::optional<std::string> deviceUid;
+    auto state = alt::ICore::Instance().GetActiveVoiceInputDevice(deviceUid);
+    V8_CHECK(state != alt::PermissionState::DENIED, "No permissions");
+    V8_CHECK(state != alt::PermissionState::UNSPECIFIED, "Permissions not specified");
+
+    if(deviceUid.has_value())
+    {
+        V8_RETURN_STRING(deviceUid.value());
+    }
+    else
+    {
+        V8_RETURN_NULL();
+    }
+}
+
+static void StaticSetInputDevice(v8::Local<v8::String>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    alt::PermissionState state;
+    if (value->IsNull())
+    {
+        state = alt::ICore::Instance().SetActiveVoiceInputDevice({});
+    }
+    else
+    {
+        V8_TO_STRING(value, deviceUid);
+        state = alt::ICore::Instance().SetActiveVoiceInputDevice(deviceUid);
+    }
+
+    V8_CHECK(state != alt::PermissionState::DENIED, "No permissions");
+    V8_CHECK(state != alt::PermissionState::UNSPECIFIED, "Permissions not specified");
+}
+
 static void ToggleInput(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -94,6 +132,37 @@ static void ToggleInput(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK(state != alt::PermissionState::UNSPECIFIED, "Permissions not specified");
 }
 
+static void GetAvailableInputDevices(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(0);
+
+    std::vector<alt::SoundDeviceInfo> devices;
+    auto state = alt::ICore::Instance().GetVoiceInputDeviceList(devices);
+    V8_CHECK(state != alt::PermissionState::DENIED, "No permissions");
+    V8_CHECK(state != alt::PermissionState::UNSPECIFIED, "Permissions not specified");
+
+    v8::Local<v8::Array> jsDevices = v8::Array::New(isolate, devices.size());
+    for(uint32_t i = 0; i < devices.size(); ++i)
+    {
+        V8_NEW_OBJECT(jsDevice);
+
+        if(devices[i].uid.has_value())
+        {
+            V8_OBJECT_SET_STRING(jsDevice, "uid", devices[i].uid.value());
+        }
+        else
+        {
+            V8_OBJECT_SET_NULL(jsDevice, "uid");
+        }
+        V8_OBJECT_SET_STRING(jsDevice, "name", devices[i].name);
+
+        jsDevices->Set(ctx, i, jsDevice);
+    }
+
+    V8_RETURN(jsDevices);
+}
+
 extern V8Class v8Voice("Voice", [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
@@ -103,5 +172,7 @@ extern V8Class v8Voice("Voice", [](v8::Local<v8::FunctionTemplate> tpl) {
     V8Helpers::SetStaticAccessor(isolate, tpl, "activationKey", StaticGetVoiceActivationKey);
     V8Helpers::SetStaticAccessor(isolate, tpl, "voiceControlsEnabled", AreVoiceControlsEnabled);
     V8Helpers::SetStaticAccessor(isolate, tpl, "noiseSuppressionEnabled", StaticGetNoiseSuppressionEnabled, StaticSetNoiseSuppressionEnabled);
+    V8Helpers::SetStaticAccessor(isolate, tpl, "inputDevice", StaticGetInputDevice, StaticSetInputDevice);
     V8Helpers::SetStaticMethod(isolate, tpl, "toggleInput", ToggleInput);
+    V8Helpers::SetStaticMethod(isolate, tpl, "getAvailableInputDevices", GetAvailableInputDevices);
 });
