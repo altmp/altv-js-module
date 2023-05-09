@@ -134,7 +134,7 @@ static void GetExtraHeaders(const v8::FunctionCallbackInfo<v8::Value>& info)
     for(auto it = extraHeaders->Begin(); it; it = extraHeaders->Next())
     {
         std::string key = it->GetKey();
-        V8_OBJECT_SET_STRING(headersObject, key.c_str(), extraHeaders->Get(key).As<alt::IMValueString>()->Value());
+        V8_OBJECT_SET_STRING(headersObject, key.c_str(), std::dynamic_pointer_cast<alt::IMValueString>(extraHeaders->Get(key))->Value());
     }
 
     V8_RETURN(headersObject);

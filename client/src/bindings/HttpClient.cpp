@@ -25,7 +25,7 @@ static void GetExtraHeaders(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_NEW_OBJECT(headers);
     for(auto it = dict->Begin(); it; it = dict->Next())
     {
-        headers->Set(ctx, V8Helpers::JSValue(it->GetKey().c_str()), V8Helpers::JSValue(it->GetValue().As<alt::IMValueString>()->Value().c_str()));
+        headers->Set(ctx, V8Helpers::JSValue(it->GetKey().c_str()), V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(it->GetValue())->Value().c_str()));
     }
 
     V8_RETURN(headers);
@@ -71,7 +71,7 @@ static void Get(const v8::FunctionCallbackInfo<v8::Value>& info)
             V8_NEW_OBJECT(headers);
             for(auto it = response.headers->Begin(); it; it = response.headers->Next())
             {
-                headers->Set(ctx, V8Helpers::JSValue(it->GetKey().c_str()), V8Helpers::JSValue(it->GetValue().As<alt::IMValueString>()->Value().c_str()));
+                headers->Set(ctx, V8Helpers::JSValue(it->GetKey().c_str()), V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(it->GetValue())->Value().c_str()));
             }
             responseObj->Set(ctx, V8Helpers::JSValue("headers"), headers);
             resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), responseObj);
@@ -114,7 +114,7 @@ static void Head(const v8::FunctionCallbackInfo<v8::Value>& info)
             V8_NEW_OBJECT(headers);
             for(auto it = response.headers->Begin(); it; it = response.headers->Next())
             {
-                headers->Set(ctx, V8Helpers::JSValue(it->GetKey().c_str()), V8Helpers::JSValue(it->GetValue().As<alt::IMValueString>()->Value().c_str()));
+                headers->Set(ctx, V8Helpers::JSValue(it->GetKey().c_str()), V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(it->GetValue())->Value().c_str()));
             }
             responseObj->Set(ctx, V8Helpers::JSValue("headers"), headers);
             resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), responseObj);
@@ -158,7 +158,7 @@ static void Post(const v8::FunctionCallbackInfo<v8::Value>& info)
             V8_NEW_OBJECT(headers);
             for(auto it = response.headers->Begin(); it; it = response.headers->Next())
             {
-                headers->Set(ctx, V8Helpers::JSValue(it->GetKey().c_str()), V8Helpers::JSValue(it->GetValue().As<alt::IMValueString>()->Value().c_str()));
+                headers->Set(ctx, V8Helpers::JSValue(it->GetKey().c_str()), V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(it->GetValue())->Value().c_str()));
             }
             responseObj->Set(ctx, V8Helpers::JSValue("headers"), headers);
             resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), responseObj);
@@ -202,7 +202,7 @@ static void Put(const v8::FunctionCallbackInfo<v8::Value>& info)
             V8_NEW_OBJECT(headers);
             for(auto it = response.headers->Begin(); it; it = response.headers->Next())
             {
-                headers->Set(ctx, V8Helpers::JSValue(it->GetKey().c_str()), V8Helpers::JSValue(it->GetValue().As<alt::IMValueString>()->Value().c_str()));
+                headers->Set(ctx, V8Helpers::JSValue(it->GetKey().c_str()), V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(it->GetValue())->Value().c_str()));
             }
             responseObj->Set(ctx, V8Helpers::JSValue("headers"), headers);
             resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), responseObj);
@@ -246,7 +246,7 @@ static void Delete(const v8::FunctionCallbackInfo<v8::Value>& info)
             V8_NEW_OBJECT(headers);
             for(auto it = response.headers->Begin(); it; it = response.headers->Next())
             {
-                headers->Set(ctx, V8Helpers::JSValue(it->GetKey().c_str()), V8Helpers::JSValue(it->GetValue().As<alt::IMValueString>()->Value().c_str()));
+                headers->Set(ctx, V8Helpers::JSValue(it->GetKey().c_str()), V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(it->GetValue())->Value().c_str()));
             }
             responseObj->Set(ctx, V8Helpers::JSValue("headers"), headers);
             resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), responseObj);
@@ -290,7 +290,7 @@ static void Connect(const v8::FunctionCallbackInfo<v8::Value>& info)
             V8_NEW_OBJECT(headers);
             for(auto it = response.headers->Begin(); it; it = response.headers->Next())
             {
-                headers->Set(ctx, V8Helpers::JSValue(it->GetKey().c_str()), V8Helpers::JSValue(it->GetValue().As<alt::IMValueString>()->Value().c_str()));
+                headers->Set(ctx, V8Helpers::JSValue(it->GetKey().c_str()), V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(it->GetValue())->Value().c_str()));
             }
             responseObj->Set(ctx, V8Helpers::JSValue("headers"), headers);
             resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), responseObj);
@@ -334,7 +334,7 @@ static void Options(const v8::FunctionCallbackInfo<v8::Value>& info)
             V8_NEW_OBJECT(headers);
             for(auto it = response.headers->Begin(); it; it = response.headers->Next())
             {
-                headers->Set(ctx, V8Helpers::JSValue(it->GetKey().c_str()), V8Helpers::JSValue(it->GetValue().As<alt::IMValueString>()->Value().c_str()));
+                headers->Set(ctx, V8Helpers::JSValue(it->GetKey().c_str()), V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(it->GetValue())->Value().c_str()));
             }
             responseObj->Set(ctx, V8Helpers::JSValue("headers"), headers);
             resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), responseObj);
@@ -378,7 +378,7 @@ static void Trace(const v8::FunctionCallbackInfo<v8::Value>& info)
             V8_NEW_OBJECT(headers);
             for(auto it = response.headers->Begin(); it; it = response.headers->Next())
             {
-                headers->Set(ctx, V8Helpers::JSValue(it->GetKey().c_str()), V8Helpers::JSValue(it->GetValue().As<alt::IMValueString>()->Value().c_str()));
+                headers->Set(ctx, V8Helpers::JSValue(it->GetKey().c_str()), V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(it->GetValue())->Value().c_str()));
             }
             responseObj->Set(ctx, V8Helpers::JSValue("headers"), headers);
             resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), responseObj);
@@ -422,7 +422,7 @@ static void Patch(const v8::FunctionCallbackInfo<v8::Value>& info)
             V8_NEW_OBJECT(headers);
             for(auto it = response.headers->Begin(); it; it = response.headers->Next())
             {
-                headers->Set(ctx, V8Helpers::JSValue(it->GetKey().c_str()), V8Helpers::JSValue(it->GetValue().As<alt::IMValueString>()->Value().c_str()));
+                headers->Set(ctx, V8Helpers::JSValue(it->GetKey().c_str()), V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(it->GetValue())->Value().c_str()));
             }
             responseObj->Set(ctx, V8Helpers::JSValue("headers"), headers);
             resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), responseObj);

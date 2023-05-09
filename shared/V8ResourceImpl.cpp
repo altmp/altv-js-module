@@ -669,7 +669,7 @@ alt::MValue V8ResourceImpl::FunctionImpl::Call(alt::MValueArgs args) const
           return true;
       });
 
-    if(res.IsEmpty()) res = alt::ICore::Instance().CreateMValueNone();
+    if(!res) res = alt::ICore::Instance().CreateMValueNone();
 
     return res;
 }
