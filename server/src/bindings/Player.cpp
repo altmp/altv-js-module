@@ -777,7 +777,7 @@ static void EmitRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
     for(int i = 1; i < info.Length(); ++i)
     {
         alt::MValueByteArray result = V8Helpers::V8ToRawBytes(info[i]);
-        V8_CHECK(!result.IsEmpty(), "Failed to serialize value");
+        V8_CHECK(!result, "Failed to serialize value");
         mvArgs.emplace_back(result);
     }
 

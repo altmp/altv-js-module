@@ -123,7 +123,7 @@ void CNodeResourceImpl::Started(v8::Local<v8::Value> _exports)
 {
     if(!_exports->IsNullOrUndefined())
     {
-        alt::MValueDict exports = V8Helpers::V8ToMValue(_exports).As<alt::IMValueDict>();
+        alt::MValueDict exports = std::dynamic_pointer_cast<alt::IMValueDict>(V8Helpers::V8ToMValue(_exports));
         resource->SetExports(exports);
         envStarted = true;
     }

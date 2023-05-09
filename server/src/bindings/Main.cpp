@@ -188,7 +188,7 @@ static void EmitClientRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
             tryCatch.ReThrow();
             return;
         }
-        V8_CHECK(!result.IsEmpty(), "Failed to serialize value");
+        V8_CHECK(!result, "Failed to serialize value");
         mvArgs.emplace_back(result);
     }
 
@@ -244,7 +244,7 @@ static void EmitAllClientsRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
             tryCatch.ReThrow();
             return;
         }
-        V8_CHECK(!result.IsEmpty(), "Failed to serialize value");
+        V8_CHECK(!result, "Failed to serialize value");
         args.emplace_back(result);
     }
 
