@@ -74,6 +74,7 @@ extern V8Class v8TextLabel("TextLabel",
                                V8Helpers::SetAccessor<ITextLabel, RGBA, &ITextLabel::GetColor, &ITextLabel::SetColor>(isolate, tpl, "color");
                                V8Helpers::SetAccessor<ITextLabel, float, &ITextLabel::GetScale, &ITextLabel::SetScale>(isolate, tpl, "scale");
                                V8Helpers::SetAccessor<ITextLabel, Rotation, &ITextLabel::GetRotation, &ITextLabel::SetRotation>(isolate, tpl, "rot");
+                               V8Helpers::SetAccessor<ITextLabel, bool, &ITextLabel::IsFacingCamera, &ITextLabel::SetFaceCamera>(isolate, tpl, "faceCamera");
 
                                V8Helpers::SetAccessor<ITextLabel, uint32_t, &ITextLabel::GetStreamingDistance>(isolate, tpl, "streamingDistance");
                            });
