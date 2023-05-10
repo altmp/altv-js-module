@@ -32,7 +32,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     IVirtualEntity* virtualEntity = alt::ICore::Instance().CreateVirtualEntity(ent, position, streamingDistance, data);
 
-    V8_BIND_BASE_OBJECT(virtualEntity, "Failed to create virtual entity group");
+    V8_BIND_BASE_OBJECT(virtualEntity, "Failed to create virtual entity");
 }
 
 static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
