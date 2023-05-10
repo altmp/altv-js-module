@@ -101,7 +101,7 @@ static void EmitServerRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
             tryCatch.ReThrow();
             return;
         }
-        V8_CHECK(!result, "Failed to serialize value");
+        V8_CHECK(result, "Failed to serialize value");
         args.emplace_back(result);
     }
 

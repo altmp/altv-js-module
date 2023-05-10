@@ -104,7 +104,7 @@ static void EmitRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
         else
         {
             alt::MValueByteArray result = V8Helpers::V8ToRawBytes(info[i]);
-            V8_CHECK(!result, "Failed to serialize value");
+            V8_CHECK(result, "Failed to serialize value");
             args.emplace_back(result);
         }
     }
@@ -453,69 +453,70 @@ static void StringToSHA256(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 extern V8Class v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2, v8Vector3, v8Quaternion, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Resource, v8Utils;
 
-extern V8Module sharedModule("alt-shared",
-                             nullptr,
-                             { v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2, v8Vector3, v8Quaternion, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Resource, v8Utils },
-                             [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports)
-                             {
-                                 v8::Isolate* isolate = ctx->GetIsolate();
+extern V8Module
+  sharedModule("alt-shared",
+               nullptr,
+               { v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2, v8Vector3, v8Quaternion, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Resource, v8Utils },
+               [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports)
+               {
+                   v8::Isolate* isolate = ctx->GetIsolate();
 
-                                 V8Helpers::RegisterFunc(exports, "hash", &HashCb);
+                   V8Helpers::RegisterFunc(exports, "hash", &HashCb);
 
-                                 V8Helpers::RegisterFunc(exports, "log", &Log);
-                                 V8Helpers::RegisterFunc(exports, "logWarning", &LogWarning);
-                                 V8Helpers::RegisterFunc(exports, "logError", &LogError);
-                                 V8Helpers::RegisterFunc(exports, "logDebug", &LogDebug);
-                                 V8Helpers::RegisterFunc(exports, "time", &Time);
-                                 V8Helpers::RegisterFunc(exports, "timeEnd", &TimeEnd);
+                   V8Helpers::RegisterFunc(exports, "log", &Log);
+                   V8Helpers::RegisterFunc(exports, "logWarning", &LogWarning);
+                   V8Helpers::RegisterFunc(exports, "logError", &LogError);
+                   V8Helpers::RegisterFunc(exports, "logDebug", &LogDebug);
+                   V8Helpers::RegisterFunc(exports, "time", &Time);
+                   V8Helpers::RegisterFunc(exports, "timeEnd", &TimeEnd);
 
-                                 V8Helpers::RegisterFunc(exports, "on", &On);
-                                 V8Helpers::RegisterFunc(exports, "once", &Once);
-                                 V8Helpers::RegisterFunc(exports, "off", &Off);
-                                 V8Helpers::RegisterFunc(exports, "emit", &Emit);
-                                 V8Helpers::RegisterFunc(exports, "emitRaw", &EmitRaw);
+                   V8Helpers::RegisterFunc(exports, "on", &On);
+                   V8Helpers::RegisterFunc(exports, "once", &Once);
+                   V8Helpers::RegisterFunc(exports, "off", &Off);
+                   V8Helpers::RegisterFunc(exports, "emit", &Emit);
+                   V8Helpers::RegisterFunc(exports, "emitRaw", &EmitRaw);
 
-                                 V8Helpers::RegisterFunc(exports, "getEventListeners", &GetEventListeners);
-                                 V8Helpers::RegisterFunc(exports, "getRemoteEventListeners", &GetRemoteEventListeners);
+                   V8Helpers::RegisterFunc(exports, "getEventListeners", &GetEventListeners);
+                   V8Helpers::RegisterFunc(exports, "getRemoteEventListeners", &GetRemoteEventListeners);
 
-                                 V8Helpers::RegisterFunc(exports, "hasMeta", &HasMeta);
-                                 V8Helpers::RegisterFunc(exports, "getMeta", &GetMeta);
-                                 V8Helpers::RegisterFunc(exports, "setMeta", &SetMeta);
-                                 V8Helpers::RegisterFunc(exports, "deleteMeta", &DeleteMeta);
-                                 V8Helpers::RegisterFunc(exports, "getMetaKeys", &GetMetaKeys);
+                   V8Helpers::RegisterFunc(exports, "hasMeta", &HasMeta);
+                   V8Helpers::RegisterFunc(exports, "getMeta", &GetMeta);
+                   V8Helpers::RegisterFunc(exports, "setMeta", &SetMeta);
+                   V8Helpers::RegisterFunc(exports, "deleteMeta", &DeleteMeta);
+                   V8Helpers::RegisterFunc(exports, "getMetaKeys", &GetMetaKeys);
 
-                                 V8Helpers::RegisterFunc(exports, "hasSyncedMeta", &HasSyncedMeta);
-                                 V8Helpers::RegisterFunc(exports, "getSyncedMeta", &GetSyncedMeta);
-                                 V8Helpers::RegisterFunc(exports, "getSyncedMetaKeys", &GetSyncedMetaKeys);
+                   V8Helpers::RegisterFunc(exports, "hasSyncedMeta", &HasSyncedMeta);
+                   V8Helpers::RegisterFunc(exports, "getSyncedMeta", &GetSyncedMeta);
+                   V8Helpers::RegisterFunc(exports, "getSyncedMetaKeys", &GetSyncedMetaKeys);
 
-                                 V8Helpers::RegisterFunc(exports, "nextTick", &NextTick);
-                                 V8Helpers::RegisterFunc(exports, "everyTick", &EveryTick);
-                                 V8Helpers::RegisterFunc(exports, "setTimeout", &SetTimeout);
-                                 V8Helpers::RegisterFunc(exports, "setInterval", &SetInterval);
-                                 V8Helpers::RegisterFunc(exports, "clearTimer", &ClearTimer);
-                                 V8Helpers::RegisterFunc(exports, "clearNextTick", &ClearTimer);
-                                 V8Helpers::RegisterFunc(exports, "clearEveryTick", &ClearTimer);
-                                 V8Helpers::RegisterFunc(exports, "clearTimeout", &ClearTimer);
-                                 V8Helpers::RegisterFunc(exports, "clearInterval", &ClearTimer);
+                   V8Helpers::RegisterFunc(exports, "nextTick", &NextTick);
+                   V8Helpers::RegisterFunc(exports, "everyTick", &EveryTick);
+                   V8Helpers::RegisterFunc(exports, "setTimeout", &SetTimeout);
+                   V8Helpers::RegisterFunc(exports, "setInterval", &SetInterval);
+                   V8Helpers::RegisterFunc(exports, "clearTimer", &ClearTimer);
+                   V8Helpers::RegisterFunc(exports, "clearNextTick", &ClearTimer);
+                   V8Helpers::RegisterFunc(exports, "clearEveryTick", &ClearTimer);
+                   V8Helpers::RegisterFunc(exports, "clearTimeout", &ClearTimer);
+                   V8Helpers::RegisterFunc(exports, "clearInterval", &ClearTimer);
 
-                                 V8Helpers::RegisterFunc(exports, "hasResource", &HasResource);
-                                 V8Helpers::RegisterFunc(exports, "getAllResources", &GetAllResources);
+                   V8Helpers::RegisterFunc(exports, "hasResource", &HasResource);
+                   V8Helpers::RegisterFunc(exports, "getAllResources", &GetAllResources);
 
-                                 V8Helpers::RegisterFunc(exports, "stringToSHA256", &StringToSHA256);
+                   V8Helpers::RegisterFunc(exports, "stringToSHA256", &StringToSHA256);
 
-                                 V8_OBJECT_SET_STRING(exports, "version", alt::ICore::Instance().GetVersion());
-                                 V8_OBJECT_SET_STRING(exports, "branch", alt::ICore::Instance().GetBranch());
-                                 //V8_OBJECT_SET_RAW_STRING(exports, "sdkVersion", ALT_SDK_VERSION);
-                                 V8_OBJECT_SET_BOOLEAN(exports, "debug", alt::ICore::Instance().IsDebug());
+                   V8_OBJECT_SET_STRING(exports, "version", alt::ICore::Instance().GetVersion());
+                   V8_OBJECT_SET_STRING(exports, "branch", alt::ICore::Instance().GetBranch());
+                   // V8_OBJECT_SET_RAW_STRING(exports, "sdkVersion", ALT_SDK_VERSION);
+                   V8_OBJECT_SET_BOOLEAN(exports, "debug", alt::ICore::Instance().IsDebug());
 
-                                 V8_OBJECT_SET_STRING(exports, "resourceName", V8ResourceImpl::GetResource(ctx)->GetName());
+                   V8_OBJECT_SET_STRING(exports, "resourceName", V8ResourceImpl::GetResource(ctx)->GetName());
 
 #ifdef ALT_CLIENT_API
-                                 V8_OBJECT_SET_BOOLEAN(exports, "isClient", true);
-                                 V8_OBJECT_SET_BOOLEAN(exports, "isServer", false);
+                   V8_OBJECT_SET_BOOLEAN(exports, "isClient", true);
+                   V8_OBJECT_SET_BOOLEAN(exports, "isServer", false);
 #endif
 #ifdef ALT_SERVER_API
-                                 V8_OBJECT_SET_BOOLEAN(exports, "isClient", false);
-                                 V8_OBJECT_SET_BOOLEAN(exports, "isServer", true);
+                   V8_OBJECT_SET_BOOLEAN(exports, "isClient", false);
+                   V8_OBJECT_SET_BOOLEAN(exports, "isServer", true);
 #endif
-                             });
+               });
