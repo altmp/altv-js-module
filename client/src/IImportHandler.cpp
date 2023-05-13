@@ -296,15 +296,27 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveBytecode(const std::string& na
 {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
+    // Copy source code size
+    int sourceCodeSize = 0;
+    memcpy(&sourceCodeSize, buffer + sizeof(bytecodeMagic), sizeof(int));
     // Copy bytecode buffer
-    size_t bytecodeSize = size - sizeof(bytecodeMagic);
+    size_t bytecodeSize = size - sizeof(bytecodeMagic) - sizeof(int);
     uint8_t* bytecode = new uint8_t[bytecodeSize];
-    memcpy(bytecode, buffer + sizeof(bytecodeMagic), bytecodeSize);
+    memcpy(bytecode, buffer + sizeof(bytecodeMagic) + sizeof(int), bytecodeSize);
 
     v8::ScriptCompiler::CachedData* cachedData = new v8::ScriptCompiler::CachedData(bytecode, bytecodeSize, v8::ScriptCompiler::CachedData::BufferOwned);
     v8::ScriptOrigin origin(isolate, V8Helpers::JSValue(name), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
 
-    v8::ScriptCompiler::Source source{ V8Helpers::JSValue(" "), origin, cachedData };
+    // Create source string
+    std::string sourceString;
+    sourceString.reserve(sourceCodeSize + 2);
+    sourceString += "'";
+    for(size_t i = 0; i < sourceCodeSize; i++)
+    {
+        sourceString += "a";
+    }
+    sourceString += "'";
+    v8::ScriptCompiler::Source source{ V8Helpers::JSValue(sourceString), origin, cachedData };
     v8::MaybeLocal<v8::Module> module = v8::ScriptCompiler::CompileModule(isolate, &source, v8::ScriptCompiler::kConsumeCodeCache);
     if(cachedData->rejected)
     {
