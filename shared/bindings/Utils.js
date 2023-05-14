@@ -190,13 +190,14 @@ function assertVector2(val, message = "Expected Vector2") {
         message
     );
 }
-function assertDrawTextArgs(text, font, scale, color, outline, dropShadow) {
+function assertDrawTextArgs(text, font, scale, color, outline, dropShadow, textAlign) {
     alt.Utils.assert(typeof text === "string", "Expected a string as first argument");
     alt.Utils.assert(typeof font === "number", "Expected a number as third argument");
     alt.Utils.assert(typeof scale === "number", "Expected a number as fourth argument");
     assertRGBA(color, "Expected RGBA as fifth argument");
     alt.Utils.assert(typeof outline === "boolean", "Expected boolean as sixth argument");
     alt.Utils.assert(typeof dropShadow === "boolean", "Expected boolean as seventh argument");
+    alt.Utils.assert(typeof textAlign === "number", "Expected number as eighth argument");
 }
 function assertNotNaN(val, message = "Expected number") {
     alt.Utils.assert(!isNaN(val), message)
@@ -298,8 +299,9 @@ if (alt.isClient && !alt.isWorker) {
         color = new alt.RGBA(255, 255, 255),
         outline = true,
         dropShadow = true,
+        textAlign = 0,
     ) {
-        assertDrawTextArgs(text, font, scale, color, outline, dropShadow);
+        assertDrawTextArgs(text, font, scale, color, outline, dropShadow, textAlign);
         assertVector2(pos2d, "Expected Vector2 as second argument");
 
         native.setTextFont(font);
@@ -314,7 +316,11 @@ if (alt.isClient && !alt.isWorker) {
             native.setTextDropShadow();
         }
 
-        native.setTextCentre(true);
+        native.setTextJustification(textAlign);
+        if (textAlign === 2) {
+            native.setTextWrap(0, pos2d.x);
+        }
+        
         native.beginTextCommandDisplayText("CELL_EMAIL_BCON");
         // Split text into pieces of max 99 chars blocks
         (text.match(/.{1,99}/g))?.forEach((textBlock) => {
@@ -332,9 +338,10 @@ if (alt.isClient && !alt.isWorker) {
         color,
         outline,
         dropShadow,
+        textAlign
     ) {
         return new alt.Utils.EveryTick(() => {
-            alt.Utils.drawText2dThisFrame(text, pos2d, font, scale, color, outline, dropShadow);
+            alt.Utils.drawText2dThisFrame(text, pos2d, font, scale, color, outline, dropShadow, textAlign);
         });
     }
 
@@ -346,8 +353,9 @@ if (alt.isClient && !alt.isWorker) {
         color = new alt.RGBA(255, 255, 255),
         outline = true,
         dropShadow = true,
+        textAlign = 0
     ) {
-        assertDrawTextArgs(text, font, scale, color, outline, dropShadow);
+        assertDrawTextArgs(text, font, scale, color, outline, dropShadow, textAlign);
         assertVector3(pos3d, "Expected Vector3 as second argument");
 
         native.setDrawOrigin(pos3d.x, pos3d.y, pos3d.z, false);
@@ -355,8 +363,14 @@ if (alt.isClient && !alt.isWorker) {
         native.addTextComponentSubstringPlayerName(text);
         native.setTextFont(font);
         native.setTextScale(1, scale);
-        native.setTextWrap(0.0, 1.0);
-        native.setTextCentre(true);
+
+        native.setTextJustification(textAlign);
+        if (textAlign === 2) {
+            native.setTextWrap(0.0, pos2d.x);
+        } else {
+            native.setTextWrap(0.0, 1.0);
+        }
+        
         native.setTextColour(...color.toArray());
 
         if (outline) native.setTextOutline();
@@ -377,9 +391,10 @@ if (alt.isClient && !alt.isWorker) {
         color,
         outline,
         dropShadow,
+        textAlign
     ) {
         return new alt.Utils.EveryTick(() => {
-            alt.Utils.drawText3dThisFrame(text, pos3d, font, scale, color, outline, dropShadow);
+            alt.Utils.drawText3dThisFrame(text, pos3d, font, scale, color, outline, dropShadow, textAlign);
         });
     }
 
