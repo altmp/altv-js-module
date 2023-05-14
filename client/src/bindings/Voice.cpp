@@ -31,8 +31,7 @@ static void StaticSetVoiceActivityInputEnabled(v8::Local<v8::String>, v8::Local<
     V8_TO_BOOLEAN(value, enabled);
 
     auto state = alt::ICore::Instance().ToggleVoiceActivation(enabled);
-    V8_CHECK(state != alt::PermissionState::DENIED, "No permissions");
-    V8_CHECK(state != alt::PermissionState::UNSPECIFIED, "Permissions not specified");
+    V8_CHECK(state, "No permissions");
 }
 
 static void StaticGetVoiceActivationKey(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -62,8 +61,7 @@ static void StaticSetVoiceActivationLevel(v8::Local<v8::String>, v8::Local<v8::V
     V8_TO_NUMBER(value, level);
 
     auto state = alt::ICore::Instance().SetVoiceActivationLevel(level);
-    V8_CHECK(state != alt::PermissionState::DENIED, "No permissions");
-    V8_CHECK(state != alt::PermissionState::UNSPECIFIED, "Permissions not specified");
+    V8_CHECK(state, "No permissions");
 }
 
 static void StaticGetNoiseSuppressionEnabled(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -79,8 +77,7 @@ static void StaticSetNoiseSuppressionEnabled(v8::Local<v8::String>, v8::Local<v8
     V8_TO_BOOLEAN(value, enabled);
 
     auto state = alt::ICore::Instance().ToggleNoiseSuppression(enabled);
-    V8_CHECK(state != alt::PermissionState::DENIED, "No permissions");
-    V8_CHECK(state != alt::PermissionState::UNSPECIFIED, "Permissions not specified");
+    V8_CHECK(state, "No permissions");
 }
 
 static void StaticGetInputDevice(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -89,8 +86,7 @@ static void StaticGetInputDevice(v8::Local<v8::String>, const v8::PropertyCallba
 
     std::optional<std::string> deviceUid;
     auto state = alt::ICore::Instance().GetActiveVoiceInputDevice(deviceUid);
-    V8_CHECK(state != alt::PermissionState::DENIED, "No permissions");
-    V8_CHECK(state != alt::PermissionState::UNSPECIFIED, "Permissions not specified");
+    V8_CHECK(state, "No permissions");
 
     if(deviceUid.has_value())
     {
@@ -106,7 +102,7 @@ static void StaticSetInputDevice(v8::Local<v8::String>, v8::Local<v8::Value> val
 {
     V8_GET_ISOLATE_CONTEXT();
 
-    alt::PermissionState state;
+    bool state;
     if (value->IsNull())
     {
         state = alt::ICore::Instance().SetActiveVoiceInputDevice({});
@@ -117,8 +113,7 @@ static void StaticSetInputDevice(v8::Local<v8::String>, v8::Local<v8::Value> val
         state = alt::ICore::Instance().SetActiveVoiceInputDevice(deviceUid);
     }
 
-    V8_CHECK(state != alt::PermissionState::DENIED, "No permissions");
-    V8_CHECK(state != alt::PermissionState::UNSPECIFIED, "Permissions not specified");
+    V8_CHECK(state, "No permissions");
 }
 
 static void ToggleInput(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -128,8 +123,7 @@ static void ToggleInput(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_BOOLEAN(1, enabled);
 
     auto state = alt::ICore::Instance().ToggleVoiceInput(enabled);
-    V8_CHECK(state != alt::PermissionState::DENIED, "No permissions");
-    V8_CHECK(state != alt::PermissionState::UNSPECIFIED, "Permissions not specified");
+    V8_CHECK(state, "No permissions");
 }
 
 static void GetAvailableInputDevices(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -139,8 +133,7 @@ static void GetAvailableInputDevices(const v8::FunctionCallbackInfo<v8::Value>& 
 
     std::vector<alt::SoundDeviceInfo> devices;
     auto state = alt::ICore::Instance().GetVoiceInputDeviceList(devices);
-    V8_CHECK(state != alt::PermissionState::DENIED, "No permissions");
-    V8_CHECK(state != alt::PermissionState::UNSPECIFIED, "Permissions not specified");
+    V8_CHECK(state, "No permissions");
 
     v8::Local<v8::Array> jsDevices = v8::Array::New(isolate, devices.size());
     for(uint32_t i = 0; i < devices.size(); ++i)
