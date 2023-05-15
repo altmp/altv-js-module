@@ -368,7 +368,7 @@ static inline v8::MaybeLocal<v8::Object> ReadRawValue(v8::Local<v8::Context> ctx
         {
             uint16_t* id;
             if(!deserializer.ReadRawBytes(sizeof(uint16_t), (const void**)&id)) return v8::MaybeLocal<v8::Object>();
-            alt::IEntity* entity = alt::ICore::Instance().GetEntityByID(*id);
+            alt::IEntity* entity = alt::ICore::Instance().GetEntityBySyncID(*id);
             if(!entity) return v8::MaybeLocal<v8::Object>();
             return V8ResourceImpl::Get(ctx)->GetOrCreateEntity(entity, "Entity")->GetJSVal(isolate);
         }
