@@ -422,9 +422,9 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_INT(1, id);
 
-    alt::IEntity* entity = alt::ICore::Instance().GetEntityByID(id);
+    alt::IBaseObject* entity = alt::ICore::Instance().GetBaseObjectByID(alt::IBaseObject::Type::PLAYER, id);
 
-    if(entity && entity->GetType() == alt::IEntity::Type::PLAYER)
+    if(entity)
     {
         V8_RETURN_BASE_OBJECT(entity);
     }
