@@ -45,7 +45,7 @@ public:
 
     void OnDispose() override;
 
-    void Init(std::function<void(bool success, std::string error)> next, std::function<void(alt::InitState state, float progress, float total)> setProgress) override;
+    void Init(std::function<void(bool success, std::string error)> next, std::function<void(alt::InitState state, float progress, float total, int)> setProgress) override;
 
     static void SetInstance(CV8ScriptRuntime* runtime)
     {
