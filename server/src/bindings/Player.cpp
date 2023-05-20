@@ -843,6 +843,28 @@ static void DiscordIDGetter(v8::Local<v8::String> name, const v8::PropertyCallba
     V8_RETURN_STRING(std::to_string(_this->GetDiscordId()));
 }
 
+static void GetStreamedEntities(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
+
+    const std::vector<std::pair<IEntity*, int32_t>> list = player->GetStreamedEntities();
+    size_t size = list.size();
+    v8::Local<v8::Array> jsAll = v8::Array::New(isolate, list.size());
+    for(uint32_t i = 0; i < list.size(); ++i)
+    {
+        jsAll->Set(ctx, i, resource->GetBaseObjectOrNull(list[i].first));
+
+        V8_NEW_OBJECT(entityObj);
+        V8_OBJECT_SET_INT(entityObj, "distance", list[i].second);
+        entityObj->Set(ctx, v8::String::NewFromUtf8(isolate, "entity").ToLocalChecked(), resource->GetOrCreateEntity(list[i].first, "entity")->GetJSVal(isolate));
+
+        jsAll->Set(ctx, i, entityObj);
+    }
+
+    V8_RETURN(jsAll);
+}
+
 extern V8Class v8Entity;
 extern V8Class v8Player("Player",
                         v8Entity,
@@ -961,6 +983,7 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetInteriorLocation>(isolate, tpl, "currentInterior");
                             V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetLastDamagedBodyPart, &IPlayer::SetLastDamagedBodyPart>(isolate, tpl, "lastDamagedBodyPart");
                             V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::GetSendNames, &IPlayer::SetSendNames>(isolate, tpl, "sendNames");
+                            V8Helpers::SetAccessor(isolate, tpl, "streamedEntities", &GetStreamedEntities);
 
                             // Appearance getter & setter
                             V8Helpers::SetMethod(isolate, tpl, "setHeadOverlay", &SetHeadOverlay);
