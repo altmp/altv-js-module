@@ -379,16 +379,8 @@ static void IsEntityInStreamRange(const v8::FunctionCallbackInfo<v8::Value>& inf
     V8_CHECK_ARGS_LEN(1);
     V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-    if(info[0]->IsNumber())
-    {
-        V8_ARG_TO_UINT(1, entity);
-        V8_RETURN_BOOLEAN(player->IsEntityInStreamingRange(entity));
-    }
-    else
-    {
-        V8_ARG_TO_BASE_OBJECT(1, entity, IEntity, "Entity");
-        V8_RETURN_BOOLEAN(player->IsEntityInStreamingRange(entity->GetID()));
-    }
+    V8_ARG_TO_BASE_OBJECT(1, entity, IEntity, "Entity");
+    V8_RETURN_BOOLEAN(player->IsEntityInStreamingRange(entity->GetSyncID()));
 }
 
 static void SetIntoVehicle(const v8::FunctionCallbackInfo<v8::Value>& info)
