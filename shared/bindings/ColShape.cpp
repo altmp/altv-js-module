@@ -68,7 +68,6 @@ extern V8Class v8Colshape("Colshape",
 
                               V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
 
-                              V8Helpers::SetAccessor<IColShape, uint32_t, &IColShape::GetID>(isolate, tpl, "id");
                               V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
 
 #ifdef ALT_CLIENT_API

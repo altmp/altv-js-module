@@ -10,9 +10,9 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(1);
 
     V8_CHECK(info[0]->IsNumber(), "number expected");
-    V8_ARG_TO_UINT(1, maxStreamingDistance);
+    V8_ARG_TO_UINT(1, maxEntitiesInStream);
 
-    IVirtualEntityGroup* virtualEntityGroup = ICore::Instance().CreateVirtualEntityGroup(maxStreamingDistance);
+    IVirtualEntityGroup* virtualEntityGroup = ICore::Instance().CreateVirtualEntityGroup(maxEntitiesInStream);
 
     V8_BIND_BASE_OBJECT(virtualEntityGroup, "Failed to create virtual entity group");
 }
@@ -105,11 +105,9 @@ extern V8Class v8VirtualEntityGroup("VirtualEntityGroup",
                                         V8Helpers::SetMethod(isolate, tpl, "setMeta", SetMeta);
                                         V8Helpers::SetMethod(isolate, tpl, "deleteMeta", DeleteMeta);
 
-                                        V8Helpers::SetAccessor<IVirtualEntityGroup, uint32_t, &IVirtualEntityGroup::GetID>(isolate, tpl, "id");
-                                        V8Helpers::SetAccessor<IVirtualEntityGroup, uint32_t, &IVirtualEntityGroup::GetStreamingRangeLimit>(isolate, tpl, "streamingRangeLimit");
+                                        V8Helpers::SetAccessor<IVirtualEntityGroup, uint32_t, &IVirtualEntityGroup::GetMaxEntitiesInStream>(isolate, tpl, "maxEntitiesInStream");
 #ifdef ALT_CLIENT_API
                                         V8Helpers::SetAccessor<IVirtualEntityGroup, uint32_t, &IVirtualEntityGroup::GetRemoteID>(isolate, tpl, "remoteId");
                                         V8Helpers::SetAccessor<IVirtualEntityGroup, bool, &IVirtualEntityGroup::IsRemote>(isolate, tpl, "isRemote");
 #endif  // ALT_CLIENT_API
-
                                     });

@@ -199,7 +199,6 @@ extern V8Class v8VirtualEntity("VirtualEntity",
 
                                    V8Helpers::SetStaticAccessor(isolate, tpl, "all", AllGetter);
 
-                                   V8Helpers::SetAccessor<IVirtualEntity, uint32_t, &IVirtualEntity::GetID>(isolate, tpl, "id");
                                    V8Helpers::SetAccessor<IVirtualEntity, IVirtualEntityGroup*, &IVirtualEntity::GetGroup>(isolate, tpl, "group");
                                    V8Helpers::SetAccessor<IVirtualEntity, uint32_t, &IVirtualEntity::GetStreamingDistance>(isolate, tpl, "streamingDistance");
                                    V8Helpers::SetAccessor<IVirtualEntity, bool, &IVirtualEntity::IsVisible, &IVirtualEntity::SetVisible>(isolate, tpl, "visible");

@@ -463,7 +463,6 @@ extern V8Class v8HttpClient("HttpClient",
                             {
                                 v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-                                V8Helpers::SetAccessor<alt::IHttpClient, uint32_t, &alt::IHttpClient::GetID>(isolate, tpl, "id");
                                 V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
 
                                 V8Helpers::SetMethod(isolate, tpl, "setExtraHeader", &SetExtraHeader);

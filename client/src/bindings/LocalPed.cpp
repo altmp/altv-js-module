@@ -82,7 +82,6 @@ extern V8Class v8LocalPed("LocalPed",
                               V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
                               V8Helpers::SetStaticMethod(isolate, tpl, "getByScriptID", StaticGetByScriptID);
 
-                              V8Helpers::SetAccessor<ILocalPed, uint32_t, &ILocalPed::GetID>(isolate, tpl, "id");
                               V8Helpers::SetAccessor<ILocalPed, uint32_t, &ILocalPed::GetModel>(isolate, tpl, "model");
                               V8Helpers::SetAccessor<ILocalPed, Rotation, &ILocalPed::GetRotation, &ILocalPed::SetRotation>(isolate, tpl, "rot");
                               V8Helpers::SetAccessor<ILocalPed, uint32_t, &ILocalPed::GetStreamingDistance>(isolate, tpl, "streamingDistance");

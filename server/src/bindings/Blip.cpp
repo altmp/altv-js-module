@@ -166,7 +166,6 @@ extern V8Class v8Blip("Blip",
 
                           V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
 
-                          V8Helpers::SetAccessor<IBlip, uint32_t, &IBlip::GetID>(isolate, tpl, "id");
                           V8Helpers::SetAccessor<IBlip, RGBA, &IBlip::GetRouteColor, &IBlip::SetRouteColor>(isolate, tpl, "routeColor");
                           V8Helpers::SetAccessor<IBlip, int32_t, &IBlip::GetSprite, &IBlip::SetSprite>(isolate, tpl, "sprite");
                           V8Helpers::SetAccessor<IBlip, Vector2f, &IBlip::GetScaleXY, &IBlip::SetScaleXY>(isolate, tpl, "size");

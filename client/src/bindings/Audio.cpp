@@ -189,7 +189,6 @@ static void AllAudioGetter(v8::Local<v8::String> name, const v8::PropertyCallbac
     V8_RETURN(jsArr);
 }
 
-
 static void AudioCountGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_RETURN_UINT(alt::ICore::Instance().GetAudios().size());
@@ -211,7 +210,6 @@ extern V8Class v8Audio("Audio",
                            V8Helpers::SetMethod(isolate, tpl, "off", &Off);
                            V8Helpers::SetMethod(isolate, tpl, "getEventListeners", GetEventListeners);
 
-                           V8Helpers::SetAccessor<IAudio, uint32_t, &IAudio::GetID>(isolate, tpl, "id");
                            V8Helpers::SetAccessor<IAudio, const std::string&, &IAudio::GetSource, &IAudio::SetSource>(isolate, tpl, "source");
                            V8Helpers::SetAccessor<IAudio, bool, &IAudio::IsLoop, &IAudio::SetLoop>(isolate, tpl, "looped");
                            V8Helpers::SetAccessor<IAudio, float, &IAudio::GetVolume, &IAudio::SetVolume>(isolate, tpl, "volume");

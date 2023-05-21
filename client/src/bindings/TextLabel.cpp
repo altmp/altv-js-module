@@ -63,7 +63,6 @@ extern V8Class v8TextLabel("TextLabel",
                                // V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
                                V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
 
-                               V8Helpers::SetAccessor<ITextLabel, uint32_t, &ITextLabel::GetID>(isolate, tpl, "id");
                                V8Helpers::SetAccessor<ITextLabel, bool, &ITextLabel::IsRemote>(isolate, tpl, "isRemote");
                                V8Helpers::SetAccessor<ITextLabel, uint32_t, &ITextLabel::GetRemoteID>(isolate, tpl, "remoteId");
                                V8Helpers::SetAccessor<ITextLabel, bool, &ITextLabel::IsStreamedIn>(isolate, tpl, "isStreamedIn");

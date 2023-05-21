@@ -215,7 +215,6 @@ extern V8Class v8LocalVehicle("LocalVehicle",
                                   V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
                                   V8Helpers::SetStaticMethod(isolate, tpl, "getByScriptID", StaticGetByScriptID);
 
-                                  V8Helpers::SetAccessor<ILocalVehicle, uint32_t, &ILocalVehicle::GetID>(isolate, tpl, "id");
                                   V8Helpers::SetAccessor<ILocalVehicle, uint32_t, &ILocalVehicle::GetModel>(isolate, tpl, "model");
                                   V8Helpers::SetAccessor<ILocalVehicle, Rotation, &ILocalVehicle::GetRotation, &ILocalVehicle::SetRotation>(isolate, tpl, "rot");
                                   V8Helpers::SetAccessor<ILocalVehicle, uint32_t, &ILocalVehicle::GetStreamingDistance>(isolate, tpl, "streamingDistance");

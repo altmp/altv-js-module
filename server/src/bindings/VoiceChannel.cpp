@@ -152,7 +152,6 @@ extern V8Class v8VoiceChannel("VoiceChannel",
                               {
                                   v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-                                  V8Helpers::SetAccessor<IVoiceChannel, uint32_t, &IVoiceChannel::GetID>(isolate, tpl, "id");
                                   V8Helpers::SetAccessor<IVoiceChannel, float, &IVoiceChannel::GetMaxDistance>(isolate, tpl, "maxDistance");
                                   V8Helpers::SetAccessor<IVoiceChannel, bool, &IVoiceChannel::IsSpatial>(isolate, tpl, "isSpatial");
                                   V8Helpers::SetAccessor<IVoiceChannel, int32_t, &IVoiceChannel::GetPriority, &IVoiceChannel::SetPriority>(isolate, tpl, "priority");

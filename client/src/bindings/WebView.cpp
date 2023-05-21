@@ -263,7 +263,6 @@ extern V8Class v8WebView("WebView",
                              V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
                              V8Helpers::SetMethod(isolate, tpl, "toString", ToString);
 
-                             V8Helpers::SetAccessor<IWebView, uint32_t, &IWebView::GetID>(isolate, tpl, "id");
                              V8Helpers::SetAccessor<IWebView, bool, &IWebView::IsVisible, &IWebView::SetVisible>(isolate, tpl, "isVisible");
                              V8Helpers::SetAccessor<IWebView, const std::string&, &IWebView::GetUrl, &IWebView::SetUrl>(isolate, tpl, "url");
                              V8Helpers::SetAccessor<IWebView, bool, &IWebView::IsOverlay>(isolate, tpl, "isOverlay");

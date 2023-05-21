@@ -91,7 +91,6 @@ extern V8Class v8Marker("Marker",
                             V8Helpers::SetAccessor<IMarker, bool, &IMarker::IsStreamedIn>(isolate, tpl, "isStreamedIn");
 #endif
 
-                            V8Helpers::SetAccessor<IMarker, uint32_t, &IMarker::GetID>(isolate, tpl, "id");
                             V8Helpers::SetAccessor<IMarker, bool, &IMarker::IsGlobal>(isolate, tpl, "isGlobal");
                             V8Helpers::SetAccessor<IMarker, IPlayer*, &IMarker::GetTarget>(isolate, tpl, "target");
                             V8Helpers::SetAccessor<IMarker, bool, &IMarker::IsVisible, &IMarker::SetVisible>(isolate, tpl, "visible");
