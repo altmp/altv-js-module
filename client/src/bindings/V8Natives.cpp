@@ -393,7 +393,7 @@ static void InvokeNative(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     auto resource = V8ResourceImpl::Get(v8Ctx);
     auto args = native->GetArgTypes();
-    uint32_t argsSize = args.GetSize();
+    uint32_t argsSize = args.size();
 
     auto neededArgs = GetNativeNeededArgCount(native);
     if(neededArgs > info.Length())
