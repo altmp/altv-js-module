@@ -155,11 +155,11 @@ alt.Vector3.prototype.distanceToSquared = function(vector) {
 alt.Vector3.prototype.angleTo = function(vector) {
     alt.Utils.assert(vector != null, "Expected Vector3 as first argument");
 
-    const posALength = Math.hypot(this.x, this.y);
-    const posBLength = Math.hypot(vector.x, vector.y);
+    const posALength = Math.hypot(this.x, this.y, this.z);
+    const posBLength = Math.hypot(vector.x, vector.y, vector.z);
     if (posALength === 0 || posBLength === 0) throw new Error("Division by zero");
 
-    return Math.acos((this.x * vector.x + this.y * vector.y) / (posALength * posBLength));
+    return Math.acos((this.x * vector.x + this.y * vector.y + this.z * vector.z) / (posALength * posBLength));
 }
 
 alt.Vector3.prototype.angleToDegrees = function(vector) {
