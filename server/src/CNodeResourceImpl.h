@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cpp-sdk/types/MValue.h"
-#include "cpp-sdk/types/IConnectionInfo.h"
+#include "cpp-sdk/script-objects/IConnectionInfo.h"
 #include "cpp-sdk/IPackage.h"
 #include "cpp-sdk/IResource.h"
 
