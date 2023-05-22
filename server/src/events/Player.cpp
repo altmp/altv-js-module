@@ -160,14 +160,8 @@ V8_LOCAL_EVENT_HANDLER connectionQueueAdd(EventType::CONNECTION_QUEUE_ADD,
                                           {
                                               auto ev = static_cast<const alt::CConnectionQueueAddEvent*>(e);
                                               v8::Isolate* isolate = resource->GetIsolate();
-                                              v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
 
-                                              alt::IConnectionInfo* info = ev->GetConnectionInfo();
-                                              v8::Local<v8::Object> infoObj = v8ConnectionInfo.CreateInstance(ctx);
-                                              infoObj->SetInternalField(0, v8::External::New(isolate, info));
-                                              static_cast<CNodeResourceImpl*>(resource)->AddConnectionInfoObject(info, infoObj);
-
-                                              args.push_back(infoObj);
+                                              args.push_back(resource->GetBaseObjectOrNull(ev->GetConnectionInfo()));
                                           });
 
 V8_LOCAL_EVENT_HANDLER
@@ -185,7 +179,6 @@ connectionQueueRemove(EventType::CONNECTION_QUEUE_REMOVE,
                             {
                                 v8::Local<v8::Object> infoObj = static_cast<CNodeResourceImpl*>(resource)->GetConnectionInfoObject(info);
                                 if(infoObj.IsEmpty()) return;
-                                infoObj->SetInternalField(0, v8::External::New(isolate, nullptr));
                                 static_cast<CNodeResourceImpl*>(resource)->RemoveConnectionInfoObject(info);
                             });
 
