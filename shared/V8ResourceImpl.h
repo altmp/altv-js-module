@@ -250,6 +250,9 @@ public:
     v8::Local<v8::Array> GetAllPeds();
     v8::Local<v8::Array> GetAllMarkers();
     v8::Local<v8::Array> GetAllColshapes();
+#ifdef ALT_SERVER_API
+    v8::Local<v8::Array> GetAllConnectionInfos();
+#endif
 #ifdef ALT_CLIENT_API
     v8::Local<v8::Array> GetAllObjects();
 #endif
