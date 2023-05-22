@@ -114,8 +114,6 @@ bool CNodeResourceImpl::Stop()
     uv_loop_close(uvLoop);
     delete uvLoop;
 
-    connectionInfoMap.clear();
-
     return true;
 }
 

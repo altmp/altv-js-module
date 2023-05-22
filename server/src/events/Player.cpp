@@ -171,20 +171,8 @@ connectionQueueRemove(EventType::CONNECTION_QUEUE_REMOVE,
                       {
                           auto ev = static_cast<const alt::CConnectionQueueRemoveEvent*>(e);
                           v8::Isolate* isolate = resource->GetIsolate();
-                          v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
 
-                          alt::IConnectionInfo* info = ev->GetConnectionInfo();
-                          resource->RunOnNextTick(
-                            [resource, isolate, info]
-                            {
-                                v8::Local<v8::Object> infoObj = static_cast<CNodeResourceImpl*>(resource)->GetConnectionInfoObject(info);
-                                if(infoObj.IsEmpty()) return;
-                                static_cast<CNodeResourceImpl*>(resource)->RemoveConnectionInfoObject(info);
-                            });
-
-                          v8::Local<v8::Object> infoObj = static_cast<CNodeResourceImpl*>(resource)->GetConnectionInfoObject(info);
-                          if(infoObj.IsEmpty()) return;
-                          args.push_back(infoObj);
+                          args.push_back(resource->GetBaseObjectOrNull(ev->GetConnectionInfo()));
                       });
 
 V8_LOCAL_EVENT_HANDLER requestControl(EventType::PLAYER_REQUEST_CONTROL,
