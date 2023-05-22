@@ -52,7 +52,7 @@ public:
     {
         extern V8Class v8Player, v8Vehicle, v8Blip, v8Checkpoint, v8Ped, v8NetworkObject, v8VirtualEntity, v8VirtualEntityGroup, v8Marker, v8Colshape;
 #ifdef ALT_SERVER_API
-        extern V8Class v8VoiceChannel;
+        extern V8Class v8VoiceChannel, v8ConnectionInfo;
 #else
         extern V8Class v8WebView, v8LocalPlayer, v8RmlDocument, v8RmlElement, v8Object, v8WebSocketClient, v8Audio, v8HttpClient, v8AudioFilter, v8TextLabel, v8LocalPed, v8LocalVehicle;
 #endif
@@ -73,6 +73,7 @@ public:
             case alt::IBaseObject::Type::COLSHAPE: return &v8Colshape;
 #ifdef ALT_SERVER_API
             case alt::IBaseObject::Type::VOICE_CHANNEL: return &v8VoiceChannel;
+            case alt::IBaseObject::Type::CONNECTION_INFO: return &v8ConnectionInfo;
 #else
             case alt::IBaseObject::Type::WEBVIEW: return &v8WebView;
             case alt::IBaseObject::Type::LOCAL_PLAYER: return &v8LocalPlayer;

@@ -369,6 +369,19 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllColshapes()
     return jsAll;
 }
 
+#ifdef ALT_SERVER_API
+v8::Local<v8::Array> V8ResourceImpl::GetAllConnectionInfos()
+{
+    std::vector<IConnectionInfo*> all = ICore::Instance().GetConnectionInfos();
+    v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
+
+    for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
+
+    jsAll->SetIntegrityLevel(GetContext(), v8::IntegrityLevel::kFrozen);
+    return jsAll;
+}
+#endif
+
 #ifdef ALT_CLIENT_API
 v8::Local<v8::Array> V8ResourceImpl::GetAllObjects()
 {
