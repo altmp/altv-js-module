@@ -138,6 +138,30 @@ static void AllWorldGetter(v8::Local<v8::String> name, const v8::PropertyCallbac
     V8_RETURN(jsArr);
 }
 
+static void ModelSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(object, alt::IObject);
+
+    if(val->IsNumber())
+    {
+        V8_TO_INTEGER(val, model);
+        object->SetModel(model);
+    }
+    else
+    {
+        V8_TO_STRING(val, model);
+        object->SetModel(alt::ICore::Instance().Hash(model));
+    }
+}
+
+static void ModelGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(object, alt::IObject);
+    V8_RETURN_UINT(object->GetModel());
+}
+
 extern V8Class v8Entity;
 extern V8Class v8Object("Object",
                         v8Entity,
@@ -156,6 +180,7 @@ extern V8Class v8Object("Object",
 
                             V8Helpers::SetAccessor(isolate, tpl, "pos", &PosGetter, &PosSetter);
                             V8Helpers::SetAccessor(isolate, tpl, "rot", &RotGetter, &RotSetter);
+                            V8Helpers::SetAccessor(isolate, tpl, "model", &ModelGetter, &ModelSetter);
 
                             V8Helpers::SetAccessor<IObject, uint8_t, &IObject::GetAlpha, &IObject::SetAlpha>(isolate, tpl, "alpha");
                             V8Helpers::SetMethod<IObject, &IObject::ResetAlpha>(isolate, tpl, "resetAlpha");
