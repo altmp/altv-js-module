@@ -204,6 +204,30 @@ static void GetWheelSurfaceMaterial(const v8::FunctionCallbackInfo<v8::Value>& i
     V8_RETURN_UINT(vehicle->GetWheelSurfaceMaterial(wheel));
 }
 
+static void ModelSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::ILocalVehicle);
+
+    if(val->IsNumber())
+    {
+        V8_TO_INTEGER(val, model);
+        vehicle->SetModel(model);
+    }
+    else
+    {
+        V8_TO_STRING(val, model);
+        vehicle->SetModel(alt::ICore::Instance().Hash(model));
+    }
+}
+
+static void ModelGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(vehicle, alt::ILocalVehicle);
+    V8_RETURN_UINT(vehicle->GetModel());
+}
+
 extern V8Class v8WorldObject;
 extern V8Class v8LocalVehicle("LocalVehicle",
                               v8WorldObject,
@@ -215,7 +239,7 @@ extern V8Class v8LocalVehicle("LocalVehicle",
                                   V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
                                   V8Helpers::SetStaticMethod(isolate, tpl, "getByScriptID", StaticGetByScriptID);
 
-                                  V8Helpers::SetAccessor<ILocalVehicle, uint32_t, &ILocalVehicle::GetModel>(isolate, tpl, "model");
+                                  V8Helpers::SetAccessor(isolate, tpl, "model", &ModelGetter, &ModelSetter);
                                   V8Helpers::SetAccessor<ILocalVehicle, Rotation, &ILocalVehicle::GetRotation, &ILocalVehicle::SetRotation>(isolate, tpl, "rot");
                                   V8Helpers::SetAccessor<ILocalVehicle, uint32_t, &ILocalVehicle::GetStreamingDistance>(isolate, tpl, "streamingDistance");
                                   V8Helpers::SetAccessor<ILocalVehicle, bool, &ILocalVehicle::IsVisible, &ILocalVehicle::SetVisible>(isolate, tpl, "visible");
