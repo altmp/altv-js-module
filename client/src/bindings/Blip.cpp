@@ -125,16 +125,15 @@ static void StaticGetByScriptID(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(1);
     V8_ARG_TO_INT(1, scriptGuid);
 
-    alt::IEntity* entity = alt::ICore::Instance().GetEntityByScriptGuid(scriptGuid);
+    for(auto blip : alt::ICore::Instance().GetBlips())
+    {
+        if(blip->GetScriptID() == scriptGuid)
+        {
+            return V8_RETURN_BASE_OBJECT(blip);
+        }
+    }
 
-    if(entity && (entity->GetType() == alt::IEntity::Type::BLIP))
-    {
-        V8_RETURN_BASE_OBJECT(entity);
-    }
-    else
-    {
-        V8_RETURN_NULL();
-    }
+    V8_RETURN_NULL();
 }
 
 extern V8Class v8WorldObject;
