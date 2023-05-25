@@ -136,16 +136,26 @@ jobs:
       - name: Deploy windows artifacts to cdn
         run: npx alt-upload dist-windows js-module/$BRANCH/x64_win32 $VERSION
         env:
-          CI_UPLOAD_URL: ${{ secrets.CI_UPLOAD_URL }}
-          CI_DEPLOY_TOKEN: ${{ secrets.CI_DEPLOY_TOKEN }}
+          AWS_KEY_ID: ${{ secrets.AWS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_BUCKET: ${{ secrets.AWS_BUCKET }}
+          AWS_ENDPOINT: ${{ secrets.AWS_ENDPOINT }}
+          CF_CACHE_PURGE_TOKEN: ${{ secrets.CF_CACHE_PURGE_TOKEN }}
+          CF_CACHE_ZONE_ID: ${{ secrets.CF_CACHE_ZONE_ID }}
+          CF_CACHE_PURGE_URL: ${{ secrets.CF_CACHE_PURGE_URL }}
           BRANCH: ${{ steps.version.outputs.BRANCH }}
           VERSION: ${{ steps.version.outputs.VERSION }}
 
       - name: Deploy linux artifacts to cdn
         run: npx alt-upload dist-linux js-module/$BRANCH/x64_linux $VERSION
         env:
-          CI_UPLOAD_URL: ${{ secrets.CI_UPLOAD_URL }}
-          CI_DEPLOY_TOKEN: ${{ secrets.CI_DEPLOY_TOKEN }}
+          AWS_KEY_ID: ${{ secrets.AWS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_BUCKET: ${{ secrets.AWS_BUCKET }}
+          AWS_ENDPOINT: ${{ secrets.AWS_ENDPOINT }}
+          CF_CACHE_PURGE_TOKEN: ${{ secrets.CF_CACHE_PURGE_TOKEN }}
+          CF_CACHE_ZONE_ID: ${{ secrets.CF_CACHE_ZONE_ID }}
+          CF_CACHE_PURGE_URL: ${{ secrets.CF_CACHE_PURGE_URL }}
           BRANCH: ${{ steps.version.outputs.BRANCH }}
           VERSION: ${{ steps.version.outputs.VERSION }}
 
