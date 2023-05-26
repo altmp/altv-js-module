@@ -23,8 +23,8 @@ jobs:
         shell: bash
         run: |
           TAG=${GITHUB_REF/refs\/tags\//}
-          echo ::set-output name=BRANCH::${TAG/\/*}
-          echo ::set-output name=VERSION::${TAG/*\/}
+          echo "BRANCH=${TAG/\/*}" >> $GITHUB_OUTPUT
+          echo "VERSION=${TAG/*\/}" >> $GITHUB_OUTPUT
 
       - name: Build
         shell: cmd
@@ -68,8 +68,8 @@ jobs:
         shell: bash
         run: |
           TAG=${GITHUB_REF/refs\/tags\//}
-          echo ::set-output name=BRANCH::${TAG/\/*}
-          echo ::set-output name=VERSION::${TAG/*\/}
+          echo "BRANCH=${TAG/\/*}" >> $GITHUB_OUTPUT
+          echo "VERSION=${TAG/*\/}" >> $GITHUB_OUTPUT
           cd shared/deps/cpp-sdk
           echo "SDK_COMMIT=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
@@ -126,8 +126,8 @@ jobs:
         shell: bash
         run: |
           TAG=${GITHUB_REF/refs\/tags\//}
-          echo ::set-output name=BRANCH::${TAG/\/*}
-          echo ::set-output name=VERSION::${TAG/*\/}
+          echo "BRANCH=${TAG/\/*}" >> $GITHUB_OUTPUT
+          echo "VERSION=${TAG/*\/}" >> $GITHUB_OUTPUT
           rm dist-linux/sdk.version
 
       - name: Install upload tool
@@ -187,8 +187,8 @@ jobs:
         shell: bash
         run: |
           TAG=${GITHUB_REF/refs\/tags\//}
-          echo ::set-output name=BRANCH::${TAG/\/*}
-          echo ::set-output name=VERSION::${TAG/*\/}
+          echo "BRANCH=${TAG/\/*}" >> $GITHUB_OUTPUT
+          echo "VERSION=${TAG/*\/}" >> $GITHUB_OUTPUT
           echo "SDK_COMMIT=$(cat dist-linux/sdk.version)" >> $GITHUB_OUTPUT
           rm dist-linux/sdk.version
 
