@@ -98,7 +98,7 @@ static void StaticGetByScriptID(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_ARGS_LEN(1);
     V8_ARG_TO_INT(1, scriptGuid);
-    alt::IEntity* entity = alt::ICore::Instance().GetEntityByScriptGuid(scriptGuid);
+    alt::IWorldObject* entity = alt::ICore::Instance().GetWorldObjectByScriptID(scriptGuid);
 
     if(entity && (entity->GetType() == alt::IEntity::Type::PLAYER || entity->GetType() == alt::IEntity::Type::LOCAL_PLAYER))
     {

@@ -170,7 +170,7 @@ static void StaticGetByScriptID(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_ARGS_LEN(1);
     V8_ARG_TO_INT(1, scriptGuid);
-    V8_RETURN_BASE_OBJECT(alt::ICore::Instance().GetEntityByScriptGuid(scriptGuid));
+    V8_RETURN_BASE_OBJECT(alt::ICore::Instance().GetWorldObjectByScriptID(scriptGuid));
 }
 
 #endif  // ALT_CLIENT_API
@@ -230,7 +230,7 @@ extern V8Class v8Entity("Entity",
                             V8Helpers::SetAccessor<IWorldObject, Position, &IEntity::GetPosition>(isolate, tpl, "pos");
                             V8Helpers::SetAccessor<IEntity, Rotation, &IEntity::GetRotation>(isolate, tpl, "rot");
                             V8Helpers::SetAccessor<IEntity, uint32_t, &IEntity::GetModel>(isolate, tpl, "model");
-                            V8Helpers::SetAccessor<IEntity, int32_t, &IEntity::GetScriptGuid>(isolate, tpl, "scriptID");
+                            V8Helpers::SetAccessor<IEntity, uint32_t, &IEntity::GetScriptGuid>(isolate, tpl, "scriptID");
                             V8Helpers::SetAccessor<IEntity, bool, &IEntity::GetVisible>(isolate, tpl, "visible");
 
                             V8Helpers::SetAccessor(isolate, tpl, "isSpawned", &IsSpawnedGetter);

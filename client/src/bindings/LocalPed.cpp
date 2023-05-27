@@ -59,7 +59,7 @@ static void StaticGetByScriptID(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(1);
     V8_ARG_TO_INT(1, scriptGuid);
 
-    alt::IWorldObject* entity = alt::ICore::Instance().GetEntityByScriptGuid(scriptGuid);
+    alt::IWorldObject* entity = alt::ICore::Instance().GetWorldObjectByScriptID(scriptGuid);
 
     if(entity && (entity->GetType() == alt::IWorldObject::Type::LOCAL_PED))
     {
