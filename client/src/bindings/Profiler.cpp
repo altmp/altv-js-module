@@ -358,7 +358,7 @@ static void GetProfileNodeData(v8::Isolate* isolate, const v8::CpuProfileNode* n
                 tickObj->Set(ctx, V8Helpers::JSValue("ticks"), V8Helpers::JSValue(tick.hit_count));
                 val.As<v8::Array>()->Set(ctx, i, tickObj);
             }
-            result->Set(ctx, V8Helpers::JSValue("lineTicks"), val);
+            result->Set(ctx, V8Helpers::JSValue("positionTicks"), val);
         }
     }
 }
