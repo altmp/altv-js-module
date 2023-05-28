@@ -3,7 +3,6 @@
 #include "../CV8ScriptRuntime.h"
 #include "../CV8Resource.h"
 #include "v8-profiler.h"
-
 #include <chrono>
 #include <vector>
 #include <unordered_map>
@@ -90,11 +89,6 @@ static void GetMemoryProfile(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN(persistent.Get(isolate)->GetPromise());
 }
 
-// Key = Node ID, Value = Timestamp
-// We store a map of the timestamps here, so we can quickly
-// access it when setting it while serializing the profiler node
-// todo: There is probably some nicer way to do this
-static std::unordered_map<unsigned int, int64_t> nodeMap;
 static uint32_t profilerRunningCount = 0;
 static void GetProfileNodeData(v8::Isolate* isolate, const v8::CpuProfileNode* node, v8::Local<v8::Object> result);
 
@@ -124,6 +118,14 @@ static void StartProfiling(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8Helpers::Throw(isolate, "There are already too many profilers running");
 }
 
+void FlattenNodesTree(const v8::CpuProfileNode* node,
+                      std::vector<const v8::CpuProfileNode*>* nodes) {
+    nodes->emplace_back(node);
+    const int childrenCount = node->GetChildrenCount();
+    for (int i = 0; i < childrenCount; i++)
+        FlattenNodesTree(node->GetChild(i), nodes);
+}
+
 static void StopProfiling(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -141,29 +143,49 @@ static void StopProfiling(const v8::FunctionCallbackInfo<v8::Value>& info)
     v8::CpuProfile* result = CV8ScriptRuntime::Instance().GetProfiler()->StopProfiling(name);
     V8_CHECK(result, "The specified profiler is not running");
 
-    // Store the node map
-    int sampleCount = result->GetSamplesCount();
-    for(int i = 0; i < sampleCount; i++)
-    {
-        unsigned int nodeId = result->GetSample(i)->GetNodeId();
-        if(nodeMap.count(nodeId) != 0) continue;
-        nodeMap.insert({ nodeId, (result->GetSampleTimestamp(i) / 1000) });
-    }
-
     // Set top level info about the profile
     V8_NEW_OBJECT(resultObj);
-    V8_OBJECT_SET_INT(resultObj, "id", std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count());
-    V8_OBJECT_SET_RAW_STRING(resultObj, "type", "cpu");
-    V8_OBJECT_SET_INT(resultObj, "start", result->GetStartTime() / 1000);
-    V8_OBJECT_SET_INT(resultObj, "end", result->GetEndTime() / 1000);
-    V8_OBJECT_SET_INT(resultObj, "samples", result->GetSamplesCount());
+    // V8_OBJECT_SET_INT(resultObj, "id", std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count());
 
-    V8_NEW_OBJECT(root);
-    GetProfileNodeData(isolate, result->GetTopDownRoot(), root);
-    resultObj->Set(ctx, V8Helpers::JSValue("root"), root);
+    std::vector<const v8::CpuProfileNode*> nodes;
+    FlattenNodesTree(
+        result->GetTopDownRoot(),
+        &nodes);
 
-    // Clear the nodemap to not cause a memory leak
-    nodeMap.clear();
+    v8::Local<v8::Value> nodesObj = v8::Array::New(isolate, nodes.size());
+
+    for (size_t i = 0; i < nodes.size(); i++) {
+        V8_NEW_OBJECT(nodeObj);
+        GetProfileNodeData(isolate, nodes.at(i), nodeObj);
+        nodesObj.As<v8::Array>()->Set(ctx, i, nodeObj);
+    }
+
+    resultObj->Set(ctx, V8Helpers::JSValue("nodes"), nodesObj);
+
+    // V8_OBJECT_SET_RAW_STRING(resultObj, "type", "cpu");
+    V8_OBJECT_SET_INT(resultObj, "startTime", result->GetStartTime());
+    V8_OBJECT_SET_INT(resultObj, "endTime", result->GetEndTime());
+
+    auto samplesCount = result->GetSamplesCount();
+    if (samplesCount) {
+        v8::Local<v8::Value> samples = v8::Array::New(isolate, samplesCount);
+        for (int i = 0; i < samplesCount; ++i)
+        {
+            samples.As<v8::Array>()->Set(ctx, i, V8Helpers::JSValue(result->GetSample(i)->GetNodeId()));
+        }
+        resultObj->Set(ctx, V8Helpers::JSValue("samples"), samples);
+
+        v8::Local<v8::Value> timeDeltas = v8::Array::New(isolate, samplesCount);
+        auto lastTime = result->GetStartTime();
+        for (int i = 0; i < samplesCount; ++i)
+        {
+            auto ts = result->GetSampleTimestamp(i);
+            timeDeltas.As<v8::Array>()->Set(ctx, i, V8Helpers::JSValue(static_cast<int>(ts - lastTime)));
+            lastTime = ts;
+        }
+        resultObj->Set(ctx, V8Helpers::JSValue("timeDeltas"), timeDeltas);
+    }
+
     result->Delete();
 
     profilerRunningCount--;
@@ -275,56 +297,49 @@ static void GetProfileNodeData(v8::Isolate* isolate, const v8::CpuProfileNode* n
     // Node info
     result->Set(ctx, V8Helpers::JSValue("id"), V8Helpers::JSValue(node->GetNodeId()));
 
-    v8::Local<v8::String> functionName;
-    const char* name = node->GetFunctionNameStr();
-    if(name == NULL || strlen(name) == 0) functionName = V8Helpers::JSValue("(anonymous function)");
-    else
-        functionName = V8Helpers::JSValue(name);
-    result->Set(ctx, V8Helpers::JSValue("function"), functionName);
-
-    v8::Local<v8::String> sourceName;
-    const char* source = node->GetScriptResourceNameStr();
-    if(source == NULL || strlen(source) == 0) sourceName = V8Helpers::JSValue("(unknown)");
-    else
-        sourceName = V8Helpers::JSValue(source);
-    result->Set(ctx, V8Helpers::JSValue("source"), sourceName);
-
-    result->Set(ctx, V8Helpers::JSValue("sourceType"), V8Helpers::JSValue(GetSourceTypeName(node->GetSourceType())));
-    result->Set(ctx, V8Helpers::JSValue("line"), V8Helpers::JSValue(node->GetLineNumber()));
-
-    v8::Local<v8::Value> bailoutReason;
-    const char* reason = node->GetBailoutReason();
-    if(reason == NULL || strlen(reason) == 0) bailoutReason = v8::Null(isolate);
-    else
-        bailoutReason = V8Helpers::JSValue(reason);
-    result->Set(ctx, V8Helpers::JSValue("bailoutReason"), bailoutReason);
-
     result->Set(ctx, V8Helpers::JSValue("hitCount"), V8Helpers::JSValue(node->GetHitCount()));
 
-    int64_t timestamp;
-    if(nodeMap.count(node->GetNodeId()) == 0) timestamp = -1;
-    else
-        timestamp = nodeMap.at(node->GetNodeId());
-    result->Set(ctx, V8Helpers::JSValue("timestamp"), V8Helpers::JSValue(timestamp));
+    // Call frame
+    {
+        V8_NEW_OBJECT(callFrame);
+
+        v8::Local<v8::String> functionName;
+        const char* name = node->GetFunctionNameStr();
+        if(name == NULL || strlen(name) == 0) functionName = V8Helpers::JSValue("(anonymous function)");
+        else
+            functionName = V8Helpers::JSValue(name);
+        callFrame->Set(ctx, V8Helpers::JSValue("functionName"), functionName);
+
+        callFrame->Set(ctx, V8Helpers::JSValue("lineNumber"), V8Helpers::JSValue(node->GetLineNumber() - 1));
+        callFrame->Set(ctx, V8Helpers::JSValue("columnNumber"), V8Helpers::JSValue(node->GetColumnNumber() - 1));
+        callFrame->Set(ctx, V8Helpers::JSValue("scriptId"), V8Helpers::JSValue(node->GetScriptId()));
+
+        v8::Local<v8::String> sourceName;
+        const char* source = node->GetScriptResourceNameStr();
+        if(source == NULL || strlen(source) == 0) sourceName = V8Helpers::JSValue("(unknown)");
+        else
+            sourceName = V8Helpers::JSValue(source);
+        callFrame->Set(ctx, V8Helpers::JSValue("url"), sourceName);
+
+        result->Set(ctx, V8Helpers::JSValue("callFrame"), callFrame);
+    }
 
     // Children
-    {
-        int childrenCount = node->GetChildrenCount();
-        v8::Local<v8::Value> children;
-        if(childrenCount != 0)
+    auto childrenCount = node->GetChildrenCount();
+    if (childrenCount) {
+        v8::Local<v8::Value> children = v8::Array::New(isolate, childrenCount);
+        for (int i = 0; i < childrenCount; ++i)
         {
-            children = v8::Array::New(isolate, childrenCount);
-            for(int i = 0; i < childrenCount; i++)
-            {
-                V8_NEW_OBJECT(child);
-                GetProfileNodeData(isolate, node->GetChild(i), child);
-                children.As<v8::Array>()->Set(ctx, i, child);
-            }
+            children.As<v8::Array>()->Set(ctx, i, V8Helpers::JSValue(node->GetChild(i)->GetNodeId()));
         }
-        else
-            children = v8::Null(isolate);
 
         result->Set(ctx, V8Helpers::JSValue("children"), children);
+    }
+
+    const char* reason = node->GetBailoutReason();
+    if(reason != NULL && strlen(reason) != 0 && strcmp(reason, "no reason"))
+    {
+        result->Set(ctx, V8Helpers::JSValue("deoptReason"), V8Helpers::JSValue(reason));
     }
 
     // Line ticks
@@ -340,12 +355,10 @@ static void GetProfileNodeData(v8::Isolate* isolate, const v8::CpuProfileNode* n
                 auto tick = ticks[i];
                 V8_NEW_OBJECT(tickObj);
                 tickObj->Set(ctx, V8Helpers::JSValue("line"), V8Helpers::JSValue(tick.line));
-                tickObj->Set(ctx, V8Helpers::JSValue("hitCount"), V8Helpers::JSValue(tick.hit_count));
+                tickObj->Set(ctx, V8Helpers::JSValue("ticks"), V8Helpers::JSValue(tick.hit_count));
                 val.As<v8::Array>()->Set(ctx, i, tickObj);
             }
+            result->Set(ctx, V8Helpers::JSValue("positionTicks"), val);
         }
-        else
-            val = v8::Null(isolate);
-        result->Set(ctx, V8Helpers::JSValue("lineTicks"), val);
     }
 }
