@@ -95,9 +95,9 @@ static void ModelGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8
     V8_RETURN_UINT(ped->GetModel());
 }
 
-extern V8Class v8WorldObject;
+extern V8Class v8Ped;
 extern V8Class v8LocalPed("LocalPed",
-                          v8WorldObject,
+                          v8Ped,
                           Constructor,
                           [](v8::Local<v8::FunctionTemplate> tpl)
                           {
@@ -107,12 +107,10 @@ extern V8Class v8LocalPed("LocalPed",
                               V8Helpers::SetStaticMethod(isolate, tpl, "getByScriptID", StaticGetByScriptID);
 
                               V8Helpers::SetAccessor(isolate, tpl, "model", &ModelGetter, &ModelSetter);
-                              V8Helpers::SetAccessor<ILocalPed, Rotation, &ILocalPed::GetRotation, &ILocalPed::SetRotation>(isolate, tpl, "rot");
                               V8Helpers::SetAccessor<ILocalPed, uint32_t, &ILocalPed::GetStreamingDistance>(isolate, tpl, "streamingDistance");
                               V8Helpers::SetAccessor<ILocalPed, bool, &ILocalPed::IsVisible, &ILocalPed::SetVisible>(isolate, tpl, "visible");
                               V8Helpers::SetAccessor<ILocalPed, uint32_t, &ILocalPed::GetScriptID>(isolate, tpl, "scriptID");
 
-                              V8Helpers::SetAccessor<ILocalPed, uint32_t, &ILocalPed::GetRemoteID>(isolate, tpl, "remoteId");
                               V8Helpers::SetAccessor<ILocalPed, bool, &ILocalPed::IsRemote>(isolate, tpl, "isRemote");
                               V8Helpers::SetAccessor<ILocalPed, bool, &ILocalPed::IsStreamedIn>(isolate, tpl, "isStreamedIn");
                           });

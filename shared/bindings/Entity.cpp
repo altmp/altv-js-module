@@ -231,6 +231,7 @@ extern V8Class v8Entity("Entity",
                             V8Helpers::SetAccessor<IEntity, Rotation, &IEntity::GetRotation>(isolate, tpl, "rot");
                             V8Helpers::SetAccessor<IEntity, uint32_t, &IEntity::GetModel>(isolate, tpl, "model");
                             V8Helpers::SetAccessor<IEntity, uint32_t, &IEntity::GetScriptGuid>(isolate, tpl, "scriptID");
+                            V8Helpers::SetAccessor<IEntity, uint32_t, &IEntity::GetRemoteID>(isolate, tpl, "remoteId");
                             V8Helpers::SetAccessor<IEntity, bool, &IEntity::GetVisible>(isolate, tpl, "visible");
 
                             V8Helpers::SetAccessor(isolate, tpl, "isSpawned", &IsSpawnedGetter);
