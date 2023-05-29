@@ -137,6 +137,25 @@ static void StaticGetByScriptID(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
 }
 
+static void StaticGetByRemoteId(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_INT32(1, id);
+
+    alt::IBaseObject* entity = alt::ICore::Instance().GetBaseObjectByRemoteID(alt::IBaseObject::Type::BLIP, id);
+
+    if(entity)
+    {
+        V8_RETURN_BASE_OBJECT(entity);
+    }
+    else
+    {
+        V8_RETURN_NULL();
+    }
+}
+
 extern V8Class v8WorldObject;
 extern V8Class v8Blip("Blip",
                       v8WorldObject,
@@ -152,6 +171,7 @@ extern V8Class v8Blip("Blip",
                           V8Helpers::SetStaticAccessor(isolate, tpl, "count", &CountGetter);
 
                           V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
+                          V8Helpers::SetStaticMethod(isolate, tpl, "getByRemoteID", StaticGetByRemoteId);
 
                           V8Helpers::SetAccessor<IBlip, RGBA, &IBlip::GetRouteColor, &IBlip::SetRouteColor>(isolate, tpl, "routeColor");
                           V8Helpers::SetAccessor<IBlip, int32_t, &IBlip::GetSprite, &IBlip::SetSprite>(isolate, tpl, "sprite");

@@ -177,21 +177,6 @@ static void DeleteSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 }
 #endif  // ALT_SERVER_API
 
-#ifdef ALT_CLIENT_API
-
-static void StaticGetByRemoteId(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_CHECK_ARGS_LEN(2);
-
-    V8_ARG_TO_INT32(1, type);
-    V8_ARG_TO_INT32(2, id);
-
-    V8_RETURN_BASE_OBJECT(alt::ICore::Instance().GetBaseObjectByRemoteID((alt::IBaseObject::Type)type, id));
-}
-
-#endif  // ALT_CLIENT_API
-
 extern V8Class v8BaseObject("BaseObject",
                             [](v8::Local<v8::FunctionTemplate> tpl)
                             {
@@ -220,8 +205,4 @@ extern V8Class v8BaseObject("BaseObject",
                                 V8Helpers::SetMethod(isolate, tpl, "setSyncedMeta", SetSyncedMeta);
                                 V8Helpers::SetMethod(isolate, tpl, "deleteSyncedMeta", DeleteSyncedMeta);
 #endif  // ALT_SERVER_API
-
-#ifdef ALT_CLIENT_API
-                                V8Helpers::SetStaticMethod(isolate, tpl, "getByRemoteID", StaticGetByRemoteId);
-#endif  // ALT_CLIENT_API
                             });

@@ -267,6 +267,25 @@ static void GetWheelSurfaceMaterial(const v8::FunctionCallbackInfo<v8::Value>& i
     V8_RETURN_UINT(vehicle->GetWheelSurfaceMaterial(wheel));
 }
 
+static void StaticGetByRemoteId(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_INT32(1, id);
+
+    alt::IBaseObject* entity = alt::ICore::Instance().GetBaseObjectByRemoteID(alt::IBaseObject::Type::VEHICLE, id);
+
+    if(entity)
+    {
+        V8_RETURN_BASE_OBJECT(entity);
+    }
+    else
+    {
+        V8_RETURN_NULL();
+    }
+}
+
 extern V8Class v8Entity;
 extern V8Class v8Vehicle("Vehicle",
                          v8Entity,
@@ -278,6 +297,7 @@ extern V8Class v8Vehicle("Vehicle",
 
                              V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
                              V8Helpers::SetStaticMethod(isolate, tpl, "getByScriptID", StaticGetByScriptID);
+                             V8Helpers::SetStaticMethod(isolate, tpl, "getByRemoteID", StaticGetByRemoteId);
 
                              V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
                              V8Helpers::SetStaticAccessor(isolate, tpl, "count", &CountGetter);
