@@ -178,8 +178,6 @@ extern V8Class v8Object("Object",
 
                             V8Helpers::SetStaticAccessor(isolate, tpl, "allWorld", &AllWorldGetter);
 
-                            V8Helpers::SetAccessor(isolate, tpl, "pos", &PosGetter, &PosSetter);
-                            V8Helpers::SetAccessor(isolate, tpl, "rot", &RotGetter, &RotSetter);
                             V8Helpers::SetAccessor(isolate, tpl, "model", &ModelGetter, &ModelSetter);
 
                             V8Helpers::SetAccessor<IObject, uint8_t, &IObject::GetAlpha, &IObject::SetAlpha>(isolate, tpl, "alpha");
