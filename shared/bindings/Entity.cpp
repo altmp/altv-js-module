@@ -234,6 +234,8 @@ extern V8Class v8Entity("Entity",
                             V8Helpers::SetAccessor<IEntity, uint32_t, &IEntity::GetRemoteID>(isolate, tpl, "remoteId");
                             V8Helpers::SetAccessor<IEntity, bool, &IEntity::GetVisible>(isolate, tpl, "visible");
 
+                            V8Helpers::SetAccessor<IEntity, bool, &IEntity::IsRemote>(isolate, tpl, "isRemote");
+
                             V8Helpers::SetAccessor(isolate, tpl, "isSpawned", &IsSpawnedGetter);
 #endif  // ALT_CLIENT_API
                         });

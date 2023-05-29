@@ -111,6 +111,5 @@ extern V8Class v8LocalVehicle("LocalVehicle",
                                   V8Helpers::SetAccessor<ILocalVehicle, bool, &ILocalVehicle::IsVisible, &ILocalVehicle::SetVisible>(isolate, tpl, "visible");
                                   V8Helpers::SetAccessor<ILocalVehicle, uint32_t, &ILocalVehicle::GetScriptID>(isolate, tpl, "scriptID");
 
-                                  V8Helpers::SetAccessor<ILocalVehicle, bool, &ILocalVehicle::IsRemote>(isolate, tpl, "isRemote");
                                   V8Helpers::SetAccessor<ILocalVehicle, bool, &ILocalVehicle::IsStreamedIn>(isolate, tpl, "isStreamedIn");
                               });

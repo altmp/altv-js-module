@@ -111,6 +111,5 @@ extern V8Class v8LocalPed("LocalPed",
                               V8Helpers::SetAccessor<ILocalPed, bool, &ILocalPed::IsVisible, &ILocalPed::SetVisible>(isolate, tpl, "visible");
                               V8Helpers::SetAccessor<ILocalPed, uint32_t, &ILocalPed::GetScriptID>(isolate, tpl, "scriptID");
 
-                              V8Helpers::SetAccessor<ILocalPed, bool, &ILocalPed::IsRemote>(isolate, tpl, "isRemote");
                               V8Helpers::SetAccessor<ILocalPed, bool, &ILocalPed::IsStreamedIn>(isolate, tpl, "isStreamedIn");
                           });
