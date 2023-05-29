@@ -157,6 +157,52 @@ static void AttachTo(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 #ifdef ALT_CLIENT_API
 
+static void PositionGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
+    V8_RETURN_VECTOR3(ent->GetPosition());
+}
+
+static void PositionSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(_this, alt::IEntity);
+
+    V8_TO_VECTOR3(val, vector);
+
+    const auto netOwner = _this->GetNetworkOwner();
+    if (!netOwner || netOwner != alt::ICore::Instance().GetLocalPlayer())
+    {
+        V8Helpers::Throw(isolate, "Position can only be modified by the network owner of the entity");
+        return;
+    }
+    _this->SetPosition(vector);
+}
+
+static void RotationGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
+    V8_RETURN_VECTOR3(ent->GetRotation());
+}
+
+static void RotationSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(_this, alt::IEntity);
+
+    V8_TO_VECTOR3(val, vector);
+
+    const auto netOwner = _this->GetNetworkOwner();
+    if (!netOwner || netOwner != alt::ICore::Instance().GetLocalPlayer())
+    {
+        V8Helpers::Throw(isolate, "Rotation can only be modified by the network owner of the entity");
+        return;
+    }
+    _this->SetRotation(vector);
+}
+
 static void IsSpawnedGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE();
@@ -227,8 +273,8 @@ extern V8Class v8Entity("Entity",
 #ifdef ALT_CLIENT_API
                             V8Helpers::SetStaticMethod(isolate, tpl, "getByScriptID", StaticGetByScriptID);
 
-                            V8Helpers::SetAccessor<IWorldObject, Position, &IEntity::GetPosition>(isolate, tpl, "pos");
-                            V8Helpers::SetAccessor<IEntity, Rotation, &IEntity::GetRotation>(isolate, tpl, "rot");
+                            V8Helpers::SetAccessor(isolate, tpl, "pos", &PositionGetter, &PositionSetter);
+                            V8Helpers::SetAccessor(isolate, tpl, "rot", &RotationGetter, &RotationSetter);
                             V8Helpers::SetAccessor<IEntity, uint32_t, &IEntity::GetModel>(isolate, tpl, "model");
                             V8Helpers::SetAccessor<IEntity, uint32_t, &IEntity::GetScriptGuid>(isolate, tpl, "scriptID");
                             V8Helpers::SetAccessor<IEntity, uint32_t, &IEntity::GetRemoteID>(isolate, tpl, "remoteId");
