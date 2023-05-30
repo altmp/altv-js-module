@@ -320,7 +320,7 @@ if (alt.isClient && !alt.isWorker) {
         if (textAlign === 2) {
             native.setTextWrap(0, pos2d.x);
         }
-        
+
         native.beginTextCommandDisplayText("CELL_EMAIL_BCON");
         // Split text into pieces of max 99 chars blocks
         (text.match(/.{1,99}/g))?.forEach((textBlock) => {
@@ -370,7 +370,7 @@ if (alt.isClient && !alt.isWorker) {
         } else {
             native.setTextWrap(0.0, 1.0);
         }
-        
+
         native.setTextColour(...color.toArray());
 
         if (outline) native.setTextOutline();
@@ -413,6 +413,7 @@ if (alt.isClient && !alt.isWorker) {
             throw new Error(`Failed to load map area pos: { x: ${pos.x.toFixed(2)}, y: ${pos.y.toFixed(2)}, z: ${pos.z.toFixed(2)} }`);
         } finally {
             alt.FocusData.clearFocus();
+            native.newLoadSceneStop()
         }
     }
 
