@@ -98,7 +98,7 @@ static void StaticGetByScriptID(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     alt::IWorldObject* entity = alt::ICore::Instance().GetWorldObjectByScriptID(scriptGuid);
 
-    if(entity && (entity->GetType() == alt::IEntity::Type::VEHICLE))
+    if(entity && (entity->GetType() == alt::IEntity::Type::VEHICLE || entity->GetType() == alt::IEntity::Type::LOCAL_VEHICLE))
     {
         V8_RETURN_BASE_OBJECT(entity);
     }
