@@ -250,7 +250,8 @@ void V8ResourceImpl::NotifyPoolUpdate(alt::IBaseObject* ent)
     switch(ent->GetType())
     {
         case alt::IBaseObject::Type::PLAYER: playerPoolDirty = true; break;
-        case alt::IBaseObject::Type::VEHICLE: vehiclePoolDirty = true; break;
+        case alt::IBaseObject::Type::VEHICLE:
+        case alt::IBaseObject::Type::LOCAL_VEHICLE: vehiclePoolDirty = true; break;
         case alt::IBaseObject::Type::OBJECT: objectPoolDirty = true; break;
     }
 }
