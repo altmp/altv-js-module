@@ -107,7 +107,7 @@ extern V8Class v8VirtualEntityGroup("VirtualEntityGroup",
 
                                         V8Helpers::SetAccessor<IVirtualEntityGroup, uint32_t, &IVirtualEntityGroup::GetMaxEntitiesInStream>(isolate, tpl, "maxEntitiesInStream");
 #ifdef ALT_CLIENT_API
-                                        V8Helpers::SetAccessor<IVirtualEntityGroup, uint32_t, &IVirtualEntityGroup::GetRemoteID>(isolate, tpl, "remoteId");
-                                        V8Helpers::SetAccessor<IVirtualEntityGroup, bool, &IVirtualEntityGroup::IsRemote>(isolate, tpl, "isRemote");
+                                        V8Helpers::SetAccessor<IBaseObject, uint32_t, &IBaseObject::GetRemoteID>(isolate, tpl, "remoteId");
+                                        V8Helpers::SetAccessor<IBaseObject, bool, &IBaseObject::IsRemote>(isolate, tpl, "isRemote");
 #endif  // ALT_CLIENT_API
                                     });

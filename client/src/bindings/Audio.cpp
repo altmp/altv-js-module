@@ -228,5 +228,5 @@ extern V8Class v8Audio("Audio",
                            V8Helpers::SetMethod<IAudio, &IAudio::Reset>(isolate, tpl, "reset");
                            V8Helpers::SetMethod(isolate, tpl, "seek", &Seek);
 
-                           V8Helpers::SetAccessor<IAudio, uint32_t, &IAudio::GetRemoteID>(isolate, tpl, "remoteId");
+                           V8Helpers::SetAccessor<IBaseObject, uint32_t, &IBaseObject::GetRemoteID>(isolate, tpl, "remoteId");
                        });

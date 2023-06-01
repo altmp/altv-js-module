@@ -219,8 +219,8 @@ extern V8Class v8VirtualEntity("VirtualEntity",
 #endif  // ALT_SERVER_API
 
 #ifdef ALT_CLIENT_API
-                                   V8Helpers::SetAccessor<IVirtualEntity, uint32_t, &IVirtualEntity::GetRemoteID>(isolate, tpl, "remoteId");
-                                   V8Helpers::SetAccessor<IVirtualEntity, bool, &IVirtualEntity::IsRemote>(isolate, tpl, "isRemote");
+                                   V8Helpers::SetAccessor<IBaseObject, uint32_t, &IBaseObject::GetRemoteID>(isolate, tpl, "remoteId");
+                                   V8Helpers::SetAccessor<IBaseObject, bool, &IBaseObject::IsRemote>(isolate, tpl, "isRemote");
                                    V8Helpers::SetAccessor<IVirtualEntity, bool, &IVirtualEntity::IsStreamedIn>(isolate, tpl, "isStreamedIn");
                                    V8Helpers::SetStaticAccessor(isolate, tpl, "streamedIn", &StreamedInGetter);
 #endif  // ALT_CLIENT_API

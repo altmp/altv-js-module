@@ -86,8 +86,8 @@ extern V8Class v8Marker("Marker",
                             V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
 
 #ifdef ALT_CLIENT_API
-                            V8Helpers::SetAccessor<IMarker, bool, &IMarker::IsRemote>(isolate, tpl, "isRemote");
-                            V8Helpers::SetAccessor<IMarker, uint32_t, &IMarker::GetRemoteID>(isolate, tpl, "remoteId");
+                            V8Helpers::SetAccessor<IBaseObject, bool, &IBaseObject::IsRemote>(isolate, tpl, "isRemote");
+                            V8Helpers::SetAccessor<IBaseObject, uint32_t, &IBaseObject::GetRemoteID>(isolate, tpl, "remoteId");
                             V8Helpers::SetAccessor<IMarker, bool, &IMarker::IsStreamedIn>(isolate, tpl, "isStreamedIn");
 #endif
 

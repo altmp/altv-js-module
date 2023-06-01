@@ -71,8 +71,8 @@ extern V8Class v8Colshape("Colshape",
                               V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
 
 #ifdef ALT_CLIENT_API
-                              V8Helpers::SetAccessor<IColShape, uint32_t, &IColShape::GetRemoteID>(isolate, tpl, "remoteId");
-                              V8Helpers::SetAccessor<IColShape, bool, &IColShape::IsRemote>(isolate, tpl, "isRemote");
+                              V8Helpers::SetAccessor<IBaseObject, uint32_t, &IBaseObject::GetRemoteID>(isolate, tpl, "remoteId");
+                              V8Helpers::SetAccessor<IBaseObject, bool, &IBaseObject::IsRemote>(isolate, tpl, "isRemote");
 #endif
                               V8Helpers::SetAccessor<IColShape, IColShape::ColShapeType, &IColShape::GetColshapeType>(isolate, tpl, "colshapeType");
                               V8Helpers::SetAccessor<IColShape, bool, &IColShape::IsPlayersOnly, &IColShape::SetPlayersOnly>(isolate, tpl, "playersOnly");
