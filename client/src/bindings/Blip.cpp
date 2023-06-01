@@ -208,9 +208,6 @@ extern V8Class v8Blip("Blip",
                           V8Helpers::SetAccessor<IBlip, uint32_t, &IBlip::GetGameID>(isolate, tpl, "scriptID");
                           V8Helpers::SetStaticMethod(isolate, tpl, "getByScriptID", StaticGetByScriptID);
 
-                          V8Helpers::SetAccessor<IBaseObject, bool, &IBaseObject::IsRemote>(isolate, tpl, "isRemote");
-                          V8Helpers::SetAccessor<IBaseObject, uint32_t, &IBaseObject::GetRemoteID>(isolate, tpl, "remoteId");
-
                           V8Helpers::SetMethod(isolate, tpl, "fade", &Fade);
                           V8Helpers::SetAccessor<IBlip, bool, &IBlip::IsVisible, &IBlip::SetVisible>(isolate, tpl, "visible");
                       });

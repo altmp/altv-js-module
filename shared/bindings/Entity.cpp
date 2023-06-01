@@ -172,7 +172,7 @@ static void PositionSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, cons
     V8_TO_VECTOR3(val, vector);
 
     const auto netOwner = _this->GetNetworkOwner();
-    if (!netOwner || netOwner != alt::ICore::Instance().GetLocalPlayer())
+    if(!netOwner || netOwner != alt::ICore::Instance().GetLocalPlayer())
     {
         V8Helpers::Throw(isolate, "Position can only be modified by the network owner of the entity");
         return;
@@ -195,7 +195,7 @@ static void RotationSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, cons
     V8_TO_VECTOR3(val, vector);
 
     const auto netOwner = _this->GetNetworkOwner();
-    if (!netOwner || netOwner != alt::ICore::Instance().GetLocalPlayer())
+    if(!netOwner || netOwner != alt::ICore::Instance().GetLocalPlayer())
     {
         V8Helpers::Throw(isolate, "Rotation can only be modified by the network owner of the entity");
         return;
@@ -277,10 +277,7 @@ extern V8Class v8Entity("Entity",
                             V8Helpers::SetAccessor(isolate, tpl, "rot", &RotationGetter, &RotationSetter);
                             V8Helpers::SetAccessor<IEntity, uint32_t, &IEntity::GetModel>(isolate, tpl, "model");
                             V8Helpers::SetAccessor<IEntity, uint32_t, &IEntity::GetScriptID>(isolate, tpl, "scriptID");
-                            V8Helpers::SetAccessor<IBaseObject, uint32_t, &IBaseObject::GetRemoteID>(isolate, tpl, "remoteId");
                             V8Helpers::SetAccessor<IEntity, bool, &IEntity::GetVisible>(isolate, tpl, "visible");
-
-                            V8Helpers::SetAccessor<IBaseObject, bool, &IBaseObject::IsRemote>(isolate, tpl, "isRemote");
 
                             V8Helpers::SetAccessor(isolate, tpl, "isSpawned", &IsSpawnedGetter);
 #endif  // ALT_CLIENT_API

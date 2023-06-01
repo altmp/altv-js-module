@@ -106,8 +106,4 @@ extern V8Class v8VirtualEntityGroup("VirtualEntityGroup",
                                         V8Helpers::SetMethod(isolate, tpl, "deleteMeta", DeleteMeta);
 
                                         V8Helpers::SetAccessor<IVirtualEntityGroup, uint32_t, &IVirtualEntityGroup::GetMaxEntitiesInStream>(isolate, tpl, "maxEntitiesInStream");
-#ifdef ALT_CLIENT_API
-                                        V8Helpers::SetAccessor<IBaseObject, uint32_t, &IBaseObject::GetRemoteID>(isolate, tpl, "remoteId");
-                                        V8Helpers::SetAccessor<IBaseObject, bool, &IBaseObject::IsRemote>(isolate, tpl, "isRemote");
-#endif  // ALT_CLIENT_API
                                     });

@@ -189,7 +189,10 @@ extern V8Class v8BaseObject("BaseObject",
                                 V8Helpers::SetAccessor<IBaseObject, IBaseObject::Type, &IBaseObject::GetType>(isolate, tpl, "type");
                                 V8Helpers::SetAccessor(isolate, tpl, "valid", &ValidGetter);
                                 V8Helpers::SetAccessor<IBaseObject, uint32_t, &IBaseObject::GetID>(isolate, tpl, "id");
-
+#ifdef ALT_CLIENT_API
+                                V8Helpers::SetAccessor<IBaseObject, bool, &IBaseObject::IsRemote>(isolate, tpl, "isRemote");
+                                V8Helpers::SetAccessor<IBaseObject, uint32_t, &IBaseObject::GetRemoteID>(isolate, tpl, "remoteId");
+#endif  // ALT_CLIENT_API
                                 V8Helpers::SetMethod(isolate, tpl, "hasSyncedMeta", HasSyncedMeta);
                                 V8Helpers::SetMethod(isolate, tpl, "getSyncedMeta", GetSyncedMeta);
                                 V8Helpers::SetMethod(isolate, tpl, "getSyncedMetaKeys", GetSyncedMetaDataKeys);
