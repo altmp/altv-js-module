@@ -172,7 +172,7 @@ static bool PushArg(
                     {
                         case alt::IBaseObject::Type::LOCAL_PED: scrCtx->Push(dynamic_cast<alt::ILocalPed*>(ent->GetHandle())->GetScriptID()); break;
                         case alt::IBaseObject::Type::LOCAL_VEHICLE: scrCtx->Push(dynamic_cast<alt::ILocalVehicle*>(ent->GetHandle())->GetScriptID()); break;
-                        default: scrCtx->Push(dynamic_cast<alt::IEntity*>(ent->GetHandle())->GetScriptGuid());
+                        default: scrCtx->Push(dynamic_cast<alt::IEntity*>(ent->GetHandle())->GetScriptID());
                     }
                 }
                 else

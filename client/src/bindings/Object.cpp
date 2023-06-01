@@ -9,7 +9,7 @@ static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(object, alt::IObject);
 
     std::ostringstream ss;
-    ss << "Object{ model: " << object->GetModel() << ", scriptID: " << object->GetScriptGuid() << " }";
+    ss << "Object{ model: " << object->GetModel() << ", scriptID: " << object->GetScriptID() << " }";
 
     V8_RETURN_STRING(ss.str());
 }

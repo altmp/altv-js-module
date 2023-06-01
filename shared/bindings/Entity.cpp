@@ -208,7 +208,7 @@ static void IsSpawnedGetter(v8::Local<v8::String>, const v8::PropertyCallbackInf
     V8_GET_ISOLATE();
     V8_GET_THIS_BASE_OBJECT(entity, alt::IEntity);
 
-    V8_RETURN_BOOLEAN(entity->GetScriptGuid() != 0);
+    V8_RETURN_BOOLEAN(entity->GetScriptID() != 0);
 }
 
 static void StaticGetByScriptID(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -276,11 +276,11 @@ extern V8Class v8Entity("Entity",
                             V8Helpers::SetAccessor(isolate, tpl, "pos", &PositionGetter, &PositionSetter);
                             V8Helpers::SetAccessor(isolate, tpl, "rot", &RotationGetter, &RotationSetter);
                             V8Helpers::SetAccessor<IEntity, uint32_t, &IEntity::GetModel>(isolate, tpl, "model");
-                            V8Helpers::SetAccessor<IEntity, uint32_t, &IEntity::GetScriptGuid>(isolate, tpl, "scriptID");
-                            V8Helpers::SetAccessor<IEntity, uint32_t, &IEntity::GetRemoteID>(isolate, tpl, "remoteId");
+                            V8Helpers::SetAccessor<IEntity, uint32_t, &IEntity::GetScriptID>(isolate, tpl, "scriptID");
+                            V8Helpers::SetAccessor<IBaseObject, uint32_t, &IBaseObject::GetRemoteID>(isolate, tpl, "remoteId");
                             V8Helpers::SetAccessor<IEntity, bool, &IEntity::GetVisible>(isolate, tpl, "visible");
 
-                            V8Helpers::SetAccessor<IEntity, bool, &IEntity::IsRemote>(isolate, tpl, "isRemote");
+                            V8Helpers::SetAccessor<IBaseObject, bool, &IBaseObject::IsRemote>(isolate, tpl, "isRemote");
 
                             V8Helpers::SetAccessor(isolate, tpl, "isSpawned", &IsSpawnedGetter);
 #endif  // ALT_CLIENT_API
