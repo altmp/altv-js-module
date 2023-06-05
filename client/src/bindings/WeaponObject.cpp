@@ -20,11 +20,11 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_ARG_TO_UINT(1, _weaponhash);
         weaponHash = _weaponhash;
     }
-    
+
     V8_ARG_TO_VECTOR3(2, pos);
     V8_ARG_TO_VECTOR3(3, rot);
 
-    if (info.Length() < 4)
+    if(info.Length() < 4)
     {
         auto obj = alt::ICore::Instance().CreateWeaponObject(pos, rot, weaponHash, 0, 100, true, 1.f, false, 0, resource->GetResource());
         V8_BIND_BASE_OBJECT(obj, "Failed to create weaponObject");
@@ -32,7 +32,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     else
     {
         uint32_t modelHash;
-        if (info[3]->IsString())
+        if(info[3]->IsString())
         {
             V8_ARG_TO_STRING(4, modelhash);
             modelHash = alt::ICore::Instance().Hash(modelhash);
@@ -49,7 +49,8 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_ARG_TO_BOOLEAN_OPT(8, useStreaming, false);
         V8_ARG_TO_UINT_OPT(9, streamingDistance, 0);
 
-        auto obj = alt::ICore::Instance().CreateWeaponObject(pos, rot, weaponHash, modelHash, numAmmo, createDefaultComponents, scale, useStreaming, streamingDistance, resource->GetResource());
+        auto obj =
+          alt::ICore::Instance().CreateWeaponObject(pos, rot, weaponHash, modelHash, numAmmo, createDefaultComponents, scale, useStreaming, streamingDistance, resource->GetResource());
         V8_BIND_BASE_OBJECT(obj, "Failed to create weaponObject");
     }
 }
@@ -102,7 +103,7 @@ static void RemoveComponent(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_RETURN(resource->GetAllObjects());
+    V8_RETURN(resource->GetAllWeaponObjects());
 }
 
 static void CountGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -121,7 +122,7 @@ extern V8Class v8WeaponObject("WeaponObject",
 
                                   V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
                                   V8Helpers::SetStaticAccessor(isolate, tpl, "count", &CountGetter);
-                                  
+
                                   V8Helpers::SetAccessor<IObject, int, &IObject::GetTintIndex, &IObject::SetTintIndex>(isolate, tpl, "tintIndex");
                                   V8Helpers::SetMethod(isolate, tpl, "setComponentTintIndex", &GetComponentTintIndex);
                                   V8Helpers::SetMethod(isolate, tpl, "getComponentTintIndex", &SetComponentTintIndex);

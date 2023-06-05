@@ -252,7 +252,10 @@ void V8ResourceImpl::NotifyPoolUpdate(alt::IBaseObject* ent)
         case alt::IBaseObject::Type::PLAYER: playerPoolDirty = true; break;
         case alt::IBaseObject::Type::VEHICLE:
         case alt::IBaseObject::Type::LOCAL_VEHICLE: vehiclePoolDirty = true; break;
-        case alt::IBaseObject::Type::OBJECT: objectPoolDirty = true; break;
+        case alt::IBaseObject::Type::OBJECT:
+            objectPoolDirty = true;
+            weaponObjectPoolDirty = true;
+            break;
     }
 }
 
@@ -400,6 +403,24 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllObjects()
         return jsAll;
     }
     return objects.Get(isolate);
+}
+
+v8::Local<v8::Array> V8ResourceImpl::GetAllWeaponObjects()
+{
+    if(weaponObjectPoolDirty)
+    {
+        weaponObjectPoolDirty = false;
+
+        std::vector<IObject*> all = ICore::Instance().GetWeaponObjects();
+        v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
+
+        for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
+
+        weaponObjects.Reset(isolate, jsAll);
+        jsAll->SetIntegrityLevel(GetContext(), v8::IntegrityLevel::kFrozen);
+        return jsAll;
+    }
+    return weaponObjects.Get(isolate);
 }
 #endif
 

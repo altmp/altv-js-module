@@ -255,6 +255,7 @@ public:
 #endif
 #ifdef ALT_CLIENT_API
     v8::Local<v8::Array> GetAllObjects();
+    v8::Local<v8::Array> GetAllWeaponObjects();
 #endif
     v8::Local<v8::Array> GetAllNetworkObjects();
 
@@ -338,6 +339,9 @@ protected:
 
     bool objectPoolDirty = true;
     V8Helpers::CPersistent<v8::Array> objects;
+
+    bool weaponObjectPoolDirty = true;
+    V8Helpers::CPersistent<v8::Array> weaponObjects;
 
     V8Helpers::CPersistent<v8::Function> vector3Class;
     V8Helpers::CPersistent<v8::Function> vector2Class;
