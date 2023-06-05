@@ -213,10 +213,32 @@
     int64_t val;                \
     V8_CHECK(V8Helpers::SafeToInteger(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to integer")
 
+#define V8_ARG_TO_INT_OPT(idx, val, defaultVal)                                                                        \
+    int64_t val;                                                                                                       \
+    if(info.Length() >= (idx))                                                                                         \
+    {                                                                                                                  \
+        V8_CHECK(V8Helpers::SafeToInteger(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to integer"); \
+    }                                                                                                                  \
+    else                                                                                                               \
+    {                                                                                                                  \
+        val = defaultVal;                                                                                              \
+    }
+
 // idx starts with 1
 #define V8_ARG_TO_NUMBER(idx, val) \
     double val;                    \
     V8_CHECK(V8Helpers::SafeToNumber(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to number")
+
+#define V8_ARG_TO_NUMBER_OPT(idx, val, defaultVal)                                                                   \
+    double val;                                                                                                      \
+    if(info.Length() >= (idx))                                                                                       \
+    {                                                                                                                \
+        V8_CHECK(V8Helpers::SafeToNumber(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to number"); \
+    }                                                                                                                \
+    else                                                                                                             \
+    {                                                                                                                \
+        val = defaultVal;                                                                                            \
+    }
 
 // idx starts with 1
 #define V8_ARG_TO_STRING(idx, val) \
