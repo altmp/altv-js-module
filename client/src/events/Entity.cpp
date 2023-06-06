@@ -9,6 +9,7 @@
 #include "cpp-sdk/events/CPlayerWeaponShootEvent.h"
 #include "cpp-sdk/events/CPlayerWeaponChangeEvent.h"
 #include "cpp-sdk/events/CWeaponDamageEvent.h"
+#include "cpp-sdk/events/CEntityHitEntityEvent.h"
 
 #include "cpp-sdk/SDK.h"
 
@@ -94,3 +95,15 @@ V8_LOCAL_EVENT_HANDLER weaponDamage(EventType::WEAPON_DAMAGE_EVENT,
                                         args.push_back(resource->CreateVector3(ev->GetShotOffset()));
                                         args.push_back(V8Helpers::JSValue(static_cast<int8_t>(ev->GetBodyPart())));
                                     });
+
+V8_LOCAL_EVENT_HANDLER entityHitEntity(EventType::ENTITY_HIT_ENTITY,
+    "entityHitEntity",
+    [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+    {
+        auto ev = static_cast<const alt::CEntityHitEntityEvent*>(e);
+        v8::Isolate* isolate = resource->GetIsolate();
+
+        args.push_back(resource->GetBaseObjectOrNull(ev->GetDamager()));
+        args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
+        args.push_back(V8Helpers::JSValue(ev->GetWeapon()));
+    });
