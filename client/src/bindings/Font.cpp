@@ -22,7 +22,7 @@ static void StaticRegister(const v8::FunctionCallbackInfo<v8::Value>& info)
         return;
     }
 
-    V8_RETURN(resource->GetOrCreateEntity(font.get(), "Font")->GetJSVal(isolate));
+    V8_RETURN(resource->GetOrCreateEntity(font, "Font")->GetJSVal(isolate));
 }
 
 extern V8Class v8BaseObject;
