@@ -217,6 +217,22 @@ static void SetZoomLevel(const v8::FunctionCallbackInfo<v8::Value>& info)
     view->SetZoomLevel(zoomLevel);
 }
 
+static void Reload(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(view, alt::IWebView);
+    V8_CHECK_ARGS_LEN2(0, 1);
+
+    bool ignoreCache = false;
+    if (info.Length() > 0)
+    {
+        V8_ARG_TO_BOOLEAN(1, _ignoreCache);
+        ignoreCache = _ignoreCache;
+    }
+
+    view->Reload(ignoreCache);
+}
+
 static void AllWebviewGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -281,4 +297,5 @@ extern V8Class v8WebView("WebView",
 
                              V8Helpers::SetMethod(isolate, tpl, "setExtraHeader", &SetExtraHeader);
                              V8Helpers::SetMethod(isolate, tpl, "setZoomLevel", &SetZoomLevel);
+                             V8Helpers::SetMethod(isolate, tpl, "reload", &Reload);
                          });
