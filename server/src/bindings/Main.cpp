@@ -519,76 +519,83 @@ static void GetClosestEntities(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN(jsAll);
 }
 
+static void GetWeaponModelByHash(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_UINT(1, hash);
+
+    const alt::WeaponModelInfo& modelInfo = alt::ICore::Instance().GetWeaponModelByHash(hash);
+    V8_NEW_OBJECT(infoObj);
+
+    infoObj->Set(ctx, V8Helpers::JSValue("hash"), V8Helpers::JSValue(modelInfo.hash));
+    infoObj->Set(ctx, V8Helpers::JSValue("name"), V8Helpers::JSValue(modelInfo.name));
+    infoObj->Set(ctx, V8Helpers::JSValue("modelHash"), V8Helpers::JSValue(modelInfo.modelHash));
+    infoObj->Set(ctx, V8Helpers::JSValue("ammoTypeHash"), V8Helpers::JSValue(modelInfo.ammoTypeHash));
+    infoObj->Set(ctx, V8Helpers::JSValue("ammoType"), V8Helpers::JSValue(modelInfo.ammoType));
+    infoObj->Set(ctx, V8Helpers::JSValue("ammoModelHash"), V8Helpers::JSValue(modelInfo.ammoModelHash));
+    infoObj->Set(ctx, V8Helpers::JSValue("defaultMaxAmmoMp"), V8Helpers::JSValue(modelInfo.defaultMaxAmmoMp));
+    infoObj->Set(ctx, V8Helpers::JSValue("skillAbove50MaxAmmoMp"), V8Helpers::JSValue(modelInfo.skillAbove50MaxAmmoMp));
+    infoObj->Set(ctx, V8Helpers::JSValue("maxSkillMaxAmmoMp"), V8Helpers::JSValue(modelInfo.maxSkillMaxAmmoMp));
+    infoObj->Set(ctx, V8Helpers::JSValue("bonusMaxAmmoMp"), V8Helpers::JSValue(modelInfo.bonusMaxAmmoMp));
+
+    V8_RETURN(infoObj);
+}
+
 extern V8Class v8Player, v8Vehicle, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Checkpoint, v8VoiceChannel, v8Colshape, v8ColshapeCylinder, v8ColshapeSphere, v8ColshapeCircle,
   v8ColshapeCuboid, v8ColshapeRectangle, v8ColshapePolygon, v8Ped, v8NetworkObject, v8VirtualEntity, v8VirtualEntityGroup, v8Marker, v8ConnectionInfo;
 
 extern V8Module sharedModule;
 
-extern V8Module v8Alt("alt",
-                      &sharedModule,
-                      { v8Player,
-                        v8Vehicle,
-                        v8Blip,
-                        v8AreaBlip,
-                        v8RadiusBlip,
-                        v8PointBlip,
-                        v8Checkpoint,
-                        v8RadiusBlip,
-                        v8VoiceChannel,
-                        v8Colshape,
-                        v8ColshapeCylinder,
-                        v8ColshapeSphere,
-                        v8ColshapeCircle,
-                        v8ColshapeCuboid,
-                        v8ColshapeRectangle,
-                        v8ColshapePolygon,
-                        v8Ped,
-                        v8NetworkObject,
-                        v8VirtualEntityGroup,
-                        v8VirtualEntity,
-                        v8Marker,
-                        v8ConnectionInfo },
-                      [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports)
-                      {
-                          v8::Isolate* isolate = ctx->GetIsolate();
+extern V8Module v8Alt(
+  "alt",
+  &sharedModule,
+  { v8Player,           v8Vehicle,        v8Blip,           v8AreaBlip,       v8RadiusBlip,        v8PointBlip,       v8Checkpoint, v8RadiusBlip,    v8VoiceChannel,       v8Colshape,
+    v8ColshapeCylinder, v8ColshapeSphere, v8ColshapeCircle, v8ColshapeCuboid, v8ColshapeRectangle, v8ColshapePolygon, v8Ped,        v8NetworkObject, v8VirtualEntityGroup, v8VirtualEntity,
+    v8Marker,           v8ConnectionInfo },
+  [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports)
+  {
+      v8::Isolate* isolate = ctx->GetIsolate();
 
-                          V8Helpers::RegisterFunc(exports, "startResource", &StartResource);
-                          V8Helpers::RegisterFunc(exports, "stopResource", &StopResource);
-                          V8Helpers::RegisterFunc(exports, "restartResource", &RestartResource);
+      V8Helpers::RegisterFunc(exports, "startResource", &StartResource);
+      V8Helpers::RegisterFunc(exports, "stopResource", &StopResource);
+      V8Helpers::RegisterFunc(exports, "restartResource", &RestartResource);
 
-                          V8Helpers::RegisterFunc(exports, "onClient", &OnClient);
-                          V8Helpers::RegisterFunc(exports, "onceClient", &OnceClient);
-                          V8Helpers::RegisterFunc(exports, "offClient", &OffClient);
-                          V8Helpers::RegisterFunc(exports, "emitClient", &EmitClient);
-                          V8Helpers::RegisterFunc(exports, "emitAllClients", &EmitAllClients);
-                          V8Helpers::RegisterFunc(exports, "emitClientRaw", &EmitClientRaw);
-                          V8Helpers::RegisterFunc(exports, "emitAllClientsRaw", &EmitAllClientsRaw);
-                          V8Helpers::RegisterFunc(exports, "emitClientUnreliable", &EmitClientUnreliable);
-                          V8Helpers::RegisterFunc(exports, "emitAllClientsUnreliable", &EmitAllClientsUnreliable);
+      V8Helpers::RegisterFunc(exports, "onClient", &OnClient);
+      V8Helpers::RegisterFunc(exports, "onceClient", &OnceClient);
+      V8Helpers::RegisterFunc(exports, "offClient", &OffClient);
+      V8Helpers::RegisterFunc(exports, "emitClient", &EmitClient);
+      V8Helpers::RegisterFunc(exports, "emitAllClients", &EmitAllClients);
+      V8Helpers::RegisterFunc(exports, "emitClientRaw", &EmitClientRaw);
+      V8Helpers::RegisterFunc(exports, "emitAllClientsRaw", &EmitAllClientsRaw);
+      V8Helpers::RegisterFunc(exports, "emitClientUnreliable", &EmitClientUnreliable);
+      V8Helpers::RegisterFunc(exports, "emitAllClientsUnreliable", &EmitAllClientsUnreliable);
 
-                          V8Helpers::RegisterFunc(exports, "setSyncedMeta", &SetSyncedMeta);
-                          V8Helpers::RegisterFunc(exports, "deleteSyncedMeta", &DeleteSyncedMeta);
+      V8Helpers::RegisterFunc(exports, "setSyncedMeta", &SetSyncedMeta);
+      V8Helpers::RegisterFunc(exports, "deleteSyncedMeta", &DeleteSyncedMeta);
 
-                          V8Helpers::RegisterFunc(exports, "getNetTime", &GetNetTime);
+      V8Helpers::RegisterFunc(exports, "getNetTime", &GetNetTime);
 
-                          V8Helpers::RegisterFunc(exports, "setPassword", &SetPassword);
+      V8Helpers::RegisterFunc(exports, "setPassword", &SetPassword);
 
-                          V8Helpers::RegisterFunc(exports, "hashServerPassword", &HashServerPassword);
+      V8Helpers::RegisterFunc(exports, "hashServerPassword", &HashServerPassword);
 
-                          V8Helpers::RegisterFunc(exports, "stopServer", &StopServer);
+      V8Helpers::RegisterFunc(exports, "stopServer", &StopServer);
 
-                          V8Helpers::RegisterFunc(exports, "getVehicleModelInfoByHash", &GetVehicleModelByHash);
-                          V8Helpers::RegisterFunc(exports, "getPedModelInfoByHash", &GetPedModelByHash);
+      V8Helpers::RegisterFunc(exports, "getVehicleModelInfoByHash", &GetVehicleModelByHash);
+      V8Helpers::RegisterFunc(exports, "getPedModelInfoByHash", &GetPedModelByHash);
+      V8Helpers::RegisterFunc(exports, "getWeaponModelInfoByHash", &GetWeaponModelByHash);
 
-                          V8Helpers::RegisterFunc(exports, "getServerConfig", &GetServerConfig);
+      V8Helpers::RegisterFunc(exports, "getServerConfig", &GetServerConfig);
 
-                          V8Helpers::RegisterFunc(exports, "toggleWorldProfiler", &SetWorldProfiler);
+      V8Helpers::RegisterFunc(exports, "toggleWorldProfiler", &SetWorldProfiler);
 
-                          V8Helpers::RegisterFunc(exports, "getEntitiesInDimension", &GetEntitiesInDimension);
-                          V8Helpers::RegisterFunc(exports, "getEntitiesInRange", &GetEntitiesInRange);
-                          V8Helpers::RegisterFunc(exports, "getClosestEntities", &GetClosestEntities);
+      V8Helpers::RegisterFunc(exports, "getEntitiesInDimension", &GetEntitiesInDimension);
+      V8Helpers::RegisterFunc(exports, "getEntitiesInRange", &GetEntitiesInRange);
+      V8Helpers::RegisterFunc(exports, "getClosestEntities", &GetClosestEntities);
 
-                          V8_OBJECT_SET_STRING(exports, "rootDir", alt::ICore::Instance().GetRootDirectory());
-                          V8_OBJECT_SET_INT(exports, "defaultDimension", alt::DEFAULT_DIMENSION);
-                          V8_OBJECT_SET_INT(exports, "globalDimension", alt::GLOBAL_DIMENSION);
-                      });
+      V8_OBJECT_SET_STRING(exports, "rootDir", alt::ICore::Instance().GetRootDirectory());
+      V8_OBJECT_SET_INT(exports, "defaultDimension", alt::DEFAULT_DIMENSION);
+      V8_OBJECT_SET_INT(exports, "globalDimension", alt::GLOBAL_DIMENSION);
+  });
