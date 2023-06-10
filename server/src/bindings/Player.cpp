@@ -865,6 +865,48 @@ static void GetStreamedEntities(v8::Local<v8::String>, const v8::PropertyCallbac
     V8_RETURN(jsAll);
 }
 
+static void AmmoGetter(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    uint16_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, ammoHash);
+        hash = ammoHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, ammoHash);
+        hash = alt::ICore::Instance().Hash(ammoHash);
+    }
+
+    V8_RETURN_UINT(_this->GetAmmo(hash));
+}
+
+static void WeaponAmmoGetter(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    uint16_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, weaponHash);
+        hash = weaponHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, weaponHash);
+        hash = alt::ICore::Instance().Hash(weaponHash);
+    }
+
+    V8_RETURN_UINT(_this->GetWeaponAmmo(hash));
+}
+
 extern V8Class v8Entity;
 extern V8Class v8Player("Player",
                         v8Entity,
@@ -937,6 +979,8 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetAuthToken>(isolate, tpl, "authToken");
                             V8Helpers::SetAccessor(isolate, tpl, "discordID", &DiscordIDGetter);
                             V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetCloudAuthHash>(isolate, tpl, "cloudAuthHash");
+                            V8Helpers::SetMethod(isolate, tpl, "ammo", &AmmoGetter);
+                            V8Helpers::SetMethod(isolate, tpl, "weaponAmmo", &WeaponAmmoGetter);
 
                             V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsFlashlightActive>(isolate, tpl, "flashlightActive");
 
