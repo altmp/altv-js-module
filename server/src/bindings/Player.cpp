@@ -886,6 +886,29 @@ static void AmmoGetter(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_UINT(_this->GetAmmo(hash));
 }
 
+static void AmmoSetter(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, ammoHash);
+        hash = ammoHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, ammoHash);
+        hash = alt::ICore::Instance().Hash(ammoHash);
+    }
+
+    V8_ARG_TO_UINT(2, ammo);
+
+    _this->SetAmmo(hash, ammo);
+}
+
 static void WeaponAmmoGetter(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -905,6 +928,29 @@ static void WeaponAmmoGetter(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
 
     V8_RETURN_UINT(_this->GetWeaponAmmo(hash));
+}
+
+static void WeaponAmmoSetter(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, weaponHash);
+        hash = weaponHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, weaponHash);
+        hash = alt::ICore::Instance().Hash(weaponHash);
+    }
+
+    V8_ARG_TO_UINT(2, ammo);
+
+    _this->SetWeaponAmmo(hash, ammo);
 }
 
 extern V8Class v8Entity;
@@ -980,7 +1026,9 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetAccessor(isolate, tpl, "discordID", &DiscordIDGetter);
                             V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetCloudAuthHash>(isolate, tpl, "cloudAuthHash");
                             V8Helpers::SetMethod(isolate, tpl, "getAmmo", &AmmoGetter);
+                            V8Helpers::SetMethod(isolate, tpl, "setAmmo", &AmmoSetter);
                             V8Helpers::SetMethod(isolate, tpl, "getWeaponAmmo", &WeaponAmmoGetter);
+                            V8Helpers::SetMethod(isolate, tpl, "setWeaponAmmo", &WeaponAmmoSetter);
 
                             V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsFlashlightActive>(isolate, tpl, "flashlightActive");
 
