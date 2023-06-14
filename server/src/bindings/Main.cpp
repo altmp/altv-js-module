@@ -531,9 +531,11 @@ static void GetWeaponModelByHash(const v8::FunctionCallbackInfo<v8::Value>& info
 
     infoObj->Set(ctx, V8Helpers::JSValue("hash"), V8Helpers::JSValue(modelInfo.hash));
     infoObj->Set(ctx, V8Helpers::JSValue("name"), V8Helpers::JSValue(modelInfo.name));
+    infoObj->Set(ctx, V8Helpers::JSValue("modelName"), V8Helpers::JSValue(modelInfo.modelName));
     infoObj->Set(ctx, V8Helpers::JSValue("modelHash"), V8Helpers::JSValue(modelInfo.modelHash));
     infoObj->Set(ctx, V8Helpers::JSValue("ammoTypeHash"), V8Helpers::JSValue(modelInfo.ammoTypeHash));
     infoObj->Set(ctx, V8Helpers::JSValue("ammoType"), V8Helpers::JSValue(modelInfo.ammoType));
+    infoObj->Set(ctx, V8Helpers::JSValue("ammoModelName"), V8Helpers::JSValue(modelInfo.ammoModelName));
     infoObj->Set(ctx, V8Helpers::JSValue("ammoModelHash"), V8Helpers::JSValue(modelInfo.ammoModelHash));
     infoObj->Set(ctx, V8Helpers::JSValue("defaultMaxAmmoMp"), V8Helpers::JSValue(modelInfo.defaultMaxAmmoMp));
     infoObj->Set(ctx, V8Helpers::JSValue("skillAbove50MaxAmmoMp"), V8Helpers::JSValue(modelInfo.skillAbove50MaxAmmoMp));
