@@ -269,7 +269,7 @@ extern V8Class v8Entity("Entity",
 
                             V8Helpers::SetAccessor<IEntity, bool, &IEntity::HasCollision, &IEntity::SetCollision>(isolate, tpl, "collision");
 
-                            V8Helpers::SetAccessor<IEntity, uint32_t, &IEntity::GetTimestamp>(isolate, tpl, "getTimestamp");
+                            V8Helpers::SetAccessor<IEntity, uint32_t, &IEntity::GetTimestamp>(isolate, tpl, "timestamp");
 #endif  // ALT_SERVER_API
 
 #ifdef ALT_CLIENT_API
