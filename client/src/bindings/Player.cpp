@@ -35,29 +35,6 @@ static void CurrentWeaponComponentsGetter(v8::Local<v8::String>, const v8::Prope
     V8_RETURN(componentsArray);
 }
 
-static void WeaponHasComponent(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
-
-    V8_CHECK_ARGS_LEN(2);
-    V8_ARG_TO_INT(1, weaponHash);
-    V8_ARG_TO_INT(2, componentHash);
-
-    V8_RETURN_BOOLEAN(player->HasWeaponComponent(weaponHash, componentHash));
-}
-
-static void GetWeaponTintIndex(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
-
-    V8_CHECK_ARGS_LEN(1);
-    V8_ARG_TO_INT(1, weaponHash);
-
-    V8_RETURN_INT(player->GetWeaponTintIndex(weaponHash));
-}
-
 static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
