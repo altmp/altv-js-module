@@ -986,7 +986,7 @@ static void WeaponHasComponent(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_BOOLEAN(player->HasWeaponComponent(hash, componentHash));
 }
 
-static void RemoveAllWeapons(const v8::FunctionCallbackInfo<v8::Value>& info)
+static void HasWeapon(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_CHECK_ARGS_LEN(1);
@@ -1007,7 +1007,7 @@ static void RemoveAllWeapons(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_BOOLEAN(player->HasWeapon(hash));
 }
 
-static void HasWeapon(const v8::FunctionCallbackInfo<v8::Value>& info)
+static void RemoveAllWeapons(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_BASE_OBJECT(player, IPlayer);
