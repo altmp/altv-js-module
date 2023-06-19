@@ -788,6 +788,7 @@ if (alt.isClient && !alt.isWorker) {
     alt.Utils.getClosestVehicle = getClosestEntity(() => alt.Vehicle.streamedIn);
     alt.Utils.getClosestPlayer = getClosestEntity(() => alt.Player.streamedIn);
     alt.Utils.getClosestWorldObject = getClosestEntity(() => alt.Object.allWorld);
+    alt.Utils.getClosestVirtualEntity = getClosestEntity(() => alt.VirtualEntity.streamedIn);
 
     // TODO: change it to .streamedIn when serverside api will be added
     alt.Utils.getClosestObject = getClosestEntity(() => alt.Object.all);
