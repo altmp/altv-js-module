@@ -138,6 +138,16 @@ V8_LOCAL_EVENT_HANDLER disconnect(EventType::DISCONNECT_EVENT, "disconnect", [](
 
 V8_LOCAL_EVENT_HANDLER spawned(EventType::SPAWNED, "spawned", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {});
 
+V8_LOCAL_EVENT_HANDLER playerStartTalking(EventType::PLAYER_START_TALKING, "playerStartTalking", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+    auto ev = static_cast<const alt::CPlayerStartTalkingEvent*>(e);
+    args.push_back(resource->GetBaseObjectOrNull(ev->GetPlayer()));
+});
+
+V8_LOCAL_EVENT_HANDLER playerStopTalking(EventType::PLAYER_STOP_TALKING, "playerStopTalking", [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args) {
+    auto ev = static_cast<const alt::CPlayerStopTalkingEvent*>(e);
+    args.push_back(resource->GetBaseObjectOrNull(ev->GetPlayer()));
+});
+
 V8_LOCAL_EVENT_HANDLER netOwnerChange(EventType::NETOWNER_CHANGE,
                                       "netOwnerChange",
                                       [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args)
