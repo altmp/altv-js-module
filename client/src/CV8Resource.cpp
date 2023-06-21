@@ -279,7 +279,7 @@ void CV8ResourceImpl::OnEvent(const alt::CEvent* e)
         else if(e->GetType() == alt::CEvent::Type::DISCONNECT_EVENT)
         {
             CV8ScriptRuntime& runtime = CV8ScriptRuntime::Instance();
-            runtime.resourcesLoaded = false;
+            runtime.OnDisconnect();
         }
     }
 

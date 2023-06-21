@@ -213,4 +213,6 @@ public:
     {
         return streamedInVehicles;
     }
+
+    void OnDisconnect();
 };
