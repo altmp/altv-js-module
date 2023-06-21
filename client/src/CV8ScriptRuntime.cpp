@@ -425,3 +425,9 @@ void CV8ScriptRuntime::OnEntityStreamOut(alt::IEntity* entity)
         }
     }
 }
+void CV8ScriptRuntime::OnDisconnect()
+{
+    streamedInPlayers.clear();
+    streamedInVehicles.clear();
+    resourcesLoaded = false;
+}
