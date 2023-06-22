@@ -10,7 +10,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_CONSTRUCTOR();
-    V8_CHECK_ARGS_LEN2(5, 10);
+    V8_CHECK_ARGS_LEN2(6, 11);
 
     alt::Position pos;
     alt::RGBA color;

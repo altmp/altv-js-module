@@ -7,6 +7,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_CONSTRUCTOR();
+    V8_CHECK_ARGS_LEN2(7, 11);
 
     if(info.Length() == 7)
     {
@@ -58,8 +59,6 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
           type, { x, y, z }, { x2, y2, z2 }, radius, height, { (uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a }, streamingDistance, resource->GetResource());
         V8_BIND_BASE_OBJECT(cp, "Failed to create Checkpoint");
     }
-    else
-        V8Helpers::Throw(isolate, "6 or 10 arguments expected");
 }
 
 static void IsEntityIn(const v8::FunctionCallbackInfo<v8::Value>& info)
