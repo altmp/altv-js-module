@@ -343,6 +343,7 @@
 
 #define V8_BIND_BASE_OBJECT(baseObjectRef, reason)        \
     {                                                     \
+        if (auto existingEntity = resource->GetEntity(baseObjectRef)) { V8_RETURN(existingEntity->GetJSVal(isolate)); return; } \
         V8_CHECK(baseObjectRef, reason);                  \
         resource->BindEntity(info.This(), baseObjectRef); \
     }

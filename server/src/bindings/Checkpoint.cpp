@@ -54,9 +54,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     ICheckpoint* cp = ICore::Instance().CreateCheckpoint(type, pos, radius, height, color, streamingDistance);
 
-    if(cp) resource->BindEntity(info.This(), cp);
-    else
-        V8Helpers::Throw(isolate, "Failed to create Checkpoint");
+    V8_BIND_BASE_OBJECT(cp, "Failed to create Checkpoint");
 }
 
 static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)

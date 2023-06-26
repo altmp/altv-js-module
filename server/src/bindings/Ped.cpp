@@ -28,8 +28,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_VECTOR3(3, rot);
 
     IPed* ped = alt::ICore::Instance().CreatePed(model, pos, rot);
-    V8_CHECK(ped, "Failed to create ped");
-    resource->BindEntity(info.This(), ped);
+    V8_BIND_BASE_OBJECT(ped, "Failed to create ped");
 }
 
 static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
