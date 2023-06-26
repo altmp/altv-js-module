@@ -59,9 +59,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     IVehicle* veh = alt::ICore::Instance().CreateVehicle(modelHash, pos, rot);
 
-    V8_CHECK(veh, "Failed to create vehicle");
-
-    resource->BindEntity(info.This(), veh);
+    V8_BIND_BASE_OBJECT(veh, "Failed to create vehicle");
 }
 
 static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)

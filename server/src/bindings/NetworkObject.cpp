@@ -49,8 +49,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
 
     INetworkObject* object = alt::ICore::Instance().CreateNetworkObject(model, pos, rot, alpha, textureVariation, lodDistance);
-    V8_CHECK(object, "Failed to create object");
-    resource->BindEntity(info.This(), object);
+    V8_BIND_BASE_OBJECT(object, "Failed to create object");
 }
 
 static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
