@@ -465,7 +465,7 @@ static void PlayAnimation(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_ARG_TO_INT(5, durationVal);
         duration = durationVal;
     }
-    int flag = 0;
+    int flag = 1; // Looping
     if(info.Length() > 5)
     {
         V8_ARG_TO_INT(6, flagVal);
