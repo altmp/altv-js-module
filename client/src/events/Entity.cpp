@@ -69,6 +69,8 @@ V8_LOCAL_EVENT_HANDLER playerWeaponShoot(EventType::PLAYER_WEAPON_SHOOT_EVENT,
                                              args.push_back(V8Helpers::JSValue(ev->GetWeapon()));
                                              args.push_back(V8Helpers::JSValue(ev->GetTotalAmmo()));
                                              args.push_back(V8Helpers::JSValue(ev->GetAmmoInClip()));
+                                             args.push_back(resource->GetBaseObjectOrNull(ev->GetVictim()));
+                                             args.push_back(resource->CreateVector3(ev->GetPosition()));
                                          });
 
 V8_LOCAL_EVENT_HANDLER playerWeaponChange(EventType::PLAYER_WEAPON_CHANGE,
