@@ -17,8 +17,9 @@ static void StaticRegister(const v8::FunctionCallbackInfo<v8::Value>& info)
     std::string origin = V8Helpers::GetCurrentSourceOrigin(isolate);
     auto font = ICore::Instance().RegisterFont(resource->GetResource(), path, origin);
 
-    if (!font)
+    if(!font)
     {
+        V8Helpers::Throw(isolate, "Failed to register font");
         return;
     }
 
@@ -27,10 +28,10 @@ static void StaticRegister(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 extern V8Class v8BaseObject;
 extern V8Class v8Font("Font",
-                         v8BaseObject,
-                         [](v8::Local<v8::FunctionTemplate> tpl)
-                         {
-                            v8::Isolate* isolate = v8::Isolate::GetCurrent();
+                      v8BaseObject,
+                      [](v8::Local<v8::FunctionTemplate> tpl)
+                      {
+                          v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-                            V8Helpers::SetStaticMethod(isolate, tpl, "register", StaticRegister);
-                         });
+                          V8Helpers::SetStaticMethod(isolate, tpl, "register", StaticRegister);
+                      });
