@@ -72,7 +72,7 @@ V8_LOCAL_EVENT_HANDLER playerWeaponShoot(EventType::PLAYER_WEAPON_SHOOT_EVENT,
                                              args.push_back(V8Helpers::JSValue(ev->GetAmmoInClip()));
                                          });
 
-V8_LOCAL_EVENT_HANDLER playerWeaponShoot(EventType::PLAYER_BULLET_HIT_EVENT,
+V8_LOCAL_EVENT_HANDLER playerBulletHit(EventType::PLAYER_BULLET_HIT_EVENT,
                                         "playerBulletHit",
                                         [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args)
                                         {

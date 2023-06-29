@@ -37,6 +37,7 @@ inline void RegisterEvents()
     V8_REFERENCE_LOCAL_EVENT_HANDLER(playerWeaponChange);
     V8_REFERENCE_LOCAL_EVENT_HANDLER(weaponDamage);
     V8_REFERENCE_LOCAL_EVENT_HANDLER(entityHitEntity);
+    V8_REFERENCE_LOCAL_EVENT_HANDLER(playerBulletHit);
 
     // Meta
     V8_REFERENCE_LOCAL_EVENT_HANDLER(syncedMetaChange);
