@@ -19,7 +19,7 @@ static void StaticRegister(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     if(!font)
     {
-        V8_RETURN_NULL();
+        V8Helpers::Throw(isolate, "Failed to register font");
         return;
     }
 
