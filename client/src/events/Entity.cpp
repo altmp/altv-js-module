@@ -10,6 +10,7 @@
 #include "cpp-sdk/events/CPlayerWeaponChangeEvent.h"
 #include "cpp-sdk/events/CWeaponDamageEvent.h"
 #include "cpp-sdk/events/CEntityHitEntityEvent.h"
+#include "cpp-sdk/events/CPlayerBulletHitEvent.h"
 
 #include "cpp-sdk/SDK.h"
 
@@ -69,9 +70,19 @@ V8_LOCAL_EVENT_HANDLER playerWeaponShoot(EventType::PLAYER_WEAPON_SHOOT_EVENT,
                                              args.push_back(V8Helpers::JSValue(ev->GetWeapon()));
                                              args.push_back(V8Helpers::JSValue(ev->GetTotalAmmo()));
                                              args.push_back(V8Helpers::JSValue(ev->GetAmmoInClip()));
-                                             args.push_back(resource->GetBaseObjectOrNull(ev->GetVictim()));
-                                             args.push_back(resource->CreateVector3(ev->GetPosition()));
                                          });
+
+V8_LOCAL_EVENT_HANDLER playerWeaponShoot(EventType::PLAYER_BULLET_HIT_EVENT,
+                                        "playerBulletHit",
+                                        [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                        {
+                                            auto ev = static_cast<const alt::CPlayerBulletHitEvent*>(e);
+                                            v8::Isolate* isolate = resource->GetIsolate();
+
+                                            args.push_back(V8Helpers::JSValue(ev->GetWeapon()));
+                                            args.push_back(resource->GetBaseObjectOrNull(ev->GetVictim()));
+                                            args.push_back(resource->CreateVector3(ev->GetPosition()));
+                                        });
 
 V8_LOCAL_EVENT_HANDLER playerWeaponChange(EventType::PLAYER_WEAPON_CHANGE,
                                           "playerWeaponChange",
