@@ -29,6 +29,7 @@ class CV8ScriptRuntime : public alt::IScriptRuntime, public IRuntimeEventHandler
 
     std::unordered_map<uint16_t, alt::IPlayer*> streamedInPlayers;
     std::unordered_map<uint16_t, alt::IVehicle*> streamedInVehicles;
+    std::unordered_map<uint16_t, alt::IPed*> streamedInPeds;
 
     uint32_t activeWorkers = 0;
 
@@ -213,6 +214,11 @@ public:
     {
         return streamedInVehicles;
     }
+    auto GetStreamedInPeds()
+    {
+        return streamedInPeds;
+    }
+
 
     void OnDisconnect();
 };
