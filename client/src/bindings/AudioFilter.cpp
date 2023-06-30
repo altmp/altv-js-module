@@ -44,6 +44,34 @@ static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_STRING(ss.str());
 }
 
+static void AudioCategoryGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(filter, alt::IAudioFilter);
+
+    V8_RETURN_UINT(filter->GetAudCategory());
+}
+
+static void AudioCategorySetter(v8::Local<v8::String>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(filter, alt::IAudioFilter);
+
+    uint32_t category;
+    if (value->IsString())
+    {
+        V8_TO_STRING(value, categoryName);
+        category = alt::ICore::Instance().Hash(categoryName);
+    }
+    else
+    {
+        V8_TO_UINT(value, categoryHash);
+        category = categoryHash;
+    }
+
+    filter->SetAudCategory(category);
+}
+
 static void AddRotateEffect(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -283,6 +311,7 @@ extern V8Class v8AudioFilter("AudioFilter",
                              V8Helpers::SetMethod(isolate, tpl, "toString", ToString);
 
                              V8Helpers::SetAccessor<IAudioFilter, uint32_t, &IAudioFilter::GetHash>(isolate, tpl, "hash");
+                             V8Helpers::SetAccessor(isolate, tpl, "audioCategory", &AudioCategoryGetter, &AudioCategorySetter);
 
                              V8Helpers::SetMethod(isolate, tpl, "addRotateEffect", &AddRotateEffect);
                              V8Helpers::SetMethod(isolate, tpl, "addVolumeEffect", &AddVolumeEffect);
