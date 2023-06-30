@@ -217,7 +217,11 @@ bool V8ResourceImpl::IsBaseObject(v8::Local<v8::Value> val)
 
 void V8ResourceImpl::OnCreateBaseObject(alt::IBaseObject* handle)
 {
-    if(!handle) return;
+    if(!handle)
+    {
+        Log::Error << "OnCreateBaseObject called with invalid handle" << Log::Endl;
+        return;
+    }
 
     NotifyPoolUpdate(handle);
 }
