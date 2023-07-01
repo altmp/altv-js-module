@@ -1,5 +1,3 @@
-#include "stdafx.h"
-
 #include "V8Helpers.h"
 #include "helpers/BindHelpers.h"
 #include "V8ResourceImpl.h"
@@ -361,7 +359,7 @@ extern V8Class v8Blip("Blip",
                           V8Helpers::SetAccessor<IBlip, uint32_t, &IBlip::GetCategory, &IBlip::SetCategory>(isolate, tpl, "category");
                           V8Helpers::SetAccessor<IBlip, bool, &IBlip::GetAsHighDetail, &IBlip::SetAsHighDetail>(isolate, tpl, "highDetail");
                           V8Helpers::SetAccessor<IBlip, bool, &IBlip::GetShrinked, &IBlip::SetShrinked>(isolate, tpl, "shrinked");
-                          V8Helpers::SetAccessor(isolate, tpl, "type", &TypeGetter, &TypeSetter);
+                          V8Helpers::SetAccessor(isolate, tpl, "blipType", &TypeGetter, &TypeSetter);
                           V8Helpers::SetAccessor<IBlip, bool, &IBlip::IsAttached>(isolate, tpl, "isAttached");
                           V8Helpers::SetAccessor<IBlip, bool, &IBlip::GetAsFriendly, &IBlip::SetAsFriendly>(isolate, tpl, "isFriendly");
 
@@ -375,6 +373,8 @@ extern V8Class v8Blip("Blip",
 #ifdef ALT_SERVER_API
                           V8Helpers::SetAccessor<IBlip, bool, &IBlip::IsGlobal, &IBlip::SetGlobal>(isolate, tpl, "isGlobal");
                           V8Helpers::SetStaticAccessor(isolate, tpl, "targets", &GetTargets);
+                          V8Helpers::SetMethod(isolate, tpl, "addTarget", &AddTargetPlayer);
+                          V8Helpers::SetMethod(isolate, tpl, "removeTarget", &RemoveTargetPlayer);
 #endif
 
                           V8Helpers::SetAccessor(isolate, tpl, "attachedTo", &AttachedToGetter, &AttachedToSetter);
