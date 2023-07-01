@@ -1,7 +1,11 @@
-#include "../CV8Resource.h"
+#include "stdafx.h"
+
 #include "V8Helpers.h"
 #include "helpers/BindHelpers.h"
+#include "V8ResourceImpl.h"
 #include "cpp-sdk/script-objects/IBlip.h"
+
+using namespace alt;
 
 static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
@@ -21,6 +25,26 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK(false, "You can't use constructor of abstract class");
 }
 
+#ifdef ALT_SERVER_API
+static void ConstructorAreaBlip(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_CONSTRUCTOR();
+    V8_CHECK_ARGS_LEN(6);
+    V8_ARG_TO_NUMBER(1, x);
+    V8_ARG_TO_NUMBER(2, y);
+    V8_ARG_TO_NUMBER(3, z);
+    V8_ARG_TO_NUMBER(4, width);
+    V8_ARG_TO_NUMBER(5, height);
+    V8_ARG_TO_BOOLEAN(6, global);
+
+    alt::IBlip* blip = ICore::Instance().CreateBlip(global, alt::IBlip::BlipType::AREA, { x, y, z });
+    V8_BIND_BASE_OBJECT(blip, "Failed to create AreaBlip");
+    blip->SetScaleXY({ width, height });
+}
+#endif
+
+#ifdef ALT_CLIENT_API
 static void ConstructorAreaBlip(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -35,7 +59,27 @@ static void ConstructorAreaBlip(const v8::FunctionCallbackInfo<v8::Value>& info)
     alt::IBlip* blip = alt::ICore::Instance().CreateBlip({ x, y, z }, width, height, resource->GetResource());
     V8_BIND_BASE_OBJECT(blip, "Failed to create AreaBlip");
 }
+#endif
 
+#ifdef ALT_SERVER_API
+static void ConstructorRadiusBlip(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_CONSTRUCTOR();
+    V8_CHECK_ARGS_LEN(5);
+    V8_ARG_TO_NUMBER(1, x);
+    V8_ARG_TO_NUMBER(2, y);
+    V8_ARG_TO_NUMBER(3, z);
+    V8_ARG_TO_NUMBER(4, radius);
+    V8_ARG_TO_BOOLEAN(5, global);
+
+    alt::IBlip* blip = ICore::Instance().CreateBlip(global, alt::IBlip::BlipType::RADIUS, { x, y, z });
+    V8_BIND_BASE_OBJECT(blip, "Failed to create RadiusBlip");
+    blip->SetScaleXY({ radius, radius });
+}
+#endif
+
+#ifdef ALT_CLIENT_API
 static void ConstructorRadiusBlip(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -49,7 +93,52 @@ static void ConstructorRadiusBlip(const v8::FunctionCallbackInfo<v8::Value>& inf
     alt::IBlip* blip = alt::ICore::Instance().CreateBlip({ x, y, z }, radius, resource->GetResource());
     V8_BIND_BASE_OBJECT(blip, "Failed to create RadiusBlip");
 }
+#endif
 
+#ifdef ALT_SERVER_API
+static void ConstructorPointBlip(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_CONSTRUCTOR();
+    V8_CHECK_ARGS_LEN2(2, 4);
+
+    IBlip* blip;
+
+    if(info.Length() == 4)
+    {
+        V8_ARG_TO_NUMBER(1, x);
+        V8_ARG_TO_NUMBER(2, y);
+        V8_ARG_TO_NUMBER(3, z);
+        V8_ARG_TO_BOOLEAN(4, global);
+
+        blip = ICore::Instance().CreateBlip(global, alt::IBlip::BlipType::DESTINATION, { x, y, z });
+    }
+
+    else if(info.Length() == 2)
+    {
+        if(resource->IsVector3(info[0]))
+        {
+            V8_ARG_TO_VECTOR3(1, pos);
+            V8_ARG_TO_BOOLEAN(2, global);
+            blip = ICore::Instance().CreateBlip(global, alt::IBlip::BlipType::DESTINATION, pos);
+        }
+        else if(resource->IsBaseObject(info[0]))
+        {
+            V8_ARG_TO_BASE_OBJECT(1, ent, IEntity, "entity");
+            V8_ARG_TO_BOOLEAN(2, global);
+            blip = ICore::Instance().CreateBlip(global, alt::IBlip::BlipType::DESTINATION, ent);
+        }
+        else
+        {
+            V8_CHECK(false, "The PointBlip argument must be a Vector3 or an Entity");
+        }
+    }
+
+    V8_BIND_BASE_OBJECT(blip, "Failed to create PointBlip");
+}
+#endif
+
+#ifdef ALT_CLIENT_API
 static void ConstructorPointBlip(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -62,6 +151,7 @@ static void ConstructorPointBlip(const v8::FunctionCallbackInfo<v8::Value>& info
     alt::IBlip* blip = alt::ICore::Instance().CreateBlip(alt::IBlip::BlipType::DESTINATION, { x, y, z }, resource->GetResource());
     V8_BIND_BASE_OBJECT(blip, "Failed to create PointBlip");
 }
+#endif
 
 static void ScaleGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
@@ -86,6 +176,21 @@ static void Fade(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_INT(2, duration);
     V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
     blip->Fade(opacity, duration);
+}
+
+static void AttachedToGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+    V8_RETURN_BASE_OBJECT(blip->AttachedTo());
+}
+
+static void AttachedToSetter(v8::Local<v8::String>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+    V8_TO_ENTITY(value, val);
+    blip->AttachTo(val);
 }
 
 static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -119,6 +224,7 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
 }
 
+#ifdef ALT_CLIENT_API
 static void StaticGetByScriptID(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -155,6 +261,57 @@ static void StaticGetByRemoteId(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_RETURN_NULL();
     }
 }
+#endif
+
+static void TypeGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+    V8_RETURN_NUMBER(blip->GetBlipType());
+}
+
+static void TypeSetter(v8::Local<v8::String>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+    V8_TO_NUMBER(value, val);
+    blip->SetBlipType((IBlip::BlipType)val);
+}
+
+#ifdef ALT_SERVER_API
+static void AddTargetPlayer(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_BASE_OBJECT(1, player, alt::IPlayer, "Player");
+
+    blip->AddTargetPlayer(player);
+}
+static void RemoveTargetPlayer(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_BASE_OBJECT(1, player, alt::IPlayer, "Player");
+
+    blip->RemoveTargetPlayer(player);
+}
+
+static void GetTargets(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
+
+    std::vector<IPlayer*> targets = blip->GetTargets();
+    v8::Local<v8::Array> jsAll = v8::Array::New(isolate, targets.size());
+    for(uint32_t i = 0; i < targets.size(); ++i) jsAll->Set(resource->GetContext(), i, resource->GetBaseObjectOrNull(targets[i]));
+
+    V8_RETURN(jsAll);
+}
+#endif
 
 extern V8Class v8WorldObject;
 extern V8Class v8Blip("Blip",
@@ -162,16 +319,16 @@ extern V8Class v8Blip("Blip",
                       Constructor,
                       [](v8::Local<v8::FunctionTemplate> tpl)
                       {
-                          using namespace alt;
                           v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
                           V8Helpers::SetMethod(isolate, tpl, "toString", ToString);
-
                           V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
                           V8Helpers::SetStaticAccessor(isolate, tpl, "count", &CountGetter);
 
                           V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
+#ifdef ALT_CLIENT_API
                           V8Helpers::SetStaticMethod(isolate, tpl, "getByRemoteID", StaticGetByRemoteId);
+#endif
 
                           V8Helpers::SetAccessor<IBlip, RGBA, &IBlip::GetRouteColor, &IBlip::SetRouteColor>(isolate, tpl, "routeColor");
                           V8Helpers::SetAccessor<IBlip, uint32_t, &IBlip::GetSprite, &IBlip::SetSprite>(isolate, tpl, "sprite");
@@ -204,9 +361,23 @@ extern V8Class v8Blip("Blip",
                           V8Helpers::SetAccessor<IBlip, uint32_t, &IBlip::GetCategory, &IBlip::SetCategory>(isolate, tpl, "category");
                           V8Helpers::SetAccessor<IBlip, bool, &IBlip::GetAsHighDetail, &IBlip::SetAsHighDetail>(isolate, tpl, "highDetail");
                           V8Helpers::SetAccessor<IBlip, bool, &IBlip::GetShrinked, &IBlip::SetShrinked>(isolate, tpl, "shrinked");
+                          V8Helpers::SetAccessor(isolate, tpl, "type", &TypeGetter, &TypeSetter);
+                          V8Helpers::SetAccessor<IBlip, bool, &IBlip::IsAttached>(isolate, tpl, "isAttached");
+                          V8Helpers::SetAccessor<IBlip, bool, &IBlip::GetAsFriendly, &IBlip::SetAsFriendly>(isolate, tpl, "isFriendly");
 
+#ifdef ALT_CLIENT_API
                           V8Helpers::SetAccessor<IBlip, uint32_t, &IBlip::GetGameID>(isolate, tpl, "scriptID");
+                          V8Helpers::SetAccessor<IBlip, bool, &IBlip::IsStreamedIn>(isolate, tpl, "isStreamedIn");
                           V8Helpers::SetStaticMethod(isolate, tpl, "getByScriptID", StaticGetByScriptID);
+                          V8Helpers::SetAccessor<IBlip, bool, &IBlip::IsGlobal>(isolate, tpl, "isGlobal");
+#endif
+
+#ifdef ALT_SERVER_API
+                          V8Helpers::SetAccessor<IBlip, bool, &IBlip::IsGlobal, &IBlip::SetGlobal>(isolate, tpl, "isGlobal");
+                          V8Helpers::SetStaticAccessor(isolate, tpl, "targets", &GetTargets);
+#endif
+
+                          V8Helpers::SetAccessor(isolate, tpl, "attachedTo", &AttachedToGetter, &AttachedToSetter);
 
                           V8Helpers::SetMethod(isolate, tpl, "fade", &Fade);
                           V8Helpers::SetAccessor<IBlip, bool, &IBlip::IsVisible, &IBlip::SetVisible>(isolate, tpl, "visible");
@@ -218,7 +389,6 @@ extern V8Class v8AreaBlip("AreaBlip",
                           [](v8::Local<v8::FunctionTemplate> tpl)
                           {
                               v8::Isolate* isolate = v8::Isolate::GetCurrent();
-
                               v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
                           });
 
@@ -228,7 +398,6 @@ extern V8Class v8RadiusBlip("RadiusBlip",
                             [](v8::Local<v8::FunctionTemplate> tpl)
                             {
                                 v8::Isolate* isolate = v8::Isolate::GetCurrent();
-
                                 v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
                             });
 
@@ -238,6 +407,5 @@ extern V8Class v8PointBlip("PointBlip",
                            [](v8::Local<v8::FunctionTemplate> tpl)
                            {
                                v8::Isolate* isolate = v8::Isolate::GetCurrent();
-
                                v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
                            });
