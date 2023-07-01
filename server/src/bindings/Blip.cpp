@@ -17,14 +17,15 @@ static void ConstructorAreaBlip(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_CONSTRUCTOR();
-    V8_CHECK_ARGS_LEN(5);
-    V8_ARG_TO_NUMBER(1, x);
-    V8_ARG_TO_NUMBER(2, y);
-    V8_ARG_TO_NUMBER(3, z);
-    V8_ARG_TO_NUMBER(4, width);
-    V8_ARG_TO_NUMBER(5, height);
+    V8_CHECK_ARGS_LEN(6);
+    V8_ARG_TO_BOOLEAN(1, global);
+    V8_ARG_TO_NUMBER(2, x);
+    V8_ARG_TO_NUMBER(3, y);
+    V8_ARG_TO_NUMBER(4, z);
+    V8_ARG_TO_NUMBER(5, width);
+    V8_ARG_TO_NUMBER(6, height);
 
-    alt::IBlip* blip = ICore::Instance().CreateBlip(nullptr, alt::IBlip::BlipType::AREA, { x, y, z });
+    alt::IBlip* blip = ICore::Instance().CreateBlip(global, alt::IBlip::BlipType::AREA, { x, y, z });
     V8_BIND_BASE_OBJECT(blip, "Failed to create AreaBlip");
     blip->SetScaleXY({ width, height });
 }
@@ -33,13 +34,14 @@ static void ConstructorRadiusBlip(const v8::FunctionCallbackInfo<v8::Value>& inf
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_CONSTRUCTOR();
-    V8_CHECK_ARGS_LEN(4);
-    V8_ARG_TO_NUMBER(1, x);
-    V8_ARG_TO_NUMBER(2, y);
-    V8_ARG_TO_NUMBER(3, z);
-    V8_ARG_TO_NUMBER(4, radius);
+    V8_CHECK_ARGS_LEN(5);
+    V8_ARG_TO_BOOLEAN(1, global);
+    V8_ARG_TO_NUMBER(2, x);
+    V8_ARG_TO_NUMBER(3, y);
+    V8_ARG_TO_NUMBER(4, z);
+    V8_ARG_TO_NUMBER(5, radius);
 
-    alt::IBlip* blip = ICore::Instance().CreateBlip(nullptr, alt::IBlip::BlipType::RADIUS, { x, y, z });
+    alt::IBlip* blip = ICore::Instance().CreateBlip(global, alt::IBlip::BlipType::RADIUS, { x, y, z });
     V8_BIND_BASE_OBJECT(blip, "Failed to create RadiusBlip");
     blip->SetScaleXY({ radius, radius });
 }
@@ -48,30 +50,32 @@ static void ConstructorPointBlip(const v8::FunctionCallbackInfo<v8::Value>& info
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_CONSTRUCTOR();
-    V8_CHECK_ARGS_LEN2(1, 3);
+    V8_CHECK_ARGS_LEN2(2, 4);
 
     IBlip* blip;
 
-    if(info.Length() == 3)
-    {
-        V8_ARG_TO_NUMBER(1, x);
-        V8_ARG_TO_NUMBER(2, y);
-        V8_ARG_TO_NUMBER(3, z);
+    V8_ARG_TO_BOOLEAN(1, global);
 
-        blip = ICore::Instance().CreateBlip(nullptr, alt::IBlip::BlipType::DESTINATION, { x, y, z });
+    if(info.Length() == 4)
+    {
+        V8_ARG_TO_NUMBER(2, x);
+        V8_ARG_TO_NUMBER(3, y);
+        V8_ARG_TO_NUMBER(4, z);
+
+        blip = ICore::Instance().CreateBlip(global, alt::IBlip::BlipType::DESTINATION, { x, y, z });
     }
 
-    else if(info.Length() == 1)
+    else if(info.Length() == 2)
     {
         if(resource->IsVector3(info[0]))
         {
-            V8_ARG_TO_VECTOR3(1, pos);
-            blip = ICore::Instance().CreateBlip(nullptr, alt::IBlip::BlipType::DESTINATION, pos);
+            V8_ARG_TO_VECTOR3(2, pos);
+            blip = ICore::Instance().CreateBlip(global, alt::IBlip::BlipType::DESTINATION, pos);
         }
         else if(resource->IsBaseObject(info[0]))
         {
-            V8_ARG_TO_BASE_OBJECT(1, ent, IEntity, "entity");
-            blip = ICore::Instance().CreateBlip(nullptr, alt::IBlip::BlipType::DESTINATION, ent);
+            V8_ARG_TO_BASE_OBJECT(2, ent, IEntity, "entity");
+            blip = ICore::Instance().CreateBlip(global, alt::IBlip::BlipType::DESTINATION, ent);
         }
         else
         {
