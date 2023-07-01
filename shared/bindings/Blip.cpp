@@ -298,7 +298,7 @@ static void RemoveTargetPlayer(const v8::FunctionCallbackInfo<v8::Value>& info)
     blip->RemoveTargetPlayer(player);
 }
 
-static void GetTargets(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+static void GetTargets(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_GET_THIS_BASE_OBJECT(blip, alt::IBlip);
@@ -372,7 +372,7 @@ extern V8Class v8Blip("Blip",
 
 #ifdef ALT_SERVER_API
                           V8Helpers::SetAccessor<IBlip, bool, &IBlip::IsGlobal, &IBlip::SetGlobal>(isolate, tpl, "isGlobal");
-                          V8Helpers::SetStaticAccessor(isolate, tpl, "targets", &GetTargets);
+                          V8Helpers::SetAccessor(isolate, tpl, "targets", &GetTargets);
                           V8Helpers::SetMethod(isolate, tpl, "addTarget", &AddTargetPlayer);
                           V8Helpers::SetMethod(isolate, tpl, "removeTarget", &RemoveTargetPlayer);
 #endif
