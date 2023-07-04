@@ -4,6 +4,7 @@
 #include "V8Class.h"
 #include "../CV8ScriptRuntime.h"
 #include "cpp-sdk/script-objects/IAudio.h"
+#include "cpp-sdk/script-objects/IAudioOutput.h"
 
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
@@ -35,7 +36,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         }
     }
 
-    auto audio = alt::ICore::Instance().CreateAudio(source, volume, category, frontend, resource->GetResource());
+    auto audio = alt::ICore::Instance().CreateAudio(source, volume, resource->GetResource());
     V8_BIND_BASE_OBJECT(audio, "Failed to create Audio");
 }
 
@@ -89,7 +90,7 @@ static void CategoryGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo
     V8_GET_ISOLATE();
     V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
 
-    V8_RETURN_UINT(audio->GetCategory());
+    //V8_RETURN_UINT(audio->GetCategory());
 }
 
 static void CategorySetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
@@ -108,7 +109,7 @@ static void CategorySetter(v8::Local<v8::String>, v8::Local<v8::Value> val, cons
         V8_TO_STRING(val, categ);
         category = alt::ICore::Instance().Hash(categ);
     }
-    audio->SetCategory(category);
+    //audio->SetCategory(category);
 }
 
 static void AddOutput(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -117,16 +118,8 @@ static void AddOutput(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
     V8_CHECK_ARGS_LEN(1);
 
-    if(info[0]->IsInt32() || info[0]->IsUint32())
-    {
-        V8_ARG_TO_INT(1, scriptId);
-        audio->AddOutput(scriptId);
-    }
-    else
-    {
-        V8_ARG_TO_BASE_OBJECT(1, entity, alt::IEntity, "Entity");
-        audio->AddOutput(entity);
-    }
+    V8_ARG_TO_BASE_OBJECT(1, entity, alt::IAudioOutput, "AudioOutput");
+    audio->AddOutput(entity);
 }
 
 static void RemoveOutput(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -135,16 +128,8 @@ static void RemoveOutput(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
     V8_CHECK_ARGS_LEN(1);
 
-    if(info[0]->IsInt32() || info[0]->IsUint32())
-    {
-        V8_ARG_TO_INT(1, scriptId);
-        audio->RemoveOutput(scriptId);
-    }
-    else
-    {
-        V8_ARG_TO_BASE_OBJECT(1, entity, alt::IEntity, "Entity");
-        audio->RemoveOutput(entity);
-    }
+    V8_ARG_TO_BASE_OBJECT(1, entity, alt::IAudioOutput, "AudioOutput");
+    audio->RemoveOutput(entity);
 }
 
 static void GetOutputs(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -213,8 +198,6 @@ extern V8Class v8Audio("Audio",
                            V8Helpers::SetAccessor<IAudio, const std::string&, &IAudio::GetSource, &IAudio::SetSource>(isolate, tpl, "source");
                            V8Helpers::SetAccessor<IAudio, bool, &IAudio::IsLoop, &IAudio::SetLoop>(isolate, tpl, "looped");
                            V8Helpers::SetAccessor<IAudio, float, &IAudio::GetVolume, &IAudio::SetVolume>(isolate, tpl, "volume");
-                           V8Helpers::SetAccessor(isolate, tpl, "category", &CategoryGetter, &CategorySetter);
-                           V8Helpers::SetAccessor<IAudio, bool, &IAudio::IsFrontendPlay>(isolate, tpl, "frontendPlay");
                            V8Helpers::SetAccessor<IAudio, double, &IAudio::GetCurrentTime>(isolate, tpl, "currentTime");
                            V8Helpers::SetAccessor<IAudio, double, &IAudio::GetMaxTime>(isolate, tpl, "maxTime");
                            V8Helpers::SetAccessor<IAudio, bool, &IAudio::IsPlaying>(isolate, tpl, "playing");
