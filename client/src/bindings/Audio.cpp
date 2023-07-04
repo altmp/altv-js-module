@@ -10,32 +10,11 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_CONSTRUCTOR();
-    V8_CHECK_ARGS_LEN_MIN_MAX(2, 4);
+    V8_CHECK_ARGS_LEN(2);
 
     V8_ARG_TO_STRING(1, source);
     V8_ARG_TO_NUMBER(2, volume);
-
-    uint32_t category = 0;
-    bool frontend = false;
-    if(info.Length() == 3 || info.Length() == 4)
-    {
-        if(info[2]->IsNumber())
-        {
-            V8_ARG_TO_UINT(3, categ);
-            category = categ;
-        }
-        else
-        {
-            V8_ARG_TO_STRING(3, categ);
-            category = alt::ICore::Instance().Hash(categ);
-        }
-        if(info.Length() == 4)
-        {
-            V8_ARG_TO_BOOLEAN(4, frntnd);
-            frontend = frntnd;
-        }
-    }
-
+    
     auto audio = alt::ICore::Instance().CreateAudio(source, volume, resource->GetResource());
     V8_BIND_BASE_OBJECT(audio, "Failed to create Audio");
 }
