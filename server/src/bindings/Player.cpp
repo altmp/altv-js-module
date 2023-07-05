@@ -1328,13 +1328,13 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetMethod(isolate, tpl, "setAmmoSpecialType", &SetAmmoSpecialType);
                             V8Helpers::SetMethod(isolate, tpl, "getAmmoSpecialType", &GetAmmoSpecialType);
                             V8Helpers::SetMethod(isolate, tpl, "setAmmoFlags", &SetAmmoFlags);
-                            // V8Helpers::SetMethod(isolate, tpl, "getAmmoFlags", &GetAmmoFlags);
+                            V8Helpers::SetMethod(isolate, tpl, "getAmmoFlags", &GetAmmoFlags);
                             V8Helpers::SetMethod(isolate, tpl, "setAmmoMax", &SetAmmoMax);
                             V8Helpers::SetMethod(isolate, tpl, "getAmmoMax", &GetAmmoMax);
                             V8Helpers::SetMethod(isolate, tpl, "setAmmoMax50", &SetAmmoMax50);
                             V8Helpers::SetMethod(isolate, tpl, "getAmmoMax50", &GetAmmoMax50);
-                            V8Helpers::SetMethod(isolate, tpl, "SetAmmoMax100", &SetAmmoMax100);
-                            V8Helpers::SetMethod(isolate, tpl, "GetAmmoMax100", &GetAmmoMax100);
+                            V8Helpers::SetMethod(isolate, tpl, "setAmmoMax100", &SetAmmoMax100);
+                            V8Helpers::SetMethod(isolate, tpl, "getAmmoMax100", &GetAmmoMax100);
 
                             V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsFlashlightActive>(isolate, tpl, "flashlightActive");
 
