@@ -14,7 +14,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_STRING(1, source);
     V8_ARG_TO_NUMBER(2, volume);
-    
+
     auto audio = alt::ICore::Instance().CreateAudio(source, volume, resource->GetResource());
     V8_BIND_BASE_OBJECT(audio, "Failed to create Audio");
 }
@@ -62,33 +62,6 @@ static void GetEventListeners(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
 
     V8_RETURN(array);
-}
-
-static void CategoryGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-    V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
-
-    //V8_RETURN_UINT(audio->GetCategory());
-}
-
-static void CategorySetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(audio, alt::IAudio);
-
-    int64_t category;
-    if(val->IsNumber())
-    {
-        V8_TO_INTEGER(val, categ);
-        category = categ;
-    }
-    else if(val->IsString())
-    {
-        V8_TO_STRING(val, categ);
-        category = alt::ICore::Instance().Hash(categ);
-    }
-    //audio->SetCategory(category);
 }
 
 static void AddOutput(const v8::FunctionCallbackInfo<v8::Value>& info)

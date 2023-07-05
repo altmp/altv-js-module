@@ -547,6 +547,26 @@ static void GetWeaponModelByHash(const v8::FunctionCallbackInfo<v8::Value>& info
     V8_RETURN(infoObj);
 }
 
+static void GetAmmoHashForWeaponHash(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, weaponHash);
+        hash = weaponHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, weaponHash);
+        hash = alt::ICore::Instance().Hash(weaponHash);
+    }
+
+    V8_RETURN_UINT(alt::ICore::Instance().GetAmmoHashForWeaponHash(hash));
+}
+
 extern V8Class v8Player, v8Vehicle, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Checkpoint, v8VoiceChannel, v8Colshape, v8ColshapeCylinder, v8ColshapeSphere, v8ColshapeCircle,
   v8ColshapeCuboid, v8ColshapeRectangle, v8ColshapePolygon, v8Ped, v8NetworkObject, v8VirtualEntity, v8VirtualEntityGroup, v8Marker, v8ConnectionInfo;
 
@@ -590,6 +610,7 @@ extern V8Module v8Alt(
       V8Helpers::RegisterFunc(exports, "getVehicleModelInfoByHash", &GetVehicleModelByHash);
       V8Helpers::RegisterFunc(exports, "getPedModelInfoByHash", &GetPedModelByHash);
       V8Helpers::RegisterFunc(exports, "getWeaponModelInfoByHash", &GetWeaponModelByHash);
+      V8Helpers::RegisterFunc(exports, "getAmmoHashForWeaponHash", &GetAmmoHashForWeaponHash);
 
       V8Helpers::RegisterFunc(exports, "getServerConfig", &GetServerConfig);
 

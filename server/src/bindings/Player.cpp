@@ -465,7 +465,7 @@ static void PlayAnimation(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_ARG_TO_INT(5, durationVal);
         duration = durationVal;
     }
-    int flag = 1; // Looping
+    int flag = 1;  // Looping
     if(info.Length() > 5)
     {
         V8_ARG_TO_INT(6, flagVal);
@@ -1017,6 +1017,226 @@ static void RemoveAllWeapons(const v8::FunctionCallbackInfo<v8::Value>& info)
     player->RemoveAllWeapons(removeAllAmmo);
 }
 
+static void GetAmmoSpecialType(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, ammoHash);
+        hash = ammoHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, ammoHash);
+        hash = alt::ICore::Instance().Hash(ammoHash);
+    }
+
+    V8_RETURN_UINT(_this->GetAmmoSpecialType(hash));
+}
+
+static void SetAmmoSpecialType(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, ammoHash);
+        hash = ammoHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, ammoHash);
+        hash = alt::ICore::Instance().Hash(ammoHash);
+    }
+
+    V8_ARG_TO_UINT(2, ammoSpecialType);
+
+    _this->SetAmmoSpecialType(hash, (AmmoSpecialType)ammoSpecialType);
+}
+
+// static void GetAmmoFlags(const v8::FunctionCallbackInfo<v8::Value>& info)
+// {
+//     V8_GET_ISOLATE_CONTEXT();
+//     V8_CHECK_ARGS_LEN(1);
+//     V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+//     uint32_t hash;
+//     if(info[0]->IsNumber())
+//     {
+//         V8_ARG_TO_UINT(1, ammoHash);
+//         hash = ammoHash;
+//     }
+//     else
+//     {
+//         V8_ARG_TO_STRING(1, ammoHash);
+//         hash = alt::ICore::Instance().Hash(ammoHash);
+//     }
+
+//     V8_RETURN_UINT(_this->GetAmmoFlags(hash));
+// }
+
+static void SetAmmoFlags(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, ammoHash);
+        hash = ammoHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, ammoHash);
+        hash = alt::ICore::Instance().Hash(ammoHash);
+    }
+
+    V8_ARG_TO_UINT(2, ammoFlags);
+
+    _this->SetAmmoFlags(hash, (AmmoFlags)ammoFlags);
+}
+
+static void GetAmmoMax(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, ammoHash);
+        hash = ammoHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, ammoHash);
+        hash = alt::ICore::Instance().Hash(ammoHash);
+    }
+
+    V8_RETURN_INT(_this->GetAmmoMax(hash));
+}
+
+static void SetAmmoMax(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, ammoHash);
+        hash = ammoHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, ammoHash);
+        hash = alt::ICore::Instance().Hash(ammoHash);
+    }
+
+    V8_ARG_TO_INT(2, ammoMax);
+
+    _this->SetAmmoMax(hash, ammoMax);
+}
+
+static void GetAmmoMax50(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, ammoHash);
+        hash = ammoHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, ammoHash);
+        hash = alt::ICore::Instance().Hash(ammoHash);
+    }
+
+    V8_RETURN_INT(_this->GetAmmoMax50(hash));
+}
+
+static void SetAmmoMax50(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, ammoHash);
+        hash = ammoHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, ammoHash);
+        hash = alt::ICore::Instance().Hash(ammoHash);
+    }
+
+    V8_ARG_TO_INT(2, ammoMax);
+
+    _this->SetAmmoMax50(hash, ammoMax);
+}
+
+static void GetAmmoMax100(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, ammoHash);
+        hash = ammoHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, ammoHash);
+        hash = alt::ICore::Instance().Hash(ammoHash);
+    }
+
+    V8_RETURN_INT(_this->GetAmmoMax100(hash));
+}
+
+static void SetAmmoMax100(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, ammoHash);
+        hash = ammoHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, ammoHash);
+        hash = alt::ICore::Instance().Hash(ammoHash);
+    }
+
+    V8_ARG_TO_INT(2, ammoMax);
+
+    _this->SetAmmoMax100(hash, ammoMax);
+}
+
 extern V8Class v8Entity;
 extern V8Class v8Player("Player",
                         v8Entity,
@@ -1094,6 +1314,16 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetMethod(isolate, tpl, "setAmmo", &AmmoSetter);
                             V8Helpers::SetMethod(isolate, tpl, "getWeaponAmmo", &WeaponAmmoGetter);
                             V8Helpers::SetMethod(isolate, tpl, "setWeaponAmmo", &WeaponAmmoSetter);
+                            V8Helpers::SetMethod(isolate, tpl, "setAmmoSpecialType", &SetAmmoSpecialType);
+                            V8Helpers::SetMethod(isolate, tpl, "getAmmoSpecialType", &GetAmmoSpecialType);
+                            V8Helpers::SetMethod(isolate, tpl, "setAmmoFlags", &SetAmmoFlags);
+                            // V8Helpers::SetMethod(isolate, tpl, "getAmmoFlags", &GetAmmoFlags);
+                            V8Helpers::SetMethod(isolate, tpl, "setAmmoMax", &SetAmmoMax);
+                            V8Helpers::SetMethod(isolate, tpl, "getAmmoMax", &GetAmmoMax);
+                            V8Helpers::SetMethod(isolate, tpl, "setAmmoMax50", &SetAmmoMax50);
+                            V8Helpers::SetMethod(isolate, tpl, "getAmmoMax50", &GetAmmoMax50);
+                            V8Helpers::SetMethod(isolate, tpl, "SetAmmoMax100", &SetAmmoMax100);
+                            V8Helpers::SetMethod(isolate, tpl, "GetAmmoMax100", &GetAmmoMax100);
 
                             V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsFlashlightActive>(isolate, tpl, "flashlightActive");
 
