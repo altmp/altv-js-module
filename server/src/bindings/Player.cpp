@@ -1061,31 +1061,10 @@ static void SetAmmoSpecialType(const v8::FunctionCallbackInfo<v8::Value>& info)
     _this->SetAmmoSpecialType(hash, (AmmoSpecialType)ammoSpecialType);
 }
 
-// static void GetAmmoFlags(const v8::FunctionCallbackInfo<v8::Value>& info)
-// {
-//     V8_GET_ISOLATE_CONTEXT();
-//     V8_CHECK_ARGS_LEN(1);
-//     V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
-
-//     uint32_t hash;
-//     if(info[0]->IsNumber())
-//     {
-//         V8_ARG_TO_UINT(1, ammoHash);
-//         hash = ammoHash;
-//     }
-//     else
-//     {
-//         V8_ARG_TO_STRING(1, ammoHash);
-//         hash = alt::ICore::Instance().Hash(ammoHash);
-//     }
-
-//     V8_RETURN_UINT(_this->GetAmmoFlags(hash));
-// }
-
-static void SetAmmoFlags(const v8::FunctionCallbackInfo<v8::Value>& info)
+static void GetAmmoFlags(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_CHECK_ARGS_LEN(2);
+    V8_CHECK_ARGS_LEN(1);
     V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
 
     uint32_t hash;
@@ -1100,9 +1079,41 @@ static void SetAmmoFlags(const v8::FunctionCallbackInfo<v8::Value>& info)
         hash = alt::ICore::Instance().Hash(ammoHash);
     }
 
-    V8_ARG_TO_UINT(2, ammoFlags);
+    auto flags = _this->GetAmmoFlags(hash);
 
-    _this->SetAmmoFlags(hash, (AmmoFlags)ammoFlags);
+    V8_NEW_OBJECT(flagsObj);
+    V8_OBJECT_SET_BOOLEAN(flagsObj, "infiniteAmmo", flags.infiniteAmmo);
+    V8_OBJECT_SET_BOOLEAN(flagsObj, "addSmokeOnExplosion", flags.addSmokeOnExplosion);
+    V8_OBJECT_SET_BOOLEAN(flagsObj, "fuse", flags.fuse);
+    V8_OBJECT_SET_BOOLEAN(flagsObj, "fixedAfterExplosion", flags.fixedAfterExplosion);
+
+    V8_RETURN(flagsObj);
+}
+
+static void SetAmmoFlags(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(5);
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, ammoHash);
+        hash = ammoHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, ammoHash);
+        hash = alt::ICore::Instance().Hash(ammoHash);
+    }
+
+    V8_ARG_TO_BOOLEAN(2, infiniteAmmo);
+    V8_ARG_TO_BOOLEAN(3, addSmokeOnExplosion);
+    V8_ARG_TO_BOOLEAN(4, fuse);
+    V8_ARG_TO_BOOLEAN(5, fixedAfterExplosion);
+
+    _this->SetAmmoFlags(hash, { infiniteAmmo, addSmokeOnExplosion, fuse, fixedAfterExplosion });
 }
 
 static void GetAmmoMax(const v8::FunctionCallbackInfo<v8::Value>& info)
