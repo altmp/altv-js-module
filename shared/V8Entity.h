@@ -54,7 +54,8 @@ public:
 #ifdef ALT_SERVER_API
         extern V8Class v8VoiceChannel, v8ConnectionInfo;
 #else
-        extern V8Class v8WebView, v8LocalPlayer, v8RmlDocument, v8RmlElement, v8Object, v8WebSocketClient, v8Audio, v8HttpClient, v8AudioFilter, v8TextLabel, v8LocalPed, v8LocalVehicle, v8Font;
+        extern V8Class v8WebView, v8LocalPlayer, v8RmlDocument, v8RmlElement, v8Object, v8WebSocketClient, v8Audio, v8HttpClient, v8AudioFilter, v8TextLabel, v8LocalPed, v8LocalVehicle, v8Font,
+            v8AudioOutput, v8AudioOutputFrontend, v8AudioOutputWorld, v8AudioOutputAttached;
 #endif
 
         if(!handle) return nullptr;
@@ -82,6 +83,10 @@ public:
             case alt::IBaseObject::Type::OBJECT: return &v8Object;
             case alt::IBaseObject::Type::WEBSOCKET_CLIENT: return &v8WebSocketClient;
             case alt::IBaseObject::Type::AUDIO: return &v8Audio;
+            case alt::IBaseObject::Type::AUDIO_OUTPUT: return &v8AudioOutput;
+            case alt::IBaseObject::Type::AUDIO_OUTPUT_FRONTEND: return &v8AudioOutputFrontend;
+            case alt::IBaseObject::Type::AUDIO_OUTPUT_WORLD: return &v8AudioOutputWorld;
+            case alt::IBaseObject::Type::AUDIO_OUTPUT_ATTACHED: return &v8AudioOutputAttached;
             case alt::IBaseObject::Type::HTTP_CLIENT: return &v8HttpClient;
             case alt::IBaseObject::Type::AUDIO_FILTER: return &v8AudioFilter;
             case alt::IBaseObject::Type::TEXT_LABEL: return &v8TextLabel;
