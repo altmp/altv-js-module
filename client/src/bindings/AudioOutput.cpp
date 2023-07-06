@@ -85,6 +85,34 @@ static void EntitySetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const 
     _this->SetEntity(entity);
 }
 
+static void GetFilter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(output, alt::IAudioOutput);
+
+    V8_RETURN_BASE_OBJECT(output->GetFilter());
+}
+
+static void SetFilter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(output, alt::IAudioOutput);
+
+    if (val->IsNull())
+    {
+        output->RemoveFilter();
+    }
+    else if(val->IsObject())
+    {
+        V8_TO_BASEOBJECT(val, filter);
+        output->AddFilter(filter->SharedAs<alt::IAudioFilter>().get());
+    }
+    else
+    {
+        V8Helpers::Throw(isolate, "AudioOutput.filter setter expects null or AudioFilter object");
+    }
+}
+
 using namespace alt;
 
 extern V8Class v8BaseObject;
@@ -101,6 +129,7 @@ extern V8Class v8AudioOutput("AudioOutput",
         V8Helpers::SetAccessor<IAudioOutput, bool, &IAudioOutput::IsMuted, &IAudioOutput::SetMuted>(isolate, tpl, "muted");
         V8Helpers::SetAccessor<IAudioOutput, float, &IAudioOutput::GetVolume, &IAudioOutput::SetVolume>(isolate, tpl, "volume");
         V8Helpers::SetAccessor<IAudioOutput, uint32_t, &IAudioOutput::GetCategory>(isolate, tpl, "category");
+        V8Helpers::SetAccessor(isolate, tpl, "filter", &GetFilter, &SetFilter);
     });
 
 

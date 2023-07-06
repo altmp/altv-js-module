@@ -156,6 +156,10 @@
     alt::IWorldObject* val;           \
     V8_CHECK(V8Helpers::SafeToBaseObject<alt::IWorldObject>(v8Val, isolate, val), "Failed to convert to BaseObject")
 
+#define V8_TO_BASEOBJECT(v8Val, val) \
+    alt::IBaseObject* val;           \
+    V8_CHECK(V8Helpers::SafeToBaseObject<alt::IBaseObject>(v8Val, isolate, val), "Failed to convert to BaseObject")
+
 #define V8_OBJECT_GET_NUMBER(v8Val, prop, val) V8_TO_NUMBER((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)
 
 #define V8_OBJECT_SET_NUMBER(v8Val, prop, val) (v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::Number::New(isolate, val));
