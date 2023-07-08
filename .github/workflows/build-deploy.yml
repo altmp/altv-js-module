@@ -128,7 +128,7 @@ jobs:
           TAG=${GITHUB_REF/refs\/tags\//}
           echo "BRANCH=${TAG/\/*}" >> $GITHUB_OUTPUT
           echo "VERSION=${TAG/*\/}" >> $GITHUB_OUTPUT
-          echo "SDK_COMMIT=$(cat dist-linux/sdk.version)" >> $GITHUB_OUTPUT
+          echo "SDK_VERSION=$(cat dist-linux/sdk.version)" >> $GITHUB_OUTPUT
           rm dist-linux/sdk.version
 
       - name: Install upload tool
