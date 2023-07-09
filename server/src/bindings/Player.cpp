@@ -1318,6 +1318,27 @@ static void ClearDecorations(const v8::FunctionCallbackInfo<v8::Value>& info)
     player->ClearDecorations();
 }
 
+static void GetDecorations(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    std::vector<alt::CDecoration> decorations = player->GetDecorations();
+    size_t size = decorations.size();
+    v8::Local<v8::Array> decorationsArr = v8::Array::New(isolate, (int)size);
+    for(alt::Size i = 0; i < size; i++)
+    {
+        auto decoration = decorations[i];
+        V8_NEW_OBJECT(decorationsObj);
+        V8_OBJECT_SET_UINT(decorationsObj, "collection", decoration.collection);
+        V8_OBJECT_SET_UINT(decorationsObj, "overlay", decoration.overlay);
+
+        decorationsArr->Set(ctx, i, decorationsObj);
+    }
+
+    V8_RETURN(decorationsArr);
+}
+
 extern V8Class v8Entity;
 extern V8Class v8Player("Player",
                         v8Entity,
@@ -1476,4 +1497,5 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetMethod(isolate, tpl, "addDecoration", &AddDecoration);
                             V8Helpers::SetMethod(isolate, tpl, "removeDecoration", &RemoveDecoration);
                             V8Helpers::SetMethod(isolate, tpl, "clearDecorations", &ClearDecorations);
+                            V8Helpers::SetMethod(isolate, tpl, "getDecorations", &getDecorations);
                         });
