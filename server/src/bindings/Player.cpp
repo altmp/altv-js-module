@@ -1279,6 +1279,37 @@ static void AddDecoration(const v8::FunctionCallbackInfo<v8::Value>& info)
     player->AddDecoration(collectionHash, overlayHash);
 }
 
+static void RemoveDecoration(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    uint32_t collectionHash;
+    uint32_t overlayHash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, collectionHash);
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, collection);
+        collectionHash = alt::ICore::Instance().Hash(collection);
+    }
+
+    if(info[1]->IsNumber())
+    {
+        V8_ARG_TO_UINT(2, overlayHash);
+    }
+    else
+    {
+        V8_ARG_TO_STRING(2, overlay);
+        overlayHash = alt::ICore::Instance().Hash(overlay);
+    }
+
+    player->RemoveDecoration(collectionHash, overlayHash);
+}
+
 static void ClearDecorations(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -1443,5 +1474,6 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetMethod(isolate, tpl, "getHairHighlightColor", &GetHairHighlightColor);
 
                             V8Helpers::SetMethod(isolate, tpl, "addDecoration", &AddDecoration);
+                            V8Helpers::SetMethod(isolate, tpl, "removeDecoration", &RemoveDecoration);
                             V8Helpers::SetMethod(isolate, tpl, "clearDecorations", &ClearDecorations);
                         });
