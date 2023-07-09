@@ -174,6 +174,7 @@ jobs:
           application_id: ${{ secrets.CI_APP_ID }}
           application_private_key: ${{ secrets.CI_APP_PRIVATE_KEY }}
           permissions: "actions:write"
+          organization: altmp
 
       - name: Trigger docs update
         uses: benc-uk/workflow-dispatch@v1
