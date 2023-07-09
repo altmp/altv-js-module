@@ -1497,5 +1497,5 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetMethod(isolate, tpl, "addDecoration", &AddDecoration);
                             V8Helpers::SetMethod(isolate, tpl, "removeDecoration", &RemoveDecoration);
                             V8Helpers::SetMethod(isolate, tpl, "clearDecorations", &ClearDecorations);
-                            V8Helpers::SetMethod(isolate, tpl, "getDecorations", &getDecorations);
+                            V8Helpers::SetMethod(isolate, tpl, "getDecorations", &GetDecorations);
                         });
