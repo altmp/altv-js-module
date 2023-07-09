@@ -176,7 +176,7 @@ jobs:
           permissions: "actions:write"
           organization: altmp
 
-      - name: Trigger docs update
+      - name: Trigger Docker build
         uses: benc-uk/workflow-dispatch@v1
         with:
           workflow: build.yml
