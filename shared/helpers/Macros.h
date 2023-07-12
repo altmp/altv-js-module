@@ -89,6 +89,12 @@
     V8_CHECK(info.This()->InternalFieldCount() > idx - 1, "Invalid internal field count (is the 'this' context correct?)"); \
     auto val = static_cast<type*>(info.This()->GetAlignedPointerFromInternalField((idx)-1));
 
+// idx starts with 1
+#define V8_GET_THIS_INTERNAL_FIELD_STRING(idx, val)                                                                         \
+    V8_CHECK(info.This()->InternalFieldCount() > idx - 1, "Invalid internal field count (is the 'this' context correct?)"); \
+    auto intVal = info.This()->GetInternalField(0).As<v8::String>();                                                        \
+    auto val = *v8::String::Utf8Value(isolate, intVal);
+
 #define V8_CHECK_CONSTRUCTOR() V8_CHECK(info.IsConstructCall(), "function can't be called without new")
 
 #define V8_CHECK_ARGS_LEN(count)                  V8_CHECK(info.Length() == (count), #count " arguments expected")
