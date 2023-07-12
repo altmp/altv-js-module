@@ -499,6 +499,17 @@ static void PlayAnimation(const v8::FunctionCallbackInfo<v8::Value>& info)
     player->PlayAnimation(animDict, animName, blendInSpeed, blendOutSpeed, duration, flag, playbackRate, lockX, lockY, lockZ);
 }
 
+static void PlayScenario(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    V8_ARG_TO_STRING(1, name);
+
+    player->PlayScenario(name);
+}
+
 static void SetHeadOverlay(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -1469,6 +1480,7 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetMethod(isolate, tpl, "playAmbientSpeech", &PlayAmbientSpeech);
                             V8Helpers::SetMethod(isolate, tpl, "playAnimation", &PlayAnimation);
                             V8Helpers::SetMethod<IPlayer, &IPlayer::ClearTasks>(isolate, tpl, "clearTasks");
+                            V8Helpers::SetMethod(isolate, tpl, "playScenario", &PlayScenario);
 
                             V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetInteriorLocation>(isolate, tpl, "currentInterior");
                             V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetLastDamagedBodyPart, &IPlayer::SetLastDamagedBodyPart>(isolate, tpl, "lastDamagedBodyPart");
