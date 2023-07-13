@@ -100,8 +100,7 @@ static void SetTrainEngineId(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     if(info[0]->IsNull())
     {
-        alt::IVehicle* ref;
-        _this->SetTrainEngineId(ref);
+        _this->SetTrainEngineId(nullptr);
     }
     else
     {
@@ -117,8 +116,7 @@ static void SetTrainLinkedToBackwardId(const v8::FunctionCallbackInfo<v8::Value>
 
     if(info[0]->IsNull())
     {
-        alt::IVehicle* ref;
-        _this->SetTrainLinkedToBackwardId(ref);
+        _this->SetTrainLinkedToBackwardId(nullptr);
     }
     else
     {
@@ -134,8 +132,7 @@ static void SetTrainLinkedToForwardId(const v8::FunctionCallbackInfo<v8::Value>&
 
     if(info[0]->IsNull())
     {
-        alt::IVehicle* ref;
-        _this->SetTrainLinkedToForwardId(ref);
+        _this->SetTrainLinkedToForwardId(nullptr);
     }
     else
     {
