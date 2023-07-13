@@ -320,6 +320,17 @@ static void GetForHash(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN(v8WeaponData.New(isolate->GetEnteredOrMicrotaskContext(), args));
 }
 
+static void GetAllHashes(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    extern V8Class v8WeaponData;
+    auto datas = alt::ICore::Instance().GetAllWeaponData();
+    v8::Local<v8::Array> jsArr = v8::Array::New(isolate, datas.size());
+    for(size_t i = 0; i < datas.size(); ++i) jsArr->Set(ctx, i, V8Helpers::JSValue(datas[i]->GetNameHash()));
+    V8_RETURN(jsArr);
+}
+
 extern V8Class v8WeaponData("WeaponData",
                             Constructor,
                             [](v8::Local<v8::FunctionTemplate> tpl)
@@ -328,6 +339,7 @@ extern V8Class v8WeaponData("WeaponData",
                                 tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
                                 V8Helpers::SetStaticMethod(isolate, tpl, "getForHash", &GetForHash);
+                                V8Helpers::SetStaticAccessor(isolate, tpl, "allHashes", &GetAllHashes);
 
                                 V8Helpers::SetAccessor(isolate, tpl, "modelHash", &ModelHashGetter);
                                 V8Helpers::SetAccessor(isolate, tpl, "nameHash", &NameHashGetter);
