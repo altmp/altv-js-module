@@ -1,7 +1,7 @@
 #include "../CV8Resource.h"
 #include "V8Helpers.h"
 #include "helpers/BindHelpers.h"
-#include "cpp-sdk/script-objects/IObject.h"
+#include "cpp-sdk/script-objects/ILocalObject.h"
 
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
