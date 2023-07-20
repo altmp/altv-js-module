@@ -432,7 +432,7 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllWeaponObjects()
 
 v8::Local<v8::Array> V8ResourceImpl::GetAllNetworkObjects()
 {
-    std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::NETWORK_OBJECT);
+    std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::OBJECT);
     v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
 
     for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));

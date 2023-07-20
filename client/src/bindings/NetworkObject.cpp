@@ -12,7 +12,7 @@ static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
 
-    V8_GET_THIS_BASE_OBJECT(networkObject, alt::INetworkObject);
+    V8_GET_THIS_BASE_OBJECT(networkObject, alt::IObject);
 
     std::ostringstream ss;
     ss << "NetworkObject{ id: " << std::to_string(networkObject->GetID()) << "}";
@@ -22,7 +22,7 @@ static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void CountGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    V8_RETURN_UINT(alt::ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::NETWORK_OBJECT).size());
+    V8_RETURN_UINT(alt::ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::OBJECT).size());
 }
 
 static void StaticGetByScriptID(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -32,7 +32,7 @@ static void StaticGetByScriptID(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_INT(1, scriptGuid);
     alt::IWorldObject* entity = alt::ICore::Instance().GetWorldObjectByScriptID(scriptGuid);
 
-    if(entity && (entity->GetType() == alt::IEntity::Type::NETWORK_OBJECT))
+    if(entity && (entity->GetType() == alt::IEntity::Type::OBJECT))
     {
         V8_RETURN_BASE_OBJECT(entity);
     }
@@ -49,7 +49,7 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_INT(1, id);
 
-    alt::IBaseObject* entity = alt::ICore::Instance().GetBaseObjectByID(alt::IBaseObject::Type::NETWORK_OBJECT, id);
+    alt::IBaseObject* entity = alt::ICore::Instance().GetBaseObjectByID(alt::IBaseObject::Type::OBJECT, id);
 
     if(entity)
     {
@@ -68,7 +68,7 @@ static void StaticGetByRemoteId(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_INT32(1, id);
 
-    alt::IBaseObject* entity = alt::ICore::Instance().GetBaseObjectByRemoteID(alt::IBaseObject::Type::NETWORK_OBJECT, id);
+    alt::IBaseObject* entity = alt::ICore::Instance().GetBaseObjectByRemoteID(alt::IBaseObject::Type::OBJECT, id);
 
     if(entity)
     {
@@ -95,7 +95,7 @@ extern V8Class v8NetworkObject("NetworkObject", v8Entity, [](v8::Local<v8::Funct
     V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
     V8Helpers::SetStaticAccessor(isolate, tpl, "count", &CountGetter);
 
-    V8Helpers::SetAccessor<alt::INetworkObject, uint8_t, &alt::INetworkObject::GetAlpha>(isolate, tpl, "alpha");
-    V8Helpers::SetAccessor<alt::INetworkObject, uint8_t, &alt::INetworkObject::GetTextureVariation>(isolate, tpl, "textureVariation");
-    V8Helpers::SetAccessor<alt::INetworkObject, uint16_t, &alt::INetworkObject::GetLodDistance>(isolate, tpl, "lodDistance");
+    V8Helpers::SetAccessor<alt::IObject, uint8_t, &alt::IObject::GetAlpha>(isolate, tpl, "alpha");
+    V8Helpers::SetAccessor<alt::IObject, uint8_t, &alt::IObject::GetTextureVariation>(isolate, tpl, "textureVariation");
+    V8Helpers::SetAccessor<alt::IObject, uint16_t, &alt::IObject::GetLodDistance>(isolate, tpl, "lodDistance");
 });

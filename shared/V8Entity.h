@@ -67,7 +67,7 @@ public:
             case alt::IBaseObject::Type::BLIP: return &v8Blip;
             case alt::IBaseObject::Type::CHECKPOINT: return &v8Checkpoint;
             case alt::IBaseObject::Type::PED: return &v8Ped;
-            case alt::IBaseObject::Type::NETWORK_OBJECT: return &v8NetworkObject;
+            case alt::IBaseObject::Type::OBJECT: return &v8NetworkObject;
             case alt::IBaseObject::Type::VIRTUAL_ENTITY: return &v8VirtualEntity;
             case alt::IBaseObject::Type::VIRTUAL_ENTITY_GROUP: return &v8VirtualEntityGroup;
             case alt::IBaseObject::Type::MARKER: return &v8Marker;
