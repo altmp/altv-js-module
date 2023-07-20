@@ -58,7 +58,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void SetComponentTintIndex(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(object, alt::IObject);
+    V8_GET_THIS_BASE_OBJECT(object, alt::ILocalObject);
     V8_CHECK_ARGS_LEN(2);
 
     V8_ARG_TO_INT(1, componentType);
@@ -70,7 +70,7 @@ static void SetComponentTintIndex(const v8::FunctionCallbackInfo<v8::Value>& inf
 static void GetComponentTintIndex(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(object, alt::IObject);
+    V8_GET_THIS_BASE_OBJECT(object, alt::ILocalObject);
     V8_CHECK_ARGS_LEN(1);
 
     V8_ARG_TO_INT(1, componentType);
@@ -81,7 +81,7 @@ static void GetComponentTintIndex(const v8::FunctionCallbackInfo<v8::Value>& inf
 static void GiveComponent(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(object, alt::IObject);
+    V8_GET_THIS_BASE_OBJECT(object, alt::ILocalObject);
     V8_CHECK_ARGS_LEN(1);
 
     V8_ARG_TO_INT(1, componentType);
@@ -92,7 +92,7 @@ static void GiveComponent(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void RemoveComponent(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(object, alt::IObject);
+    V8_GET_THIS_BASE_OBJECT(object, alt::ILocalObject);
     V8_CHECK_ARGS_LEN(1);
 
     V8_ARG_TO_INT(1, componentType);
@@ -111,9 +111,9 @@ static void CountGetter(v8::Local<v8::String> name, const v8::PropertyCallbackIn
     V8_RETURN_UINT(alt::ICore::Instance().GetWeaponObjects().size());
 }
 
-extern V8Class v8Object;
+extern V8Class v8LocalObject;
 extern V8Class v8WeaponObject("WeaponObject",
-                              v8Object,
+                              v8LocalObject,
                               Constructor,
                               [](v8::Local<v8::FunctionTemplate> tpl)
                               {
@@ -123,7 +123,7 @@ extern V8Class v8WeaponObject("WeaponObject",
                                   V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
                                   V8Helpers::SetStaticAccessor(isolate, tpl, "count", &CountGetter);
 
-                                  V8Helpers::SetAccessor<IObject, int, &IObject::GetTintIndex, &IObject::SetTintIndex>(isolate, tpl, "tintIndex");
+                                  V8Helpers::SetAccessor<ILocalObject, int, &ILocalObject::GetTintIndex, &ILocalObject::SetTintIndex>(isolate, tpl, "tintIndex");
                                   V8Helpers::SetMethod(isolate, tpl, "setComponentTintIndex", &GetComponentTintIndex);
                                   V8Helpers::SetMethod(isolate, tpl, "getComponentTintIndex", &SetComponentTintIndex);
                                   V8Helpers::SetMethod(isolate, tpl, "giveComponent", &GiveComponent);

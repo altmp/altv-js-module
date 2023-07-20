@@ -1140,143 +1140,183 @@ static void IsFullScreen(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 extern V8Module sharedModule;
 extern V8Class v8Player, v8Player, v8Vehicle, v8WebView, v8HandlingData, v8LocalStorage, v8MemoryBuffer, v8MapZoomData, v8Discord, v8Voice, v8WebSocketClient, v8Checkpoint, v8HttpClient,
-  v8Audio, v8LocalPlayer, v8Profiler, v8Worker, v8RmlDocument, v8RmlElement, v8WeaponData, v8FocusData, v8Object, v8TextEncoder, v8TextDecoder, v8NetworkObject, v8VirtualEntityGroup,
+  v8Audio, v8LocalPlayer, v8Profiler, v8Worker, v8RmlDocument, v8RmlElement, v8WeaponData, v8FocusData, v8LocalObject, v8TextEncoder, v8TextDecoder, v8NetworkObject, v8VirtualEntityGroup,
   v8VirtualEntity, v8AudioFilter, v8Marker, v8Ped, v8Colshape, v8ColshapeCylinder, v8ColshapeSphere, v8ColshapeCircle, v8ColshapeCuboid, v8ColshapeRectangle, v8ColshapePolygon, v8TextLabel,
   v8LocalPed, v8LocalVehicle, v8Font, v8WeaponObject, v8AudioOutput, v8AudioOutputFrontend, v8AudioOutputWorld, v8AudioOutputAttached, v8AudioCategory;
-extern V8Module altModule(
-  "alt",
-  &sharedModule,
-  { v8Player,           v8Vehicle,        v8WebView,        v8HandlingData,   v8LocalStorage,       v8MemoryBuffer,    v8MapZoomData, v8Discord,    v8Voice,        v8WebSocketClient,
-    v8Checkpoint,       v8HttpClient,     v8Audio,          v8LocalPlayer,    v8Profiler,           v8Worker,          v8RmlDocument, v8RmlElement, v8WeaponData,   v8FocusData,
-    v8Object,           v8TextEncoder,    v8TextDecoder,    v8NetworkObject,  v8VirtualEntityGroup, v8VirtualEntity,   v8AudioFilter, v8Marker,     v8Ped,          v8Colshape,
-    v8ColshapeCylinder, v8ColshapeSphere, v8ColshapeCircle, v8ColshapeCuboid, v8ColshapeRectangle,  v8ColshapePolygon, v8TextLabel,   v8LocalPed,   v8LocalVehicle, v8Font,
-    v8WeaponObject, v8AudioOutput, v8AudioOutputFrontend, v8AudioOutputWorld, v8AudioOutputAttached, v8AudioCategory },
-  [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports)
-  {
-      v8::Isolate* isolate = ctx->GetIsolate();
+extern V8Module altModule("alt",
+                          &sharedModule,
+                          { v8Player,
+                            v8Vehicle,
+                            v8WebView,
+                            v8HandlingData,
+                            v8LocalStorage,
+                            v8MemoryBuffer,
+                            v8MapZoomData,
+                            v8Discord,
+                            v8Voice,
+                            v8WebSocketClient,
+                            v8Checkpoint,
+                            v8HttpClient,
+                            v8Audio,
+                            v8LocalPlayer,
+                            v8Profiler,
+                            v8Worker,
+                            v8RmlDocument,
+                            v8RmlElement,
+                            v8WeaponData,
+                            v8FocusData,
+                            v8LocalObject,
+                            v8TextEncoder,
+                            v8TextDecoder,
+                            v8NetworkObject,
+                            v8VirtualEntityGroup,
+                            v8VirtualEntity,
+                            v8AudioFilter,
+                            v8Marker,
+                            v8Ped,
+                            v8Colshape,
+                            v8ColshapeCylinder,
+                            v8ColshapeSphere,
+                            v8ColshapeCircle,
+                            v8ColshapeCuboid,
+                            v8ColshapeRectangle,
+                            v8ColshapePolygon,
+                            v8TextLabel,
+                            v8LocalPed,
+                            v8LocalVehicle,
+                            v8Font,
+                            v8WeaponObject,
+                            v8AudioOutput,
+                            v8AudioOutputFrontend,
+                            v8AudioOutputWorld,
+                            v8AudioOutputAttached,
+                            v8AudioCategory },
+                          [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports)
+                          {
+                              v8::Isolate* isolate = ctx->GetIsolate();
 
-      V8Helpers::RegisterFunc(exports, "onServer", &OnServer);
-      V8Helpers::RegisterFunc(exports, "onceServer", &OnceServer);
-      V8Helpers::RegisterFunc(exports, "offServer", &OffServer);
-      V8Helpers::RegisterFunc(exports, "emitServer", &EmitServer);
-      V8Helpers::RegisterFunc(exports, "emitServerRaw", &EmitServerRaw);
-      V8Helpers::RegisterFunc(exports, "emitServerUnreliable", &EmitServerUnreliable);
-      V8Helpers::RegisterFunc(exports, "gameControlsEnabled", &GameControlsEnabled);
-      V8Helpers::RegisterFunc(exports, "toggleGameControls", &ToggleGameControls);
-      V8Helpers::RegisterFunc(exports, "toggleVoiceControls", &ToggleVoiceControls);
-      V8Helpers::RegisterFunc(exports, "showCursor", &ShowCursor);
-      V8Helpers::RegisterFunc(exports, "isCursorVisible", &IsCursorVisible);
+                              V8Helpers::RegisterFunc(exports, "onServer", &OnServer);
+                              V8Helpers::RegisterFunc(exports, "onceServer", &OnceServer);
+                              V8Helpers::RegisterFunc(exports, "offServer", &OffServer);
+                              V8Helpers::RegisterFunc(exports, "emitServer", &EmitServer);
+                              V8Helpers::RegisterFunc(exports, "emitServerRaw", &EmitServerRaw);
+                              V8Helpers::RegisterFunc(exports, "emitServerUnreliable", &EmitServerUnreliable);
+                              V8Helpers::RegisterFunc(exports, "gameControlsEnabled", &GameControlsEnabled);
+                              V8Helpers::RegisterFunc(exports, "toggleGameControls", &ToggleGameControls);
+                              V8Helpers::RegisterFunc(exports, "toggleVoiceControls", &ToggleVoiceControls);
+                              V8Helpers::RegisterFunc(exports, "showCursor", &ShowCursor);
+                              V8Helpers::RegisterFunc(exports, "isCursorVisible", &IsCursorVisible);
 
-      V8Helpers::RegisterFunc(exports, "getCursorPos", &GetCursorPos);
-      V8Helpers::RegisterFunc(exports, "setCursorPos", &SetCursorPos);
-      V8Helpers::RegisterFunc(exports, "isMenuOpen", &IsMenuOpen);
-      V8Helpers::RegisterFunc(exports, "isConsoleOpen", &IsConsoleOpen);
-      // V8Helpers::RegisterFunc(exports, "drawRect2D", &DrawRect2D);
+                              V8Helpers::RegisterFunc(exports, "getCursorPos", &GetCursorPos);
+                              V8Helpers::RegisterFunc(exports, "setCursorPos", &SetCursorPos);
+                              V8Helpers::RegisterFunc(exports, "isMenuOpen", &IsMenuOpen);
+                              V8Helpers::RegisterFunc(exports, "isConsoleOpen", &IsConsoleOpen);
+                              // V8Helpers::RegisterFunc(exports, "drawRect2D", &DrawRect2D);
 
-      V8Helpers::RegisterFunc(exports, "requestIpl", &RequestIPL);
-      V8Helpers::RegisterFunc(exports, "removeIpl", &RemoveIPL);
-      // V8Helpers::RegisterFunc(exports, "wait", &ScriptWait);
-      V8Helpers::RegisterFunc(exports, "setCamFrozen", &SetCamFrozen);
-      V8Helpers::RegisterFunc(exports, "isCamFrozen", &IsCamFrozen);
+                              V8Helpers::RegisterFunc(exports, "requestIpl", &RequestIPL);
+                              V8Helpers::RegisterFunc(exports, "removeIpl", &RemoveIPL);
+                              // V8Helpers::RegisterFunc(exports, "wait", &ScriptWait);
+                              V8Helpers::RegisterFunc(exports, "setCamFrozen", &SetCamFrozen);
+                              V8Helpers::RegisterFunc(exports, "isCamFrozen", &IsCamFrozen);
 
-      V8Helpers::RegisterFunc(exports, "getLicenseHash", &GetLicenseHash);
+                              V8Helpers::RegisterFunc(exports, "getLicenseHash", &GetLicenseHash);
 
-      // Gxt texts functions
-      V8Helpers::RegisterFunc(exports, "addGxtText", &AddGxtText);
-      V8Helpers::RegisterFunc(exports, "removeGxtText", &RemoveGxtText);
-      V8Helpers::RegisterFunc(exports, "getGxtText", &GetGxtText);
+                              // Gxt texts functions
+                              V8Helpers::RegisterFunc(exports, "addGxtText", &AddGxtText);
+                              V8Helpers::RegisterFunc(exports, "removeGxtText", &RemoveGxtText);
+                              V8Helpers::RegisterFunc(exports, "getGxtText", &GetGxtText);
 
-      // Time managements functions
-      V8Helpers::RegisterFunc(exports, "setMsPerGameMinute", &SetMsPerGameMinute);
-      V8Helpers::RegisterFunc(exports, "getMsPerGameMinute", &GetMsPerGameMinute);
+                              // Time managements functions
+                              V8Helpers::RegisterFunc(exports, "setMsPerGameMinute", &SetMsPerGameMinute);
+                              V8Helpers::RegisterFunc(exports, "getMsPerGameMinute", &GetMsPerGameMinute);
 
-      // CEF rendering on texture
-      V8Helpers::RegisterFunc(exports, "isTextureExistInArchetype", &IsTextureExistInArchetype);
+                              // CEF rendering on texture
+                              V8Helpers::RegisterFunc(exports, "isTextureExistInArchetype", &IsTextureExistInArchetype);
 
-      // Scaleform additionals
-      V8Helpers::RegisterFunc(exports, "beginScaleformMovieMethodMinimap", &BeginScaleformMovieMethodMinimap);
+                              // Scaleform additionals
+                              V8Helpers::RegisterFunc(exports, "beginScaleformMovieMethodMinimap", &BeginScaleformMovieMethodMinimap);
 
 #ifndef NDEBUG
     //   V8Helpers::RegisterFunc(exports, "getVehWheels", &GetVehWheels);
 #endif
 
-      V8Helpers::RegisterFunc(exports, "getLocale", &GetLocale);
+                              V8Helpers::RegisterFunc(exports, "getLocale", &GetLocale);
 
-      V8Helpers::RegisterFunc(exports, "setWeatherCycle", &SetWeatherCycle);
-      V8Helpers::RegisterFunc(exports, "setWeatherSyncActive", &SetWeatherSyncActive);
+                              V8Helpers::RegisterFunc(exports, "setWeatherCycle", &SetWeatherCycle);
+                              V8Helpers::RegisterFunc(exports, "setWeatherSyncActive", &SetWeatherSyncActive);
 
-      V8Helpers::RegisterFunc(exports, "setStat", &SetCharStat);
-      V8Helpers::RegisterFunc(exports, "getStat", &GetCharStat);
-      V8Helpers::RegisterFunc(exports, "resetStat", &ResetCharStat);
+                              V8Helpers::RegisterFunc(exports, "setStat", &SetCharStat);
+                              V8Helpers::RegisterFunc(exports, "getStat", &GetCharStat);
+                              V8Helpers::RegisterFunc(exports, "resetStat", &ResetCharStat);
 
-      V8Helpers::RegisterFunc(exports, "isKeyDown", &IsKeyDown);
-      V8Helpers::RegisterFunc(exports, "isKeyToggled", &IsKeyToggled);
+                              V8Helpers::RegisterFunc(exports, "isKeyDown", &IsKeyDown);
+                              V8Helpers::RegisterFunc(exports, "isKeyToggled", &IsKeyToggled);
 
-      V8Helpers::RegisterFunc(exports, "setConfigFlag", &SetConfigFlag);
-      V8Helpers::RegisterFunc(exports, "getConfigFlag", &GetConfigFlag);
-      V8Helpers::RegisterFunc(exports, "doesConfigFlagExist", &DoesConfigFlagExist);
+                              V8Helpers::RegisterFunc(exports, "setConfigFlag", &SetConfigFlag);
+                              V8Helpers::RegisterFunc(exports, "getConfigFlag", &GetConfigFlag);
+                              V8Helpers::RegisterFunc(exports, "doesConfigFlagExist", &DoesConfigFlagExist);
 
-      //   V8Helpers::RegisterFunc(exports, "getEntityMemoryByID", &GetEntityMemoryByID);
+                              //   V8Helpers::RegisterFunc(exports, "getEntityMemoryByID", &GetEntityMemoryByID);
 
-      V8Helpers::RegisterFunc(exports, "setRotationVelocity", &SetAngularVelocity);
-      // V8Helpers::RegisterFunc(exports, "setAngularVelocity", &SetAngularVelocity);
+                              V8Helpers::RegisterFunc(exports, "setRotationVelocity", &SetAngularVelocity);
+                              // V8Helpers::RegisterFunc(exports, "setAngularVelocity", &SetAngularVelocity);
 
-      V8Helpers::RegisterFunc(exports, "isInStreamerMode", &IsInStreamerMode);
-      V8Helpers::RegisterFunc(exports, "getPermissionState", &GetPermissionState);
+                              V8Helpers::RegisterFunc(exports, "isInStreamerMode", &IsInStreamerMode);
+                              V8Helpers::RegisterFunc(exports, "getPermissionState", &GetPermissionState);
 
-      V8Helpers::RegisterFunc(exports, "takeScreenshot", &TakeScreenshot);
-      V8Helpers::RegisterFunc(exports, "takeScreenshotGameOnly", &TakeScreenshotGameOnly);
+                              V8Helpers::RegisterFunc(exports, "takeScreenshot", &TakeScreenshot);
+                              V8Helpers::RegisterFunc(exports, "takeScreenshotGameOnly", &TakeScreenshotGameOnly);
 
-      V8Helpers::RegisterFunc(exports, "isGameFocused", &IsGameFocused);
+                              V8Helpers::RegisterFunc(exports, "isGameFocused", &IsGameFocused);
 
-      V8Helpers::RegisterFunc(exports, "loadModel", &LoadModel);
-      V8Helpers::RegisterFunc(exports, "loadModelAsync", &LoadModelAsync);
+                              V8Helpers::RegisterFunc(exports, "loadModel", &LoadModel);
+                              V8Helpers::RegisterFunc(exports, "loadModelAsync", &LoadModelAsync);
 
-      V8Helpers::RegisterFunc(exports, "loadYtyp", &LoadYtyp);
-      V8Helpers::RegisterFunc(exports, "unloadYtyp", &UnloadYtyp);
+                              V8Helpers::RegisterFunc(exports, "loadYtyp", &LoadYtyp);
+                              V8Helpers::RegisterFunc(exports, "unloadYtyp", &UnloadYtyp);
 
-      V8Helpers::RegisterFunc(exports, "getHeadshotBase64", &GetHeadshotBase64);
+                              V8Helpers::RegisterFunc(exports, "getHeadshotBase64", &GetHeadshotBase64);
 
-      V8Helpers::RegisterFunc(exports, "setPedDlcClothes", &SetPedDlcClothes);
-      V8Helpers::RegisterFunc(exports, "setPedDlcProp", &SetPedDlcProps);
-      V8Helpers::RegisterFunc(exports, "clearPedProp", &ClearPedProps);
+                              V8Helpers::RegisterFunc(exports, "setPedDlcClothes", &SetPedDlcClothes);
+                              V8Helpers::RegisterFunc(exports, "setPedDlcProp", &SetPedDlcProps);
+                              V8Helpers::RegisterFunc(exports, "clearPedProp", &ClearPedProps);
 
-      V8Helpers::RegisterFunc(exports, "setWatermarkPosition", &SetWatermarkPosition);
+                              V8Helpers::RegisterFunc(exports, "setWatermarkPosition", &SetWatermarkPosition);
 
-      V8Helpers::RegisterFunc(exports, "getFps", &GetFps);
-      V8Helpers::RegisterFunc(exports, "getPing", &GetPing);
+                              V8Helpers::RegisterFunc(exports, "getFps", &GetFps);
+                              V8Helpers::RegisterFunc(exports, "getPing", &GetPing);
 
-      V8Helpers::RegisterFunc(exports, "getServerIp", &GetServerIp);
-      V8Helpers::RegisterFunc(exports, "getServerPort", &GetServerPort);
+                              V8Helpers::RegisterFunc(exports, "getServerIp", &GetServerIp);
+                              V8Helpers::RegisterFunc(exports, "getServerPort", &GetServerPort);
 
-      V8Helpers::RegisterFunc(exports, "getTotalPacketsSent", &GetTotalPacketsSent);
-      V8Helpers::RegisterFunc(exports, "getTotalPacketsLost", &GetTotalPacketsLost);
+                              V8Helpers::RegisterFunc(exports, "getTotalPacketsSent", &GetTotalPacketsSent);
+                              V8Helpers::RegisterFunc(exports, "getTotalPacketsLost", &GetTotalPacketsLost);
 
-      V8Helpers::RegisterFunc(exports, "hasLocalMeta", &HasLocalMeta);
-      V8Helpers::RegisterFunc(exports, "getLocalMeta", &GetLocalMeta);
+                              V8Helpers::RegisterFunc(exports, "hasLocalMeta", &HasLocalMeta);
+                              V8Helpers::RegisterFunc(exports, "getLocalMeta", &GetLocalMeta);
 
-      V8Helpers::RegisterFunc(exports, "copyToClipboard", &CopyToClipboard);
+                              V8Helpers::RegisterFunc(exports, "copyToClipboard", &CopyToClipboard);
 
-      V8Helpers::RegisterFunc(exports, "toggleRmlControls", &ToggleRmlControls);
-      V8Helpers::RegisterFunc(exports, "rmlControlsEnabled", &AreRmlControlsEnabled);
-      V8Helpers::RegisterFunc(exports, "loadRmlFont", &LoadRmlFont);
+                              V8Helpers::RegisterFunc(exports, "toggleRmlControls", &ToggleRmlControls);
+                              V8Helpers::RegisterFunc(exports, "rmlControlsEnabled", &AreRmlControlsEnabled);
+                              V8Helpers::RegisterFunc(exports, "loadRmlFont", &LoadRmlFont);
 
-      V8Helpers::RegisterFunc(exports, "worldToScreen", &WorldToScreen);
-      V8Helpers::RegisterFunc(exports, "screenToWorld", &ScreenToWorld);
-      V8Helpers::RegisterFunc(exports, "getCamPos", &GetCamPos);
-      V8Helpers::RegisterFunc(exports, "getScreenResolution", &GetScreenResolution);
+                              V8Helpers::RegisterFunc(exports, "worldToScreen", &WorldToScreen);
+                              V8Helpers::RegisterFunc(exports, "screenToWorld", &ScreenToWorld);
+                              V8Helpers::RegisterFunc(exports, "getCamPos", &GetCamPos);
+                              V8Helpers::RegisterFunc(exports, "getScreenResolution", &GetScreenResolution);
 
-      V8Helpers::RegisterFunc(exports, "setMinimapComponentPosition", &SetMinimapComponentPosition);
-      V8Helpers::RegisterFunc(exports, "setMinimapIsRectangle", &SetMinimapIsRectangle);
+                              V8Helpers::RegisterFunc(exports, "setMinimapComponentPosition", &SetMinimapComponentPosition);
+                              V8Helpers::RegisterFunc(exports, "setMinimapIsRectangle", &SetMinimapIsRectangle);
 
-      V8Helpers::RegisterFunc(exports, "loadDefaultIpls", &LoadDefaultIpls);
+                              V8Helpers::RegisterFunc(exports, "loadDefaultIpls", &LoadDefaultIpls);
 
-      V8Helpers::RegisterFunc(exports, "isPointOnScreen", &IsPointOnScreen);
+                              V8Helpers::RegisterFunc(exports, "isPointOnScreen", &IsPointOnScreen);
 
-      V8Helpers::RegisterFunc(exports, "getPedBonePos", &GetPedBonePos);
+                              V8Helpers::RegisterFunc(exports, "getPedBonePos", &GetPedBonePos);
 
-      V8_OBJECT_SET_BOOLEAN(exports, "isWorker", false);
+                              V8_OBJECT_SET_BOOLEAN(exports, "isWorker", false);
 
-      V8Helpers::RegisterFunc(exports, "evalModule", &EvalModule);
-      V8Helpers::RegisterFunc(exports, "isFullScreen", &IsFullScreen);
-  });
+                              V8Helpers::RegisterFunc(exports, "evalModule", &EvalModule);
+                              V8Helpers::RegisterFunc(exports, "isFullScreen", &IsFullScreen);
+                          });

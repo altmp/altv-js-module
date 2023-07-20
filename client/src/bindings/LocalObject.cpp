@@ -6,7 +6,7 @@
 static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(object, alt::IObject);
+    V8_GET_THIS_BASE_OBJECT(object, alt::ILocalObject);
 
     std::ostringstream ss;
     ss << "Object{ model: " << object->GetModel() << ", scriptID: " << object->GetScriptID() << " }";
@@ -38,21 +38,21 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_BOOLEAN_OPT(6, useStreaming, false);
     V8_ARG_TO_UINT_OPT(7, streamingDistance, 0);
 
-    auto obj = alt::ICore::Instance().CreateObject(modelHash, pos, rot, noOffset, dynamic, useStreaming, streamingDistance, resource->GetResource());
+    auto obj = alt::ICore::Instance().CreateLocalObject(modelHash, pos, rot, noOffset, dynamic, useStreaming, streamingDistance, resource->GetResource());
     V8_BIND_BASE_OBJECT(obj, "Failed to create object");
 }
 
 static void PosGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_GET_THIS_BASE_OBJECT(object, alt::IObject);
+    V8_GET_THIS_BASE_OBJECT(object, alt::ILocalObject);
     V8_RETURN_VECTOR3(object->GetPosition());
 }
 
 static void PosSetter(v8::Local<v8::String>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_GET_THIS_BASE_OBJECT(object, alt::IObject);
+    V8_GET_THIS_BASE_OBJECT(object, alt::ILocalObject);
     V8_TO_VECTOR3(value, val);
     object->SetPosition(val);
 }
@@ -60,14 +60,14 @@ static void PosSetter(v8::Local<v8::String>, v8::Local<v8::Value> value, const v
 static void RotGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_GET_THIS_BASE_OBJECT(object, alt::IObject);
+    V8_GET_THIS_BASE_OBJECT(object, alt::ILocalObject);
     V8_RETURN_VECTOR3(object->GetRotation());
 }
 
 static void RotSetter(v8::Local<v8::String>, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_GET_THIS_BASE_OBJECT(object, alt::IObject);
+    V8_GET_THIS_BASE_OBJECT(object, alt::ILocalObject);
     V8_TO_VECTOR3(value, val);
     object->SetRotation(val);
 }
@@ -75,7 +75,7 @@ static void RotSetter(v8::Local<v8::String>, v8::Local<v8::Value> value, const v
 static void AttachToEntity(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_GET_THIS_BASE_OBJECT(object, alt::IObject);
+    V8_GET_THIS_BASE_OBJECT(object, alt::ILocalObject);
     V8_CHECK_ARGS_LEN_MIN(4);
 
     V8_ARG_TO_INT(2, bone);
@@ -100,7 +100,7 @@ static void AttachToEntity(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void Detach(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_GET_THIS_BASE_OBJECT(object, alt::IObject);
+    V8_GET_THIS_BASE_OBJECT(object, alt::ILocalObject);
     V8_ARG_TO_BOOLEAN_OPT(1, dynamic, false);
 
     object->Detach(dynamic);
@@ -109,7 +109,7 @@ static void Detach(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void ToggleCollision(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_GET_THIS_BASE_OBJECT(object, alt::IObject);
+    V8_GET_THIS_BASE_OBJECT(object, alt::ILocalObject);
     V8_CHECK_ARGS_LEN(2);
 
     V8_ARG_TO_BOOLEAN(1, toggle);
@@ -126,7 +126,7 @@ static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo
 
 static void CountGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    V8_RETURN_UINT(alt::ICore::Instance().GetObjects().size());
+    V8_RETURN_UINT(alt::ICore::Instance().GetLocalObjects().size());
 }
 
 static void AllWorldGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -141,7 +141,7 @@ static void AllWorldGetter(v8::Local<v8::String> name, const v8::PropertyCallbac
 static void ModelSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(object, alt::IObject);
+    V8_GET_THIS_BASE_OBJECT(object, alt::ILocalObject);
 
     if(val->IsNumber())
     {
@@ -158,55 +158,55 @@ static void ModelSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v
 static void ModelGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(object, alt::IObject);
+    V8_GET_THIS_BASE_OBJECT(object, alt::ILocalObject);
     V8_RETURN_UINT(object->GetModel());
 }
 
 extern V8Class v8Entity;
-extern V8Class v8Object("Object",
-                        v8Entity,
-                        Constructor,
-                        [](v8::Local<v8::FunctionTemplate> tpl)
-                        {
-                            using namespace alt;
-                            v8::Isolate* isolate = v8::Isolate::GetCurrent();
+extern V8Class v8LocalObject("LocalObject",
+                             v8Entity,
+                             Constructor,
+                             [](v8::Local<v8::FunctionTemplate> tpl)
+                             {
+                                 using namespace alt;
+                                 v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-                            V8Helpers::SetMethod(isolate, tpl, "toString", ToString);
+                                 V8Helpers::SetMethod(isolate, tpl, "toString", ToString);
 
-                            V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
-                            V8Helpers::SetStaticAccessor(isolate, tpl, "count", &CountGetter);
+                                 V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
+                                 V8Helpers::SetStaticAccessor(isolate, tpl, "count", &CountGetter);
 
-                            V8Helpers::SetStaticAccessor(isolate, tpl, "allWorld", &AllWorldGetter);
+                                 V8Helpers::SetStaticAccessor(isolate, tpl, "allWorld", &AllWorldGetter);
 
-                            V8Helpers::SetAccessor(isolate, tpl, "model", &ModelGetter, &ModelSetter);
+                                 V8Helpers::SetAccessor(isolate, tpl, "model", &ModelGetter, &ModelSetter);
 
-                            V8Helpers::SetAccessor<IObject, uint8_t, &IObject::GetAlpha, &IObject::SetAlpha>(isolate, tpl, "alpha");
-                            V8Helpers::SetMethod<IObject, &IObject::ResetAlpha>(isolate, tpl, "resetAlpha");
+                                 V8Helpers::SetAccessor<ILocalObject, uint8_t, &ILocalObject::GetAlpha, &ILocalObject::SetAlpha>(isolate, tpl, "alpha");
+                                 V8Helpers::SetMethod<ILocalObject, &ILocalObject::ResetAlpha>(isolate, tpl, "resetAlpha");
 
-                            V8Helpers::SetAccessor<IObject, bool, &IObject::IsDynamic>(isolate, tpl, "dynamic");
-                            V8Helpers::SetAccessor<IObject, uint16_t, &IObject::GetLodDistance, &IObject::SetLodDistance>(isolate, tpl, "lodDistance");
-                            V8Helpers::SetAccessor<IObject, bool, &IObject::HasGravity, &IObject::ToggleGravity>(isolate, tpl, "hasGravity");
+                                 V8Helpers::SetAccessor<ILocalObject, bool, &ILocalObject::IsDynamic>(isolate, tpl, "dynamic");
+                                 V8Helpers::SetAccessor<ILocalObject, uint16_t, &ILocalObject::GetLodDistance, &ILocalObject::SetLodDistance>(isolate, tpl, "lodDistance");
+                                 V8Helpers::SetAccessor<ILocalObject, bool, &ILocalObject::HasGravity, &ILocalObject::ToggleGravity>(isolate, tpl, "hasGravity");
 
-                            V8Helpers::SetMethod(isolate, tpl, "attachToEntity", &AttachToEntity);
-                            V8Helpers::SetMethod(isolate, tpl, "detach", &Detach);
+                                 V8Helpers::SetMethod(isolate, tpl, "attachToEntity", &AttachToEntity);
+                                 V8Helpers::SetMethod(isolate, tpl, "detach", &Detach);
 
-                            V8Helpers::SetAccessor<IObject, bool, &IObject::IsCollisionEnabled>(isolate, tpl, "isCollisionEnabled");
-                            V8Helpers::SetMethod(isolate, tpl, "toggleCollision", &ToggleCollision);
+                                 V8Helpers::SetAccessor<ILocalObject, bool, &ILocalObject::IsCollisionEnabled>(isolate, tpl, "isCollisionEnabled");
+                                 V8Helpers::SetMethod(isolate, tpl, "toggleCollision", &ToggleCollision);
 
-                            V8Helpers::SetMethod<IObject, &IObject::PlaceOnGroundProperly>(isolate, tpl, "placeOnGroundProperly");
+                                 V8Helpers::SetMethod<ILocalObject, &ILocalObject::PlaceOnGroundProperly>(isolate, tpl, "placeOnGroundProperly");
 
-                            V8Helpers::SetAccessor<IObject, bool, &IObject::IsPositionFrozen, &IObject::SetPositionFrozen>(isolate, tpl, "positionFrozen");
+                                 V8Helpers::SetAccessor<ILocalObject, bool, &ILocalObject::IsPositionFrozen, &ILocalObject::SetPositionFrozen>(isolate, tpl, "positionFrozen");
 
-                            V8Helpers::SetMethod<IObject, &IObject::ActivatePhysics>(isolate, tpl, "activatePhysics");
+                                 V8Helpers::SetMethod<ILocalObject, &ILocalObject::ActivatePhysics>(isolate, tpl, "activatePhysics");
 
-                            V8Helpers::SetAccessor<IObject, uint8_t, &IObject::GetTextureVariation, &IObject::SetTextureVariation>(isolate, tpl, "textureVariation");
+                                 V8Helpers::SetAccessor<ILocalObject, uint8_t, &ILocalObject::GetTextureVariation, &ILocalObject::SetTextureVariation>(isolate, tpl, "textureVariation");
 
-                            V8Helpers::SetAccessor<IObject, bool, &IObject::IsWorldObject>(isolate, tpl, "isWorldObject");
-                            V8Helpers::SetAccessor<IObject, bool, &IObject::IsWeaponObject>(isolate, tpl, "isWeaponObject");
+                                 V8Helpers::SetAccessor<ILocalObject, bool, &ILocalObject::IsWorldObject>(isolate, tpl, "isWorldObject");
+                                 V8Helpers::SetAccessor<ILocalObject, bool, &ILocalObject::IsWeaponObject>(isolate, tpl, "isWeaponObject");
 
-                            V8Helpers::SetAccessor<IObject, bool, &IObject::IsStreamedIn>(isolate, tpl, "isStreamedIn");
-                            V8Helpers::SetAccessor<IObject, bool, &IObject::UsesStreaming>(isolate, tpl, "useStreaming");
+                                 V8Helpers::SetAccessor<ILocalObject, bool, &ILocalObject::IsStreamedIn>(isolate, tpl, "isStreamedIn");
+                                 V8Helpers::SetAccessor<ILocalObject, bool, &ILocalObject::UsesStreaming>(isolate, tpl, "useStreaming");
 
-                            V8Helpers::SetAccessor<IObject, uint32_t, &IObject::GetStreamingDistance>(isolate, tpl, "streamingDistance");
-                            V8Helpers::SetAccessor<IObject, bool, &IObject::IsVisible, &IObject::SetVisible>(isolate, tpl, "visible");
-                        });
+                                 V8Helpers::SetAccessor<ILocalObject, uint32_t, &ILocalObject::GetStreamingDistance>(isolate, tpl, "streamingDistance");
+                                 V8Helpers::SetAccessor<ILocalObject, bool, &ILocalObject::IsVisible, &ILocalObject::SetVisible>(isolate, tpl, "visible");
+                             });

@@ -399,7 +399,7 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllObjects()
     {
         objectPoolDirty = false;
 
-        std::vector<IObject*> all = ICore::Instance().GetObjects();
+        std::vector<ILocalObject*> all = ICore::Instance().GetLocalObjects();
         v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
 
         for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
@@ -417,7 +417,7 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllWeaponObjects()
     {
         weaponObjectPoolDirty = false;
 
-        std::vector<IObject*> all = ICore::Instance().GetWeaponObjects();
+        std::vector<ILocalObject*> all = ICore::Instance().GetWeaponObjects();
         v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
 
         for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
