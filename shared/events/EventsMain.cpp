@@ -56,3 +56,13 @@ V8_EVENT_HANDLER colshapeEvent(
       args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
       args.push_back(resource->GetBaseObjectOrNull(ev->GetEntity()));
   });
+
+V8_LOCAL_EVENT_HANDLER voiceConnection(EventType::VOICE_CONNECTION_EVENT,
+                                       "voiceConnection",
+                                       [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                       {
+                                           auto ev = static_cast<const alt::CVoiceConnectionEvent*>(e);
+                                           v8::Isolate* isolate = resource->GetIsolate();
+
+                                           args.push_back(V8Helpers::JSValue((uint8_t)ev->GetState()));
+                                       });
