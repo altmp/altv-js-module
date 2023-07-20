@@ -1511,5 +1511,5 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetMethod(isolate, tpl, "clearDecorations", &ClearDecorations);
                             V8Helpers::SetMethod(isolate, tpl, "getDecorations", &GetDecorations);
 
-                            V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsNetworkOwnershipDisabled, &IPlayer::SetNetworkOwnershipDisabled>(isolate, tpl, "networkOwnershipDisabled");
+                            V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsNetworkOwnershipDisabled, &IPlayer::SetNetworkOwnershipDisabled>(isolate, tpl, "netOwnershipDisabled");
                         });
