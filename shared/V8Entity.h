@@ -80,7 +80,7 @@ public:
             case alt::IBaseObject::Type::LOCAL_PLAYER: return &v8LocalPlayer;
             case alt::IBaseObject::Type::RML_DOCUMENT: return &v8RmlDocument;
             case alt::IBaseObject::Type::RML_ELEMENT: return &v8RmlElement;
-            case alt::IBaseObject::Type::OBJECT: return &v8Object;
+            case alt::IBaseObject::Type::LOCAL_OBJECT: return &v8Object;
             case alt::IBaseObject::Type::WEBSOCKET_CLIENT: return &v8WebSocketClient;
             case alt::IBaseObject::Type::AUDIO: return &v8Audio;
             case alt::IBaseObject::Type::AUDIO_OUTPUT: return &v8AudioOutput;
