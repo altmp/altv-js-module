@@ -567,6 +567,28 @@ static void GetAmmoHashForWeaponHash(const v8::FunctionCallbackInfo<v8::Value>& 
     V8_RETURN_UINT(alt::ICore::Instance().GetAmmoHashForWeaponHash(hash));
 }
 
+static void SetVoiceExternalPublic(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+
+    V8_ARG_TO_STRING(1, host);
+    V8_ARG_TO_UINT(2, port);
+
+    alt::ICore::Instance().SetVoiceExternalPublic(host, port);
+}
+
+static void SetVoiceExternal(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+
+    V8_ARG_TO_STRING(1, host);
+    V8_ARG_TO_UINT(2, port);
+
+    alt::ICore::Instance().SetVoiceExternal(host, port);
+}
+
 extern V8Class v8Player, v8Vehicle, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Checkpoint, v8VoiceChannel, v8Colshape, v8ColshapeCylinder, v8ColshapeSphere, v8ColshapeCircle,
   v8ColshapeCuboid, v8ColshapeRectangle, v8ColshapePolygon, v8Ped, v8NetworkObject, v8VirtualEntity, v8VirtualEntityGroup, v8Marker, v8ConnectionInfo;
 
@@ -619,6 +641,9 @@ extern V8Module v8Alt(
       V8Helpers::RegisterFunc(exports, "getEntitiesInDimension", &GetEntitiesInDimension);
       V8Helpers::RegisterFunc(exports, "getEntitiesInRange", &GetEntitiesInRange);
       V8Helpers::RegisterFunc(exports, "getClosestEntities", &GetClosestEntities);
+
+      V8Helpers::RegisterFunc(exports, "setVoiceExternalPublic", &SetVoiceExternalPublic);
+      V8Helpers::RegisterFunc(exports, "setVoiceExternal", &SetVoiceExternal);
 
       V8_OBJECT_SET_STRING(exports, "rootDir", alt::ICore::Instance().GetRootDirectory());
       V8_OBJECT_SET_INT(exports, "defaultDimension", alt::DEFAULT_DIMENSION);
