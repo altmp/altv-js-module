@@ -285,9 +285,9 @@ if (alt.isClient && !alt.isWorker) {
         }
     }
 
-    // Shortcut for alt.Object
+    // Shortcut for alt.LocalObject
     // TODO: Make client/server only bindings work
-    alt.Object.prototype.waitForSpawn = function(timeout = 2000) {
+    alt.LocalObject.prototype.waitForSpawn = function(timeout = 2000) {
         return alt.Utils.waitFor(() => this.scriptID !== 0, timeout);
     }
 
@@ -787,11 +787,11 @@ if (alt.isClient && !alt.isWorker) {
 
     alt.Utils.getClosestVehicle = getClosestEntity(() => alt.Vehicle.streamedIn);
     alt.Utils.getClosestPlayer = getClosestEntity(() => alt.Player.streamedIn);
-    alt.Utils.getClosestWorldObject = getClosestEntity(() => alt.Object.allWorld);
+    alt.Utils.getClosestWorldObject = getClosestEntity(() => alt.LocalObject.allWorld);
     alt.Utils.getClosestVirtualEntity = getClosestEntity(() => alt.VirtualEntity.streamedIn);
 
     // TODO: change it to .streamedIn when serverside api will be added
-    alt.Utils.getClosestObject = getClosestEntity(() => alt.Object.all);
+    alt.Utils.getClosestObject = getClosestEntity(() => alt.LocalObject.all);
 }
 // Server only
 else {
