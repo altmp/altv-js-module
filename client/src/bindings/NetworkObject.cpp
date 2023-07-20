@@ -22,7 +22,7 @@ static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void CountGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    V8_RETURN_UINT(alt::ICore::Instance().GetNetworkObjects().size());
+    V8_RETURN_UINT(alt::ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::NETWORK_OBJECT).size());
 }
 
 static void StaticGetByScriptID(const v8::FunctionCallbackInfo<v8::Value>& info)

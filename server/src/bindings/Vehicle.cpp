@@ -71,7 +71,7 @@ static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo
 
 static void CountGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    V8_RETURN_UINT(alt::ICore::Instance().GetVehicles().size());
+    V8_RETURN_UINT(alt::ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::VEHICLE).size());
 }
 
 static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)

@@ -271,7 +271,7 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllPlayers()
     {
         playerPoolDirty = false;
 
-        std::vector<IPlayer*> all = ICore::Instance().GetPlayers();
+        std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::PLAYER);
         v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
 
         for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
@@ -290,7 +290,7 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllVehicles()
     {
         vehiclePoolDirty = false;
 
-        std::vector<IVehicle*> all = ICore::Instance().GetVehicles();
+        std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::VEHICLE);
         v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
 
         for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
@@ -304,7 +304,7 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllVehicles()
 
 v8::Local<v8::Array> V8ResourceImpl::GetAllBlips()
 {
-    std::vector<IBlip*> all = ICore::Instance().GetBlips();
+    std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::BLIP);
     v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
 
     for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
@@ -315,7 +315,7 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllBlips()
 
 v8::Local<v8::Array> V8ResourceImpl::GetAllVirtualEntityGroups()
 {
-    std::vector<IVirtualEntityGroup*> all = ICore::Instance().GetVirtualEntityGroups();
+    std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::VIRTUAL_ENTITY_GROUP);
     v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
 
     for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
@@ -326,7 +326,7 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllVirtualEntityGroups()
 
 v8::Local<v8::Array> V8ResourceImpl::GetAllVirtualEntities()
 {
-    std::vector<IVirtualEntity*> all = ICore::Instance().GetVirtualEntities();
+    std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::VIRTUAL_ENTITY);
     v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
 
     for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
@@ -337,7 +337,7 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllVirtualEntities()
 
 v8::Local<v8::Array> V8ResourceImpl::GetAllCheckpoints()
 {
-    std::vector<ICheckpoint*> all = ICore::Instance().GetCheckpoints();
+    std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::CHECKPOINT);
     v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
 
     for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
@@ -348,7 +348,7 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllCheckpoints()
 
 v8::Local<v8::Array> V8ResourceImpl::GetAllPeds()
 {
-    std::vector<IPed*> all = ICore::Instance().GetPeds();
+    std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::PED);
     v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
 
     for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
@@ -359,7 +359,7 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllPeds()
 
 v8::Local<v8::Array> V8ResourceImpl::GetAllMarkers()
 {
-    std::vector<IMarker*> all = ICore::Instance().GetMarkers();
+    std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::MARKER);
     v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
 
     for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
@@ -370,7 +370,7 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllMarkers()
 
 v8::Local<v8::Array> V8ResourceImpl::GetAllColshapes()
 {
-    std::vector<IColShape*> all = ICore::Instance().GetColShapes();
+    std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::COLSHAPE);
     v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
 
     for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
@@ -382,7 +382,7 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllColshapes()
 #ifdef ALT_SERVER_API
 v8::Local<v8::Array> V8ResourceImpl::GetAllConnectionInfos()
 {
-    std::vector<IConnectionInfo*> all = ICore::Instance().GetConnectionInfos();
+    std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::CONNECTION_INFO);
     v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
 
     for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
@@ -399,7 +399,7 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllObjects()
     {
         objectPoolDirty = false;
 
-        std::vector<ILocalObject*> all = ICore::Instance().GetLocalObjects();
+        std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::LOCAL_OBJECT);
         v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
 
         for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
@@ -432,7 +432,7 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllWeaponObjects()
 
 v8::Local<v8::Array> V8ResourceImpl::GetAllNetworkObjects()
 {
-    std::vector<INetworkObject*> all = ICore::Instance().GetNetworkObjects();
+    std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::NETWORK_OBJECT);
     v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
 
     for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
