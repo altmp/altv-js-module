@@ -254,10 +254,10 @@ public:
     v8::Local<v8::Array> GetAllConnectionInfos();
 #endif
 #ifdef ALT_CLIENT_API
-    v8::Local<v8::Array> GetAllObjects();
+    v8::Local<v8::Array> GetAllLocalObjects();
     v8::Local<v8::Array> GetAllWeaponObjects();
 #endif
-    v8::Local<v8::Array> GetAllNetworkObjects();
+    v8::Local<v8::Array> GetAllObjects();
 
     std::vector<V8Helpers::EventCallback*> GetLocalHandlers(const std::string& name);
     std::vector<V8Helpers::EventCallback*> GetRemoteHandlers(const std::string& name);

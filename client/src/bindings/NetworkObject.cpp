@@ -5,17 +5,17 @@ static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
-    V8_RETURN(resource->GetAllNetworkObjects());
+    V8_RETURN(resource->GetAllObjects());
 }
 
 static void ToString(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
 
-    V8_GET_THIS_BASE_OBJECT(networkObject, alt::IObject);
+    V8_GET_THIS_BASE_OBJECT(Object, alt::IObject);
 
     std::ostringstream ss;
-    ss << "NetworkObject{ id: " << std::to_string(networkObject->GetID()) << "}";
+    ss << "Object{ id: " << std::to_string(Object->GetID()) << "}";
 
     V8_RETURN_STRING(ss.str());
 }
@@ -82,7 +82,7 @@ static void StaticGetByRemoteId(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 // clang-format off
 extern V8Class v8Entity;
-extern V8Class v8NetworkObject("NetworkObject", v8Entity, [](v8::Local<v8::FunctionTemplate> tpl)
+extern V8Class v8Object("Object", v8Entity, [](v8::Local<v8::FunctionTemplate> tpl)
 {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 

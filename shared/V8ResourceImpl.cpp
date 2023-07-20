@@ -393,7 +393,7 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllConnectionInfos()
 #endif
 
 #ifdef ALT_CLIENT_API
-v8::Local<v8::Array> V8ResourceImpl::GetAllObjects()
+v8::Local<v8::Array> V8ResourceImpl::GetAllLocalObjects()
 {
     if(objectPoolDirty)
     {
@@ -430,7 +430,7 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllWeaponObjects()
 }
 #endif
 
-v8::Local<v8::Array> V8ResourceImpl::GetAllNetworkObjects()
+v8::Local<v8::Array> V8ResourceImpl::GetAllObjects()
 {
     std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::OBJECT);
     v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());

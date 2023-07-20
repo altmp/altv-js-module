@@ -1140,7 +1140,7 @@ static void IsFullScreen(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 extern V8Module sharedModule;
 extern V8Class v8Player, v8Player, v8Vehicle, v8WebView, v8HandlingData, v8LocalStorage, v8MemoryBuffer, v8MapZoomData, v8Discord, v8Voice, v8WebSocketClient, v8Checkpoint, v8HttpClient,
-  v8Audio, v8LocalPlayer, v8Profiler, v8Worker, v8RmlDocument, v8RmlElement, v8WeaponData, v8FocusData, v8LocalObject, v8TextEncoder, v8TextDecoder, v8NetworkObject, v8VirtualEntityGroup,
+  v8Audio, v8LocalPlayer, v8Profiler, v8Worker, v8RmlDocument, v8RmlElement, v8WeaponData, v8FocusData, v8LocalObject, v8TextEncoder, v8TextDecoder, v8Object, v8VirtualEntityGroup,
   v8VirtualEntity, v8AudioFilter, v8Marker, v8Ped, v8Colshape, v8ColshapeCylinder, v8ColshapeSphere, v8ColshapeCircle, v8ColshapeCuboid, v8ColshapeRectangle, v8ColshapePolygon, v8TextLabel,
   v8LocalPed, v8LocalVehicle, v8Font, v8WeaponObject, v8AudioOutput, v8AudioOutputFrontend, v8AudioOutputWorld, v8AudioOutputAttached, v8AudioCategory;
 extern V8Module altModule("alt",
@@ -1168,7 +1168,7 @@ extern V8Module altModule("alt",
                             v8LocalObject,
                             v8TextEncoder,
                             v8TextDecoder,
-                            v8NetworkObject,
+                            v8Object,
                             v8VirtualEntityGroup,
                             v8VirtualEntity,
                             v8AudioFilter,
