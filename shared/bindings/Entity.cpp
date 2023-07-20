@@ -142,8 +142,8 @@ static void AttachTo(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
     else if(info[1]->IsNumber() && info[2]->IsNumber())
     {
-        V8_ARG_TO_INT32(2, otherBone);
-        V8_ARG_TO_INT32(3, ownBone);
+        V8_ARG_TO_UINT(2, otherBone);
+        V8_ARG_TO_UINT(3, ownBone);
 
         _this->AttachToEntity(entity, otherBone, ownBone, pos, rot, collision, noFixedRot);
     }
