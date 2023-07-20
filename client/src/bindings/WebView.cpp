@@ -224,7 +224,7 @@ static void Reload(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN2(0, 1);
 
     bool ignoreCache = false;
-    if (info.Length() > 0)
+    if(info.Length() > 0)
     {
         V8_ARG_TO_BOOLEAN(1, _ignoreCache);
         ignoreCache = _ignoreCache;
@@ -236,7 +236,7 @@ static void Reload(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void AllWebviewGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    auto objects = alt::ICore::Instance().GetWebViews();
+    auto objects = alt::ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::WEBVIEW);
     v8::Local<v8::Array> jsArr = v8::Array::New(isolate, objects.size());
     for(size_t i = 0; i < objects.size(); ++i) jsArr->Set(ctx, i, resource->GetBaseObjectOrNull(objects[i]));
     V8_RETURN(jsArr);
@@ -244,7 +244,7 @@ static void AllWebviewGetter(v8::Local<v8::String> name, const v8::PropertyCallb
 
 static void WebviewCountGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    V8_RETURN_UINT(alt::ICore::Instance().GetWebViews().size());
+    V8_RETURN_UINT(alt::ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::WEBVIEW).size());
 }
 
 static void WebviewGpuAccelerationActive(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)

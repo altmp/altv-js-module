@@ -36,7 +36,7 @@ static void ConstructorWorld(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_VECTOR3(1, pos);
     V8_ARG_TO_INT_OPT(2, categoryHash, alt::ICore::Instance().Hash("radio"));
-    
+
     auto output = alt::ICore::Instance().CreateWorldOutput(categoryHash, pos, resource->GetResource());
     V8_BIND_BASE_OBJECT(output, "Failed to create AudioOutputWorld");
 }
@@ -57,7 +57,7 @@ static void ConstructorAttached(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void AllAudioOutputGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    auto objects = alt::ICore::Instance().GetAudioOutputs();
+    auto objects = alt::ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::AUDIO_OUTPUT);
     v8::Local<v8::Array> jsArr = v8::Array::New(isolate, objects.size());
     for(size_t i = 0; i < objects.size(); ++i) jsArr->Set(ctx, i, resource->GetBaseObjectOrNull(objects[i]));
     V8_RETURN(jsArr);
@@ -65,7 +65,7 @@ static void AllAudioOutputGetter(v8::Local<v8::String> name, const v8::PropertyC
 
 static void AudioOutputCountGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-    V8_RETURN_UINT(alt::ICore::Instance().GetAudioOutputs().size());
+    V8_RETURN_UINT(alt::ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::AUDIO_OUTPUT).size());
 }
 
 static void EntityGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -98,7 +98,7 @@ static void SetFilter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8:
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_GET_THIS_BASE_OBJECT(output, alt::IAudioOutput);
 
-    if (val->IsNull())
+    if(val->IsNull())
     {
         output->RemoveFilter();
     }
@@ -117,44 +117,42 @@ using namespace alt;
 
 extern V8Class v8BaseObject;
 extern V8Class v8AudioOutput("AudioOutput",
-    v8BaseObject,
-    &Constructor,
-    [](v8::Local<v8::FunctionTemplate> tpl)
-    {
-        v8::Isolate* isolate = v8::Isolate::GetCurrent();
+                             v8BaseObject,
+                             &Constructor,
+                             [](v8::Local<v8::FunctionTemplate> tpl)
+                             {
+                                 v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-        V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllAudioOutputGetter);
-        V8Helpers::SetStaticAccessor(isolate, tpl, "count", &AudioOutputCountGetter);
+                                 V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllAudioOutputGetter);
+                                 V8Helpers::SetStaticAccessor(isolate, tpl, "count", &AudioOutputCountGetter);
 
-        V8Helpers::SetAccessor<IAudioOutput, bool, &IAudioOutput::IsMuted, &IAudioOutput::SetMuted>(isolate, tpl, "muted");
-        V8Helpers::SetAccessor<IAudioOutput, float, &IAudioOutput::GetVolume, &IAudioOutput::SetVolume>(isolate, tpl, "volume");
-        V8Helpers::SetAccessor<IAudioOutput, uint32_t, &IAudioOutput::GetCategory>(isolate, tpl, "category");
-        V8Helpers::SetAccessor(isolate, tpl, "filter", &GetFilter, &SetFilter);
-    });
-
+                                 V8Helpers::SetAccessor<IAudioOutput, bool, &IAudioOutput::IsMuted, &IAudioOutput::SetMuted>(isolate, tpl, "muted");
+                                 V8Helpers::SetAccessor<IAudioOutput, float, &IAudioOutput::GetVolume, &IAudioOutput::SetVolume>(isolate, tpl, "volume");
+                                 V8Helpers::SetAccessor<IAudioOutput, uint32_t, &IAudioOutput::GetCategory>(isolate, tpl, "category");
+                                 V8Helpers::SetAccessor(isolate, tpl, "filter", &GetFilter, &SetFilter);
+                             });
 
 extern V8Class v8AudioOutputFrontend("AudioOutputFrontend",
-    v8AudioOutput,
-    &ConstructorFrontend,
-    [](v8::Local<v8::FunctionTemplate> tpl)
-    {
+                                     v8AudioOutput,
+                                     &ConstructorFrontend,
+                                     [](v8::Local<v8::FunctionTemplate> tpl) {
 
-    });
+                                     });
 
 extern V8Class v8AudioOutputWorld("AudioOutputWorld",
-    v8AudioOutput,
-    &ConstructorWorld,
-    [](v8::Local<v8::FunctionTemplate> tpl)
-    {
-        v8::Isolate* isolate = v8::Isolate::GetCurrent();
-        V8Helpers::SetAccessor<IAudioWorldOutput, alt::Position, &IAudioWorldOutput::GetPosition, &IAudioWorldOutput::SetPosition>(isolate, tpl, "pos");
-    });
+                                  v8AudioOutput,
+                                  &ConstructorWorld,
+                                  [](v8::Local<v8::FunctionTemplate> tpl)
+                                  {
+                                      v8::Isolate* isolate = v8::Isolate::GetCurrent();
+                                      V8Helpers::SetAccessor<IAudioWorldOutput, alt::Position, &IAudioWorldOutput::GetPosition, &IAudioWorldOutput::SetPosition>(isolate, tpl, "pos");
+                                  });
 
 extern V8Class v8AudioOutputAttached("AudioOutputAttached",
-    v8AudioOutput,
-    &ConstructorAttached,
-    [](v8::Local<v8::FunctionTemplate> tpl)
-    {
-        v8::Isolate* isolate = v8::Isolate::GetCurrent();
-        V8Helpers::SetAccessor(isolate, tpl, "entity", &EntityGetter, &EntitySetter);
-    });
+                                     v8AudioOutput,
+                                     &ConstructorAttached,
+                                     [](v8::Local<v8::FunctionTemplate> tpl)
+                                     {
+                                         v8::Isolate* isolate = v8::Isolate::GetCurrent();
+                                         V8Helpers::SetAccessor(isolate, tpl, "entity", &EntityGetter, &EntitySetter);
+                                     });
