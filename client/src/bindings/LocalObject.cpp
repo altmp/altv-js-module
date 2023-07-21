@@ -162,6 +162,54 @@ static void ModelGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8
     V8_RETURN_UINT(object->GetModel());
 }
 
+static void AlphaSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(object, alt::ILocalObject);
+    V8_TO_UINT(val, value);
+
+    object->SetAlpha(value);
+}
+
+static void AlphaGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(object, alt::ILocalObject);
+    V8_RETURN_UINT(object->GetAlpha());
+}
+
+static void LodDistanceSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(object, alt::ILocalObject);
+    V8_TO_UINT(val, value);
+
+    object->SetLodDistance(value);
+}
+
+static void LodDistanceGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(object, alt::ILocalObject);
+    V8_RETURN_UINT(object->GetLodDistance());
+}
+
+static void TextureVariationSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(object, alt::ILocalObject);
+    V8_TO_UINT(val, value);
+
+    object->SetTextureVariation(value);
+}
+
+static void TextureVariatioGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(object, alt::ILocalObject);
+    V8_RETURN_UINT(object->GetTextureVariation());
+}
+
 extern V8Class v8Object;
 extern V8Class v8LocalObject("LocalObject",
                              v8Object,
@@ -180,9 +228,11 @@ extern V8Class v8LocalObject("LocalObject",
 
                                  V8Helpers::SetAccessor(isolate, tpl, "model", &ModelGetter, &ModelSetter);
 
+                                 V8Helpers::SetAccessor(isolate, tpl, "alpha", &AlphaGetter, &AlphaSetter);
                                  V8Helpers::SetMethod<ILocalObject, &ILocalObject::ResetAlpha>(isolate, tpl, "resetAlpha");
 
                                  V8Helpers::SetAccessor<ILocalObject, bool, &ILocalObject::IsDynamic>(isolate, tpl, "dynamic");
+                                 V8Helpers::SetAccessor(isolate, tpl, "lodDistance", &LodDistanceGetter, &LodDistanceSetter);
                                  V8Helpers::SetAccessor<ILocalObject, bool, &ILocalObject::HasGravity, &ILocalObject::ToggleGravity>(isolate, tpl, "hasGravity");
 
                                  V8Helpers::SetMethod(isolate, tpl, "attachToEntity", &AttachToEntity);
@@ -196,6 +246,8 @@ extern V8Class v8LocalObject("LocalObject",
                                  V8Helpers::SetAccessor<ILocalObject, bool, &ILocalObject::IsPositionFrozen, &ILocalObject::SetPositionFrozen>(isolate, tpl, "positionFrozen");
 
                                  V8Helpers::SetMethod<ILocalObject, &ILocalObject::ActivatePhysics>(isolate, tpl, "activatePhysics");
+
+                                 V8Helpers::SetAccessor(isolate, tpl, "textureVariation", &TextureVariatioGetter, &TextureVariationSetter);
 
                                  V8Helpers::SetAccessor<ILocalObject, bool, &ILocalObject::IsWorldObject>(isolate, tpl, "isWorldObject");
                                  V8Helpers::SetAccessor<ILocalObject, bool, &ILocalObject::IsWeaponObject>(isolate, tpl, "isWeaponObject");
