@@ -162,9 +162,9 @@ static void ModelGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8
     V8_RETURN_UINT(object->GetModel());
 }
 
-extern V8Class v8Entity;
+extern V8Class v8Object;
 extern V8Class v8LocalObject("LocalObject",
-                             v8Entity,
+                             v8Object,
                              Constructor,
                              [](v8::Local<v8::FunctionTemplate> tpl)
                              {
@@ -180,11 +180,9 @@ extern V8Class v8LocalObject("LocalObject",
 
                                  V8Helpers::SetAccessor(isolate, tpl, "model", &ModelGetter, &ModelSetter);
 
-                                 V8Helpers::SetAccessor<ILocalObject, uint8_t, &ILocalObject::GetAlpha, &ILocalObject::SetAlpha>(isolate, tpl, "alpha");
                                  V8Helpers::SetMethod<ILocalObject, &ILocalObject::ResetAlpha>(isolate, tpl, "resetAlpha");
 
                                  V8Helpers::SetAccessor<ILocalObject, bool, &ILocalObject::IsDynamic>(isolate, tpl, "dynamic");
-                                 V8Helpers::SetAccessor<ILocalObject, uint16_t, &ILocalObject::GetLodDistance, &ILocalObject::SetLodDistance>(isolate, tpl, "lodDistance");
                                  V8Helpers::SetAccessor<ILocalObject, bool, &ILocalObject::HasGravity, &ILocalObject::ToggleGravity>(isolate, tpl, "hasGravity");
 
                                  V8Helpers::SetMethod(isolate, tpl, "attachToEntity", &AttachToEntity);
@@ -198,8 +196,6 @@ extern V8Class v8LocalObject("LocalObject",
                                  V8Helpers::SetAccessor<ILocalObject, bool, &ILocalObject::IsPositionFrozen, &ILocalObject::SetPositionFrozen>(isolate, tpl, "positionFrozen");
 
                                  V8Helpers::SetMethod<ILocalObject, &ILocalObject::ActivatePhysics>(isolate, tpl, "activatePhysics");
-
-                                 V8Helpers::SetAccessor<ILocalObject, uint8_t, &ILocalObject::GetTextureVariation, &ILocalObject::SetTextureVariation>(isolate, tpl, "textureVariation");
 
                                  V8Helpers::SetAccessor<ILocalObject, bool, &ILocalObject::IsWorldObject>(isolate, tpl, "isWorldObject");
                                  V8Helpers::SetAccessor<ILocalObject, bool, &ILocalObject::IsWeaponObject>(isolate, tpl, "isWeaponObject");
