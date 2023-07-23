@@ -9,7 +9,25 @@ function(DownloadFile name path urlpath checksums)
     string(JSON __deps_file_checksum_cdn GET ${checksums} ${name})
     if(NOT ${__deps_file_checksum} STREQUAL ${__deps_file_checksum_cdn})
         message("Downloading ${name}...")
-        file(DOWNLOAD "${__deps_url_base_path}/${urlpath}/${name}" "${path}/${name}")
+
+        if("${urlpath}" STREQUAL "")
+            set(__download_url "${__deps_url_base_path}/${name}")
+        else()
+            set(__download_url "${__deps_url_base_path}/${urlpath}/${name}")
+        endif()
+        file(DOWNLOAD "${__download_url}" "${path}/${name}"
+            STATUS DOWNLOAD_STATUS
+        )
+        # Separate the returned status code, and error message.
+        list(GET DOWNLOAD_STATUS 0 STATUS_CODE)
+        list(GET DOWNLOAD_STATUS 1 ERROR_MESSAGE)
+        # Check if download was successful.
+        if(${STATUS_CODE} EQUAL 0)
+            message(STATUS "Download completed successfully!")
+        else()
+            # Exit CMake if the download failed, printing the error message.
+            message(FATAL_ERROR "Error [${STATUS_CODE}] occurred during download '${__download_url}' : ${ERROR_MESSAGE}")
+        endif()
     endif()
 endfunction()
 

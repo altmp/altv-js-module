@@ -78,7 +78,7 @@ static void EmitServer(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     alt::MValueArgs args;
 
-    for(int i = 1; i < info.Length(); ++i) args.Push(V8Helpers::V8ToMValue(info[i], false));
+    for(int i = 1; i < info.Length(); ++i) args.emplace_back(V8Helpers::V8ToMValue(info[i], false));
 
     alt::ICore::Instance().TriggerServerEvent(eventName, args);
 }
@@ -101,11 +101,25 @@ static void EmitServerRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
             tryCatch.ReThrow();
             return;
         }
-        V8_CHECK(!result.IsEmpty(), "Failed to serialize value");
-        args.Push(result);
+        V8_CHECK(result, "Failed to serialize value");
+        args.emplace_back(result);
     }
 
     alt::ICore::Instance().TriggerServerEvent(eventName, args);
+}
+
+static void EmitServerUnreliable(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+
+    V8_CHECK_ARGS_LEN_MIN(1);
+    V8_ARG_TO_STRING(1, eventName);
+
+    alt::MValueArgs args;
+
+    for(int i = 1; i < info.Length(); ++i) args.emplace_back(V8Helpers::V8ToMValue(info[i], false));
+
+    alt::ICore::Instance().TriggerServerEventUnreliable(eventName, args);
 }
 
 static void GameControlsEnabled(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -281,12 +295,31 @@ static void RemoveGxtText(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void GetGxtText(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-    V8_GET_ISOLATE_CONTEXT_IRESOURCE();
+    V8_GET_ISOLATE_CONTEXT();
 
     V8_CHECK_ARGS_LEN(1);
-    V8_ARG_TO_STRING(1, key);
 
-    V8_RETURN_STRING(resource->GetGxtText(ICore::Instance().Hash(key)));
+    uint32_t hash;
+    if(info[0]->IsString())
+    {
+        V8_ARG_TO_STRING(1, key);
+        hash = ICore::Instance().Hash(key);
+    }
+    else
+    {
+        V8_ARG_TO_UINT(1, _hash);
+        hash = _hash;
+    }
+
+    const char* text = ICore::Instance().GetGxtEntry(hash);
+    if(text)
+    {
+        V8_RETURN_RAW_STRING(text);
+    }
+    else
+    {
+        V8_RETURN_NULL();
+    }
 }
 
 static void GetMsPerGameMinute(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -335,18 +368,18 @@ static void SetWeatherCycle(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK(multipliers->Length() < 256, "Multipliers array size must be <= 255");
     V8_CHECK(weathers->Length() == multipliers->Length(), "Weathers and multipliers array has to be the same size");
 
-    Array<uint8_t> weathersVec;
-    Array<uint8_t> multipliersVec;
+    std::vector<uint8_t> weathersVec;
+    std::vector<uint8_t> multipliersVec;
 
     for(int i = 0; i < weathers->Length(); ++i)
     {
         V8_TO_INTEGER(weathers->Get(ctx, i).ToLocalChecked(), weatherNum);
         V8_CHECK(weatherNum >= 0 && weatherNum <= 14, "weather ids must be >= 0 && <= 14");
-        weathersVec.Push(weatherNum);
+        weathersVec.push_back(weatherNum);
 
         V8_TO_INTEGER(multipliers->Get(ctx, i).ToLocalChecked(), multiplierNum);
         V8_CHECK(multiplierNum > 0 && multiplierNum < 256, "multipliers must be > 0 && <= 255");
-        multipliersVec.Push(multiplierNum);
+        multipliersVec.push_back(multiplierNum);
     }
 
     ICore::Instance().SetWeatherCycle(weathersVec, multipliersVec);
@@ -673,7 +706,7 @@ static void TakeScreenshot(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     auto& persistent = promises.emplace_back(v8::Global<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
 
-    alt::PermissionState state = alt::ICore::Instance().TakeScreenshot(
+    bool state = alt::ICore::Instance().TakeScreenshot(
       [&persistent, resource](const std::string& base64)
       {
           resource->RunOnNextTick(
@@ -688,8 +721,7 @@ static void TakeScreenshot(const v8::FunctionCallbackInfo<v8::Value>& info)
                 promises.remove(persistent);
             });
       });
-    V8_CHECK(state != alt::PermissionState::Denied, "No permissions");
-    V8_CHECK(state != alt::PermissionState::Unspecified, "Permissions not specified");
+    V8_CHECK(state, "No permissions");
 
     V8_RETURN(persistent.Get(isolate)->GetPromise());
 }
@@ -701,7 +733,7 @@ static void TakeScreenshotGameOnly(const v8::FunctionCallbackInfo<v8::Value>& in
 
     auto& persistent = promises.emplace_back(v8::Global<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
 
-    alt::PermissionState state = alt::ICore::Instance().TakeScreenshotGameOnly(
+    bool state = alt::ICore::Instance().TakeScreenshotGameOnly(
       [&persistent, resource](const std::string& base64)
       {
           resource->RunOnNextTick(
@@ -716,8 +748,7 @@ static void TakeScreenshotGameOnly(const v8::FunctionCallbackInfo<v8::Value>& in
                 promises.remove(persistent);
             });
       });
-    V8_CHECK(state != alt::PermissionState::Denied, "No permissions");
-    V8_CHECK(state != alt::PermissionState::Unspecified, "Permissions not specified");
+    V8_CHECK(state, "No permissions");
 
     V8_RETURN(persistent.Get(isolate)->GetPromise());
 }
@@ -891,10 +922,8 @@ static void CopyToClipboard(const v8::FunctionCallbackInfo<v8::Value>& info)
         text = textStr;
     }
 
-    alt::PermissionState state = alt::ICore::Instance().CopyToClipboard(text);
-    V8_CHECK(state != alt::PermissionState::Denied, "No permissions");
-    V8_CHECK(state != alt::PermissionState::Unspecified, "Permission not specified");
-    V8_CHECK(state != alt::PermissionState::Failed, "Failed to copy to clipboard");
+    bool state = alt::ICore::Instance().CopyToClipboard(text);
+    V8_CHECK(state, "No permissions");
 }
 
 static void ToggleRmlControls(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -1013,6 +1042,16 @@ static void SetMinimapComponentPosition(const v8::FunctionCallbackInfo<v8::Value
     alt::ICore::Instance().SetMinimapComponentPosition(name, alignX[0], alignY[0], pos, size);
 }
 
+static void ResetMinimapComponentPosition(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STRING(1, name);
+
+    alt::ICore::Instance().ResetMinimapComponentPosition(name);
+}
+
 static void SetMinimapIsRectangle(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -1060,14 +1099,108 @@ static void GetPedBonePos(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_VECTOR3(alt::ICore::Instance().GetPedBonePos(scriptId, boneId));
 }
 
+static void EvalModule(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(2);
+
+    V8_ARG_TO_STRING(1, name);
+    V8_ARG_TO_STRING(2, code);
+
+    v8::Local<v8::Module> mod;
+
+    auto result = V8Helpers::TryCatch(
+      [&]
+      {
+          auto maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(name, code, V8Helpers::SourceLocation::GetCurrent(isolate));
+          if(maybeModule.IsEmpty())
+          {
+              V8Helpers::Throw(isolate, "Failed to resolve module");
+              return false;
+          }
+
+          mod = maybeModule.ToLocalChecked();
+          v8::Maybe<bool> result = mod->InstantiateModule(ctx, CV8ScriptRuntime::ResolveModule);
+          if(result.IsNothing() || result.ToChecked() == false)
+          {
+              V8Helpers::Throw(isolate, "Failed to instantiate module");
+              return false;
+          }
+
+          auto returnValue = mod->Evaluate(ctx);
+          if(returnValue.IsEmpty())
+          {
+              V8Helpers::Throw(isolate, "Failed to evaluate module");
+              return false;
+          }
+
+          return true;
+      });
+    if(!result) return;
+
+    V8_RETURN(mod->GetModuleNamespace());
+}
+
+static void IsFullScreen(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    V8_RETURN_BOOLEAN(alt::ICore::Instance().IsFullScreen());
+}
+
 extern V8Module sharedModule;
 extern V8Class v8Player, v8Player, v8Vehicle, v8WebView, v8HandlingData, v8LocalStorage, v8MemoryBuffer, v8MapZoomData, v8Discord, v8Voice, v8WebSocketClient, v8Checkpoint, v8HttpClient,
-  v8Audio, v8LocalPlayer, v8Profiler, v8Worker, v8RmlDocument, v8RmlElement, v8WeaponData, v8FocusData, v8Object, v8TextEncoder, v8TextDecoder;
+  v8Audio, v8LocalPlayer, v8Profiler, v8Worker, v8RmlDocument, v8RmlElement, v8WeaponData, v8FocusData, v8LocalObject, v8TextEncoder, v8TextDecoder, v8Object, v8VirtualEntityGroup,
+  v8VirtualEntity, v8AudioFilter, v8Marker, v8Ped, v8Colshape, v8ColshapeCylinder, v8ColshapeSphere, v8ColshapeCircle, v8ColshapeCuboid, v8ColshapeRectangle, v8ColshapePolygon, v8TextLabel,
+  v8LocalPed, v8LocalVehicle, v8Font, v8WeaponObject, v8AudioOutput, v8AudioOutputFrontend, v8AudioOutputWorld, v8AudioOutputAttached, v8AudioCategory;
 extern V8Module altModule("alt",
                           &sharedModule,
-                          { v8Player,      v8Vehicle,         v8WebView,    v8HandlingData, v8LocalStorage, v8MemoryBuffer, v8MapZoomData, v8Discord,
-                            v8Voice,       v8WebSocketClient, v8Checkpoint, v8HttpClient,   v8Audio,        v8LocalPlayer,  v8Profiler,    v8Worker,
-                            v8RmlDocument, v8RmlElement,      v8WeaponData, v8FocusData,    v8Object,       v8TextEncoder,  v8TextDecoder },
+                          { v8Player,
+                            v8Vehicle,
+                            v8WebView,
+                            v8HandlingData,
+                            v8LocalStorage,
+                            v8MemoryBuffer,
+                            v8MapZoomData,
+                            v8Discord,
+                            v8Voice,
+                            v8WebSocketClient,
+                            v8Checkpoint,
+                            v8HttpClient,
+                            v8Audio,
+                            v8LocalPlayer,
+                            v8Profiler,
+                            v8Worker,
+                            v8RmlDocument,
+                            v8RmlElement,
+                            v8WeaponData,
+                            v8FocusData,
+                            v8LocalObject,
+                            v8TextEncoder,
+                            v8TextDecoder,
+                            v8Object,
+                            v8VirtualEntityGroup,
+                            v8VirtualEntity,
+                            v8AudioFilter,
+                            v8Marker,
+                            v8Ped,
+                            v8Colshape,
+                            v8ColshapeCylinder,
+                            v8ColshapeSphere,
+                            v8ColshapeCircle,
+                            v8ColshapeCuboid,
+                            v8ColshapeRectangle,
+                            v8ColshapePolygon,
+                            v8TextLabel,
+                            v8LocalPed,
+                            v8LocalVehicle,
+                            v8Font,
+                            v8WeaponObject,
+                            v8AudioOutput,
+                            v8AudioOutputFrontend,
+                            v8AudioOutputWorld,
+                            v8AudioOutputAttached,
+                            v8AudioCategory },
                           [](v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports)
                           {
                               v8::Isolate* isolate = ctx->GetIsolate();
@@ -1077,6 +1210,7 @@ extern V8Module altModule("alt",
                               V8Helpers::RegisterFunc(exports, "offServer", &OffServer);
                               V8Helpers::RegisterFunc(exports, "emitServer", &EmitServer);
                               V8Helpers::RegisterFunc(exports, "emitServerRaw", &EmitServerRaw);
+                              V8Helpers::RegisterFunc(exports, "emitServerUnreliable", &EmitServerUnreliable);
                               V8Helpers::RegisterFunc(exports, "gameControlsEnabled", &GameControlsEnabled);
                               V8Helpers::RegisterFunc(exports, "toggleGameControls", &ToggleGameControls);
                               V8Helpers::RegisterFunc(exports, "toggleVoiceControls", &ToggleVoiceControls);
@@ -1183,6 +1317,7 @@ extern V8Module altModule("alt",
                               V8Helpers::RegisterFunc(exports, "getScreenResolution", &GetScreenResolution);
 
                               V8Helpers::RegisterFunc(exports, "setMinimapComponentPosition", &SetMinimapComponentPosition);
+                              V8Helpers::RegisterFunc(exports, "resetMinimapComponentPosition", &ResetMinimapComponentPosition);
                               V8Helpers::RegisterFunc(exports, "setMinimapIsRectangle", &SetMinimapIsRectangle);
 
                               V8Helpers::RegisterFunc(exports, "loadDefaultIpls", &LoadDefaultIpls);
@@ -1192,4 +1327,7 @@ extern V8Module altModule("alt",
                               V8Helpers::RegisterFunc(exports, "getPedBonePos", &GetPedBonePos);
 
                               V8_OBJECT_SET_BOOLEAN(exports, "isWorker", false);
+
+                              V8Helpers::RegisterFunc(exports, "evalModule", &EvalModule);
+                              V8Helpers::RegisterFunc(exports, "isFullScreen", &IsFullScreen);
                           });

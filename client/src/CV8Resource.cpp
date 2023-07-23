@@ -61,7 +61,7 @@ void StartFile(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK(!maybeMod.IsEmpty(), "Failed to start file");
     auto mod = maybeMod.ToLocalChecked();
     static_cast<CV8ResourceImpl*>(resource)->InstantiateModule(mod);
-    alt::MValueDict exports = V8Helpers::V8ToMValue(mod->GetModuleNamespace()).As<alt::IMValueDict>();
+    const alt::MValueDict& exports = std::dynamic_pointer_cast<alt::IMValueDict>(V8Helpers::V8ToMValue(mod->GetModuleNamespace()));
     resource->GetResource()->SetExports(exports);
 }
 
@@ -279,7 +279,7 @@ void CV8ResourceImpl::OnEvent(const alt::CEvent* e)
         else if(e->GetType() == alt::CEvent::Type::DISCONNECT_EVENT)
         {
             CV8ScriptRuntime& runtime = CV8ScriptRuntime::Instance();
-            runtime.resourcesLoaded = false;
+            runtime.OnDisconnect();
         }
     }
 

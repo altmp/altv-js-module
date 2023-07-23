@@ -25,7 +25,7 @@ void V8Helpers::FunctionCallback(const v8::FunctionCallbackInfo<v8::Value>& info
 
     alt::MValueArgs args;
 
-    for(uint64_t i = 0; i < info.Length(); ++i) args.Push(V8Helpers::V8ToMValue(info[i]));
+    for(uint64_t i = 0; i < info.Length(); ++i) args.emplace_back(V8Helpers::V8ToMValue(info[i]));
 
     alt::MValue res = (*fn)->Call(args);
 
@@ -60,7 +60,7 @@ void V8Helpers::SetAccessor(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate
 
 void V8Helpers::SetLazyAccessor(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> tpl, const char* name, v8::AccessorNameGetterCallback getter)
 {
-    tpl->PrototypeTemplate()->SetLazyDataProperty(v8::String::NewFromUtf8(isolate, name, v8::NewStringType::kInternalized).ToLocalChecked(), getter);
+    tpl->InstanceTemplate()->SetLazyDataProperty(v8::String::NewFromUtf8(isolate, name, v8::NewStringType::kInternalized).ToLocalChecked(), getter);
 }
 
 void V8Helpers::SetMethod(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> tpl, const char* name, v8::FunctionCallback callback)

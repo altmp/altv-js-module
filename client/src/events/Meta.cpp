@@ -6,6 +6,7 @@
 #include "cpp-sdk/events/CGlobalSyncedMetaDataChangeEvent.h"
 #include "cpp-sdk/events/CGlobalMetaDataChangeEvent.h"
 #include "cpp-sdk/events/CLocalMetaDataChangeEvent.h"
+#include "cpp-sdk/events/CMetaDataChangeEvent.h"
 
 #include "cpp-sdk/SDK.h"
 
@@ -75,3 +76,16 @@ V8_LOCAL_EVENT_HANDLER localMetaChange(EventType::LOCAL_SYNCED_META_CHANGE,
                                            args.push_back(V8Helpers::MValueToV8(ev->GetVal()));
                                            args.push_back(V8Helpers::MValueToV8(ev->GetOldVal()));
                                        });
+
+V8_LOCAL_EVENT_HANDLER metaChange(EventType::META_CHANGE,
+                                  "metaChange",
+                                  [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                  {
+                                      auto ev = static_cast<const alt::CMetaChangeEvent*>(e);
+                                      v8::Isolate* isolate = resource->GetIsolate();
+
+                                      args.push_back(resource->GetOrCreateEntity(ev->GetTarget())->GetJSVal(isolate));
+                                      args.push_back(V8Helpers::JSValue(ev->GetKey()));
+                                      args.push_back(V8Helpers::MValueToV8(ev->GetVal()));
+                                      args.push_back(V8Helpers::MValueToV8(ev->GetOldVal()));
+                                  });

@@ -29,6 +29,7 @@ class CV8ScriptRuntime : public alt::IScriptRuntime, public IRuntimeEventHandler
 
     std::unordered_map<uint16_t, alt::IPlayer*> streamedInPlayers;
     std::unordered_map<uint16_t, alt::IVehicle*> streamedInVehicles;
+    std::unordered_map<uint16_t, alt::IPed*> streamedInPeds;
 
     uint32_t activeWorkers = 0;
 
@@ -45,7 +46,7 @@ public:
 
     void OnDispose() override;
 
-    void Init(std::function<void(bool success, std::string error)> next, std::function<void(alt::InitState state, float progress, float total)> setProgress) override;
+    void Init(std::function<void(bool success, std::string error)> next, std::function<void(alt::InitState state, float progress, float total, int)> setProgress) override;
 
     static void SetInstance(CV8ScriptRuntime* runtime)
     {
@@ -213,4 +214,11 @@ public:
     {
         return streamedInVehicles;
     }
+    auto GetStreamedInPeds()
+    {
+        return streamedInPeds;
+    }
+
+
+    void OnDisconnect();
 };

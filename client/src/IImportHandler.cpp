@@ -279,13 +279,15 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveModule(const std::string& _nam
     return maybeModule;
 }
 
-v8::MaybeLocal<v8::Module> IImportHandler::ResolveCode(const std::string& code, const V8Helpers::SourceLocation& location)
+v8::MaybeLocal<v8::Module> IImportHandler::ResolveCode(const std::string& name, const std::string& code, const V8Helpers::SourceLocation& location)
 {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
     v8::MaybeLocal<v8::Module> maybeModule;
-    std::stringstream name;
-    name << "[module " << location.GetFileName() << ":" << location.GetLineNumber() << "]";
-    maybeModule = CompileESM(isolate, name.str(), code);
+    std::stringstream nameStream;
+    if(name.empty()) nameStream << "[module " << location.GetFileName() << ":" << location.GetLineNumber() << "]";
+    else
+        nameStream << name;
+    maybeModule = CompileESM(isolate, nameStream.str(), code);
 
     return maybeModule;
 }
@@ -294,27 +296,15 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveBytecode(const std::string& na
 {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    // Copy source code size
-    int sourceCodeSize = 0;
-    memcpy(&sourceCodeSize, buffer + sizeof(bytecodeMagic), sizeof(int));
     // Copy bytecode buffer
-    size_t bytecodeSize = size - sizeof(bytecodeMagic) - sizeof(int);
+    size_t bytecodeSize = size - sizeof(bytecodeMagic);
     uint8_t* bytecode = new uint8_t[bytecodeSize];
-    memcpy(bytecode, buffer + sizeof(bytecodeMagic) + sizeof(int), bytecodeSize);
+    memcpy(bytecode, buffer + sizeof(bytecodeMagic), bytecodeSize);
 
     v8::ScriptCompiler::CachedData* cachedData = new v8::ScriptCompiler::CachedData(bytecode, bytecodeSize, v8::ScriptCompiler::CachedData::BufferOwned);
     v8::ScriptOrigin origin(isolate, V8Helpers::JSValue(name), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
 
-    // Create source string
-    std::string sourceString;
-    sourceString.reserve(sourceCodeSize + 2);
-    sourceString += "'";
-    for(size_t i = 0; i < sourceCodeSize; i++)
-    {
-        sourceString += "a";
-    }
-    sourceString += "'";
-    v8::ScriptCompiler::Source source{ V8Helpers::JSValue(sourceString), origin, cachedData };
+    v8::ScriptCompiler::Source source{ V8Helpers::JSValue(" "), origin, cachedData };
     v8::MaybeLocal<v8::Module> module = v8::ScriptCompiler::CompileModule(isolate, &source, v8::ScriptCompiler::kConsumeCodeCache);
     if(cachedData->rejected)
     {

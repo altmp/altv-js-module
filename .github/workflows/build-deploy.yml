@@ -23,8 +23,8 @@ jobs:
         shell: bash
         run: |
           TAG=${GITHUB_REF/refs\/tags\//}
-          echo ::set-output name=BRANCH::${TAG/\/*}
-          echo ::set-output name=VERSION::${TAG/*\/}
+          echo "BRANCH=${TAG/\/*}" >> $GITHUB_OUTPUT
+          echo "VERSION=${TAG/*\/}" >> $GITHUB_OUTPUT
 
       - name: Build
         shell: cmd
@@ -68,8 +68,10 @@ jobs:
         shell: bash
         run: |
           TAG=${GITHUB_REF/refs\/tags\//}
-          echo ::set-output name=BRANCH::${TAG/\/*}
-          echo ::set-output name=VERSION::${TAG/*\/}
+          echo "BRANCH=${TAG/\/*}" >> $GITHUB_OUTPUT
+          echo "VERSION=${TAG/*\/}" >> $GITHUB_OUTPUT
+          cd shared/deps/cpp-sdk
+          echo "SDK_COMMIT=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
       - name: Build
         run: |
@@ -84,6 +86,7 @@ jobs:
           mkdir -p upload/modules/js-module
           cp ./dist/libjs-module.so ./upload/modules/js-module
           cp ./dist/libnode.so.108 ./upload/modules/js-module
+          echo ${{ steps.version.outputs.SDK_COMMIT }} >> ./upload/sdk.version
 
       - uses: actions/upload-artifact@v3
         with:
@@ -123,27 +126,63 @@ jobs:
         shell: bash
         run: |
           TAG=${GITHUB_REF/refs\/tags\//}
-          echo ::set-output name=BRANCH::${TAG/\/*}
-          echo ::set-output name=VERSION::${TAG/*\/}
+          echo "BRANCH=${TAG/\/*}" >> $GITHUB_OUTPUT
+          echo "VERSION=${TAG/*\/}" >> $GITHUB_OUTPUT
+          echo "SDK_VERSION=$(cat dist-linux/sdk.version)" >> $GITHUB_OUTPUT
+          rm dist-linux/sdk.version
 
       - name: Install upload tool
         run: npm i @altmp/upload-tool@latest
 
       - name: Deploy windows artifacts to cdn
-        run: npx alt-upload dist-windows js-module/$BRANCH/x64_win32 $VERSION
+        run: npx alt-upload dist-windows js-module/$BRANCH/x64_win32 $VERSION $SDK_VERSION
         env:
-          CI_UPLOAD_URL: ${{ secrets.CI_UPLOAD_URL }}
-          CI_DEPLOY_TOKEN: ${{ secrets.CI_DEPLOY_TOKEN }}
+          AWS_KEY_ID: ${{ secrets.AWS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_BUCKET: ${{ secrets.AWS_BUCKET }}
+          AWS_ENDPOINT: ${{ secrets.AWS_ENDPOINT }}
+          CF_CACHE_PURGE_TOKEN: ${{ secrets.CF_CACHE_PURGE_TOKEN }}
+          CF_CACHE_ZONE_ID: ${{ secrets.CF_CACHE_ZONE_ID }}
+          CF_CACHE_PURGE_URL: ${{ secrets.CF_CACHE_PURGE_URL }}
           BRANCH: ${{ steps.version.outputs.BRANCH }}
           VERSION: ${{ steps.version.outputs.VERSION }}
+          SDK_VERSION: ${{ steps.version.outputs.SDK_VERSION }}
 
       - name: Deploy linux artifacts to cdn
-        run: npx alt-upload dist-linux js-module/$BRANCH/x64_linux $VERSION
+        run: npx alt-upload dist-linux js-module/$BRANCH/x64_linux $VERSION $SDK_VERSION
         env:
-          CI_UPLOAD_URL: ${{ secrets.CI_UPLOAD_URL }}
-          CI_DEPLOY_TOKEN: ${{ secrets.CI_DEPLOY_TOKEN }}
+          AWS_KEY_ID: ${{ secrets.AWS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_BUCKET: ${{ secrets.AWS_BUCKET }}
+          AWS_ENDPOINT: ${{ secrets.AWS_ENDPOINT }}
+          CF_CACHE_PURGE_TOKEN: ${{ secrets.CF_CACHE_PURGE_TOKEN }}
+          CF_CACHE_ZONE_ID: ${{ secrets.CF_CACHE_ZONE_ID }}
+          CF_CACHE_PURGE_URL: ${{ secrets.CF_CACHE_PURGE_URL }}
           BRANCH: ${{ steps.version.outputs.BRANCH }}
           VERSION: ${{ steps.version.outputs.VERSION }}
+          SDK_VERSION: ${{ steps.version.outputs.SDK_VERSION }}
+          
+  build-docker:
+    name: Trigger Docker image build
+    runs-on: ubuntu-latest
+    needs: [deploy-cdn]
+    steps:
+      - name: Get Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@v2
+        with:
+          application_id: ${{ secrets.CI_APP_ID }}
+          application_private_key: ${{ secrets.CI_APP_PRIVATE_KEY }}
+          permissions: "actions:write"
+          organization: altmp
+
+      - name: Trigger Docker build
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: build.yml
+          ref: main
+          repo: altmp/altv-docker
+          token: ${{ steps.get_workflow_token.outputs.token }}
 
   create-release:
     name: Create GitHub Release
@@ -168,18 +207,20 @@ jobs:
           name: js-module-linux
           path: dist-linux
 
-      - name: Zip artifacts
-        run: |
-          zip -r -j js-module-windows dist-windows
-          zip -r -j js-module-linux dist-linux
-
       - name: Extract version
         id: version
         shell: bash
         run: |
           TAG=${GITHUB_REF/refs\/tags\//}
-          echo ::set-output name=BRANCH::${TAG/\/*}
-          echo ::set-output name=VERSION::${TAG/*\/}
+          echo "BRANCH=${TAG/\/*}" >> $GITHUB_OUTPUT
+          echo "VERSION=${TAG/*\/}" >> $GITHUB_OUTPUT
+          echo "SDK_COMMIT=$(cat dist-linux/sdk.version)" >> $GITHUB_OUTPUT
+          rm dist-linux/sdk.version
+
+      - name: Zip artifacts
+        run: |
+          zip -r -j js-module-windows dist-windows
+          zip -r -j js-module-linux dist-linux
 
       - name: Create Release
         id: create_release
@@ -189,6 +230,8 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ steps.version.outputs.VERSION }}
+          body: |
+            SDK version: [${{ steps.version.outputs.SDK_COMMIT }}](https://github.com/altmp/cpp-sdk/commit/${{ steps.version.outputs.SDK_COMMIT }})
 
       - name: Upload windows artifacts
         uses: actions/upload-release-asset@v1

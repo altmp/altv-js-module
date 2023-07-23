@@ -13,6 +13,23 @@ class CNodeScriptRuntime : public alt::IScriptRuntime, public IRuntimeEventHandl
     std::unique_ptr<node::MultiIsolatePlatform> platform;
     std::unordered_set<CNodeResourceImpl*> resources;
 
+    enum class Metric : uint8_t
+    {
+        HEAP_SIZE,
+        HEAP_LIMIT,
+        PHYSICAL_SIZE,
+        PHYSICAL_LIMIT,
+        GLOBAL_HANDLES_SIZE,
+        GLOBAL_HANDLES_LIMIT,
+
+        SIZE
+    };
+
+    std::unordered_map<Metric, alt::Metric*> metrics;
+
+    void RegisterMetrics();
+    void UpdateMetrics();
+
 public:
     CNodeScriptRuntime() = default;
     bool Init();

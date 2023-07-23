@@ -177,10 +177,10 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
     {
         case alt::IMValue::Type::NONE: return v8::Undefined(isolate);
         case alt::IMValue::Type::NIL: return V8Helpers::JSValue(nullptr);
-        case alt::IMValue::Type::BOOL: return V8Helpers::JSValue(val.As<alt::IMValueBool>()->Value());
+        case alt::IMValue::Type::BOOL: return V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueBool>(val)->Value());
         case alt::IMValue::Type::INT:
         {
-            int64_t _val = val.As<alt::IMValueInt>()->Value();
+            int64_t _val = std::dynamic_pointer_cast<const alt::IMValueInt>(val)->Value();
 
             if(_val >= JS_MIN_SAFE_INTEGER && _val <= JS_MAX_SAFE_INTEGER) return V8Helpers::JSValue((double)_val);
 
@@ -188,17 +188,17 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
         }
         case alt::IMValue::Type::UINT:
         {
-            uint64_t _val = val.As<alt::IMValueUInt>()->Value();
+            uint64_t _val = std::dynamic_pointer_cast<const alt::IMValueUInt>(val)->Value();
 
             if(_val <= JS_MAX_SAFE_INTEGER) return V8Helpers::JSValue((double)_val);
 
             return V8Helpers::JSValue(_val);
         }
-        case alt::IMValue::Type::DOUBLE: return V8Helpers::JSValue(val.As<alt::IMValueDouble>()->Value());
-        case alt::IMValue::Type::STRING: return V8Helpers::JSValue(val.As<alt::IMValueString>()->Value());
+        case alt::IMValue::Type::DOUBLE: return V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueDouble>(val)->Value());
+        case alt::IMValue::Type::STRING: return V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(val)->Value());
         case alt::IMValue::Type::LIST:
         {
-            alt::MValueListConst list = val.As<alt::IMValueList>();
+            alt::MValueListConst list = std::dynamic_pointer_cast<const alt::IMValueList>(val);
             v8::Local<v8::Array> v8Arr = v8::Array::New(isolate, (int)list->GetSize());
 
             for(uint32_t i = 0; i < list->GetSize(); ++i) v8Arr->Set(ctx, i, MValueToV8(list->Get(i)));
@@ -207,7 +207,7 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
         }
         case alt::IMValue::Type::DICT:
         {
-            alt::MValueDictConst dict = val.As<alt::IMValueDict>();
+            alt::MValueDictConst dict = std::dynamic_pointer_cast<const alt::IMValueDict>(val);
             v8::Local<v8::Object> v8Obj = v8::Object::New(isolate);
 
             for(auto it = dict->Begin(); it; it = dict->Next())
@@ -219,24 +219,24 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
         }
         case alt::IMValue::Type::BASE_OBJECT:
         {
-            alt::IBaseObject* ref = val.As<alt::IMValueBaseObject>()->RawValue();
+            alt::IBaseObject* ref = std::dynamic_pointer_cast<const alt::IMValueBaseObject>(val)->RawValue();
             return V8ResourceImpl::Get(ctx)->GetBaseObjectOrNull(ref);
         }
         case alt::IMValue::Type::FUNCTION:
         {
-            alt::MValueFunctionConst fn = val.As<alt::IMValueFunction>();
+            alt::MValueFunctionConst fn = std::dynamic_pointer_cast<const alt::IMValueFunction>(val);
             v8::Local<v8::External> extFn = v8::External::New(isolate, new alt::MValueFunctionConst(fn));
 
             v8::Local<v8::Function> func;
             V8_CHECK_RETN(v8::Function::New(ctx, V8Helpers::FunctionCallback, extFn).ToLocal(&func), "Failed to convert MValue to function", v8::Undefined(isolate));
             return func;
         }
-        case alt::IMValue::Type::VECTOR3: return V8ResourceImpl::Get(ctx)->CreateVector3(val.As<alt::IMValueVector3>()->Value());
-        case alt::IMValue::Type::VECTOR2: return V8ResourceImpl::Get(ctx)->CreateVector2(val.As<alt::IMValueVector2>()->Value());
-        case alt::IMValue::Type::RGBA: return V8ResourceImpl::Get(ctx)->CreateRGBA(val.As<alt::IMValueRGBA>()->Value());
+        case alt::IMValue::Type::VECTOR3: return V8ResourceImpl::Get(ctx)->CreateVector3(std::dynamic_pointer_cast<const alt::IMValueVector3>(val)->Value());
+        case alt::IMValue::Type::VECTOR2: return V8ResourceImpl::Get(ctx)->CreateVector2(std::dynamic_pointer_cast<const alt::IMValueVector2>(val)->Value());
+        case alt::IMValue::Type::RGBA: return V8ResourceImpl::Get(ctx)->CreateRGBA(std::dynamic_pointer_cast<const alt::IMValueRGBA>(val)->Value());
         case alt::IMValue::Type::BYTE_ARRAY:
         {
-            alt::MValueByteArrayConst buffer = val.As<alt::IMValueByteArray>();
+            alt::MValueByteArrayConst buffer = std::dynamic_pointer_cast<const alt::IMValueByteArray>(val);
             // Check if the buffer is a raw JS value buffer
             v8::MaybeLocal<v8::Value> jsVal = RawBytesToV8(buffer);
             if(!jsVal.IsEmpty()) return jsVal.ToLocalChecked();
@@ -253,7 +253,7 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
 
 void V8Helpers::MValueArgsToV8(alt::MValueArgs args, std::vector<v8::Local<v8::Value>>& v8Args)
 {
-    for(uint64_t i = 0; i < args.GetSize(); ++i) v8Args.push_back(MValueToV8(args[i]));
+    for(uint64_t i = 0; i < args.size(); ++i) v8Args.push_back(MValueToV8(args[i]));
 }
 
 // Magic bytes to identify raw JS value buffers
@@ -368,7 +368,7 @@ static inline v8::MaybeLocal<v8::Object> ReadRawValue(v8::Local<v8::Context> ctx
         {
             uint16_t* id;
             if(!deserializer.ReadRawBytes(sizeof(uint16_t), (const void**)&id)) return v8::MaybeLocal<v8::Object>();
-            alt::IEntity* entity = alt::ICore::Instance().GetEntityByID(*id);
+            alt::IEntity* entity = alt::ICore::Instance().GetEntityBySyncID(*id);
             if(!entity) return v8::MaybeLocal<v8::Object>();
             return V8ResourceImpl::Get(ctx)->GetOrCreateEntity(entity, "Entity")->GetJSVal(isolate);
         }

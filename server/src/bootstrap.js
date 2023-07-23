@@ -29,6 +29,9 @@ const url = require("url");
     new Function("alt", "__global", __internal_bindings_code)(alt, bindingsGlobal);
     __setLogFunction(bindingsGlobal.genericLog);
 
+    const extraBootstrapFile = __getExtraBootstrapFile();
+    if(extraBootstrapFile.length !== 0) new Function("alt", extraBootstrapFile)(alt);
+
     // Get the path to the main file for this resource, and load it
     const _path = path.resolve(resource.path, resource.main);
     _exports = await esmLoader.import(url.pathToFileURL(_path).toString(), "", {});
@@ -83,8 +86,11 @@ function setupImports() {
           };
         }
         const specifierWithoutPrefix = specifier.slice(altResourceImportPrefix.length + 1);
-        if(hasAltPrefix && alt.hasResource(specifierWithoutPrefix)) {
-          return {
+        if(hasAltPrefix) {
+          if(!alt.hasResource(specifierWithoutPrefix)) {
+            alt.logError(`Trying to import resource '${specifierWithoutPrefix}' that doesn't exist`);
+          }
+          else return {
             url: `${altResourceInternalPrefix}:${specifierWithoutPrefix}`,
             shortCircuit: true
           };

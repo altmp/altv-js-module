@@ -50,9 +50,9 @@ static void DependenciesGetter(v8::Local<v8::String>, const v8::PropertyCallback
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, resource, alt::IResource);
     V8_CHECK(resource, "Invalid resource");
 
-    const alt::Array<std::string> deps = resource->GetDependencies();
-    v8::Local<v8::Array> dependencies = v8::Array::New(isolate, deps.GetSize());
-    for(size_t i = 0; i < deps.GetSize(); ++i)
+    const std::vector<std::string> deps = resource->GetDependencies();
+    v8::Local<v8::Array> dependencies = v8::Array::New(isolate, deps.size());
+    for(size_t i = 0; i < deps.size(); ++i)
     {
         dependencies->Set(ctx, i, V8Helpers::JSValue(deps[i]));
     }
@@ -65,9 +65,9 @@ static void DependantsGetter(v8::Local<v8::String>, const v8::PropertyCallbackIn
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, resource, alt::IResource);
     V8_CHECK(resource, "Invalid resource");
 
-    const alt::Array<std::string> deps = resource->GetDependants();
-    v8::Local<v8::Array> dependants = v8::Array::New(isolate, deps.GetSize());
-    for(size_t i = 0; i < deps.GetSize(); ++i)
+    const std::vector<std::string> deps = resource->GetDependants();
+    v8::Local<v8::Array> dependants = v8::Array::New(isolate, deps.size());
+    for(size_t i = 0; i < deps.size(); ++i)
     {
         dependants->Set(ctx, i, V8Helpers::JSValue(deps[i]));
     }
@@ -80,9 +80,9 @@ static void RequiredPermissionsGetter(v8::Local<v8::String>, const v8::PropertyC
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, resource, alt::IResource);
     V8_CHECK(resource, "Invalid resource");
 
-    const alt::Array<alt::Permission> perms = resource->GetRequiredPermissions();
-    v8::Local<v8::Array> permissions = v8::Array::New(isolate, perms.GetSize());
-    for(size_t i = 0; i < perms.GetSize(); ++i)
+    const std::vector<alt::Permission> perms = resource->GetRequiredPermissions();
+    v8::Local<v8::Array> permissions = v8::Array::New(isolate, perms.size());
+    for(size_t i = 0; i < perms.size(); ++i)
     {
         permissions->Set(ctx, i, V8Helpers::JSValue((int)perms[i]));
     }
@@ -95,9 +95,9 @@ static void OptionalPermissionsGetter(v8::Local<v8::String>, const v8::PropertyC
     V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(1, resource, alt::IResource);
     V8_CHECK(resource, "Invalid resource");
 
-    const alt::Array<alt::Permission> perms = resource->GetOptionalPermissions();
-    v8::Local<v8::Array> permissions = v8::Array::New(isolate, perms.GetSize());
-    for(size_t i = 0; i < perms.GetSize(); ++i)
+    const std::vector<alt::Permission> perms = resource->GetOptionalPermissions();
+    v8::Local<v8::Array> permissions = v8::Array::New(isolate, perms.size());
+    for(size_t i = 0; i < perms.size(); ++i)
     {
         permissions->Set(ctx, i, V8Helpers::JSValue((int)perms[i]));
     }
@@ -119,6 +119,7 @@ static void PathGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8:
     V8_CHECK(resource, "Invalid resource");
     V8_RETURN_STRING(resource->GetPath());
 }
+#endif
 
 static void ConfigGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
@@ -131,7 +132,6 @@ static void ConfigGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v
     V8_CHECK(!val.IsEmpty(), "Failed to convert config to V8 value");
     V8_RETURN(val);
 }
-#endif
 
 // *** Static
 static void GetByName(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -188,8 +188,8 @@ extern V8Class v8Resource("Resource",
     V8Helpers::SetAccessor(isolate, tpl, "valid", &ValidGetter);
 #ifdef ALT_SERVER_API
                               V8Helpers::SetAccessor(isolate, tpl, "path", &PathGetter);
-                              V8Helpers::SetAccessor(isolate, tpl, "config", &ConfigGetter);
 #endif
+                              V8Helpers::SetAccessor(isolate, tpl, "config", &ConfigGetter);
 
                               V8Helpers::SetStaticMethod(isolate, tpl, "getByName", &GetByName);
                               V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);

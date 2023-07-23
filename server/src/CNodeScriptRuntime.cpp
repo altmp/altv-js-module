@@ -38,6 +38,8 @@ bool CNodeScriptRuntime::Init()
 
     IRuntimeEventHandler::Start();
 
+    RegisterMetrics();
+
     return true;
 }
 
@@ -55,6 +57,8 @@ void CNodeScriptRuntime::OnTick()
     v8::SealHandleScope seal(isolate);
 
     platform->DrainTasks(isolate);
+
+    UpdateMetrics();
 }
 
 void CNodeScriptRuntime::OnDispose()
@@ -130,4 +134,33 @@ void CNodeScriptRuntime::ProcessConfigOptions()
         CProfiler::Instance().SetIsEnabled(true);
         CProfiler::Instance().SetLogsEnabled(profiler["logs"]->AsBool(false));
     }
+}
+
+void CNodeScriptRuntime::RegisterMetrics()
+{
+    alt::ICore& core = alt::ICore::Instance();
+    static auto registerMetric = [&](Metric metric, const char* name, alt::Metric::Type metricType) { metrics[metric] = core.RegisterMetric(name, metricType); };
+
+    registerMetric(Metric::HEAP_SIZE, "node_heap_size", alt::Metric::Type::METRIC_TYPE_GAUGE);
+    registerMetric(Metric::HEAP_LIMIT, "node_heap_limit", alt::Metric::Type::METRIC_TYPE_GAUGE);
+    registerMetric(Metric::PHYSICAL_SIZE, "node_physical_size", alt::Metric::Type::METRIC_TYPE_GAUGE);
+    registerMetric(Metric::PHYSICAL_LIMIT, "node_physical_limit", alt::Metric::Type::METRIC_TYPE_GAUGE);
+    registerMetric(Metric::GLOBAL_HANDLES_SIZE, "node_global_handles_size", alt::Metric::Type::METRIC_TYPE_GAUGE);
+    registerMetric(Metric::GLOBAL_HANDLES_LIMIT, "node_global_handles_limit", alt::Metric::Type::METRIC_TYPE_GAUGE);
+}
+
+void CNodeScriptRuntime::UpdateMetrics()
+{
+    alt::ICore& core = alt::ICore::Instance();
+    static auto updateMetric = [&](Metric metric, uint64_t value) { metrics[metric]->SetValue(value); };
+
+    v8::HeapStatistics heapStats;
+    isolate->GetHeapStatistics(&heapStats);
+
+    updateMetric(Metric::HEAP_SIZE, heapStats.used_heap_size());
+    updateMetric(Metric::HEAP_LIMIT, heapStats.total_heap_size());
+    updateMetric(Metric::PHYSICAL_SIZE, heapStats.total_physical_size());
+    updateMetric(Metric::PHYSICAL_LIMIT, heapStats.total_available_size());
+    updateMetric(Metric::GLOBAL_HANDLES_SIZE, heapStats.used_global_handles_size());
+    updateMetric(Metric::GLOBAL_HANDLES_LIMIT, heapStats.total_global_handles_size());
 }

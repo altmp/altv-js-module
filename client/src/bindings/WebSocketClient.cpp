@@ -134,7 +134,7 @@ static void GetExtraHeaders(const v8::FunctionCallbackInfo<v8::Value>& info)
     for(auto it = extraHeaders->Begin(); it; it = extraHeaders->Next())
     {
         std::string key = it->GetKey();
-        V8_OBJECT_SET_STRING(headersObject, key.c_str(), extraHeaders->Get(key).As<alt::IMValueString>()->Value());
+        V8_OBJECT_SET_STRING(headersObject, key.c_str(), std::dynamic_pointer_cast<alt::IMValueString>(extraHeaders->Get(key))->Value());
     }
 
     V8_RETURN(headersObject);
@@ -159,6 +159,25 @@ static void GetEventListeners(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN(array);
 }
 
+static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_INT(1, id);
+
+    alt::IBaseObject* baseObject = alt::ICore::Instance().GetBaseObjectByID(alt::IBaseObject::Type::WEBSOCKET_CLIENT, id);
+
+    if(baseObject && baseObject->GetType() == alt::IEntity::Type::WEBSOCKET_CLIENT)
+    {
+        V8_RETURN_BASE_OBJECT(baseObject);
+    }
+    else
+    {
+        V8_RETURN_NULL();
+    }
+}
+
 extern V8Class v8BaseObject;
 extern V8Class v8WebSocketClient("WebSocketClient",
                                  v8BaseObject,
@@ -166,6 +185,8 @@ extern V8Class v8WebSocketClient("WebSocketClient",
                                  [](v8::Local<v8::FunctionTemplate> tpl)
                                  {
                                      v8::Isolate* isolate = v8::Isolate::GetCurrent();
+
+                                     V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
 
                                      V8Helpers::SetMethod(isolate, tpl, "on", &On);
                                      V8Helpers::SetMethod(isolate, tpl, "off", &Off);
