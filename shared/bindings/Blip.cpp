@@ -363,6 +363,11 @@ extern V8Class v8Blip("Blip",
                           V8Helpers::SetAccessor<IBlip, bool, &IBlip::IsAttached>(isolate, tpl, "isAttached");
                           V8Helpers::SetAccessor<IBlip, bool, &IBlip::GetAsFriendly, &IBlip::SetAsFriendly>(isolate, tpl, "isFriendly");
 
+                          V8Helpers::SetAccessor<IBlip, bool, &IBlip::IsHiddenOnLegend, &IBlip::SetHiddenOnLegend>(isolate, tpl, "isHiddenOnLegend");
+                          V8Helpers::SetAccessor<IBlip, bool, &IBlip::IsMinimalOnEdge, &IBlip::SetMinimalOnEdge>(isolate, tpl, "isMinimalOnEdge");
+                          V8Helpers::SetAccessor<IBlip, bool, &IBlip::IsUseHeightIndicatorOnEdge, &IBlip::SetUseHeightIndicatorOnEdge>(isolate, tpl, "useHeightIndicatorOnEdge");
+                          V8Helpers::SetAccessor<IBlip, bool, &IBlip::IsShortHeightThreshold, &IBlip::SetShortHeightThreshold>(isolate, tpl, "isShortHeightThreshold");
+
 #ifdef ALT_CLIENT_API
                           V8Helpers::SetAccessor<IBlip, uint32_t, &IBlip::GetGameID>(isolate, tpl, "scriptID");
                           V8Helpers::SetAccessor<IBlip, bool, &IBlip::IsStreamedIn>(isolate, tpl, "isStreamedIn");
