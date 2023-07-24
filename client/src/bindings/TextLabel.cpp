@@ -18,8 +18,8 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_RGBA(7, color);
     V8_ARG_TO_NUMBER(8, outlineWidth);
     V8_ARG_TO_RGBA(9, outlineColor);
-    V8_ARG_TO_BOOLEAN(10, useStreaming);
-    V8_ARG_TO_UINT(11, streamingDistance);
+    V8_ARG_TO_BOOLEAN_OPT(10, useStreaming, false);
+    V8_ARG_TO_UINT_OPT(11, streamingDistance, 0);
 
     auto textLabel =
       alt::ICore::Instance().CreateTextLabel(text, fontName, fontSize, scale, pos, rot, color, outlineWidth, outlineColor, useStreaming, streamingDistance, resource->GetResource());
