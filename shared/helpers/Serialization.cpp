@@ -304,15 +304,27 @@ static inline bool WriteRawValue(v8::Local<v8::Context> ctx, v8::ValueSerializer
             uint8_t type = static_cast<uint8_t>(handle->GetType());
 
             uint32_t id;
+            bool remote;
 #ifdef ALT_CLIENT_API
-            if (handle->IsRemote()) id = handle->GetRemoteID();
-            else id = handle->GetID();
+            if (handle->IsRemote())
+            {
+                id = handle->GetRemoteID();
+                remote = true;
+            }
+            else
+            {
+                id = handle->GetID();
+                remote = false;
+            }
 #else
             id = handle->GetID();
+            remote = true;
+            
 #endif // ALT_CLIENT_API
 
             serializer.WriteRawBytes(&id, sizeof(id));
             serializer.WriteRawBytes(&type, sizeof(type));
+            serializer.WriteRawBytes(&remote, sizeof(remote));
             break;
         }
         case RawValueType::VECTOR3:
@@ -367,14 +379,22 @@ static inline v8::MaybeLocal<v8::Object> ReadRawValue(v8::Local<v8::Context> ctx
         {
             uint32_t* id;
             alt::IBaseObject::Type* type;
+            bool* remote;
             if(!deserializer.ReadRawBytes(sizeof(uint32_t), (const void**)&id) || 
-               !deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&type))
+               !deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&type) ||
+               !deserializer.ReadRawBytes(sizeof(bool), (const void**)&remote))
                 return v8::MaybeLocal<v8::Object>();
 
             alt::IBaseObject* object;
 #ifdef ALT_CLIENT_API
-            object = alt::ICore::Instance().GetBaseObjectByRemoteID(*type, *id);
-            if(!object) object = alt::ICore::Instance().GetBaseObjectByID(*type, *id);
+            if (*remote)
+            {
+                object = alt::ICore::Instance().GetBaseObjectByRemoteID(*type, *id);
+            }
+            else
+            {
+                object = alt::ICore::Instance().GetBaseObjectByID(*type, *id);
+            }
 #else
             if (*type == alt::IBaseObject::Type::LOCAL_PLAYER) *type = alt::IBaseObject::Type::PLAYER;
             object = alt::ICore::Instance().GetBaseObjectByID(*type, *id);
