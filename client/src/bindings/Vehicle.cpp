@@ -345,6 +345,9 @@ extern V8Class v8Vehicle("Vehicle",
 
                              V8Helpers::SetMethod(isolate, tpl, "getWheelSurfaceMaterial", GetWheelSurfaceMaterial);
 
+                             V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetSteeringAngle, &IVehicle::SetSteeringAngle>(isolate, tpl, "steeringAngle");
+                             V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetSuspensionHeight, &IVehicle::SetSuspensionHeight>(isolate, tpl, "suspensionHeight");
+
                              /*GETTERS BELOW ARE UNIMPLEMENTED
                              V8Helpers::SetAccessor(isolate, tpl, "isDestroyed", &IsDestroyedGetter);
                              V8Helpers::SetAccessor(isolate, tpl, "driver", &DriverGetter);
