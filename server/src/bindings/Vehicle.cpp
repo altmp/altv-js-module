@@ -367,6 +367,10 @@ extern V8Class v8Vehicle("Vehicle",
                              V8Helpers::SetAccessor<IVehicle, IVehicle*, &IVehicle::GetAttached>(isolate, tpl, "attached");
                              V8Helpers::SetAccessor<IVehicle, IVehicle*, &IVehicle::GetAttachedTo>(isolate, tpl, "attachedTo");
 
+                             V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetSteeringAngle>(isolate, tpl, "steeringAngle");
+                             V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetAccelerationLevel>(isolate, tpl, "accelerationLevel");
+                             V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetBrakeLevel>(isolate, tpl, "brakeLevel");
+
                              // Train getter/setter
                              V8Helpers::SetAccessor<IVehicle, bool, &IVehicle::IsTrainMissionTrain, &IVehicle::SetTrainMissionTrain>(isolate, tpl, "isMissionTrain");
                              V8Helpers::SetAccessor<IVehicle, int8_t, &IVehicle::GetTrainTrackId, &IVehicle::SetTrainTrackId>(isolate, tpl, "trainTrackId");
