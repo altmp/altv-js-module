@@ -2,7 +2,10 @@
 #include "helpers/BindHelpers.h"
 #include "V8ResourceImpl.h"
 #include "V8Class.h"
+
 #include "../CV8ScriptRuntime.h"
+
+#include "cpp-sdk/objects/IWorldObject.h"
 #include "cpp-sdk/script-objects/IAudioOutput.h"
 #include "cpp-sdk/script-objects/IAudioAttachedOutput.h"
 
@@ -54,6 +57,8 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_RETURN_NULL();
     }
 }
+
+using namespace alt;
 
 extern V8Class v8AudioOutput;
 extern V8Class v8AudioOutputAttached("AudioOutputAttached",
