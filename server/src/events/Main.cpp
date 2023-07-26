@@ -168,3 +168,51 @@ V8Helpers::LocalEventHandler metaChange(EventType::META_CHANGE,
                                         });
 
 V8Helpers::LocalEventHandler serverStarted(EventType::SERVER_STARTED, "serverStarted", [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args) {});
+
+V8_LOCAL_EVENT_HANDLER requestSyncedScene(EventType::REQUEST_SYNCED_SCENE,
+                                          "requestSyncedScene",
+                                          [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                          {
+                                              auto ev = static_cast<const alt::CRequestSyncedSceneEvent*>(e);
+                                              v8::Isolate* isolate = resource->GetIsolate();
+
+                                              args.push_back(resource->GetBaseObjectOrNull(ev->GetSource()));
+                                              args.push_back(V8Helpers::JSValue(ev->GetSceneID()));
+                                          });
+
+V8_LOCAL_EVENT_HANDLER startSyncedScene(EventType::START_SYNCED_SCENE,
+                                        "startSyncedScene",
+                                        [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                        {
+                                            auto ev = static_cast<const alt::CStartSyncedSceneEvent*>(e);
+                                            v8::Isolate* isolate = resource->GetIsolate();
+
+                                            args.push_back(resource->GetBaseObjectOrNull(ev->GetSource()));
+                                            args.push_back(V8Helpers::JSValue(ev->GetSceneID()));
+                                            args.push_back(resource->CreateVector3(ev->GetStartPosition()));
+                                            args.push_back(resource->CreateVector3(ev->GetStartRotation()));
+                                            args.push_back(V8Helpers::JSValue(ev->GetAnimDictHash()));
+                                        });
+
+V8_LOCAL_EVENT_HANDLER stopSyncedScene(EventType::STOP_SYNCED_SCENE,
+                                       "stopSyncedScene",
+                                       [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                       {
+                                           auto ev = static_cast<const alt::CStopSyncedSceneEvent*>(e);
+                                           v8::Isolate* isolate = resource->GetIsolate();
+
+                                           args.push_back(resource->GetBaseObjectOrNull(ev->GetSource()));
+                                           args.push_back(V8Helpers::JSValue(ev->GetSceneID()));
+                                       });
+
+V8_LOCAL_EVENT_HANDLER updateSyncedScene(EventType::UPDATE_SYNCED_SCENE,
+                                         "updateSyncedScene",
+                                         [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                         {
+                                             auto ev = static_cast<const alt::CUpdateSyncedSceneEvent*>(e);
+                                             v8::Isolate* isolate = resource->GetIsolate();
+
+                                             args.push_back(resource->GetBaseObjectOrNull(ev->GetSource()));
+                                             args.push_back(V8Helpers::JSValue(ev->GetStartRate()));
+                                             args.push_back(V8Helpers::JSValue(ev->GetSceneID()));
+                                         });
