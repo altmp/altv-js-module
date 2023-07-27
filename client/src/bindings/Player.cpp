@@ -125,6 +125,34 @@ static void StaticGetByRemoteId(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
 }
 
+static void GetFilter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
+
+    V8_RETURN_BASE_OBJECT(player->GetFilter());
+}
+
+static void SetFilter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
+
+    if(val->IsNull())
+    {
+        player->RemoveFilter();
+    }
+    else if(val->IsObject())
+    {
+        V8_TO_BASEOBJECT(val, filter);
+        player->AddFilter(filter->SharedAs<alt::IAudioFilter>().get());
+    }
+    else
+    {
+        V8Helpers::Throw(isolate, "AudioOutput.filter setter expects null or AudioFilter object");
+    }
+}
+
 extern V8Class v8Entity;
 extern V8Class v8Player("Player",
                         v8Entity,
@@ -186,4 +214,6 @@ extern V8Class v8Player("Player",
                             // V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsSuperJumpEnabled>(isolate, tpl, "isSuperJumpEnabled");
                             // V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsCrouching>(isolate, tpl, "isCrouching");
                             // V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsStealthy>(isolate, tpl, "isStealthy");
+
+                            V8Helpers::SetAccessor(isolate, tpl, "filter", &GetFilter, &SetFilter);
                         });
