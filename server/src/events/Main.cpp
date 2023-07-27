@@ -186,12 +186,25 @@ V8_LOCAL_EVENT_HANDLER startSyncedScene(EventType::START_SYNCED_SCENE,
                                         {
                                             auto ev = static_cast<const alt::CStartSyncedSceneEvent*>(e);
                                             v8::Isolate* isolate = resource->GetIsolate();
+                                            const auto ctx = resource->GetContext();
 
                                             args.push_back(resource->GetBaseObjectOrNull(ev->GetSource()));
                                             args.push_back(V8Helpers::JSValue(ev->GetSceneID()));
                                             args.push_back(resource->CreateVector3(ev->GetStartPosition()));
                                             args.push_back(resource->CreateVector3(ev->GetStartRotation()));
                                             args.push_back(V8Helpers::JSValue(ev->GetAnimDictHash()));
+
+                                            const auto entityAndAnimHashPairs = ev->GetEntityAndAnimHashPairs();
+                                            const auto animHashArray = v8::Array::New(isolate, entityAndAnimHashPairs.size());
+                                            auto idx = 0;
+                                            for (auto [entity, animHash] : entityAndAnimHashPairs)
+                                            {
+                                                V8_NEW_OBJECT(entityAnimPair)
+                                                V8_OBJECT_SET_BASE_OBJECT(entityAnimPair, "entity", entity.get())
+                                                V8_OBJECT_SET_UINT(entityAnimPair, "animHash", animHash)
+                                                animHashArray->Set(ctx, idx++, entityAnimPair);
+                                            }
+                                            args.push_back(animHashArray);
                                         });
 
 V8_LOCAL_EVENT_HANDLER stopSyncedScene(EventType::STOP_SYNCED_SCENE,
