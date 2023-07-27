@@ -197,7 +197,7 @@ V8_LOCAL_EVENT_HANDLER startSyncedScene(EventType::START_SYNCED_SCENE,
                                             const auto entityAndAnimHashPairs = ev->GetEntityAndAnimHashPairs();
                                             const auto animHashArray = v8::Array::New(isolate, entityAndAnimHashPairs.size());
                                             auto idx = 0;
-                                            for (auto [entity, animHash] : ev->GetEntityAndAnimHashPairs())
+                                            for (auto [entity, animHash] : entityAndAnimHashPairs)
                                             {
                                                 V8_NEW_OBJECT(entityAnimPair)
                                                 V8_OBJECT_SET_BASE_OBJECT(entityAnimPair, "entity", entity.get())
