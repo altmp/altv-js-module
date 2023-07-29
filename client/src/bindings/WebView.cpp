@@ -271,6 +271,48 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
 }
 
+static void AddOutput(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(audio, alt::IWebView);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_BASE_OBJECT(1, entity, alt::IAudioOutput, "AudioOutput");
+    audio->AddOutput(entity);
+}
+
+static void RemoveOutput(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(audio, alt::IWebView);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_BASE_OBJECT(1, entity, alt::IAudioOutput, "AudioOutput");
+    audio->RemoveOutput(entity);
+}
+
+static void GetOutputs(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(audio, alt::IWebView);
+
+    auto list = audio->GetOutputs();
+    auto arr = v8::Array::New(isolate, list->GetSize());
+    for (int i = 0; i < list->GetSize(); i++)
+    {
+        auto val = list->Get(i);
+        if (val->GetType() == alt::IMValue::Type::BASE_OBJECT)
+        {
+            auto baseObj = resource->GetBaseObjectOrNull(std::dynamic_pointer_cast<alt::IMValueBaseObject>(val)->RawValue());
+            arr->Set(ctx, i, baseObj);
+        }
+        else if (val->GetType() == alt::IMValue::Type::UINT)
+            arr->Set(ctx, i, v8::Integer::NewFromUnsigned(isolate, std::dynamic_pointer_cast<alt::IMValueUInt>(val)->Value()));
+    }
+
+    V8_RETURN(arr);
+}
+
 extern V8Class v8BaseObject;
 extern V8Class v8WebView("WebView",
                          v8BaseObject,
@@ -305,4 +347,8 @@ extern V8Class v8WebView("WebView",
                              V8Helpers::SetMethod(isolate, tpl, "setExtraHeader", &SetExtraHeader);
                              V8Helpers::SetMethod(isolate, tpl, "setZoomLevel", &SetZoomLevel);
                              V8Helpers::SetMethod(isolate, tpl, "reload", &Reload);
+
+                             V8Helpers::SetMethod(isolate, tpl, "addOutput", &AddOutput);
+                             V8Helpers::SetMethod(isolate, tpl, "removeOutput", &RemoveOutput);
+                             V8Helpers::SetMethod(isolate, tpl, "getOutputs", &GetOutputs);
                          });
