@@ -263,7 +263,7 @@ enum class RawValueType : uint8_t
 {
     INVALID,
     GENERIC,
-    ENTITY,
+    BASEOBJECT,
     VECTOR3,
     VECTOR2,
     RGBA
@@ -279,20 +279,9 @@ static inline RawValueType GetValueType(v8::Local<v8::Context> ctx, v8::Local<v8
     {
         V8Entity* entity = V8Entity::Get(val);
         if(!entity) return RawValueType::INVALID;
-        alt::IBaseObject* ent = entity->GetHandle();
-        switch(ent->GetType())
-        {
-            case alt::IBaseObject::Type::PLAYER:
-            case alt::IBaseObject::Type::VEHICLE:
-            case alt::IBaseObject::Type::LOCAL_PLAYER:
-            {
-                return RawValueType::ENTITY;
-            }
-            default:
-            {
-                return RawValueType::INVALID;
-            }
-        }
+        alt::IBaseObject* object = entity->GetHandle();
+        if(!object) return RawValueType::INVALID;
+        return RawValueType::BASEOBJECT;
     }
     if(resource->IsVector3(val)) return RawValueType::VECTOR3;
     if(resource->IsVector2(val)) return RawValueType::VECTOR2;
@@ -307,13 +296,35 @@ static inline bool WriteRawValue(v8::Local<v8::Context> ctx, v8::ValueSerializer
     serializer.WriteRawBytes(&type, sizeof(uint8_t));
     switch(type)
     {
-        case RawValueType::ENTITY:
+        case RawValueType::BASEOBJECT:
         {
             V8Entity* entity = V8Entity::Get(val);
             if(!entity) return false;
-            alt::IEntity* handle = dynamic_cast<alt::IEntity*>(entity->GetHandle());
-            uint16_t id = handle->GetID();
+            alt::IBaseObject* handle = entity->GetHandle();
+            uint8_t type = static_cast<uint8_t>(handle->GetType());
+
+            uint32_t id;
+            bool remote;
+#ifdef ALT_CLIENT_API
+            if (handle->IsRemote())
+            {
+                id = handle->GetRemoteID();
+                remote = true;
+            }
+            else
+            {
+                id = handle->GetID();
+                remote = false;
+            }
+#else
+            id = handle->GetID();
+            remote = true;
+            
+#endif // ALT_CLIENT_API
+
             serializer.WriteRawBytes(&id, sizeof(id));
+            serializer.WriteRawBytes(&type, sizeof(type));
+            serializer.WriteRawBytes(&remote, sizeof(remote));
             break;
         }
         case RawValueType::VECTOR3:
@@ -364,13 +375,32 @@ static inline v8::MaybeLocal<v8::Object> ReadRawValue(v8::Local<v8::Context> ctx
 
     switch(type)
     {
-        case RawValueType::ENTITY:
+        case RawValueType::BASEOBJECT:
         {
-            uint16_t* id;
-            if(!deserializer.ReadRawBytes(sizeof(uint16_t), (const void**)&id)) return v8::MaybeLocal<v8::Object>();
-            alt::IEntity* entity = alt::ICore::Instance().GetEntityBySyncID(*id);
-            if(!entity) return v8::MaybeLocal<v8::Object>();
-            return V8ResourceImpl::Get(ctx)->GetOrCreateEntity(entity, "Entity")->GetJSVal(isolate);
+            uint32_t* id;
+            alt::IBaseObject::Type* type;
+            bool* remote;
+            if(!deserializer.ReadRawBytes(sizeof(uint32_t), (const void**)&id) || 
+               !deserializer.ReadRawBytes(sizeof(uint8_t), (const void**)&type) ||
+               !deserializer.ReadRawBytes(sizeof(bool), (const void**)&remote))
+                return v8::MaybeLocal<v8::Object>();
+
+            alt::IBaseObject* object;
+#ifdef ALT_CLIENT_API
+            if (*remote)
+            {
+                object = alt::ICore::Instance().GetBaseObjectByRemoteID(*type, *id);
+            }
+            else
+            {
+                object = alt::ICore::Instance().GetBaseObjectByID(*type, *id);
+            }
+#else
+            if (*type == alt::IBaseObject::Type::LOCAL_PLAYER) *type = alt::IBaseObject::Type::PLAYER;
+            object = alt::ICore::Instance().GetBaseObjectByID(*type, *id);
+#endif // ALT_CLIENT_API
+            if(!object) return v8::MaybeLocal<v8::Object>();
+            return V8ResourceImpl::Get(ctx)->GetOrCreateEntity(object, "BaseObject")->GetJSVal(isolate);
         }
         case RawValueType::VECTOR3:
         {

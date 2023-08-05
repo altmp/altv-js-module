@@ -10,12 +10,14 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_CONSTRUCTOR();
-    V8_CHECK_ARGS_LEN(2);
+    V8_CHECK_ARGS_LEN_MIN_MAX(1, 3);
 
     V8_ARG_TO_STRING(1, source);
-    V8_ARG_TO_NUMBER(2, volume);
+    V8_ARG_TO_NUMBER_OPT(2, volume, 1.f);
+    V8_ARG_TO_BOOLEAN_OPT(3, radio, false);
 
-    auto audio = alt::ICore::Instance().CreateAudio(source, volume, resource->GetResource());
+    std::string origin = V8Helpers::GetCurrentSourceOrigin(isolate);
+    auto audio = alt::ICore::Instance().CreateAudio(source, volume, radio, origin, resource->GetResource());
     V8_BIND_BASE_OBJECT(audio, "Failed to create Audio");
 }
 

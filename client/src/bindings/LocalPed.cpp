@@ -27,8 +27,8 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_INT32(2, dimension);
     V8_ARG_TO_VECTOR3(3, pos);
     V8_ARG_TO_VECTOR3(4, rot);
-    V8_ARG_TO_BOOLEAN(5, useStreaming);
-    V8_ARG_TO_UINT(6, streamingDistance);
+    V8_ARG_TO_BOOLEAN_OPT(5, useStreaming, false);
+    V8_ARG_TO_UINT_OPT(6, streamingDistance, 0);
 
     auto ped = alt::ICore::Instance().CreateLocalPed(modelHash, dimension, pos, rot, useStreaming, streamingDistance, resource->GetResource());
     V8_BIND_BASE_OBJECT(ped, "Failed to create localPed");

@@ -689,7 +689,7 @@ static void GetPermissionState(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(1);
     V8_ARG_TO_INT(1, permnum);
 
-    V8_RETURN_INT((uint8_t)alt::ICore::Instance().GetPermissionState((alt::Permission)permnum));
+    V8_RETURN_BOOLEAN(alt::ICore::Instance().GetPermissionState((alt::Permission)permnum));
 }
 
 static void IsInStreamerMode(const v8::FunctionCallbackInfo<v8::Value>& info)
