@@ -646,6 +646,4 @@ extern V8Module
             V8Helpers::RegisterFunc(exports, "setVoiceExternal", &SetVoiceExternal);
 
             V8_OBJECT_SET_STRING(exports, "rootDir", alt::ICore::Instance().GetRootDirectory());
-            V8_OBJECT_SET_INT(exports, "defaultDimension", alt::DEFAULT_DIMENSION);
-            V8_OBJECT_SET_INT(exports, "globalDimension", alt::GLOBAL_DIMENSION);
         });
