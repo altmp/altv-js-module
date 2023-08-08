@@ -244,6 +244,7 @@ public:
     v8::Local<v8::Array> GetAllPlayers();
     v8::Local<v8::Array> GetAllVehicles();
     v8::Local<v8::Array> GetAllBlips();
+    v8::Local<v8::Array> GetAllAudioOutputs();
     v8::Local<v8::Array> GetAllCheckpoints();
     v8::Local<v8::Array> GetAllVirtualEntityGroups();
     v8::Local<v8::Array> GetAllVirtualEntities();

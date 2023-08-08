@@ -313,6 +313,17 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllBlips()
     return jsAll;
 }
 
+v8::Local<v8::Array> V8ResourceImpl::GetAllAudioOutputs()
+{
+    std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::AUDIO_OUTPUT);
+    v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
+
+    for (uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
+
+    jsAll->SetIntegrityLevel(GetContext(), v8::IntegrityLevel::kFrozen);
+    return jsAll;
+}
+
 v8::Local<v8::Array> V8ResourceImpl::GetAllVirtualEntityGroups()
 {
     std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::VIRTUAL_ENTITY_GROUP);
