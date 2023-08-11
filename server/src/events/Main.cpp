@@ -11,6 +11,8 @@
 #include "cpp-sdk/events/CFireEvent.h"
 #include "cpp-sdk/events/CStartProjectileEvent.h"
 #include "cpp-sdk/events/CMetaDataChangeEvent.h"
+#include "cpp-sdk/events/CClientDeleteObjectEvent.h"
+#include "cpp-sdk/events/CClientRequestObjectEvent.h"
 
 using alt::CEvent;
 using EventType = CEvent::Type;
@@ -197,7 +199,7 @@ V8_LOCAL_EVENT_HANDLER startSyncedScene(EventType::START_SYNCED_SCENE,
                                             const auto entityAndAnimHashPairs = ev->GetEntityAndAnimHashPairs();
                                             const auto animHashArray = v8::Array::New(isolate, entityAndAnimHashPairs.size());
                                             auto idx = 0;
-                                            for (auto [entity, animHash] : entityAndAnimHashPairs)
+                                            for(auto [entity, animHash] : entityAndAnimHashPairs)
                                             {
                                                 V8_NEW_OBJECT(entityAnimPair)
                                                 V8_OBJECT_SET_BASE_OBJECT(entityAnimPair, "entity", entity.get())
@@ -229,3 +231,25 @@ V8_LOCAL_EVENT_HANDLER updateSyncedScene(EventType::UPDATE_SYNCED_SCENE,
                                              args.push_back(V8Helpers::JSValue(ev->GetStartRate()));
                                              args.push_back(V8Helpers::JSValue(ev->GetSceneID()));
                                          });
+
+V8_LOCAL_EVENT_HANDLER clientDeleteObject(EventType::CLIENT_DELETE_OBJECT_EVENT,
+                                          "clientDeleteObject",
+                                          [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                          {
+                                              auto ev = static_cast<const alt::CClientDeleteObjectEvent*>(e);
+                                              v8::Isolate* isolate = resource->GetIsolate();
+
+                                              args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
+                                          });
+
+V8_LOCAL_EVENT_HANDLER clientRequestObject(EventType::CLIENT_REQUEST_OBJECT_EVENT,
+                                           "clientRequestObject",
+                                           [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                           {
+                                               auto ev = static_cast<const alt::CClientRequestObjectEvent*>(e);
+                                               v8::Isolate* isolate = resource->GetIsolate();
+
+                                               args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
+                                               args.push_back(V8Helpers::JSValue(ev->GetName()));
+                                               args.push_back(resource->CreateVector3(ev->GetArgs()));
+                                           });
