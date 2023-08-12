@@ -250,6 +250,6 @@ V8_LOCAL_EVENT_HANDLER clientRequestObject(EventType::CLIENT_REQUEST_OBJECT_EVEN
                                                v8::Isolate* isolate = resource->GetIsolate();
 
                                                args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
-                                               args.push_back(V8Helpers::JSValue(ev->GetName()));
-                                               args.push_back(resource->CreateVector3(ev->GetArgs()));
+                                               args.push_back(V8Helpers::JSValue(ev->GetModel()));
+                                               args.push_back(resource->CreateVector3(ev->GetPosition()));
                                            });
