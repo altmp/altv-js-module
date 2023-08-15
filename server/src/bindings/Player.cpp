@@ -856,26 +856,27 @@ static void RequestCloudID(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     auto& persistent = promises.emplace_back(v8::Global<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
 
-    player->RequestCloudID([&persistent, resource](bool ok, const std::string& result) {
-        resource->RunOnNextTick(
-          [=, &persistent, &resource]()
-          {
-              if(!resource->GetResource()->IsStarted())
-              {
-                  promises.remove(persistent);
-                  return;
-              }
+    player->RequestCloudID(
+      [&persistent, resource](bool ok, const std::string& result)
+      {
+          resource->RunOnNextTick(
+            [=, &persistent, &resource]()
+            {
+                if(!resource->GetResource()->IsStarted())
+                {
+                    promises.remove(persistent);
+                    return;
+                }
 
-              auto isolate = resource->GetIsolate();
-              auto context = resource->GetContext();
+                auto isolate = resource->GetIsolate();
+                auto context = resource->GetContext();
 
-              if (ok)
-                  persistent.Get(isolate)->Resolve(context, V8Helpers::JSValue(result));
-              else
-                  persistent.Get(isolate)->Reject(context, v8::Exception::Error(V8Helpers::JSValue(result)));
-              promises.remove(persistent);
-          });
-    });
+                if(ok) persistent.Get(isolate)->Resolve(context, V8Helpers::JSValue(result));
+                else
+                    persistent.Get(isolate)->Reject(context, v8::Exception::Error(V8Helpers::JSValue(result)));
+                promises.remove(persistent);
+            });
+      });
 
     V8_RETURN(persistent.Get(isolate)->GetPromise());
 }
@@ -1437,6 +1438,7 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsOnLadder>(isolate, tpl, "isOnLadder");
                             V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsInMelee>(isolate, tpl, "isInMelee");
                             V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsInCover>(isolate, tpl, "isInCover");
+                            V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsParachuting>(isolate, tpl, "isParachuting");
 
                             V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetCurrentAnimationDict>(isolate, tpl, "currentAnimationDict");
                             V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetCurrentAnimationName>(isolate, tpl, "currentAnimationName");
