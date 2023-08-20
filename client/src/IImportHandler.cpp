@@ -89,7 +89,7 @@ std::deque<std::string> IImportHandler::GetModuleKeys(const std::string& name)
         std::deque<std::string> keys;
 
         alt::MValueDict _exports = resource->GetExports();
-        for(auto it = _exports->Begin(); it; it = _exports->Next()) keys.push_back(it->GetKey());
+        for(auto it = _exports->Begin(); it != _exports->End(); ++it) keys.push_back(it->first);
 
         return keys;
     }

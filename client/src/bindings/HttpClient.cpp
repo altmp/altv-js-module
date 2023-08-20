@@ -23,9 +23,9 @@ static void GetExtraHeaders(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     auto dict = client->GetExtraHeaders();
     V8_NEW_OBJECT(headers);
-    for(auto it = dict->Begin(); it; it = dict->Next())
+    for(auto it = dict->Begin(); it != dict->End(); ++it)
     {
-        headers->Set(ctx, V8Helpers::JSValue(it->GetKey().c_str()), V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(it->GetValue())->Value().c_str()));
+        headers->Set(ctx, V8Helpers::JSValue(it->first.c_str()), V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(it->second)->Value().c_str()));
     }
 
     V8_RETURN(headers);
@@ -69,9 +69,9 @@ static void Get(const v8::FunctionCallbackInfo<v8::Value>& info)
             V8_OBJECT_SET_INT(responseObj, "statusCode", response.statusCode);
             V8_OBJECT_SET_STRING(responseObj, "body", response.body);
             V8_NEW_OBJECT(headers);
-            for(auto it = response.headers->Begin(); it; it = response.headers->Next())
+            for(auto it = response.headers->Begin(); it != response.headers->End(); ++it)
             {
-                headers->Set(ctx, V8Helpers::JSValue(it->GetKey().c_str()), V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(it->GetValue())->Value().c_str()));
+                headers->Set(ctx, V8Helpers::JSValue(it->first.c_str()), V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(it->second)->Value().c_str()));
             }
             responseObj->Set(ctx, V8Helpers::JSValue("headers"), headers);
             resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), responseObj);
@@ -112,9 +112,9 @@ static void Head(const v8::FunctionCallbackInfo<v8::Value>& info)
             V8_OBJECT_SET_INT(responseObj, "statusCode", response.statusCode);
             V8_OBJECT_SET_STRING(responseObj, "body", response.body);
             V8_NEW_OBJECT(headers);
-            for(auto it = response.headers->Begin(); it; it = response.headers->Next())
+            for(auto it = response.headers->Begin(); it != response.headers->End(); ++it)
             {
-                headers->Set(ctx, V8Helpers::JSValue(it->GetKey().c_str()), V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(it->GetValue())->Value().c_str()));
+                headers->Set(ctx, V8Helpers::JSValue(it->first.c_str()), V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(it->second)->Value().c_str()));
             }
             responseObj->Set(ctx, V8Helpers::JSValue("headers"), headers);
             resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), responseObj);
@@ -156,9 +156,9 @@ static void Post(const v8::FunctionCallbackInfo<v8::Value>& info)
             V8_OBJECT_SET_INT(responseObj, "statusCode", response.statusCode);
             V8_OBJECT_SET_STRING(responseObj, "body", response.body);
             V8_NEW_OBJECT(headers);
-            for(auto it = response.headers->Begin(); it; it = response.headers->Next())
+            for(auto it = response.headers->Begin(); it != response.headers->End(); ++it)
             {
-                headers->Set(ctx, V8Helpers::JSValue(it->GetKey().c_str()), V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(it->GetValue())->Value().c_str()));
+                headers->Set(ctx, V8Helpers::JSValue(it->first.c_str()), V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(it->second)->Value().c_str()));
             }
             responseObj->Set(ctx, V8Helpers::JSValue("headers"), headers);
             resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), responseObj);
@@ -200,9 +200,9 @@ static void Put(const v8::FunctionCallbackInfo<v8::Value>& info)
             V8_OBJECT_SET_INT(responseObj, "statusCode", response.statusCode);
             V8_OBJECT_SET_STRING(responseObj, "body", response.body);
             V8_NEW_OBJECT(headers);
-            for(auto it = response.headers->Begin(); it; it = response.headers->Next())
+            for(auto it = response.headers->Begin(); it != response.headers->End(); ++it)
             {
-                headers->Set(ctx, V8Helpers::JSValue(it->GetKey().c_str()), V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(it->GetValue())->Value().c_str()));
+                headers->Set(ctx, V8Helpers::JSValue(it->first.c_str()), V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(it->second)->Value().c_str()));
             }
             responseObj->Set(ctx, V8Helpers::JSValue("headers"), headers);
             resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), responseObj);
@@ -244,9 +244,9 @@ static void Delete(const v8::FunctionCallbackInfo<v8::Value>& info)
             V8_OBJECT_SET_INT(responseObj, "statusCode", response.statusCode);
             V8_OBJECT_SET_STRING(responseObj, "body", response.body);
             V8_NEW_OBJECT(headers);
-            for(auto it = response.headers->Begin(); it; it = response.headers->Next())
+            for(auto it = response.headers->Begin(); it != response.headers->End(); ++it)
             {
-                headers->Set(ctx, V8Helpers::JSValue(it->GetKey().c_str()), V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(it->GetValue())->Value().c_str()));
+                headers->Set(ctx, V8Helpers::JSValue(it->first.c_str()), V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(it->second)->Value().c_str()));
             }
             responseObj->Set(ctx, V8Helpers::JSValue("headers"), headers);
             resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), responseObj);
@@ -288,9 +288,9 @@ static void Connect(const v8::FunctionCallbackInfo<v8::Value>& info)
             V8_OBJECT_SET_INT(responseObj, "statusCode", response.statusCode);
             V8_OBJECT_SET_STRING(responseObj, "body", response.body);
             V8_NEW_OBJECT(headers);
-            for(auto it = response.headers->Begin(); it; it = response.headers->Next())
+            for(auto it = response.headers->Begin(); it != response.headers->End(); ++it)
             {
-                headers->Set(ctx, V8Helpers::JSValue(it->GetKey().c_str()), V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(it->GetValue())->Value().c_str()));
+                headers->Set(ctx, V8Helpers::JSValue(it->first.c_str()), V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(it->second)->Value().c_str()));
             }
             responseObj->Set(ctx, V8Helpers::JSValue("headers"), headers);
             resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), responseObj);
@@ -332,9 +332,9 @@ static void Options(const v8::FunctionCallbackInfo<v8::Value>& info)
             V8_OBJECT_SET_INT(responseObj, "statusCode", response.statusCode);
             V8_OBJECT_SET_STRING(responseObj, "body", response.body);
             V8_NEW_OBJECT(headers);
-            for(auto it = response.headers->Begin(); it; it = response.headers->Next())
+            for(auto it = response.headers->Begin(); it != response.headers->End(); ++it)
             {
-                headers->Set(ctx, V8Helpers::JSValue(it->GetKey().c_str()), V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(it->GetValue())->Value().c_str()));
+                headers->Set(ctx, V8Helpers::JSValue(it->first.c_str()), V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(it->second)->Value().c_str()));
             }
             responseObj->Set(ctx, V8Helpers::JSValue("headers"), headers);
             resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), responseObj);
@@ -376,9 +376,9 @@ static void Trace(const v8::FunctionCallbackInfo<v8::Value>& info)
             V8_OBJECT_SET_INT(responseObj, "statusCode", response.statusCode);
             V8_OBJECT_SET_STRING(responseObj, "body", response.body);
             V8_NEW_OBJECT(headers);
-            for(auto it = response.headers->Begin(); it; it = response.headers->Next())
+            for(auto it = response.headers->Begin(); it != response.headers->End(); ++it)
             {
-                headers->Set(ctx, V8Helpers::JSValue(it->GetKey().c_str()), V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(it->GetValue())->Value().c_str()));
+                headers->Set(ctx, V8Helpers::JSValue(it->first.c_str()), V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(it->second)->Value().c_str()));
             }
             responseObj->Set(ctx, V8Helpers::JSValue("headers"), headers);
             resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), responseObj);
@@ -420,9 +420,9 @@ static void Patch(const v8::FunctionCallbackInfo<v8::Value>& info)
             V8_OBJECT_SET_INT(responseObj, "statusCode", response.statusCode);
             V8_OBJECT_SET_STRING(responseObj, "body", response.body);
             V8_NEW_OBJECT(headers);
-            for(auto it = response.headers->Begin(); it; it = response.headers->Next())
+            for(auto it = response.headers->Begin(); it != response.headers->End(); ++it)
             {
-                headers->Set(ctx, V8Helpers::JSValue(it->GetKey().c_str()), V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(it->GetValue())->Value().c_str()));
+                headers->Set(ctx, V8Helpers::JSValue(it->first.c_str()), V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(it->second)->Value().c_str()));
             }
             responseObj->Set(ctx, V8Helpers::JSValue("headers"), headers);
             resolver->Resolve(resolver->GetCreationContext().ToLocalChecked(), responseObj);

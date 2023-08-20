@@ -131,9 +131,9 @@ static void GetExtraHeaders(const v8::FunctionCallbackInfo<v8::Value>& info)
     auto extraHeaders = webSocket->GetExtraHeaders();
     V8_NEW_OBJECT(headersObject);
 
-    for(auto it = extraHeaders->Begin(); it; it = extraHeaders->Next())
+    for(auto it = extraHeaders->Begin(); it != extraHeaders->End(); ++it)
     {
-        std::string key = it->GetKey();
+        std::string key = it->first;
         V8_OBJECT_SET_STRING(headersObject, key.c_str(), std::dynamic_pointer_cast<alt::IMValueString>(extraHeaders->Get(key))->Value());
     }
 
