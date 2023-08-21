@@ -57,10 +57,8 @@ static void ConstructorAttached(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void AllAudioOutputGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    auto objects = alt::ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::AUDIO_OUTPUT);
-    v8::Local<v8::Array> jsArr = v8::Array::New(isolate, objects.size());
-    for(size_t i = 0; i < objects.size(); ++i) jsArr->Set(ctx, i, resource->GetBaseObjectOrNull(objects[i]));
-    V8_RETURN(jsArr);
+
+    V8_RETURN(resource->GetAllAudioOutputs()->Clone());
 }
 
 static void AudioOutputCountGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)

@@ -52,7 +52,6 @@ bool V8ResourceImpl::Stop()
     resourceObjects.clear();
     nextTickCallbacks.clear();
     benchmarkTimers.clear();
-    resourceObjects.clear();
 
     localHandlers.clear();
     remoteHandlers.clear();
@@ -305,6 +304,17 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllVehicles()
 v8::Local<v8::Array> V8ResourceImpl::GetAllBlips()
 {
     std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::BLIP);
+    v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
+
+    for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
+
+    jsAll->SetIntegrityLevel(GetContext(), v8::IntegrityLevel::kFrozen);
+    return jsAll;
+}
+
+v8::Local<v8::Array> V8ResourceImpl::GetAllAudioOutputs()
+{
+    std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::AUDIO_OUTPUT);
     v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
 
     for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));

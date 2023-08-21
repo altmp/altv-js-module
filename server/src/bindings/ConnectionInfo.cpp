@@ -165,6 +165,23 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
 }
 
+static void GetText(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(con, alt::IConnectionInfo);
+
+    V8_RETURN_STRING(con->GetText());
+}
+
+static void SetText(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(con, alt::IConnectionInfo);
+    V8_TO_STRING(val, text);
+
+    con->SetText(text);
+}
+
 extern V8Class v8BaseObject;
 extern V8Class v8ConnectionInfo("ConnectionInfo",
                                 v8BaseObject,
@@ -197,4 +214,5 @@ extern V8Class v8ConnectionInfo("ConnectionInfo",
                                     V8Helpers::SetAccessor(isolate, tpl, "socialClubName", &SocialClubNameGetter);
                                     V8Helpers::SetAccessor(isolate, tpl, "id", &ConnectionIDGetter);
                                     V8Helpers::SetAccessor(isolate, tpl, "cloudAuthHash", &CloudAuthHashGetter);
+                                    V8Helpers::SetAccessor(isolate, tpl, "text", &GetText, &SetText);
                                 });

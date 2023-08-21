@@ -518,6 +518,9 @@ extern V8Module
 
                    V8_OBJECT_SET_STRING(exports, "resourceName", V8ResourceImpl::GetResource(ctx)->GetName());
 
+                   V8_OBJECT_SET_INT(exports, "defaultDimension", alt::DEFAULT_DIMENSION);
+                   V8_OBJECT_SET_INT(exports, "globalDimension", alt::GLOBAL_DIMENSION);
+
 #ifdef ALT_CLIENT_API
                    V8_OBJECT_SET_BOOLEAN(exports, "isClient", true);
                    V8_OBJECT_SET_BOOLEAN(exports, "isServer", false);

@@ -210,9 +210,9 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
             alt::MValueDictConst dict = std::dynamic_pointer_cast<const alt::IMValueDict>(val);
             v8::Local<v8::Object> v8Obj = v8::Object::New(isolate);
 
-            for(auto it = dict->Begin(); it; it = dict->Next())
+            for(auto it = dict->Begin(); it != dict->End(); ++it)
             {
-                v8Obj->Set(ctx, V8Helpers::JSValue(it->GetKey()), MValueToV8(it->GetValue()));
+                v8Obj->Set(ctx, V8Helpers::JSValue(it->first), MValueToV8(it->second));
             }
 
             return v8Obj;
