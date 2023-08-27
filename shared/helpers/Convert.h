@@ -82,16 +82,6 @@ namespace V8Helpers
         return v8::BigInt::NewFromUnsigned(v8::Isolate::GetCurrent(), val);
     }
     template<class T>
-    inline v8::Local<v8::Array> JSValue(alt::Array<T>& arr)
-    {
-        auto jsArr = v8::Array::New(v8::Isolate::GetCurrent(), arr.GetSize());
-        for(int i = 0; i < arr.GetSize(); i++)
-        {
-            jsArr->Set(v8::Isolate::GetCurrent()->GetEnteredOrMicrotaskContext(), i, JSValue(arr[i]));
-        }
-        return jsArr;
-    }
-    template<class T>
     inline v8::Local<v8::Array> JSValue(std::vector<T>& arr)
     {
         auto jsArr = v8::Array::New(v8::Isolate::GetCurrent(), arr.size());
