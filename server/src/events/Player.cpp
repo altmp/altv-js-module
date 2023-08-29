@@ -218,3 +218,17 @@ V8_LOCAL_EVENT_HANDLER playerSpawn(EventType::PLAYER_SPAWN,
 
                                        args.push_back(resource->GetBaseObjectOrNull(ev->GetPlayer()));
                                    });
+
+V8_LOCAL_EVENT_HANDLER playerHeal(EventType::PLAYER_HEAL,
+                                  "playerHeal",
+                                  [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                  {
+                                      auto ev = static_cast<const alt::CPlayerHealEvent*>(e);
+                                      v8::Isolate* isolate = resource->GetIsolate();
+
+                                      args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
+                                      args.push_back(V8Helpers::JSValue(ev->GetOldHealth()));
+                                      args.push_back(V8Helpers::JSValue(ev->GetNewHealth()));
+                                      args.push_back(V8Helpers::JSValue(ev->GetOldArmour()));
+                                      args.push_back(V8Helpers::JSValue(ev->GetNewArmour()));
+                                  });
