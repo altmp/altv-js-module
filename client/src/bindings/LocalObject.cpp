@@ -210,6 +210,43 @@ static void TextureVariatioGetter(v8::Local<v8::String>, const v8::PropertyCallb
     V8_RETURN_UINT(object->GetTextureVariation());
 }
 
+static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_INT(1, id);
+
+    alt::IBaseObject* baseObject = alt::ICore::Instance().GetBaseObjectByID(alt::IBaseObject::Type::LOCAL_OBJECT, id);
+
+    if(baseObject && baseObject->GetType() == alt::IEntity::Type::LOCAL_OBJECT)
+    {
+        V8_RETURN_BASE_OBJECT(baseObject);
+    }
+    else
+    {
+        V8_RETURN_NULL();
+    }
+}
+
+static void StaticGetByScriptID(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(1);
+    V8_ARG_TO_INT(1, scriptGuid);
+
+    alt::IWorldObject* entity = alt::ICore::Instance().GetWorldObjectByScriptID(scriptGuid);
+
+    if(entity && (entity->GetType() == alt::IWorldObject::Type::LOCAL_OBJECT))
+    {
+        V8_RETURN_BASE_OBJECT(entity);
+    }
+    else
+    {
+        V8_RETURN_NULL();
+    }
+}
+
 extern V8Class v8Object;
 extern V8Class v8LocalObject("LocalObject",
                              v8Object,
@@ -220,6 +257,9 @@ extern V8Class v8LocalObject("LocalObject",
                                  v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
                                  V8Helpers::SetMethod(isolate, tpl, "toString", ToString);
+
+                                 V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
+                                 V8Helpers::SetStaticMethod(isolate, tpl, "getByScriptID", StaticGetByScriptID);
 
                                  V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
                                  V8Helpers::SetStaticAccessor(isolate, tpl, "count", &CountGetter);
