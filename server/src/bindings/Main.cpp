@@ -685,6 +685,102 @@ static void SetMaxStreamingVehicles(const v8::FunctionCallbackInfo<v8::Value>& i
     alt::ICore::Instance().SetMaxStreamingVehicles(limit);
 }
 
+static void GetMigrationThreadCount(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_RETURN_UINT(alt::ICore::Instance().GetMigrationThreadCount());
+}
+
+static void SetMigrationThreadCount(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_UINT(1, count);
+
+    alt::ICore::Instance().SetMigrationThreadCount(count);
+}
+
+static void GetSyncSendThreadCount(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_RETURN_UINT(alt::ICore::Instance().GetSyncSendThreadCount());
+}
+
+static void SetSyncSendThreadCount(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_UINT(1, count);
+
+    alt::ICore::Instance().SetSyncSendThreadCount(count);
+}
+
+static void GetSyncReceiveThreadCount(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_RETURN_UINT(alt::ICore::Instance().GetSyncReceiveThreadCount());
+}
+
+static void SetSyncReceiveThreadCount(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_UINT(1, count);
+
+    alt::ICore::Instance().SetSyncReceiveThreadCount(count);
+}
+
+static void GetMigrationTickRate(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_RETURN_UINT(alt::ICore::Instance().GetMigrationTickRate());
+}
+
+static void SetMigrationTickRate(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_UINT(1, tickrate);
+
+    alt::ICore::Instance().SetMigrationTickRate(tickrate);
+}
+
+static void GetColShapeTickRate(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_RETURN_UINT(alt::ICore::Instance().GetColShapeTickRate());
+}
+
+static void SetColShapeTickRate(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_UINT(1, tickrate);
+
+    alt::ICore::Instance().SetColShapeTickRate(tickrate);
+}
+
+static void GetMigrationDistance(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_RETURN_UINT(alt::ICore::Instance().GetMigrationDistance());
+}
+
+static void SetMigrationDistance(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_UINT(1, tickrate);
+
+    alt::ICore::Instance().SetMigrationDistance(tickrate);
+}
+
 extern V8Class v8Player, v8Vehicle, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Checkpoint, v8VoiceChannel, v8Colshape, v8ColshapeCylinder, v8ColshapeSphere, v8ColshapeCircle,
   v8ColshapeCuboid, v8ColshapeRectangle, v8ColshapePolygon, v8Ped, v8Object, v8VirtualEntity, v8VirtualEntityGroup, v8Marker, v8ConnectionInfo;
 
@@ -751,11 +847,29 @@ extern V8Module
             V8Helpers::RegisterFunc(exports, "getStreamerThreadCount", &GetStreamerThreadCount);
             V8Helpers::RegisterFunc(exports, "setStreamerThreadCount", &SetStreamerThreadCount);
 
+            V8Helpers::RegisterFunc(exports, "getMigrationThreadCount", &GetMigrationThreadCount);
+            V8Helpers::RegisterFunc(exports, "setMigrationThreadCount", &SetMigrationThreadCount);
+
+            V8Helpers::RegisterFunc(exports, "getSyncSendThreadCount", &GetSyncSendThreadCount);
+            V8Helpers::RegisterFunc(exports, "setSyncSendThreadCount", &SetSyncSendThreadCount);
+
+            V8Helpers::RegisterFunc(exports, "getSyncReceiveThreadCount", &GetSyncReceiveThreadCount);
+            V8Helpers::RegisterFunc(exports, "setSyncReceiveThreadCount", &SetSyncReceiveThreadCount);
+
             V8Helpers::RegisterFunc(exports, "getStreamingTickRate", &GetStreamingTickRate);
             V8Helpers::RegisterFunc(exports, "setStreamingTickRate", &SetStreamingTickRate);
 
+            V8Helpers::RegisterFunc(exports, "getMigrationTickRate", &GetMigrationTickRate);
+            V8Helpers::RegisterFunc(exports, "setMigrationTickRate", &SetMigrationTickRate);
+
+            V8Helpers::RegisterFunc(exports, "getColShapeTickRate", &GetColShapeTickRate);
+            V8Helpers::RegisterFunc(exports, "setColShapeTickRate", &SetColShapeTickRate);
+
             V8Helpers::RegisterFunc(exports, "getStreamingDistance", &GetStreamingDistance);
             V8Helpers::RegisterFunc(exports, "setStreamingDistance", &SetStreamingDistance);
+
+            V8Helpers::RegisterFunc(exports, "getMigrationDistance", &GetMigrationDistance);
+            V8Helpers::RegisterFunc(exports, "setMigrationDistance", &SetMigrationDistance);
 
             V8_OBJECT_SET_STRING(exports, "rootDir", alt::ICore::Instance().GetRootDirectory());
         });
