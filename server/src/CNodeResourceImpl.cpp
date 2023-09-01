@@ -140,6 +140,8 @@ void CNodeResourceImpl::OnEvent(const alt::CEvent* e)
     v8::Context::Scope scope(GetContext());
     // env->PushAsyncCallbackScope();
 
+    HandleVehiclePassengerSeatEvents(e);
+
     V8Helpers::EventHandler* handler = V8Helpers::EventHandler::Get(e);
     if(!handler) return;
 
@@ -184,6 +186,55 @@ void CNodeResourceImpl::OnEvent(const alt::CEvent* e)
 
     // env->PopAsyncCallbackScope();
     return;
+}
+
+void CNodeResourceImpl::HandleVehiclePassengerSeatEvents(const alt::CEvent* ev)
+{
+    auto evType = ev->GetType();
+
+    if (evType == alt::CEvent::Type::PLAYER_ENTER_VEHICLE)
+    {
+        auto event = static_cast<const alt::CPlayerEnterVehicleEvent*>(ev);
+        auto vehicle = event->GetTarget();
+        auto player = event->GetPlayer();
+        auto seat = event->GetSeat();
+
+        if (!vehiclePassengers.contains(vehicle))
+            vehiclePassengers[vehicle] = {};
+
+        vehiclePassengers[vehicle][seat] = player;
+    }
+    else if (evType == alt::CEvent::Type::PLAYER_LEAVE_VEHICLE)
+    {
+        auto event = static_cast<const alt::CPlayerLeaveVehicleEvent*>(ev);
+        auto vehicle = event->GetTarget();
+        auto player = event->GetPlayer();
+
+        if (vehiclePassengers.contains(vehicle))
+        {
+            for ( auto it = vehiclePassengers[vehicle].begin(); it != vehiclePassengers[vehicle].end(); )
+            {
+                if (it->second == player)
+                    it = vehiclePassengers[vehicle].erase(it);
+                else
+                    ++it;
+            }
+
+            if (vehiclePassengers[vehicle].empty())
+                vehiclePassengers.erase(vehicle);
+        }
+    }
+    else if (evType == alt::CEvent::Type::PLAYER_CHANGE_VEHICLE_SEAT)
+    {
+        auto event = static_cast<const alt::CPlayerChangeVehicleSeatEvent*>(ev);
+        auto vehicle = event->GetTarget();
+
+        if (!vehiclePassengers.contains(vehicle))
+            vehiclePassengers[vehicle] = {};
+
+        vehiclePassengers[vehicle].erase(event->GetOldSeat());
+        vehiclePassengers[vehicle][event->GetNewSeat()] = event->GetPlayer();
+    }
 }
 
 void CNodeResourceImpl::OnTick()

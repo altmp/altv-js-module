@@ -15,6 +15,10 @@ class IRuntimeEventHandler
     // All events the module uses, which need to be enabled and never disabled
     static constexpr std::array internalEvents = {
         EventType::CONNECTION_COMPLETE, EventType::DISCONNECT_EVENT, EventType::GAME_ENTITY_CREATE, EventType::GAME_ENTITY_DESTROY, EventType::RESOURCE_STOP
+#ifdef ALT_SERVER_API
+        // required for vehicle seat stuff
+        , EventType::PLAYER_ENTER_VEHICLE, EventType::PLAYER_LEAVE_VEHICLE, EventType::PLAYER_CHANGE_VEHICLE_SEAT
+#endif
     };
 
     // Keeps track of the event handlers registered for all events
