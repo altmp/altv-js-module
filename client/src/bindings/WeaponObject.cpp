@@ -122,6 +122,7 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
     if(baseObject && baseObject->GetType() == alt::IEntity::Type::LOCAL_OBJECT)
     {
         V8_RETURN_BASE_OBJECT(baseObject);
+        return;
     }
 
     V8_RETURN_NULL();
@@ -138,6 +139,7 @@ static void StaticGetByScriptID(const v8::FunctionCallbackInfo<v8::Value>& info)
     if(entity && (entity->GetType() == alt::IWorldObject::Type::LOCAL_OBJECT))
     {
         V8_RETURN_BASE_OBJECT(entity);
+        return;
     }
 
     V8_RETURN_NULL();
