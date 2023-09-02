@@ -186,6 +186,27 @@ static void WeaponHasComponent(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_BOOLEAN(player->HasWeaponComponent(hash, componentHash));
 }
 
+static void GetWeaponTintIndex(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, weaponHash);
+        hash = weaponHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, weaponHash);
+        hash = alt::ICore::Instance().Hash(weaponHash);
+    }
+
+    V8_RETURN_UINT(player->GetWeaponTintIndex(hash));
+}
+
 extern V8Class v8Entity;
 extern V8Class v8Player("Player",
                         v8Entity,
@@ -221,7 +242,8 @@ extern V8Class v8Player("Player",
                             // Weapon getters
                             V8Helpers::SetAccessor(isolate, tpl, "currentWeaponComponents", &CurrentWeaponComponentsGetter);
                             V8Helpers::SetMethod(isolate, tpl, "hasWeaponComponent", &WeaponHasComponent);
-                            // V8Helpers::SetAccessor(isolate, tpl, "currentWeaponTintIndex", &CurrentWeaponTintIndexGetter);
+                            V8Helpers::SetMethod(isolate, tpl, "getWeaponTintIndex", &GetWeaponTintIndex);
+                            V8Helpers::SetAccessor<IPlayer, uint8_t, &IPlayer::GetCurrentWeaponTintIndex>(isolate, tpl, "currentWeaponTintIndex");
                             V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetCurrentWeapon>(isolate, tpl, "currentWeapon");
                             V8Helpers::SetAccessor<IPlayer, IEntity*, &IPlayer::GetEntityAimingAt>(isolate, tpl, "entityAimingAt");
                             V8Helpers::SetAccessor<IPlayer, Position, &IPlayer::GetEntityAimOffset>(isolate, tpl, "entityAimOffset");
