@@ -118,12 +118,19 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_INT(1, id);
 
     auto allWeaponObjects = resource->GetAllWeaponObjects();
-    for (auto& weaponObject : allWeaponObjects)
-    {
-        if (weaponObject->GetID() == id)
+    v8::Local<v8::Value> obj;
+
+    for (uint32_t i = 0; i < allWeaponObjects->Length(); i++) {
+        if (allWeaponObjects->Get(ctx, i).ToLocal(&obj))
         {
-            V8_RETURN_BASE_OBJECT(weaponObject);
-            return;
+            auto entity = V8Entity::Get(obj)->GetHandle();
+            auto weaponObj = entity ? entity->As<alt::ILocalObject>() : nullptr;
+
+            if (weaponObj && weaponObj->GetID() == id)
+            {
+                V8_RETURN_BASE_OBJECT(weaponObj);
+                return;
+            }
         }
     }
 
@@ -137,12 +144,19 @@ static void StaticGetByScriptID(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_INT(1, scriptId);
 
     auto allWeaponObjects = resource->GetAllWeaponObjects();
-    for (auto& weaponObject : allWeaponObjects)
-    {
-        if (weaponObject->GetScriptID() == scriptId)
+    v8::Local<v8::Value> obj;
+
+    for (uint32_t i = 0; i < allWeaponObjects->Length(); i++) {
+        if (allWeaponObjects->Get(ctx, i).ToLocal(&obj))
         {
-            V8_RETURN_BASE_OBJECT(weaponObject);
-            return;
+            auto entity = V8Entity::Get(obj)->GetHandle();
+            auto weaponObj = entity ? entity->As<alt::ILocalObject>() : nullptr;
+
+            if (weaponObj && weaponObj->GetScriptID() == scriptId)
+            {
+                V8_RETURN_BASE_OBJECT(weaponObj);
+                return;
+            }
         }
     }
 
