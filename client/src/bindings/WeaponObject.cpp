@@ -111,6 +111,38 @@ static void CountGetter(v8::Local<v8::String> name, const v8::PropertyCallbackIn
     V8_RETURN_UINT(alt::ICore::Instance().GetWeaponObjects().size());
 }
 
+static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(1);
+    V8_ARG_TO_INT(1, id);
+
+    alt::IBaseObject* baseObject = alt::ICore::Instance().GetBaseObjectByID(alt::IBaseObject::Type::LOCAL_OBJECT, id);
+
+    if(baseObject && baseObject->GetType() == alt::IEntity::Type::LOCAL_OBJECT)
+    {
+        V8_RETURN_BASE_OBJECT(baseObject);
+    }
+
+    V8_RETURN_NULL();
+}
+
+static void StaticGetByScriptID(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(1);
+    V8_ARG_TO_INT(1, scriptId);
+
+    alt::IWorldObject* entity = alt::ICore::Instance().GetWorldObjectByScriptID(scriptId);
+
+    if(entity && (entity->GetType() == alt::IWorldObject::Type::LOCAL_OBJECT))
+    {
+        V8_RETURN_BASE_OBJECT(entity);
+    }
+
+    V8_RETURN_NULL();
+}
+
 extern V8Class v8LocalObject;
 extern V8Class v8WeaponObject("WeaponObject",
                               v8LocalObject,
@@ -122,6 +154,8 @@ extern V8Class v8WeaponObject("WeaponObject",
 
                                   V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
                                   V8Helpers::SetStaticAccessor(isolate, tpl, "count", &CountGetter);
+                                  V8Helpers::SetStaticMethod(isolate, tpl, "getByScriptID", StaticGetByScriptID);
+                                  V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
 
                                   V8Helpers::SetAccessor<ILocalObject, int, &ILocalObject::GetTintIndex, &ILocalObject::SetTintIndex>(isolate, tpl, "tintIndex");
                                   V8Helpers::SetMethod(isolate, tpl, "setComponentTintIndex", &GetComponentTintIndex);
