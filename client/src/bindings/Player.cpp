@@ -213,8 +213,8 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsParachuting>(isolate, tpl, "isParachuting");
 
                             // V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsSuperJumpEnabled>(isolate, tpl, "isSuperJumpEnabled");
-                            // V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsCrouching>(isolate, tpl, "isCrouching");
-                            // V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsStealthy>(isolate, tpl, "isStealthy");
+                            V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsCrouching>(isolate, tpl, "isCrouching");
+                            V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsStealthy>(isolate, tpl, "isStealthy");
 
                             V8Helpers::SetAccessor(isolate, tpl, "filter", &GetFilter, &SetFilter);
                         });
