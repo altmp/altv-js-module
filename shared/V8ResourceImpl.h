@@ -313,6 +313,10 @@ public:
         return static_cast<alt::IResource*>(ctx->GetAlignedPointerFromEmbedderData(1));
     }
 
+#ifdef ALT_SERVER_API
+    static inline std::unordered_map<alt::IVehicle*, std::unordered_map<uint8_t, alt::IPlayer*>> vehiclePassengers{};
+#endif
+
 protected:
     v8::Isolate* isolate;
     alt::IResource* resource;

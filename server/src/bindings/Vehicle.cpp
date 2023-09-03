@@ -229,6 +229,27 @@ static void RoofClosedGetter(v8::Local<v8::String> name, const v8::PropertyCallb
     V8_RETURN_BOOLEAN(_this->GetRoofState() == 1);
 }
 
+static void GetPassengers(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
+
+    auto obj = v8::Object::New(isolate);
+    auto passengers = V8ResourceImpl::vehiclePassengers[_this];
+
+    if (!passengers.empty())
+    {
+        for (auto& [seat, player] : passengers)
+        {
+            auto entity = resource->GetBaseObjectOrNull(player);
+            if (!entity->IsNull())
+                obj->Set(ctx, seat, entity);
+        }
+    }
+
+    V8_RETURN(obj);
+}
+
 extern V8Class v8Entity;
 extern V8Class v8Vehicle("Vehicle",
                          v8Entity,
@@ -244,6 +265,7 @@ extern V8Class v8Vehicle("Vehicle",
                              // Common getter/setters
                              V8Helpers::SetAccessor<IVehicle, bool, &IVehicle::IsDestroyed>(isolate, tpl, "destroyed");
                              V8Helpers::SetAccessor<IVehicle, IPlayer*, &IVehicle::GetDriver>(isolate, tpl, "driver");
+                             V8Helpers::SetAccessor(isolate, tpl, "passengers", &GetPassengers);
                              V8Helpers::SetAccessor<IVehicle, Vector3f, &IVehicle::GetVelocity>(isolate, tpl, "velocity");
                              V8Helpers::SetAccessor<IVehicle, Quaternion, &IVehicle::GetQuaternion, &IVehicle::SetQuaternion>(isolate, tpl, "quaternion");
 
