@@ -35,6 +35,28 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_NULL();
 }
 
+#ifdef ALT_CLIENT_API
+
+static void StaticGetByRemoteId(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_INT32(1, id);
+
+    alt::IBaseObject* entity = alt::ICore::Instance().GetBaseObjectByRemoteID(alt::IBaseObject::Type::VIRTUAL_ENTITY_GROUP, id);
+
+    if(entity)
+    {
+        V8_RETURN_BASE_OBJECT(entity);
+        return;
+    }
+
+    V8_RETURN_NULL();
+}
+
+#endif
+
 static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -116,7 +138,9 @@ extern V8Class v8VirtualEntityGroup("VirtualEntityGroup",
                                         v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
                                         V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
-
+#ifdef ALT_CLIENT_API
+                                        V8Helpers::SetStaticMethod(isolate, tpl, "getByRemoteID", StaticGetByRemoteId);
+#endif
                                         V8Helpers::SetStaticAccessor(isolate, tpl, "all", AllGetter);
 
                                         V8Helpers::SetMethod(isolate, tpl, "hasMeta", HasMeta);
