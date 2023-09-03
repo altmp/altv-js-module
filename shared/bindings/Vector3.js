@@ -136,7 +136,7 @@ alt.Vector3.prototype.inverse = function() {
 
 alt.Vector3.prototype.normalize = function() {
     const length = this.length;
-    return new alt.Vector3(this.x / length, this.y / length, this.z / length);
+    return new alt.Vector3(this.x == 0 ? 0 : this.x / length, this.y == 0 ? 0: this.y / length, this.z == 0 ? 0 : this.z / length);
 }
 
 alt.Vector3.prototype.distanceTo = function(vector) {
