@@ -37,6 +37,7 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 #ifdef ALT_CLIENT_API
 
+/* NOTE (xLuxy): Client's are not aware of remote groups (yet?)
 static void StaticGetByRemoteId(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -53,7 +54,7 @@ static void StaticGetByRemoteId(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
 
     V8_RETURN_NULL();
-}
+}*/
 
 #endif
 
@@ -139,7 +140,7 @@ extern V8Class v8VirtualEntityGroup("VirtualEntityGroup",
 
                                         V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
 #ifdef ALT_CLIENT_API
-                                        V8Helpers::SetStaticMethod(isolate, tpl, "getByRemoteID", StaticGetByRemoteId);
+                                        // V8Helpers::SetStaticMethod(isolate, tpl, "getByRemoteID", StaticGetByRemoteId);
 #endif
                                         V8Helpers::SetStaticAccessor(isolate, tpl, "all", AllGetter);
 
