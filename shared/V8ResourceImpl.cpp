@@ -515,7 +515,7 @@ void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vecto
               if(retn.IsEmpty()) return false;
 
               v8::Local<v8::Value> returnValue = retn.ToLocalChecked();
-              if(ev && returnValue->IsFalse()) ev->Cancel();
+              if(ev && returnValue->IsFalse() && ev->IsCancellable()) static_cast<const alt::CCancellableEvent*>(ev)->Cancel();
               else if(ev && ev->GetType() == alt::CEvent::Type::WEAPON_DAMAGE_EVENT && returnValue->IsNumber())
                   static_cast<alt::CWeaponDamageEvent*>(const_cast<alt::CEvent*>(ev))->SetDamageValue((uint32_t)returnValue->NumberValue(GetContext()).ToChecked());
               // todo: add this once a generic Cancel() with string as arg has been added to the sdk
@@ -544,7 +544,7 @@ void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vecto
                       else if(state == v8::Promise::PromiseState::kFulfilled)
                       {
                           v8::Local<v8::Value> value = promise->Result();
-                          if(value->IsFalse()) ev->Cancel();
+                          if(value->IsFalse() && ev->IsCancellable()) static_cast<const alt::CCancellableEvent*>(ev)->Cancel();
                           break;
                       }
                       else if(state == v8::Promise::PromiseState::kRejected)

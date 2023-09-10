@@ -174,7 +174,7 @@ static void AddChorusEffect(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_GET_THIS_BASE_OBJECT(filter, alt::IAudioFilter);
 
-    V8_CHECK_ARGS_LEN(6);
+    V8_CHECK_ARGS_LEN(7);
     V8_ARG_TO_NUMBER(1, fDryMix);
     V8_ARG_TO_NUMBER(2, fWetMix);
     V8_ARG_TO_NUMBER(3, fFeedback);
@@ -244,7 +244,7 @@ static void AddEcho4Effect(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_GET_THIS_BASE_OBJECT(filter, alt::IAudioFilter);
 
-    V8_CHECK_ARGS_LEN(4);
+    V8_CHECK_ARGS_LEN(5);
     V8_ARG_TO_NUMBER(1, fDryMix);
     V8_ARG_TO_NUMBER(2, fWetMix);
     V8_ARG_TO_NUMBER(3, fFeedback);

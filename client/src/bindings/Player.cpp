@@ -153,6 +153,60 @@ static void SetFilter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8:
     }
 }
 
+static void WeaponHasComponent(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, weaponHash);
+        hash = weaponHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, weaponHash);
+        hash = alt::ICore::Instance().Hash(weaponHash);
+    }
+
+    uint32_t componentHash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(2, componenthash);
+        componentHash = componenthash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(2, componenthash);
+        componentHash = alt::ICore::Instance().Hash(componenthash);
+    }
+
+    V8_RETURN_BOOLEAN(player->HasWeaponComponent(hash, componentHash));
+}
+
+static void GetWeaponTintIndex(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, weaponHash);
+        hash = weaponHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, weaponHash);
+        hash = alt::ICore::Instance().Hash(weaponHash);
+    }
+
+    V8_RETURN_UINT(player->GetWeaponTintIndex(hash));
+}
+
 extern V8Class v8Entity;
 extern V8Class v8Player("Player",
                         v8Entity,
@@ -187,7 +241,9 @@ extern V8Class v8Player("Player",
 
                             // Weapon getters
                             V8Helpers::SetAccessor(isolate, tpl, "currentWeaponComponents", &CurrentWeaponComponentsGetter);
-                            // V8Helpers::SetAccessor(isolate, tpl, "currentWeaponTintIndex", &CurrentWeaponTintIndexGetter);
+                            V8Helpers::SetMethod(isolate, tpl, "hasWeaponComponent", &WeaponHasComponent);
+                            V8Helpers::SetMethod(isolate, tpl, "getWeaponTintIndex", &GetWeaponTintIndex);
+                            V8Helpers::SetAccessor<IPlayer, uint8_t, &IPlayer::GetCurrentWeaponTintIndex>(isolate, tpl, "currentWeaponTintIndex");
                             V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetCurrentWeapon>(isolate, tpl, "currentWeapon");
                             V8Helpers::SetAccessor<IPlayer, IEntity*, &IPlayer::GetEntityAimingAt>(isolate, tpl, "entityAimingAt");
                             V8Helpers::SetAccessor<IPlayer, Position, &IPlayer::GetEntityAimOffset>(isolate, tpl, "entityAimOffset");
@@ -213,8 +269,8 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsParachuting>(isolate, tpl, "isParachuting");
 
                             // V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsSuperJumpEnabled>(isolate, tpl, "isSuperJumpEnabled");
-                            // V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsCrouching>(isolate, tpl, "isCrouching");
-                            // V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsStealthy>(isolate, tpl, "isStealthy");
+                            V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsCrouching>(isolate, tpl, "isCrouching");
+                            V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsStealthy>(isolate, tpl, "isStealthy");
 
                             V8Helpers::SetAccessor(isolate, tpl, "filter", &GetFilter, &SetFilter);
                         });

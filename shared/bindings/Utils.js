@@ -1,4 +1,5 @@
-// // @ts-check // uncomment if you need typescript checks, e.g. for gta natives update
+// // @ts-check // uncomment if you need typescript checks, e.g. for gta natives
+// update
 /// <reference path="../../bindings.d.ts"/>
 // clang-format off
 // Utils JS bindings
@@ -288,6 +289,14 @@ if (alt.isClient && !alt.isWorker) {
     // Shortcut for alt.LocalObject
     // TODO: Make client/server only bindings work
     alt.LocalObject.prototype.waitForSpawn = function(timeout = 2000) {
+        return alt.Utils.waitFor(() => this.scriptID !== 0, timeout);
+    }
+
+    alt.LocalVehicle.prototype.waitForSpawn = function(timeout = 2000) {
+        return alt.Utils.waitFor(() => this.scriptID !== 0, timeout);
+    }
+
+    alt.LocalPed.prototype.waitForSpawn = function(timeout = 2000) {
         return alt.Utils.waitFor(() => this.scriptID !== 0, timeout);
     }
 
