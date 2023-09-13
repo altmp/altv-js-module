@@ -58,6 +58,122 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
 }
 
+static void RadiusGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(colShape, alt::IColShape);
+
+    if (colShape->GetColshapeType() == alt::IColShape::ColShapeType::SPHERE)
+    {
+        auto* sphere = dynamic_cast<alt::IColShapeSphere*>(colShape);
+        V8_RETURN_NUMBER(sphere->GetRadius());
+    }
+    else if (colShape->GetColshapeType() == alt::IColShape::ColShapeType::CYLINDER)
+    {
+        auto* cylinder = dynamic_cast<alt::IColShapeCylinder*>(colShape);
+        V8_RETURN_NUMBER(cylinder->GetRadius());
+    }
+    else if (colShape->GetColshapeType() == alt::IColShape::ColShapeType::CIRCLE)
+    {
+        auto* circle = dynamic_cast<alt::IColShapeCircle*>(colShape);
+        V8_RETURN_NUMBER(circle->GetRadius());
+    }
+}
+
+static void HeightGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(colShape, alt::IColShape);
+
+    if (colShape->GetColshapeType() == alt::IColShape::ColShapeType::CYLINDER)
+    {
+        auto* cylinder = dynamic_cast<alt::IColShapeCylinder*>(colShape);
+        V8_RETURN_NUMBER(cylinder->GetHeight());
+    }
+}
+
+static void MinGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(colShape, alt::IColShape);
+
+    if (colShape->GetColshapeType() == alt::IColShape::ColShapeType::CUBOID)
+    {
+        auto* cuboid = dynamic_cast<alt::IColShapeCuboid*>(colShape);
+        V8_RETURN_VECTOR3(cuboid->GetMin());
+    }
+    else if (colShape->GetColshapeType() == alt::IColShape::ColShapeType::RECT)
+    {
+        auto* rect = dynamic_cast<alt::IColShapeRect*>(colShape);
+        V8_RETURN_VECTOR2(rect->GetMin());
+    }
+}
+
+static void MaxGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(colShape, alt::IColShape);
+
+    if (colShape->GetColshapeType() == alt::IColShape::ColShapeType::CUBOID)
+    {
+        auto* cuboid = dynamic_cast<alt::IColShapeCuboid*>(colShape);
+        V8_RETURN_VECTOR3(cuboid->GetMax());
+    }
+    else if (colShape->GetColshapeType() == alt::IColShape::ColShapeType::RECT)
+    {
+        auto* rect = dynamic_cast<alt::IColShapeRect*>(colShape);
+        V8_RETURN_VECTOR2(rect->GetMax());
+        return;
+    }
+}
+
+static void MinZGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(colShape, alt::IColShape);
+
+    if (colShape->GetColshapeType() == alt::IColShape::ColShapeType::POLYGON)
+    {
+        auto* poly = dynamic_cast<alt::IColShapePoly*>(colShape);
+        V8_RETURN_NUMBER(poly->GetMinZ());
+    }
+}
+
+static void MaxZGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(colShape, alt::IColShape);
+
+    if (colShape->GetColshapeType() == alt::IColShape::ColShapeType::POLYGON)
+    {
+        auto* poly = dynamic_cast<alt::IColShapePoly*>(colShape);
+        V8_RETURN_NUMBER(poly->GetMaxZ());
+    }
+}
+
+static void PointsGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(colShape, alt::IColShape);
+
+    if (colShape->GetColshapeType() == alt::IColShape::ColShapeType::POLYGON)
+    {
+        auto* poly = dynamic_cast<alt::IColShapePoly*>(colShape);
+
+        auto points = poly->GetPoints();
+        v8::Local<v8::Array> arr = v8::Array::New(isolate, points.size());
+
+        for (size_t i = 0; i < points.size(); ++i)
+        {
+            auto point = points.at(i);
+            arr->Set(ctx, i, resource->CreateVector2(point));
+        }
+
+        arr->SetIntegrityLevel(ctx, v8::IntegrityLevel::kFrozen);
+        V8_RETURN(arr);
+    }
+}
+
 extern V8Class v8WorldObject;
 extern V8Class v8Colshape("Colshape",
                           v8WorldObject,
@@ -72,6 +188,14 @@ extern V8Class v8Colshape("Colshape",
 
                               V8Helpers::SetAccessor<IColShape, IColShape::ColShapeType, &IColShape::GetColshapeType>(isolate, tpl, "colshapeType");
                               V8Helpers::SetAccessor<IColShape, bool, &IColShape::IsPlayersOnly, &IColShape::SetPlayersOnly>(isolate, tpl, "playersOnly");
+
+                              V8Helpers::SetAccessor(isolate, tpl, "radius", RadiusGetter);
+                              V8Helpers::SetAccessor(isolate, tpl, "height", HeightGetter);
+                              V8Helpers::SetAccessor(isolate, tpl, "min", MinGetter);
+                              V8Helpers::SetAccessor(isolate, tpl, "max", MaxGetter);
+                              V8Helpers::SetAccessor(isolate, tpl, "minZ", MinZGetter);
+                              V8Helpers::SetAccessor(isolate, tpl, "maxZ", MaxZGetter);
+                              V8Helpers::SetAccessor(isolate, tpl, "points", PointsGetter);
 
                               V8Helpers::SetMethod(isolate, tpl, "isEntityIn", IsEntityIn);
                               V8Helpers::SetMethod(isolate, tpl, "isPointIn", IsPointIn);
