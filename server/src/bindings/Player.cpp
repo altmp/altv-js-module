@@ -860,7 +860,7 @@ static void RequestCloudID(const v8::FunctionCallbackInfo<v8::Value>& info)
       [&persistent, resource](bool ok, const std::string& result)
       {
           resource->RunOnNextTick(
-            [=, &persistent, &resource]()
+            [=, &persistent]()
             {
                 if(!resource->GetResource()->IsStarted())
                 {
