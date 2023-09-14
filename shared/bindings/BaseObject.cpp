@@ -112,10 +112,9 @@ static void SetMultipleMetaData(const v8::FunctionCallbackInfo<v8::Value>& info)
     auto dict = V8Helpers::CppValue<v8::Local<v8::Value>>(info[0].As<v8::Object>());
     std::unordered_map<std::string, MValue> values;
 
-    if (dict.has_value())
+    if(dict.has_value())
     {
-        for (auto& [key, value] : dict.value())
-            values[key] = V8Helpers::V8ToMValue(value);
+        for(auto& [key, value] : dict.value()) values[key] = V8Helpers::V8ToMValue(value);
     }
 
     obj->SetMultipleMetaData(values);
@@ -225,7 +224,7 @@ extern V8Class v8BaseObject("BaseObject",
                                 V8Helpers::SetAccessor<IBaseObject, uint32_t, &IBaseObject::GetID>(isolate, tpl, "id");
 #ifdef ALT_CLIENT_API
                                 V8Helpers::SetAccessor<IBaseObject, bool, &IBaseObject::IsRemote>(isolate, tpl, "isRemote");
-                                V8Helpers::SetAccessor<IBaseObject, uint32_t, &IBaseObject::GetRemoteID>(isolate, tpl, "remoteId");
+                                V8Helpers::SetAccessor<IBaseObject, uint32_t, &IBaseObject::GetRemoteID>(isolate, tpl, "remoteID");
                                 V8Helpers::SetStaticMethod(isolate, tpl, "getByRemoteID", StaticGetByRemoteId);
 #endif  // ALT_CLIENT_API
                                 V8Helpers::SetMethod(isolate, tpl, "hasSyncedMeta", HasSyncedMeta);
