@@ -1458,7 +1458,6 @@ extern V8Class v8Player("Player",
 
                             V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetAuthToken>(isolate, tpl, "authToken");
                             V8Helpers::SetAccessor(isolate, tpl, "discordID", &DiscordIDGetter);
-                            V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetCloudAuthHash>(isolate, tpl, "cloudAuthHash");
                             V8Helpers::SetMethod(isolate, tpl, "getAmmo", &AmmoGetter);
                             V8Helpers::SetMethod(isolate, tpl, "setAmmo", &AmmoSetter);
                             V8Helpers::SetMethod(isolate, tpl, "getWeaponAmmo", &WeaponAmmoGetter);
