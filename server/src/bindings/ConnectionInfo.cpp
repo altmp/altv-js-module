@@ -103,13 +103,6 @@ static void ConnectionIDGetter(v8::Local<v8::String>, const v8::PropertyCallback
     V8_RETURN_INT(con->GetID());
 }
 
-static void CloudAuthHashGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_GET_THIS_BASE_OBJECT(con, alt::IConnectionInfo);
-    V8_RETURN_STRING(con->GetCloudAuthHash());
-}
-
 static void Accept(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -213,6 +206,5 @@ extern V8Class v8ConnectionInfo("ConnectionInfo",
                                     V8Helpers::SetAccessor(isolate, tpl, "discordUserID", &DiscordUserIDGetter);
                                     V8Helpers::SetAccessor(isolate, tpl, "socialClubName", &SocialClubNameGetter);
                                     V8Helpers::SetAccessor(isolate, tpl, "id", &ConnectionIDGetter);
-                                    V8Helpers::SetAccessor(isolate, tpl, "cloudAuthHash", &CloudAuthHashGetter);
                                     V8Helpers::SetAccessor(isolate, tpl, "text", &GetText, &SetText);
                                 });
