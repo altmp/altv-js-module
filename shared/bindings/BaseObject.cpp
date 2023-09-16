@@ -102,6 +102,24 @@ static void SetMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     obj->SetMetaData(key, value);
 }
 
+static void SetMultipleMetaData(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(obj, alt::IBaseObject);
+
+    V8_CHECK(info[0]->IsObject(), "Failed to convert argument 1 to object");
+
+    auto dict = V8Helpers::CppValue<v8::Local<v8::Value>>(info[0].As<v8::Object>());
+    std::unordered_map<std::string, MValue> values;
+
+    if(dict.has_value())
+    {
+        for(auto& [key, value] : dict.value()) values[key] = V8Helpers::V8ToMValue(value);
+    }
+
+    obj->SetMultipleMetaData(values);
+}
+
 static void DeleteMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -206,7 +224,7 @@ extern V8Class v8BaseObject("BaseObject",
                                 V8Helpers::SetAccessor<IBaseObject, uint32_t, &IBaseObject::GetID>(isolate, tpl, "id");
 #ifdef ALT_CLIENT_API
                                 V8Helpers::SetAccessor<IBaseObject, bool, &IBaseObject::IsRemote>(isolate, tpl, "isRemote");
-                                V8Helpers::SetAccessor<IBaseObject, uint32_t, &IBaseObject::GetRemoteID>(isolate, tpl, "remoteId");
+                                V8Helpers::SetAccessor<IBaseObject, uint32_t, &IBaseObject::GetRemoteID>(isolate, tpl, "remoteID");
                                 V8Helpers::SetStaticMethod(isolate, tpl, "getByRemoteID", StaticGetByRemoteId);
 #endif  // ALT_CLIENT_API
                                 V8Helpers::SetMethod(isolate, tpl, "hasSyncedMeta", HasSyncedMeta);
@@ -216,6 +234,7 @@ extern V8Class v8BaseObject("BaseObject",
                                 V8Helpers::SetMethod(isolate, tpl, "hasMeta", HasMeta);
                                 V8Helpers::SetMethod(isolate, tpl, "getMeta", GetMeta);
                                 V8Helpers::SetMethod(isolate, tpl, "setMeta", SetMeta);
+                                V8Helpers::SetMethod(isolate, tpl, "setMultipleMetaData", SetMultipleMetaData);
                                 V8Helpers::SetMethod(isolate, tpl, "deleteMeta", DeleteMeta);
                                 V8Helpers::SetMethod(isolate, tpl, "getMetaDataKeys", GetMetaDataKeys);
                                 V8Helpers::SetMethod(isolate, tpl, "destroy", Destroy);

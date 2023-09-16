@@ -103,13 +103,6 @@ static void ConnectionIDGetter(v8::Local<v8::String>, const v8::PropertyCallback
     V8_RETURN_INT(con->GetID());
 }
 
-static void CloudAuthHashGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_GET_THIS_BASE_OBJECT(con, alt::IConnectionInfo);
-    V8_RETURN_STRING(con->GetCloudAuthHash());
-}
-
 static void Accept(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -182,6 +175,40 @@ static void SetText(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::P
     con->SetText(text);
 }
 
+static void RequestCloudID(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    static std::list<v8::Global<v8::Promise::Resolver>> promises;
+
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(con, alt::IConnectionInfo);
+
+    auto& persistent = promises.emplace_back(v8::Global<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
+
+    con->RequestCloudID(
+      [&persistent, resource](bool ok, const std::string& result)
+      {
+          resource->RunOnNextTick(
+            [=, &persistent]()
+            {
+                if(!resource->GetResource()->IsStarted())
+                {
+                    promises.remove(persistent);
+                    return;
+                }
+
+                auto isolate = resource->GetIsolate();
+                auto context = resource->GetContext();
+
+                if(ok) persistent.Get(isolate)->Resolve(context, V8Helpers::JSValue(result));
+                else
+                    persistent.Get(isolate)->Reject(context, v8::Exception::Error(V8Helpers::JSValue(result)));
+                promises.remove(persistent);
+            });
+      });
+
+    V8_RETURN(persistent.Get(isolate)->GetPromise());
+}
+
 extern V8Class v8BaseObject;
 extern V8Class v8ConnectionInfo("ConnectionInfo",
                                 v8BaseObject,
@@ -197,6 +224,7 @@ extern V8Class v8ConnectionInfo("ConnectionInfo",
 
                                     V8Helpers::SetMethod(isolate, tpl, "accept", &Accept);
                                     V8Helpers::SetMethod(isolate, tpl, "decline", &Decline);
+                                    V8Helpers::SetMethod(isolate, tpl, "requestCloudID", &RequestCloudID);
                                     V8Helpers::SetAccessor(isolate, tpl, "isAccepted", &IsAcceptedGetter);
 
                                     V8Helpers::SetAccessor(isolate, tpl, "name", &NameGetter);
@@ -213,6 +241,5 @@ extern V8Class v8ConnectionInfo("ConnectionInfo",
                                     V8Helpers::SetAccessor(isolate, tpl, "discordUserID", &DiscordUserIDGetter);
                                     V8Helpers::SetAccessor(isolate, tpl, "socialClubName", &SocialClubNameGetter);
                                     V8Helpers::SetAccessor(isolate, tpl, "id", &ConnectionIDGetter);
-                                    V8Helpers::SetAccessor(isolate, tpl, "cloudAuthHash", &CloudAuthHashGetter);
                                     V8Helpers::SetAccessor(isolate, tpl, "text", &GetText, &SetText);
                                 });

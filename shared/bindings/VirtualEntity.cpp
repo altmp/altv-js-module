@@ -162,6 +162,25 @@ static void SetStreamSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     ent->SetStreamSyncedMetaData(key, value);
 }
 
+static void SetMultipleStreamSyncedMetaData(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(entity, alt::IVirtualEntity);
+
+    V8_CHECK(info[0]->IsObject(), "Failed to convert argument 1 to object");
+
+    auto dict = V8Helpers::CppValue<v8::Local<v8::Value>>(info[0].As<v8::Object>());
+    std::unordered_map<std::string, MValue> values;
+
+    if (dict.has_value())
+    {
+        for (auto& [key, value] : dict.value())
+            values[key] = V8Helpers::V8ToMValue(value);
+    }
+
+    entity->SetMultipleStreamSyncedMetaData(values);
+}
+
 static void DeleteStreamSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -215,6 +234,7 @@ extern V8Class v8VirtualEntity("VirtualEntity",
 
 #ifdef ALT_SERVER_API
                                    V8Helpers::SetMethod(isolate, tpl, "setStreamSyncedMeta", SetStreamSyncedMeta);
+                                   V8Helpers::SetMethod(isolate, tpl, "setMultipleStreamSyncedMetaData", SetMultipleStreamSyncedMetaData);
                                    V8Helpers::SetMethod(isolate, tpl, "deleteStreamSyncedMeta", DeleteStreamSyncedMeta);
 #endif  // ALT_SERVER_API
 
