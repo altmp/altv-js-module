@@ -13,6 +13,7 @@
 #include "cpp-sdk/events/CMetaDataChangeEvent.h"
 #include "cpp-sdk/events/CClientDeleteObjectEvent.h"
 #include "cpp-sdk/events/CClientRequestObjectEvent.h"
+#include "cpp-sdk/events/CGivePedScriptedTaskEvent.h"
 
 using alt::CEvent;
 using EventType = CEvent::Type;
@@ -252,4 +253,16 @@ V8_LOCAL_EVENT_HANDLER clientRequestObject(EventType::CLIENT_REQUEST_OBJECT_EVEN
                                                args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
                                                args.push_back(V8Helpers::JSValue(ev->GetModel()));
                                                args.push_back(resource->CreateVector3(ev->GetPosition()));
+                                           });
+
+V8_LOCAL_EVENT_HANDLER givePedScriptedTask(EventType::GIVE_PED_SCRIPTED_TASK,
+                                           "givePedScriptedTask",
+                                           [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                           {
+                                               auto ev = static_cast<const alt::CGivePedScriptedTaskEvent*>(e);
+                                               v8::Isolate* isolate = resource->GetIsolate();
+
+                                               args.push_back(resource->GetBaseObjectOrNull(ev->GetSource()));
+                                               args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
+                                               args.push_back(V8Helpers::JSValue(ev->GetTaskType()));
                                            });
