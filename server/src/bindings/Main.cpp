@@ -415,6 +415,7 @@ static void GetVehicleModelByHash(const v8::FunctionCallbackInfo<v8::Value>& inf
     infoObj->Set(ctx, V8Helpers::JSValue("bones"), boneArr);
 
     infoObj->Set(ctx, V8Helpers::JSValue("canAttachCars"), V8Helpers::JSValue(modelInfo.canAttachCars));
+    infoObj->Set(ctx, V8Helpers::JSValue("handlingNameHash"), V8Helpers::JSValue(modelInfo.handlingNameHash));
 
     V8_RETURN(infoObj);
 }
