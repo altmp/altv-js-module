@@ -67,14 +67,28 @@ static void GetMetaKeys(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void SetMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-
-    V8_CHECK_ARGS_LEN(2);
-    V8_ARG_TO_STRING(1, key);
-    V8_ARG_TO_MVALUE(2, value);
-
     V8_GET_THIS_BASE_OBJECT(ent, alt::IVirtualEntityGroup);
 
-    ent->SetMetaData(key, value);
+    if (info.Length() == 2)
+    {
+        V8_ARG_TO_STRING(1, key);
+        V8_ARG_TO_MVALUE(2, value);
+
+        ent->SetMetaData(key, value);
+    }
+    else if (info.Length() == 1 && info[0]->IsObject())
+    {
+        auto dict = V8Helpers::CppValue<v8::Local<v8::Value>>(info[0].As<v8::Object>());
+        std::unordered_map<std::string, MValue> values;
+
+        if (dict.has_value())
+        {
+            for (auto& [key, value] : dict.value())
+                values[key] = V8Helpers::V8ToMValue(value);
+        }
+
+        ent->SetMultipleMetaData(values);
+    }
 }
 
 static void DeleteMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
