@@ -114,22 +114,21 @@ static void SetStreamSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_BASE_OBJECT(checkpoint, alt::ICheckpoint);
 
-    if (info.Length() == 2)
+    if(info.Length() == 2)
     {
         V8_ARG_TO_STRING(1, key);
         V8_ARG_TO_MVALUE(2, value);
 
         checkpoint->SetStreamSyncedMetaData(key, value);
     }
-    else if (info.Length() == 1 && info[0]->IsObject())
+    else if(info.Length() == 1 && info[0]->IsObject())
     {
         auto dict = V8Helpers::CppValue<v8::Local<v8::Value>>(info[0].As<v8::Object>());
         std::unordered_map<std::string, MValue> values;
 
-        if (dict.has_value())
+        if(dict.has_value())
         {
-            for (auto& [key, value] : dict.value())
-                values[key] = V8Helpers::V8ToMValue(value);
+            for(auto& [key, value] : dict.value()) values[key] = V8Helpers::V8ToMValue(value);
         }
 
         checkpoint->SetMultipleStreamSyncedMetaData(values);
@@ -167,7 +166,6 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
 }
 
-// TODO (xLuxy): Checkpoints also exist on Client-side
 extern V8Class v8Colshape;
 extern V8Class v8Checkpoint("Checkpoint",
                             v8Colshape,
