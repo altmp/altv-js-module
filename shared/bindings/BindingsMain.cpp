@@ -456,6 +456,15 @@ static void GetVoiceConnectionState(const v8::FunctionCallbackInfo<v8::Value>& i
     V8_RETURN_NUMBER(alt::ICore::Instance().GetVoiceConnectionState());
 }
 
+static void GetNetTime(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE();
+
+    uint32_t netTime = alt::ICore::Instance().GetNetTime();
+
+    V8_RETURN_UINT(netTime);
+}
+
 extern V8Class v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2, v8Vector3, v8Quaternion, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Resource, v8Utils;
 
 extern V8Module
@@ -510,6 +519,8 @@ extern V8Module
                    V8Helpers::RegisterFunc(exports, "stringToSHA256", &StringToSHA256);
 
                    V8Helpers::RegisterFunc(exports, "getVoiceConnectionState", &GetVoiceConnectionState);
+
+                   V8Helpers::RegisterFunc(exports, "getNetTime", &GetNetTime);
 
                    V8_OBJECT_SET_STRING(exports, "version", alt::ICore::Instance().GetVersion());
                    V8_OBJECT_SET_STRING(exports, "branch", alt::ICore::Instance().GetBranch());

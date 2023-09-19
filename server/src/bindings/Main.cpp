@@ -285,15 +285,6 @@ static void DeleteSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
     alt::ICore::Instance().DeleteSyncedMetaData(key);
 }
 
-static void GetNetTime(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE();
-
-    uint32_t netTime = alt::ICore::Instance().GetNetTime();
-
-    V8_RETURN_UINT(netTime);
-}
-
 static void SetPassword(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -813,8 +804,6 @@ extern V8Module
 
             V8Helpers::RegisterFunc(exports, "setSyncedMeta", &SetSyncedMeta);
             V8Helpers::RegisterFunc(exports, "deleteSyncedMeta", &DeleteSyncedMeta);
-
-            V8Helpers::RegisterFunc(exports, "getNetTime", &GetNetTime);
 
             V8Helpers::RegisterFunc(exports, "setPassword", &SetPassword);
 
