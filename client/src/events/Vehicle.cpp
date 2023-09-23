@@ -43,6 +43,9 @@ V8_LOCAL_EVENT_HANDLER enterVehicle(EventType::PLAYER_START_ENTER_VEHICLE,
 
                                           args.push_back(resource->GetOrCreateEntity(ev->GetTarget())->GetJSVal(isolate));
                                           args.push_back(V8Helpers::JSValue(ev->GetSeat()));
+
+                                          // TODO (xLuxy): Maybe move up? Would cause breaking change
+                                          args.push_back(resource->GetOrCreateEntity(ev->GetPlayer())->GetJSVal(isolate));
                                       });
 
 V8_LOCAL_EVENT_HANDLER leaveVehicle(EventType::PLAYER_START_LEAVE_VEHICLE,
@@ -54,6 +57,9 @@ V8_LOCAL_EVENT_HANDLER leaveVehicle(EventType::PLAYER_START_LEAVE_VEHICLE,
 
                                        args.push_back(resource->GetOrCreateEntity(ev->GetTarget())->GetJSVal(isolate));
                                        args.push_back(V8Helpers::JSValue(ev->GetSeat()));
+
+                                       // TODO (xLuxy): Maybe move up? Would cause breaking change
+                                       args.push_back(resource->GetOrCreateEntity(ev->GetPlayer())->GetJSVal(isolate));
                                    });
 
 V8_LOCAL_EVENT_HANDLER
