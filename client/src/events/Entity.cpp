@@ -121,3 +121,23 @@ V8_LOCAL_EVENT_HANDLER entityHitEntity(EventType::ENTITY_HIT_ENTITY,
                                            args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
                                            args.push_back(V8Helpers::JSValue(ev->GetWeapon()));
                                        });
+
+V8_LOCAL_EVENT_HANDLER playerStartTalking(EventType::PLAYER_START_TALKING,
+                                       "playerStartTalking",
+                                       [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                       {
+                                           auto ev = static_cast<const alt::CPlayerStartTalkingEvent*>(e);
+                                           v8::Isolate* isolate = resource->GetIsolate();
+
+                                           args.push_back(resource->GetBaseObjectOrNull(ev->GetPlayer()));
+                                       });
+
+V8_LOCAL_EVENT_HANDLER playerStopTalking(EventType::PLAYER_STOP_TALKING,
+                                       "playerStopTalking",
+                                       [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                       {
+                                           auto ev = static_cast<const alt::CPlayerStopTalkingEvent*>(e);
+                                           v8::Isolate* isolate = resource->GetIsolate();
+
+                                           args.push_back(resource->GetBaseObjectOrNull(ev->GetPlayer()));
+                                       });

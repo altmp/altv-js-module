@@ -238,6 +238,7 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetAccessor<IPlayer, uint16_t, &IPlayer::GetMaxArmour>(isolate, tpl, "maxArmour");
                             V8Helpers::SetAccessor<IPlayer, float, &IPlayer::GetSpatialVolume, &IPlayer::SetSpatialVolume>(isolate, tpl, "spatialVolume");
                             V8Helpers::SetAccessor<IPlayer, float, &IPlayer::GetNonSpatialVolume, &IPlayer::SetNonSpatialVolume>(isolate, tpl, "nonSpatialVolume");
+                            V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetTaskData>(isolate, tpl, "taskData");
 
                             // Weapon getters
                             V8Helpers::SetAccessor(isolate, tpl, "currentWeaponComponents", &CurrentWeaponComponentsGetter);
