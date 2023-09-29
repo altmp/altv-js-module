@@ -83,6 +83,24 @@ static void EmitServer(const v8::FunctionCallbackInfo<v8::Value>& info)
     alt::ICore::Instance().TriggerServerEvent(eventName, args);
 }
 
+static void EmitRPC(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+
+    V8_CHECK_ARGS_LEN_MIN(1);
+    V8_ARG_TO_STRING(1, rpcName);
+
+    alt::MValueArgs args;
+    for(int i = 1; i < info.Length(); ++i)
+        args.emplace_back(V8Helpers::V8ToMValue(info[i], false));
+
+    auto answerId = alt::ICore::Instance().TriggerServerRPCEvent(rpcName, args);
+    auto persistent = V8Helpers::CPersistent<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked());
+
+    V8ResourceImpl::rpcHandlers[answerId] = persistent;
+    V8_RETURN(persistent.Get(isolate)->GetPromise());
+}
+
 static void EmitServerRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -1209,6 +1227,9 @@ extern V8Module altModule("alt",
                               V8Helpers::RegisterFunc(exports, "onceServer", &OnceServer);
                               V8Helpers::RegisterFunc(exports, "offServer", &OffServer);
                               V8Helpers::RegisterFunc(exports, "emitServer", &EmitServer);
+
+                              V8Helpers::RegisterFunc(exports, "emitRpc", &EmitRPC);
+
                               V8Helpers::RegisterFunc(exports, "emitServerRaw", &EmitServerRaw);
                               V8Helpers::RegisterFunc(exports, "emitServerUnreliable", &EmitServerUnreliable);
                               V8Helpers::RegisterFunc(exports, "gameControlsEnabled", &GameControlsEnabled);

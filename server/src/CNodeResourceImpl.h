@@ -26,6 +26,8 @@ public:
 
     void OnEvent(const alt::CEvent* ev) override;
     void HandleVehiclePassengerSeatEvents(const alt::CEvent* ev);
+    void HandleClientRpcEvent(alt::CClientScriptRPCEvent* ev);
+
     void OnTick() override;
 
     bool MakeClient(alt::IResource::CreationInfo* info, std::vector<std::string>) override;

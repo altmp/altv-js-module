@@ -114,6 +114,9 @@ bool CNodeResourceImpl::Stop()
     uv_loop_close(uvLoop);
     delete uvLoop;
 
+    vehiclePassengers.clear();
+    rpcHandlers.clear();
+
     return true;
 }
 
@@ -141,6 +144,11 @@ void CNodeResourceImpl::OnEvent(const alt::CEvent* e)
     // env->PushAsyncCallbackScope();
 
     HandleVehiclePassengerSeatEvents(e);
+
+    if (e->GetType() == alt::CEvent::Type::CLIENT_SCRIPT_RPC_EVENT)
+    {
+        HandleClientRpcEvent((alt::CClientScriptRPCEvent*)e);
+    }
 
     V8Helpers::EventHandler* handler = V8Helpers::EventHandler::Get(e);
     if(!handler) return;
@@ -235,6 +243,44 @@ void CNodeResourceImpl::HandleVehiclePassengerSeatEvents(const alt::CEvent* ev)
         vehiclePassengers[vehicle].erase(event->GetOldSeat());
         vehiclePassengers[vehicle][event->GetNewSeat()] = event->GetPlayer();
     }
+}
+
+void CNodeResourceImpl::HandleClientRpcEvent(alt::CClientScriptRPCEvent* ev)
+{
+    auto handler = rpcHandlers.find(ev->GetName());
+
+    if (handler == rpcHandlers.end())
+        return;
+
+    auto context = GetContext();
+    auto isolate = GetIsolate();
+
+    std::vector<v8::Local<v8::Value>> args;
+    args.push_back(GetBaseObjectOrNull(ev->GetTarget()));
+    V8Helpers::MValueArgsToV8(ev->GetArgs(), args);
+
+    v8::TryCatch tryCatch(isolate);
+    auto result = V8Helpers::CallFunctionWithTimeout(handler->second.Get(isolate), context, args);
+
+    alt::MValue returnValue;
+
+    if (!result.IsEmpty())
+        returnValue = V8Helpers::V8ToMValue(result.ToLocalChecked());
+    else
+        returnValue = V8Helpers::V8ToMValue(v8::Undefined(isolate));
+
+    ev->WillAnswer();
+
+    std::string errorMessage;
+    if (tryCatch.HasCaught())
+    {
+        errorMessage = "Unknown error";
+
+        if (!tryCatch.Message().IsEmpty())
+            errorMessage = *v8::String::Utf8Value(isolate, tryCatch.Message()->Get());
+    }
+
+    alt::ICore::Instance().TriggerClientRPCAnswer(ev->GetTarget(), ev->GetAnswerID(), returnValue, errorMessage);
 }
 
 void CNodeResourceImpl::OnTick()

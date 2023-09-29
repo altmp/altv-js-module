@@ -314,7 +314,13 @@ public:
     }
 
 #ifdef ALT_SERVER_API
+    // Vehicle passengers
     static inline std::unordered_map<alt::IVehicle*, std::unordered_map<uint8_t, alt::IPlayer*>> vehiclePassengers{};
+
+    // rpcs
+    static inline std::unordered_map<std::string, v8::Global<v8::Function>> rpcHandlers{};
+#else
+    static inline std::unordered_map<uint16_t, V8Helpers::CPersistent<v8::Promise::Resolver>> rpcHandlers{};
 #endif
 
 protected:
