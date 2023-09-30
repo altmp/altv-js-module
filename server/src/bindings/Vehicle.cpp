@@ -1,5 +1,3 @@
-#include <iso646.h>
-
 #include "stdafx.h"
 
 #include "V8Helpers.h"
