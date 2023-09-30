@@ -115,7 +115,9 @@ bool CNodeResourceImpl::Stop()
     delete uvLoop;
 
     vehiclePassengers.clear();
+
     rpcHandlers.clear();
+    remoteRPCHandlers.clear();
 
     return true;
 }
@@ -145,9 +147,21 @@ void CNodeResourceImpl::OnEvent(const alt::CEvent* e)
 
     HandleVehiclePassengerSeatEvents(e);
 
-    if (e->GetType() == alt::CEvent::Type::CLIENT_SCRIPT_RPC_EVENT)
+    if (e->GetType() == alt::CEvent::Type::SCRIPT_RPC_EVENT)
     {
-        HandleClientRpcEvent((alt::CClientScriptRPCEvent*)e);
+        HandleClientRpcEvent((alt::CScriptRPCEvent*)e);
+    }
+    else if (e->GetType() == alt::CEvent::Type::SCRIPT_RPC_ANSWER_EVENT)
+    {
+        auto ev = static_cast<const alt::CScriptRPCAnswerEvent*>(e);
+        HandleClientRpcAnswerEvent(ev);
+    }
+    else if (e->GetType() == alt::CEvent::Type::DISCONNECT_EVENT)
+    {
+        auto ev = static_cast<const alt::CPlayerDisconnectEvent*>(e);
+        auto player = ev->GetTarget();
+
+        remoteRPCHandlers.erase(player);
     }
 
     V8Helpers::EventHandler* handler = V8Helpers::EventHandler::Get(e);
@@ -245,7 +259,7 @@ void CNodeResourceImpl::HandleVehiclePassengerSeatEvents(const alt::CEvent* ev)
     }
 }
 
-void CNodeResourceImpl::HandleClientRpcEvent(alt::CClientScriptRPCEvent* ev)
+void CNodeResourceImpl::HandleClientRpcEvent(alt::CScriptRPCEvent* ev)
 {
     auto handler = rpcHandlers.find(ev->GetName());
 
@@ -281,6 +295,37 @@ void CNodeResourceImpl::HandleClientRpcEvent(alt::CClientScriptRPCEvent* ev)
     }
 
     alt::ICore::Instance().TriggerClientRPCAnswer(ev->GetTarget(), ev->GetAnswerID(), returnValue, errorMessage);
+}
+
+void CNodeResourceImpl::HandleClientRpcAnswerEvent(const alt::CScriptRPCAnswerEvent* ev)
+{
+    auto context = GetContext();
+    auto isolate = GetIsolate();
+
+    if (auto resource = Get(isolate->GetEnteredOrMicrotaskContext()); !resource->GetResource()->IsStarted())
+        return;
+
+    auto player = ev->GetTarget();
+    auto answerId = ev->GetAnswerID();
+
+    for (auto it = remoteRPCHandlers[player].begin(); it != remoteRPCHandlers[player].end(); ++it)
+    {
+        if (it->AnswerId != answerId)
+            continue;
+
+        if (auto promise = it->PromiseResolver.Get(isolate); promise->IsPromise())
+        {
+            if (auto errorMessage = ev->GetAnswerError(); !errorMessage.empty())
+                promise->Reject(context, V8Helpers::JSValue(errorMessage));
+            else
+                promise->Resolve(context, V8Helpers::MValueToV8(ev->GetAnswer()));
+        }
+
+        remoteRPCHandlers[player].erase(it);
+
+        if (remoteRPCHandlers[player].empty())
+            remoteRPCHandlers.erase(player);
+    }
 }
 
 void CNodeResourceImpl::OnTick()

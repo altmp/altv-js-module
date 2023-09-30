@@ -298,7 +298,6 @@ static void OffRpc(const v8::FunctionCallbackInfo<v8::Value>& info)
 
         V8ResourceImpl::rpcHandlers.erase(rpcName);
     }
-
 }
 
 static void SetSyncedMeta(const v8::FunctionCallbackInfo<v8::Value>& info)

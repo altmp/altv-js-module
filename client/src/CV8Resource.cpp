@@ -219,6 +219,9 @@ bool CV8ResourceImpl::Stop()
     modules.clear();
     requiresMap.clear();
 
+    remoteHandlers.clear();
+    rpcHandlers.clear();
+
     isPreloading = true;
 
     V8ResourceImpl::Stop();
@@ -237,10 +240,14 @@ void CV8ResourceImpl::OnEvent(const alt::CEvent* e)
     v8::Context::Scope scope(GetContext());
 
 #ifdef ALT_CLIENT_API
-    if (e->GetType() == alt::CEvent::Type::SERVER_SCRIPT_RPC_ANSWER_EVENT)
+    if (e->GetType() == alt::CEvent::Type::SCRIPT_RPC_ANSWER_EVENT)
     {
-        auto ev = static_cast<const alt::CServerScriptRPCAnswerEvent*>(e);
+        auto ev = static_cast<const alt::CScriptRPCAnswerEvent*>(e);
         HandleRPCAnswer(ev);
+    }
+    else if (e->GetType() == alt::CEvent::Type::SCRIPT_RPC_EVENT)
+    {
+        HandleServerRPC((alt::CScriptRPCEvent*)e);
     }
 #endif
 
@@ -300,38 +307,67 @@ void CV8ResourceImpl::OnEvent(const alt::CEvent* e)
     }
 }
 
-void CV8ResourceImpl::HandleRPCAnswer(const alt::CServerScriptRPCAnswerEvent* ev)
+void CV8ResourceImpl::HandleRPCAnswer(const alt::CScriptRPCAnswerEvent* ev)
 {
     auto answerId = ev->GetAnswerID();
 
-    auto it = rpcHandlers.find(answerId);
+    auto it = remoteRPCHandlers.find(answerId);
 
-    if (it == rpcHandlers.end())
+    if (it == remoteRPCHandlers.end())
         return;
 
     auto context = GetContext();
     auto isolate = GetIsolate();
-    auto resource = Get(isolate->GetEnteredOrMicrotaskContext());
 
-    auto promise = it->second.Get(isolate);
-
-    if (!promise->IsPromise())
-    {
-        rpcHandlers.erase(it);
+    if (auto resource = Get(isolate->GetEnteredOrMicrotaskContext()); !resource->GetResource()->IsStarted())
         return;
+
+    if (auto promise = it->second.Get(isolate); promise->IsPromise())
+    {
+        if (auto errorMessage = ev->GetAnswerError(); !errorMessage.empty())
+            promise->Reject(context, V8Helpers::JSValue(errorMessage));
+        else
+            promise->Resolve(context, V8Helpers::MValueToV8(ev->GetAnswer()));
     }
 
-    if (!resource->GetResource()->IsStarted())
+    remoteRPCHandlers.erase(it);
+}
+
+void CV8ResourceImpl::HandleServerRPC(alt::CScriptRPCEvent* ev)
+{
+    auto handler = rpcHandlers.find(ev->GetName());
+
+    if (handler == rpcHandlers.end())
         return;
 
-    if (auto errorMessage = ev->GetAnswerError(); !errorMessage.empty())
+    auto context = GetContext();
+    auto isolate = GetIsolate();
+
+    std::vector<v8::Local<v8::Value>> args;
+    V8Helpers::MValueArgsToV8(ev->GetArgs(), args);
+
+    v8::TryCatch tryCatch(isolate);
+    auto result = V8Helpers::CallFunctionWithTimeout(handler->second.Get(isolate), context, args);
+
+    alt::MValue returnValue;
+
+    if (!result.IsEmpty())
+        returnValue = V8Helpers::V8ToMValue(result.ToLocalChecked());
+    else
+        returnValue = V8Helpers::V8ToMValue(v8::Undefined(isolate));
+
+    ev->WillAnswer();
+
+    std::string errorMessage;
+    if (tryCatch.HasCaught())
     {
-        promise->Reject(context, V8Helpers::JSValue(errorMessage));
-        return;
+        errorMessage = "Unknown error";
+
+        if (!tryCatch.Message().IsEmpty())
+            errorMessage = *v8::String::Utf8Value(isolate, tryCatch.Message()->Get());
     }
 
-    promise->Resolve(context, V8Helpers::MValueToV8(ev->GetAnswer()));
-    rpcHandlers.erase(it);
+    alt::ICore::Instance().TriggerServerRPCAnswer(ev->GetAnswerID(), returnValue, errorMessage);
 }
 
 std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetWebViewHandlers(alt::IWebView* view, const std::string& name)

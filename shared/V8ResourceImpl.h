@@ -317,10 +317,18 @@ public:
     // Vehicle passengers
     static inline std::unordered_map<alt::IVehicle*, std::unordered_map<uint8_t, alt::IPlayer*>> vehiclePassengers{};
 
+    struct RemoteRPCHandler
+    {
+        uint16_t AnswerId;
+        V8Helpers::CPersistent<v8::Promise::Resolver> PromiseResolver;
+    };
+
     // rpcs
     static inline std::unordered_map<std::string, v8::Global<v8::Function>> rpcHandlers{};
+    static inline std::unordered_map<alt::IPlayer*, std::vector<RemoteRPCHandler>> remoteRPCHandlers{};
 #else
-    static inline std::unordered_map<uint16_t, V8Helpers::CPersistent<v8::Promise::Resolver>> rpcHandlers{};
+    static inline std::unordered_map<uint16_t, V8Helpers::CPersistent<v8::Promise::Resolver>> remoteRPCHandlers{};
+    static inline std::unordered_map<std::string, v8::Global<v8::Function>> rpcHandlers{};
 #endif
 
 protected:
