@@ -57,14 +57,6 @@ static void ModelGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8
     V8_RETURN_UINT(ent->GetModel());
 }
 
-
-static void StreamingDistanceGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-    V8_GET_THIS_BASE_OBJECT(ent, alt::IEntity);
-    V8_RETURN_UINT(ent->GetStreamingDistance());
-}
-
 static void ModelSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, const v8::PropertyCallbackInfo<void>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -291,7 +283,7 @@ extern V8Class v8Entity("Entity",
 
                             V8Helpers::SetAccessor<IEntity, bool, &IEntity::HasCollision, &IEntity::SetCollision>(isolate, tpl, "collision");
 
-                            V8Helpers::SetAccessor(isolate, tpl, "streamingDistance", &StreamingDistanceGetter);
+                            V8Helpers::SetAccessor<IEntity, uint32_t, &IEntity::GetStreamingDistance, &IEntity::SetStreamingDistance>(isolate, tpl, "streamingDistance");
 
 
                             V8Helpers::SetAccessor<IEntity, uint32_t, &IEntity::GetTimestamp>(isolate, tpl, "timestamp");
