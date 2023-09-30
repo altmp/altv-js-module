@@ -264,7 +264,14 @@ void CNodeResourceImpl::HandleClientRpcEvent(alt::CScriptRPCEvent* ev)
     auto handler = rpcHandlers.find(ev->GetName());
 
     if (handler == rpcHandlers.end())
+    {
+        ev->WillAnswer();
+
+        std::string errorMessage = "Rpc with that name was not registered";
+        auto returnValue = V8Helpers::V8ToMValue(v8::Undefined(isolate));
+        alt::ICore::Instance().TriggerClientRPCAnswer(ev->GetTarget(), ev->GetAnswerID(), returnValue, errorMessage);
         return;
+    }
 
     auto context = GetContext();
     auto isolate = GetIsolate();
@@ -308,7 +315,10 @@ void CNodeResourceImpl::HandleClientRpcAnswerEvent(const alt::CScriptRPCAnswerEv
     auto player = ev->GetTarget();
     auto answerId = ev->GetAnswerID();
 
-    for (auto it = remoteRPCHandlers[player].begin(); it != remoteRPCHandlers[player].end(); ++it)
+    if (!remoteRPCHandlers.contains(player))
+        return;
+
+    for (auto it = remoteRPCHandlers[player].rbegin(); it != remoteRPCHandlers[player].rend(); ++it)
     {
         if (it->AnswerId != answerId)
             continue;
@@ -321,11 +331,11 @@ void CNodeResourceImpl::HandleClientRpcAnswerEvent(const alt::CScriptRPCAnswerEv
                 promise->Resolve(context, V8Helpers::MValueToV8(ev->GetAnswer()));
         }
 
-        remoteRPCHandlers[player].erase(it);
-
-        if (remoteRPCHandlers[player].empty())
-            remoteRPCHandlers.erase(player);
+        remoteRPCHandlers[player].erase(std::next(it).base());
     }
+
+    if (remoteRPCHandlers[player].empty())
+        remoteRPCHandlers.erase(player);
 }
 
 void CNodeResourceImpl::OnTick()

@@ -338,7 +338,14 @@ void CV8ResourceImpl::HandleServerRPC(alt::CScriptRPCEvent* ev)
     auto handler = rpcHandlers.find(ev->GetName());
 
     if (handler == rpcHandlers.end())
+    {
+        ev->WillAnswer();
+
+        std::string errorMessage = "Rpc with that name was not registered";
+        auto returnValue = V8Helpers::V8ToMValue(v8::Undefined(isolate));
+        alt::ICore::Instance().TriggerServerRPCAnswer(ev->GetAnswerID(), returnValue, errorMessage);
         return;
+    }
 
     auto context = GetContext();
     auto isolate = GetIsolate();

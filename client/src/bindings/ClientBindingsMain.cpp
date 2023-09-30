@@ -121,7 +121,7 @@ static void OffRpc(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void EmitRPC(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_ISOLATE_CONTEXT();
 
     V8_CHECK_ARGS_LEN_MIN(1);
     V8_ARG_TO_STRING(1, rpcName);
