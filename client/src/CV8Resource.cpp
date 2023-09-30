@@ -356,12 +356,33 @@ void CV8ResourceImpl::HandleServerRPC(alt::CScriptRPCEvent* ev)
     v8::TryCatch tryCatch(isolate);
     auto result = V8Helpers::CallFunctionWithTimeout(handler->second.Get(isolate), context, args);
 
-    alt::MValue returnValue;
-
+    v8::Local<v8::Value> returnValue;
     if (!result.IsEmpty())
-        returnValue = V8Helpers::V8ToMValue(result.ToLocalChecked());
+        returnValue = result.ToLocalChecked();
     else
-        returnValue = V8Helpers::V8ToMValue(v8::Undefined(isolate));
+        returnValue = v8::Undefined(isolate);
+
+    if(returnValue->IsPromise())
+    {
+        v8::Local<v8::Promise> promise = returnValue.As<v8::Promise>();
+        while(true)
+        {
+            v8::Promise::PromiseState state = promise->State();
+            if(state == v8::Promise::PromiseState::kPending)
+            {
+                CV8ScriptRuntime::Instance().OnTick();
+                // Run event loop
+                OnTick();
+            }
+            else if(state == v8::Promise::PromiseState::kFulfilled)
+            {
+                returnValue = promise->Result();
+                break;
+            }
+            else if(state == v8::Promise::PromiseState::kRejected)
+                break;
+        }
+    }
 
     ev->WillAnswer();
 
@@ -374,7 +395,7 @@ void CV8ResourceImpl::HandleServerRPC(alt::CScriptRPCEvent* ev)
             errorMessage = *v8::String::Utf8Value(isolate, tryCatch.Message()->Get());
     }
 
-    alt::ICore::Instance().TriggerServerRPCAnswer(ev->GetAnswerID(), returnValue, errorMessage);
+    alt::ICore::Instance().TriggerServerRPCAnswer(ev->GetAnswerID(), V8Helpers::V8ToMValue(returnValue), errorMessage);
 }
 
 std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetWebViewHandlers(alt::IWebView* view, const std::string& name)
