@@ -10,7 +10,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_CONSTRUCTOR();
-    V8_CHECK_ARGS_LEN(3);
+    V8_CHECK_ARGS_LEN_MIN(3);
 
     uint32_t model;
     if(info[0]->IsString())
@@ -26,8 +26,9 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_VECTOR3(2, pos);
     V8_ARG_TO_VECTOR3(3, rot);
+    V8_ARG_TO_UINT_OPT(4, streamingDistance, 0);
 
-    IPed* ped = alt::ICore::Instance().CreatePed(model, pos, rot);
+    IPed* ped = alt::ICore::Instance().CreatePed(model, pos, rot, streamingDistance);
     V8_BIND_BASE_OBJECT(ped, "Failed to create ped");
 }
 

@@ -1,3 +1,5 @@
+#include <iso646.h>
+
 #include "stdafx.h"
 
 #include "V8Helpers.h"
@@ -18,7 +20,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_CONSTRUCTOR();
-    V8_CHECK_ARGS_LEN2(3, 7);
+    V8_CHECK_ARGS_LEN_MIN_MAX(3, 8);
 
     V8_CHECK(info[0]->IsString() || info[0]->IsNumber(), "string or number expected");
 
@@ -36,11 +38,11 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     alt::Position pos;
     alt::Rotation rot;
+
     if(info.Length() == 3)
     {
         V8_ARG_TO_VECTOR3(2, position);
         V8_ARG_TO_VECTOR3(3, rotation);
-
         pos = position;
         rot = rotation;
     }
@@ -57,7 +59,9 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         rot = { rx, ry, rz };
     }
 
-    IVehicle* veh = alt::ICore::Instance().CreateVehicle(modelHash, pos, rot);
+    V8_ARG_TO_UINT_OPT(info.Length() <= 4 ? 4 : 8, streamingDistance, 0);
+
+    IVehicle* veh = alt::ICore::Instance().CreateVehicle(modelHash, pos, rot, streamingDistance);
 
     V8_BIND_BASE_OBJECT(veh, "Failed to create vehicle");
 }

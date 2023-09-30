@@ -10,7 +10,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_CONSTRUCTOR();
-    V8_CHECK_ARGS_LEN_MIN_MAX(3, 6);
+    V8_CHECK_ARGS_LEN_MIN_MAX(3, 7);
 
     uint32_t model;
     if(info[0]->IsString())
@@ -48,7 +48,9 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         lodDistance = lodDistanceVal;
     }
 
-    IObject* object = alt::ICore::Instance().CreateObject(model, pos, rot, alpha, textureVariation, lodDistance);
+    V8_ARG_TO_UINT_OPT(info.Length() <= 4 ? 4 : 7, streamingDistance, 0);
+
+    IObject* object = alt::ICore::Instance().CreateObject(model, pos, rot, alpha, textureVariation, lodDistance, streamingDistance);
     V8_BIND_BASE_OBJECT(object, "Failed to create object");
 }
 
