@@ -220,7 +220,10 @@ bool CV8ResourceImpl::Stop()
     requiresMap.clear();
 
     remoteHandlers.clear();
+
     rpcHandlers.clear();
+    remoteRPCHandlers.clear();
+    awaitableRPCHandlers.clear();
 
     isPreloading = true;
 
@@ -363,24 +366,8 @@ void CV8ResourceImpl::HandleServerRPC(alt::CScriptRPCEvent* ev)
 
     if(returnValue->IsPromise())
     {
-        v8::Local<v8::Promise> promise = returnValue.As<v8::Promise>();
-        while(true)
-        {
-            v8::Promise::PromiseState state = promise->State();
-            if(state == v8::Promise::PromiseState::kPending)
-            {
-                CV8ScriptRuntime::Instance().OnTick();
-                // Run event loop
-                OnTick();
-            }
-            else if(state == v8::Promise::PromiseState::kFulfilled)
-            {
-                returnValue = promise->Result();
-                break;
-            }
-            else if(state == v8::Promise::PromiseState::kRejected)
-                break;
-        }
+        awaitableRPCHandlers.push_back({ ev->GetAnswerID(), v8::Global<v8::Promise>(isolate, returnValue.As<v8::Promise>()) });
+        return;
     }
 
     // Retrieve returned error message when an error was returned

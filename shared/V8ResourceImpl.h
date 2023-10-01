@@ -313,6 +313,16 @@ public:
         return static_cast<alt::IResource*>(ctx->GetAlignedPointerFromEmbedderData(1));
     }
 
+    struct AwaitableRPCHandler
+    {
+#ifdef ALT_SERVER_API
+        alt::IPlayer* Player;
+#endif
+
+        uint16_t AnswerId;
+        v8::Global<v8::Promise> Promise;
+    };
+
 #ifdef ALT_SERVER_API
     // Vehicle passengers
     static inline std::unordered_map<alt::IVehicle*, std::unordered_map<uint8_t, alt::IPlayer*>> vehiclePassengers{};
@@ -326,9 +336,12 @@ public:
     // rpcs
     static inline std::unordered_map<std::string, v8::Global<v8::Function>> rpcHandlers{};
     static inline std::unordered_map<alt::IPlayer*, std::vector<RemoteRPCHandler>> remoteRPCHandlers{};
+    static inline std::vector<AwaitableRPCHandler> awaitableRPCHandlers{};
+
 #else
     static inline std::unordered_map<uint16_t, V8Helpers::CPersistent<v8::Promise::Resolver>> remoteRPCHandlers{};
     static inline std::unordered_map<std::string, v8::Global<v8::Function>> rpcHandlers{};
+    static inline std::vector<AwaitableRPCHandler> awaitableRPCHandlers{};
 #endif
 
 protected:

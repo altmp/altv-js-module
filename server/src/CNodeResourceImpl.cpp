@@ -118,6 +118,7 @@ bool CNodeResourceImpl::Stop()
 
     rpcHandlers.clear();
     remoteRPCHandlers.clear();
+    awaitableRPCHandlers.clear();
 
     return true;
 }
@@ -162,6 +163,12 @@ void CNodeResourceImpl::OnEvent(const alt::CEvent* e)
         auto player = ev->GetTarget();
 
         remoteRPCHandlers.erase(player);
+
+        for (auto it = awaitableRPCHandlers.rbegin(); it != awaitableRPCHandlers.rend(); ++it)
+        {
+            if (player == it->Player)
+                awaitableRPCHandlers.erase(std::next(it).base());
+        }
     }
 
     V8Helpers::EventHandler* handler = V8Helpers::EventHandler::Get(e);
@@ -288,26 +295,10 @@ void CNodeResourceImpl::HandleClientRpcEvent(alt::CScriptRPCEvent* ev)
     else
         returnValue = v8::Undefined(isolate);
 
-    if(returnValue->IsPromise())
+    if (returnValue->IsPromise())
     {
-        v8::Local<v8::Promise> promise = returnValue.As<v8::Promise>();
-        while(true)
-        {
-            v8::Promise::PromiseState state = promise->State();
-            if(state == v8::Promise::PromiseState::kPending)
-            {
-                CNodeScriptRuntime::Instance().OnTick();
-                // Run event loop
-                OnTick();
-            }
-            else if(state == v8::Promise::PromiseState::kFulfilled)
-            {
-                returnValue = promise->Result();
-                break;
-            }
-            else if(state == v8::Promise::PromiseState::kRejected)
-                break;
-        }
+        awaitableRPCHandlers.push_back({ ev->GetTarget(), ev->GetAnswerID(), v8::Global<v8::Promise>(isolate, returnValue.As<v8::Promise>()) });
+        return;
     }
 
     // Retrieve returned error message when an error was returned

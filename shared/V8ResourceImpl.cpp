@@ -130,6 +130,44 @@ void V8ResourceImpl::OnTick()
         else
             ++it;
     }
+
+    for (auto it = awaitableRPCHandlers.rbegin(); it != awaitableRPCHandlers.rend(); ++it)
+    {
+        if (!it->Promise.Get(isolate)->IsPromise())
+        {
+            awaitableRPCHandlers.erase(std::next(it).base());
+            continue;
+        }
+
+        v8::Promise::PromiseState state = it->Promise.Get(isolate)->State();
+        if (state == v8::Promise::PromiseState::kFulfilled)
+        {
+            v8::Local<v8::Value> returnValue = it->Promise.Get(isolate)->Result();
+
+            // Retrieve returned error message when an error was returned
+            std::string errorMessage;
+            if (returnValue->IsNativeError()) {
+                v8::Local<v8::Value> exception = returnValue.As<v8::Value>();
+
+                v8::String::Utf8Value messageValue(isolate, exception->ToString(isolate->GetCurrentContext()).ToLocalChecked());
+                errorMessage = *messageValue;
+
+                // Strip exception prefix
+                if (size_t colonPos = errorMessage.find(':'); colonPos != std::string::npos) {
+                    errorMessage = errorMessage.substr(colonPos + 2);
+                }
+            }
+
+#ifdef ALT_SERVER_API
+            alt::ICore::Instance().TriggerClientRPCAnswer(it->Player, it->AnswerId, V8Helpers::V8ToMValue(returnValue), errorMessage);
+#else
+            alt::ICore::Instance().TriggerServerRPCAnswer(it->AnswerId, V8Helpers::V8ToMValue(returnValue), errorMessage);
+#endif
+        }
+
+        if (state == v8::Promise::PromiseState::kFulfilled || state == v8::Promise::PromiseState::kRejected)
+            awaitableRPCHandlers.erase(std::next(it).base());
+    }
 }
 
 void V8ResourceImpl::BindEntity(v8::Local<v8::Object> val, alt::IBaseObject* handle)
