@@ -337,10 +337,10 @@ void CV8ResourceImpl::HandleServerRPC(alt::CScriptRPCEvent* ev)
 {
     auto handler = rpcHandlers.find(ev->GetName());
 
+    ev->WillAnswer();
+
     if (handler == rpcHandlers.end())
     {
-        ev->WillAnswer();
-
         std::string errorMessage = "Rpc with that name was not registered";
         auto returnValue = V8Helpers::V8ToMValue(v8::Undefined(isolate));
         alt::ICore::Instance().TriggerServerRPCAnswer(ev->GetAnswerID(), returnValue, errorMessage);
@@ -353,7 +353,6 @@ void CV8ResourceImpl::HandleServerRPC(alt::CScriptRPCEvent* ev)
     std::vector<v8::Local<v8::Value>> args;
     V8Helpers::MValueArgsToV8(ev->GetArgs(), args);
 
-    v8::TryCatch tryCatch(isolate);
     auto result = V8Helpers::CallFunctionWithTimeout(handler->second.Get(isolate), context, args);
 
     v8::Local<v8::Value> returnValue;
@@ -384,15 +383,18 @@ void CV8ResourceImpl::HandleServerRPC(alt::CScriptRPCEvent* ev)
         }
     }
 
-    ev->WillAnswer();
-
+    // Retrieve returned error message when an error was returned
     std::string errorMessage;
-    if (tryCatch.HasCaught())
-    {
-        errorMessage = "Unknown error";
+    if (returnValue->IsNativeError()) {
+        v8::Local<v8::Value> exception = returnValue.As<v8::Value>();
 
-        if (!tryCatch.Message().IsEmpty())
-            errorMessage = *v8::String::Utf8Value(isolate, tryCatch.Message()->Get());
+        v8::String::Utf8Value messageValue(isolate, exception->ToString(isolate->GetCurrentContext()).ToLocalChecked());
+        errorMessage = *messageValue;
+
+        // Strip exception prefix
+        if (size_t colonPos = errorMessage.find(':'); colonPos != std::string::npos) {
+            errorMessage = errorMessage.substr(colonPos + 2);
+        }
     }
 
     alt::ICore::Instance().TriggerServerRPCAnswer(ev->GetAnswerID(), V8Helpers::V8ToMValue(returnValue), errorMessage);
