@@ -133,29 +133,30 @@ void V8ResourceImpl::OnTick()
 
     for (auto it = awaitableRPCHandlers.rbegin(); it != awaitableRPCHandlers.rend(); ++it)
     {
-        if (!it->Promise.Get(isolate)->IsPromise())
+        auto promise = it->Promise.Get(isolate);
+        if (!promise->IsPromise())
         {
             awaitableRPCHandlers.erase(std::next(it).base());
             continue;
         }
 
-        v8::Promise::PromiseState state = it->Promise.Get(isolate)->State();
+        v8::Promise::PromiseState state = promise->State();
         if (state == v8::Promise::PromiseState::kFulfilled)
         {
-            v8::Local<v8::Value> returnValue = it->Promise.Get(isolate)->Result();
+            v8::Local<v8::Value> returnValue = promise->Result();
 
             // Retrieve returned error message when an error was returned
             std::string errorMessage;
-            if (returnValue->IsNativeError()) {
+            if (returnValue->IsNativeError())
+            {
                 v8::Local<v8::Value> exception = returnValue.As<v8::Value>();
 
                 v8::String::Utf8Value messageValue(isolate, exception->ToString(isolate->GetCurrentContext()).ToLocalChecked());
                 errorMessage = *messageValue;
 
                 // Strip exception prefix
-                if (size_t colonPos = errorMessage.find(':'); colonPos != std::string::npos) {
+                if (size_t colonPos = errorMessage.find(':'); colonPos != std::string::npos)
                     errorMessage = errorMessage.substr(colonPos + 2);
-                }
             }
 
 #ifdef ALT_SERVER_API

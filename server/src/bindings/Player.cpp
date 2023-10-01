@@ -802,7 +802,7 @@ static void EmitRPC(const v8::FunctionCallbackInfo<v8::Value>& info)
     auto answerId = alt::ICore::Instance().TriggerClientRPCEvent(player, rpcName, args);
     auto persistent = V8Helpers::CPersistent<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked());
 
-    V8ResourceImpl::remoteRPCHandlers[player].push_back({ answerId, persistent });
+    V8ResourceImpl::Get(ctx)->remoteRPCHandlers[player].push_back({ answerId, persistent });
     V8_RETURN(persistent.Get(isolate)->GetPromise());
 }
 

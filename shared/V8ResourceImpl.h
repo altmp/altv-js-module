@@ -334,14 +334,14 @@ public:
     };
 
     // rpcs
-    static inline std::unordered_map<std::string, v8::Global<v8::Function>> rpcHandlers{};
-    static inline std::unordered_map<alt::IPlayer*, std::vector<RemoteRPCHandler>> remoteRPCHandlers{};
-    static inline std::vector<AwaitableRPCHandler> awaitableRPCHandlers{};
+    std::unordered_map<std::string, v8::Global<v8::Function>> rpcHandlers{};
+    std::unordered_map<alt::IPlayer*, std::vector<RemoteRPCHandler>> remoteRPCHandlers{};
+    std::vector<AwaitableRPCHandler> awaitableRPCHandlers{};
 
 #else
-    static inline std::unordered_map<uint16_t, V8Helpers::CPersistent<v8::Promise::Resolver>> remoteRPCHandlers{};
-    static inline std::unordered_map<std::string, v8::Global<v8::Function>> rpcHandlers{};
-    static inline std::vector<AwaitableRPCHandler> awaitableRPCHandlers{};
+    std::unordered_map<uint16_t, V8Helpers::CPersistent<v8::Promise::Resolver>> remoteRPCHandlers{};
+    std::unordered_map<std::string, v8::Global<v8::Function>> rpcHandlers{};
+    std::vector<AwaitableRPCHandler> awaitableRPCHandlers{};
 #endif
 
 protected:

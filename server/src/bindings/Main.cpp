@@ -272,9 +272,10 @@ static void OnRpc(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(1, rpcName);
     V8_ARG_TO_FUNCTION(2, callback);
 
-    V8_CHECK(!V8ResourceImpl::rpcHandlers.contains(rpcName), "Handler already registered");
+    auto resourceImpl = V8ResourceImpl::Get(ctx);
 
-    V8ResourceImpl::rpcHandlers[rpcName] = v8::Global<v8::Function>(isolate, callback);
+    V8_CHECK(!resourceImpl->rpcHandlers.contains(rpcName), "Handler already registered");
+    resourceImpl->rpcHandlers[rpcName] = v8::Global<v8::Function>(isolate, callback);
 }
 
 static void OffRpc(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -284,19 +285,20 @@ static void OffRpc(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_STRING(1, rpcName);
 
-    if (V8ResourceImpl::rpcHandlers.contains(rpcName))
+    auto resourceImpl = V8ResourceImpl::Get(ctx);
+    if (resourceImpl->rpcHandlers.contains(rpcName))
     {
         if (info[1]->IsFunction())
         {
             V8_ARG_TO_FUNCTION(2, callback);
 
-            if(V8ResourceImpl::rpcHandlers[rpcName].Get(isolate)->StrictEquals(callback))
-                V8ResourceImpl::rpcHandlers.erase(rpcName);
+            if(resourceImpl->rpcHandlers[rpcName].Get(isolate)->StrictEquals(callback))
+                resourceImpl->rpcHandlers.erase(rpcName);
 
             return;
         }
 
-        V8ResourceImpl::rpcHandlers.erase(rpcName);
+        resourceImpl->rpcHandlers.erase(rpcName);
     }
 }
 

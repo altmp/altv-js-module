@@ -270,15 +270,8 @@ void CNodeResourceImpl::HandleClientRpcEvent(alt::CScriptRPCEvent* ev)
 {
     auto handler = rpcHandlers.find(ev->GetName());
 
-    ev->WillAnswer();
-
     if (handler == rpcHandlers.end())
-    {
-        std::string errorMessage = "Rpc with that name was not registered";
-        auto returnValue = V8Helpers::V8ToMValue(v8::Undefined(isolate));
-        alt::ICore::Instance().TriggerClientRPCAnswer(ev->GetTarget(), ev->GetAnswerID(), returnValue, errorMessage);
         return;
-    }
 
     auto context = GetContext();
     auto isolate = GetIsolate();
@@ -297,25 +290,28 @@ void CNodeResourceImpl::HandleClientRpcEvent(alt::CScriptRPCEvent* ev)
 
     if (returnValue->IsPromise())
     {
+        ev->WillAnswer();
         awaitableRPCHandlers.push_back({ ev->GetTarget(), ev->GetAnswerID(), v8::Global<v8::Promise>(isolate, returnValue.As<v8::Promise>()) });
         return;
     }
 
     // Retrieve returned error message when an error was returned
-    std::string errorMessage;
-    if (returnValue->IsNativeError()) {
+    if (returnValue->IsNativeError())
+    {
         v8::Local<v8::Value> exception = returnValue.As<v8::Value>();
 
         v8::String::Utf8Value messageValue(isolate, exception->ToString(isolate->GetCurrentContext()).ToLocalChecked());
-        errorMessage = *messageValue;
+        std::string errorMessage = *messageValue;
 
         // Strip exception prefix
-        if (size_t colonPos = errorMessage.find(':'); colonPos != std::string::npos) {
+        if (size_t colonPos = errorMessage.find(':'); colonPos != std::string::npos)
             errorMessage = errorMessage.substr(colonPos + 2);
-        }
+
+        ev->AnswerWithError(errorMessage);
+        return;
     }
 
-    alt::ICore::Instance().TriggerClientRPCAnswer(ev->GetTarget(), ev->GetAnswerID(), V8Helpers::V8ToMValue(returnValue), errorMessage);
+    ev->Answer(V8Helpers::V8ToMValue(returnValue));
 }
 
 void CNodeResourceImpl::HandleClientRpcAnswerEvent(const alt::CScriptRPCAnswerEvent* ev)
