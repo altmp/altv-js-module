@@ -37,7 +37,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     alt::Position pos;
     alt::Rotation rot;
 
-    if(info.Length() == 3)
+    if(info.Length() <= 4)
     {
         V8_ARG_TO_VECTOR3(2, position);
         V8_ARG_TO_VECTOR3(3, rotation);
