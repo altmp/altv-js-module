@@ -57,6 +57,8 @@ public:
         }
     }
 
+    void HandleRPCAnswer(const alt::CScriptRPCAnswerEvent* ev);
+    void HandleServerRPC(alt::CScriptRPCEvent* ev);
     std::vector<V8Helpers::EventCallback*> GetWebViewHandlers(alt::IWebView* view, const std::string& name);
 
     void SubscribeWebSocketClient(alt::IWebSocketClient* webSocket, const std::string& evName, v8::Local<v8::Function> cb, V8Helpers::SourceLocation&& location)

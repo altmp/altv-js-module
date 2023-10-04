@@ -14,10 +14,15 @@ class IRuntimeEventHandler
     using EventType = alt::CEvent::Type;
     // All events the module uses, which need to be enabled and never disabled
     static constexpr std::array internalEvents = {
-        EventType::CONNECTION_COMPLETE, EventType::DISCONNECT_EVENT, EventType::GAME_ENTITY_CREATE, EventType::GAME_ENTITY_DESTROY, EventType::RESOURCE_STOP
+        EventType::CONNECTION_COMPLETE, EventType::DISCONNECT_EVENT, EventType::GAME_ENTITY_CREATE, EventType::GAME_ENTITY_DESTROY, EventType::RESOURCE_STOP,
+        EventType::DISCONNECT_EVENT,
+
+        // RPC events
+        EventType::SCRIPT_RPC_EVENT, EventType::SCRIPT_RPC_ANSWER_EVENT
+
 #ifdef ALT_SERVER_API
         // required for vehicle seat stuff
-        , EventType::PLAYER_ENTER_VEHICLE, EventType::PLAYER_LEAVE_VEHICLE, EventType::PLAYER_CHANGE_VEHICLE_SEAT
+        , EventType::PLAYER_ENTER_VEHICLE, EventType::PLAYER_LEAVE_VEHICLE, EventType::PLAYER_CHANGE_VEHICLE_SEAT,
 #endif
     };
 

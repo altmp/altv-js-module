@@ -11,7 +11,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_CONSTRUCTOR();
-    V8_CHECK_ARGS_LEN(6);
+    V8_CHECK_ARGS_LEN_MIN_MAX(4, 6);
 
     uint32_t modelHash;
     if(info[0]->IsString())

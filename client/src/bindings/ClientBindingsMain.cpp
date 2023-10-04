@@ -83,6 +83,61 @@ static void EmitServer(const v8::FunctionCallbackInfo<v8::Value>& info)
     alt::ICore::Instance().TriggerServerEvent(eventName, args);
 }
 
+static void OnRpc(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+
+    V8_ARG_TO_STRING(1, rpcName);
+    V8_ARG_TO_FUNCTION(2, callback);
+
+    auto resourceImpl = V8ResourceImpl::Get(ctx);
+    V8_CHECK(!resourceImpl->rpcHandlers.contains(rpcName), "Handler already registered");
+    resourceImpl->rpcHandlers[rpcName] = v8::Global<v8::Function>(isolate, callback);
+}
+
+static void OffRpc(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN_MIN_MAX(1, 2);
+
+    V8_ARG_TO_STRING(1, rpcName);
+
+    auto resourceImpl = V8ResourceImpl::Get(ctx);
+    if (resourceImpl->rpcHandlers.contains(rpcName))
+    {
+        if (info[1]->IsFunction())
+        {
+            V8_ARG_TO_FUNCTION(2, callback);
+
+            if(resourceImpl->rpcHandlers[rpcName].Get(isolate)->StrictEquals(callback))
+                resourceImpl->rpcHandlers.erase(rpcName);
+
+            return;
+        }
+
+        resourceImpl->rpcHandlers.erase(rpcName);
+    }
+}
+
+static void EmitRPC(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    V8_CHECK_ARGS_LEN_MIN(1);
+    V8_ARG_TO_STRING(1, rpcName);
+
+    alt::MValueArgs args;
+    for(int i = 1; i < info.Length(); ++i)
+        args.emplace_back(V8Helpers::V8ToMValue(info[i], false));
+
+    auto answerId = alt::ICore::Instance().TriggerServerRPCEvent(rpcName, args);
+    auto persistent = V8Helpers::CPersistent<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked());
+
+    V8ResourceImpl::Get(ctx)->remoteRPCHandlers[answerId] = persistent;
+    V8_RETURN(persistent.Get(isolate)->GetPromise());
+}
+
 static void EmitServerRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -1209,6 +1264,11 @@ extern V8Module altModule("alt",
                               V8Helpers::RegisterFunc(exports, "onceServer", &OnceServer);
                               V8Helpers::RegisterFunc(exports, "offServer", &OffServer);
                               V8Helpers::RegisterFunc(exports, "emitServer", &EmitServer);
+
+                              V8Helpers::RegisterFunc(exports, "onRpc", &OnRpc);
+                              V8Helpers::RegisterFunc(exports, "offRpc", &OffRpc);
+                              V8Helpers::RegisterFunc(exports, "emitRpc", &EmitRPC);
+
                               V8Helpers::RegisterFunc(exports, "emitServerRaw", &EmitServerRaw);
                               V8Helpers::RegisterFunc(exports, "emitServerUnreliable", &EmitServerUnreliable);
                               V8Helpers::RegisterFunc(exports, "gameControlsEnabled", &GameControlsEnabled);

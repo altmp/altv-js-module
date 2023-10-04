@@ -787,6 +787,25 @@ static void EmitRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
     alt::ICore::Instance().TriggerClientEvent(player, eventName, mvArgs);
 }
 
+static void EmitRPC(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN_MIN(1);
+    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
+
+    V8_ARG_TO_STRING(1, rpcName);
+
+    alt::MValueArgs args;
+    for(int i = 1; i < info.Length(); ++i)
+        args.emplace_back(V8Helpers::V8ToMValue(info[i], false));
+
+    auto answerId = alt::ICore::Instance().TriggerClientRPCEvent(player, rpcName, args);
+    auto persistent = V8Helpers::CPersistent<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked());
+
+    V8ResourceImpl::Get(ctx)->remoteRPCHandlers[player].push_back({ answerId, persistent });
+    V8_RETURN(persistent.Get(isolate)->GetPromise());
+}
+
 static void HasLocalMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -1400,6 +1419,8 @@ extern V8Class v8Player("Player",
 
                             V8Helpers::SetMethod(isolate, tpl, "emit", &Emit);
                             V8Helpers::SetMethod(isolate, tpl, "emitRaw", &EmitRaw);
+
+                            V8Helpers::SetMethod(isolate, tpl, "emitRpc", &EmitRPC);
 
                             V8Helpers::SetMethod(isolate, tpl, "hasLocalMeta", &HasLocalMeta);
                             V8Helpers::SetMethod(isolate, tpl, "setLocalMeta", &SetLocalMeta);

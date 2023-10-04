@@ -36,10 +36,10 @@ extern void StaticRequire(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(1, name);
 
     IImportHandler* handler = nullptr;
-    bool isWorker = *(bool*)isolate->GetData(isolate->GetNumberOfDataSlots() - 1);
-    if(isWorker)
+    bool isWorker = *static_cast<bool*>(isolate->GetData(isolate->GetNumberOfDataSlots() - 1));
+    if (isWorker)
     {
-        CWorker* worker = static_cast<CWorker*>(ctx->GetAlignedPointerFromEmbedderData(2));
+        auto worker = static_cast<CWorker*>(ctx->GetAlignedPointerFromEmbedderData(2));
         handler = worker;
     }
     else
@@ -47,7 +47,7 @@ extern void StaticRequire(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     v8::MaybeLocal<v8::Value> _exports = handler->Require(name);
 
-    if(!_exports.IsEmpty()) info.GetReturnValue().Set(_exports.ToLocalChecked());
+    if (!_exports.IsEmpty()) info.GetReturnValue().Set(_exports.ToLocalChecked());
     else
         V8Helpers::Throw(isolate, "No such module " + name);
 }
@@ -57,18 +57,20 @@ void StartFile(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_ARGS_LEN(1);
     V8_ARG_TO_STRING(1, path);
-    v8::MaybeLocal<v8::Module> maybeMod = static_cast<CV8ResourceImpl*>(resource)->ResolveFile(path, v8::Local<v8::Module>(), resource->GetResource());
+    v8::MaybeLocal<v8::Module> maybeMod = static_cast<CV8ResourceImpl*>(resource)->ResolveFile(
+        path, v8::Local<v8::Module>(), resource->GetResource());
     V8_CHECK(!maybeMod.IsEmpty(), "Failed to start file");
     auto mod = maybeMod.ToLocalChecked();
     static_cast<CV8ResourceImpl*>(resource)->InstantiateModule(mod);
-    const alt::MValueDict& exports = std::dynamic_pointer_cast<alt::IMValueDict>(V8Helpers::V8ToMValue(mod->GetModuleNamespace()));
+    const alt::MValueDict& exports = std::dynamic_pointer_cast<alt::IMValueDict>(
+        V8Helpers::V8ToMValue(mod->GetModuleNamespace()));
     resource->GetResource()->SetExports(exports);
 }
 
 void CV8ResourceImpl::ProcessDynamicImports()
 {
-    if(dynamicImports.empty()) return;
-    for(auto& importFn : dynamicImports)
+    if (dynamicImports.empty()) return;
+    for (auto& importFn : dynamicImports)
     {
         importFn();
     }
@@ -77,7 +79,7 @@ void CV8ResourceImpl::ProcessDynamicImports()
 
 extern std::string bootstrap_code =
 #include "bootstrap.js.gen"
-  ;
+;
 
 CV8ResourceImpl::CV8ResourceImpl(alt::IResource* resource, v8::Isolate* isolate) : V8ResourceImpl(isolate, resource)
 {
@@ -87,16 +89,18 @@ CV8ResourceImpl::CV8ResourceImpl(alt::IResource* resource, v8::Isolate* isolate)
 
     microtaskQueue = v8::MicrotaskQueue::New(isolate, v8::MicrotasksPolicy::kExplicit);
     v8::Local<v8::Context> ctx =
-      v8::Context::New(isolate, nullptr, v8::MaybeLocal<v8::ObjectTemplate>(), v8::MaybeLocal<v8::Value>(), v8::DeserializeInternalFieldsCallback(), microtaskQueue.get());
+        v8::Context::New(isolate, nullptr, v8::MaybeLocal<v8::ObjectTemplate>(), v8::MaybeLocal<v8::Value>(),
+                         v8::DeserializeInternalFieldsCallback(), microtaskQueue.get());
 
     context.Reset(isolate, ctx);
     ctx->SetAlignedPointerInEmbedderData(1, resource);
 }
 
 extern V8Module altModule;
+
 bool CV8ResourceImpl::Start()
 {
-    if(resource->GetMain().empty()) return false;
+    if (resource->GetMain().empty()) return false;
 
     resource->EnableNatives();
     auto nscope = resource->PushNativesScope();
@@ -108,39 +112,43 @@ bool CV8ResourceImpl::Start()
     v8::Context::Scope context_scope(ctx);
 
     V8ResourceImpl::Start();
-    V8ResourceImpl::SetupScriptGlobals();
+    SetupScriptGlobals();
 
     std::string path = resource->GetMain();
     Log::Info << "[V8] Starting script " << path << Log::Endl;
 
     bool result = V8Helpers::TryCatch(
-      [&]()
-      {
-          v8::MaybeLocal<v8::Module> maybeModule;
-          v8::ScriptOrigin scriptOrigin(isolate, V8Helpers::JSValue("<bootstrapper>"), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
-          v8::ScriptCompiler::Source source{ V8Helpers::JSValue(bootstrap_code), scriptOrigin };
-          maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source);
+        [&]()
+        {
+            v8::MaybeLocal<v8::Module> maybeModule;
+            v8::ScriptOrigin scriptOrigin(isolate, V8Helpers::JSValue("<bootstrapper>"), 0, 0, false, -1,
+                                          v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
+            v8::ScriptCompiler::Source source{V8Helpers::JSValue(bootstrap_code), scriptOrigin};
+            maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source);
 
-          if(maybeModule.IsEmpty()) return false;
+            if (maybeModule.IsEmpty()) return false;
 
-          v8::Local<v8::Module> curModule = maybeModule.ToLocalChecked();
+            v8::Local<v8::Module> curModule = maybeModule.ToLocalChecked();
 
-          ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_get_exports"), v8::Function::New(ctx, &StaticRequire).ToLocalChecked());
-          ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_bindings_code"), V8Helpers::JSValue(JSBindings::GetBindingsCode()));
-          ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_main_path"), V8Helpers::JSValue(path));
-          ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_start_file"), v8::Function::New(ctx, &StartFile).ToLocalChecked());
+            ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_get_exports"),
+                               v8::Function::New(ctx, &StaticRequire).ToLocalChecked());
+            ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_bindings_code"),
+                               V8Helpers::JSValue(JSBindings::GetBindingsCode()));
+            ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_main_path"), V8Helpers::JSValue(path));
+            ctx->Global()->Set(ctx, V8Helpers::JSValue("__internal_start_file"),
+                               v8::Function::New(ctx, &StartFile).ToLocalChecked());
 
-          bool result = InstantiateModule(curModule);
-          if(!result) return false;
+            bool result = InstantiateModule(curModule);
+            if (!result) return false;
 
-          Log::Info << "[V8] Started script " << path << Log::Endl;
-          return true;
-      });
+            Log::Info << "[V8] Started script " << path << Log::Endl;
+            return true;
+        });
 
     DispatchStartEvent(!result);
 
     // if all resources are already loaded
-    if(CV8ScriptRuntime::Instance().resourcesLoaded)
+    if (CV8ScriptRuntime::Instance().resourcesLoaded)
     {
         ProcessDynamicImports();
     }
@@ -150,7 +158,7 @@ bool CV8ResourceImpl::Start()
 
 bool CV8ResourceImpl::Stop()
 {
-    if(!context.IsEmpty())
+    if (!context.IsEmpty())
     {
         auto nscope = resource->PushNativesScope();
 
@@ -162,16 +170,16 @@ bool CV8ResourceImpl::Stop()
 
         auto resources = static_cast<CV8ScriptRuntime*>(resource->GetRuntime())->GetResources();
         auto name = this->resource->GetName();
-        for(auto res : resources)
+        for (auto res : resources)
         {
-            if(res == this) continue;
+            if (res == this) continue;
             auto it = res->modules.find(name);
-            if(it != res->modules.end())
+            if (it != res->modules.end())
             {
                 res->modules.erase(it);
             }
             auto found = res->requiresMap.find(name);
-            if(found != res->requiresMap.end())
+            if (found != res->requiresMap.end())
             {
                 res->requiresMap.erase(found);
             }
@@ -182,7 +190,7 @@ bool CV8ResourceImpl::Stop()
 
     std::vector<alt::IBaseObject*> objects(ownedObjects.size());
 
-    for(auto handle : ownedObjects) objects.push_back(handle);
+    for (auto handle : ownedObjects) objects.push_back(handle);
 
     ownedObjects.clear();
 
@@ -194,7 +202,7 @@ bool CV8ResourceImpl::Stop()
 
     // runtime->GetInspector()->contextDestroyed(context.Get(isolate));
 
-    for(auto worker : workers)
+    for (auto worker : workers)
     {
         worker->Destroy();
     }
@@ -210,6 +218,12 @@ bool CV8ResourceImpl::Stop()
     dynamicImports.clear();
     modules.clear();
     requiresMap.clear();
+
+    remoteHandlers.clear();
+
+    rpcHandlers.clear();
+    remoteRPCHandlers.clear();
+    awaitableRPCHandlers.clear();
 
     isPreloading = true;
 
@@ -228,29 +242,41 @@ void CV8ResourceImpl::OnEvent(const alt::CEvent* e)
 
     v8::Context::Scope scope(GetContext());
 
+#ifdef ALT_CLIENT_API
+    if (e->GetType() == alt::CEvent::Type::SCRIPT_RPC_ANSWER_EVENT)
+    {
+        auto ev = static_cast<const alt::CScriptRPCAnswerEvent*>(e);
+        HandleRPCAnswer(ev);
+    }
+    else if (e->GetType() == alt::CEvent::Type::SCRIPT_RPC_EVENT)
+    {
+        HandleServerRPC((alt::CScriptRPCEvent*)e);
+    }
+#endif
+
     V8Helpers::EventHandler* handler = V8Helpers::EventHandler::Get(e);
-    if(!handler) return;
+    if (!handler) return;
 
     // Generic event handler
     {
         auto evType = e->GetType();
-        if(evType == alt::CEvent::Type::CLIENT_SCRIPT_EVENT || evType == alt::CEvent::Type::SERVER_SCRIPT_EVENT)
+        if (evType == alt::CEvent::Type::CLIENT_SCRIPT_EVENT || evType == alt::CEvent::Type::SERVER_SCRIPT_EVENT)
         {
             std::vector<V8Helpers::EventCallback*> callbacks;
             const char* eventName;
 
-            if(evType == alt::CEvent::Type::CLIENT_SCRIPT_EVENT)
+            if (evType == alt::CEvent::Type::CLIENT_SCRIPT_EVENT)
             {
                 callbacks = std::move(GetGenericHandlers(true));
                 eventName = static_cast<const alt::CClientScriptEvent*>(e)->GetName().c_str();
             }
-            else if(evType == alt::CEvent::Type::SERVER_SCRIPT_EVENT)
+            else if (evType == alt::CEvent::Type::SERVER_SCRIPT_EVENT)
             {
                 callbacks = std::move(GetGenericHandlers(false));
                 eventName = static_cast<const alt::CServerScriptEvent*>(e)->GetName().c_str();
             }
 
-            if(callbacks.size() != 0)
+            if (callbacks.size() != 0)
             {
                 auto evArgs = handler->GetArgs(this, e);
                 evArgs.insert(evArgs.begin(), V8Helpers::JSValue(eventName));
@@ -261,7 +287,7 @@ void CV8ResourceImpl::OnEvent(const alt::CEvent* e)
     }
 
     std::vector<V8Helpers::EventCallback*> callbacks = handler->GetCallbacks(this, e);
-    if(callbacks.size() > 0)
+    if (callbacks.size() > 0)
     {
         std::vector<v8::Local<v8::Value>> args = handler->GetArgs(this, e);
 
@@ -270,20 +296,91 @@ void CV8ResourceImpl::OnEvent(const alt::CEvent* e)
 
     // Dynamic imports
     {
-        if(e->GetType() == alt::CEvent::Type::CONNECTION_COMPLETE)
+        if (e->GetType() == alt::CEvent::Type::CONNECTION_COMPLETE)
         {
             CV8ScriptRuntime& runtime = CV8ScriptRuntime::Instance();
             ProcessDynamicImports();
             runtime.resourcesLoaded = true;
         }
-        else if(e->GetType() == alt::CEvent::Type::DISCONNECT_EVENT)
+        else if (e->GetType() == alt::CEvent::Type::DISCONNECT_EVENT)
         {
             CV8ScriptRuntime& runtime = CV8ScriptRuntime::Instance();
             runtime.OnDisconnect();
         }
     }
+}
 
-    return;
+void CV8ResourceImpl::HandleRPCAnswer(const alt::CScriptRPCAnswerEvent* ev)
+{
+    auto answerId = ev->GetAnswerID();
+
+    auto it = remoteRPCHandlers.find(answerId);
+
+    if (it == remoteRPCHandlers.end())
+        return;
+
+    auto context = GetContext();
+    auto isolate = GetIsolate();
+
+    if (auto resource = Get(isolate->GetEnteredOrMicrotaskContext()); !resource->GetResource()->IsStarted())
+        return;
+
+    if (auto promise = it->second.Get(isolate); promise->IsPromise())
+    {
+        if (auto errorMessage = ev->GetAnswerError(); !errorMessage.empty())
+            promise->Reject(context, V8Helpers::JSValue(errorMessage));
+        else
+            promise->Resolve(context, V8Helpers::MValueToV8(ev->GetAnswer()));
+    }
+
+    remoteRPCHandlers.erase(it);
+}
+
+void CV8ResourceImpl::HandleServerRPC(alt::CScriptRPCEvent* ev)
+{
+    auto handler = rpcHandlers.find(ev->GetName());
+
+    if (handler == rpcHandlers.end())
+        return;
+
+    auto context = GetContext();
+    auto isolate = GetIsolate();
+
+    std::vector<v8::Local<v8::Value>> args;
+    V8Helpers::MValueArgsToV8(ev->GetArgs(), args);
+
+    auto result = V8Helpers::CallFunctionWithTimeout(handler->second.Get(isolate), context, args);
+
+    v8::Local<v8::Value> returnValue;
+    if (!result.IsEmpty())
+        returnValue = result.ToLocalChecked();
+    else
+        returnValue = v8::Undefined(isolate);
+
+    if(returnValue->IsPromise())
+    {
+        ev->WillAnswer();
+        awaitableRPCHandlers.push_back({ ev->GetAnswerID(), v8::Global<v8::Promise>(isolate, returnValue.As<v8::Promise>()) });
+        return;
+    }
+
+    // Retrieve returned error message when an error was returned
+    if (returnValue->IsNativeError())
+    {
+        v8::Local<v8::Value> exception = returnValue.As<v8::Value>();
+
+        v8::String::Utf8Value messageValue(isolate, exception->ToString(isolate->GetCurrentContext()).ToLocalChecked());
+        std::string errorMessage = *messageValue;
+
+        // Strip exception prefix
+        if (size_t colonPos = errorMessage.find(':'); colonPos != std::string::npos)
+            errorMessage = errorMessage.substr(colonPos + 2);
+
+        ev->AnswerWithError(errorMessage);
+        return;
+    }
+
+    ev->Answer(V8Helpers::V8ToMValue(returnValue));
 }
 
 std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetWebViewHandlers(alt::IWebView* view, const std::string& name)
@@ -291,13 +388,13 @@ std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetWebViewHandlers(alt::
     std::vector<V8Helpers::EventCallback*> handlers;
     auto it = webViewHandlers.find(view);
 
-    if(it != webViewHandlers.end())
+    if (it != webViewHandlers.end())
     {
         auto range = it->second.equal_range(name);
 
-        for(auto it = range.first; it != range.second; ++it)
+        for (auto it = range.first; it != range.second; ++it)
         {
-            if(it->second.removed) continue;
+            if (it->second.removed) continue;
             handlers.push_back(&it->second);
         }
     }
@@ -305,18 +402,19 @@ std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetWebViewHandlers(alt::
     return handlers;
 }
 
-std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetWebSocketClientHandlers(alt::IWebSocketClient* webSocket, const std::string& name)
+std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetWebSocketClientHandlers(
+    alt::IWebSocketClient* webSocket, const std::string& name)
 {
     std::vector<V8Helpers::EventCallback*> handlers;
     auto it = webSocketClientHandlers.find(webSocket);
 
-    if(it != webSocketClientHandlers.end())
+    if (it != webSocketClientHandlers.end())
     {
         auto range = it->second.equal_range(name);
 
-        for(auto it = range.first; it != range.second; ++it)
+        for (auto it = range.first; it != range.second; ++it)
         {
-            if(it->second.removed) continue;
+            if (it->second.removed) continue;
             handlers.push_back(&it->second);
         }
     }
@@ -329,13 +427,13 @@ std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetAudioHandlers(alt::IA
     std::vector<V8Helpers::EventCallback*> handlers;
     auto it = audioHandlers.find(audio);
 
-    if(it != audioHandlers.end())
+    if (it != audioHandlers.end())
     {
         auto range = it->second.equal_range(name);
 
-        for(auto it = range.first; it != range.second; ++it)
+        for (auto it = range.first; it != range.second; ++it)
         {
-            if(it->second.removed) continue;
+            if (it->second.removed) continue;
             handlers.push_back(&it->second);
         }
     }
@@ -343,18 +441,19 @@ std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetAudioHandlers(alt::IA
     return handlers;
 }
 
-std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetRmlHandlers(alt::IRmlElement* element, const std::string& name)
+std::vector<V8Helpers::EventCallback*> CV8ResourceImpl::GetRmlHandlers(alt::IRmlElement* element,
+                                                                       const std::string& name)
 {
     std::vector<V8Helpers::EventCallback*> handlers;
     auto it = rmlHandlers.find(element);
 
-    if(it != rmlHandlers.end())
+    if (it != rmlHandlers.end())
     {
         auto range = it->second.equal_range(name);
 
-        for(auto it = range.first; it != range.second; ++it)
+        for (auto it = range.first; it != range.second; ++it)
         {
-            if(it->second.removed) continue;
+            if (it->second.removed) continue;
             handlers.push_back(&it->second);
         }
     }
@@ -375,52 +474,53 @@ void CV8ResourceImpl::OnTick()
 
     V8ResourceImpl::OnTick();
 
-    if(GetTime() - time > 10)
+    if (GetTime() - time > 10)
     {
-        Log::Warning << "Resource " << resource->GetName() << " tick was too long " << GetTime() - time << " ms" << Log::Endl;
+        Log::Warning << "Resource " << resource->GetName() << " tick was too long " << GetTime() - time << " ms" <<
+            Log::Endl;
     }
 
-    for(auto& view : webViewHandlers)
+    for (auto& view : webViewHandlers)
     {
-        for(auto it = view.second.begin(); it != view.second.end();)
+        for (auto it = view.second.begin(); it != view.second.end();)
         {
-            if(it->second.removed) it = view.second.erase(it);
+            if (it->second.removed) it = view.second.erase(it);
             else
                 ++it;
         }
     }
 
-    for(auto& webSocket : webSocketClientHandlers)
+    for (auto& webSocket : webSocketClientHandlers)
     {
-        for(auto it = webSocket.second.begin(); it != webSocket.second.end();)
+        for (auto it = webSocket.second.begin(); it != webSocket.second.end();)
         {
-            if(it->second.removed) it = webSocket.second.erase(it);
+            if (it->second.removed) it = webSocket.second.erase(it);
             else
                 ++it;
         }
     }
 
-    for(auto& audio : audioHandlers)
+    for (auto& audio : audioHandlers)
     {
-        for(auto it = audio.second.begin(); it != audio.second.end();)
+        for (auto it = audio.second.begin(); it != audio.second.end();)
         {
-            if(it->second.removed) it = audio.second.erase(it);
+            if (it->second.removed) it = audio.second.erase(it);
             else
                 ++it;
         }
     }
 
-    for(auto& rml : rmlHandlers)
+    for (auto& rml : rmlHandlers)
     {
-        for(auto it = rml.second.begin(); it != rml.second.end();)
+        for (auto it = rml.second.begin(); it != rml.second.end();)
         {
-            if(it->second.removed) it = rml.second.erase(it);
+            if (it->second.removed) it = rml.second.erase(it);
             else
                 ++it;
         }
     }
 
-    for(auto worker : workers)
+    for (auto worker : workers)
     {
         worker->GetMainEventHandler().Process();
     }
@@ -455,27 +555,32 @@ void CV8ResourceImpl::RemoveWorker(CWorker* worker)
 // TODO: pray that v8 some day switches to using lambdas
 v8::MaybeLocal<v8::Value> EvaluateSyntheticModule(v8::Local<v8::Context> context, v8::Local<v8::Module> syntheticModule)
 {
-    CV8ResourceImpl* resource = static_cast<CV8ResourceImpl*>(V8ResourceImpl::Get(context));
+    auto resource = static_cast<CV8ResourceImpl*>(V8ResourceImpl::Get(context));
     v8::MaybeLocal<v8::Value> maybeModuleExport = resource->GetSyntheticModuleExport(syntheticModule);
     v8::Local<v8::Value> moduleExport;
-    if(!maybeModuleExport.ToLocal(&moduleExport)) return v8::MaybeLocal<v8::Value>();
+    if (!maybeModuleExport.ToLocal(&moduleExport)) return v8::MaybeLocal<v8::Value>();
     syntheticModule->SetSyntheticModuleExport(v8::Isolate::GetCurrent(), V8Helpers::JSValue("default"), moduleExport);
     v8::Local<v8::Promise::Resolver> resolver = v8::Promise::Resolver::New(context).ToLocalChecked();
-    resolver->Resolve(context, v8::Undefined(context->GetIsolate()));
+    resolver->Resolve(context, Undefined(context->GetIsolate()));
     return resolver->GetPromise();
 }
+
 v8::Local<v8::Module> CV8ResourceImpl::CreateSyntheticModule(const std::string& name, v8::Local<v8::Value> exportValue)
 {
-    std::vector<v8::Local<v8::String>> exports = { V8Helpers::JSValue("default") };
-    v8::Local<v8::Module> syntheticModule = v8::Module::CreateSyntheticModule(isolate, V8Helpers::JSValue(name), exports, &EvaluateSyntheticModule);
-    syntheticModuleExports.insert({ syntheticModule->GetIdentityHash(), V8Helpers::CPersistent<v8::Value>(isolate, exportValue) });
+    std::vector<v8::Local<v8::String>> exports = {V8Helpers::JSValue("default")};
+    v8::Local<v8::Module> syntheticModule = v8::Module::CreateSyntheticModule(
+        isolate, V8Helpers::JSValue(name), exports, &EvaluateSyntheticModule);
+    syntheticModuleExports.insert({
+        syntheticModule->GetIdentityHash(), V8Helpers::CPersistent<v8::Value>(isolate, exportValue)
+    });
     return syntheticModule;
 }
+
 v8::MaybeLocal<v8::Value> CV8ResourceImpl::GetSyntheticModuleExport(v8::Local<v8::Module> syntheticModule)
 {
-    if(!syntheticModule->IsSyntheticModule()) return v8::MaybeLocal<v8::Value>();
+    if (!syntheticModule->IsSyntheticModule()) return v8::MaybeLocal<v8::Value>();
     auto result = syntheticModuleExports.find(syntheticModule->GetIdentityHash());
-    if(result != syntheticModuleExports.end()) return result->second.Get(isolate);
+    if (result != syntheticModuleExports.end()) return result->second.Get(isolate);
     return v8::MaybeLocal<v8::Value>();
 }
 
@@ -483,18 +588,18 @@ bool CV8ResourceImpl::InstantiateModule(v8::Local<v8::Module> mod, bool preload)
 {
     bool res = mod->InstantiateModule(GetContext(), CV8ScriptRuntime::ResolveModule).IsJust();
 
-    if(!res) return false;
+    if (!res) return false;
 
     v8::MaybeLocal<v8::Value> v = mod->Evaluate(GetContext());
-    if(v.IsEmpty()) return false;
+    if (v.IsEmpty()) return false;
 
-    if(preload) isPreloading = false;
+    if (preload) isPreloading = false;
 
     v8::Local<v8::Promise> modulePromise = v.ToLocalChecked().As<v8::Promise>();
     int64_t start = GetTime();
-    while(modulePromise->State() == v8::Promise::kPending)
+    while (modulePromise->State() == v8::Promise::kPending)
     {
-        if(GetTime() > start + 5000)
+        if (GetTime() > start + 5000)
         {
             Log::Error << "[V8] Resource start timed out (broken top-level await statements?)" << Log::Endl;
             return false;
@@ -502,11 +607,11 @@ bool CV8ResourceImpl::InstantiateModule(v8::Local<v8::Module> mod, bool preload)
         OnTick();
     }
 
-    if(mod->GetStatus() == v8::Module::Status::kErrored)
+    if (mod->GetStatus() == v8::Module::Status::kErrored)
     {
         v8::Local<v8::Promise> promise = v.ToLocalChecked().As<v8::Promise>();
         bool hasHandler = promise->HasHandler();
-        if(!hasHandler)
+        if (!hasHandler)
         {
             promise->MarkAsHandled();
             isolate->ThrowException(promise->Result());
