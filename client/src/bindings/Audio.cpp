@@ -12,7 +12,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_CONSTRUCTOR();
-    V8_CHECK_ARGS_LEN_MIN_MAX(1, 3);
+    V8_CHECK_ARGS_LEN_MIN_MAX(1, 4);
 
     V8_ARG_TO_STRING(1, source);
     V8_ARG_TO_NUMBER_OPT(2, volume, 1.f);
