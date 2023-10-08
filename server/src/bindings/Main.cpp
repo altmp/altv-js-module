@@ -811,6 +811,16 @@ static void SetMigrationDistance(const v8::FunctionCallbackInfo<v8::Value>& info
     alt::ICore::Instance().SetMigrationDistance(tickrate);
 }
 
+static void GetLoadedVehicleModels(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    std::vector<uint32_t> list = alt::ICore::Instance().GetLoadedVehicleModels();
+    v8::Local<v8::Array> modelArray = V8Helpers::JSValue(list);
+
+    V8_RETURN(modelArray);
+}
+
 extern V8Class v8Player, v8Vehicle, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Checkpoint, v8VoiceChannel, v8Colshape, v8ColshapeCylinder, v8ColshapeSphere, v8ColshapeCircle,
   v8ColshapeCuboid, v8ColshapeRectangle, v8ColshapePolygon, v8Ped, v8Object, v8VirtualEntity, v8VirtualEntityGroup, v8Marker, v8ConnectionInfo;
 
@@ -852,6 +862,7 @@ extern V8Module
             V8Helpers::RegisterFunc(exports, "stopServer", &StopServer);
 
             V8Helpers::RegisterFunc(exports, "getVehicleModelInfoByHash", &GetVehicleModelByHash);
+            V8Helpers::RegisterFunc(exports, "getLoadedVehicleModels", &GetLoadedVehicleModels);
             V8Helpers::RegisterFunc(exports, "getPedModelInfoByHash", &GetPedModelByHash);
             V8Helpers::RegisterFunc(exports, "getWeaponModelInfoByHash", &GetWeaponModelByHash);
             V8Helpers::RegisterFunc(exports, "getAmmoHashForWeaponHash", &GetAmmoHashForWeaponHash);
