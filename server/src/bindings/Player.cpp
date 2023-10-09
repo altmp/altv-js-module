@@ -1288,7 +1288,8 @@ static void AddDecoration(const v8::FunctionCallbackInfo<v8::Value>& info)
     uint32_t overlayHash;
     if(info[0]->IsNumber())
     {
-        V8_ARG_TO_UINT(1, collectionHash);
+        V8_ARG_TO_UINT(1, collection);
+        collectionHash = collection;
     }
     else
     {
@@ -1298,7 +1299,8 @@ static void AddDecoration(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     if(info[1]->IsNumber())
     {
-        V8_ARG_TO_UINT(2, overlayHash);
+        V8_ARG_TO_UINT(2, overlay);
+        overlayHash = overlay;
     }
     else
     {
@@ -1319,7 +1321,8 @@ static void RemoveDecoration(const v8::FunctionCallbackInfo<v8::Value>& info)
     uint32_t overlayHash;
     if(info[0]->IsNumber())
     {
-        V8_ARG_TO_UINT(1, collectionHash);
+        V8_ARG_TO_UINT(1, collection);
+        collectionHash = collection;
     }
     else
     {
@@ -1329,7 +1332,8 @@ static void RemoveDecoration(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     if(info[1]->IsNumber())
     {
-        V8_ARG_TO_UINT(2, overlayHash);
+        V8_ARG_TO_UINT(2, overlay);
+        overlayHash = overlay;
     }
     else
     {
