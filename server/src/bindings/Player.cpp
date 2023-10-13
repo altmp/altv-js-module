@@ -866,40 +866,6 @@ static void GetLocalMetaDataKeys(const v8::FunctionCallbackInfo<v8::Value>& info
     V8_RETURN(arr);
 }
 
-static void RequestCloudID(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    static std::list<v8::Global<v8::Promise::Resolver>> promises;
-
-    V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
-
-    auto& persistent = promises.emplace_back(v8::Global<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked()));
-
-    player->RequestCloudID(
-      [&persistent, resource](bool ok, const std::string& result)
-      {
-          resource->RunOnNextTick(
-            [=, &persistent]()
-            {
-                if(!resource->GetResource()->IsStarted())
-                {
-                    promises.remove(persistent);
-                    return;
-                }
-
-                auto isolate = resource->GetIsolate();
-                auto context = resource->GetContext();
-
-                if(ok) persistent.Get(isolate)->Resolve(context, V8Helpers::JSValue(result));
-                else
-                    persistent.Get(isolate)->Reject(context, v8::Exception::Error(V8Helpers::JSValue(result)));
-                promises.remove(persistent);
-            });
-      });
-
-    V8_RETURN(persistent.Get(isolate)->GetPromise());
-}
-
 static void DiscordIDGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE();
@@ -1322,7 +1288,8 @@ static void AddDecoration(const v8::FunctionCallbackInfo<v8::Value>& info)
     uint32_t overlayHash;
     if(info[0]->IsNumber())
     {
-        V8_ARG_TO_UINT(1, collectionHash);
+        V8_ARG_TO_UINT(1, collection);
+        collectionHash = collection;
     }
     else
     {
@@ -1332,7 +1299,8 @@ static void AddDecoration(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     if(info[1]->IsNumber())
     {
-        V8_ARG_TO_UINT(2, overlayHash);
+        V8_ARG_TO_UINT(2, overlay);
+        overlayHash = overlay;
     }
     else
     {
@@ -1353,7 +1321,8 @@ static void RemoveDecoration(const v8::FunctionCallbackInfo<v8::Value>& info)
     uint32_t overlayHash;
     if(info[0]->IsNumber())
     {
-        V8_ARG_TO_UINT(1, collectionHash);
+        V8_ARG_TO_UINT(1, collection);
+        collectionHash = collection;
     }
     else
     {
@@ -1363,7 +1332,8 @@ static void RemoveDecoration(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     if(info[1]->IsNumber())
     {
-        V8_ARG_TO_UINT(2, overlayHash);
+        V8_ARG_TO_UINT(2, overlay);
+        overlayHash = overlay;
     }
     else
     {
@@ -1427,9 +1397,9 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetMethod(isolate, tpl, "getLocalMeta", &GetLocalMeta);
                             V8Helpers::SetMethod(isolate, tpl, "deleteLocalMeta", &DeleteLocalMeta);
                             V8Helpers::SetMethod(isolate, tpl, "getLocalMetaKeys", &GetLocalMetaDataKeys);
-                            V8Helpers::SetMethod(isolate, tpl, "requestCloudID", &RequestCloudID);
 
                             V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetPing>(isolate, tpl, "ping");
+                            V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetCloudID>(isolate, tpl, "cloudID");
                             V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetIP>(isolate, tpl, "ip");
                             V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetName>(isolate, tpl, "name");
                             V8Helpers::SetAccessor<IPlayer, IVehicle*, &IPlayer::GetVehicle>(isolate, tpl, "vehicle");
