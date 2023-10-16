@@ -363,6 +363,16 @@ static void RestartResource(const v8::FunctionCallbackInfo<v8::Value>& info)
     alt::ICore::Instance().RestartResource(name);
 }
 
+static void AddClientConfigKey(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STRING(1, key);
+
+    alt::ICore::Instance().AddClientConfigKey(key);
+}
+
 static void HashServerPassword(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -839,6 +849,8 @@ extern V8Module
             V8Helpers::RegisterFunc(exports, "startResource", &StartResource);
             V8Helpers::RegisterFunc(exports, "stopResource", &StopResource);
             V8Helpers::RegisterFunc(exports, "restartResource", &RestartResource);
+
+            V8Helpers::RegisterFunc(exports, "addClientConfigKey", &AddClientConfigKey);
 
             V8Helpers::RegisterFunc(exports, "onClient", &OnClient);
             V8Helpers::RegisterFunc(exports, "onceClient", &OnceClient);
