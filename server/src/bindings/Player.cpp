@@ -866,6 +866,14 @@ static void GetLocalMetaDataKeys(const v8::FunctionCallbackInfo<v8::Value>& info
     V8_RETURN(arr);
 }
 
+static void GetCloudAuthResultGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE();
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    V8_RETURN_UINT(_this->GetCloudAuthResult());
+}
+
 static void DiscordIDGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE();
@@ -1401,7 +1409,7 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetPing>(isolate, tpl, "ping");
 
                             V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetCloudID>(isolate, tpl, "cloudID");
-                            V8Helpers::SetAccessor<IPlayer, alt::CloudAuthResult, &IPlayer::GetCloudAuthResult>(isolate, tpl, "cloudAuthResult");
+                            V8Helpers::SetAccessor(isolate, tpl, "cloudAuthResult", &GetCloudAuthResultGetter);
 
                             V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetIP>(isolate, tpl, "ip");
                             V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetName>(isolate, tpl, "name");

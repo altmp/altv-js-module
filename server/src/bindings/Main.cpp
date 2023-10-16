@@ -831,6 +831,16 @@ static void GetLoadedVehicleModels(const v8::FunctionCallbackInfo<v8::Value>& in
     V8_RETURN(modelArray);
 }
 
+static void HasBenefit(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_UINT(1, benefit);
+
+    V8_RETURN_BOOLEAN(alt::ICore::Instance().HasBenefit((alt::Benefit)benefit));
+}
+
 extern V8Class v8Player, v8Vehicle, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Checkpoint, v8VoiceChannel, v8Colshape, v8ColshapeCylinder, v8ColshapeSphere, v8ColshapeCircle,
   v8ColshapeCuboid, v8ColshapeRectangle, v8ColshapePolygon, v8Ped, v8Object, v8VirtualEntity, v8VirtualEntityGroup, v8Marker, v8ConnectionInfo;
 
@@ -923,6 +933,7 @@ extern V8Module
 
             V8Helpers::RegisterFunc(exports, "getMigrationDistance", &GetMigrationDistance);
             V8Helpers::RegisterFunc(exports, "setMigrationDistance", &SetMigrationDistance);
+            V8Helpers::RegisterFunc(exports, "hasBenefit", &HasBenefit);
 
             V8_OBJECT_SET_STRING(exports, "rootDir", alt::ICore::Instance().GetRootDirectory());
         });

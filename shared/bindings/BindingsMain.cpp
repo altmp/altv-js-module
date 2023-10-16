@@ -465,16 +465,6 @@ static void GetNetTime(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_UINT(netTime);
 }
 
-static void HasBenefit(const v8::FunctionCallbackInfo<v8::Value>& info)
-{
-    V8_GET_ISOLATE_CONTEXT();
-    V8_CHECK_ARGS_LEN(1);
-
-    V8_ARG_TO_UINT(1, benefit);
-
-    V8_RETURN_BOOLEAN(alt::ICore::Instance().HasBenefit((alt::Benefit)benefit));
-}
-
 extern V8Class v8BaseObject, v8WorldObject, v8Entity, v8File, v8RGBA, v8Vector2, v8Vector3, v8Quaternion, v8Blip, v8AreaBlip, v8RadiusBlip, v8PointBlip, v8Resource, v8Utils;
 
 extern V8Module
@@ -529,9 +519,7 @@ extern V8Module
                    V8Helpers::RegisterFunc(exports, "stringToSHA256", &StringToSHA256);
 
                    V8Helpers::RegisterFunc(exports, "getVoiceConnectionState", &GetVoiceConnectionState);
-
                    V8Helpers::RegisterFunc(exports, "getNetTime", &GetNetTime);
-                   V8Helpers::RegisterFunc(exports, "hasBenefit", &HasBenefit);
 
                    V8_OBJECT_SET_STRING(exports, "version", alt::ICore::Instance().GetVersion());
                    V8_OBJECT_SET_STRING(exports, "branch", alt::ICore::Instance().GetBranch());
