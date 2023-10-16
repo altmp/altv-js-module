@@ -1399,7 +1399,10 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetMethod(isolate, tpl, "getLocalMetaKeys", &GetLocalMetaDataKeys);
 
                             V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetPing>(isolate, tpl, "ping");
+
                             V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetCloudID>(isolate, tpl, "cloudID");
+                            V8Helpers::SetAccessor<IPlayer, alt::CloudAuthResult, &IPlayer::GetCloudAuthResult>(isolate, tpl, "cloudAuthResult");
+
                             V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetIP>(isolate, tpl, "ip");
                             V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetName>(isolate, tpl, "name");
                             V8Helpers::SetAccessor<IPlayer, IVehicle*, &IPlayer::GetVehicle>(isolate, tpl, "vehicle");
