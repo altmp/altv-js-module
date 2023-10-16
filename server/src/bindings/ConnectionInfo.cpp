@@ -179,7 +179,16 @@ static void GetCloudIDGetter(v8::Local<v8::String>, const v8::PropertyCallbackIn
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_GET_THIS_BASE_OBJECT(con, alt::IConnectionInfo);
+
     V8_RETURN_STRING(con->GetCloudID());
+}
+
+static void CloudAuthResultGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(con, alt::IConnectionInfo);
+
+    V8_RETURN_UINT(con->GetCloudAuthResult());
 }
 
 extern V8Class v8BaseObject;
@@ -214,5 +223,6 @@ extern V8Class v8ConnectionInfo("ConnectionInfo",
                                     V8Helpers::SetAccessor(isolate, tpl, "socialClubName", &SocialClubNameGetter);
                                     V8Helpers::SetAccessor(isolate, tpl, "id", &ConnectionIDGetter);
                                     V8Helpers::SetAccessor(isolate, tpl, "cloudID", &GetCloudIDGetter);
+                                    V8Helpers::SetAccessor(isolate, tpl, "cloudAuthResult", &CloudAuthResultGetter);
                                     V8Helpers::SetAccessor(isolate, tpl, "text", &GetText, &SetText);
                                 });
