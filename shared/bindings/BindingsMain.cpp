@@ -519,7 +519,6 @@ extern V8Module
                    V8Helpers::RegisterFunc(exports, "stringToSHA256", &StringToSHA256);
 
                    V8Helpers::RegisterFunc(exports, "getVoiceConnectionState", &GetVoiceConnectionState);
-
                    V8Helpers::RegisterFunc(exports, "getNetTime", &GetNetTime);
 
                    V8_OBJECT_SET_STRING(exports, "version", alt::ICore::Instance().GetVersion());
