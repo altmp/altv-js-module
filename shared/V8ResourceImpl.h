@@ -86,9 +86,7 @@ public:
 
         if(!anyHandlerRemoved)
         {
-            Log::Warning << 
-                location.ToString() << " alt.off was called for event \"" << ev << 
-                "\" with function reference that was not subscribed" << Log::Endl;
+            Log::Warning << location.ToString() << " alt.off was called for event \"" << ev << "\" with function reference that was not subscribed" << Log::Endl;
             return;
         }
 
@@ -188,10 +186,12 @@ public:
 
     v8::Local<v8::Value> CreateVector3(alt::Vector3f vec);
     v8::Local<v8::Value> CreateVector2(alt::Vector2f vec);
+    v8::Local<v8::Value> CreateQuaternion(alt::Quaternion quat);
     v8::Local<v8::Value> CreateRGBA(alt::RGBA rgba);
 
     bool IsVector3(v8::Local<v8::Value> val);
     bool IsVector2(v8::Local<v8::Value> val);
+    bool IsQuaternion(v8::Local<v8::Value> val);
     bool IsRGBA(v8::Local<v8::Value> val);
     bool IsBaseObject(v8::Local<v8::Value> val);
 
@@ -244,9 +244,21 @@ public:
     v8::Local<v8::Array> GetAllPlayers();
     v8::Local<v8::Array> GetAllVehicles();
     v8::Local<v8::Array> GetAllBlips();
-#ifdef ALT_CLIENT_API
-    v8::Local<v8::Array> GetAllObjects();
+    v8::Local<v8::Array> GetAllAudioOutputs();
+    v8::Local<v8::Array> GetAllCheckpoints();
+    v8::Local<v8::Array> GetAllVirtualEntityGroups();
+    v8::Local<v8::Array> GetAllVirtualEntities();
+    v8::Local<v8::Array> GetAllPeds();
+    v8::Local<v8::Array> GetAllMarkers();
+    v8::Local<v8::Array> GetAllColshapes();
+#ifdef ALT_SERVER_API
+    v8::Local<v8::Array> GetAllConnectionInfos();
 #endif
+#ifdef ALT_CLIENT_API
+    v8::Local<v8::Array> GetAllLocalObjects();
+    v8::Local<v8::Array> GetAllWeaponObjects();
+#endif
+    v8::Local<v8::Array> GetAllObjects();
 
     std::vector<V8Helpers::EventCallback*> GetLocalHandlers(const std::string& name);
     std::vector<V8Helpers::EventCallback*> GetRemoteHandlers(const std::string& name);
@@ -301,6 +313,37 @@ public:
         return static_cast<alt::IResource*>(ctx->GetAlignedPointerFromEmbedderData(1));
     }
 
+    struct AwaitableRPCHandler
+    {
+#ifdef ALT_SERVER_API
+        alt::IPlayer* Player;
+#endif
+
+        uint16_t AnswerId;
+        v8::Global<v8::Promise> Promise;
+    };
+
+#ifdef ALT_SERVER_API
+    // Vehicle passengers
+    static inline std::unordered_map<alt::IVehicle*, std::unordered_map<uint8_t, alt::IPlayer*>> vehiclePassengers{};
+
+    struct RemoteRPCHandler
+    {
+        uint16_t AnswerId;
+        V8Helpers::CPersistent<v8::Promise::Resolver> PromiseResolver;
+    };
+
+    // rpcs
+    std::unordered_map<std::string, v8::Global<v8::Function>> rpcHandlers{};
+    std::unordered_map<alt::IPlayer*, std::vector<RemoteRPCHandler>> remoteRPCHandlers{};
+    std::vector<AwaitableRPCHandler> awaitableRPCHandlers{};
+
+#else
+    std::unordered_map<uint16_t, V8Helpers::CPersistent<v8::Promise::Resolver>> remoteRPCHandlers{};
+    std::unordered_map<std::string, v8::Global<v8::Function>> rpcHandlers{};
+    std::vector<AwaitableRPCHandler> awaitableRPCHandlers{};
+#endif
+
 protected:
     v8::Isolate* isolate;
     alt::IResource* resource;
@@ -329,8 +372,12 @@ protected:
     bool objectPoolDirty = true;
     V8Helpers::CPersistent<v8::Array> objects;
 
+    bool weaponObjectPoolDirty = true;
+    V8Helpers::CPersistent<v8::Array> weaponObjects;
+
     V8Helpers::CPersistent<v8::Function> vector3Class;
     V8Helpers::CPersistent<v8::Function> vector2Class;
+    V8Helpers::CPersistent<v8::Function> quaternionClass;
     V8Helpers::CPersistent<v8::Function> rgbaClass;
     V8Helpers::CPersistent<v8::Function> baseObjectClass;
 

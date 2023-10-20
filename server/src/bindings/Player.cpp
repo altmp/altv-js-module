@@ -379,16 +379,8 @@ static void IsEntityInStreamRange(const v8::FunctionCallbackInfo<v8::Value>& inf
     V8_CHECK_ARGS_LEN(1);
     V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
-    if(info[0]->IsNumber())
-    {
-        V8_ARG_TO_UINT(1, entity);
-        V8_RETURN_BOOLEAN(player->IsEntityInStreamingRange(entity));
-    }
-    else
-    {
-        V8_ARG_TO_BASE_OBJECT(1, entity, IEntity, "Entity");
-        V8_RETURN_BOOLEAN(player->IsEntityInStreamingRange(entity->GetID()));
-    }
+    V8_ARG_TO_BASE_OBJECT(1, entity, IEntity, "Entity");
+    V8_RETURN_BOOLEAN(player->IsEntityInStreamingRange(entity->GetSyncID()));
 }
 
 static void SetIntoVehicle(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -410,6 +402,11 @@ static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo
     V8_RETURN(resource->GetAllPlayers());
 }
 
+static void CountGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_RETURN_UINT(alt::ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::PLAYER).size());
+}
+
 static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -417,9 +414,9 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_INT(1, id);
 
-    alt::IEntity* entity = alt::ICore::Instance().GetEntityByID(id);
+    alt::IBaseObject* entity = alt::ICore::Instance().GetBaseObjectByID(alt::IBaseObject::Type::PLAYER, id);
 
-    if(entity && entity->GetType() == alt::IEntity::Type::PLAYER)
+    if(entity)
     {
         V8_RETURN_BASE_OBJECT(entity);
     }
@@ -440,6 +437,77 @@ static void PlayAmbientSpeech(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_UINT(3, speechDictHash);
 
     player->PlayAmbientSpeech(speechName, speechParam, speechDictHash);
+}
+
+static void PlayAnimation(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN_MIN_MAX(2, 10);
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    V8_ARG_TO_STRING(1, animDict);
+    V8_ARG_TO_STRING(2, animName);
+    float blendInSpeed = 8.0f;
+    if(info.Length() > 2)
+    {
+        V8_ARG_TO_NUMBER(3, blendInSpeedVal);
+        blendInSpeed = blendInSpeedVal;
+    }
+    float blendOutSpeed = 8.0f;
+    if(info.Length() > 3)
+    {
+        V8_ARG_TO_NUMBER(4, blendOutSpeedVal);
+        blendOutSpeed = blendOutSpeedVal;
+    }
+    int duration = -1;
+    if(info.Length() > 4)
+    {
+        V8_ARG_TO_INT(5, durationVal);
+        duration = durationVal;
+    }
+    int flag = 1;  // Looping
+    if(info.Length() > 5)
+    {
+        V8_ARG_TO_INT(6, flagVal);
+        flag = flagVal;
+    }
+    float playbackRate = 1.0f;
+    if(info.Length() > 6)
+    {
+        V8_ARG_TO_NUMBER(7, playbackRateVal);
+        playbackRate = playbackRateVal;
+    }
+    bool lockX = false;
+    if(info.Length() > 7)
+    {
+        V8_ARG_TO_BOOLEAN(8, lockXVal);
+        lockX = lockXVal;
+    }
+    bool lockY = false;
+    if(info.Length() > 8)
+    {
+        V8_ARG_TO_BOOLEAN(9, lockYVal);
+        lockY = lockYVal;
+    }
+    bool lockZ = false;
+    if(info.Length() > 9)
+    {
+        V8_ARG_TO_BOOLEAN(10, lockZVal);
+        lockZ = lockZVal;
+    }
+
+    player->PlayAnimation(animDict, animName, blendInSpeed, blendOutSpeed, duration, flag, playbackRate, lockX, lockY, lockZ);
+}
+
+static void PlayScenario(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    V8_ARG_TO_STRING(1, name);
+
+    player->PlayScenario(name);
 }
 
 static void SetHeadOverlay(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -695,7 +763,7 @@ static void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_STRING(1, eventName);
 
     MValueArgs mvArgs;
-    for(int i = 1; i < info.Length(); ++i) mvArgs.Push(V8Helpers::V8ToMValue(info[i], false));
+    for(int i = 1; i < info.Length(); ++i) mvArgs.emplace_back(V8Helpers::V8ToMValue(info[i], false));
 
     alt::ICore::Instance().TriggerClientEvent(player, eventName, mvArgs);
 }
@@ -712,11 +780,30 @@ static void EmitRaw(const v8::FunctionCallbackInfo<v8::Value>& info)
     for(int i = 1; i < info.Length(); ++i)
     {
         alt::MValueByteArray result = V8Helpers::V8ToRawBytes(info[i]);
-        V8_CHECK(!result.IsEmpty(), "Failed to serialize value");
-        mvArgs.Push(result);
+        V8_CHECK(result, "Failed to serialize value");
+        mvArgs.emplace_back(result);
     }
 
     alt::ICore::Instance().TriggerClientEvent(player, eventName, mvArgs);
+}
+
+static void EmitRPC(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN_MIN(1);
+    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
+
+    V8_ARG_TO_STRING(1, rpcName);
+
+    alt::MValueArgs args;
+    for(int i = 1; i < info.Length(); ++i)
+        args.emplace_back(V8Helpers::V8ToMValue(info[i], false));
+
+    auto answerId = alt::ICore::Instance().TriggerClientRPCEvent(player, rpcName, args);
+    auto persistent = V8Helpers::CPersistent<v8::Promise::Resolver>(isolate, v8::Promise::Resolver::New(ctx).ToLocalChecked());
+
+    V8ResourceImpl::Get(ctx)->remoteRPCHandlers[player].push_back({ answerId, persistent });
+    V8_RETURN(persistent.Get(isolate)->GetPromise());
 }
 
 static void HasLocalMeta(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -779,11 +866,538 @@ static void GetLocalMetaDataKeys(const v8::FunctionCallbackInfo<v8::Value>& info
     V8_RETURN(arr);
 }
 
-static void DiscordIDGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+static void GetCloudAuthResultGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE();
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    V8_RETURN_UINT(_this->GetCloudAuthResult());
+}
+
+static void GetBloodDamageBase64(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE();
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    V8_RETURN_STRING(_this->GetBloodDamageBase64());
+}
+
+static void SetBloodDamageBase64(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STRING(1, base64);
+
+    _this->SetBloodDamageBase64(base64);
+}
+
+static void DiscordIDGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE();
     V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
     V8_RETURN_STRING(std::to_string(_this->GetDiscordId()));
+}
+
+static void GetStreamedEntities(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(player, alt::IPlayer);
+
+    const std::vector<std::pair<IEntity*, int32_t>> list = player->GetStreamedEntities();
+    size_t size = list.size();
+    v8::Local<v8::Array> jsAll = v8::Array::New(isolate, list.size());
+    for(uint32_t i = 0; i < list.size(); ++i)
+    {
+        jsAll->Set(ctx, i, resource->GetBaseObjectOrNull(list[i].first));
+
+        V8_NEW_OBJECT(entityObj);
+        V8_OBJECT_SET_INT(entityObj, "distance", list[i].second);
+        entityObj->Set(ctx, v8::String::NewFromUtf8(isolate, "entity").ToLocalChecked(), resource->GetOrCreateEntity(list[i].first, "entity")->GetJSVal(isolate));
+
+        jsAll->Set(ctx, i, entityObj);
+    }
+
+    V8_RETURN(jsAll);
+}
+
+static void AmmoGetter(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, ammoHash);
+        hash = ammoHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, ammoHash);
+        hash = alt::ICore::Instance().Hash(ammoHash);
+    }
+
+    V8_RETURN_UINT(_this->GetAmmo(hash));
+}
+
+static void AmmoSetter(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, ammoHash);
+        hash = ammoHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, ammoHash);
+        hash = alt::ICore::Instance().Hash(ammoHash);
+    }
+
+    V8_ARG_TO_UINT(2, ammo);
+
+    _this->SetAmmo(hash, ammo);
+}
+
+static void WeaponAmmoGetter(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, weaponHash);
+        hash = weaponHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, weaponHash);
+        hash = alt::ICore::Instance().Hash(weaponHash);
+    }
+
+    V8_RETURN_UINT(_this->GetWeaponAmmo(hash));
+}
+
+static void WeaponAmmoSetter(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, weaponHash);
+        hash = weaponHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, weaponHash);
+        hash = alt::ICore::Instance().Hash(weaponHash);
+    }
+
+    V8_ARG_TO_UINT(2, ammo);
+
+    _this->SetWeaponAmmo(hash, ammo);
+}
+
+static void WeaponHasComponent(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, weaponHash);
+        hash = weaponHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, weaponHash);
+        hash = alt::ICore::Instance().Hash(weaponHash);
+    }
+
+    uint32_t componentHash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(2, componenthash);
+        componentHash = componenthash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(2, componenthash);
+        componentHash = alt::ICore::Instance().Hash(componenthash);
+    }
+
+    V8_RETURN_BOOLEAN(player->HasWeaponComponent(hash, componentHash));
+}
+
+static void HasWeapon(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, weaponHash);
+        hash = weaponHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, weaponHash);
+        hash = alt::ICore::Instance().Hash(weaponHash);
+    }
+
+    V8_RETURN_BOOLEAN(player->HasWeapon(hash));
+}
+
+static void RemoveAllWeapons(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    V8_ARG_TO_BOOLEAN_OPT(1, removeAllAmmo, true);
+
+    player->RemoveAllWeapons(removeAllAmmo);
+}
+
+static void GetAmmoSpecialType(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, ammoHash);
+        hash = ammoHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, ammoHash);
+        hash = alt::ICore::Instance().Hash(ammoHash);
+    }
+
+    V8_RETURN_UINT(_this->GetAmmoSpecialType(hash));
+}
+
+static void SetAmmoSpecialType(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, ammoHash);
+        hash = ammoHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, ammoHash);
+        hash = alt::ICore::Instance().Hash(ammoHash);
+    }
+
+    V8_ARG_TO_UINT(2, ammoSpecialType);
+
+    _this->SetAmmoSpecialType(hash, (AmmoSpecialType)ammoSpecialType);
+}
+
+static void GetAmmoFlags(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, ammoHash);
+        hash = ammoHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, ammoHash);
+        hash = alt::ICore::Instance().Hash(ammoHash);
+    }
+
+    auto flags = _this->GetAmmoFlags(hash);
+
+    V8_NEW_OBJECT(flagsObj);
+    V8_OBJECT_SET_BOOLEAN(flagsObj, "infiniteAmmo", flags.infiniteAmmo);
+    V8_OBJECT_SET_BOOLEAN(flagsObj, "addSmokeOnExplosion", flags.addSmokeOnExplosion);
+    V8_OBJECT_SET_BOOLEAN(flagsObj, "fuse", flags.fuse);
+    V8_OBJECT_SET_BOOLEAN(flagsObj, "fixedAfterExplosion", flags.fixedAfterExplosion);
+
+    V8_RETURN(flagsObj);
+}
+
+static void SetAmmoFlags(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(5);
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, ammoHash);
+        hash = ammoHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, ammoHash);
+        hash = alt::ICore::Instance().Hash(ammoHash);
+    }
+
+    V8_ARG_TO_BOOLEAN(2, infiniteAmmo);
+    V8_ARG_TO_BOOLEAN(3, addSmokeOnExplosion);
+    V8_ARG_TO_BOOLEAN(4, fuse);
+    V8_ARG_TO_BOOLEAN(5, fixedAfterExplosion);
+
+    _this->SetAmmoFlags(hash, { infiniteAmmo, addSmokeOnExplosion, fuse, fixedAfterExplosion });
+}
+
+static void GetAmmoMax(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, ammoHash);
+        hash = ammoHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, ammoHash);
+        hash = alt::ICore::Instance().Hash(ammoHash);
+    }
+
+    V8_RETURN_INT(_this->GetAmmoMax(hash));
+}
+
+static void SetAmmoMax(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, ammoHash);
+        hash = ammoHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, ammoHash);
+        hash = alt::ICore::Instance().Hash(ammoHash);
+    }
+
+    V8_ARG_TO_INT(2, ammoMax);
+
+    _this->SetAmmoMax(hash, ammoMax);
+}
+
+static void GetAmmoMax50(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, ammoHash);
+        hash = ammoHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, ammoHash);
+        hash = alt::ICore::Instance().Hash(ammoHash);
+    }
+
+    V8_RETURN_INT(_this->GetAmmoMax50(hash));
+}
+
+static void SetAmmoMax50(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, ammoHash);
+        hash = ammoHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, ammoHash);
+        hash = alt::ICore::Instance().Hash(ammoHash);
+    }
+
+    V8_ARG_TO_INT(2, ammoMax);
+
+    _this->SetAmmoMax50(hash, ammoMax);
+}
+
+static void GetAmmoMax100(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, ammoHash);
+        hash = ammoHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, ammoHash);
+        hash = alt::ICore::Instance().Hash(ammoHash);
+    }
+
+    V8_RETURN_INT(_this->GetAmmoMax100(hash));
+}
+
+static void SetAmmoMax100(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+    V8_GET_THIS_BASE_OBJECT(_this, IPlayer);
+
+    uint32_t hash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, ammoHash);
+        hash = ammoHash;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, ammoHash);
+        hash = alt::ICore::Instance().Hash(ammoHash);
+    }
+
+    V8_ARG_TO_INT(2, ammoMax);
+
+    _this->SetAmmoMax100(hash, ammoMax);
+}
+
+static void AddDecoration(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    uint32_t collectionHash;
+    uint32_t overlayHash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, collection);
+        collectionHash = collection;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, collection);
+        collectionHash = alt::ICore::Instance().Hash(collection);
+    }
+
+    if(info[1]->IsNumber())
+    {
+        V8_ARG_TO_UINT(2, overlay);
+        overlayHash = overlay;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(2, overlay);
+        overlayHash = alt::ICore::Instance().Hash(overlay);
+    }
+
+    player->AddDecoration(collectionHash, overlayHash);
+}
+
+static void RemoveDecoration(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    uint32_t collectionHash;
+    uint32_t overlayHash;
+    if(info[0]->IsNumber())
+    {
+        V8_ARG_TO_UINT(1, collection);
+        collectionHash = collection;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(1, collection);
+        collectionHash = alt::ICore::Instance().Hash(collection);
+    }
+
+    if(info[1]->IsNumber())
+    {
+        V8_ARG_TO_UINT(2, overlay);
+        overlayHash = overlay;
+    }
+    else
+    {
+        V8_ARG_TO_STRING(2, overlay);
+        overlayHash = alt::ICore::Instance().Hash(overlay);
+    }
+
+    player->RemoveDecoration(collectionHash, overlayHash);
+}
+
+static void ClearDecorations(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    player->ClearDecorations();
+}
+
+static void GetDecorations(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    std::vector<alt::CDecoration> decorations = player->GetDecorations();
+    size_t size = decorations.size();
+    v8::Local<v8::Array> decorationsArr = v8::Array::New(isolate, (int)size);
+    for(alt::Size i = 0; i < size; i++)
+    {
+        auto decoration = decorations[i];
+        V8_NEW_OBJECT(decorationsObj);
+        V8_OBJECT_SET_UINT(decorationsObj, "collection", decoration.collection);
+        V8_OBJECT_SET_UINT(decorationsObj, "overlay", decoration.overlay);
+
+        decorationsArr->Set(ctx, i, decorationsObj);
+    }
+
+    V8_RETURN(decorationsArr);
 }
 
 extern V8Class v8Entity;
@@ -798,9 +1412,12 @@ extern V8Class v8Player("Player",
 
                             V8Helpers::SetStaticMethod(isolate, tpl, "getByID", &StaticGetByID);
                             V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
+                            V8Helpers::SetStaticAccessor(isolate, tpl, "count", &CountGetter);
 
                             V8Helpers::SetMethod(isolate, tpl, "emit", &Emit);
                             V8Helpers::SetMethod(isolate, tpl, "emitRaw", &EmitRaw);
+
+                            V8Helpers::SetMethod(isolate, tpl, "emitRpc", &EmitRPC);
 
                             V8Helpers::SetMethod(isolate, tpl, "hasLocalMeta", &HasLocalMeta);
                             V8Helpers::SetMethod(isolate, tpl, "setLocalMeta", &SetLocalMeta);
@@ -809,6 +1426,13 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetMethod(isolate, tpl, "getLocalMetaKeys", &GetLocalMetaDataKeys);
 
                             V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetPing>(isolate, tpl, "ping");
+
+                            V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetCloudID>(isolate, tpl, "cloudID");
+                            V8Helpers::SetAccessor(isolate, tpl, "cloudAuthResult", &GetCloudAuthResultGetter);
+
+                            V8Helpers::SetMethod(isolate, tpl, "getBloodDamageBase64", &GetBloodDamageBase64);
+                            V8Helpers::SetMethod(isolate, tpl, "setBloodDamageBase64", &SetBloodDamageBase64);
+
                             V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetIP>(isolate, tpl, "ip");
                             V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetName>(isolate, tpl, "name");
                             V8Helpers::SetAccessor<IPlayer, IVehicle*, &IPlayer::GetVehicle>(isolate, tpl, "vehicle");
@@ -833,6 +1457,12 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsSpawned>(isolate, tpl, "isSpawned");
                             V8Helpers::SetAccessor<IPlayer, float, &IPlayer::GetForwardSpeed>(isolate, tpl, "forwardSpeed");
                             V8Helpers::SetAccessor<IPlayer, float, &IPlayer::GetStrafeSpeed>(isolate, tpl, "strafeSpeed");
+                            V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsEnteringVehicle>(isolate, tpl, "isEnteringVehicle");
+                            V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsLeavingVehicle>(isolate, tpl, "isLeavingVehicle");
+                            V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsOnLadder>(isolate, tpl, "isOnLadder");
+                            V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsInMelee>(isolate, tpl, "isInMelee");
+                            V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsInCover>(isolate, tpl, "isInCover");
+                            V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsParachuting>(isolate, tpl, "isParachuting");
 
                             V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetCurrentAnimationDict>(isolate, tpl, "currentAnimationDict");
                             V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetCurrentAnimationName>(isolate, tpl, "currentAnimationName");
@@ -843,13 +1473,29 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetCurrentWeapon, &IPlayer::SetCurrentWeapon>(isolate, tpl, "currentWeapon");
                             V8Helpers::SetAccessor(isolate, tpl, "currentWeaponComponents", &CurrentWeaponComponentsGetter);
                             V8Helpers::SetAccessor<IPlayer, uint8_t, &IPlayer::GetCurrentWeaponTintIndex>(isolate, tpl, "currentWeaponTintIndex");
+                            V8Helpers::SetMethod(isolate, tpl, "hasWeaponComponent", &WeaponHasComponent);
 
                             V8Helpers::SetAccessor(isolate, tpl, "socialID", &SocialIDGetter);
                             V8Helpers::SetAccessor(isolate, tpl, "hwidHash", &HwidHashGetter);
                             V8Helpers::SetAccessor(isolate, tpl, "hwidExHash", &HwidExHashGetter);
+                            V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetSocialClubName>(isolate, tpl, "socialClubName");
 
                             V8Helpers::SetAccessor<IPlayer, std::string, &IPlayer::GetAuthToken>(isolate, tpl, "authToken");
                             V8Helpers::SetAccessor(isolate, tpl, "discordID", &DiscordIDGetter);
+                            V8Helpers::SetMethod(isolate, tpl, "getAmmo", &AmmoGetter);
+                            V8Helpers::SetMethod(isolate, tpl, "setAmmo", &AmmoSetter);
+                            V8Helpers::SetMethod(isolate, tpl, "getWeaponAmmo", &WeaponAmmoGetter);
+                            V8Helpers::SetMethod(isolate, tpl, "setWeaponAmmo", &WeaponAmmoSetter);
+                            V8Helpers::SetMethod(isolate, tpl, "setAmmoSpecialType", &SetAmmoSpecialType);
+                            V8Helpers::SetMethod(isolate, tpl, "getAmmoSpecialType", &GetAmmoSpecialType);
+                            V8Helpers::SetMethod(isolate, tpl, "setAmmoFlags", &SetAmmoFlags);
+                            V8Helpers::SetMethod(isolate, tpl, "getAmmoFlags", &GetAmmoFlags);
+                            V8Helpers::SetMethod(isolate, tpl, "setAmmoMax", &SetAmmoMax);
+                            V8Helpers::SetMethod(isolate, tpl, "getAmmoMax", &GetAmmoMax);
+                            V8Helpers::SetMethod(isolate, tpl, "setAmmoMax50", &SetAmmoMax50);
+                            V8Helpers::SetMethod(isolate, tpl, "getAmmoMax50", &GetAmmoMax50);
+                            V8Helpers::SetMethod(isolate, tpl, "setAmmoMax100", &SetAmmoMax100);
+                            V8Helpers::SetMethod(isolate, tpl, "getAmmoMax100", &GetAmmoMax100);
 
                             V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsFlashlightActive>(isolate, tpl, "flashlightActive");
 
@@ -864,8 +1510,9 @@ extern V8Class v8Player("Player",
 
                             V8Helpers::SetMethod<IPlayer, &IPlayer::ClearBloodDamage>(isolate, tpl, "clearBloodDamage");
                             V8Helpers::SetMethod(isolate, tpl, "giveWeapon", &GiveWeapon);
+                            V8Helpers::SetMethod(isolate, tpl, "hasWeapon", &HasWeapon);
                             V8Helpers::SetMethod(isolate, tpl, "removeWeapon", &RemoveWeapon);
-                            V8Helpers::SetMethod<IPlayer, &IPlayer::RemoveAllWeapons>(isolate, tpl, "removeAllWeapons");
+                            V8Helpers::SetMethod(isolate, tpl, "removeAllWeapons", &RemoveAllWeapons);
 
                             V8Helpers::SetMethod(isolate, tpl, "addWeaponComponent", &AddWeaponComponent);
                             V8Helpers::SetMethod(isolate, tpl, "removeWeaponComponent", &RemoveWeaponComponent);
@@ -890,10 +1537,14 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetMethod(isolate, tpl, "setIntoVehicle", &SetIntoVehicle);
 
                             V8Helpers::SetMethod(isolate, tpl, "playAmbientSpeech", &PlayAmbientSpeech);
+                            V8Helpers::SetMethod(isolate, tpl, "playAnimation", &PlayAnimation);
+                            V8Helpers::SetMethod<IPlayer, &IPlayer::ClearTasks>(isolate, tpl, "clearTasks");
+                            V8Helpers::SetMethod(isolate, tpl, "playScenario", &PlayScenario);
 
                             V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetInteriorLocation>(isolate, tpl, "currentInterior");
                             V8Helpers::SetAccessor<IPlayer, uint32_t, &IPlayer::GetLastDamagedBodyPart, &IPlayer::SetLastDamagedBodyPart>(isolate, tpl, "lastDamagedBodyPart");
                             V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::GetSendNames, &IPlayer::SetSendNames>(isolate, tpl, "sendNames");
+                            V8Helpers::SetAccessor(isolate, tpl, "streamedEntities", &GetStreamedEntities);
 
                             // Appearance getter & setter
                             V8Helpers::SetMethod(isolate, tpl, "setHeadOverlay", &SetHeadOverlay);
@@ -913,4 +1564,11 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetMethod(isolate, tpl, "getHairColor", &GetHairColor);
                             V8Helpers::SetMethod(isolate, tpl, "setHairHighlightColor", &SetHairHighlightColor);
                             V8Helpers::SetMethod(isolate, tpl, "getHairHighlightColor", &GetHairHighlightColor);
+
+                            V8Helpers::SetMethod(isolate, tpl, "addDecoration", &AddDecoration);
+                            V8Helpers::SetMethod(isolate, tpl, "removeDecoration", &RemoveDecoration);
+                            V8Helpers::SetMethod(isolate, tpl, "clearDecorations", &ClearDecorations);
+                            V8Helpers::SetMethod(isolate, tpl, "getDecorations", &GetDecorations);
+
+                            V8Helpers::SetAccessor<IPlayer, bool, &IPlayer::IsNetworkOwnershipDisabled, &IPlayer::SetNetworkOwnershipDisabled>(isolate, tpl, "netOwnershipDisabled");
                         });

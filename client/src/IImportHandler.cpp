@@ -89,7 +89,7 @@ std::deque<std::string> IImportHandler::GetModuleKeys(const std::string& name)
         std::deque<std::string> keys;
 
         alt::MValueDict _exports = resource->GetExports();
-        for(auto it = _exports->Begin(); it; it = _exports->Next()) keys.push_back(it->GetKey());
+        for(auto it = _exports->Begin(); it != _exports->End(); ++it) keys.push_back(it->first);
 
         return keys;
     }
@@ -279,13 +279,15 @@ v8::MaybeLocal<v8::Module> IImportHandler::ResolveModule(const std::string& _nam
     return maybeModule;
 }
 
-v8::MaybeLocal<v8::Module> IImportHandler::ResolveCode(const std::string& code, const V8Helpers::SourceLocation& location)
+v8::MaybeLocal<v8::Module> IImportHandler::ResolveCode(const std::string& name, const std::string& code, const V8Helpers::SourceLocation& location)
 {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
     v8::MaybeLocal<v8::Module> maybeModule;
-    std::stringstream name;
-    name << "[module " << location.GetFileName() << ":" << location.GetLineNumber() << "]";
-    maybeModule = CompileESM(isolate, name.str(), code);
+    std::stringstream nameStream;
+    if(name.empty()) nameStream << "[module " << location.GetFileName() << ":" << location.GetLineNumber() << "]";
+    else
+        nameStream << name;
+    maybeModule = CompileESM(isolate, nameStream.str(), code);
 
     return maybeModule;
 }

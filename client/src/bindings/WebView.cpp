@@ -72,7 +72,7 @@ static void Emit(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     alt::MValueArgs mvArgs;
 
-    for(int i = 1; i < info.Length(); ++i) mvArgs.Push(V8Helpers::V8ToMValue(info[i], false));
+    for(int i = 1; i < info.Length(); ++i) mvArgs.emplace_back(V8Helpers::V8ToMValue(info[i], false));
 
     view->Trigger(evName, mvArgs);
 }
@@ -217,6 +217,102 @@ static void SetZoomLevel(const v8::FunctionCallbackInfo<v8::Value>& info)
     view->SetZoomLevel(zoomLevel);
 }
 
+static void Reload(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(view, alt::IWebView);
+    V8_CHECK_ARGS_LEN2(0, 1);
+
+    bool ignoreCache = false;
+    if(info.Length() > 0)
+    {
+        V8_ARG_TO_BOOLEAN(1, _ignoreCache);
+        ignoreCache = _ignoreCache;
+    }
+
+    view->Reload(ignoreCache);
+}
+
+static void AllWebviewGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    auto objects = alt::ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::WEBVIEW);
+    v8::Local<v8::Array> jsArr = v8::Array::New(isolate, objects.size());
+    for(size_t i = 0; i < objects.size(); ++i) jsArr->Set(ctx, i, resource->GetBaseObjectOrNull(objects[i]));
+    V8_RETURN(jsArr);
+}
+
+static void WebviewCountGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_RETURN_UINT(alt::ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::WEBVIEW).size());
+}
+
+static void WebviewGpuAccelerationActive(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_RETURN_BOOLEAN(alt::ICore::Instance().IsWebViewGpuAccelerationActive());
+}
+
+static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_INT(1, id);
+
+    alt::IBaseObject* baseObject = alt::ICore::Instance().GetBaseObjectByID(alt::IBaseObject::Type::WEBVIEW, id);
+
+    if(baseObject && baseObject->GetType() == alt::IEntity::Type::WEBVIEW)
+    {
+        V8_RETURN_BASE_OBJECT(baseObject);
+    }
+    else
+    {
+        V8_RETURN_NULL();
+    }
+}
+
+static void AddOutput(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(audio, alt::IWebView);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_BASE_OBJECT(1, entity, alt::IAudioOutput, "AudioOutput");
+    audio->AddOutput(entity);
+}
+
+static void RemoveOutput(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(audio, alt::IWebView);
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_BASE_OBJECT(1, entity, alt::IAudioOutput, "AudioOutput");
+    audio->RemoveOutput(entity);
+}
+
+static void GetOutputs(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(audio, alt::IWebView);
+
+    auto list = audio->GetOutputs();
+    auto arr = v8::Array::New(isolate, list->GetSize());
+    for (int i = 0; i < list->GetSize(); i++)
+    {
+        auto val = list->Get(i);
+        if (val->GetType() == alt::IMValue::Type::BASE_OBJECT)
+        {
+            auto baseObj = resource->GetBaseObjectOrNull(std::dynamic_pointer_cast<alt::IMValueBaseObject>(val)->RawValue());
+            arr->Set(ctx, i, baseObj);
+        }
+        else if (val->GetType() == alt::IMValue::Type::UINT)
+            arr->Set(ctx, i, v8::Integer::NewFromUnsigned(isolate, std::dynamic_pointer_cast<alt::IMValueUInt>(val)->Value()));
+    }
+
+    V8_RETURN(arr);
+}
+
 extern V8Class v8BaseObject;
 extern V8Class v8WebView("WebView",
                          v8BaseObject,
@@ -225,6 +321,11 @@ extern V8Class v8WebView("WebView",
                          {
                              v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
+                             V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllWebviewGetter);
+                             V8Helpers::SetStaticAccessor(isolate, tpl, "count", &WebviewCountGetter);
+                             V8Helpers::SetStaticAccessor(isolate, tpl, "gpuAccelerationActive", &WebviewGpuAccelerationActive);
+
+                             V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
                              V8Helpers::SetMethod(isolate, tpl, "toString", ToString);
 
                              V8Helpers::SetAccessor<IWebView, bool, &IWebView::IsVisible, &IWebView::SetVisible>(isolate, tpl, "isVisible");
@@ -245,4 +346,9 @@ extern V8Class v8WebView("WebView",
 
                              V8Helpers::SetMethod(isolate, tpl, "setExtraHeader", &SetExtraHeader);
                              V8Helpers::SetMethod(isolate, tpl, "setZoomLevel", &SetZoomLevel);
+                             V8Helpers::SetMethod(isolate, tpl, "reload", &Reload);
+
+                             V8Helpers::SetMethod(isolate, tpl, "addOutput", &AddOutput);
+                             V8Helpers::SetMethod(isolate, tpl, "removeOutput", &RemoveOutput);
+                             V8Helpers::SetMethod(isolate, tpl, "getOutputs", &GetOutputs);
                          });

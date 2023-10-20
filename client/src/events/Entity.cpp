@@ -9,6 +9,8 @@
 #include "cpp-sdk/events/CPlayerWeaponShootEvent.h"
 #include "cpp-sdk/events/CPlayerWeaponChangeEvent.h"
 #include "cpp-sdk/events/CWeaponDamageEvent.h"
+#include "cpp-sdk/events/CEntityHitEntityEvent.h"
+#include "cpp-sdk/events/CPlayerBulletHitEvent.h"
 
 #include "cpp-sdk/SDK.h"
 
@@ -70,6 +72,18 @@ V8_LOCAL_EVENT_HANDLER playerWeaponShoot(EventType::PLAYER_WEAPON_SHOOT_EVENT,
                                              args.push_back(V8Helpers::JSValue(ev->GetAmmoInClip()));
                                          });
 
+V8_LOCAL_EVENT_HANDLER playerBulletHit(EventType::PLAYER_BULLET_HIT_EVENT,
+                                        "playerBulletHit",
+                                        [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                        {
+                                            auto ev = static_cast<const alt::CPlayerBulletHitEvent*>(e);
+                                            v8::Isolate* isolate = resource->GetIsolate();
+
+                                            args.push_back(V8Helpers::JSValue(ev->GetWeapon()));
+                                            args.push_back(resource->GetBaseObjectOrNull(ev->GetVictim()));
+                                            args.push_back(resource->CreateVector3(ev->GetPosition()));
+                                        });
+
 V8_LOCAL_EVENT_HANDLER playerWeaponChange(EventType::PLAYER_WEAPON_CHANGE,
                                           "playerWeaponChange",
                                           [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args)
@@ -93,4 +107,37 @@ V8_LOCAL_EVENT_HANDLER weaponDamage(EventType::WEAPON_DAMAGE_EVENT,
                                         args.push_back(V8Helpers::JSValue(ev->GetDamageValue()));
                                         args.push_back(resource->CreateVector3(ev->GetShotOffset()));
                                         args.push_back(V8Helpers::JSValue(static_cast<int8_t>(ev->GetBodyPart())));
+                                        args.push_back(resource->GetBaseObjectOrNull(ev->GetSourceEntity()));
                                     });
+
+V8_LOCAL_EVENT_HANDLER entityHitEntity(EventType::ENTITY_HIT_ENTITY,
+                                       "entityHitEntity",
+                                       [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                       {
+                                           auto ev = static_cast<const alt::CEntityHitEntityEvent*>(e);
+                                           v8::Isolate* isolate = resource->GetIsolate();
+
+                                           args.push_back(resource->GetBaseObjectOrNull(ev->GetDamager()));
+                                           args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
+                                           args.push_back(V8Helpers::JSValue(ev->GetWeapon()));
+                                       });
+
+V8_LOCAL_EVENT_HANDLER playerStartTalking(EventType::PLAYER_START_TALKING,
+                                       "playerStartTalking",
+                                       [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                       {
+                                           auto ev = static_cast<const alt::CPlayerStartTalkingEvent*>(e);
+                                           v8::Isolate* isolate = resource->GetIsolate();
+
+                                           args.push_back(resource->GetBaseObjectOrNull(ev->GetPlayer()));
+                                       });
+
+V8_LOCAL_EVENT_HANDLER playerStopTalking(EventType::PLAYER_STOP_TALKING,
+                                       "playerStopTalking",
+                                       [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                       {
+                                           auto ev = static_cast<const alt::CPlayerStopTalkingEvent*>(e);
+                                           v8::Isolate* isolate = resource->GetIsolate();
+
+                                           args.push_back(resource->GetBaseObjectOrNull(ev->GetPlayer()));
+                                       });

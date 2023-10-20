@@ -20,6 +20,7 @@ namespace V8Helpers
     bool SafeToVector3Int(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, alt::Vector3i& out);
     bool SafeToVector2(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, alt::Vector2f& out);
     bool SafeToVector2Int(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, alt::Vector2i& out);
+    bool SafeToQuaternion(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, alt::Quaternion& out);
     bool SafeToArrayBuffer(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::ArrayBuffer>& out);
     bool SafeToArrayBufferView(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::ArrayBufferView>& out);
     bool SafeToArray(v8::Local<v8::Value> val, v8::Local<v8::Context> ctx, v8::Local<v8::Array>& out);
@@ -79,16 +80,6 @@ namespace V8Helpers
     inline v8::Local<v8::BigInt> JSValue(uint64_t val)
     {
         return v8::BigInt::NewFromUnsigned(v8::Isolate::GetCurrent(), val);
-    }
-    template<class T>
-    inline v8::Local<v8::Array> JSValue(alt::Array<T>& arr)
-    {
-        auto jsArr = v8::Array::New(v8::Isolate::GetCurrent(), arr.GetSize());
-        for(int i = 0; i < arr.GetSize(); i++)
-        {
-            jsArr->Set(v8::Isolate::GetCurrent()->GetEnteredOrMicrotaskContext(), i, JSValue(arr[i]));
-        }
-        return jsArr;
     }
     template<class T>
     inline v8::Local<v8::Array> JSValue(std::vector<T>& arr)

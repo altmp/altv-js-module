@@ -18,7 +18,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_CONSTRUCTOR();
-    V8_CHECK_ARGS_LEN2(3, 7);
+    V8_CHECK_ARGS_LEN_MIN_MAX(3, 8);
 
     V8_CHECK(info[0]->IsString() || info[0]->IsNumber(), "string or number expected");
 
@@ -36,11 +36,11 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     alt::Position pos;
     alt::Rotation rot;
-    if(info.Length() == 3)
+
+    if(info.Length() <= 4)
     {
         V8_ARG_TO_VECTOR3(2, position);
         V8_ARG_TO_VECTOR3(3, rotation);
-
         pos = position;
         rot = rotation;
     }
@@ -57,11 +57,11 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         rot = { rx, ry, rz };
     }
 
-    IVehicle* veh = alt::ICore::Instance().CreateVehicle(modelHash, pos, rot);
+    V8_ARG_TO_UINT_OPT(info.Length() <= 4 ? 4 : 8, streamingDistance, 0);
 
-    V8_CHECK(veh, "Failed to create vehicle");
+    IVehicle* veh = alt::ICore::Instance().CreateVehicle(modelHash, pos, rot, streamingDistance);
 
-    resource->BindEntity(info.This(), veh);
+    V8_BIND_BASE_OBJECT(veh, "Failed to create vehicle");
 }
 
 static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -71,6 +71,11 @@ static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo
     V8_RETURN(resource->GetAllVehicles());
 }
 
+static void CountGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_RETURN_UINT(alt::ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::VEHICLE).size());
+}
+
 static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -78,9 +83,9 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_INT(1, id);
 
-    alt::IEntity* entity = alt::ICore::Instance().GetEntityByID(id);
+    alt::IBaseObject* entity = alt::ICore::Instance().GetBaseObjectByID(alt::IBaseObject::Type::VEHICLE, id);
 
-    if(entity && entity->GetType() == alt::IEntity::Type::VEHICLE)
+    if(entity)
     {
         V8_RETURN_BASE_OBJECT(entity);
     }
@@ -97,8 +102,7 @@ static void SetTrainEngineId(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     if(info[0]->IsNull())
     {
-        alt::IVehicle* ref;
-        _this->SetTrainEngineId(ref);
+        _this->SetTrainEngineId(nullptr);
     }
     else
     {
@@ -114,8 +118,7 @@ static void SetTrainLinkedToBackwardId(const v8::FunctionCallbackInfo<v8::Value>
 
     if(info[0]->IsNull())
     {
-        alt::IVehicle* ref;
-        _this->SetTrainLinkedToBackwardId(ref);
+        _this->SetTrainLinkedToBackwardId(nullptr);
     }
     else
     {
@@ -131,8 +134,7 @@ static void SetTrainLinkedToForwardId(const v8::FunctionCallbackInfo<v8::Value>&
 
     if(info[0]->IsNull())
     {
-        alt::IVehicle* ref;
-        _this->SetTrainLinkedToForwardId(ref);
+        _this->SetTrainLinkedToForwardId(nullptr);
     }
     else
     {
@@ -229,6 +231,27 @@ static void RoofClosedGetter(v8::Local<v8::String> name, const v8::PropertyCallb
     V8_RETURN_BOOLEAN(_this->GetRoofState() == 1);
 }
 
+static void GetPassengers(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
+
+    auto obj = v8::Object::New(isolate);
+    auto passengers = V8ResourceImpl::vehiclePassengers[_this];
+
+    if (!passengers.empty())
+    {
+        for (auto& [seat, player] : passengers)
+        {
+            auto entity = resource->GetBaseObjectOrNull(player);
+            if (!entity->IsNull())
+                obj->Set(ctx, seat, entity);
+        }
+    }
+
+    V8_RETURN(obj);
+}
+
 extern V8Class v8Entity;
 extern V8Class v8Vehicle("Vehicle",
                          v8Entity,
@@ -239,11 +262,14 @@ extern V8Class v8Vehicle("Vehicle",
 
                              V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
                              V8Helpers::SetStaticAccessor(isolate, tpl, "all", AllGetter);
+                             V8Helpers::SetStaticAccessor(isolate, tpl, "count", &CountGetter);
 
                              // Common getter/setters
                              V8Helpers::SetAccessor<IVehicle, bool, &IVehicle::IsDestroyed>(isolate, tpl, "destroyed");
                              V8Helpers::SetAccessor<IVehicle, IPlayer*, &IVehicle::GetDriver>(isolate, tpl, "driver");
+                             V8Helpers::SetAccessor(isolate, tpl, "passengers", &GetPassengers);
                              V8Helpers::SetAccessor<IVehicle, Vector3f, &IVehicle::GetVelocity>(isolate, tpl, "velocity");
+                             V8Helpers::SetAccessor<IVehicle, Quaternion, &IVehicle::GetQuaternion, &IVehicle::SetQuaternion>(isolate, tpl, "quaternion");
 
                              // Appearance getters/setters
                              V8Helpers::SetAccessor(isolate, tpl, "modKit", &ModKitGetter, &ModKitSetter);
@@ -297,6 +323,7 @@ extern V8Class v8Vehicle("Vehicle",
                              V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetLightsMultiplier, &IVehicle::SetLightsMultiplier>(isolate, tpl, "lightsMultiplier");
                              V8Helpers::SetAccessor<IVehicle, bool, &IVehicle::IsDriftMode, &IVehicle::SetDriftMode>(isolate, tpl, "driftModeEnabled");
                              V8Helpers::SetAccessor<IVehicle, uint8_t, &IVehicle::GetLightState, &IVehicle::SetLightState>(isolate, tpl, "lightState");
+                             V8Helpers::SetAccessor<IVehicle, bool, &IVehicle::IsHornActive>(isolate, tpl, "hornActive");
 
                              // Gamestate methods
                              V8Helpers::SetMethod(isolate, tpl, "getDoorState", &GetDoorState);
@@ -364,6 +391,10 @@ extern V8Class v8Vehicle("Vehicle",
 
                              V8Helpers::SetAccessor<IVehicle, IVehicle*, &IVehicle::GetAttached>(isolate, tpl, "attached");
                              V8Helpers::SetAccessor<IVehicle, IVehicle*, &IVehicle::GetAttachedTo>(isolate, tpl, "attachedTo");
+
+                             V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetSteeringAngle>(isolate, tpl, "steeringAngle");
+                             V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetAccelerationLevel>(isolate, tpl, "accelerationLevel");
+                             V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetBrakeLevel>(isolate, tpl, "brakeLevel");
 
                              // Train getter/setter
                              V8Helpers::SetAccessor<IVehicle, bool, &IVehicle::IsTrainMissionTrain, &IVehicle::SetTrainMissionTrain>(isolate, tpl, "isMissionTrain");

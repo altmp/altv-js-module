@@ -7,8 +7,9 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_CONSTRUCTOR();
+    V8_CHECK_ARGS_LEN2(8, 12);
 
-    if(info.Length() == 6)
+    if(info.Length() == 8)
     {
         V8_ARG_TO_INT(1, type);
         V8_ARG_TO_OBJECT(2, pos);
@@ -16,6 +17,8 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_ARG_TO_NUMBER(4, radius);
         V8_ARG_TO_NUMBER(5, height);
         V8_ARG_TO_OBJECT(6, color);
+        V8_ARG_TO_OBJECT(7, iconColor);
+        V8_ARG_TO_UINT(8, streamingDistance)
 
         V8_OBJECT_GET_NUMBER(pos, "x", x);
         V8_OBJECT_GET_NUMBER(pos, "y", y);
@@ -30,11 +33,23 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_OBJECT_GET_INT(color, "b", b);
         V8_OBJECT_GET_INT(color, "a", a);
 
-        alt::ICheckpoint* cp =
-          alt::ICore::Instance().CreateCheckpoint(type, { x, y, z }, { x2, y2, z2 }, radius, height, { (uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a }, resource->GetResource());
+        V8_OBJECT_GET_INT(iconColor, "r", iconR);
+        V8_OBJECT_GET_INT(iconColor, "g", iconG);
+        V8_OBJECT_GET_INT(iconColor, "b", iconB);
+        V8_OBJECT_GET_INT(iconColor, "a", iconA);
+
+        alt::ICheckpoint* cp = alt::ICore::Instance().CreateCheckpoint(type,
+                                                                       { x, y, z },
+                                                                       { x2, y2, z2 },
+                                                                       radius,
+                                                                       height,
+                                                                       { (uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a },
+                                                                       { (uint8_t)iconR, (uint8_t)iconG, (uint8_t)iconB, (uint8_t)iconA },
+                                                                       streamingDistance,
+                                                                       resource->GetResource());
         V8_BIND_BASE_OBJECT(cp, "Failed to create Checkpoint");
     }
-    else if(info.Length() == 10)
+    else if(info.Length() == 12)
     {
         V8_ARG_TO_INT(1, type);
         V8_ARG_TO_NUMBER(2, x);
@@ -46,18 +61,30 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_ARG_TO_NUMBER(8, radius);
         V8_ARG_TO_NUMBER(9, height);
         V8_ARG_TO_OBJECT(10, color);
+        V8_ARG_TO_OBJECT(11, iconColor);
+        V8_ARG_TO_UINT(12, streamingDistance)
 
         V8_OBJECT_GET_INT(color, "r", r);
         V8_OBJECT_GET_INT(color, "g", g);
         V8_OBJECT_GET_INT(color, "b", b);
         V8_OBJECT_GET_INT(color, "a", a);
 
-        alt::ICheckpoint* cp =
-          alt::ICore::Instance().CreateCheckpoint(type, { x, y, z }, { x2, y2, z2 }, radius, height, { (uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a }, resource->GetResource());
+        V8_OBJECT_GET_INT(iconColor, "r", iconR);
+        V8_OBJECT_GET_INT(iconColor, "g", iconG);
+        V8_OBJECT_GET_INT(iconColor, "b", iconB);
+        V8_OBJECT_GET_INT(iconColor, "a", iconA);
+
+        alt::ICheckpoint* cp = alt::ICore::Instance().CreateCheckpoint(type,
+                                                                       { x, y, z },
+                                                                       { x2, y2, z2 },
+                                                                       radius,
+                                                                       height,
+                                                                       { (uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a },
+                                                                       { (uint8_t)iconR, (uint8_t)iconG, (uint8_t)iconB, (uint8_t)iconA },
+                                                                       streamingDistance,
+                                                                       resource->GetResource());
         V8_BIND_BASE_OBJECT(cp, "Failed to create Checkpoint");
     }
-    else
-        V8Helpers::Throw(isolate, "6 or 10 arguments expected");
 }
 
 static void IsEntityIn(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -83,6 +110,55 @@ static void IsPointIn(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_BOOLEAN(cp->IsPointIn({ x, y, z }));
 }
 
+static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+
+    V8_RETURN(resource->GetAllCheckpoints());
+}
+
+static void CountGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_RETURN_UINT(alt::ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::CHECKPOINT).size());
+}
+
+static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_INT(1, id);
+
+    alt::IBaseObject* baseObject = alt::ICore::Instance().GetBaseObjectByID(alt::IBaseObject::Type::CHECKPOINT, id);
+
+    if(baseObject && baseObject->GetType() == alt::IEntity::Type::CHECKPOINT)
+    {
+        V8_RETURN_BASE_OBJECT(baseObject);
+    }
+    else
+    {
+        V8_RETURN_NULL();
+    }
+}
+
+static void StaticGetByScriptID(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(1);
+    V8_ARG_TO_INT(1, scriptGuid);
+
+    alt::ICheckpoint* checkpoint = alt::ICore::Instance().GetCheckpointByGameID(scriptGuid);
+
+    if(checkpoint)
+    {
+        V8_RETURN_BASE_OBJECT(checkpoint);
+    }
+    else
+    {
+        V8_RETURN_NULL();
+    }
+}
+
 extern V8Class v8WorldObject;
 extern V8Class v8Checkpoint("Checkpoint",
                             v8WorldObject,
@@ -91,13 +167,23 @@ extern V8Class v8Checkpoint("Checkpoint",
                             {
                                 using namespace alt;
                                 v8::Isolate* isolate = v8::Isolate::GetCurrent();
+                                V8Helpers::SetAccessor<ICheckpoint, uint32_t, &ICheckpoint::GetGameID>(isolate, tpl, "scriptID");
+
+                                V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
+                                V8Helpers::SetStaticAccessor(isolate, tpl, "count", &CountGetter);
+                                V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
+                                V8Helpers::SetStaticMethod(isolate, tpl, "getByScriptID", StaticGetByScriptID);
 
                                 V8Helpers::SetAccessor<ICheckpoint, uint8_t, &ICheckpoint::GetCheckpointType, &ICheckpoint::SetCheckpointType>(isolate, tpl, "checkpointType");
                                 V8Helpers::SetAccessor<ICheckpoint, float, &ICheckpoint::GetRadius, &ICheckpoint::SetRadius>(isolate, tpl, "radius");
                                 V8Helpers::SetAccessor<ICheckpoint, float, &ICheckpoint::GetHeight, &ICheckpoint::SetHeight>(isolate, tpl, "height");
                                 V8Helpers::SetAccessor<ICheckpoint, RGBA, &ICheckpoint::GetColor, &ICheckpoint::SetColor>(isolate, tpl, "color");
+                                V8Helpers::SetAccessor<ICheckpoint, RGBA, &ICheckpoint::GetIconColor, &ICheckpoint::SetIconColor>(isolate, tpl, "iconColor");
                                 V8Helpers::SetAccessor<ICheckpoint, Position, &ICheckpoint::GetNextPosition, &ICheckpoint::SetNextPosition>(isolate, tpl, "nextPos");
+                                V8Helpers::SetAccessor<ICheckpoint, uint32_t, &ICheckpoint::GetStreamingDistance>(isolate, tpl, "streamingDistance");
+                                V8Helpers::SetAccessor<ICheckpoint, bool, &ICheckpoint::IsStreamedIn>(isolate, tpl, "isStreamedIn");
 
+                                V8Helpers::SetAccessor<ICheckpoint, bool, &ICheckpoint::IsVisible, &ICheckpoint::SetVisible>(isolate, tpl, "visible");
                                 V8Helpers::SetMethod(isolate, tpl, "isEntityIn", &IsEntityIn);
                                 V8Helpers::SetMethod(isolate, tpl, "isPointIn", &IsPointIn);
                             });

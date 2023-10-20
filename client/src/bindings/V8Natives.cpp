@@ -4,6 +4,8 @@
 #include "Log.h"
 #include "V8ResourceImpl.h"
 
+static bool strictChecks = false;
+
 static uint64_t pointers[32];
 static uint32_t pointersCount = 0;
 
@@ -94,6 +96,8 @@ inline void ShowNativeArgParseErrorMsg(V8ResourceImpl* resource, v8::Local<v8::V
     Log::Error << "Check the documentation for the needed arguments of this native." << Log::Endl;
 
     resource->DispatchErrorEvent(errorMsg.str(), source.GetFileName(), source.GetLineNumber(), V8Helpers::GetStackTrace(errorMsg.str()));
+
+    if(strictChecks) V8Helpers::Throw(isolate, errorMsg.str());
 }
 
 inline void ShowNativeArgMismatchErrorMsg(V8ResourceImpl* resource, alt::INative* native, int expected, int received)
@@ -109,9 +113,11 @@ inline void ShowNativeArgMismatchErrorMsg(V8ResourceImpl* resource, alt::INative
     Log::Error << "Check the documentation for the needed arguments of this native." << Log::Endl;
 
     resource->DispatchErrorEvent(errorMsg.str(), source.GetFileName(), source.GetLineNumber(), V8Helpers::GetStackTrace(errorMsg.str()));
+
+    if(strictChecks) V8Helpers::Throw(isolate, errorMsg.str());
 }
 
-static void PushArg(
+static bool PushArg(
   std::shared_ptr<alt::INative::Context> scrCtx, alt::INative* native, alt::INative::Type argType, v8::Isolate* isolate, V8ResourceImpl* resource, v8::Local<v8::Value> val, uint32_t idx)
 {
     using ArgType = alt::INative::Type;
@@ -137,7 +143,9 @@ static void PushArg(
                 else
                 {
                     ShowNativeArgParseErrorMsg(resource, val, native, argType, idx);
-                    scrCtx->Push(0);
+                    if(strictChecks) return false;
+                    else
+                        scrCtx->Push(0);
                 }
             }
             else if(val->IsBigInt())
@@ -150,20 +158,37 @@ static void PushArg(
                 else
                 {
                     ShowNativeArgParseErrorMsg(resource, val, native, argType, idx);
-                    scrCtx->Push(0);
+                    if(strictChecks) return false;
+                    else
+                        scrCtx->Push(0);
                 }
             }
             else if(val->IsObject())
             {
                 auto ent = V8Entity::Get(val);
-                if(ent != nullptr) scrCtx->Push(dynamic_cast<alt::IEntity*>(ent->GetHandle())->GetScriptGuid());
+                if(ent != nullptr)
+                {
+                    switch(ent->GetHandle()->GetType())
+                    {
+                        case alt::IBaseObject::Type::LOCAL_PED: scrCtx->Push(dynamic_cast<alt::ILocalPed*>(ent->GetHandle())->GetScriptID()); break;
+                        case alt::IBaseObject::Type::LOCAL_VEHICLE: scrCtx->Push(dynamic_cast<alt::ILocalVehicle*>(ent->GetHandle())->GetScriptID()); break;
+                        default: scrCtx->Push(dynamic_cast<alt::IEntity*>(ent->GetHandle())->GetScriptID());
+                    }
+                }
                 else
-                    scrCtx->Push(0);
+                {
+                    ShowNativeArgParseErrorMsg(resource, val, native, argType, idx);
+                    if(strictChecks) return false;
+                    else
+                        scrCtx->Push(0);
+                }
             }
             else
             {
                 ShowNativeArgParseErrorMsg(resource, val, native, argType, idx);
-                scrCtx->Push(0);
+                if(strictChecks) return false;
+                else
+                    scrCtx->Push(0);
             }
             break;
         }
@@ -183,7 +208,9 @@ static void PushArg(
                 else
                 {
                     ShowNativeArgParseErrorMsg(resource, val, native, argType, idx);
-                    scrCtx->Push(0);
+                    if(strictChecks) return false;
+                    else
+                        scrCtx->Push(0);
                 }
             }
             else if(val->IsBigInt())
@@ -196,13 +223,17 @@ static void PushArg(
                 else
                 {
                     ShowNativeArgParseErrorMsg(resource, val, native, argType, idx);
-                    scrCtx->Push(0);
+                    if(strictChecks) return false;
+                    else
+                        scrCtx->Push(0);
                 }
             }
             else
             {
                 ShowNativeArgParseErrorMsg(resource, val, native, argType, idx);
-                scrCtx->Push(0);
+                if(strictChecks) return false;
+                else
+                    scrCtx->Push(0);
             }
             break;
         }
@@ -215,20 +246,21 @@ static void PushArg(
             if(val->IsNumber())
             {
                 v8::Local<v8::Number> value;
-                if(val->ToNumber(v8Ctx).ToLocal(&value))
-                {
-                    scrCtx->Push((float)value->Value());
-                }
+                if(val->ToNumber(v8Ctx).ToLocal(&value)) scrCtx->Push((float)value->Value());
                 else
                 {
                     ShowNativeArgParseErrorMsg(resource, val, native, argType, idx);
-                    scrCtx->Push(0.f);
+                    if(strictChecks) return false;
+                    else
+                        scrCtx->Push(0.f);
                 }
             }
             else
             {
                 ShowNativeArgParseErrorMsg(resource, val, native, argType, idx);
-                scrCtx->Push(0.f);
+                if(strictChecks) return false;
+                else
+                    scrCtx->Push(0.f);
             }
             break;
         }
@@ -241,12 +273,19 @@ static void PushArg(
             scrCtx->Push(SavePointer(alt::INative::Vector3{}));  // TODO: Add initializer
             break;
         case alt::INative::Type::ARG_STRING:
+        {
             if(val->IsString()) scrCtx->Push(SaveString(*v8::String::Utf8Value(isolate, val->ToString(v8Ctx).ToLocalChecked())));
             else if(val->IsNullOrUndefined())
                 scrCtx->Push((char*)nullptr);
             else
-                scrCtx->Push((char*)nullptr);
+            {
+                ShowNativeArgParseErrorMsg(resource, val, native, argType, idx);
+                if(strictChecks) return false;
+                else
+                    scrCtx->Push((char*)nullptr);
+            }
             break;
+        }
         case alt::INative::Type::ARG_STRUCT:
         {
             if(val->IsNull())
@@ -259,12 +298,16 @@ static void PushArg(
             else
             {
                 ShowNativeArgParseErrorMsg(resource, val, native, argType, idx);
-                scrCtx->Push((void*)nullptr);
+                if(strictChecks) return false;
+                else
+                    scrCtx->Push((void*)nullptr);
             }
             break;
         }
         default: Log::Error << "Unknown native arg type " << (int)argType << " (" << native->GetName() << ")" << Log::Endl;
     }
+
+    return true;
 }
 
 static void PushPointerReturn(alt::INative::Type argType, v8::Local<v8::Array> retns, v8::Isolate* isolate, v8::Local<v8::Context> ctx)
@@ -350,7 +393,7 @@ static void InvokeNative(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     auto resource = V8ResourceImpl::Get(v8Ctx);
     auto args = native->GetArgTypes();
-    uint32_t argsSize = args.GetSize();
+    uint32_t argsSize = args.size();
 
     auto neededArgs = GetNativeNeededArgCount(native);
     if(neededArgs > info.Length())
@@ -363,7 +406,10 @@ static void InvokeNative(const v8::FunctionCallbackInfo<v8::Value>& info)
     pointersCount = 0;
     returnsCount = 1;
 
-    for(uint32_t i = 0; i < argsSize; ++i) PushArg(ctx, native, args[i], isolate, resource, info[i], i);
+    for(uint32_t i = 0; i < argsSize; ++i)
+    {
+        if(!PushArg(ctx, native, args[i], isolate, resource, info[i], i)) return;
+    }
 
     if(!native->Invoke(ctx))
     {
@@ -389,9 +435,18 @@ static void InvokeNative(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
 }
 
+static void ToggleStrictChecks(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE();
+    V8_ARG_TO_BOOLEAN(1, strict);
+    strictChecks = strict;
+}
+
 static void RegisterNatives(v8::Local<v8::Context> ctx, v8::Local<v8::Object> exports)
 {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
+
+    V8Helpers::SetFunction(isolate, ctx, exports, "toggleStrictChecks", ToggleStrictChecks);
 
     for(auto native : alt::ICore::Instance().GetAllNatives())
     {

@@ -245,7 +245,7 @@ void CV8ScriptRuntime::OnDispose()
     delete this;
 }
 
-void CV8ScriptRuntime::Init(std::function<void(bool success, std::string error)> next, std::function<void(alt::InitState state, float progress, float total)> setProgress)
+void CV8ScriptRuntime::Init(std::function<void(bool success, std::string error)> next, std::function<void(alt::InitState state, float progress, float total, int)> setProgress)
 {
     IRuntimeEventHandler::Reset();
     next(true, "");
@@ -320,12 +320,12 @@ v8::MaybeLocal<v8::Module>
               {
                   // Handle as base64 source string
                   std::string sourceStr = Base64Decode(specifierStr);
-                  maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(sourceStr, V8Helpers::SourceLocation::GetCurrent(isolate, resource));
+                  maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode("", sourceStr, V8Helpers::SourceLocation::GetCurrent(isolate, resource));
               }
               else if(typeValueStr == "source")
               {
                   // Handle as module source code
-                  maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode(specifierStr, V8Helpers::SourceLocation::GetCurrent(isolate, resource));
+                  maybeModule = static_cast<CV8ResourceImpl*>(resource)->ResolveCode("", specifierStr, V8Helpers::SourceLocation::GetCurrent(isolate, resource));
               }
               else if(typeValueStr == "json")
               {
@@ -401,9 +401,16 @@ void CV8ScriptRuntime::OnEntityStreamIn(alt::IEntity* entity)
             streamedInPlayers.insert({ entity->GetID(), dynamic_cast<alt::IPlayer*>(entity) });
             break;
         }
+        case alt::IEntity::Type::LOCAL_VEHICLE:
         case alt::IEntity::Type::VEHICLE:
         {
             streamedInVehicles.insert({ entity->GetID(), dynamic_cast<alt::IVehicle*>(entity) });
+            break;
+        }
+        case alt::IEntity::Type::LOCAL_PED:
+        case alt::IEntity::Type::PED:
+        {
+            streamedInPeds.insert({ entity->GetID(), dynamic_cast<alt::IPed*>(entity) });
             break;
         }
     }
@@ -418,10 +425,24 @@ void CV8ScriptRuntime::OnEntityStreamOut(alt::IEntity* entity)
             streamedInPlayers.erase(entity->GetID());
             break;
         }
+        case alt::IEntity::Type::LOCAL_VEHICLE:
         case alt::IEntity::Type::VEHICLE:
         {
             streamedInVehicles.erase(entity->GetID());
             break;
         }
+        case alt::IEntity::Type::LOCAL_PED:
+        case alt::IEntity::Type::PED:
+        {
+            streamedInPeds.erase(entity->GetID());
+            break;
+        }
     }
+}
+void CV8ScriptRuntime::OnDisconnect()
+{
+    streamedInPlayers.clear();
+    streamedInVehicles.clear();
+    streamedInPeds.clear();
+    resourcesLoaded = false;
 }

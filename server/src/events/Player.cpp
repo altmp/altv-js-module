@@ -6,7 +6,6 @@
 #include "CNodeResourceImpl.h"
 
 #include "cpp-sdk/events/CPlayerConnectEvent.h"
-#include "cpp-sdk/events/CPlayerBeforeConnectEvent.h"
 #include "cpp-sdk/events/CPlayerDisconnectEvent.h"
 #include "cpp-sdk/events/CPlayerDamageEvent.h"
 #include "cpp-sdk/events/CPlayerDeathEvent.h"
@@ -32,32 +31,6 @@ V8Helpers::LocalEventHandler playerConnect(EventType::PLAYER_CONNECT,
                                                auto ev = static_cast<const alt::CPlayerConnectEvent*>(e);
                                                args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
                                            });
-
-V8Helpers::LocalEventHandler beforePlayerConnect(EventType::PLAYER_BEFORE_CONNECT,
-                                                 "beforePlayerConnect",
-                                                 [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args)
-                                                 {
-                                                     auto ev = static_cast<const alt::CPlayerBeforeConnectEvent*>(e);
-                                                     v8::Isolate* isolate = resource->GetIsolate();
-                                                     v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
-
-                                                     alt::IConnectionInfo* info = ev->GetConnectionInfo();
-                                                     v8::Local<v8::Object> infoObj = v8ConnectionInfo.CreateInstance(ctx);
-                                                     infoObj->SetInternalField(0, v8::External::New(isolate, info));
-                                                     static_cast<CNodeResourceImpl*>(resource)->AddConnectionInfoObject(info, infoObj);
-
-                                                     args.push_back(infoObj);
-                                                     args.push_back(V8Helpers::JSValue(ev->GetReason()));
-
-                                                     resource->RunOnNextTick(
-                                                       [=]
-                                                       {
-                                                           v8::Local<v8::Object> infoObj = static_cast<CNodeResourceImpl*>(resource)->GetConnectionInfoObject(info);
-                                                           if(infoObj.IsEmpty()) return;
-                                                           infoObj->SetInternalField(0, v8::External::New(isolate, nullptr));
-                                                           static_cast<CNodeResourceImpl*>(resource)->RemoveConnectionInfoObject(info);
-                                                       });
-                                                 });
 
 V8Helpers::LocalEventHandler playerConnectDenied(EventType::PLAYER_CONNECT_DENIED,
                                                  "playerConnectDenied",
@@ -187,14 +160,8 @@ V8_LOCAL_EVENT_HANDLER connectionQueueAdd(EventType::CONNECTION_QUEUE_ADD,
                                           {
                                               auto ev = static_cast<const alt::CConnectionQueueAddEvent*>(e);
                                               v8::Isolate* isolate = resource->GetIsolate();
-                                              v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
 
-                                              alt::IConnectionInfo* info = ev->GetConnectionInfo();
-                                              v8::Local<v8::Object> infoObj = v8ConnectionInfo.CreateInstance(ctx);
-                                              infoObj->SetInternalField(0, v8::External::New(isolate, info));
-                                              static_cast<CNodeResourceImpl*>(resource)->AddConnectionInfoObject(info, infoObj);
-
-                                              args.push_back(infoObj);
+                                              args.push_back(resource->GetBaseObjectOrNull(ev->GetConnectionInfo()));
                                           });
 
 V8_LOCAL_EVENT_HANDLER
@@ -204,21 +171,8 @@ connectionQueueRemove(EventType::CONNECTION_QUEUE_REMOVE,
                       {
                           auto ev = static_cast<const alt::CConnectionQueueRemoveEvent*>(e);
                           v8::Isolate* isolate = resource->GetIsolate();
-                          v8::Local<v8::Context> ctx = isolate->GetEnteredOrMicrotaskContext();
 
-                          alt::IConnectionInfo* info = ev->GetConnectionInfo();
-                          resource->RunOnNextTick(
-                            [resource, isolate, info]
-                            {
-                                v8::Local<v8::Object> infoObj = static_cast<CNodeResourceImpl*>(resource)->GetConnectionInfoObject(info);
-                                if(infoObj.IsEmpty()) return;
-                                infoObj->SetInternalField(0, v8::External::New(isolate, nullptr));
-                                static_cast<CNodeResourceImpl*>(resource)->RemoveConnectionInfoObject(info);
-                            });
-
-                          v8::Local<v8::Object> infoObj = static_cast<CNodeResourceImpl*>(resource)->GetConnectionInfoObject(info);
-                          if(infoObj.IsEmpty()) return;
-                          args.push_back(infoObj);
+                          args.push_back(resource->GetBaseObjectOrNull(ev->GetConnectionInfo()));
                       });
 
 V8_LOCAL_EVENT_HANDLER requestControl(EventType::PLAYER_REQUEST_CONTROL,
@@ -244,13 +198,37 @@ V8_LOCAL_EVENT_HANDLER playerInteriorChange(EventType::PLAYER_CHANGE_INTERIOR_EV
                                             });
 
 V8_LOCAL_EVENT_HANDLER playerDimensionChange(EventType::PLAYER_DIMENSION_CHANGE,
-                                            "playerDimensionChange",
-                                            [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args)
-                                            {
-                                                auto ev = static_cast<const alt::CPlayerDimensionChangeEvent*>(e);
-                                                v8::Isolate* isolate = resource->GetIsolate();
+                                             "playerDimensionChange",
+                                             [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                             {
+                                                 auto ev = static_cast<const alt::CPlayerDimensionChangeEvent*>(e);
+                                                 v8::Isolate* isolate = resource->GetIsolate();
 
-                                                args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
-                                                args.push_back(V8Helpers::JSValue(ev->GetOldDimension()));
-                                                args.push_back(V8Helpers::JSValue(ev->GetNewDimension()));
-                                            });
+                                                 args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
+                                                 args.push_back(V8Helpers::JSValue(ev->GetOldDimension()));
+                                                 args.push_back(V8Helpers::JSValue(ev->GetNewDimension()));
+                                             });
+
+V8_LOCAL_EVENT_HANDLER playerSpawn(EventType::PLAYER_SPAWN,
+                                   "playerSpawn",
+                                   [](V8ResourceImpl* resource, const alt::CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                   {
+                                       auto ev = static_cast<const alt::CPlayerSpawnEvent*>(e);
+                                       v8::Isolate* isolate = resource->GetIsolate();
+
+                                       args.push_back(resource->GetBaseObjectOrNull(ev->GetPlayer()));
+                                   });
+
+V8_LOCAL_EVENT_HANDLER playerHeal(EventType::PLAYER_HEAL,
+                                  "playerHeal",
+                                  [](V8ResourceImpl* resource, const CEvent* e, std::vector<v8::Local<v8::Value>>& args)
+                                  {
+                                      auto ev = static_cast<const alt::CPlayerHealEvent*>(e);
+                                      v8::Isolate* isolate = resource->GetIsolate();
+
+                                      args.push_back(resource->GetBaseObjectOrNull(ev->GetTarget()));
+                                      args.push_back(V8Helpers::JSValue(ev->GetOldHealth()));
+                                      args.push_back(V8Helpers::JSValue(ev->GetNewHealth()));
+                                      args.push_back(V8Helpers::JSValue(ev->GetOldArmour()));
+                                      args.push_back(V8Helpers::JSValue(ev->GetNewArmour()));
+                                  });

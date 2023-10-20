@@ -278,6 +278,34 @@ v8::Local<v8::String> V8Helpers::Vector3_ZKey(v8::Isolate* isolate)
     return zKey.Get(isolate);
 }
 
+v8::Local<v8::String> V8Helpers::Quaternion_XKey(v8::Isolate* isolate)
+{
+    static v8::Persistent<v8::String> xKey{ isolate, v8::String::NewFromUtf8(isolate, "x", v8::NewStringType::kInternalized).ToLocalChecked() };
+
+    return xKey.Get(isolate);
+}
+
+v8::Local<v8::String> V8Helpers::Quaternion_YKey(v8::Isolate* isolate)
+{
+    static v8::Persistent<v8::String> yKey{ isolate, v8::String::NewFromUtf8(isolate, "y", v8::NewStringType::kInternalized).ToLocalChecked() };
+
+    return yKey.Get(isolate);
+}
+
+v8::Local<v8::String> V8Helpers::Quaternion_ZKey(v8::Isolate* isolate)
+{
+    static v8::Persistent<v8::String> zKey{ isolate, v8::String::NewFromUtf8(isolate, "z", v8::NewStringType::kInternalized).ToLocalChecked() };
+
+    return zKey.Get(isolate);
+}
+
+v8::Local<v8::String> V8Helpers::Quaternion_WKey(v8::Isolate* isolate)
+{
+    static v8::Persistent<v8::String> wKey{ isolate, v8::String::NewFromUtf8(isolate, "w", v8::NewStringType::kInternalized).ToLocalChecked() };
+
+    return wKey.Get(isolate);
+}
+
 v8::Local<v8::String> V8Helpers::RGBA_RKey(v8::Isolate* isolate)
 {
     static v8::Persistent<v8::String> rKey{ isolate, v8::String::NewFromUtf8(isolate, "r", v8::NewStringType::kInternalized).ToLocalChecked() };

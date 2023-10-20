@@ -69,6 +69,11 @@ static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo
     V8_RETURN(resource->GetAllVehicles()->Clone());
 }
 
+static void CountGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_RETURN_UINT(alt::ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::VEHICLE).size());
+}
+
 static void StreamedInGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -90,7 +95,17 @@ static void StaticGetByScriptID(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_CHECK_ARGS_LEN(1);
     V8_ARG_TO_INT(1, scriptGuid);
-    V8_RETURN_BASE_OBJECT(alt::ICore::Instance().GetEntityByScriptGuid(scriptGuid));
+
+    alt::IWorldObject* entity = alt::ICore::Instance().GetWorldObjectByScriptID(scriptGuid);
+
+    if(entity && (entity->GetType() == alt::IEntity::Type::VEHICLE || entity->GetType() == alt::IEntity::Type::LOCAL_VEHICLE))
+    {
+        V8_RETURN_BASE_OBJECT(entity);
+    }
+    else
+    {
+        V8_RETURN_NULL();
+    }
 }
 
 static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -100,9 +115,9 @@ static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_ARG_TO_INT(1, id);
 
-    alt::IEntity* entity = alt::ICore::Instance().GetEntityByID(id);
+    alt::IBaseObject* entity = alt::ICore::Instance().GetBaseObjectByID(alt::IBaseObject::Type::VEHICLE, id);
 
-    if(entity && entity->GetType() == alt::IEntity::Type::VEHICLE)
+    if(entity)
     {
         V8_RETURN_BASE_OBJECT(entity);
     }
@@ -252,6 +267,25 @@ static void GetWheelSurfaceMaterial(const v8::FunctionCallbackInfo<v8::Value>& i
     V8_RETURN_UINT(vehicle->GetWheelSurfaceMaterial(wheel));
 }
 
+static void StaticGetByRemoteId(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_INT32(1, id);
+
+    alt::IBaseObject* entity = alt::ICore::Instance().GetBaseObjectByRemoteID(alt::IBaseObject::Type::VEHICLE, id);
+
+    if(entity)
+    {
+        V8_RETURN_BASE_OBJECT(entity);
+    }
+    else
+    {
+        V8_RETURN_NULL();
+    }
+}
+
 extern V8Class v8Entity;
 extern V8Class v8Vehicle("Vehicle",
                          v8Entity,
@@ -263,15 +297,17 @@ extern V8Class v8Vehicle("Vehicle",
 
                              V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
                              V8Helpers::SetStaticMethod(isolate, tpl, "getByScriptID", StaticGetByScriptID);
+                             V8Helpers::SetStaticMethod(isolate, tpl, "getByRemoteID", StaticGetByRemoteId);
 
                              V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
+                             V8Helpers::SetStaticAccessor(isolate, tpl, "count", &CountGetter);
                              V8Helpers::SetStaticAccessor(isolate, tpl, "streamedIn", &StreamedInGetter);
 
                              // Common getters
                              V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetWheelSpeed>(isolate, tpl, "speed");
                              V8Helpers::SetAccessor<IVehicle, uint16_t, &IVehicle::GetCurrentGear, &IVehicle::SetCurrentGear>(isolate, tpl, "gear");
                              V8Helpers::SetAccessor<IVehicle, uint16_t, &IVehicle::GetMaxGear>(isolate, tpl, "maxGear");
-                             V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetCurrentRPM>(isolate, tpl, "rpm");
+                             V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetCurrentRPM, &IVehicle::SetCurrentRPM>(isolate, tpl, "rpm");
                              V8Helpers::SetAccessor<IVehicle, uint8_t, &IVehicle::GetWheelsCount>(isolate, tpl, "wheelsCount");
                              V8Helpers::SetAccessor<IVehicle, alt::Vector3f, &IVehicle::GetSpeedVector>(isolate, tpl, "speedVector");
                              V8Helpers::SetAccessor(isolate, tpl, "handling", &HandlingGetter);
@@ -308,6 +344,9 @@ extern V8Class v8Vehicle("Vehicle",
                              V8Helpers::SetMethod<IVehicle, &IVehicle::ResetDashboardLights>(isolate, tpl, "resetDashboardLights");
 
                              V8Helpers::SetMethod(isolate, tpl, "getWheelSurfaceMaterial", GetWheelSurfaceMaterial);
+
+                             V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetSteeringAngle, &IVehicle::SetSteeringAngle>(isolate, tpl, "steeringAngle");
+                             V8Helpers::SetAccessor<IVehicle, float, &IVehicle::GetSuspensionHeight, &IVehicle::SetSuspensionHeight>(isolate, tpl, "suspensionHeight");
 
                              /*GETTERS BELOW ARE UNIMPLEMENTED
                              V8Helpers::SetAccessor(isolate, tpl, "isDestroyed", &IsDestroyedGetter);

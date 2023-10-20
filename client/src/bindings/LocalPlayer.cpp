@@ -71,15 +71,29 @@ static void GetWeapons(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8:
     V8_GET_ISOLATE_CONTEXT();
     V8_GET_THIS_BASE_OBJECT(player, alt::ILocalPlayer);
 
-    const std::vector<uint32_t> list = player->GetWeapons();
-    size_t size = list.size();
-    v8::Local<v8::Array> arr = v8::Array::New(isolate, size);
-    for(size_t i = 0; i < size; i++)
+    std::vector<alt::Weapon> weapons = player->GetWeapons();
+    size_t size = weapons.size();
+    v8::Local<v8::Array> weaponsArr = v8::Array::New(isolate, (int)size);
+    for(alt::Size i = 0; i < size; i++)
     {
-        arr->Set(ctx, i, V8Helpers::JSValue(list[i]));
+        alt::Weapon& weapon = weapons[i];
+        V8_NEW_OBJECT(weaponObj);
+        V8_OBJECT_SET_UINT(weaponObj, "hash", weapon.hash);
+        V8_OBJECT_SET_UINT(weaponObj, "tintIndex", weapon.tintIndex);
+
+        auto& components = weapon.components;
+        v8::Local<v8::Array> componentsArr = v8::Array::New(isolate);
+        size_t idx = 0;
+        for(auto it : components)
+        {
+            componentsArr->Set(ctx, idx++, V8Helpers::JSValue(it));
+        }
+        weaponObj->Set(ctx, V8Helpers::JSValue("components"), componentsArr);
+
+        weaponsArr->Set(ctx, i, weaponObj);
     }
 
-    V8_RETURN(arr);
+    V8_RETURN(weaponsArr);
 }
 
 static void GetWeaponComponents(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -128,4 +142,5 @@ extern V8Class v8LocalPlayer("LocalPlayer",
                                  V8Helpers::SetAccessor(isolate, tpl, "currentWeaponData", &CurrentWeaponDataGetter);
                                  V8Helpers::SetAccessor<alt::ILocalPlayer, float, &alt::ILocalPlayer::GetStamina, &alt::ILocalPlayer::SetStamina>(isolate, tpl, "stamina");
                                  V8Helpers::SetAccessor<alt::ILocalPlayer, float, &alt::ILocalPlayer::GetMaxStamina, &alt::ILocalPlayer::SetMaxStamina>(isolate, tpl, "maxStamina");
+                                 V8Helpers::SetAccessor<alt::IWorldObject, int32_t, &alt::IWorldObject::GetDimension>(isolate, tpl, "dimension");
                              });

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cpp-sdk/types/MValue.h"
-#include "cpp-sdk/types/IConnectionInfo.h"
+#include "cpp-sdk/script-objects/IConnectionInfo.h"
 #include "cpp-sdk/IPackage.h"
 #include "cpp-sdk/IResource.h"
 
@@ -25,9 +25,13 @@ public:
     bool Stop() override;
 
     void OnEvent(const alt::CEvent* ev) override;
+    void HandleVehiclePassengerSeatEvents(const alt::CEvent* ev);
+    void HandleClientRpcEvent(alt::CScriptRPCEvent* ev);
+    void HandleClientRpcAnswerEvent(const alt::CScriptRPCAnswerEvent* ev);
+
     void OnTick() override;
 
-    bool MakeClient(alt::IResource::CreationInfo* info, alt::Array<std::string>) override;
+    bool MakeClient(alt::IResource::CreationInfo* info, std::vector<std::string>) override;
 
     void Started(v8::Local<v8::Value> exports);
     node::Environment* GetEnv()
@@ -47,24 +51,6 @@ public:
         return envStarted;
     }
 
-    void AddConnectionInfoObject(alt::IConnectionInfo* info, v8::Local<v8::Object> obj)
-    {
-        connectionInfoMap.insert({ info, V8Helpers::CPersistent<v8::Object>(isolate, obj) });
-    }
-    void RemoveConnectionInfoObject(alt::IConnectionInfo* info)
-    {
-        connectionInfoMap.erase(info);
-    }
-    v8::Local<v8::Object> GetConnectionInfoObject(alt::IConnectionInfo* info)
-    {
-        auto it = connectionInfoMap.find(info);
-        if(it != connectionInfoMap.end())
-        {
-            return it->second.Get(isolate);
-        }
-        return v8::Local<v8::Object>();
-    }
-
 private:
     CNodeScriptRuntime* runtime;
 
@@ -76,6 +62,4 @@ private:
     uv_loop_t* uvLoop = nullptr;
     V8Helpers::CPersistent<v8::Object> asyncResource;
     node::async_context asyncContext{};
-
-    std::unordered_map<alt::IConnectionInfo*, V8Helpers::CPersistent<v8::Object>> connectionInfoMap;
 };

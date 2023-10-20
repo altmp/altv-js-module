@@ -1,7 +1,6 @@
 
 #include "cpp-sdk/objects/IPlayer.h"
 #include "cpp-sdk/objects/IVehicle.h"
-#include "cpp-sdk/events/CPlayerBeforeConnectEvent.h"
 
 #include "V8ResourceImpl.h"
 
@@ -17,11 +16,12 @@
 
 using namespace alt;
 
-extern V8Class v8Vector3, v8Vector2, v8RGBA, v8BaseObject;
+extern V8Class v8Vector3, v8Vector2, v8RGBA, v8BaseObject, v8Quaternion;
 bool V8ResourceImpl::Start()
 {
     vector3Class.Reset(isolate, v8Vector3.JSValue(isolate, GetContext()));
     vector2Class.Reset(isolate, v8Vector2.JSValue(isolate, GetContext()));
+    quaternionClass.Reset(isolate, v8Quaternion.JSValue(isolate, GetContext()));
     rgbaClass.Reset(isolate, v8RGBA.JSValue(isolate, GetContext()));
     baseObjectClass.Reset(isolate, v8BaseObject.JSValue(isolate, GetContext()));
 
@@ -52,7 +52,6 @@ bool V8ResourceImpl::Stop()
     resourceObjects.clear();
     nextTickCallbacks.clear();
     benchmarkTimers.clear();
-    resourceObjects.clear();
 
     localHandlers.clear();
     remoteHandlers.clear();
@@ -63,6 +62,7 @@ bool V8ResourceImpl::Stop()
     vehicles.Reset();
     vector3Class.Reset();
     vector2Class.Reset();
+    quaternionClass.Reset();
     rgbaClass.Reset();
     baseObjectClass.Reset();
     objects.Reset();
@@ -130,6 +130,45 @@ void V8ResourceImpl::OnTick()
         else
             ++it;
     }
+
+    for (auto it = awaitableRPCHandlers.rbegin(); it != awaitableRPCHandlers.rend(); ++it)
+    {
+        auto promise = it->Promise.Get(isolate);
+        if (!promise->IsPromise())
+        {
+            awaitableRPCHandlers.erase(std::next(it).base());
+            continue;
+        }
+
+        v8::Promise::PromiseState state = promise->State();
+        if (state == v8::Promise::PromiseState::kFulfilled)
+        {
+            v8::Local<v8::Value> returnValue = promise->Result();
+
+            // Retrieve returned error message when an error was returned
+            std::string errorMessage;
+            if (returnValue->IsNativeError())
+            {
+                v8::Local<v8::Value> exception = returnValue.As<v8::Value>();
+
+                v8::String::Utf8Value messageValue(isolate, exception->ToString(isolate->GetCurrentContext()).ToLocalChecked());
+                errorMessage = *messageValue;
+
+                // Strip exception prefix
+                if (size_t colonPos = errorMessage.find(':'); colonPos != std::string::npos)
+                    errorMessage = errorMessage.substr(colonPos + 2);
+            }
+
+#ifdef ALT_SERVER_API
+            alt::ICore::Instance().TriggerClientRPCAnswer(it->Player, it->AnswerId, V8Helpers::V8ToMValue(returnValue), errorMessage);
+#else
+            alt::ICore::Instance().TriggerServerRPCAnswer(it->AnswerId, V8Helpers::V8ToMValue(returnValue), errorMessage);
+#endif
+        }
+
+        if (state == v8::Promise::PromiseState::kFulfilled || state == v8::Promise::PromiseState::kRejected)
+            awaitableRPCHandlers.erase(std::next(it).base());
+    }
 }
 
 void V8ResourceImpl::BindEntity(v8::Local<v8::Object> val, alt::IBaseObject* handle)
@@ -165,6 +204,13 @@ v8::Local<v8::Value> V8ResourceImpl::CreateVector2(alt::Vector2f vec)
     return v8Vector2.CreateInstance(isolate, GetContext(), args);
 }
 
+v8::Local<v8::Value> V8ResourceImpl::CreateQuaternion(alt::Quaternion quat)
+{
+    std::vector<v8::Local<v8::Value>> args{ V8Helpers::JSValue(quat.x), V8Helpers::JSValue(quat.y), V8Helpers::JSValue(quat.z), V8Helpers::JSValue(quat.w) };
+
+    return v8Quaternion.CreateInstance(isolate, GetContext(), args);
+}
+
 v8::Local<v8::Value> V8ResourceImpl::CreateRGBA(alt::RGBA rgba)
 {
     std::vector<v8::Local<v8::Value>> args{ V8Helpers::JSValue(rgba.r), V8Helpers::JSValue(rgba.g), V8Helpers::JSValue(rgba.b), V8Helpers::JSValue(rgba.a) };
@@ -186,6 +232,13 @@ bool V8ResourceImpl::IsVector2(v8::Local<v8::Value> val)
     return result;
 }
 
+bool V8ResourceImpl::IsQuaternion(v8::Local<v8::Value> val)
+{
+    bool result = false;
+    val->InstanceOf(GetContext(), quaternionClass.Get(isolate)).To(&result);
+    return result;
+}
+
 bool V8ResourceImpl::IsRGBA(v8::Local<v8::Value> val)
 {
     bool result = false;
@@ -202,6 +255,12 @@ bool V8ResourceImpl::IsBaseObject(v8::Local<v8::Value> val)
 
 void V8ResourceImpl::OnCreateBaseObject(alt::IBaseObject* handle)
 {
+    if(!handle)
+    {
+        Log::Error << "OnCreateBaseObject called with invalid handle" << Log::Endl;
+        return;
+    }
+
     NotifyPoolUpdate(handle);
 }
 
@@ -235,8 +294,12 @@ void V8ResourceImpl::NotifyPoolUpdate(alt::IBaseObject* ent)
     switch(ent->GetType())
     {
         case alt::IBaseObject::Type::PLAYER: playerPoolDirty = true; break;
-        case alt::IBaseObject::Type::VEHICLE: vehiclePoolDirty = true; break;
-        case alt::IBaseObject::Type::OBJECT: objectPoolDirty = true; break;
+        case alt::IBaseObject::Type::VEHICLE:
+        case alt::IBaseObject::Type::LOCAL_VEHICLE: vehiclePoolDirty = true; break;
+        case alt::IBaseObject::Type::LOCAL_OBJECT:
+            objectPoolDirty = true;
+            weaponObjectPoolDirty = true;
+            break;
     }
 }
 
@@ -246,7 +309,7 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllPlayers()
     {
         playerPoolDirty = false;
 
-        std::vector<IPlayer*> all = ICore::Instance().GetPlayers();
+        std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::PLAYER);
         v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
 
         for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
@@ -265,7 +328,7 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllVehicles()
     {
         vehiclePoolDirty = false;
 
-        std::vector<IVehicle*> all = ICore::Instance().GetVehicles();
+        std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::VEHICLE);
         v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
 
         for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
@@ -279,7 +342,7 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllVehicles()
 
 v8::Local<v8::Array> V8ResourceImpl::GetAllBlips()
 {
-    std::vector<IBlip*> all = ICore::Instance().GetBlips();
+    std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::BLIP);
     v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
 
     for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
@@ -288,14 +351,104 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllBlips()
     return jsAll;
 }
 
+v8::Local<v8::Array> V8ResourceImpl::GetAllAudioOutputs()
+{
+    std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::AUDIO_OUTPUT);
+    v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
+
+    for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
+
+    jsAll->SetIntegrityLevel(GetContext(), v8::IntegrityLevel::kFrozen);
+    return jsAll;
+}
+
+v8::Local<v8::Array> V8ResourceImpl::GetAllVirtualEntityGroups()
+{
+    std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::VIRTUAL_ENTITY_GROUP);
+    v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
+
+    for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
+
+    jsAll->SetIntegrityLevel(GetContext(), v8::IntegrityLevel::kFrozen);
+    return jsAll;
+}
+
+v8::Local<v8::Array> V8ResourceImpl::GetAllVirtualEntities()
+{
+    std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::VIRTUAL_ENTITY);
+    v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
+
+    for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
+
+    jsAll->SetIntegrityLevel(GetContext(), v8::IntegrityLevel::kFrozen);
+    return jsAll;
+}
+
+v8::Local<v8::Array> V8ResourceImpl::GetAllCheckpoints()
+{
+    std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::CHECKPOINT);
+    v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
+
+    for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
+
+    jsAll->SetIntegrityLevel(GetContext(), v8::IntegrityLevel::kFrozen);
+    return jsAll;
+}
+
+v8::Local<v8::Array> V8ResourceImpl::GetAllPeds()
+{
+    std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::PED);
+    v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
+
+    for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
+
+    jsAll->SetIntegrityLevel(GetContext(), v8::IntegrityLevel::kFrozen);
+    return jsAll;
+}
+
+v8::Local<v8::Array> V8ResourceImpl::GetAllMarkers()
+{
+    std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::MARKER);
+    v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
+
+    for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
+
+    jsAll->SetIntegrityLevel(GetContext(), v8::IntegrityLevel::kFrozen);
+    return jsAll;
+}
+
+v8::Local<v8::Array> V8ResourceImpl::GetAllColshapes()
+{
+    std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::COLSHAPE);
+    v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
+
+    for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
+
+    jsAll->SetIntegrityLevel(GetContext(), v8::IntegrityLevel::kFrozen);
+    return jsAll;
+}
+
+#ifdef ALT_SERVER_API
+v8::Local<v8::Array> V8ResourceImpl::GetAllConnectionInfos()
+{
+    std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::CONNECTION_INFO);
+    v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
+
+    for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
+
+    jsAll->SetIntegrityLevel(GetContext(), v8::IntegrityLevel::kFrozen);
+    return jsAll;
+}
+#endif
+
 #ifdef ALT_CLIENT_API
-v8::Local<v8::Array> V8ResourceImpl::GetAllObjects()
+v8::Local<v8::Array> V8ResourceImpl::GetAllLocalObjects()
 {
     if(objectPoolDirty)
     {
         objectPoolDirty = false;
 
-        std::vector<IObject*> all = ICore::Instance().GetObjects();
+        std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::LOCAL_OBJECT);
         v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
 
         for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
@@ -306,7 +459,36 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllObjects()
     }
     return objects.Get(isolate);
 }
+
+v8::Local<v8::Array> V8ResourceImpl::GetAllWeaponObjects()
+{
+    if(weaponObjectPoolDirty)
+    {
+        weaponObjectPoolDirty = false;
+
+        std::vector<ILocalObject*> all = ICore::Instance().GetWeaponObjects();
+        v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
+
+        for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
+
+        weaponObjects.Reset(isolate, jsAll);
+        jsAll->SetIntegrityLevel(GetContext(), v8::IntegrityLevel::kFrozen);
+        return jsAll;
+    }
+    return weaponObjects.Get(isolate);
+}
 #endif
+
+v8::Local<v8::Array> V8ResourceImpl::GetAllObjects()
+{
+    std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::OBJECT);
+    v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
+
+    for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
+
+    jsAll->SetIntegrityLevel(GetContext(), v8::IntegrityLevel::kFrozen);
+    return jsAll;
+}
 
 std::vector<V8Helpers::EventCallback*> V8ResourceImpl::GetLocalHandlers(const std::string& name)
 {
@@ -372,9 +554,7 @@ void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vecto
               if(retn.IsEmpty()) return false;
 
               v8::Local<v8::Value> returnValue = retn.ToLocalChecked();
-              if(ev && returnValue->IsFalse()) ev->Cancel();
-              else if(ev && ev->GetType() == alt::CEvent::Type::PLAYER_BEFORE_CONNECT && returnValue->IsString())
-                  static_cast<alt::CPlayerBeforeConnectEvent*>(const_cast<alt::CEvent*>(ev))->Cancel(*v8::String::Utf8Value(isolate, returnValue));
+              if(ev && returnValue->IsFalse() && ev->IsCancellable()) static_cast<const alt::CCancellableEvent*>(ev)->Cancel();
               else if(ev && ev->GetType() == alt::CEvent::Type::WEAPON_DAMAGE_EVENT && returnValue->IsNumber())
                   static_cast<alt::CWeaponDamageEvent*>(const_cast<alt::CEvent*>(ev))->SetDamageValue((uint32_t)returnValue->NumberValue(GetContext()).ToChecked());
               // todo: add this once a generic Cancel() with string as arg has been added to the sdk
@@ -403,7 +583,7 @@ void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vecto
                       else if(state == v8::Promise::PromiseState::kFulfilled)
                       {
                           v8::Local<v8::Value> value = promise->Result();
-                          if(value->IsFalse()) ev->Cancel();
+                          if(value->IsFalse() && ev->IsCancellable()) static_cast<const alt::CCancellableEvent*>(ev)->Cancel();
                           break;
                       }
                       else if(state == v8::Promise::PromiseState::kRejected)
@@ -478,12 +658,68 @@ static void PrintLog(const v8::FunctionCallbackInfo<v8::Value>& info)
     }
 }
 
+static std::string extraBootstrapFile;
+
+static void RegisterExtraBootstrapFile(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STRING(1, filePath);
+
+    auto path = alt::ICore::Instance().Resolve(resource->GetResource(), filePath, "");
+    V8_CHECK(path.pkg, "Invalid file");
+
+    alt::IPackage::File* file = path.pkg->OpenFile(path.fileName);
+    V8_CHECK(file, "File does not exist");
+
+    std::string data(path.pkg->GetFileSize(file), 0);
+    path.pkg->ReadFile(file, data.data(), data.size());
+    path.pkg->CloseFile(file);
+
+    extraBootstrapFile = data;
+}
+
+#ifdef ALT_CLIENT_API
+static void RegisterCefExtraBootstrapFile(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_STRING(1, filePath);
+
+    auto path = alt::ICore::Instance().Resolve(resource->GetResource(), filePath, "");
+    V8_CHECK(path.pkg, "Invalid file");
+
+    alt::IPackage::File* file = path.pkg->OpenFile(path.fileName);
+    V8_CHECK(file, "File does not exist");
+
+    std::string data(path.pkg->GetFileSize(file), 0);
+    path.pkg->ReadFile(file, data.data(), data.size());
+    path.pkg->CloseFile(file);
+
+    alt::ICore::Instance().InternalAddCefBootstrap(data);
+}
+#endif
+
+static void GetExtraBootstrapFile(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE();
+    V8_RETURN_STRING(extraBootstrapFile);
+}
+
 void V8ResourceImpl::SetupScriptGlobals()
 {
     v8::Local<v8::Context> ctx = context.Get(isolate);
 
     ctx->Global()->Set(ctx, V8Helpers::JSValue("__setLogFunction"), v8::Function::New(ctx, &::SetLogFunction).ToLocalChecked());
     ctx->Global()->Set(ctx, V8Helpers::JSValue("__printLog"), v8::Function::New(ctx, &::PrintLog).ToLocalChecked());
+    ctx->Global()->Set(ctx, V8Helpers::JSValue("__registerExtraBootstrapFile"), v8::Function::New(ctx, &::RegisterExtraBootstrapFile).ToLocalChecked());
+    ctx->Global()->Set(ctx, V8Helpers::JSValue("__getExtraBootstrapFile"), v8::Function::New(ctx, &::GetExtraBootstrapFile).ToLocalChecked());
+
+#ifdef ALT_CLIENT_API
+    ctx->Global()->Set(ctx, V8Helpers::JSValue("__registerCefExtraBootstrapFile"), v8::Function::New(ctx, &::RegisterCefExtraBootstrapFile).ToLocalChecked());
+#endif
 }
 
 alt::MValue V8ResourceImpl::FunctionImpl::Call(alt::MValueArgs args) const
@@ -523,7 +759,7 @@ alt::MValue V8ResourceImpl::FunctionImpl::Call(alt::MValueArgs args) const
           return true;
       });
 
-    if(res.IsEmpty()) res = alt::ICore::Instance().CreateMValueNone();
+    if(!res) res = alt::ICore::Instance().CreateMValueNone();
 
     return res;
 }

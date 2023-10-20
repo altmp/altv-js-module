@@ -89,6 +89,12 @@
     V8_CHECK(info.This()->InternalFieldCount() > idx - 1, "Invalid internal field count (is the 'this' context correct?)"); \
     auto val = static_cast<type*>(info.This()->GetAlignedPointerFromInternalField((idx)-1));
 
+// idx starts with 1
+#define V8_GET_THIS_INTERNAL_FIELD_STRING(idx, val)                                                                         \
+    V8_CHECK(info.This()->InternalFieldCount() > idx - 1, "Invalid internal field count (is the 'this' context correct?)"); \
+    auto intVal = info.This()->GetInternalField(0).As<v8::String>();                                                        \
+    auto val = *v8::String::Utf8Value(isolate, intVal);
+
 #define V8_CHECK_CONSTRUCTOR() V8_CHECK(info.IsConstructCall(), "function can't be called without new")
 
 #define V8_CHECK_ARGS_LEN(count)                  V8_CHECK(info.Length() == (count), #count " arguments expected")
@@ -140,6 +146,10 @@
     alt::Vector2i val;                \
     V8_CHECK(V8Helpers::SafeToVector2Int((v8Val), ctx, val), "Failed to convert value to Vector2")
 
+#define V8_TO_QUATERNION(v8Val, val) \
+    alt::Quaternion val;             \
+    V8_CHECK(V8Helpers::SafeToQuaternion((v8Val), ctx, val), "Failed to convert value to Quaternion")
+
 #define V8_TO_RGBA(v8Val, val) \
     alt::RGBA val;             \
     V8_CHECK(V8Helpers::SafeToRGBA((v8Val), ctx, val), "Failed to convert value to RGBA")
@@ -147,6 +157,14 @@
 #define V8_TO_ENTITY(v8Val, val) \
     alt::IEntity* val;           \
     V8_CHECK(V8Helpers::SafeToBaseObject<IEntity>(v8Val, isolate, val), "Failed to convert to BaseObject")
+
+#define V8_TO_WORLDOBJECT(v8Val, val) \
+    alt::IWorldObject* val;           \
+    V8_CHECK(V8Helpers::SafeToBaseObject<alt::IWorldObject>(v8Val, isolate, val), "Failed to convert to BaseObject")
+
+#define V8_TO_BASEOBJECT(v8Val, val) \
+    alt::IBaseObject* val;           \
+    V8_CHECK(V8Helpers::SafeToBaseObject<alt::IBaseObject>(v8Val, isolate, val), "Failed to convert to BaseObject")
 
 #define V8_OBJECT_GET_NUMBER(v8Val, prop, val) V8_TO_NUMBER((v8Val)->Get(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked()).ToLocalChecked(), val)
 
@@ -172,6 +190,10 @@
     if(!val.empty()) (v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::String::NewFromUtf8(isolate, val.c_str()).ToLocalChecked());
 
 #define V8_OBJECT_SET_RAW_STRING(v8Val, prop, val) (v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::String::NewFromUtf8(isolate, val).ToLocalChecked());
+
+#define V8_OBJECT_SET_NULL(v8Val, prop) (v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), v8::Null(isolate));
+
+#define V8_OBJECT_SET_BASE_OBJECT(v8Val, prop, val) (v8Val)->Set(ctx, v8::String::NewFromUtf8(isolate, prop).ToLocalChecked(), resource->GetBaseObjectOrNull(val));
 
 #define V8_NEW_OBJECT(val) v8::Local<v8::Object> val = v8::Object::New(isolate);
 
@@ -207,10 +229,32 @@
     int64_t val;                \
     V8_CHECK(V8Helpers::SafeToInteger(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to integer")
 
+#define V8_ARG_TO_INT_OPT(idx, val, defaultVal)                                                                        \
+    int64_t val;                                                                                                       \
+    if(info.Length() >= (idx))                                                                                         \
+    {                                                                                                                  \
+        V8_CHECK(V8Helpers::SafeToInteger(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to integer"); \
+    }                                                                                                                  \
+    else                                                                                                               \
+    {                                                                                                                  \
+        val = defaultVal;                                                                                              \
+    }
+
 // idx starts with 1
 #define V8_ARG_TO_NUMBER(idx, val) \
     double val;                    \
     V8_CHECK(V8Helpers::SafeToNumber(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to number")
+
+#define V8_ARG_TO_NUMBER_OPT(idx, val, defaultVal)                                                                   \
+    double val;                                                                                                      \
+    if(info.Length() >= (idx))                                                                                       \
+    {                                                                                                                \
+        V8_CHECK(V8Helpers::SafeToNumber(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to number"); \
+    }                                                                                                                \
+    else                                                                                                             \
+    {                                                                                                                \
+        val = defaultVal;                                                                                            \
+    }
 
 // idx starts with 1
 #define V8_ARG_TO_STRING(idx, val) \
@@ -261,6 +305,17 @@
     uint32_t val;                \
     V8_CHECK(V8Helpers::SafeToUInt32(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to uint32")
 
+#define V8_ARG_TO_UINT_OPT(idx, val, defaultVal)                                                                     \
+    uint32_t val;                                                                                                    \
+    if(info.Length() >= (idx))                                                                                       \
+    {                                                                                                                \
+        V8_CHECK(V8Helpers::SafeToUInt32(info[(idx)-1], ctx, val), "Failed to convert argument " #idx " to uint32"); \
+    }                                                                                                                \
+    else                                                                                                             \
+    {                                                                                                                \
+        val = defaultVal;                                                                                            \
+    }
+
 // idx starts with 1
 #define V8_ARG_TO_INT32(idx, val) \
     int32_t val;                  \
@@ -296,6 +351,7 @@
 #define V8_RETURN_INT64(val)      V8_RETURN(v8::BigInt::New(isolate, static_cast<int64_t>(val)))
 #define V8_RETURN_VECTOR3(val)    V8_RETURN(resource->CreateVector3(val))
 #define V8_RETURN_VECTOR2(val)    V8_RETURN(resource->CreateVector2(val))
+#define V8_RETURN_QUATERNION(val) V8_RETURN(resource->CreateQuaternion(val))
 #define V8_RETURN_RGBA(val)       V8_RETURN(resource->CreateRGBA(val))
 #define V8_RETURN_ENUM(val)       V8_RETURN(uint32_t(val))
 
@@ -303,6 +359,7 @@
 
 #define V8_BIND_BASE_OBJECT(baseObjectRef, reason)        \
     {                                                     \
+        if (auto existingEntity = resource->GetEntity(baseObjectRef)) { V8_RETURN(existingEntity->GetJSVal(isolate)); return; } \
         V8_CHECK(baseObjectRef, reason);                  \
         resource->BindEntity(info.This(), baseObjectRef); \
     }
