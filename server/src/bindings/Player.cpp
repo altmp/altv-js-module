@@ -646,6 +646,14 @@ static void SetHeadBlendData(const v8::FunctionCallbackInfo<v8::Value>& info)
     player->SetHeadBlendData(shapeFirstID, shapeSecondID, shapeThirdID, skinFirstID, skinSecondID, skinThirdID, shapeMix, skinMix, thirdMix);
 }
 
+static void RemoveHeadBlendData(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    player->RemoveHeadBlendData();
+}
+
 static void GetHeadBlendData(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -1557,6 +1565,7 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetMethod(isolate, tpl, "setHeadBlendPaletteColor", &SetHeadBlendPaletteColor);
                             V8Helpers::SetMethod(isolate, tpl, "getHeadBlendPaletteColor", &GetHeadBlendPaletteColor);
                             V8Helpers::SetMethod(isolate, tpl, "setHeadBlendData", &SetHeadBlendData);
+                            V8Helpers::SetMethod(isolate, tpl, "removeHeadBlendData", &RemoveHeadBlendData);
                             V8Helpers::SetMethod(isolate, tpl, "getHeadBlendData", &GetHeadBlendData);
                             V8Helpers::SetMethod(isolate, tpl, "setEyeColor", &SetEyeColor);
                             V8Helpers::SetMethod(isolate, tpl, "getEyeColor", &GetEyeColor);
