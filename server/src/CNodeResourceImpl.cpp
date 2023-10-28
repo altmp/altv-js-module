@@ -26,21 +26,14 @@ static const char bootstrap_code[] =
 #include "bootstrap.js.gen"
   ;
 
-CNodeResourceImpl::CNodeResourceImpl(CNodeScriptRuntime* _runtime, v8::Isolate* isolate, alt::IResource* resource) : V8ResourceImpl(isolate, resource), runtime(_runtime)
+CNodeResourceImpl::CNodeResourceImpl(CNodeScriptRuntime* _runtime, v8::Isolate* _isolate, alt::IResource* resource) : V8ResourceImpl(nullptr, resource), runtime(_runtime)
 {
-    v8::Locker locker(isolate);
-    v8::Isolate::Scope isolateScope(isolate);
-    v8::HandleScope handleScope(isolate);
+    uvLoop = new uv_loop_t;
+    uv_loop_init(uvLoop);
 
-    v8::Local<v8::ObjectTemplate> global = v8::ObjectTemplate::New(isolate);
-
-    v8::Local<v8::String> resourceName = V8Helpers::JSValue(resource->GetName());
-
-    v8::Local<v8::Context> _context = node::NewContext(isolate, global);
-    v8::Context::Scope scope(_context);
-
-    _context->SetAlignedPointerInEmbedderData(1, resource);
-    context.Reset(isolate, _context);
+    auto allocator = node::CreateArrayBufferAllocator();
+    isolate = node::NewIsolate(allocator, uvLoop, runtime->GetPlatform());
+    nodeData = node::CreateIsolateData(isolate, uvLoop, runtime->GetPlatform(), allocator);
 }
 
 bool CNodeResourceImpl::Start()
@@ -48,39 +41,44 @@ bool CNodeResourceImpl::Start()
     v8::Locker locker(isolate);
     v8::Isolate::Scope isolateScope(isolate);
     v8::HandleScope handleScope(isolate);
-    v8::Local<v8::Context> _context = GetContext();
-    v8::Context::Scope scope(_context);
 
-    _context->Global()->Set(_context, V8Helpers::JSValue("__resourceLoaded"), v8::Function::New(_context, &ResourceLoaded).ToLocalChecked());
-    _context->Global()->Set(_context, V8Helpers::JSValue("__internal_bindings_code"), V8Helpers::JSValue(JSBindings::GetBindingsCode()));
+    v8::Local<v8::Context> _context = node::NewContext(isolate);
+    _context->SetAlignedPointerInEmbedderData(1, resource);
+    context.Reset(isolate, _context);
 
-    V8ResourceImpl::Start();
-    V8ResourceImpl::SetupScriptGlobals();
-
-    node::EnvironmentFlags::Flags flags = (node::EnvironmentFlags::Flags)(node::EnvironmentFlags::kOwnsProcessState & node::EnvironmentFlags::kNoCreateInspector);
-
-    uvLoop = new uv_loop_t;
-    uv_loop_init(uvLoop);
-
-    nodeData = node::CreateIsolateData(isolate, uvLoop, runtime->GetPlatform());
-    std::vector<std::string> argv = { "altv-resource" };
-    env = node::CreateEnvironment(nodeData, _context, argv, argv, flags);
-
-    node::IsolateSettings is;
-    node::SetIsolateUpForNode(isolate, is);
-
-    node::LoadEnvironment(env, bootstrap_code);
-
-    asyncResource.Reset(isolate, v8::Object::New(isolate));
-    asyncContext = node::EmitAsyncInit(isolate, asyncResource.Get(isolate), "CNodeResourceImpl");
-
-    while(!envStarted && !startError)
     {
-        runtime->OnTick();
-        OnTick();
-    }
+        v8::Context::Scope scope(_context);
 
-    DispatchStartEvent(startError);
+        _context->Global()->Set(_context, V8Helpers::JSValue("__resourceLoaded"), v8::Function::New(_context, &ResourceLoaded).ToLocalChecked());
+        _context->Global()->Set(_context, V8Helpers::JSValue("__internal_bindings_code"), V8Helpers::JSValue(JSBindings::GetBindingsCode()));
+
+        V8Class::LoadAll(isolate);
+        V8ResourceImpl::Start();
+        V8ResourceImpl::SetupScriptGlobals();
+
+        node::ThreadId threadId = node::AllocateEnvironmentThreadId();
+        auto flags = static_cast<node::EnvironmentFlags::Flags>(node::EnvironmentFlags::kNoFlags);
+        auto inspector = node::GetInspectorParentHandle(runtime->GetParentEnv(), threadId, resource->GetName().c_str());
+
+        std::vector<std::string> args{ resource->GetName() };
+        std::vector<std::string> execArgs{ "--inspect=127.0.0.1:9229" };
+
+        env = node::CreateEnvironment(nodeData, _context, args, execArgs, flags, threadId, std::move(inspector));        
+        node::LoadEnvironment(env, bootstrap_code);
+
+        // Not sure it's needed anymore
+        asyncResource.Reset(isolate, v8::Object::New(isolate));
+        asyncContext = node::EmitAsyncInit(isolate, asyncResource.Get(isolate), "CNodeResourceImpl");
+
+        while(!envStarted && !startError)
+        {
+            runtime->OnTick();
+            OnTick();
+        }
+
+        Log::Debug << "Started" << Log::Endl;
+        DispatchStartEvent(startError);
+    }
 
     return !startError;
 }
@@ -91,6 +89,8 @@ bool CNodeResourceImpl::Stop()
     v8::Isolate::Scope isolateScope(isolate);
     v8::HandleScope handleScope(isolate);
 
+    Log::Debug << "Before stop" << Log::Endl;
+
     {
         v8::Context::Scope scope(GetContext());
         DispatchStopEvent();
@@ -98,6 +98,8 @@ bool CNodeResourceImpl::Stop()
         node::EmitAsyncDestroy(isolate, asyncContext);
         asyncResource.Reset();
     }
+
+    Log::Debug << "After stop" << Log::Endl;
 
     node::EmitProcessBeforeExit(env);
     node::EmitProcessExit(env);
