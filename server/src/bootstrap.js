@@ -6,6 +6,7 @@ const path = require("path");
 const alt = process._linkedBinding("alt");
 const dns = require('dns');
 const url = require("url");
+const inspector = require("inspector");
 
 (async () => {
   const resource = alt.Resource.current;
@@ -28,6 +29,15 @@ const url = require("url");
     const bindingsGlobal = {};
     new Function("alt", "__global", __internal_bindings_code)(alt, bindingsGlobal);
     __setLogFunction(bindingsGlobal.genericLog);
+
+    const config = alt.Resource.current.config;
+    if (config.inspector) {
+      const host = config.inspector.host ?? '127.0.0.1';
+      const port = config.inspector.port ?? 9229;
+      const wait = config.inspector.wait ?? false;
+
+      inspector.open(port, host, wait);
+    }
 
     const extraBootstrapFile = __getExtraBootstrapFile();
     if(extraBootstrapFile.length !== 0) new Function("alt", extraBootstrapFile)(alt);
