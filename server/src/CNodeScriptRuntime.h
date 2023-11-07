@@ -10,9 +10,6 @@
 class CNodeScriptRuntime : public alt::IScriptRuntime, public IRuntimeEventHandler
 {
     v8::Isolate* isolate;
-    V8Helpers::CPersistent<v8::Context> context;
-    node::Environment* parentEnv;
-
     std::unique_ptr<node::MultiIsolatePlatform> platform;
     std::unordered_set<CNodeResourceImpl*> resources;
 
@@ -40,16 +37,6 @@ public:
     v8::Isolate* GetIsolate()
     {
         return isolate;
-    }
-
-    node::Environment* GetParentEnv() const
-    {
-        return parentEnv;
-    }
-
-    v8::Local<v8::Context> GetContext()
-    {
-        return context.Get(isolate);
     }
 
     alt::IResource::Impl* CreateImpl(alt::IResource* resource) override;

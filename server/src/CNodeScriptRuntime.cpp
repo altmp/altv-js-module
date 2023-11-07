@@ -6,45 +6,34 @@
 bool CNodeScriptRuntime::Init()
 {
     ProcessConfigOptions();
-    auto result = node::InitializeOncePerProcess(GetNodeArgs());
-
-    if (result->early_return())
+    std::vector<std::string> argv = GetNodeArgs();
+    std::vector<std::string> execArgv;
+    std::vector<std::string> errors;
+    node::InitializeNodeWithArgs(&argv, &execArgv, &errors);
+    if(errors.size() > 0)
     {
-        for (auto& error : result->errors())
+        for(std::string& error : errors)
         {
             Log::Error << "Error while initializing node: " << error << Log::Endl;
         }
-
         return false;
     }
 
-    platform.reset(result->platform());
+    platform = node::MultiIsolatePlatform::Create(4);
+    v8::V8::InitializePlatform(platform.get());
+    v8::V8::Initialize();
 
-    auto allocator = node::CreateArrayBufferAllocator();
-    isolate = node::NewIsolate(allocator, uv_default_loop(), platform.get());
-    node::IsolateData* nodeData = node::CreateIsolateData(isolate, uv_default_loop(), platform.get(), allocator);
-
-    // node::IsolateSettings is;
-    // node::SetIsolateUpForNode(isolate, is);
+    isolate = node::NewIsolate(node::CreateArrayBufferAllocator(), uv_default_loop(), platform.get());
 
     // IsWorker data slot
-    // isolate->SetData(v8::Isolate::GetNumberOfDataSlots() - 1, new bool(false));
+    isolate->SetData(v8::Isolate::GetNumberOfDataSlots() - 1, new bool(false));
 
     {
         v8::Locker locker(isolate);
         v8::Isolate::Scope isolate_scope(isolate);
         v8::HandleScope handle_scope(isolate);
 
-        context.Reset(isolate, node::NewContext(isolate));
-        v8::Context::Scope scope(context.Get(isolate));
-
-        parentEnv = node::CreateEnvironment(nodeData, context.Get(isolate), result->args(), result->exec_args());
-
-        /*
-            Load here only needs for debugging as this environment only used as a parent for real environments
-        */
-
-        // node::LoadEnvironment(parentEnv, "console.log('PARENT INIT'); setInterval(() => {}, 1000);");
+        V8Class::LoadAll(isolate);
     }
 
     IRuntimeEventHandler::Start();
@@ -65,10 +54,8 @@ void CNodeScriptRuntime::OnTick()
 {
     v8::Locker locker(isolate);
     v8::Isolate::Scope isolateScope(isolate);
-    v8::HandleScope seal(isolate);
-    v8::Context::Scope scope(context.Get(isolate));
+    v8::SealHandleScope seal(isolate);
 
-    uv_run(uv_default_loop(), UV_RUN_NOWAIT);
     platform->DrainTasks(isolate);
 
     UpdateMetrics();
