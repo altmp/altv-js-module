@@ -22,7 +22,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_UINT_OPT(11, streamingDistance, 0);
 
     auto textLabel =
-    alt::ICore::Instance().CreateTextLabel(resource->GetResource(), text, fontName, fontSize, scale, pos, rot, color, outlineWidth, outlineColor, useStreaming, streamingDistance, resource->GetResource());
+    alt::ICore::Instance().CreateTextLabel(text, fontName, fontSize, scale, pos, rot, color, outlineWidth, outlineColor, useStreaming, streamingDistance, resource->GetResource());
     V8_BIND_BASE_OBJECT(textLabel, "Failed to create textlabel");
 }
 
