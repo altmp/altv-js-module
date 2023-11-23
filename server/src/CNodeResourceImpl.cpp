@@ -61,7 +61,7 @@ bool CNodeResourceImpl::Start()
         auto inspector = node::GetInspectorParentHandle(runtime->GetParentEnv(), threadId, resource->GetName().c_str());
 
         std::vector<std::string> args{ resource->GetName() };
-        std::vector<std::string> execArgs{ "--inspect=127.0.0.1:9229" };
+        std::vector<std::string> execArgs{ };
 
         env = node::CreateEnvironment(nodeData, _context, args, execArgs, flags, threadId, std::move(inspector));        
         node::LoadEnvironment(env, bootstrap_code);
