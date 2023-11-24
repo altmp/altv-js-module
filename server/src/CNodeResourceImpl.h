@@ -17,7 +17,7 @@ class CNodeScriptRuntime;
 class CNodeResourceImpl : public V8ResourceImpl
 {
 public:
-    CNodeResourceImpl(CNodeScriptRuntime* _runtime, v8::Isolate* isolate, alt::IResource* resource);
+    CNodeResourceImpl(CNodeScriptRuntime* _runtime, alt::IResource* resource);
 
     CNodeResourceImpl(const CNodeResourceImpl&) = delete;
 

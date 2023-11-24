@@ -26,7 +26,7 @@ static const char bootstrap_code[] =
 #include "bootstrap.js.gen"
   ;
 
-CNodeResourceImpl::CNodeResourceImpl(CNodeScriptRuntime* _runtime, v8::Isolate* _isolate, alt::IResource* resource) : V8ResourceImpl(nullptr, resource), runtime(_runtime)
+CNodeResourceImpl::CNodeResourceImpl(CNodeScriptRuntime* _runtime, alt::IResource* resource) : V8ResourceImpl(nullptr, resource), runtime(_runtime)
 {
     uvLoop = new uv_loop_t;
     uv_loop_init(uvLoop);
@@ -359,6 +359,7 @@ void CNodeResourceImpl::OnTick()
     v8::Context::Scope scope(GetContext());
     node::CallbackScope callbackScope(isolate, asyncResource.Get(isolate), asyncContext);
 
+    runtime->GetPlatform()->DrainTasks(isolate);
     uv_run(uvLoop, UV_RUN_NOWAIT);
     V8ResourceImpl::OnTick();
 }

@@ -37,10 +37,10 @@ public:
     CNodeScriptRuntime() = default;
     bool Init();
 
-    v8::Isolate* GetIsolate()
+    /*v8::Isolate* GetIsolate()
     {
         return isolate;
-    }
+    }*/
 
     node::Environment* GetParentEnv() const
     {

@@ -56,7 +56,7 @@ bool CNodeScriptRuntime::Init()
 
 alt::IResource::Impl* CNodeScriptRuntime::CreateImpl(alt::IResource* resource)
 {
-    auto res = new CNodeResourceImpl{ this, isolate, resource };
+    auto res = new CNodeResourceImpl{ this, resource };
     resources.insert(res);
     return res;
 }
