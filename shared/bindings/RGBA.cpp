@@ -5,7 +5,7 @@
 
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
     V8_CHECK_ARGS_LEN_MIN_MAX(1, 4);
 
@@ -60,10 +60,10 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK(b >= 0 && b < 256, "Invalid RGBA B value. Allowed is 0 - 255");
     V8_CHECK(a >= 0 && a < 256, "Invalid RGBA A value. Allowed is 0 - 255");
 
-    V8Helpers::DefineOwnProperty(isolate, ctx, info.This(), V8Helpers::RGBA_RKey(isolate), V8Helpers::JSValue(r), v8::PropertyAttribute::ReadOnly);
-    V8Helpers::DefineOwnProperty(isolate, ctx, info.This(), V8Helpers::RGBA_GKey(isolate), V8Helpers::JSValue(g), v8::PropertyAttribute::ReadOnly);
-    V8Helpers::DefineOwnProperty(isolate, ctx, info.This(), V8Helpers::RGBA_BKey(isolate), V8Helpers::JSValue(b), v8::PropertyAttribute::ReadOnly);
-    V8Helpers::DefineOwnProperty(isolate, ctx, info.This(), V8Helpers::RGBA_AKey(isolate), V8Helpers::JSValue(a), v8::PropertyAttribute::ReadOnly);
+    V8Helpers::DefineOwnProperty(isolate, ctx, info.This(), resource->RKey(), V8Helpers::JSValue(r), v8::PropertyAttribute::ReadOnly);
+    V8Helpers::DefineOwnProperty(isolate, ctx, info.This(), resource->GKey(), V8Helpers::JSValue(g), v8::PropertyAttribute::ReadOnly);
+    V8Helpers::DefineOwnProperty(isolate, ctx, info.This(), resource->BKey(), V8Helpers::JSValue(b), v8::PropertyAttribute::ReadOnly);
+    V8Helpers::DefineOwnProperty(isolate, ctx, info.This(), resource->AKey(), V8Helpers::JSValue(a), v8::PropertyAttribute::ReadOnly);
 }
 
 extern V8Class v8RGBA("RGBA",

@@ -1,4 +1,4 @@
-﻿#include <iomanip>
+#include <iomanip>
 
 #include "../V8Class.h"
 #include "../V8Helpers.h"
@@ -6,7 +6,7 @@
 
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
     V8_CHECK_CONSTRUCTOR();
     V8_CHECK_ARGS_LEN2(1, 4);
@@ -38,10 +38,10 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         {
             v8::Local<v8::Object> obj = val.As<v8::Object>();
 
-            x = obj->Get(ctx, V8Helpers::Quaternion_XKey(isolate)).ToLocalChecked();
-            y = obj->Get(ctx, V8Helpers::Quaternion_YKey(isolate)).ToLocalChecked();
-            z = obj->Get(ctx, V8Helpers::Quaternion_ZKey(isolate)).ToLocalChecked();
-            w = obj->Get(ctx, V8Helpers::Quaternion_WKey(isolate)).ToLocalChecked();
+            x = obj->Get(ctx, resource->XKey()).ToLocalChecked();
+            y = obj->Get(ctx, resource->YKey()).ToLocalChecked();
+            z = obj->Get(ctx, resource->ZKey()).ToLocalChecked();
+            w = obj->Get(ctx, resource->WKey()).ToLocalChecked();
 
             V8_CHECK(x->IsNumber(), "Argument must be an array of 4 numbers");
             V8_CHECK(y->IsNumber(), "Argument must be an array of 4 numbers");
@@ -74,10 +74,10 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         w = info[3];
     }
 
-    V8Helpers::DefineOwnProperty(isolate, ctx, _this, V8Helpers::Quaternion_XKey(isolate), x, v8::PropertyAttribute::ReadOnly);
-    V8Helpers::DefineOwnProperty(isolate, ctx, _this, V8Helpers::Quaternion_YKey(isolate), y, v8::PropertyAttribute::ReadOnly);
-    V8Helpers::DefineOwnProperty(isolate, ctx, _this, V8Helpers::Quaternion_ZKey(isolate), z, v8::PropertyAttribute::ReadOnly);
-    V8Helpers::DefineOwnProperty(isolate, ctx, _this, V8Helpers::Quaternion_WKey(isolate), w, v8::PropertyAttribute::ReadOnly);
+    V8Helpers::DefineOwnProperty(isolate, ctx, _this, resource->XKey(), x, v8::PropertyAttribute::ReadOnly);
+    V8Helpers::DefineOwnProperty(isolate, ctx, _this, resource->YKey(), y, v8::PropertyAttribute::ReadOnly);
+    V8Helpers::DefineOwnProperty(isolate, ctx, _this, resource->ZKey(), z, v8::PropertyAttribute::ReadOnly);
+    V8Helpers::DefineOwnProperty(isolate, ctx, _this, resource->WKey(), w, v8::PropertyAttribute::ReadOnly);
 }
 
 extern V8Class v8Quaternion("Quaternion",
