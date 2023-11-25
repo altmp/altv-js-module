@@ -34,6 +34,14 @@ CNodeResourceImpl::CNodeResourceImpl(CNodeScriptRuntime* _runtime, alt::IResourc
     auto allocator = node::CreateArrayBufferAllocator();
     isolate = node::NewIsolate(allocator, uvLoop, runtime->GetPlatform());
     nodeData = node::CreateIsolateData(isolate, uvLoop, runtime->GetPlatform(), allocator);
+
+    v8::Locker locker(isolate);
+    v8::Isolate::Scope isolateScope(isolate);
+    v8::HandleScope handleScope(isolate);
+
+    v8::Local<v8::Context> _context = node::NewContext(isolate);
+    _context->SetAlignedPointerInEmbedderData(1, resource);
+    context.Reset(isolate, _context);
 }
 
 bool CNodeResourceImpl::Start()
@@ -42,43 +50,38 @@ bool CNodeResourceImpl::Start()
     v8::Isolate::Scope isolateScope(isolate);
     v8::HandleScope handleScope(isolate);
 
-    v8::Local<v8::Context> _context = node::NewContext(isolate);
-    _context->SetAlignedPointerInEmbedderData(1, resource);
-    context.Reset(isolate, _context);
+    auto _context = GetContext();
+    v8::Context::Scope scope(_context);
 
+    _context->Global()->Set(_context, V8Helpers::JSValue("__resourceLoaded"), v8::Function::New(_context, &ResourceLoaded).ToLocalChecked());
+    _context->Global()->Set(_context, V8Helpers::JSValue("__internal_bindings_code"), V8Helpers::JSValue(JSBindings::GetBindingsCode()));
+
+    V8Class::LoadAll(isolate);
+    V8ResourceImpl::Start();
+    V8ResourceImpl::SetupScriptGlobals();
+
+    node::ThreadId threadId = node::AllocateEnvironmentThreadId();
+    auto flags = static_cast<node::EnvironmentFlags::Flags>(node::EnvironmentFlags::kNoFlags);
+    auto inspector = node::GetInspectorParentHandle(runtime->GetParentEnv(), threadId, resource->GetName().c_str());
+
+    std::vector<std::string> args{ resource->GetName() };
+    std::vector<std::string> execArgs{ };
+
+    env = node::CreateEnvironment(nodeData, _context, args, execArgs, flags, threadId, std::move(inspector));        
+    node::LoadEnvironment(env, bootstrap_code);
+
+    // Not sure it's needed anymore
+    asyncResource.Reset(isolate, v8::Object::New(isolate));
+    asyncContext = node::EmitAsyncInit(isolate, asyncResource.Get(isolate), "CNodeResourceImpl");
+
+    while(!envStarted && !startError)
     {
-        v8::Context::Scope scope(_context);
-
-        _context->Global()->Set(_context, V8Helpers::JSValue("__resourceLoaded"), v8::Function::New(_context, &ResourceLoaded).ToLocalChecked());
-        _context->Global()->Set(_context, V8Helpers::JSValue("__internal_bindings_code"), V8Helpers::JSValue(JSBindings::GetBindingsCode()));
-
-        V8Class::LoadAll(isolate);
-        V8ResourceImpl::Start();
-        V8ResourceImpl::SetupScriptGlobals();
-
-        node::ThreadId threadId = node::AllocateEnvironmentThreadId();
-        auto flags = static_cast<node::EnvironmentFlags::Flags>(node::EnvironmentFlags::kNoFlags);
-        auto inspector = node::GetInspectorParentHandle(runtime->GetParentEnv(), threadId, resource->GetName().c_str());
-
-        std::vector<std::string> args{ resource->GetName() };
-        std::vector<std::string> execArgs{ };
-
-        env = node::CreateEnvironment(nodeData, _context, args, execArgs, flags, threadId, std::move(inspector));        
-        node::LoadEnvironment(env, bootstrap_code);
-
-        // Not sure it's needed anymore
-        asyncResource.Reset(isolate, v8::Object::New(isolate));
-        asyncContext = node::EmitAsyncInit(isolate, asyncResource.Get(isolate), "CNodeResourceImpl");
-
-        while(!envStarted && !startError)
-        {
-            runtime->OnTick();
-            OnTick();
-        }
-
-        Log::Debug << "Started" << Log::Endl;
-        DispatchStartEvent(startError);
+        runtime->OnTick();
+        OnTick();
     }
+
+    Log::Debug << "Started" << Log::Endl;
+    DispatchStartEvent(startError);
 
     return !startError;
 }

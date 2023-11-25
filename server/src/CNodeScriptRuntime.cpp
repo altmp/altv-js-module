@@ -102,6 +102,9 @@ std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
     Config::Value::ValuePtr moduleConfig = alt::ICore::Instance().GetServerConfig()["js-module"];
     if(!moduleConfig->IsDict()) return args;
 
+    /*
+     * Not working as expected anyway
+     * 
     // https://nodejs.org/api/cli.html#--inspecthostport
     Config::Value::ValuePtr inspector = moduleConfig["inspector"];
     if(!inspector->IsNone())
@@ -110,6 +113,7 @@ std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
         int inspectorPort = inspector["port"]->AsNumber(9229);
         args.push_back("--inspect=" + inspectorHost + ":" + std::to_string(inspectorPort));
     }
+    */
 
     // https://nodejs.org/api/cli.html#--enable-source-maps
     Config::Value::ValuePtr enableSourceMaps = moduleConfig["source-maps"];
