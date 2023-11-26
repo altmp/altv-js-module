@@ -1203,6 +1203,39 @@ static void IsFullScreen(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_BOOLEAN(alt::ICore::Instance().IsFullScreen());
 }
 
+static void GetPoolSize(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_ARG_TO_STRING(1, pool);
+
+    V8_RETURN_UINT(alt::ICore::Instance().GetPoolSize(pool));
+}
+
+static void GetPoolCount(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_ARG_TO_STRING(1, pool);
+
+    V8_RETURN_UINT(alt::ICore::Instance().GetPoolCount(pool));
+}
+
+static void GetPoolEntities(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_ARG_TO_STRING(1, pool);
+    
+    auto entities = alt::ICore::Instance().GetPoolEntities(pool);
+    v8::Local<v8::Array> arr = v8::Array::New(isolate, entities.size());
+
+    for (uint32_t i = 0; i < entities.size(); ++i)
+        arr->Set(ctx, i, v8::Integer::NewFromUnsigned(isolate, entities[i]));
+
+    V8_RETURN(arr);
+}
+
 extern V8Module sharedModule;
 extern V8Class v8Player, v8Player, v8Vehicle, v8WebView, v8HandlingData, v8LocalStorage, v8MemoryBuffer, v8MapZoomData, v8Discord, v8Voice, v8WebSocketClient, v8Checkpoint, v8HttpClient,
   v8Audio, v8LocalPlayer, v8Profiler, v8Worker, v8RmlDocument, v8RmlElement, v8WeaponData, v8FocusData, v8LocalObject, v8TextEncoder, v8TextDecoder, v8Object, v8VirtualEntityGroup,
@@ -1390,4 +1423,8 @@ extern V8Module altModule("alt",
 
                               V8Helpers::RegisterFunc(exports, "evalModule", &EvalModule);
                               V8Helpers::RegisterFunc(exports, "isFullScreen", &IsFullScreen);
+
+                              V8Helpers::RegisterFunc(exports, "getPoolSize", &GetPoolSize);
+                              V8Helpers::RegisterFunc(exports, "getPoolCount", &GetPoolCount);
+                              V8Helpers::RegisterFunc(exports, "getPoolEntities", &GetPoolEntities);
                           });
