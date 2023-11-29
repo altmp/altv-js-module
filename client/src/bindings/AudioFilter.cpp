@@ -102,7 +102,6 @@ static void AddVolumeEffect(const v8::FunctionCallbackInfo<v8::Value>& info)
         channel = channel2;
     }
 
-    Log::Info << "VolumeEffect2: " << fVolume << ", " << priority << ", " << channel << Log::Endl;
     V8_RETURN_UINT(filter->AddVolumeEffect(fVolume, priority, channel));
 }
 
