@@ -300,6 +300,17 @@ static void GetDlcClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN(clothes);
 }
 
+static void ClearClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    V8_CHECK_ARGS_LEN(1);
+    V8_ARG_TO_UINT(1, component);
+
+    player->ClearClothes(component);
+}
+
 static void SetProps(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -627,6 +638,14 @@ static void GetHeadBlendPaletteColor(const v8::FunctionCallbackInfo<v8::Value>& 
     V8_RETURN_RGBA(player->GetHeadBlendPaletteColor(id));
 }
 
+static void RemoveHeadBlendPaletteColor(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE();
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    player->RemoveHeadBlendPaletteColor();
+}
+
 static void SetHeadBlendData(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -644,6 +663,14 @@ static void SetHeadBlendData(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_NUMBER(9, thirdMix);
 
     player->SetHeadBlendData(shapeFirstID, shapeSecondID, shapeThirdID, skinFirstID, skinSecondID, skinThirdID, shapeMix, skinMix, thirdMix);
+}
+
+static void RemoveHeadBlendData(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    player->RemoveHeadBlendData();
 }
 
 static void GetHeadBlendData(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -1527,6 +1554,7 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetMethod(isolate, tpl, "setDlcClothes", &SetDlcClothes);
                             V8Helpers::SetMethod(isolate, tpl, "getClothes", &GetClothes);
                             V8Helpers::SetMethod(isolate, tpl, "getDlcClothes", &GetDlcClothes);
+                            V8Helpers::SetMethod(isolate, tpl, "clearClothes", &ClearClothes);
 
                             V8Helpers::SetMethod(isolate, tpl, "setProp", &SetProps);
                             V8Helpers::SetMethod(isolate, tpl, "setDlcProp", &SetDlcProps);
@@ -1556,7 +1584,9 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetMethod(isolate, tpl, "removeFaceFeature", &RemoveFaceFeature);
                             V8Helpers::SetMethod(isolate, tpl, "setHeadBlendPaletteColor", &SetHeadBlendPaletteColor);
                             V8Helpers::SetMethod(isolate, tpl, "getHeadBlendPaletteColor", &GetHeadBlendPaletteColor);
+                            V8Helpers::SetMethod(isolate, tpl, "removeHeadBlendPaletteColor", &RemoveHeadBlendPaletteColor);
                             V8Helpers::SetMethod(isolate, tpl, "setHeadBlendData", &SetHeadBlendData);
+                            V8Helpers::SetMethod(isolate, tpl, "removeHeadBlendData", &RemoveHeadBlendData);
                             V8Helpers::SetMethod(isolate, tpl, "getHeadBlendData", &GetHeadBlendData);
                             V8Helpers::SetMethod(isolate, tpl, "setEyeColor", &SetEyeColor);
                             V8Helpers::SetMethod(isolate, tpl, "getEyeColor", &GetEyeColor);

@@ -6,34 +6,45 @@
 bool CNodeScriptRuntime::Init()
 {
     ProcessConfigOptions();
-    std::vector<std::string> argv = GetNodeArgs();
-    std::vector<std::string> execArgv;
-    std::vector<std::string> errors;
-    node::InitializeNodeWithArgs(&argv, &execArgv, &errors);
-    if(errors.size() > 0)
+    auto result = node::InitializeOncePerProcess(GetNodeArgs());
+
+    if (result->early_return())
     {
-        for(std::string& error : errors)
+        for (auto& error : result->errors())
         {
             Log::Error << "Error while initializing node: " << error << Log::Endl;
         }
+
         return false;
     }
 
-    platform = node::MultiIsolatePlatform::Create(4);
-    v8::V8::InitializePlatform(platform.get());
-    v8::V8::Initialize();
+    platform.reset(result->platform());
 
-    isolate = node::NewIsolate(node::CreateArrayBufferAllocator(), uv_default_loop(), platform.get());
+    auto allocator = node::CreateArrayBufferAllocator();
+    isolate = node::NewIsolate(allocator, uv_default_loop(), platform.get());
+    node::IsolateData* nodeData = node::CreateIsolateData(isolate, uv_default_loop(), platform.get(), allocator);
+
+    // node::IsolateSettings is;
+    // node::SetIsolateUpForNode(isolate, is);
 
     // IsWorker data slot
-    isolate->SetData(v8::Isolate::GetNumberOfDataSlots() - 1, new bool(false));
+    // isolate->SetData(v8::Isolate::GetNumberOfDataSlots() - 1, new bool(false));
 
     {
         v8::Locker locker(isolate);
         v8::Isolate::Scope isolate_scope(isolate);
         v8::HandleScope handle_scope(isolate);
 
-        V8Class::LoadAll(isolate);
+        context.Reset(isolate, node::NewContext(isolate));
+        v8::Context::Scope scope(context.Get(isolate));
+
+        parentEnv = node::CreateEnvironment(nodeData, context.Get(isolate), result->args(), result->exec_args());
+
+        /*
+            Load here only needs for debugging as this environment only used as a parent for real environments
+        */
+
+        // node::LoadEnvironment(parentEnv, "console.log('PARENT INIT'); setInterval(() => {}, 1000);");
     }
 
     IRuntimeEventHandler::Start();
@@ -45,7 +56,7 @@ bool CNodeScriptRuntime::Init()
 
 alt::IResource::Impl* CNodeScriptRuntime::CreateImpl(alt::IResource* resource)
 {
-    auto res = new CNodeResourceImpl{ this, isolate, resource };
+    auto res = new CNodeResourceImpl{ this, resource };
     resources.insert(res);
     return res;
 }
@@ -54,8 +65,10 @@ void CNodeScriptRuntime::OnTick()
 {
     v8::Locker locker(isolate);
     v8::Isolate::Scope isolateScope(isolate);
-    v8::SealHandleScope seal(isolate);
+    v8::HandleScope seal(isolate);
+    v8::Context::Scope scope(context.Get(isolate));
 
+    uv_run(uv_default_loop(), UV_RUN_NOWAIT);
     platform->DrainTasks(isolate);
 
     UpdateMetrics();
@@ -89,6 +102,9 @@ std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
     Config::Value::ValuePtr moduleConfig = alt::ICore::Instance().GetServerConfig()["js-module"];
     if(!moduleConfig->IsDict()) return args;
 
+    /*
+     * Not working as expected anyway
+     * 
     // https://nodejs.org/api/cli.html#--inspecthostport
     Config::Value::ValuePtr inspector = moduleConfig["inspector"];
     if(!inspector->IsNone())
@@ -97,6 +113,7 @@ std::vector<std::string> CNodeScriptRuntime::GetNodeArgs()
         int inspectorPort = inspector["port"]->AsNumber(9229);
         args.push_back("--inspect=" + inspectorHost + ":" + std::to_string(inspectorPort));
     }
+    */
 
     // https://nodejs.org/api/cli.html#--enable-source-maps
     Config::Value::ValuePtr enableSourceMaps = moduleConfig["source-maps"];

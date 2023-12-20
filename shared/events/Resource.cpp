@@ -25,7 +25,17 @@ V8_EVENT_HANDLER anyResourceStop(
       for(alt::IResource* res : alt::ICore::Instance().GetAllResources())
       {
           if(res->GetType() != "js" || !res->IsStarted()) continue;
-          static_cast<V8ResourceImpl*>(res->GetImpl())->DeleteResourceObject(resource->GetResource());
+
+          auto targetRes = static_cast<V8ResourceImpl*>(res->GetImpl());
+          v8::Isolate* resIsolate = targetRes->GetIsolate();
+
+          {
+              v8::Locker locker(resIsolate);
+              v8::Isolate::Scope isolateScope(resIsolate);
+              v8::HandleScope handleScope(resIsolate);
+
+              targetRes->DeleteResourceObject(resource->GetResource());
+          }
       }
       return resource->GetLocalHandlers("anyResourceStop");
   },

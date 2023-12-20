@@ -171,24 +171,6 @@ namespace V8Helpers
                                              v8::GenericNamedPropertyEnumeratorCallback enumerator = nullptr,
                                              v8::GenericNamedPropertyQueryCallback query = nullptr);
 
-    // TODO: create c++ classes for v8 classes and move there
-    v8::Local<v8::String> Vector3_XKey(v8::Isolate* isolate);
-    v8::Local<v8::String> Vector3_YKey(v8::Isolate* isolate);
-    v8::Local<v8::String> Vector3_ZKey(v8::Isolate* isolate);
-
-    v8::Local<v8::String> Quaternion_XKey(v8::Isolate* isolate);
-    v8::Local<v8::String> Quaternion_YKey(v8::Isolate* isolate);
-    v8::Local<v8::String> Quaternion_ZKey(v8::Isolate* isolate);
-    v8::Local<v8::String> Quaternion_WKey(v8::Isolate* isolate);
-
-    v8::Local<v8::String> RGBA_RKey(v8::Isolate* isolate);
-    v8::Local<v8::String> RGBA_GKey(v8::Isolate* isolate);
-    v8::Local<v8::String> RGBA_BKey(v8::Isolate* isolate);
-    v8::Local<v8::String> RGBA_AKey(v8::Isolate* isolate);
-
-    v8::Local<v8::String> Fire_PosKey(v8::Isolate* isolate);
-    v8::Local<v8::String> Fire_WeaponKey(v8::Isolate* isolate);
-
     std::string Stringify(v8::Local<v8::Context> ctx, v8::Local<v8::Value> val);
     std::string GetJSValueTypeName(v8::Local<v8::Value> val);
 
