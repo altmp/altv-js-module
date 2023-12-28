@@ -277,7 +277,7 @@ void V8ResourceImpl::OnRemoveBaseObject(alt::IBaseObject* handle)
     if(!ent) return;
 
     auto entityType = handle->GetType();
-    if(entityType == alt::IBaseObject::Type::PLAYER || entityType == alt::IBaseObject::Type::LOCAL_PLAYER || entityType == alt::IBaseObject::Type::VEHICLE)
+    if(entityType == alt::IBaseObject::Type::PLAYER || entityType == alt::IBaseObject::Type::LOCAL_PLAYER || entityType == alt::IBaseObject::Type::VEHICLE || entityType == alt::IBaseObject::Type::PED || entityType == alt::IBaseObject::Type::OBJECT)
     {
         std::vector<V8Helpers::EventCallback*> handlers = GetLocalHandlers("removeEntity");
         std::vector<v8::Local<v8::Value>> args{ ent->GetJSVal(isolate) };
