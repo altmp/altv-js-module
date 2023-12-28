@@ -1307,7 +1307,7 @@ static void AddVoiceFilter(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(2);
 
     V8_ARG_TO_INT(1, playerId);
-    V8_ARG_TO_BASE_OBJECT(2, filter, alt::IAudioFilter);
+    V8_ARG_TO_BASE_OBJECT(2, filter, alt::IAudioFilter, "AudioFilter");
 
     alt::ICore::Instance().AddVoiceFilter(playerId, filter);
 }
