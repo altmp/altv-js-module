@@ -1226,7 +1226,7 @@ static void GetPoolEntities(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_GET_ISOLATE_CONTEXT();
     V8_CHECK_ARGS_LEN(1);
     V8_ARG_TO_STRING(1, pool);
-    
+
     auto entities = alt::ICore::Instance().GetPoolEntities(pool);
     v8::Local<v8::Array> arr = v8::Array::New(isolate, entities.size());
 
@@ -1234,6 +1234,102 @@ static void GetPoolEntities(const v8::FunctionCallbackInfo<v8::Value>& info)
         arr->Set(ctx, i, v8::Integer::NewFromUnsigned(isolate, entities[i]));
 
     V8_RETURN(arr);
+}
+
+static void GetVoicePlayers(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    auto players = alt::ICore::Instance().GetVoicePlayers();
+    v8::Local<v8::Array> arr = v8::Array::New(isolate, players.size());
+
+    for (uint32_t i = 0; i < players.size(); ++i)
+        arr->Set(ctx, i, v8::Integer::NewFromUnsigned(isolate, players[i]));
+
+    V8_RETURN(arr);
+}
+
+static void RemoveVoicePlayer(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_INT(1, playerId);
+
+    alt::ICore::Instance().RemoveVoicePlayer(playerId);
+}
+
+static void GetVoiceSpatialVolume(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_INT(1, playerId);
+
+    V8_RETURN_NUMBER(alt::ICore::Instance().GetVoiceSpatialVolume(playerId));
+}
+
+static void SetVoiceSpatialVolume(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+
+    V8_ARG_TO_INT(1, playerId);
+    V8_ARG_TO_NUMBER(2, value);
+
+    alt::ICore::Instance().SetVoiceSpatialVolume(playerId, value);
+}
+
+static void GetVoiceNonSpatialVolume(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_INT(1, playerId);
+
+    V8_RETURN_NUMBER(alt::ICore::Instance().GetVoiceNonSpatialVolume(playerId));
+}
+
+static void SetVoiceNonSpatialVolume(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+
+    V8_ARG_TO_INT(1, playerId);
+    V8_ARG_TO_NUMBER(2, value);
+
+    alt::ICore::Instance().SetVoiceNonSpatialVolume(playerId, value);
+}
+
+static void AddVoiceFilter(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(2);
+
+    V8_ARG_TO_INT(1, playerId);
+    V8_ARG_TO_BASE_OBJECT(2, filter, alt::IAudioFilter);
+
+    alt::ICore::Instance().AddVoiceFilter(playerId, filter);
+}
+
+static void RemoveVoiceFilter(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_INT(1, playerId);
+
+    alt::ICore::Instance().RemoveVoiceFilter(playerId);
+}
+
+static void GetVoiceFilter(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_INT(1, playerId);
+
+    V8_RETURN_BASE_OBJECT(alt::ICore::Instance().GetVoiceFilter(playerId));
 }
 
 extern V8Module sharedModule;
@@ -1427,4 +1523,18 @@ extern V8Module altModule("alt",
                               V8Helpers::RegisterFunc(exports, "getPoolSize", &GetPoolSize);
                               V8Helpers::RegisterFunc(exports, "getPoolCount", &GetPoolCount);
                               V8Helpers::RegisterFunc(exports, "getPoolEntities", &GetPoolEntities);
+
+                              V8Helpers::RegisterFunc(exports, "getVoicePlayers", &GetVoicePlayers);
+                              V8Helpers::RegisterFunc(exports, "removeVoicePlayer", &RemoveVoicePlayer);
+
+                              // Voice related functions
+                              V8Helpers::RegisterFunc(exports, "getVoiceSpatialVolume", &GetVoiceSpatialVolume);
+                              V8Helpers::RegisterFunc(exports, "setVoiceSpatialVolume", &SetVoiceSpatialVolume);
+
+                              V8Helpers::RegisterFunc(exports, "getVoiceNonSpatialVolume", &GetVoiceNonSpatialVolume);
+                              V8Helpers::RegisterFunc(exports, "setVoiceNonSpatialVolume", &SetVoiceNonSpatialVolume);
+
+                              V8Helpers::RegisterFunc(exports, "addVoiceFilter", &AddVoiceFilter);
+                              V8Helpers::RegisterFunc(exports, "removeVoiceFilter", &RemoveVoiceFilter);
+                              V8Helpers::RegisterFunc(exports, "getVoiceFilter", &GetVoiceFilter);
                           });
