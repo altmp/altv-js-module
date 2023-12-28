@@ -1524,10 +1524,10 @@ extern V8Module altModule("alt",
                               V8Helpers::RegisterFunc(exports, "getPoolCount", &GetPoolCount);
                               V8Helpers::RegisterFunc(exports, "getPoolEntities", &GetPoolEntities);
 
+                              // Voice related functions
                               V8Helpers::RegisterFunc(exports, "getVoicePlayers", &GetVoicePlayers);
                               V8Helpers::RegisterFunc(exports, "removeVoicePlayer", &RemoveVoicePlayer);
 
-                              // Voice related functions
                               V8Helpers::RegisterFunc(exports, "getVoiceSpatialVolume", &GetVoiceSpatialVolume);
                               V8Helpers::RegisterFunc(exports, "setVoiceSpatialVolume", &SetVoiceSpatialVolume);
 
