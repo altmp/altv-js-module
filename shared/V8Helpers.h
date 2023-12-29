@@ -59,7 +59,7 @@ namespace V8Helpers
             return line;
         }
 
-        std::string ToString();
+        std::string ToString(v8::Isolate* isolate);
 
         static SourceLocation GetCurrent(v8::Isolate* isolate, V8ResourceImpl* resource = nullptr);
 

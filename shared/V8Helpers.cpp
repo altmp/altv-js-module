@@ -189,17 +189,18 @@ V8Helpers::SourceLocation::SourceLocation(std::string&& _fileName, int _line, v8
     context.Reset(ctx->GetIsolate(), ctx);
 }
 
-std::string V8Helpers::SourceLocation::ToString()
+std::string V8Helpers::SourceLocation::ToString(v8::Isolate* isolate)
 {
-    auto isolate = v8::Isolate::GetCurrent();
-
     std::stringstream stream;
     stream << "[";
+
     // Check if not inside a worker
-    if(!(*static_cast<bool*>(isolate->GetData(v8::Isolate::GetNumberOfDataSlots() - 1))))
+    bool* isWorker = static_cast<bool*>(isolate->GetData(v8::Isolate::GetNumberOfDataSlots() - 1));
+    if (!isWorker || !(*isWorker))
     {
-        stream << V8ResourceImpl::Get(context.Get(v8::Isolate::GetCurrent()))->GetResource()->GetName() << ":";
+        stream << V8ResourceImpl::Get(context.Get(isolate))->GetResource()->GetName() << ":";
     }
+
     stream << fileName << ":" << line << "]";
     return stream.str();
 }
