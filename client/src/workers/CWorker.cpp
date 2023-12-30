@@ -135,14 +135,14 @@ void CWorker::SetupIsolate()
               case v8::kPromiseRejectAfterResolved:
               {
                   std::ostringstream stream;
-                  stream << location.ToString() << " Promise rejected after being resolved (" << *v8::String::Utf8Value(isolate, value->ToString(ctx).ToLocalChecked()) << ")";
+                  stream << location.ToString(isolate) << " Promise rejected after being resolved (" << *v8::String::Utf8Value(isolate, value->ToString(ctx).ToLocalChecked()) << ")";
                   worker->EmitError(stream.str());
                   break;
               }
               case v8::kPromiseResolveAfterResolved:
               {
                   std::ostringstream stream;
-                  stream << location.ToString() << " Promise resolved after being resolved (" << *v8::String::Utf8Value(isolate, value->ToString(ctx).ToLocalChecked()) << ")";
+                  stream << location.ToString(isolate) << " Promise resolved after being resolved (" << *v8::String::Utf8Value(isolate, value->ToString(ctx).ToLocalChecked()) << ")";
                   worker->EmitError(stream.str());
                   break;
               }
