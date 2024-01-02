@@ -1332,6 +1332,23 @@ static void GetVoiceFilter(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_BASE_OBJECT(alt::ICore::Instance().GetVoiceFilter(playerId));
 }
 
+static void UpdateClipContext(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_CHECK(!info[0]->IsNullOrUndefined() && info[0]->IsObject(), "Argument 1 must be an object");
+
+    auto dict = V8Helpers::CppValue<v8::Local<v8::Value>>(info[0].As<v8::Object>());
+    std::unordered_map<std::string, std::string> context;
+
+    if(dict.has_value())
+    {
+        for(auto& [key, value] : dict.value()) V8Helpers::SafeToString(value, isolate, ctx, context[key]);
+    }
+
+    alt::ICore::Instance().UpdateClipContext(context);
+}
+
 extern V8Module sharedModule;
 extern V8Class v8Player, v8Player, v8Vehicle, v8WebView, v8HandlingData, v8LocalStorage, v8MemoryBuffer, v8MapZoomData, v8Discord, v8Voice, v8WebSocketClient, v8Checkpoint, v8HttpClient,
   v8Audio, v8LocalPlayer, v8Profiler, v8Worker, v8RmlDocument, v8RmlElement, v8WeaponData, v8FocusData, v8LocalObject, v8TextEncoder, v8TextDecoder, v8Object, v8VirtualEntityGroup,
@@ -1537,4 +1554,5 @@ extern V8Module altModule("alt",
                               V8Helpers::RegisterFunc(exports, "addVoiceFilter", &AddVoiceFilter);
                               V8Helpers::RegisterFunc(exports, "removeVoiceFilter", &RemoveVoiceFilter);
                               V8Helpers::RegisterFunc(exports, "getVoiceFilter", &GetVoiceFilter);
+                              V8Helpers::RegisterFunc(exports, "updateClipContext", &UpdateClipContext);
                           });
