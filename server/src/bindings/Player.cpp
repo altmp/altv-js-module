@@ -1420,6 +1420,7 @@ static void GetDecorations(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_NEW_OBJECT(decorationsObj);
         V8_OBJECT_SET_UINT(decorationsObj, "collection", decoration.collection);
         V8_OBJECT_SET_UINT(decorationsObj, "overlay", decoration.overlay);
+        V8_OBJECT_SET_INT(decorationsObj, "count", decoration.count);
 
         decorationsArr->Set(ctx, i, decorationsObj);
     }
