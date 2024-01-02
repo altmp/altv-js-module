@@ -252,6 +252,61 @@ static void GetPassengers(v8::Local<v8::String>, const v8::PropertyCallbackInfo<
     V8_RETURN(obj);
 }
 
+static void SetBadge(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN_MIN_MAX(3, 6);
+    V8_GET_THIS_BASE_OBJECT(_this, IVehicle);
+
+    uint32_t textureDictionary;
+    if (info[0]->IsString())
+    {
+        V8_ARG_TO_STRING(1, textureDictionaryName);
+        textureDictionary = alt::ICore::Instance().Hash(textureDictionaryName);
+    }
+    else
+    {
+        V8_ARG_TO_UINT(1, _textureDictionary);
+        textureDictionary = _textureDictionary;
+    }
+
+    uint32_t texture;
+    if (info[1]->IsString())
+    {
+        V8_ARG_TO_STRING(2, textureName);
+        texture = alt::ICore::Instance().Hash(textureName);
+    }
+    else
+    {
+        V8_ARG_TO_UINT(2, _texture);
+        texture = _texture;
+    }
+
+    alt::VehicleBadgePosition positions[4];
+    for (int i = 0; i < 4; i++)
+    {
+        if (!info[i + 2]->IsObject()) break;
+
+        V8_ARG_TO_OBJECT(i + 3, dict);
+
+        if (dict.IsEmpty()) break;
+
+        V8_TO_BOOLEAN(V8Helpers::Get(ctx, dict, "active"), active);
+        V8_TO_NUMBER(V8Helpers::Get(ctx, dict, "size"), size);
+        V8_TO_INT32(V8Helpers::Get(ctx, dict, "boneIndex"), boneIndex);
+        V8_TO_INT32(V8Helpers::Get(ctx, dict, "alpha"), alpha);
+
+        V8_TO_VECTOR3(V8Helpers::Get(ctx, dict, "offset"), offset);
+        V8_TO_VECTOR3(V8Helpers::Get(ctx, dict, "direction"), direction);
+        V8_TO_VECTOR3(V8Helpers::Get(ctx, dict, "side"), side);
+
+        positions[i] = alt::VehicleBadgePosition((uint8_t)alpha, (float)size, (int16_t)boneIndex, offset, direction, side);
+        positions[i].active = active;
+    }
+
+    _this->SetBadge(textureDictionary, texture, positions);
+}
+
 extern V8Class v8Entity;
 extern V8Class v8Vehicle("Vehicle",
                          v8Entity,
@@ -439,4 +494,5 @@ extern V8Class v8Vehicle("Vehicle",
                              V8Helpers::SetMethod(isolate, tpl, "setWeaponCapacity", &SetWeaponCapacity);
                              V8Helpers::SetAccessor<IVehicle, bool, &IVehicle::GetHybridExtraActive, &IVehicle::SetHybridExtraActive>(isolate, tpl, "hybridExtraActive");
                              V8Helpers::SetAccessor<IVehicle, uint8_t, &IVehicle::GetHybridExtraState, &IVehicle::SetHybridExtraState>(isolate, tpl, "hybridExtraState");
+                             V8Helpers::SetMethod(isolate, tpl, "setBadge", &SetBadge);
                          });

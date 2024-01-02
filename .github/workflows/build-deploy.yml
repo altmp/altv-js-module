@@ -4,9 +4,9 @@ on:
     branches-ignore:
       - '**'
     tags:
-      - 'dev/*.*-dev*'
-      - 'rc/*.*-rc*'
-      - 'release/*.*'
+      - 'dev/*.*.*-dev.*'
+      - 'rc/*.*.*-rc.*'
+      - 'release/*.*.*'
 
 jobs:
   build-windows:

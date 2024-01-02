@@ -86,7 +86,7 @@ public:
 
         if(!anyHandlerRemoved)
         {
-            Log::Warning << location.ToString() << " alt.off was called for event \"" << ev << "\" with function reference that was not subscribed" << Log::Endl;
+            Log::Warning << location.ToString(isolate) << " alt.off was called for event \"" << ev << "\" with function reference that was not subscribed" << Log::Endl;
             return;
         }
 

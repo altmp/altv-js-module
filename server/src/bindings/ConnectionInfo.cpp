@@ -56,9 +56,25 @@ static void BranchGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v
 
 static void BuildGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
+    V8_DEPRECATE("ConnectionInfo build", "versionMajor & versionMinor");
+
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
     V8_GET_THIS_BASE_OBJECT(con, alt::IConnectionInfo);
-    V8_RETURN_UINT(con->GetBuild());
+    V8_RETURN_UINT(con->GetVersionMajor());
+}
+
+static void VersionMajorGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(con, alt::IConnectionInfo);
+    V8_RETURN_UINT(con->GetVersionMajor());
+}
+
+static void VersionMinorGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_GET_THIS_BASE_OBJECT(con, alt::IConnectionInfo);
+    V8_RETURN_UINT(con->GetVersionMinor());
 }
 
 static void CdnUrlGetter(v8::Local<v8::String>, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -216,6 +232,8 @@ extern V8Class v8ConnectionInfo("ConnectionInfo",
                                     V8Helpers::SetAccessor(isolate, tpl, "isDebug", &IsDebugGetter);
                                     V8Helpers::SetAccessor(isolate, tpl, "branch", &BranchGetter);
                                     V8Helpers::SetAccessor(isolate, tpl, "build", &BuildGetter);
+                                    V8Helpers::SetAccessor(isolate, tpl, "versionMajor", &VersionMajorGetter);
+                                    V8Helpers::SetAccessor(isolate, tpl, "versionMinor", &VersionMinorGetter);
                                     V8Helpers::SetAccessor(isolate, tpl, "cdnUrl", &CdnUrlGetter);
                                     V8Helpers::SetAccessor(isolate, tpl, "passwordHash", &PasswordHashGetter);
                                     V8Helpers::SetAccessor(isolate, tpl, "ip", &IpGetter);

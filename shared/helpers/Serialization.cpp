@@ -56,7 +56,7 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
         {
             if(!allowFunction)
             {
-                Log::Error << V8Helpers::SourceLocation::GetCurrent(isolate).ToString() << " "
+                Log::Error << V8Helpers::SourceLocation::GetCurrent(isolate).ToString(isolate) << " "
                            << "Cannot convert function to MValue" << Log::Endl;
                 return core.CreateMValueNone();
             }

@@ -377,6 +377,6 @@
     {                                                                                                                                                                                     \
         V8_GET_ISOLATE();                                                                                                                                                                 \
         V8_GET_RESOURCE();                                                                                                                                                                \
-        Log::Warning << V8Helpers::SourceLocation::GetCurrent(isolate, resource).ToString() << " " << oldName << " is deprecated and will be removed in future versions. Consider using " \
+        Log::Warning << V8Helpers::SourceLocation::GetCurrent(isolate, resource).ToString(isolate) << " " << oldName << " is deprecated and will be removed in future versions. Consider using " \
                      << newName << " instead" << Log::Endl;                                                                                                                               \
     }
