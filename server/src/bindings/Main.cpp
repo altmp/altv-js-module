@@ -418,6 +418,7 @@ static void GetVehicleModelByHash(const v8::FunctionCallbackInfo<v8::Value>& inf
     const alt::VehicleModelInfo& modelInfo = alt::ICore::Instance().GetVehicleModelByHash(hash);
     V8_NEW_OBJECT(infoObj);
 
+    infoObj->Set(ctx, V8Helpers::JSValue("modelHash"), V8Helpers::JSValue(modelInfo.modelHash));
     infoObj->Set(ctx, V8Helpers::JSValue("title"), V8Helpers::JSValue(modelInfo.title));
     infoObj->Set(ctx, V8Helpers::JSValue("type"), V8Helpers::JSValue((int)modelInfo.modelType));
     infoObj->Set(ctx, V8Helpers::JSValue("wheelsCount"), V8Helpers::JSValue(modelInfo.wheelsCount));
