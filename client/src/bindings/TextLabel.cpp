@@ -26,11 +26,11 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_BIND_BASE_OBJECT(textLabel, "Failed to create textlabel");
 }
 
-// static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
-// {
-//     V8_GET_ISOLATE_CONTEXT_RESOURCE();
-//     V8_RETURN(resource->GetAllTextLabel());
-// }
+static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_RETURN(resource->GetAllTextLabel());
+}
 
 static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
