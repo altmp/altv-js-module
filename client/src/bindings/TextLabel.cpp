@@ -78,7 +78,7 @@ extern V8Class v8TextLabel("TextLabel",
                                using namespace alt;
                                v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-                               // V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
+                               V8Helpers::SetStaticAccessor(isolate, tpl, "all", &AllGetter);
                                V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
 
                                V8Helpers::SetAccessor<ITextLabel, bool, &ITextLabel::IsStreamedIn>(isolate, tpl, "isStreamedIn");
