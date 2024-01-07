@@ -21,15 +21,14 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_ARG_TO_BOOLEAN_OPT(10, useStreaming, false);
     V8_ARG_TO_UINT_OPT(11, streamingDistance, 0);
 
-    auto textLabel =
-    alt::ICore::Instance().CreateTextLabel(text, fontName, fontSize, scale, pos, rot, color, outlineWidth, outlineColor, useStreaming, streamingDistance, resource->GetResource());
+    auto textLabel = alt::ICore::Instance().CreateTextLabel(text, fontName, fontSize, scale, pos, rot, color, outlineWidth, outlineColor, useStreaming, streamingDistance, resource->GetResource());
     V8_BIND_BASE_OBJECT(textLabel, "Failed to create textlabel");
 }
 
 static void AllGetter(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
-    V8_RETURN(resource->GetAllTextLabel());
+    V8_RETURN(resource->GetAllTextLabels());
 }
 
 static void StaticGetByID(const v8::FunctionCallbackInfo<v8::Value>& info)
