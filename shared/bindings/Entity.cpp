@@ -225,6 +225,28 @@ static void IsSpawnedGetter(v8::Local<v8::String>, const v8::PropertyCallbackInf
     V8_RETURN_BOOLEAN(entity->GetScriptID() != 0);
 }
 
+static void GetSyncInfo(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(entity, alt::IEntity);
+
+    const auto syncInfo = entity->GetSyncInfo();
+
+    v8::Local<v8::Object> obj = v8::Object::New(isolate);
+    obj->Set(ctx, V8Helpers::JSValue("active"), V8Helpers::JSValue(syncInfo.active));
+    obj->Set(ctx, V8Helpers::JSValue("receivedTick"), V8Helpers::JSValue(syncInfo.receivedTick));
+    obj->Set(ctx, V8Helpers::JSValue("fullyReceivedTick"), V8Helpers::JSValue(syncInfo.fullyReceivedTick));
+    obj->Set(ctx, V8Helpers::JSValue("sendTick"), V8Helpers::JSValue(syncInfo.sendTick));
+    obj->Set(ctx, V8Helpers::JSValue("ackedSendTick"), V8Helpers::JSValue(syncInfo.ackedSendTick));
+    obj->Set(ctx, V8Helpers::JSValue("propertyCount"), V8Helpers::JSValue(syncInfo.propertyCount));
+    obj->Set(ctx, V8Helpers::JSValue("componentCount"), V8Helpers::JSValue(syncInfo.componentCount));
+    obj->Set(ctx, V8Helpers::JSValue("propertiesUpdateTick"), V8Helpers::JSValue(syncInfo.propertiesUpdateTick));
+    obj->Set(ctx, V8Helpers::JSValue("componentPropertyIndex"), V8Helpers::JSValue(syncInfo.componentPropertyIndex));
+    obj->SetIntegrityLevel(ctx, v8::IntegrityLevel::kFrozen);
+
+    V8_RETURN(obj);
+}
+
 static void StaticGetByScriptID(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -299,5 +321,6 @@ extern V8Class v8Entity("Entity",
                             V8Helpers::SetAccessor<IEntity, bool, &IEntity::GetVisible>(isolate, tpl, "visible");
 
                             V8Helpers::SetAccessor(isolate, tpl, "isSpawned", &IsSpawnedGetter);
+                            V8Helpers::SetMethod(isolate, tpl, "getSyncInfo", &GetSyncInfo);
 #endif  // ALT_CLIENT_API
                         });
