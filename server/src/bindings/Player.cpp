@@ -1335,7 +1335,7 @@ static void SetAmmoMax100(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void AddDecoration(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_CHECK_ARGS_LEN(2);
+    V8_CHECK_ARGS_LEN_MIN_MAX(2, 3);
     V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
     uint32_t collectionHash;
@@ -1362,7 +1362,14 @@ static void AddDecoration(const v8::FunctionCallbackInfo<v8::Value>& info)
         overlayHash = alt::ICore::Instance().Hash(overlay);
     }
 
-    player->AddDecoration(collectionHash, overlayHash);
+    uint8_t count = 1;
+    if (info[2]->IsNumber())
+    {
+        V8_ARG_TO_UINT(3, _count);
+        count = _count;
+    }
+
+    player->AddDecoration(collectionHash, overlayHash, count);
 }
 
 static void RemoveDecoration(const v8::FunctionCallbackInfo<v8::Value>& info)

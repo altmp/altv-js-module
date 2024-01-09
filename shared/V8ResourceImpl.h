@@ -259,6 +259,7 @@ public:
     v8::Local<v8::Array> GetAllWeaponObjects();
 #endif
     v8::Local<v8::Array> GetAllObjects();
+    v8::Local<v8::Array> GetAllTextLabels();
 
     std::vector<V8Helpers::EventCallback*> GetLocalHandlers(const std::string& name);
     std::vector<V8Helpers::EventCallback*> GetRemoteHandlers(const std::string& name);

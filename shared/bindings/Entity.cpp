@@ -225,6 +225,44 @@ static void IsSpawnedGetter(v8::Local<v8::String>, const v8::PropertyCallbackInf
     V8_RETURN_BOOLEAN(entity->GetScriptID() != 0);
 }
 
+static void GetSyncInfo(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(entity, alt::IEntity);
+
+    auto syncInfo = entity->GetSyncInfo();
+
+    v8::Local<v8::Object> result = v8::Object::New(isolate);
+    V8_OBJECT_SET_BOOLEAN(result, "active", syncInfo.active > 0);
+    V8_OBJECT_SET_UINT(result, "receivedTick", syncInfo.receivedTick);
+    V8_OBJECT_SET_UINT(result, "fullyReceivedTick", syncInfo.fullyReceivedTick);
+    V8_OBJECT_SET_UINT(result, "sendTick", syncInfo.sendTick);
+    V8_OBJECT_SET_UINT(result, "ackedSendTick", syncInfo.ackedSendTick);
+    V8_OBJECT_SET_NUMBER(result, "propertyCount", syncInfo.propertyCount);
+    V8_OBJECT_SET_NUMBER(result, "componentCount", syncInfo.componentCount);
+
+    const v8::Local<v8::Array> componentPropertyIndex = v8::Array::New(isolate, syncInfo.componentCount);
+    uint32_t lastPropertyIdx = 0;
+    for(uint32_t i = 0; i < syncInfo.componentCount; i++)
+    {
+        const uint32_t endIdx = i == syncInfo.componentCount - 1
+            ? syncInfo.propertyCount
+            : syncInfo.componentPropertyIndex[i];
+        const v8::Local<v8::Array> propertiesUpdateTick = v8::Array::New(isolate, static_cast<int>(endIdx - lastPropertyIdx));
+        for (uint32_t j = lastPropertyIdx; j < endIdx; j++)
+        {
+            propertiesUpdateTick->Set(ctx, j - lastPropertyIdx, V8Helpers::JSValue(syncInfo.propertiesUpdateTick[j]));
+        }
+        componentPropertyIndex->Set(ctx, i, propertiesUpdateTick);
+        lastPropertyIdx = endIdx;
+    }
+
+    // 2d array of property update ticks grouped per component
+    result->Set(ctx, v8::String::NewFromUtf8(isolate, "propertyUpdateTicks").ToLocalChecked(), componentPropertyIndex);
+
+    V8_RETURN(result);
+}
+
 static void StaticGetByScriptID(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT_RESOURCE();
@@ -299,5 +337,6 @@ extern V8Class v8Entity("Entity",
                             V8Helpers::SetAccessor<IEntity, bool, &IEntity::GetVisible>(isolate, tpl, "visible");
 
                             V8Helpers::SetAccessor(isolate, tpl, "isSpawned", &IsSpawnedGetter);
+                            V8Helpers::SetMethod(isolate, tpl, "getSyncInfo", &GetSyncInfo);
 #endif  // ALT_CLIENT_API
                         });
