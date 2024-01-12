@@ -384,6 +384,13 @@ static void GetMsPerGameMinute(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_INT(ICore::Instance().GetMsPerGameMinute());
 }
 
+static void GetServerTime(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE();
+
+    V8_RETURN_NUMBER(ICore::Instance().GetServerTime());
+}
+
 static void SetMsPerGameMinute(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -1445,6 +1452,7 @@ extern V8Module altModule("alt",
                               // Time managements functions
                               V8Helpers::RegisterFunc(exports, "setMsPerGameMinute", &SetMsPerGameMinute);
                               V8Helpers::RegisterFunc(exports, "getMsPerGameMinute", &GetMsPerGameMinute);
+                              V8Helpers::RegisterFunc(exports, "getServerTime", &GetServerTime);
 
                               // CEF rendering on texture
                               V8Helpers::RegisterFunc(exports, "isTextureExistInArchetype", &IsTextureExistInArchetype);
