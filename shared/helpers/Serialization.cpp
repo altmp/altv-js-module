@@ -56,7 +56,7 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
         {
             if(!allowFunction)
             {
-                Log::Error << V8Helpers::SourceLocation::GetCurrent(isolate).ToString() << " "
+                Log::Error << V8Helpers::SourceLocation::GetCurrent(isolate).ToString(isolate) << " "
                            << "Cannot convert function to MValue" << Log::Endl;
                 return core.CreateMValueNone();
             }
@@ -106,27 +106,27 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
             if(resource->IsVector3(v8Obj))
             {
                 v8::Local<v8::Value> x, y, z;
-                V8_CHECK_RETN(v8Obj->Get(ctx, V8Helpers::Vector3_XKey(isolate)).ToLocal(&x), "Failed to convert Vector3 to MValue", core.CreateMValueNil());
-                V8_CHECK_RETN(v8Obj->Get(ctx, V8Helpers::Vector3_YKey(isolate)).ToLocal(&y), "Failed to convert Vector3 to MValue", core.CreateMValueNil());
-                V8_CHECK_RETN(v8Obj->Get(ctx, V8Helpers::Vector3_ZKey(isolate)).ToLocal(&z), "Failed to convert Vector3 to MValue", core.CreateMValueNil());
+                V8_CHECK_RETN(v8Obj->Get(ctx, resource->XKey()).ToLocal(&x), "Failed to convert Vector3 to MValue", core.CreateMValueNil());
+                V8_CHECK_RETN(v8Obj->Get(ctx, resource->YKey()).ToLocal(&y), "Failed to convert Vector3 to MValue", core.CreateMValueNil());
+                V8_CHECK_RETN(v8Obj->Get(ctx, resource->ZKey()).ToLocal(&z), "Failed to convert Vector3 to MValue", core.CreateMValueNil());
 
                 return core.CreateMValueVector3(alt::Vector3f{ x.As<v8::Number>()->Value(), y.As<v8::Number>()->Value(), z.As<v8::Number>()->Value() });
             }
             else if(resource->IsVector2(v8Obj))
             {
                 v8::Local<v8::Value> x, y;
-                V8_CHECK_RETN(v8Obj->Get(ctx, V8Helpers::Vector3_XKey(isolate)).ToLocal(&x), "Failed to convert Vector2 to MValue", core.CreateMValueNil());
-                V8_CHECK_RETN(v8Obj->Get(ctx, V8Helpers::Vector3_YKey(isolate)).ToLocal(&y), "Failed to convert Vector2 to MValue", core.CreateMValueNil());
+                V8_CHECK_RETN(v8Obj->Get(ctx, resource->XKey()).ToLocal(&x), "Failed to convert Vector2 to MValue", core.CreateMValueNil());
+                V8_CHECK_RETN(v8Obj->Get(ctx, resource->YKey()).ToLocal(&y), "Failed to convert Vector2 to MValue", core.CreateMValueNil());
 
                 return core.CreateMValueVector2(alt::Vector2f{ x.As<v8::Number>()->Value(), y.As<v8::Number>()->Value() });
             }
             else if(resource->IsRGBA(v8Obj))
             {
                 v8::Local<v8::Value> r, g, b, a;
-                V8_CHECK_RETN(v8Obj->Get(ctx, V8Helpers::RGBA_RKey(isolate)).ToLocal(&r), "Failed to convert RGBA to MValue", core.CreateMValueNil());
-                V8_CHECK_RETN(v8Obj->Get(ctx, V8Helpers::RGBA_GKey(isolate)).ToLocal(&g), "Failed to convert RGBA to MValue", core.CreateMValueNil());
-                V8_CHECK_RETN(v8Obj->Get(ctx, V8Helpers::RGBA_BKey(isolate)).ToLocal(&b), "Failed to convert RGBA to MValue", core.CreateMValueNil());
-                V8_CHECK_RETN(v8Obj->Get(ctx, V8Helpers::RGBA_AKey(isolate)).ToLocal(&a), "Failed to convert RGBA to MValue", core.CreateMValueNil());
+                V8_CHECK_RETN(v8Obj->Get(ctx, resource->RKey()).ToLocal(&r), "Failed to convert RGBA to MValue", core.CreateMValueNil());
+                V8_CHECK_RETN(v8Obj->Get(ctx, resource->GKey()).ToLocal(&g), "Failed to convert RGBA to MValue", core.CreateMValueNil());
+                V8_CHECK_RETN(v8Obj->Get(ctx, resource->BKey()).ToLocal(&b), "Failed to convert RGBA to MValue", core.CreateMValueNil());
+                V8_CHECK_RETN(v8Obj->Get(ctx, resource->AKey()).ToLocal(&a), "Failed to convert RGBA to MValue", core.CreateMValueNil());
 
                 return core.CreateMValueRGBA(
                   alt::RGBA{ (uint8_t)r.As<v8::Number>()->Value(), (uint8_t)g.As<v8::Number>()->Value(), (uint8_t)b.As<v8::Number>()->Value(), (uint8_t)a.As<v8::Number>()->Value() });

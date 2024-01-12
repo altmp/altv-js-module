@@ -384,6 +384,13 @@ static void GetMsPerGameMinute(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_INT(ICore::Instance().GetMsPerGameMinute());
 }
 
+static void GetServerTime(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE();
+
+    V8_RETURN_NUMBER(ICore::Instance().GetServerTime());
+}
+
 static void SetMsPerGameMinute(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -1203,6 +1210,152 @@ static void IsFullScreen(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN_BOOLEAN(alt::ICore::Instance().IsFullScreen());
 }
 
+static void GetPoolSize(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_ARG_TO_STRING(1, pool);
+
+    V8_RETURN_UINT(alt::ICore::Instance().GetPoolSize(pool));
+}
+
+static void GetPoolCount(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_ARG_TO_STRING(1, pool);
+
+    V8_RETURN_UINT(alt::ICore::Instance().GetPoolCount(pool));
+}
+
+static void GetPoolEntities(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_ARG_TO_STRING(1, pool);
+
+    auto entities = alt::ICore::Instance().GetPoolEntities(pool);
+    v8::Local<v8::Array> arr = v8::Array::New(isolate, entities.size());
+
+    for (uint32_t i = 0; i < entities.size(); ++i)
+        arr->Set(ctx, i, v8::Integer::NewFromUnsigned(isolate, entities[i]));
+
+    V8_RETURN(arr);
+}
+
+static void GetVoicePlayers(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+
+    auto players = alt::ICore::Instance().GetVoicePlayers();
+    v8::Local<v8::Array> arr = v8::Array::New(isolate, players.size());
+
+    for (uint32_t i = 0; i < players.size(); ++i)
+        arr->Set(ctx, i, v8::Integer::NewFromUnsigned(isolate, players[i]));
+
+    V8_RETURN(arr);
+}
+
+static void RemoveVoicePlayer(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_INT(1, playerId);
+
+    alt::ICore::Instance().RemoveVoicePlayer(playerId);
+}
+
+static void GetVoiceSpatialVolume(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_INT(1, playerId);
+
+    V8_RETURN_NUMBER(alt::ICore::Instance().GetVoiceSpatialVolume(playerId));
+}
+
+static void SetVoiceSpatialVolume(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+
+    V8_ARG_TO_INT(1, playerId);
+    V8_ARG_TO_NUMBER(2, value);
+
+    alt::ICore::Instance().SetVoiceSpatialVolume(playerId, value);
+}
+
+static void GetVoiceNonSpatialVolume(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_INT(1, playerId);
+
+    V8_RETURN_NUMBER(alt::ICore::Instance().GetVoiceNonSpatialVolume(playerId));
+}
+
+static void SetVoiceNonSpatialVolume(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(2);
+
+    V8_ARG_TO_INT(1, playerId);
+    V8_ARG_TO_NUMBER(2, value);
+
+    alt::ICore::Instance().SetVoiceNonSpatialVolume(playerId, value);
+}
+
+static void AddVoiceFilter(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(2);
+
+    V8_ARG_TO_INT(1, playerId);
+    V8_ARG_TO_BASE_OBJECT(2, filter, alt::IAudioFilter, "AudioFilter");
+
+    alt::ICore::Instance().AddVoiceFilter(playerId, filter);
+}
+
+static void RemoveVoiceFilter(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_INT(1, playerId);
+
+    alt::ICore::Instance().RemoveVoiceFilter(playerId);
+}
+
+static void GetVoiceFilter(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
+    V8_CHECK_ARGS_LEN(1);
+
+    V8_ARG_TO_INT(1, playerId);
+
+    V8_RETURN_BASE_OBJECT(alt::ICore::Instance().GetVoiceFilter(playerId));
+}
+
+static void UpdateClipContext(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_CHECK_ARGS_LEN(1);
+    V8_CHECK(!info[0]->IsNullOrUndefined() && info[0]->IsObject(), "Argument 1 must be an object");
+
+    auto dict = V8Helpers::CppValue<v8::Local<v8::Value>>(info[0].As<v8::Object>());
+    std::unordered_map<std::string, std::string> context;
+
+    if(dict.has_value())
+    {
+        for(auto& [key, value] : dict.value()) V8Helpers::SafeToString(value, isolate, ctx, context[key]);
+    }
+
+    alt::ICore::Instance().UpdateClipContext(context);
+}
+
 extern V8Module sharedModule;
 extern V8Class v8Player, v8Player, v8Vehicle, v8WebView, v8HandlingData, v8LocalStorage, v8MemoryBuffer, v8MapZoomData, v8Discord, v8Voice, v8WebSocketClient, v8Checkpoint, v8HttpClient,
   v8Audio, v8LocalPlayer, v8Profiler, v8Worker, v8RmlDocument, v8RmlElement, v8WeaponData, v8FocusData, v8LocalObject, v8TextEncoder, v8TextDecoder, v8Object, v8VirtualEntityGroup,
@@ -1299,6 +1452,7 @@ extern V8Module altModule("alt",
                               // Time managements functions
                               V8Helpers::RegisterFunc(exports, "setMsPerGameMinute", &SetMsPerGameMinute);
                               V8Helpers::RegisterFunc(exports, "getMsPerGameMinute", &GetMsPerGameMinute);
+                              V8Helpers::RegisterFunc(exports, "getServerTime", &GetServerTime);
 
                               // CEF rendering on texture
                               V8Helpers::RegisterFunc(exports, "isTextureExistInArchetype", &IsTextureExistInArchetype);
@@ -1390,4 +1544,23 @@ extern V8Module altModule("alt",
 
                               V8Helpers::RegisterFunc(exports, "evalModule", &EvalModule);
                               V8Helpers::RegisterFunc(exports, "isFullScreen", &IsFullScreen);
+
+                              V8Helpers::RegisterFunc(exports, "getPoolSize", &GetPoolSize);
+                              V8Helpers::RegisterFunc(exports, "getPoolCount", &GetPoolCount);
+                              V8Helpers::RegisterFunc(exports, "getPoolEntities", &GetPoolEntities);
+
+                              // Voice related functions
+                              V8Helpers::RegisterFunc(exports, "getVoicePlayers", &GetVoicePlayers);
+                              V8Helpers::RegisterFunc(exports, "removeVoicePlayer", &RemoveVoicePlayer);
+
+                              V8Helpers::RegisterFunc(exports, "getVoiceSpatialVolume", &GetVoiceSpatialVolume);
+                              V8Helpers::RegisterFunc(exports, "setVoiceSpatialVolume", &SetVoiceSpatialVolume);
+
+                              V8Helpers::RegisterFunc(exports, "getVoiceNonSpatialVolume", &GetVoiceNonSpatialVolume);
+                              V8Helpers::RegisterFunc(exports, "setVoiceNonSpatialVolume", &SetVoiceNonSpatialVolume);
+
+                              V8Helpers::RegisterFunc(exports, "addVoiceFilter", &AddVoiceFilter);
+                              V8Helpers::RegisterFunc(exports, "removeVoiceFilter", &RemoveVoiceFilter);
+                              V8Helpers::RegisterFunc(exports, "getVoiceFilter", &GetVoiceFilter);
+                              V8Helpers::RegisterFunc(exports, "updateClipContext", &UpdateClipContext);
                           });

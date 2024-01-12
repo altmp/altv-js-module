@@ -12,8 +12,9 @@ Log& Log::Endl(Log& log)
 #ifdef ALT_CLIENT_API
     isolate = CV8ScriptRuntime::Instance().GetIsolate();
 #else
-    isolate = CNodeScriptRuntime::Instance().GetIsolate();
+    isolate = v8::Isolate::GetCurrent();
 #endif
+
     v8::Local<v8::Context> ctx;
     if(isolate) ctx = isolate->GetEnteredOrMicrotaskContext();
     V8ResourceImpl* v8Resource = !ctx.IsEmpty() ? V8ResourceImpl::Get(ctx) : nullptr;

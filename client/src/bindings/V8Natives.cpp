@@ -92,7 +92,7 @@ inline void ShowNativeArgParseErrorMsg(V8ResourceImpl* resource, v8::Local<v8::V
              << "(" << V8Helpers::GetJSValueTypeName(val) << ")"
              << " could not be parsed to type " << GetNativeTypeName(argType) << " (" << native->GetName() << ")";
 
-    Log::Error << source.ToString() << " " << errorMsg.str() << Log::Endl;
+    Log::Error << source.ToString(isolate) << " " << errorMsg.str() << Log::Endl;
     Log::Error << "Check the documentation for the needed arguments of this native." << Log::Endl;
 
     resource->DispatchErrorEvent(errorMsg.str(), source.GetFileName(), source.GetLineNumber(), V8Helpers::GetStackTrace(errorMsg.str()));
@@ -109,7 +109,7 @@ inline void ShowNativeArgMismatchErrorMsg(V8ResourceImpl* resource, alt::INative
     std::stringstream errorMsg;
     errorMsg << "Native argument size mismatch. Expected: " << expected << ", Received: " << received << " (" << native->GetName() << ")";
 
-    Log::Error << source.ToString() << " " << errorMsg.str() << Log::Endl;
+    Log::Error << source.ToString(isolate) << " " << errorMsg.str() << Log::Endl;
     Log::Error << "Check the documentation for the needed arguments of this native." << Log::Endl;
 
     resource->DispatchErrorEvent(errorMsg.str(), source.GetFileName(), source.GetLineNumber(), V8Helpers::GetStackTrace(errorMsg.str()));

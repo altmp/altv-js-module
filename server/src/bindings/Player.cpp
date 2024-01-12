@@ -300,6 +300,17 @@ static void GetDlcClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_RETURN(clothes);
 }
 
+static void ClearClothes(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    V8_CHECK_ARGS_LEN(1);
+    V8_ARG_TO_UINT(1, component);
+
+    player->ClearClothes(component);
+}
+
 static void SetProps(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
@@ -625,6 +636,14 @@ static void GetHeadBlendPaletteColor(const v8::FunctionCallbackInfo<v8::Value>& 
     V8_ARG_TO_UINT(1, id);
 
     V8_RETURN_RGBA(player->GetHeadBlendPaletteColor(id));
+}
+
+static void RemoveHeadBlendPaletteColor(const v8::FunctionCallbackInfo<v8::Value>& info)
+{
+    V8_GET_ISOLATE();
+    V8_GET_THIS_BASE_OBJECT(player, IPlayer);
+
+    player->RemoveHeadBlendPaletteColor();
 }
 
 static void SetHeadBlendData(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -1316,7 +1335,7 @@ static void SetAmmoMax100(const v8::FunctionCallbackInfo<v8::Value>& info)
 static void AddDecoration(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
     V8_GET_ISOLATE_CONTEXT();
-    V8_CHECK_ARGS_LEN(2);
+    V8_CHECK_ARGS_LEN_MIN_MAX(2, 3);
     V8_GET_THIS_BASE_OBJECT(player, IPlayer);
 
     uint32_t collectionHash;
@@ -1343,7 +1362,14 @@ static void AddDecoration(const v8::FunctionCallbackInfo<v8::Value>& info)
         overlayHash = alt::ICore::Instance().Hash(overlay);
     }
 
-    player->AddDecoration(collectionHash, overlayHash);
+    uint8_t count = 1;
+    if (info[2]->IsNumber())
+    {
+        V8_ARG_TO_UINT(3, _count);
+        count = _count;
+    }
+
+    player->AddDecoration(collectionHash, overlayHash, count);
 }
 
 static void RemoveDecoration(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -1401,6 +1427,7 @@ static void GetDecorations(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_NEW_OBJECT(decorationsObj);
         V8_OBJECT_SET_UINT(decorationsObj, "collection", decoration.collection);
         V8_OBJECT_SET_UINT(decorationsObj, "overlay", decoration.overlay);
+        V8_OBJECT_SET_INT(decorationsObj, "count", decoration.count);
 
         decorationsArr->Set(ctx, i, decorationsObj);
     }
@@ -1535,6 +1562,7 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetMethod(isolate, tpl, "setDlcClothes", &SetDlcClothes);
                             V8Helpers::SetMethod(isolate, tpl, "getClothes", &GetClothes);
                             V8Helpers::SetMethod(isolate, tpl, "getDlcClothes", &GetDlcClothes);
+                            V8Helpers::SetMethod(isolate, tpl, "clearClothes", &ClearClothes);
 
                             V8Helpers::SetMethod(isolate, tpl, "setProp", &SetProps);
                             V8Helpers::SetMethod(isolate, tpl, "setDlcProp", &SetDlcProps);
@@ -1564,6 +1592,7 @@ extern V8Class v8Player("Player",
                             V8Helpers::SetMethod(isolate, tpl, "removeFaceFeature", &RemoveFaceFeature);
                             V8Helpers::SetMethod(isolate, tpl, "setHeadBlendPaletteColor", &SetHeadBlendPaletteColor);
                             V8Helpers::SetMethod(isolate, tpl, "getHeadBlendPaletteColor", &GetHeadBlendPaletteColor);
+                            V8Helpers::SetMethod(isolate, tpl, "removeHeadBlendPaletteColor", &RemoveHeadBlendPaletteColor);
                             V8Helpers::SetMethod(isolate, tpl, "setHeadBlendData", &SetHeadBlendData);
                             V8Helpers::SetMethod(isolate, tpl, "removeHeadBlendData", &RemoveHeadBlendData);
                             V8Helpers::SetMethod(isolate, tpl, "getHeadBlendData", &GetHeadBlendData);

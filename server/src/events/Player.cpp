@@ -44,7 +44,8 @@ V8Helpers::LocalEventHandler playerConnectDenied(EventType::PLAYER_CONNECT_DENIE
                                                      args.push_back(V8Helpers::JSValue(ev->GetPasswordHash()));
                                                      args.push_back(V8Helpers::JSValue(ev->IsDebug()));
                                                      args.push_back(V8Helpers::JSValue(ev->GetBranch()));
-                                                     args.push_back(V8Helpers::JSValue(ev->GetMajorVersion()));
+                                                     args.push_back(V8Helpers::JSValue(ev->GetVersionMajor()));
+                                                     // TODO: no idea where to put version minor to not break backward compatibility, not sure it's needed at all
                                                      args.push_back(V8Helpers::JSValue(ev->GetCdnUrl()));
                                                      args.push_back(V8Helpers::JSValue(ev->GetDiscordId()));
                                                  });

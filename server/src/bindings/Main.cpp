@@ -418,6 +418,7 @@ static void GetVehicleModelByHash(const v8::FunctionCallbackInfo<v8::Value>& inf
     const alt::VehicleModelInfo& modelInfo = alt::ICore::Instance().GetVehicleModelByHash(hash);
     V8_NEW_OBJECT(infoObj);
 
+    infoObj->Set(ctx, V8Helpers::JSValue("modelHash"), V8Helpers::JSValue(modelInfo.modelHash));
     infoObj->Set(ctx, V8Helpers::JSValue("title"), V8Helpers::JSValue(modelInfo.title));
     infoObj->Set(ctx, V8Helpers::JSValue("type"), V8Helpers::JSValue((int)modelInfo.modelType));
     infoObj->Set(ctx, V8Helpers::JSValue("wheelsCount"), V8Helpers::JSValue(modelInfo.wheelsCount));
@@ -573,7 +574,7 @@ static void GetWeaponModelByHash(const v8::FunctionCallbackInfo<v8::Value>& info
 
     infoObj->Set(ctx, V8Helpers::JSValue("hash"), V8Helpers::JSValue(modelInfo.hash));
     infoObj->Set(ctx, V8Helpers::JSValue("name"), V8Helpers::JSValue(modelInfo.name));
-    infoObj->Set(ctx, V8Helpers::JSValue("modelName"), V8Helpers::JSValue(modelInfo.modelName));
+    infoObj->Set(ctx, V8Helpers::JSValue("modelName"), V8Helpers::JSValue(modelInfo.model));
     infoObj->Set(ctx, V8Helpers::JSValue("modelHash"), V8Helpers::JSValue(modelInfo.modelHash));
     infoObj->Set(ctx, V8Helpers::JSValue("ammoTypeHash"), V8Helpers::JSValue(modelInfo.ammoTypeHash));
     infoObj->Set(ctx, V8Helpers::JSValue("ammoType"), V8Helpers::JSValue(modelInfo.ammoType));

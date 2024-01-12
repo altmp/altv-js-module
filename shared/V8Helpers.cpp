@@ -189,17 +189,18 @@ V8Helpers::SourceLocation::SourceLocation(std::string&& _fileName, int _line, v8
     context.Reset(ctx->GetIsolate(), ctx);
 }
 
-std::string V8Helpers::SourceLocation::ToString()
+std::string V8Helpers::SourceLocation::ToString(v8::Isolate* isolate)
 {
-    auto isolate = v8::Isolate::GetCurrent();
-
     std::stringstream stream;
     stream << "[";
+
     // Check if not inside a worker
-    if(!(*static_cast<bool*>(isolate->GetData(v8::Isolate::GetNumberOfDataSlots() - 1))))
+    bool* isWorker = static_cast<bool*>(isolate->GetData(v8::Isolate::GetNumberOfDataSlots() - 1));
+    if (!isWorker || !(*isWorker))
     {
-        stream << V8ResourceImpl::Get(context.Get(v8::Isolate::GetCurrent()))->GetResource()->GetName() << ":";
+        stream << V8ResourceImpl::Get(context.Get(isolate))->GetResource()->GetName() << ":";
     }
+
     stream << fileName << ":" << line << "]";
     return stream.str();
 }
@@ -255,97 +256,6 @@ void V8Helpers::StackTrace::Print(v8::Isolate* isolate)
 {
     V8Helpers::StackTrace trace = V8Helpers::StackTrace::GetCurrent(isolate);
     trace.Print();
-}
-
-v8::Local<v8::String> V8Helpers::Vector3_XKey(v8::Isolate* isolate)
-{
-    static v8::Persistent<v8::String> xKey{ isolate, v8::String::NewFromUtf8(isolate, "x", v8::NewStringType::kInternalized).ToLocalChecked() };
-
-    return xKey.Get(isolate);
-}
-
-v8::Local<v8::String> V8Helpers::Vector3_YKey(v8::Isolate* isolate)
-{
-    static v8::Persistent<v8::String> yKey{ isolate, v8::String::NewFromUtf8(isolate, "y", v8::NewStringType::kInternalized).ToLocalChecked() };
-
-    return yKey.Get(isolate);
-}
-
-v8::Local<v8::String> V8Helpers::Vector3_ZKey(v8::Isolate* isolate)
-{
-    static v8::Persistent<v8::String> zKey{ isolate, v8::String::NewFromUtf8(isolate, "z", v8::NewStringType::kInternalized).ToLocalChecked() };
-
-    return zKey.Get(isolate);
-}
-
-v8::Local<v8::String> V8Helpers::Quaternion_XKey(v8::Isolate* isolate)
-{
-    static v8::Persistent<v8::String> xKey{ isolate, v8::String::NewFromUtf8(isolate, "x", v8::NewStringType::kInternalized).ToLocalChecked() };
-
-    return xKey.Get(isolate);
-}
-
-v8::Local<v8::String> V8Helpers::Quaternion_YKey(v8::Isolate* isolate)
-{
-    static v8::Persistent<v8::String> yKey{ isolate, v8::String::NewFromUtf8(isolate, "y", v8::NewStringType::kInternalized).ToLocalChecked() };
-
-    return yKey.Get(isolate);
-}
-
-v8::Local<v8::String> V8Helpers::Quaternion_ZKey(v8::Isolate* isolate)
-{
-    static v8::Persistent<v8::String> zKey{ isolate, v8::String::NewFromUtf8(isolate, "z", v8::NewStringType::kInternalized).ToLocalChecked() };
-
-    return zKey.Get(isolate);
-}
-
-v8::Local<v8::String> V8Helpers::Quaternion_WKey(v8::Isolate* isolate)
-{
-    static v8::Persistent<v8::String> wKey{ isolate, v8::String::NewFromUtf8(isolate, "w", v8::NewStringType::kInternalized).ToLocalChecked() };
-
-    return wKey.Get(isolate);
-}
-
-v8::Local<v8::String> V8Helpers::RGBA_RKey(v8::Isolate* isolate)
-{
-    static v8::Persistent<v8::String> rKey{ isolate, v8::String::NewFromUtf8(isolate, "r", v8::NewStringType::kInternalized).ToLocalChecked() };
-
-    return rKey.Get(isolate);
-}
-
-v8::Local<v8::String> V8Helpers::RGBA_GKey(v8::Isolate* isolate)
-{
-    static v8::Persistent<v8::String> gKey{ isolate, v8::String::NewFromUtf8(isolate, "g", v8::NewStringType::kInternalized).ToLocalChecked() };
-
-    return gKey.Get(isolate);
-}
-
-v8::Local<v8::String> V8Helpers::RGBA_BKey(v8::Isolate* isolate)
-{
-    static v8::Persistent<v8::String> bKey{ isolate, v8::String::NewFromUtf8(isolate, "b", v8::NewStringType::kInternalized).ToLocalChecked() };
-
-    return bKey.Get(isolate);
-}
-
-v8::Local<v8::String> V8Helpers::RGBA_AKey(v8::Isolate* isolate)
-{
-    static v8::Persistent<v8::String> aKey{ isolate, v8::String::NewFromUtf8(isolate, "a", v8::NewStringType::kInternalized).ToLocalChecked() };
-
-    return aKey.Get(isolate);
-}
-
-v8::Local<v8::String> V8Helpers::Fire_PosKey(v8::Isolate* isolate)
-{
-    static v8::Persistent<v8::String> aKey{ isolate, v8::String::NewFromUtf8(isolate, "pos", v8::NewStringType::kInternalized).ToLocalChecked() };
-
-    return aKey.Get(isolate);
-}
-
-v8::Local<v8::String> V8Helpers::Fire_WeaponKey(v8::Isolate* isolate)
-{
-    static v8::Persistent<v8::String> aKey{ isolate, v8::String::NewFromUtf8(isolate, "weapon", v8::NewStringType::kInternalized).ToLocalChecked() };
-
-    return aKey.Get(isolate);
 }
 
 std::vector<V8Helpers::EventCallback*> V8Helpers::EventHandler::GetCallbacks(V8ResourceImpl* impl, const alt::CEvent* e)

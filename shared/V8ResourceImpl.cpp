@@ -277,7 +277,7 @@ void V8ResourceImpl::OnRemoveBaseObject(alt::IBaseObject* handle)
     if(!ent) return;
 
     auto entityType = handle->GetType();
-    if(entityType == alt::IBaseObject::Type::PLAYER || entityType == alt::IBaseObject::Type::LOCAL_PLAYER || entityType == alt::IBaseObject::Type::VEHICLE)
+    if(entityType == alt::IBaseObject::Type::PLAYER || entityType == alt::IBaseObject::Type::LOCAL_PLAYER || entityType == alt::IBaseObject::Type::VEHICLE || entityType == alt::IBaseObject::Type::PED || entityType == alt::IBaseObject::Type::OBJECT)
     {
         std::vector<V8Helpers::EventCallback*> handlers = GetLocalHandlers("removeEntity");
         std::vector<v8::Local<v8::Value>> args{ ent->GetJSVal(isolate) };
@@ -482,6 +482,17 @@ v8::Local<v8::Array> V8ResourceImpl::GetAllWeaponObjects()
 v8::Local<v8::Array> V8ResourceImpl::GetAllObjects()
 {
     std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::OBJECT);
+    v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
+
+    for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));
+
+    jsAll->SetIntegrityLevel(GetContext(), v8::IntegrityLevel::kFrozen);
+    return jsAll;
+}
+
+v8::Local<v8::Array> V8ResourceImpl::GetAllTextLabels()
+{
+    std::vector<IBaseObject*> all = ICore::Instance().GetBaseObjects(alt::IBaseObject::Type::TEXT_LABEL);
     v8::Local<v8::Array> jsAll = v8::Array::New(isolate, all.size());
 
     for(uint32_t i = 0; i < all.size(); ++i) jsAll->Set(GetContext(), i, GetBaseObjectOrNull(all[i]));

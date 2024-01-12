@@ -86,7 +86,7 @@ public:
 
         if(!anyHandlerRemoved)
         {
-            Log::Warning << location.ToString() << " alt.off was called for event \"" << ev << "\" with function reference that was not subscribed" << Log::Endl;
+            Log::Warning << location.ToString(isolate) << " alt.off was called for event \"" << ev << "\" with function reference that was not subscribed" << Log::Endl;
             return;
         }
 
@@ -259,6 +259,7 @@ public:
     v8::Local<v8::Array> GetAllWeaponObjects();
 #endif
     v8::Local<v8::Array> GetAllObjects();
+    v8::Local<v8::Array> GetAllTextLabels();
 
     std::vector<V8Helpers::EventCallback*> GetLocalHandlers(const std::string& name);
     std::vector<V8Helpers::EventCallback*> GetRemoteHandlers(const std::string& name);
@@ -394,4 +395,34 @@ protected:
     }
 
     void InvokeEventHandlers(const alt::CEvent* ev, const std::vector<V8Helpers::EventCallback*>& handlers, std::vector<v8::Local<v8::Value>>& args, bool waitForPromiseResolve = false);
+
+public:
+    struct ObjectKey
+    {
+        ObjectKey(V8ResourceImpl* _resource, const char* _key) : resource(_resource), keyStr(_key) {}
+
+        v8::Local<v8::String> operator()()
+        {
+            if(key.IsEmpty()) key.Reset(resource->GetIsolate(), v8::String::NewFromUtf8(resource->GetIsolate(), keyStr, v8::NewStringType::kInternalized).ToLocalChecked());
+            return key.Get(resource->GetIsolate());
+        }
+
+    private:
+        V8ResourceImpl* resource;
+        const char* keyStr;
+        v8::Persistent<v8::String> key;
+    };
+
+    ObjectKey XKey{ this, "x" };
+    ObjectKey YKey{ this, "y" };
+    ObjectKey ZKey{ this, "z" };
+    ObjectKey WKey{ this, "w" };
+
+    ObjectKey RKey{ this, "r" };
+    ObjectKey GKey{ this, "g" };
+    ObjectKey BKey{ this, "b" };
+    ObjectKey AKey{ this, "a" };
+
+    ObjectKey PosKey{ this, "pos" };
+    ObjectKey WeaponKey{ this, "weapon" };
 };

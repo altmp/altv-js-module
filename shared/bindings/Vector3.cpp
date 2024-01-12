@@ -79,7 +79,7 @@ static void AngleToDegrees(const v8::FunctionCallbackInfo<v8::Value>& info)
 
 static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-    V8_GET_ISOLATE_CONTEXT();
+    V8_GET_ISOLATE_CONTEXT_RESOURCE();
 
     V8_CHECK_CONSTRUCTOR();
     V8_CHECK_ARGS_LEN2(1, 3);
@@ -119,9 +119,9 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         {
             v8::Local<v8::Object> obj = val.As<v8::Object>();
 
-            x = obj->Get(ctx, V8Helpers::Vector3_XKey(isolate)).ToLocalChecked();
-            y = obj->Get(ctx, V8Helpers::Vector3_YKey(isolate)).ToLocalChecked();
-            z = obj->Get(ctx, V8Helpers::Vector3_ZKey(isolate)).ToLocalChecked();
+            x = obj->Get(ctx, resource->XKey()).ToLocalChecked();
+            y = obj->Get(ctx, resource->YKey()).ToLocalChecked();
+            z = obj->Get(ctx, resource->ZKey()).ToLocalChecked();
 
             V8_CHECK(x->IsNumber(), "x must be a number");
             V8_CHECK(y->IsNumber(), "y must be a number");
@@ -140,9 +140,9 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         }
     }
 
-    V8Helpers::DefineOwnProperty(isolate, ctx, _this, V8Helpers::Vector3_XKey(isolate), x, v8::PropertyAttribute::ReadOnly);
-    V8Helpers::DefineOwnProperty(isolate, ctx, _this, V8Helpers::Vector3_YKey(isolate), y, v8::PropertyAttribute::ReadOnly);
-    V8Helpers::DefineOwnProperty(isolate, ctx, _this, V8Helpers::Vector3_ZKey(isolate), z, v8::PropertyAttribute::ReadOnly);
+    V8Helpers::DefineOwnProperty(isolate, ctx, _this, resource->XKey(), x, v8::PropertyAttribute::ReadOnly);
+    V8Helpers::DefineOwnProperty(isolate, ctx, _this, resource->YKey(), y, v8::PropertyAttribute::ReadOnly);
+    V8Helpers::DefineOwnProperty(isolate, ctx, _this, resource->ZKey(), z, v8::PropertyAttribute::ReadOnly);
 }
 
 extern V8Class v8Vector3("Vector3",

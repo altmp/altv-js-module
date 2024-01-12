@@ -88,8 +88,8 @@ V8Helpers::LocalEventHandler fireEvent(EventType::FIRE_EVENT,
                                            for(int i = 0; i < fires.size(); ++i)
                                            {
                                                v8::Local<v8::Object> v8fire = v8::Object::New(isolate);
-                                               v8fire->Set(resource->GetContext(), V8Helpers::Fire_PosKey(isolate), resource->CreateVector3(fires[i].position));
-                                               v8fire->Set(resource->GetContext(), V8Helpers::Fire_WeaponKey(isolate), V8Helpers::JSValue(fires[i].weaponHash));
+                                               v8fire->Set(resource->GetContext(), resource->PosKey(), resource->CreateVector3(fires[i].position));
+                                               v8fire->Set(resource->GetContext(), resource->WeaponKey(), V8Helpers::JSValue(fires[i].weaponHash));
 
                                                v8fires->Set(resource->GetContext(), i, v8fire);
                                            }

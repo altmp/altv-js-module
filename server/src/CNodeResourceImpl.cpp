@@ -26,19 +26,20 @@ static const char bootstrap_code[] =
 #include "bootstrap.js.gen"
   ;
 
-CNodeResourceImpl::CNodeResourceImpl(CNodeScriptRuntime* _runtime, v8::Isolate* isolate, alt::IResource* resource) : V8ResourceImpl(isolate, resource), runtime(_runtime)
+CNodeResourceImpl::CNodeResourceImpl(CNodeScriptRuntime* _runtime, alt::IResource* resource) : V8ResourceImpl(nullptr, resource), runtime(_runtime)
 {
+    uvLoop = new uv_loop_t;
+    uv_loop_init(uvLoop);
+
+    auto allocator = node::CreateArrayBufferAllocator();
+    isolate = node::NewIsolate(allocator, uvLoop, runtime->GetPlatform());
+    nodeData = node::CreateIsolateData(isolate, uvLoop, runtime->GetPlatform(), allocator);
+
     v8::Locker locker(isolate);
     v8::Isolate::Scope isolateScope(isolate);
     v8::HandleScope handleScope(isolate);
 
-    v8::Local<v8::ObjectTemplate> global = v8::ObjectTemplate::New(isolate);
-
-    v8::Local<v8::String> resourceName = V8Helpers::JSValue(resource->GetName());
-
-    v8::Local<v8::Context> _context = node::NewContext(isolate, global);
-    v8::Context::Scope scope(_context);
-
+    v8::Local<v8::Context> _context = node::NewContext(isolate);
     _context->SetAlignedPointerInEmbedderData(1, resource);
     context.Reset(isolate, _context);
 }
@@ -48,29 +49,28 @@ bool CNodeResourceImpl::Start()
     v8::Locker locker(isolate);
     v8::Isolate::Scope isolateScope(isolate);
     v8::HandleScope handleScope(isolate);
-    v8::Local<v8::Context> _context = GetContext();
+
+    auto _context = GetContext();
     v8::Context::Scope scope(_context);
 
     _context->Global()->Set(_context, V8Helpers::JSValue("__resourceLoaded"), v8::Function::New(_context, &ResourceLoaded).ToLocalChecked());
     _context->Global()->Set(_context, V8Helpers::JSValue("__internal_bindings_code"), V8Helpers::JSValue(JSBindings::GetBindingsCode()));
 
+    V8Class::LoadAll(isolate);
     V8ResourceImpl::Start();
     V8ResourceImpl::SetupScriptGlobals();
 
-    node::EnvironmentFlags::Flags flags = (node::EnvironmentFlags::Flags)(node::EnvironmentFlags::kOwnsProcessState & node::EnvironmentFlags::kNoCreateInspector);
+    node::ThreadId threadId = node::AllocateEnvironmentThreadId();
+    auto flags = static_cast<node::EnvironmentFlags::Flags>(node::EnvironmentFlags::kNoFlags);
+    auto inspector = node::GetInspectorParentHandle(runtime->GetParentEnv(), threadId, resource->GetName().c_str());
 
-    uvLoop = new uv_loop_t;
-    uv_loop_init(uvLoop);
+    std::vector<std::string> args{ resource->GetName() };
+    std::vector<std::string> execArgs{ };
 
-    nodeData = node::CreateIsolateData(isolate, uvLoop, runtime->GetPlatform());
-    std::vector<std::string> argv = { "altv-resource" };
-    env = node::CreateEnvironment(nodeData, _context, argv, argv, flags);
-
-    node::IsolateSettings is;
-    node::SetIsolateUpForNode(isolate, is);
-
+    env = node::CreateEnvironment(nodeData, _context, args, execArgs, flags, threadId, std::move(inspector));        
     node::LoadEnvironment(env, bootstrap_code);
 
+    // Not sure it's needed anymore
     asyncResource.Reset(isolate, v8::Object::New(isolate));
     asyncContext = node::EmitAsyncInit(isolate, asyncResource.Get(isolate), "CNodeResourceImpl");
 
@@ -80,6 +80,7 @@ bool CNodeResourceImpl::Start()
         OnTick();
     }
 
+    Log::Debug << "Started" << Log::Endl;
     DispatchStartEvent(startError);
 
     return !startError;
@@ -91,6 +92,8 @@ bool CNodeResourceImpl::Stop()
     v8::Isolate::Scope isolateScope(isolate);
     v8::HandleScope handleScope(isolate);
 
+    Log::Debug << "Before stop" << Log::Endl;
+
     {
         v8::Context::Scope scope(GetContext());
         DispatchStopEvent();
@@ -98,6 +101,8 @@ bool CNodeResourceImpl::Stop()
         node::EmitAsyncDestroy(isolate, asyncContext);
         asyncResource.Reset();
     }
+
+    Log::Debug << "After stop" << Log::Endl;
 
     node::EmitProcessBeforeExit(env);
     node::EmitProcessExit(env);
@@ -357,6 +362,7 @@ void CNodeResourceImpl::OnTick()
     v8::Context::Scope scope(GetContext());
     node::CallbackScope callbackScope(isolate, asyncResource.Get(isolate), asyncContext);
 
+    runtime->GetPlatform()->DrainTasks(isolate);
     uv_run(uvLoop, UV_RUN_NOWAIT);
     V8ResourceImpl::OnTick();
 }
