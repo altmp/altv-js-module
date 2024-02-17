@@ -91,15 +91,8 @@ void V8ResourceImpl::OnTick()
         {
             auto& location = p.second->GetLocation();
 
-            if(location.GetLineNumber() != 0)
-            {
-                Log::Warning << "Timer at " << resource->GetName() << ":" << location.GetFileName() << ":" << location.GetLineNumber() << " was too long " << GetTime() - time << "ms"
-                             << Log::Endl;
-            }
-            else
-            {
-                Log::Warning << "Timer at " << resource->GetName() << ":" << location.GetFileName() << " was too long " << GetTime() - time << "ms" << Log::Endl;
-            }
+            Log::Warning << "Timer at " << location.GetFuncName() << " (" << resource->GetName() << ":" << location.GetFileName()
+                         << ":" << location.GetLineNumber() << ") was too long " << (GetTime() - time) << "ms" << Log::Endl;
         }
     }
 
@@ -608,13 +601,11 @@ void V8ResourceImpl::InvokeEventHandlers(const alt::CEvent* ev, const std::vecto
               return true;
           });
 
-        if(GetTime() - time > 50 && !waitForPromiseResolve)
+        if (GetTime() - time > 50 && !waitForPromiseResolve)
         {
-            if(handler->location.GetLineNumber() != 0)
-                Log::Warning << "Event handler at " << resource->GetName() << ":" << handler->location.GetFileName() << ":" << handler->location.GetLineNumber() << " was too long "
-                             << (GetTime() - time) << "ms" << Log::Endl;
-            else
-                Log::Warning << "Event handler at " << resource->GetName() << ":" << handler->location.GetFileName() << " was too long " << (GetTime() - time) << "ms" << Log::Endl;
+            Log::Warning << "Event handler at " << handler->location.GetFuncName() << " (" << resource->GetName() << ":" << handler->location.GetFileName() << ":"
+                         << handler->location.GetLineNumber()
+                         << ") was too long " << (GetTime() - time) << "ms" << Log::Endl;
         }
 
         if(handler->once) handler->removed = true;

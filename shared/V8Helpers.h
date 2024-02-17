@@ -48,12 +48,18 @@ namespace V8Helpers
     class SourceLocation
     {
     public:
-        SourceLocation(std::string&& fileName, int line, v8::Local<v8::Context> ctx);
+        SourceLocation(const std::string& fileName, const std::string& funcName, int line, v8::Local<v8::Context> ctx);
 
         const std::string& GetFileName() const
         {
             return fileName;
         }
+
+        const std::string& GetFuncName() const
+        {
+            return funcName;
+        }
+
         int GetLineNumber() const
         {
             return line;
@@ -65,6 +71,7 @@ namespace V8Helpers
 
     private:
         CPersistent<v8::Context> context;
+        std::string funcName;
         std::string fileName;
         int line = 0;
     };

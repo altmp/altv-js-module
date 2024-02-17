@@ -148,10 +148,10 @@ v8::Local<v8::Object> V8Helpers::CreateCustomObject(v8::Isolate* isolate,
     return obj;
 }
 
-inline static std::string GetStackFrameScriptName(v8::Local<v8::StackFrame> frame)
+inline static std::string GetStackFrameScriptName(v8::Isolate* isolate, v8::Local<v8::StackFrame> frame)
 {
     v8::Local<v8::Value> name = frame->GetScriptName();
-    if(!name.IsEmpty()) return *v8::String::Utf8Value(v8::Isolate::GetCurrent(), name);
+    if(!name.IsEmpty()) return *v8::String::Utf8Value(isolate, name);
     else if(frame->IsEval())
         return "[eval]";
     else if(frame->IsWasm())
@@ -170,21 +170,25 @@ V8Helpers::SourceLocation V8Helpers::SourceLocation::GetCurrent(v8::Isolate* iso
     for(int i = 0; i < stackTrace->GetFrameCount(); i++)
     {
         v8::Local<v8::StackFrame> frame = stackTrace->GetFrame(isolate, i);
+        auto jsFuncName = frame->GetFunctionName();
+
         if(frame->GetScriptName().IsEmpty() && !frame->IsEval() && !frame->IsWasm() && frame->IsUserJavaScript()) continue;
 
-        std::string name = GetStackFrameScriptName(frame);
+        std::string name = GetStackFrameScriptName(isolate, frame);
+        std::string funcName = !jsFuncName.IsEmpty() ? *v8::String::Utf8Value(isolate, jsFuncName) : "<anonymous>";
+
         bool isBytecode = false;
 #ifdef ALT_CLIENT_API
         isBytecode = resource ? static_cast<CV8ResourceImpl*>(resource)->GetModuleData(name).isBytecode : false;
 #endif
         int line = isBytecode ? 0 : frame->GetLineNumber();
-        return SourceLocation{ std::move(name), line, ctx };
+        return SourceLocation{ name, funcName, line, ctx };
     }
 
-    return SourceLocation{ "[unknown]", 0, ctx };
+    return SourceLocation{ "[unknown]", "<unknown>", 0, ctx };
 }
 
-V8Helpers::SourceLocation::SourceLocation(std::string&& _fileName, int _line, v8::Local<v8::Context> ctx) : fileName(_fileName), line(_line)
+V8Helpers::SourceLocation::SourceLocation(const std::string& _fileName, const std::string& _funcName, int _line, v8::Local<v8::Context> ctx) : fileName(_fileName), funcName(_funcName), line(_line)
 {
     context.Reset(ctx->GetIsolate(), ctx);
 }
@@ -214,7 +218,7 @@ V8Helpers::StackTrace V8Helpers::StackTrace::GetCurrent(v8::Isolate* isolate, V8
     {
         v8::Local<v8::StackFrame> frame = stackTrace->GetFrame(isolate, i);
         Frame frameData;
-        frameData.file = GetStackFrameScriptName(frame);
+        frameData.file = GetStackFrameScriptName(isolate, frame);
         bool isBytecode = false;
 #ifdef ALT_CLIENT_API
         isBytecode = resource ? static_cast<CV8ResourceImpl*>(resource)->GetModuleData(frameData.file).isBytecode : false;
