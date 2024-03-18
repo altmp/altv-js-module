@@ -224,7 +224,7 @@ extern V8Class v8BaseObject("BaseObject",
                             {
                                 v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-                                tpl->InstanceTemplate()->SetInternalFieldCount(1);
+                                tpl->InstanceTemplate()->SetInternalFieldCount(static_cast<int>(V8Class::InternalFields::COUNT));
 
                                 V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetById);
 

@@ -17,6 +17,26 @@ class V8Class
     std::unordered_map<v8::Isolate*, v8::Persistent<v8::FunctionTemplate, v8::CopyablePersistentTraits<v8::FunctionTemplate>>> tplMap;
 
 public:
+    enum class InternalFields
+    {
+        OBJECT_CLASS,
+        BASE_OBJECT,
+        RESOURCE,
+
+        COUNT
+    };
+
+    enum class ObjectClass
+    {
+        NONE,
+        RESOURCE,
+        BASE_OBJECT,
+        VECTOR2,
+        VECTOR3,
+        RGBA,
+        QUATERNION,
+    };
+
     static auto& All()
     {
         static std::unordered_map<std::string, V8Class*> _All;

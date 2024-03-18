@@ -85,6 +85,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN2(1, 3);
 
     v8::Local<v8::Object> _this = info.This();
+    V8Helpers::SetObjectClass(isolate, _this, V8Class::ObjectClass::VECTOR3);
 
     v8::Local<v8::Value> x, y, z;
 
@@ -149,7 +150,5 @@ extern V8Class v8Vector3("Vector3",
                          Constructor,
                          [](v8::Local<v8::FunctionTemplate> tpl)
                          {
-                             v8::Isolate* isolate = v8::Isolate::GetCurrent();
-
-                             tpl->InstanceTemplate()->SetInternalFieldCount(1);  // !! Needs to be set so V8 knows its a custom class !!
+                             tpl->InstanceTemplate()->SetInternalFieldCount(static_cast<int>(V8Class::InternalFields::COUNT));
                          });

@@ -2,10 +2,11 @@
 #include "V8ResourceImpl.h"
 #include "Bindings.h"
 #include "CProfiler.h"
+#include "V8Helpers.h"
 
 alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
 {
-    CProfiler::Sample _("V8Helpers::V8ToMValue", true);
+    // CProfiler::Sample _("V8Helpers::V8ToMValue", true);
     alt::ICore& core = alt::ICore::Instance();
 
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -100,10 +101,11 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
         else
         {
             V8ResourceImpl* resource = V8ResourceImpl::Get(ctx);
-            v8::Local<v8::Object> v8Obj = val.As<v8::Object>();
+            auto v8Obj = val.As<v8::Object>();
+            auto cls = V8Helpers::GetObjectClass(v8Obj);
 
-            // if (v8Obj->InstanceOf(ctx, v8Vector3->JSValue(isolate, ctx)).ToChecked())
-            if(resource->IsVector3(v8Obj))
+            //// if (v8Obj->InstanceOf(ctx, v8Vector3->JSValue(isolate, ctx)).ToChecked())
+            if(cls == V8Class::ObjectClass::VECTOR3)
             {
                 v8::Local<v8::Value> x, y, z;
                 V8_CHECK_RETN(v8Obj->Get(ctx, resource->XKey()).ToLocal(&x), "Failed to convert Vector3 to MValue", core.CreateMValueNil());
@@ -112,7 +114,7 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
 
                 return core.CreateMValueVector3(alt::Vector3f{ x.As<v8::Number>()->Value(), y.As<v8::Number>()->Value(), z.As<v8::Number>()->Value() });
             }
-            else if(resource->IsVector2(v8Obj))
+            if(cls == V8Class::ObjectClass::VECTOR2)
             {
                 v8::Local<v8::Value> x, y;
                 V8_CHECK_RETN(v8Obj->Get(ctx, resource->XKey()).ToLocal(&x), "Failed to convert Vector2 to MValue", core.CreateMValueNil());
@@ -120,7 +122,7 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
 
                 return core.CreateMValueVector2(alt::Vector2f{ x.As<v8::Number>()->Value(), y.As<v8::Number>()->Value() });
             }
-            else if(resource->IsRGBA(v8Obj))
+            else if(cls == V8Class::ObjectClass::RGBA)
             {
                 v8::Local<v8::Value> r, g, b, a;
                 V8_CHECK_RETN(v8Obj->Get(ctx, resource->RKey()).ToLocal(&r), "Failed to convert RGBA to MValue", core.CreateMValueNil());
@@ -131,7 +133,7 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
                 return core.CreateMValueRGBA(
                   alt::RGBA{ (uint8_t)r.As<v8::Number>()->Value(), (uint8_t)g.As<v8::Number>()->Value(), (uint8_t)b.As<v8::Number>()->Value(), (uint8_t)a.As<v8::Number>()->Value() });
             }
-            else if(resource->IsBaseObject(v8Obj))
+            else if(cls == V8Class::ObjectClass::BASE_OBJECT)
             {
                 V8Entity* ent = V8Entity::Get(v8Obj);
 
@@ -152,7 +154,7 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
                     V8_CHECK_RETN(v8Obj->Get(ctx, v8Key).ToLocal(&value), "Failed to convert object to MValue", core.CreateMValueNil());
 
                     if(value->IsUndefined()) continue;
-                    std::string key = *v8::String::Utf8Value(isolate, v8Key);
+                    auto key = *v8::String::Utf8Value(isolate, v8Key);
                     dict->Set(key, V8ToMValue(value, allowFunction));
                 }
 
@@ -177,10 +179,10 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
     {
         case alt::IMValue::Type::NONE: return v8::Undefined(isolate);
         case alt::IMValue::Type::NIL: return V8Helpers::JSValue(nullptr);
-        case alt::IMValue::Type::BOOL: return V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueBool>(val)->Value());
+        case alt::IMValue::Type::BOOL: return V8Helpers::JSValue(std::static_pointer_cast<const alt::IMValueBool>(val)->Value());
         case alt::IMValue::Type::INT:
         {
-            int64_t _val = std::dynamic_pointer_cast<const alt::IMValueInt>(val)->Value();
+            int64_t _val = std::static_pointer_cast<const alt::IMValueInt>(val)->Value();
 
             if(_val >= JS_MIN_SAFE_INTEGER && _val <= JS_MAX_SAFE_INTEGER) return V8Helpers::JSValue((double)_val);
 
@@ -188,17 +190,17 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
         }
         case alt::IMValue::Type::UINT:
         {
-            uint64_t _val = std::dynamic_pointer_cast<const alt::IMValueUInt>(val)->Value();
+            uint64_t _val = std::static_pointer_cast<const alt::IMValueUInt>(val)->Value();
 
             if(_val <= JS_MAX_SAFE_INTEGER) return V8Helpers::JSValue((double)_val);
 
             return V8Helpers::JSValue(_val);
         }
-        case alt::IMValue::Type::DOUBLE: return V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueDouble>(val)->Value());
-        case alt::IMValue::Type::STRING: return V8Helpers::JSValue(std::dynamic_pointer_cast<const alt::IMValueString>(val)->Value());
+        case alt::IMValue::Type::DOUBLE: return V8Helpers::JSValue(std::static_pointer_cast<const alt::IMValueDouble>(val)->Value());
+        case alt::IMValue::Type::STRING: return V8Helpers::JSValue(std::static_pointer_cast<const alt::IMValueString>(val)->Value());
         case alt::IMValue::Type::LIST:
         {
-            alt::MValueListConst list = std::dynamic_pointer_cast<const alt::IMValueList>(val);
+            alt::MValueListConst list = std::static_pointer_cast<const alt::IMValueList>(val);
             v8::Local<v8::Array> v8Arr = v8::Array::New(isolate, (int)list->GetSize());
 
             for(uint32_t i = 0; i < list->GetSize(); ++i) v8Arr->Set(ctx, i, MValueToV8(list->Get(i)));
@@ -207,7 +209,7 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
         }
         case alt::IMValue::Type::DICT:
         {
-            alt::MValueDictConst dict = std::dynamic_pointer_cast<const alt::IMValueDict>(val);
+            alt::MValueDictConst dict = std::static_pointer_cast<const alt::IMValueDict>(val);
             v8::Local<v8::Object> v8Obj = v8::Object::New(isolate);
 
             for(auto it = dict->Begin(); it != dict->End(); ++it)
@@ -219,24 +221,24 @@ v8::Local<v8::Value> V8Helpers::MValueToV8(alt::MValueConst val)
         }
         case alt::IMValue::Type::BASE_OBJECT:
         {
-            alt::IBaseObject* ref = std::dynamic_pointer_cast<const alt::IMValueBaseObject>(val)->RawValue();
+            alt::IBaseObject* ref = std::static_pointer_cast<const alt::IMValueBaseObject>(val)->RawValue();
             return V8ResourceImpl::Get(ctx)->GetBaseObjectOrNull(ref);
         }
         case alt::IMValue::Type::FUNCTION:
         {
-            alt::MValueFunctionConst fn = std::dynamic_pointer_cast<const alt::IMValueFunction>(val);
+            alt::MValueFunctionConst fn = std::static_pointer_cast<const alt::IMValueFunction>(val);
             v8::Local<v8::External> extFn = v8::External::New(isolate, new alt::MValueFunctionConst(fn));
 
             v8::Local<v8::Function> func;
             V8_CHECK_RETN(v8::Function::New(ctx, V8Helpers::FunctionCallback, extFn).ToLocal(&func), "Failed to convert MValue to function", v8::Undefined(isolate));
             return func;
         }
-        case alt::IMValue::Type::VECTOR3: return V8ResourceImpl::Get(ctx)->CreateVector3(std::dynamic_pointer_cast<const alt::IMValueVector3>(val)->Value());
-        case alt::IMValue::Type::VECTOR2: return V8ResourceImpl::Get(ctx)->CreateVector2(std::dynamic_pointer_cast<const alt::IMValueVector2>(val)->Value());
-        case alt::IMValue::Type::RGBA: return V8ResourceImpl::Get(ctx)->CreateRGBA(std::dynamic_pointer_cast<const alt::IMValueRGBA>(val)->Value());
+        case alt::IMValue::Type::VECTOR3: return V8ResourceImpl::Get(ctx)->CreateVector3(std::static_pointer_cast<const alt::IMValueVector3>(val)->Value());
+        case alt::IMValue::Type::VECTOR2: return V8ResourceImpl::Get(ctx)->CreateVector2(std::static_pointer_cast<const alt::IMValueVector2>(val)->Value());
+        case alt::IMValue::Type::RGBA: return V8ResourceImpl::Get(ctx)->CreateRGBA(std::static_pointer_cast<const alt::IMValueRGBA>(val)->Value());
         case alt::IMValue::Type::BYTE_ARRAY:
         {
-            alt::MValueByteArrayConst buffer = std::dynamic_pointer_cast<const alt::IMValueByteArray>(val);
+            alt::MValueByteArrayConst buffer = std::static_pointer_cast<const alt::IMValueByteArray>(val);
             // Check if the buffer is a raw JS value buffer
             v8::MaybeLocal<v8::Value> jsVal = RawBytesToV8(buffer);
             if(!jsVal.IsEmpty()) return jsVal.ToLocalChecked();
@@ -283,11 +285,18 @@ static inline RawValueType GetValueType(v8::Local<v8::Context> ctx, v8::Local<v8
         if(!object) return RawValueType::INVALID;
         return RawValueType::BASEOBJECT;
     }
-    if(resource->IsVector3(val)) return RawValueType::VECTOR3;
-    if(resource->IsVector2(val)) return RawValueType::VECTOR2;
-    if(resource->IsRGBA(val)) return RawValueType::RGBA;
-    else
-        return RawValueType::GENERIC;
+
+    if(val->IsObject())
+    {
+        switch(V8Helpers::GetObjectClass(val.As<v8::Object>()))
+        {
+            case V8Class::ObjectClass::VECTOR3: return RawValueType::VECTOR3;
+            case V8Class::ObjectClass::VECTOR2: return RawValueType::VECTOR2;
+            case V8Class::ObjectClass::RGBA: return RawValueType::RGBA;
+        }
+    }
+
+    return RawValueType::GENERIC;
 }
 
 static inline bool WriteRawValue(v8::Local<v8::Context> ctx, v8::ValueSerializer& serializer, RawValueType type, v8::Local<v8::Object> val)

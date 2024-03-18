@@ -218,40 +218,40 @@ v8::Local<v8::Value> V8ResourceImpl::CreateRGBA(alt::RGBA rgba)
     return V8Helpers::New(isolate, GetContext(), rgbaClass.Get(isolate), args);
 }
 
-bool V8ResourceImpl::IsVector3(v8::Local<v8::Value> val)
-{
-    bool result = false;
-    val->InstanceOf(GetContext(), vector3Class.Get(isolate)).To(&result);
-    return result;
-}
-
-bool V8ResourceImpl::IsVector2(v8::Local<v8::Value> val)
-{
-    bool result = false;
-    val->InstanceOf(GetContext(), vector2Class.Get(isolate)).To(&result);
-    return result;
-}
-
-bool V8ResourceImpl::IsQuaternion(v8::Local<v8::Value> val)
-{
-    bool result = false;
-    val->InstanceOf(GetContext(), quaternionClass.Get(isolate)).To(&result);
-    return result;
-}
-
-bool V8ResourceImpl::IsRGBA(v8::Local<v8::Value> val)
-{
-    bool result = false;
-    val->InstanceOf(GetContext(), rgbaClass.Get(isolate)).To(&result);
-    return result;
-}
-
-bool V8ResourceImpl::IsBaseObject(v8::Local<v8::Value> val)
-{
-    bool result = false;
-    val->InstanceOf(GetContext(), baseObjectClass.Get(isolate)).To(&result);
-    return result;
-}
+//bool V8ResourceImpl::IsVector3(v8::Local<v8::Value> val)
+//{
+//    bool result = false;
+//    val->InstanceOf(GetContext(), vector3Class.Get(isolate)).To(&result);
+//    return result;
+//}
+//
+//bool V8ResourceImpl::IsVector2(v8::Local<v8::Value> val)
+//{
+//    bool result = false;
+//    val->InstanceOf(GetContext(), vector2Class.Get(isolate)).To(&result);
+//    return result;
+//}
+//
+//bool V8ResourceImpl::IsQuaternion(v8::Local<v8::Value> val)
+//{
+//    bool result = false;
+//    val->InstanceOf(GetContext(), quaternionClass.Get(isolate)).To(&result);
+//    return result;
+//}
+//
+//bool V8ResourceImpl::IsRGBA(v8::Local<v8::Value> val)
+//{
+//    bool result = false;
+//    val->InstanceOf(GetContext(), rgbaClass.Get(isolate)).To(&result);
+//    return result;
+//}
+//
+//bool V8ResourceImpl::IsBaseObject(v8::Local<v8::Value> val)
+//{
+//    bool result = false;
+//    val->InstanceOf(GetContext(), baseObjectClass.Get(isolate)).To(&result);
+//    return result;
+//}
 
 void V8ResourceImpl::OnCreateBaseObject(alt::IBaseObject* handle)
 {
@@ -285,7 +285,7 @@ void V8ResourceImpl::OnRemoveBaseObject(alt::IBaseObject* handle)
     }
 
     entities.erase(handle);
-    ent->GetJSVal(isolate)->SetInternalField(0, v8::External::New(isolate, nullptr));
+    ent->GetJSVal(isolate)->SetInternalField(static_cast<int>(V8Class::InternalFields::BASE_OBJECT), v8::External::New(isolate, nullptr));
     delete ent;
 }
 
@@ -538,7 +538,8 @@ v8::Local<v8::Object> V8ResourceImpl::GetOrCreateResourceObject(alt::IResource* 
     if(resourceObjects.count(resource) != 0) return resourceObjects.at(resource).Get(isolate);
     // Create instance
     v8::Local<v8::Object> obj = v8Resource.CreateInstance(GetContext());
-    obj->SetInternalField(0, v8::External::New(isolate, resource));
+    V8Helpers::SetObjectClass(isolate, obj, V8Class::ObjectClass::RESOURCE);
+    obj->SetInternalField(static_cast<int>(V8Class::InternalFields::RESOURCE), v8::External::New(isolate, resource));
     resourceObjects.insert({ resource, V8Helpers::CPersistent<v8::Object>(isolate, obj) });
     return obj;
 }
@@ -547,7 +548,7 @@ void V8ResourceImpl::DeleteResourceObject(alt::IResource* resource)
 {
     if(resourceObjects.count(resource) == 0) return;
     v8::Local<v8::Object> obj = resourceObjects.at(resource).Get(isolate);
-    obj->SetInternalField(0, v8::External::New(isolate, nullptr));
+    obj->SetInternalField(static_cast<int>(V8Class::InternalFields::RESOURCE), v8::External::New(isolate, nullptr));
     resourceObjects.erase(resource);
 }
 
