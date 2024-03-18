@@ -16,7 +16,7 @@ public:
     V8Entity(v8::Local<v8::Context> ctx, V8Class* __class, v8::Local<v8::Object> obj, alt::IBaseObject* _handle) : _class(__class), handle(_handle)
     {
         v8::Isolate* isolate = v8::Isolate::GetCurrent();
-        V8Helpers::SetObjectClass(isolate, obj, V8Class::ObjectClass::BASE_OBJECT);
+        obj->SetInternalField(static_cast<int>(V8Class::InternalFields::OBJECT_CLASS), v8::External::New(isolate, reinterpret_cast<void*>(V8Class::ObjectClass::BASE_OBJECT)));
         obj->SetInternalField(static_cast<int>(V8Class::InternalFields::BASE_OBJECT), v8::External::New(isolate, this));
         jsVal.Reset(isolate, obj);
     }
