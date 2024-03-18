@@ -536,11 +536,12 @@ v8::Local<v8::Object> V8ResourceImpl::GetOrCreateResourceObject(alt::IResource* 
 {
     // If already created return instance
     if(resourceObjects.count(resource) != 0) return resourceObjects.at(resource).Get(isolate);
+
     // Create instance
     v8::Local<v8::Object> obj = v8Resource.CreateInstance(GetContext());
     V8Helpers::SetObjectClass(isolate, obj, V8Class::ObjectClass::RESOURCE);
-    Log::Info << "Create resource " << (void*)resource << Log::Endl;
     obj->SetInternalField(static_cast<int>(V8Class::InternalFields::RESOURCE), v8::External::New(isolate, resource));
+
     resourceObjects.insert({ resource, V8Helpers::CPersistent<v8::Object>(isolate, obj) });
     return obj;
 }
