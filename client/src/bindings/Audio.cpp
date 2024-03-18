@@ -101,11 +101,11 @@ static void GetOutputs(const v8::FunctionCallbackInfo<v8::Value>& info)
         auto val = list->Get(i);
         if(val->GetType() == alt::IMValue::Type::BASE_OBJECT)
         {
-            auto baseObj = resource->GetBaseObjectOrNull(std::dynamic_pointer_cast<alt::IMValueBaseObject>(val)->RawValue());
+            auto baseObj = resource->GetBaseObjectOrNull(std::static_pointer_cast<alt::IMValueBaseObject>(val)->RawValue());
             arr->Set(ctx, i, baseObj);
         }
         else if(val->GetType() == alt::IMValue::Type::UINT)
-            arr->Set(ctx, i, v8::Integer::NewFromUnsigned(isolate, std::dynamic_pointer_cast<alt::IMValueUInt>(val)->Value()));
+            arr->Set(ctx, i, v8::Integer::NewFromUnsigned(isolate, std::static_pointer_cast<alt::IMValueUInt>(val)->Value()));
     }
 
     V8_RETURN(arr);
