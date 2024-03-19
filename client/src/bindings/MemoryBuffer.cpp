@@ -21,6 +21,8 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_CONSTRUCTOR();
     V8_CHECK_ARGS_LEN(1);
 
+    V8Helpers::SetObjectClass(info.GetIsolate(), info.This(), V8Class::ObjectClass::MEMORY_BUFFER);
+
     // Ask alt:V to add pattern searching to C++ SDK if you want this available
     // 	if(info[0]->IsString())
     // 	{
@@ -38,16 +40,16 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
         V8_ARG_TO_UINT(1, size);
         if(size == 0)
         {
-            info.This()->SetAlignedPointerInInternalField(0, nullptr);
-            info.This()->SetInternalField(1, V8Helpers::JSValue(0));
+            info.This()->SetAlignedPointerInInternalField(1, nullptr);
+            info.This()->SetInternalField(2, V8Helpers::JSValue(0));
             return;
         }
         V8_CHECK(size <= 1024, "You can't allocate > 1KB");
 
         uint8_t* allocatedMemory = new uint8_t[size];
         memset(allocatedMemory, 0, size);
-        info.This()->SetAlignedPointerInInternalField(0, allocatedMemory);
-        info.This()->SetInternalField(1, V8Helpers::JSValue(size));
+        info.This()->SetAlignedPointerInInternalField(1, allocatedMemory);
+        info.This()->SetInternalField(2, V8Helpers::JSValue(size));
     }
 
     /*v8::Global<v8::Object> persistent(isolate, info.This());
@@ -170,7 +172,7 @@ static void GetDataOfType(const v8::FunctionCallbackInfo<v8::Value>& info)
 extern V8Class v8MemoryBuffer("MemoryBuffer", Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-    tpl->InstanceTemplate()->SetInternalFieldCount(2);
+    tpl->InstanceTemplate()->SetInternalFieldCount(3);
 
     V8Helpers::SetAccessor(isolate, tpl, "size", SizeGetter);
     V8Helpers::SetAccessor(isolate, tpl, "address", AddressGetter);

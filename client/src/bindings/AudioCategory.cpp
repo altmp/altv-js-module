@@ -18,7 +18,8 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     auto audioCategory = alt::ICore::Instance().GetAudioCategory(audioCategoryStr);
     V8_CHECK(audioCategory, "Audio category not found");
 
-    info.This()->SetInternalField(0, v8::String::NewFromUtf8(isolate, audioCategoryStr.c_str()).ToLocalChecked());
+    V8Helpers::SetObjectClass(info.GetIsolate(), info.This(), V8Class::ObjectClass::AUDIO_CATEGORY);
+    info.This()->SetInternalField(1, v8::String::NewFromUtf8(isolate, audioCategoryStr.c_str()).ToLocalChecked());
 }
 
 // Getters
@@ -356,7 +357,7 @@ extern V8Class v8AudioCategory("AudioCategory",
                             [](v8::Local<v8::FunctionTemplate> tpl)
                             {
                                 v8::Isolate* isolate = v8::Isolate::GetCurrent();
-                                tpl->InstanceTemplate()->SetInternalFieldCount(1);
+                                tpl->InstanceTemplate()->SetInternalFieldCount(static_cast<int>(V8Class::InternalFields::COUNT));
 
                                 V8Helpers::SetStaticMethod(isolate, tpl, "getForName", &GetForName);
 

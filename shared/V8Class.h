@@ -29,12 +29,22 @@ public:
     enum class ObjectClass
     {
         NONE,
-        RESOURCE,
+
         BASE_OBJECT,
         VECTOR2,
         VECTOR3,
         RGBA,
         QUATERNION,
+        MEMORY_BUFFER,
+
+        RESOURCE,
+        WORKER,
+
+        AUDIO_CATEGORY,
+        HANDLING,
+        HANDLING_DATA,
+        MAP_ZOOM_DATA,
+        WEAPON_DATA
     };
 
     static auto& All()

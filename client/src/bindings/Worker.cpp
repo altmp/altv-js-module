@@ -29,7 +29,10 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     std::string filePath = pathInfo.prefix + pathInfo.fileName;
 
     CWorker* worker = new CWorker(filePath, static_cast<CV8ResourceImpl*>(resource));
-    info.This()->SetInternalField(0, v8::External::New(isolate, worker));
+
+    V8Helpers::SetObjectClass(info.GetIsolate(), info.This(), V8Class::ObjectClass::WORKER);
+    info.This()->SetInternalField(1, v8::External::New(isolate, worker));
+
     static_cast<CV8ResourceImpl*>(resource)->AddWorker(worker);
 }
 
@@ -212,7 +215,8 @@ extern V8Class v8Worker("Worker",
                         [](v8::Local<v8::FunctionTemplate> tpl)
                         {
                             v8::Isolate* isolate = v8::Isolate::GetCurrent();
-                            tpl->InstanceTemplate()->SetInternalFieldCount(1);
+
+                            tpl->InstanceTemplate()->SetInternalFieldCount(static_cast<int>(V8Class::InternalFields::COUNT));
 
                             tpl->Set(V8Helpers::JSValue("maxWorkers"), V8Helpers::JSValue(MAX_WORKERS), v8::PropertyAttribute::ReadOnly);
                             V8Helpers::SetStaticAccessor(isolate, tpl, "activeWorkers", &ActiveWorkersGetter);
