@@ -35,7 +35,11 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
 
     if(val->IsNumber()) return core.CreateMValueDouble(val->NumberValue(ctx).ToChecked());
 
-    if(val->IsString()) return core.CreateMValueString(*v8::String::Utf8Value(isolate, val));
+    if(val->IsString())
+    {
+        auto jsStr = v8::String::Utf8Value(isolate, val);
+        return core.CreateMValueString(*jsStr);
+    }
 
     if(val->IsObject())
     {
@@ -154,8 +158,8 @@ alt::MValue V8Helpers::V8ToMValue(v8::Local<v8::Value> val, bool allowFunction)
                     V8_CHECK_RETN(v8Obj->Get(ctx, v8Key).ToLocal(&value), "Failed to convert object to MValue", core.CreateMValueNil());
 
                     if(value->IsUndefined()) continue;
-                    auto key = *v8::String::Utf8Value(isolate, v8Key);
-                    dict->Set(key, V8ToMValue(value, allowFunction));
+                    auto key = v8::String::Utf8Value(isolate, v8Key);
+                    dict->Set(*key, V8ToMValue(value, allowFunction));
                 }
 
                 return dict;
