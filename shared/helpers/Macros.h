@@ -48,17 +48,14 @@
         V8_CHECK(val, "baseobject is not of type " #type); \
     }
 
-// idx starts with 1
 #define V8_GET_THIS_INTERNAL_FIELD_OBJECT(idx, val)                                                                         \
     V8_CHECK(info.This()->InternalFieldCount() > idx - 1, "Invalid internal field count (is the 'this' context correct?)"); \
     auto val = info.This()->GetInternalField(idx)->ToObject(isolate->GetEnteredOrMicrotaskContext()).ToLocalChecked();
 
-// idx starts with 1
 #define V8_GET_THIS_INTERNAL_FIELD_V8ENTITY(idx, val)                                                                       \
     V8_CHECK(info.This()->InternalFieldCount() > idx - 1, "Invalid internal field count (is the 'this' context correct?)"); \
     auto val = V8Entity::Get(info.This()->GetInternalField(idx)->ToObject(isolate->GetEnteredOrMicrotaskContext()).ToLocalChecked());
 
-// idx starts with 1
 #define V8_GET_THIS_INTERNAL_FIELD_ENTITY(idx, val, type)                                                                                            \
     type* val;                                                                                                                                       \
     {                                                                                                                                                \
@@ -69,27 +66,22 @@
         V8_CHECK(val, "baseobject is not of type " #type);                                                                                           \
     }
 
-// idx starts with 1
 #define V8_GET_THIS_INTERNAL_FIELD_INTEGER(idx, val)                                                                        \
     V8_CHECK(info.This()->InternalFieldCount() > idx - 1, "Invalid internal field count (is the 'this' context correct?)"); \
     auto val = info.This()->GetInternalField(idx)->IntegerValue(ctx).ToChecked();
 
-// idx starts with 1
 #define V8_GET_THIS_INTERNAL_FIELD_UINT32(idx, val)                                                                         \
     V8_CHECK(info.This()->InternalFieldCount() > idx - 1, "Invalid internal field count (is the 'this' context correct?)"); \
     auto val = info.This()->GetInternalField(idx)->Uint32Value(ctx).ToChecked();
 
-// idx starts with 1
 #define V8_GET_THIS_INTERNAL_FIELD_EXTERNAL(idx, val, type)                                                                 \
     V8_CHECK(info.This()->InternalFieldCount() > idx - 1, "Invalid internal field count (is the 'this' context correct?)"); \
     auto val = static_cast<type*>(info.This()->GetInternalField(idx).As<v8::External>()->Value());
 
-// idx starts with 1
 #define V8_GET_THIS_INTERNAL_FIELD_PTR(idx, val, type)                                                                      \
     V8_CHECK(info.This()->InternalFieldCount() > idx - 1, "Invalid internal field count (is the 'this' context correct?)"); \
     auto val = static_cast<type*>(info.This()->GetAlignedPointerFromInternalField(idx));
 
-// idx starts with 1
 #define V8_GET_THIS_INTERNAL_FIELD_STRING(idx, val)                                                                         \
     V8_CHECK(info.This()->InternalFieldCount() > idx - 1, "Invalid internal field count (is the 'this' context correct?)"); \
     auto intVal = info.This()->GetInternalField(idx).As<v8::String>();                                                        \
