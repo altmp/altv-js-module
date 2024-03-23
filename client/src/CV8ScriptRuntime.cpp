@@ -443,6 +443,12 @@ void CV8ScriptRuntime::OnEntityStreamOut(alt::IEntity* entity)
             streamedInPeds.erase(entity->GetID());
             break;
         }
+        case alt::IEntity::Type::LOCAL_OBJECT:
+        case alt::IEntity::Type::OBJECT:
+        {
+            streamedInObjects.erase(entity->GetID());
+            break;
+        }
     }
 }
 void CV8ScriptRuntime::OnDisconnect()
