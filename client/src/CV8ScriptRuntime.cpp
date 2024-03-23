@@ -413,6 +413,12 @@ void CV8ScriptRuntime::OnEntityStreamIn(alt::IEntity* entity)
             streamedInPeds.insert({ entity->GetID(), dynamic_cast<alt::IPed*>(entity) });
             break;
         }
+        case alt::IEntity::Type::LOCAL_OBJECT:
+        case alt::IEntity::Type::OBJECT:
+        {
+            streamedInObjects.insert({ entity->GetID(), dynamic_cast<alt::IObject*>(entity) });
+            break;
+        }
     }
 }
 
@@ -437,6 +443,12 @@ void CV8ScriptRuntime::OnEntityStreamOut(alt::IEntity* entity)
             streamedInPeds.erase(entity->GetID());
             break;
         }
+        case alt::IEntity::Type::LOCAL_OBJECT:
+        case alt::IEntity::Type::OBJECT:
+        {
+            streamedInObjects.erase(entity->GetID());
+            break;
+        }
     }
 }
 void CV8ScriptRuntime::OnDisconnect()
@@ -444,5 +456,6 @@ void CV8ScriptRuntime::OnDisconnect()
     streamedInPlayers.clear();
     streamedInVehicles.clear();
     streamedInPeds.clear();
+    streamedInObjects.clear();
     resourcesLoaded = false;
 }
