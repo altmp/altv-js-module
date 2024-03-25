@@ -215,8 +215,6 @@ extern V8Class v8ConnectionInfo("ConnectionInfo",
                                 {
                                     v8::Isolate* isolate = v8::Isolate::GetCurrent();
 
-                                    tpl->InstanceTemplate()->SetInternalFieldCount(1);
-
                                     V8Helpers::SetStaticMethod(isolate, tpl, "getByID", StaticGetByID);
                                     V8Helpers::SetStaticAccessor(isolate, tpl, "all", AllGetter);
 

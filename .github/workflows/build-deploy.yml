@@ -132,7 +132,7 @@ jobs:
           rm dist-linux/sdk.version
 
       - name: Install upload tool
-        run: npm i @altmp/upload-tool@latest
+        run: npm i @altmp/upload-tool@latest fast-xml-parser@4.3.6
 
       - name: Deploy windows artifacts to cdn
         run: npx alt-upload dist-windows js-module/$BRANCH/x64_win32 $VERSION $SDK_VERSION
@@ -161,7 +161,7 @@ jobs:
           BRANCH: ${{ steps.version.outputs.BRANCH }}
           VERSION: ${{ steps.version.outputs.VERSION }}
           SDK_VERSION: ${{ steps.version.outputs.SDK_VERSION }}
-          
+
   build-docker:
     name: Trigger Docker image build
     runs-on: ubuntu-latest

@@ -62,7 +62,7 @@ void StartFile(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK(!maybeMod.IsEmpty(), "Failed to start file");
     auto mod = maybeMod.ToLocalChecked();
     static_cast<CV8ResourceImpl*>(resource)->InstantiateModule(mod);
-    const alt::MValueDict& exports = std::dynamic_pointer_cast<alt::IMValueDict>(
+    const alt::MValueDict& exports = std::static_pointer_cast<alt::IMValueDict>(
         V8Helpers::V8ToMValue(mod->GetModuleNamespace()));
     resource->GetResource()->SetExports(exports);
 }

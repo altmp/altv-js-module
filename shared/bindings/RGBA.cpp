@@ -9,6 +9,7 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
 
     V8_CHECK_ARGS_LEN_MIN_MAX(1, 4);
 
+    V8Helpers::SetObjectClass(isolate, info.This(), V8Class::ObjectClass::RGBA);
     int32_t r = 0, g = 0, b = 0, a = 255;
 
     if(info.Length() == 1)
@@ -70,7 +71,5 @@ extern V8Class v8RGBA("RGBA",
                       &Constructor,
                       [](v8::Local<v8::FunctionTemplate> tpl)
                       {
-                          v8::Isolate* isolate = v8::Isolate::GetCurrent();
-
-                          tpl->InstanceTemplate()->SetInternalFieldCount(1);  // !! Needs to be set so V8 knows its a custom class !!
+                             tpl->InstanceTemplate()->SetInternalFieldCount(static_cast<int>(V8Class::InternalFields::COUNT));
                       });

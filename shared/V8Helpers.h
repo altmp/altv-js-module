@@ -174,6 +174,9 @@ namespace V8Helpers
     std::string Stringify(v8::Local<v8::Context> ctx, v8::Local<v8::Value> val);
     std::string GetJSValueTypeName(v8::Local<v8::Value> val);
 
+    void SetObjectClass(v8::Isolate* isolate, v8::Local<v8::Object> obj, V8Class::ObjectClass cls);
+    V8Class::ObjectClass GetObjectClass(v8::Local<v8::Object> obj);
+
     inline std::string GetStackTrace(const std::string errorMsg)
     {
         auto isolate = v8::Isolate::GetCurrent();

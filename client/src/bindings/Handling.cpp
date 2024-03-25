@@ -13,7 +13,8 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     V8_CHECK_ARGS_LEN(1);
     V8_ARG_TO_OBJECT(1, vehicle);
 
-    info.This()->SetInternalField(0, vehicle);
+    V8Helpers::SetObjectClass(info.GetIsolate(), info.This(), V8Class::ObjectClass::HANDLING);
+    info.This()->SetInternalField(1, vehicle);
 }
 
 static void IsModified(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -1213,7 +1214,7 @@ extern V8Class v8Handling("Handling", Constructor, [](v8::Local<v8::FunctionTemp
 
     v8::Local<v8::ObjectTemplate> proto = tpl->PrototypeTemplate();
 
-    tpl->InstanceTemplate()->SetInternalFieldCount(1);
+    tpl->InstanceTemplate()->SetInternalFieldCount(static_cast<int>(V8Class::InternalFields::COUNT));
 
     V8Helpers::SetMethod(isolate, tpl, "isModified", &IsModified);
     V8Helpers::SetMethod(isolate, tpl, "reset", &Reset);

@@ -189,11 +189,11 @@ public:
     v8::Local<v8::Value> CreateQuaternion(alt::Quaternion quat);
     v8::Local<v8::Value> CreateRGBA(alt::RGBA rgba);
 
-    bool IsVector3(v8::Local<v8::Value> val);
+    /*bool IsVector3(v8::Local<v8::Value> val);
     bool IsVector2(v8::Local<v8::Value> val);
     bool IsQuaternion(v8::Local<v8::Value> val);
     bool IsRGBA(v8::Local<v8::Value> val);
-    bool IsBaseObject(v8::Local<v8::Value> val);
+    bool IsBaseObject(v8::Local<v8::Value> val);*/
 
     void OnCreateBaseObject(alt::IBaseObject* handle) override;
     void OnRemoveBaseObject(alt::IBaseObject* handle) override;

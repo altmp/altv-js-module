@@ -373,6 +373,22 @@ std::string V8Helpers::GetJSValueTypeName(v8::Local<v8::Value> val)
         return "unknown";
 }
 
+void V8Helpers::SetObjectClass(v8::Isolate* isolate, v8::Local<v8::Object> obj, V8Class::ObjectClass cls)
+{
+    obj->SetInternalField(
+        static_cast<int>(V8Class::InternalFields::OBJECT_CLASS), v8::External::New(isolate, reinterpret_cast<void*>(cls))
+    );
+}
+
+V8Class::ObjectClass V8Helpers::GetObjectClass(v8::Local<v8::Object> obj)
+{
+    if(obj->InternalFieldCount() <= static_cast<int>(V8Class::InternalFields::OBJECT_CLASS))
+        return V8Class::ObjectClass::NONE;
+
+    void* cls = obj->GetInternalField(static_cast<int>(V8Class::InternalFields::OBJECT_CLASS)).As<v8::External>()->Value();
+    return *reinterpret_cast<V8Class::ObjectClass*>(&cls);
+}
+
 v8::MaybeLocal<v8::Value> V8Helpers::CallFunctionWithTimeout(v8::Local<v8::Function> fn, v8::Local<v8::Context> ctx, std::vector<v8::Local<v8::Value>>& args, uint32_t timeout)
 {
     v8::Isolate* isolate = ctx->GetIsolate();

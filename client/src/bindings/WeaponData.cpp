@@ -26,7 +26,8 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     auto weaponData = alt::ICore::Instance().GetWeaponData(weaponHash);
     V8_CHECK(weaponData, "Weapon data not found");
 
-    info.This()->SetInternalField(0, v8::Integer::NewFromUnsigned(isolate, weaponHash));
+    V8Helpers::SetObjectClass(info.GetIsolate(), info.This(), V8Class::ObjectClass::WEAPON_DATA);
+    info.This()->SetInternalField(1, v8::Integer::NewFromUnsigned(isolate, weaponHash));
 }
 
 // Getters
@@ -336,7 +337,8 @@ extern V8Class v8WeaponData("WeaponData",
                             [](v8::Local<v8::FunctionTemplate> tpl)
                             {
                                 v8::Isolate* isolate = v8::Isolate::GetCurrent();
-                                tpl->InstanceTemplate()->SetInternalFieldCount(1);
+
+                                tpl->InstanceTemplate()->SetInternalFieldCount(static_cast<int>(V8Class::InternalFields::COUNT));
 
                                 V8Helpers::SetStaticMethod(isolate, tpl, "getForHash", &GetForHash);
                                 V8Helpers::SetStaticAccessor(isolate, tpl, "allHashes", &GetAllHashes);

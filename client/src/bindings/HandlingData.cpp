@@ -13,7 +13,9 @@ static void Constructor(const v8::FunctionCallbackInfo<v8::Value>& info)
     auto handling = alt::ICore::Instance().GetHandlingData(modelHash);
     V8_CHECK(handling, "model doesn't exist");
 
-    info.This()->SetInternalField(0, info[0]);
+    
+    V8Helpers::SetObjectClass(info.GetIsolate(), info.This(), V8Class::ObjectClass::HANDLING_DATA);
+    info.This()->SetInternalField(1, info[0]);
 }
 
 static void GetForHandlingName(const v8::FunctionCallbackInfo<v8::Value>& info)
@@ -1731,8 +1733,8 @@ static void DamageFlagsSetter(v8::Local<v8::String>, v8::Local<v8::Value> val, c
 
 extern V8Class v8HandlingData("HandlingData", Constructor, [](v8::Local<v8::FunctionTemplate> tpl) {
     v8::Isolate* isolate = v8::Isolate::GetCurrent();
-
-    tpl->InstanceTemplate()->SetInternalFieldCount(1);
+    
+    tpl->InstanceTemplate()->SetInternalFieldCount(static_cast<int>(V8Class::InternalFields::COUNT));
 
     V8Helpers::SetStaticMethod(isolate, tpl, "getForHandlingName", &GetForHandlingName);
 

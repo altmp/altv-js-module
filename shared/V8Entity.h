@@ -16,7 +16,8 @@ public:
     V8Entity(v8::Local<v8::Context> ctx, V8Class* __class, v8::Local<v8::Object> obj, alt::IBaseObject* _handle) : _class(__class), handle(_handle)
     {
         v8::Isolate* isolate = v8::Isolate::GetCurrent();
-        obj->SetInternalField(0, v8::External::New(isolate, this));
+        obj->SetInternalField(static_cast<int>(V8Class::InternalFields::OBJECT_CLASS), v8::External::New(isolate, reinterpret_cast<void*>(V8Class::ObjectClass::BASE_OBJECT)));
+        obj->SetInternalField(static_cast<int>(V8Class::InternalFields::BASE_OBJECT), v8::External::New(isolate, this));
         jsVal.Reset(isolate, obj);
     }
 
@@ -40,9 +41,9 @@ public:
         if(!val->IsObject()) return nullptr;
 
         v8::Local<v8::Object> obj = val.As<v8::Object>();
-        if(obj->InternalFieldCount() != 1) return nullptr;
+        if(obj->InternalFieldCount() <= static_cast<int>(V8Class::InternalFields::BASE_OBJECT)) return nullptr;
 
-        v8::Local<v8::Value> i = obj->GetInternalField(0);
+        v8::Local<v8::Value> i = obj->GetInternalField(static_cast<int>(V8Class::InternalFields::BASE_OBJECT));
         if(!i->IsExternal()) return nullptr;
 
         return static_cast<V8Entity*>(i.As<v8::External>()->Value());

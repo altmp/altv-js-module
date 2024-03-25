@@ -114,13 +114,17 @@ static void ConstructorPointBlip(const v8::FunctionCallbackInfo<v8::Value>& info
 
     else if(info.Length() == 2)
     {
-        if(resource->IsVector3(info[0]))
+        V8Class::ObjectClass cls = V8Class::ObjectClass::NONE;
+        if(info[0]->IsObject())
+            cls = V8Helpers::GetObjectClass(info[0].As<v8::Object>());
+
+        if(cls == V8Class::ObjectClass::VECTOR3)  // TODO: we should allow IVector3
         {
             V8_ARG_TO_VECTOR3(1, pos);
             V8_ARG_TO_BOOLEAN(2, global);
             blip = ICore::Instance().CreateBlip(global, alt::IBlip::BlipType::DESTINATION, pos);
         }
-        else if(resource->IsBaseObject(info[0]))
+        else if(cls == V8Class::ObjectClass::BASE_OBJECT)
         {
             V8_ARG_TO_BASE_OBJECT(1, ent, IEntity, "entity");
             V8_ARG_TO_BOOLEAN(2, global);
